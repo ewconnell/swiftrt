@@ -118,14 +118,6 @@ public protocol ComputeService: Logger {
 }
 
 //==============================================================================
-/// ServiceOptimizer
-public protocol ServiceOptimizer: ComputeService {
-    associatedtype Service: ComputeService
-    
-    var service: Service { get }
-}
-
-//==============================================================================
 /// ComputeDevice
 /// a compute device represents a physical service device installed
 /// on the platform
