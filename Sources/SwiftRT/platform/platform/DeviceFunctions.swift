@@ -44,12 +44,13 @@ public protocol DeviceFunctions {
     /// generically combines three tensors
     func mapOp<T1, T2, T3, R>(
         _ a: T1, _ b: T2, _ c: T3, _ result: inout R,
-        _ op: @escaping (T1.Element, T2.Element, T3.Element) -> R.Element) where
-        T1: TensorView, T2: TensorView, T3: TensorView, R: TensorView
+        _ op: @escaping (T1.Element, T2.Element, T3.Element) -> R.Element)
+        where T1: TensorView, T2: TensorView, T3: TensorView, R: TensorView
     /// mapOp 3R2
     func mapOp<T1, T2, T3, R>(
         _ a: T1, _ b: T2, _ c: T3, _ result1: inout R,  _ result2: inout R,
-        _ op: @escaping (T1.Element, T2.Element, T3.Element) -> (R.Element, R.Element))
+        _ op: @escaping
+        (T1.Element, T2.Element, T3.Element) -> (R.Element, R.Element))
         where T1: TensorView, T2: TensorView, T3: TensorView, R: TensorView
     /// inPlaceOp
     /// does in place op on a mutable collection
@@ -66,11 +67,14 @@ public protocol DeviceFunctions {
     //--------------------------------------------------------------------------
     // ops
     /// Computes the absolute value of the specified TensorView element-wise.
-//    func abs<T>(x: T, result: inout T) where
-//        T: TensorView, T.Element: Real
+    func abs<T>(x: T, result: inout T) where
+        T: TensorView, T.Element: Real
     /// add
     func add<T>(lhs: T, rhs: T, result: inout T) where
         T: TensorView, T.Element: AdditiveArithmetic
+    /// and
+    func and<T>(lhs: T, rhs: T, result: inout T.BoolView) where
+        T: TensorView, T.Element == Bool
     /// cast
     func cast<T, U>(from view: T, to result: inout U) where
         T: TensorView, T.Element: AnyConvertable,
@@ -90,11 +94,12 @@ public protocol DeviceFunctions {
     /// exp
     func exp<T>(x: T, result: inout T) where
         T: TensorView, T.Element: Real
-    /// fill(result:with:
-    func fill<T>(result: inout T, with value: T.Element) where T: TensorView
-    /// fillWithIndex(x:startAt:
-    func fillWithIndex<T>(result: inout T, startAt: Int) where
-        T: TensorView, T.Element: AnyNumeric
+    /// fill(result:with element:
+    func fill<T>(result: inout T, with element: T.Element) where T: TensorView
+    /// fill(result:with range:
+    func fill<T, R>(result: inout T, with range: R) where
+        T: TensorView,
+        R: StridedRangeExpression, R.Bound == T.Element
     /// greater
     func greater<T>(lhs: T, rhs: T, result: inout T.BoolView)
         where T: TensorView, T.Element: Comparable
@@ -126,6 +131,9 @@ public protocol DeviceFunctions {
     /// notEqual
     func notEqual<T>(lhs: T, rhs: T, result: inout T.BoolView) where
         T: TensorView
+    /// or
+    func or<T>(lhs: T, rhs: T, result: inout T.BoolView) where
+        T: TensorView, T.Element == Bool
     /// pow
     func pow<T>(x: T, y: T, result: inout T) where
         T: TensorView, T.Element: Real
@@ -226,7 +234,8 @@ public extension DeviceFunctions where Self: DeviceQueue {
     
     func mapOp<T1, T2, T3, R>(
         _ a: T1, _ b: T2, _ c: T3, _ result1: inout R,  _ result2: inout R,
-        _ op: @escaping (T1.Element, T2.Element, T3.Element) -> (R.Element, R.Element))
+        _ op: @escaping
+        (T1.Element, T2.Element, T3.Element) -> (R.Element, R.Element))
         where T1: TensorView, T2: TensorView, T3: TensorView, R: TensorView
     {
         cpu_mapOp(a, b, c, &result1, &result2, op)
@@ -292,131 +301,97 @@ public extension DeviceFunctions where Self: DeviceQueue {
             cpu_exp(x: x, result: &result)
     }
     /// fill(result:with:
-    func fill<T>(result: inout T, with value: T.Element)
-        where T: TensorView {
-            cpu_fill(result: &result, with: value)
+    func fill<T>(result: inout T, with element: T.Element) where T: TensorView {
+        cpu_fill(result: &result, with: element)
+    }
+    /// fill(result:with range:
+    func fill<T, R>(result: inout T, with range: R) where
+        T: TensorView,
+        R: StridedRangeExpression, R.Bound == T.Element {
+            cpu_fill(result: &result, with: range)
     }
     /// less
     func less<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable
-    {
-        mapOp(lhs, rhs, &result, <)
+        where T: TensorView, T.Element: Comparable {
+            cpu_less(lhs: lhs, rhs: rhs, result: &result)
     }
     /// lessOrEqual
-    
     func lessOrEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable
-    {
-        mapOp(lhs, rhs, &result, <=)
+        where T: TensorView, T.Element: Comparable {
+            cpu_lessOrEqual(lhs: lhs, rhs: rhs, result: &result)
     }
     /// greater
-    
     func greater<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable
-    {
-        mapOp(lhs, rhs, &result, >)
+        where T: TensorView, T.Element: Comparable {
+            cpu_greater(lhs: lhs, rhs: rhs, result: &result)
     }
     /// greaterOrEqual
-    
     func greaterOrEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable
-    {
-        mapOp(lhs, rhs, &result, >=)
+        where T: TensorView, T.Element: Comparable {
+            cpu_greaterOrEqual(lhs: lhs, rhs: rhs, result: &result)
     }
     /// log
-    
-    func log<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
-    {
-        mapOp(x, &result) { .log($0) }
+    func log<T>(x: T, result: inout T)
+        where T: TensorView, T.Element: Real {
+            cpu_log(x: x, result: &result)
     }
     /// Computes the element-wise maximum of two tensors.
-    
-    func max<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: Comparable
-    {
-        mapOp(lhs, rhs, &result) { $0 >= $1 ? $0 : $1 }
+    func max<T>(lhs: T, rhs: T, result: inout T)
+        where T: TensorView, T.Element: Comparable {
+            cpu_max(lhs: lhs, rhs: rhs, result: &result)
     }
     /// Computes the element-wise minimum of two tensors.
-    
-    func min<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: Comparable
-    {
-        mapOp(lhs, rhs, &result) { $0 <= $1 ? $0 : $1 }
+    func min<T>(lhs: T, rhs: T, result: inout T)
+        where T: TensorView, T.Element: Comparable {
+            cpu_min(lhs: lhs, rhs: rhs, result: &result)
     }
     /// mul
-    
-    func mul<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: Numeric
-    {
-        mapOp(lhs, rhs, &result, *)
+    func mul<T>(lhs: T, rhs: T, result: inout T)
+        where T: TensorView, T.Element: Numeric {
+            cpu_mul(lhs: lhs, rhs: rhs, result: &result)
     }
     /// neg
-    
-    func neg<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: SignedNumeric
-    {
-        mapOp(x, &result, -)
+    func neg<T>(x: T, result: inout T)
+        where T: TensorView, T.Element: SignedNumeric {
+            cpu_neg(x: x, result: &result)
     }
     /// notEqual
-    
     func notEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView
-    {
-        mapOp(lhs, rhs, &result, !=)
+        where T: TensorView {
+            cpu_notEqual(lhs: lhs, rhs: rhs, result: &result)
     }
     /// pow
-    
-    func pow<T>(x: T, y: T, result: inout T) where
-        T: TensorView, T.Element: Real
-    {
-        mapOp(x, y, &result) { .pow($0, $1) }
+    func pow<T>(x: T, y: T, result: inout T)
+        where T: TensorView, T.Element: Real {
+            cpu_pow(x: x, y: y, result: &result)
     }
     /// replace
-    
     func replace<T>(x: T, with y: T, where condition: T.BoolView,
-                    result: inout T)
-        where T: TensorView
-    {
-        mapOp(condition, y, x, &result) { $0 ? $1 : $2 }
+                    result: inout T) where T: TensorView {
+        cpu_replace(x: x, with: y, where: condition, result: &result)
     }
     /// sign
-    
-    func sign<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
-    {
-        mapOp(x, &result) { $0 < 0 ? -1 : 1 }
+    func sign<T>(x: T, result: inout T)
+        where T: TensorView, T.Element: Real {
+            cpu_sign(x: x, result: &result)
     }
     /// subtract
-    
-    func subtract<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: AdditiveArithmetic
-    {
-        mapOp(lhs, rhs, &result, -)
+    func subtract<T>(lhs: T, rhs: T, result: inout T)
+        where T: TensorView, T.Element: AdditiveArithmetic {
+            cpu_subtract(lhs: lhs, rhs: rhs, result: &result)
     }
     /// sqrt
-    
-    func sqrt<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
-    {
-        mapOp(x, &result) { .sqrt($0) }
+    func sqrt<T>(x: T, result: inout T)
+        where T: TensorView, T.Element: Real {
+            cpu_sqrt(x: x, result: &result)
     }
     /// squared
-    
     func squared<T>(x: T, result: inout T)
         where T: TensorView, T.Element: Numeric
     {
-        mapOp(x, &result) { $0 * $0 }
+        cpu_squared(x: x, result: &result)
     }
     /// reduce
-    /// Reduces `x` along the specified axes
-    /// - Parameter x: value tensor
-    /// - Parameter result: contains the initial value of the result on entry
-    ///  and then final reduction result on return
-    /// - Parameter opNext: the operation to perform on pairs of elements
-    /// - Parameter opFinal: the operation to perform on the final result
-    /// - Precondition: Each value in `axes` must be in the range `-rank..<rank`.
-    
     func reduce<T>(x: T,
                    into result: inout T,
                    opId: ReductionOp,
@@ -424,22 +399,8 @@ public extension DeviceFunctions where Self: DeviceQueue {
                    opFinal: ReduceOpFinal<T>?)
         where T: TensorView
     {
-        assert(result.isContiguous, "Result storage must be contiguous")
-        
-        // created a repeated view of the initial results to match `x`
-        var repeated = T(shape: result.shape.repeated(to: x.extents),
-                         tensorArray: result.tensorArray,
-                         viewOffset: result.viewOffset,
-                         isMutable: true)
-        
-        // get the elements collection and do the reduction
-        var repeatedElements = repeated.mutableElements(using: self)
-        reductionOp(x.elements, &repeatedElements, opNext)
-        
-        if let op = opFinal {
-            var elements = result.mutableElements(using: self)
-            inPlaceOp(&elements, op)
-        }
+        cpu_reduce(x: x, into: &result, opId: opId,
+                   opNext: opNext, opFinal: opFinal)
     }
 }
 
@@ -447,14 +408,12 @@ public extension DeviceFunctions where Self: DeviceQueue {
 // DeviceQueue default derivative implementations
 public extension DeviceFunctions where Self: DeviceQueue {
     /// vjpMinMax
-    
     func vjpMinMax<T>(
         x: T, y: T, scale: T, op: @escaping (T.Element, T.Element) -> Bool,
         resultTrue: inout T, resultFalse: inout T)
         where T: TensorView, T.Element: Comparable & Numeric
     {
-        mapOp(x, y, scale, &resultTrue, &resultFalse) {
-            op($0, $1) ? ($2, T.Element.zero) : (T.Element.zero, $2)
-        }
+        cpu_vjpMinMax(x: x, y: y, scale: scale, op: op,
+                      resultTrue: &resultTrue, resultFalse: &resultFalse)
     }
 }

@@ -68,7 +68,8 @@ public extension DeviceFunctions where Self: DeviceQueue {
     @inlinable
     func cpu_mapOp<T1, T2, T3, R>(
         _ a: T1, _ b: T2, _ c: T3, _ result1: inout R,  _ result2: inout R,
-        _ op: @escaping (T1.Element, T2.Element, T3.Element) -> (R.Element, R.Element))
+        _ op: @escaping
+        (T1.Element, T2.Element, T3.Element) -> (R.Element, R.Element))
         where T1: TensorView, T2: TensorView, T3: TensorView, R: TensorView
     {
         var r1 = result1.mutableElements()
@@ -171,17 +172,19 @@ public extension DeviceFunctions where Self: DeviceQueue {
     @inlinable
     func cpu_fill<T>(result: inout T, with value: T.Element) where T: TensorView
     {
+        // TODO: go through a map op
         var elements = result.mutableElements()
         elements.indices.forEach { elements[$0] = value }
     }
-    /// fillWithIndex(x:startAt:
-    @inlinable
-    func cpu_fillWithIndex<T>(result: inout T, startAt: Int) where
-        T: TensorView, T.Element: AnyNumeric
+    /// fill(result:with range:
+    func cpu_fill<T, R>(result: inout T, with range: R) where
+        T: TensorView,
+        R: StridedRangeExpression, R.Bound == T.Element
     {
+        // TODO: go through a map op
         var elements = result.mutableElements()
-        zip(elements.indices, startAt..<(startAt + elements.count)).forEach {
-            elements[$0] = T.Element(any: $1)
+        zip(elements.indices, range.stridedRange).forEach {
+            elements[$0] = $1
         }
     }
     /// less
