@@ -1,0 +1,16 @@
+// .vscode/launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        // Running unit tests
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug tests on Linux",
+            "program": "${workspaceFolder}/.build/debug/SwiftRTPackageTests.xctest",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "swift-build-tests"
+        }
+    ]
+}

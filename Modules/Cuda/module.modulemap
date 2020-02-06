@@ -1,0 +1,8 @@
+module CCuda [system] {
+	header "include_cuda.h"
+	link "cudart"
+	link "cublas"
+	link "curand"
+	link "cudnn"
+	export *
+}
