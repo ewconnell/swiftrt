@@ -164,6 +164,18 @@ public protocol DeviceQueue: Logger {
 }
 
 //==============================================================================
+// DeviceArray
+//    This represents a device data array
+public protocol DeviceArray {
+    /// a pointer to the memory on the device
+    var buffer: UnsafeMutableRawBufferPointer { get }
+    /// `true` if the array is read only
+    var isReadOnly: Bool { get }
+    /// the array edit version number used for replication and synchronization
+    var version: Int { get set }
+}
+
+//==============================================================================
 /// QueueEvent
 /// A queue event is a barrier synchronization object that is
 /// - created by a `DeviceQueue`

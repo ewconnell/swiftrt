@@ -15,16 +15,6 @@
 //
 import Foundation
 
-public protocol TensorView {
-    var value: Int { get }
-//    init(_ v: Int)
-}
-
-extension Int: TensorView {
-    public var value: Int { return self }
-//    public init(_ v: Int) { self = v }
-}
-
 //==============================================================================
 /// CudaService
 /// The collection of compute resources available to the application
