@@ -18,7 +18,7 @@
 /// Platform
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public class Platform<Service>: ComputePlatform
+public struct Platform<Service>: ComputePlatform
     where Service: ComputeService
 {
     // properties
