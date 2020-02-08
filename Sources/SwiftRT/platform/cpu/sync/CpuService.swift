@@ -32,6 +32,7 @@ public struct CpuService: ComputeService {
     public let name: String
 
     //--------------------------------------------------------------------------
+    @inlinable
     public init(parent parentLogInfo: LogInfo, id: Int) {
         self.name = "CpuService"
         self.logInfo = parentLogInfo.child(name)
@@ -49,6 +50,7 @@ public struct CpuDevice: ComputeDevice {
     public var name: String
     public var queues: [CpuQueue]
     
+    @inlinable
     public init(parent logInfo: LogInfo, id: Int) {
         self.id = id
         self.name = "cpu:\(id)"
@@ -60,7 +62,7 @@ public struct CpuDevice: ComputeDevice {
 
 //==============================================================================
 /// CpuQueue
-public struct CpuQueue: DeviceQueue, DeviceFunctions {
+public struct CpuQueue: DeviceQueue, Logger {
     // properties
     public let id: Int
     public let logInfo: LogInfo

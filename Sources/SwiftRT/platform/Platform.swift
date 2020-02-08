@@ -29,6 +29,7 @@ public struct Platform<Service>: ComputePlatform
     public var queueStack: [(device: Int, queue: Int)]
     
     //--------------------------------------------------------------------------
+    @inlinable
     public init(id: Int = 0) {
         self.id = id
         self.name = "platform:\(id)"
@@ -42,7 +43,6 @@ public struct Platform<Service>: ComputePlatform
         // selecting device 1 should be the first accelerated device
         // if there is only one device, then the index will wrap to zero
         self.queueStack = []
-        self.queueStack = [makeValidQueueIndexes(1, 0)]
+        self.queueStack = [ensureValidIndexes(1, 0)]
     }
 }
-

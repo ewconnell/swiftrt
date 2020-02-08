@@ -126,7 +126,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         masterVersion = 0
         
         // create the replica device array
-        let queue = DeviceContext.currentQueue
+        let queue = currentQueue
         let key = queue.device.deviceArrayReplicaKey
         let bytes = UnsafeRawBufferPointer(buffer)
         let array = queue.device.createReferenceArray(buffer: bytes)
@@ -146,7 +146,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         masterVersion = 0
         
         // create the replica device array
-        let queue = DeviceContext.currentQueue
+        let queue = currentQueue
         let key = queue.device.deviceArrayReplicaKey
         let bytes = UnsafeMutableRawBufferPointer(buffer)
         let array = queue.device.createMutableReferenceArray(buffer: bytes)

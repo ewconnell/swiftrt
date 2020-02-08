@@ -319,7 +319,7 @@ public extension TensorView {
         do {
             // copy the tensor array if not uniquely held or
             // if this is a broadcasted value
-            try copyIfMutates(using: DeviceContext.currentQueue)
+            try copyIfMutates(using: currentQueue)
             
             // return a mutable view against a safe dense tensor array
             return createView(at: index, extents: extents,

@@ -13,11 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Platform Abstraction Protocols
-//
 //  ComputePlatform
 //    ComputeService
-//      cpu and accelerators[]
 //        devices[]
 //          ComputeDevice (dev:0, dev:1, ...)
 //            DeviceArray
@@ -27,10 +24,20 @@
 import Foundation
 
 //==============================================================================
+/// PlatformFunctions
+/// All user facing API functions are extensions of this protocol. This is
+/// also where users should add application specific extensions.
+public protocol PlatformFunctions {
+    /// the currently selected device queue to direct work
+    /// - Returns: the current device queue
+    var currentQueue: DeviceQueue { get }
+}
+
+//==============================================================================
 /// ComputePlatform
 /// The root collection of compute resources available to the application
 /// on a given machine
-public protocol ComputePlatform: Logger {
+public protocol ComputePlatform: PlatformFunctions {
     // types
     associatedtype Service: ComputeService
     
@@ -52,28 +59,32 @@ public protocol ComputePlatform: Logger {
 public extension ComputePlatform {
     /// the currently active queue that API functions will use
     /// - Returns: the current device queue
-    var currentQueue: Service.Device.Queue {
+    @inlinable
+    var currentQueue: DeviceQueue {
         let (device, queue) = queueStack.last!
         return service.devices[device].queues[queue]
     }
     /// changes the current device/queue to use cpu:0
+    @inlinable
     mutating func useCpu() {
         queueStack[queueStack.count - 1] = (0, 0)
     }
     /// selects the specified device queue for output
     /// - Parameter device: the device to use. Device 0 is the cpu
     /// - Parameter queue: the queue on the device to use
+    @inlinable
     mutating func use(device: Int, queue: Int = 0) {
-        queueStack[queueStack.count - 1] = makeValidQueueIndexes(device, queue)
+        queueStack[queueStack.count - 1] = ensureValidIndexes(device, queue)
     }
     /// selects the specified device queue for output within the scope of
     /// the body
     /// - Parameter device: the device to use. Device 0 is the cpu
     /// - Parameter queue: the queue on the device to use
     /// - Parameter body: a closure where the device queue will be used
+    @inlinable
     mutating func using<R>(device: Int, queue: Int = 0, _ body: () -> R) -> R {
         // push the selection onto the queue stack
-        queueStack.append(makeValidQueueIndexes(device, queue))
+        queueStack.append(ensureValidIndexes(device, queue))
         defer { _ = queueStack.popLast() }
         return body()
     }
@@ -81,14 +92,16 @@ public extension ComputePlatform {
     /// within the scope of the body
     /// - Parameter queue: the queue on the device to use
     /// - Parameter body: a closure where the device queue will be used
+    @inlinable
     mutating func using<R>(queue: Int, _ body: () -> R) -> R {
         // push the selection onto the queue stack
-        queueStack.append(makeValidQueueIndexes(queueStack.last!.device, queue))
+        queueStack.append(ensureValidIndexes(queueStack.last!.device, queue))
         defer { _ = queueStack.popLast() }
         return body()
     }
     // peforms a mod on the indexes to guarantee they are mapped into bounds
-    func makeValidQueueIndexes(_ device: Int, _ queue: Int) -> (Int, Int){
+    @usableFromInline
+    internal func ensureValidIndexes(_ device: Int, _ queue: Int) -> (Int, Int){
         let deviceIndex = device % service.devices.count
         let queueIndex = queue % service.devices[deviceIndex].queues.count
         return (deviceIndex, queueIndex)
@@ -99,7 +112,7 @@ public extension ComputePlatform {
 /// ComputeService
 /// a compute service represents a category of installed devices on the
 /// platform, such as (cpu, cuda, tpu, ...)
-public protocol ComputeService: Logger {
+public protocol ComputeService {
     // types
     associatedtype Device: ComputeDevice
 
@@ -118,11 +131,19 @@ public protocol ComputeService: Logger {
 }
 
 //==============================================================================
+/// ServiceOptimizer
+public protocol ServiceOptimizer: ComputeService {
+    associatedtype Service: ComputeService
+    
+    var service: Service { get }
+}
+
+//==============================================================================
 /// ComputeDevice
 /// a compute device represents a physical service device installed
 /// on the platform
-public protocol ComputeDevice: Logger {
-    associatedtype Queue: DeviceQueue & DeviceFunctions
+public protocol ComputeDevice {
+    associatedtype Queue: DeviceQueue
     // properties
     /// the id of the device for example dev:0, dev:1, ...
     var id: Int { get }
@@ -136,7 +157,7 @@ public protocol ComputeDevice: Logger {
 /// DeviceQueue
 /// A device queue is an asynchronous sequential list of commands to be
 /// executed on the associated device.
-public protocol DeviceQueue: Logger {
+public protocol DeviceQueue: DeviceFunctions {
     // properties
     /// the id of the device for example queue:0, queue:1, ...
     var id: Int { get }
@@ -148,25 +169,36 @@ public protocol DeviceQueue: Logger {
     //--------------------------------------------------------------------------
     // synchronization functions
     /// creates a QueueEvent
-    @inlinable
     func createEvent(options: QueueEventOptions) -> QueueEvent
     /// queues a queue event op. When executed the event is signaled
-    @inlinable
     @discardableResult
     func record(event: QueueEvent) -> QueueEvent
     /// records an op on the queue that will perform a queue blocking wait
     /// when it is processed
-    @inlinable
     func wait(for event: QueueEvent)
     /// blocks the calling thread until the queue queue has completed all work
-    @inlinable
     func waitUntilQueueIsComplete()
+    
+    //--------------------------------------------------------------------------
+    /// copy
+    /// performs an indexed copy from view to result
+    func copy<T>(from view: T, to result: inout T) where T: TensorView
+    /// asynchronously copies the contents of another device array
+    func copyAsync(to array: DeviceArray, from otherArray: DeviceArray)
+    /// asynchronously copies the contents of an app memory buffer
+    func copyAsync(to array: DeviceArray,
+                   from hostBuffer: UnsafeRawBufferPointer)
+    /// copies the contents to an app memory buffer asynchronously
+    func copyAsync(to hostBuffer: UnsafeMutableRawBufferPointer,
+                   from array: DeviceArray)
+    /// clears the array to zero
+    func zero(array: DeviceArray)
 }
 
 //==============================================================================
 // DeviceArray
 //    This represents a device data array
-public protocol DeviceArray {
+public protocol DeviceArray: ObjectTracking {
     /// a pointer to the memory on the device
     var buffer: UnsafeMutableRawBufferPointer { get }
     /// `true` if the array is read only

@@ -200,7 +200,7 @@ public extension TensorView {
             categories: [.dataRealize, .dataCopy])
         
         // perform and indexed copy and assign to self
-        DeviceContext.currentQueue.copy(from: self, to: &dense)
+        currentQueue.copy(from: self, to: &dense)
         self = dense
     }
 }
