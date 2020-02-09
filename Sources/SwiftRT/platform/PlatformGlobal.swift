@@ -14,6 +14,12 @@
 // limitations under the License.
 //
 
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+import Darwin
+#else
+import Glibc
+#endif
+
 //==============================================================================
 // setGlobal(platform:
 // NOTE: do this in your app if the source is part of the app
@@ -35,3 +41,44 @@ public func setGlobal<T>(platform: T) -> T where T: ComputePlatform {
 /// This is an existential, so it is slower than if the
 public var globalPlatform: PlatformFunctions = Platform<CpuService>()
 #endif
+
+//==============================================================================
+/// PlatformContext
+/// Manages the scope for the current devices, log, and error handlers
+public class PlatformContext {
+    public var platform: PlatformFunctions = Platform<CpuService>()
+    
+    @usableFromInline
+    internal init() { }
+    
+    //--------------------------------------------------------------------------
+    /// thread data key
+    @usableFromInline
+    static let key: pthread_key_t = {
+        var key = pthread_key_t()
+        pthread_key_create(&key) {
+            #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+            let _: AnyObject = Unmanaged.fromOpaque($0).takeRetainedValue()
+            #else
+            let _: AnyObject = Unmanaged.fromOpaque($0!).takeRetainedValue()
+            #endif
+        }
+        return key
+    }()
+
+    //--------------------------------------------------------------------------
+    /// returns the thread local instance of the queues stack
+    @inlinable
+    public static var current: PlatformContext {
+        // try to get an existing state
+        if let state = pthread_getspecific(key) {
+            return Unmanaged.fromOpaque(state).takeUnretainedValue()
+        } else {
+            // create and return new state
+            let state = PlatformContext()
+            pthread_setspecific(key, Unmanaged.passRetained(state).toOpaque())
+            return state
+        }
+    }
+
+}
