@@ -31,6 +31,8 @@ public protocol PlatformFunctions {
     /// the currently selected device queue to direct work
     /// - Returns: the current device queue
     var currentQueue: DeviceQueue { get }
+    /// a device queue whose memory is shared with the application
+    var transferQueue: DeviceQueue { get }
 }
 
 //==============================================================================
@@ -63,6 +65,12 @@ public extension ComputePlatform {
     var currentQueue: DeviceQueue {
         let (device, queue) = queueStack.last!
         return service.devices[device].queues[queue]
+    }
+    @inlinable
+    var transferQueue: DeviceQueue {
+        // TODO: add check to use current queue if it has unified memory
+        // return cpu device queue for now
+        service.devices[0].queues[0]
     }
     /// changes the current device/queue to use cpu:0
     @inlinable

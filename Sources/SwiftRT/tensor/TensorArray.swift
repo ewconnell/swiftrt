@@ -109,7 +109,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         // this should never fail since it is copying from host buffer to
         // host buffer. It is synchronous, so we don't need to create or
         // record a completion event.
-        let buffer = try! readWrite(using: DeviceContext.hostQueue)
+        let buffer = readWrite(using: globalPlatform.transferQueue)
         for i in zip(buffer.indices, elements.indices) {
             buffer[i.0] = elements[i.1]
         }
@@ -126,7 +126,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         masterVersion = 0
         
         // create the replica device array
-        let queue = currentQueue
+        let queue = globalPlatform.currentQueue
         let key = queue.device.deviceArrayReplicaKey
         let bytes = UnsafeRawBufferPointer(buffer)
         let array = queue.device.createReferenceArray(buffer: bytes)
@@ -146,7 +146,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         masterVersion = 0
         
         // create the replica device array
-        let queue = currentQueue
+        let queue = globalPlatform.currentQueue
         let key = queue.device.deviceArrayReplicaKey
         let bytes = UnsafeMutableRawBufferPointer(buffer)
         let array = queue.device.createMutableReferenceArray(buffer: bytes)
@@ -158,7 +158,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
     // init from other TensorArray
     @inlinable
     public convenience init(copying other: TensorArray,
-                            using queue: DeviceQueue) throws
+                            using queue: DeviceQueue)
     {
         self.init(count: other.count, isReadOnly: other.isReadOnly,
                   name: other.name)
@@ -168,16 +168,16 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         guard let otherMaster = other.master else { return }
         
         // get the array replica for `queue`
-        let replica = try getArray(for: queue)
+        let replica = getArray(for: queue)
         replica.version = masterVersion
         
         // copy the other master array
-        try queue.copyAsync(to: replica, from: otherMaster)
+        queue.copyAsync(to: replica, from: otherMaster)
 
         diagnostic("\(copyString) \(name)(\(trackingId)) " +
-            "\(otherMaster.device.name)" +
+            "\(otherMaster.deviceName)" +
             "\(setText(" --> ", color: .blue))" +
-            "\(queue.device.name)_q\(queue.id) " +
+            "\(queue.deviceName)_q\(queue.id) " +
             "\(String(describing: Element.self))[\(count)]",
             categories: .dataCopy)
     }
@@ -198,45 +198,44 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
     /// readOnly
     /// - Parameter queue: the queue to use for synchronizatoin and locality
     /// - Returns: an Element buffer
-    public func readOnly(using queue: DeviceQueue) throws
+    public func readOnly(using queue: DeviceQueue)
         -> UnsafeBufferPointer<Element>
     {
-        let buffer = try migrate(readOnly: true, using: queue)
-        return UnsafeBufferPointer(buffer)
+        UnsafeBufferPointer(migrate(readOnly: true, using: queue))
     }
     
     //--------------------------------------------------------------------------
     /// readWrite
     /// - Parameter queue: the queue to use for synchronizatoin and locality
     /// - Returns: an Element buffer
-    public func readWrite(using queue: DeviceQueue) throws ->
+    public func readWrite(using queue: DeviceQueue) ->
         UnsafeMutableBufferPointer<Element>
     {
         assert(!isReadOnly, "the TensorArray is read only")
         lastMutatingQueue = queue
-        return try migrate(readOnly: false, using: queue)
+        return migrate(readOnly: false, using: queue)
     }
     
     //--------------------------------------------------------------------------
     /// migrate
     /// This migrates the master version of the data from wherever it is to
     /// the device associated with `queue` and returns a pointer to the data
-    private func migrate(readOnly: Bool, using queue: DeviceQueue) throws
+    private func migrate(readOnly: Bool, using queue: DeviceQueue)
         -> UnsafeMutableBufferPointer<Element>
     {
         // get the array replica for `queue`
         // this is a synchronous operation independent of queues
-        let replica = try getArray(for: queue)
+        let replica = getArray(for: queue)
         lastAccessCopiedBuffer = false
 
         // compare with master and copy if needed
         if let master = master, replica.version != master.version {
             // cross service?
             if replica.device.service.id != master.device.service.id {
-                try copyCrossService(to: replica, from: master, using: queue)
+                copyCrossService(to: replica, from: master, using: queue)
 
             } else if replica.device.id != master.device.id {
-                try copyCrossDevice(to: replica, from: master, using: queue)
+                copyCrossDevice(to: replica, from: master, using: queue)
             }
         }
         
@@ -251,7 +250,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
     // copies from an array in one service to another
     private func copyCrossService(to other: DeviceArray,
                                   from master: DeviceArray,
-                                  using queue: DeviceQueue) throws
+                                  using queue: DeviceQueue)
     {
         lastAccessCopiedBuffer = true
         
@@ -260,44 +259,44 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
             if other.device.memory.addressing == .discreet {
                 // get the master uma buffer
                 let buffer = UnsafeRawBufferPointer(master.buffer)
-                try queue.copyAsync(to: other, from: buffer)
+                queue.copyAsync(to: other, from: buffer)
 
                 diagnostic("\(copyString) \(name)(\(trackingId)) " +
-                    "\(master.device.name)\(setText(" --> ", color: .blue))" +
-                    "\(other.device.name)_q\(queue.id) " +
+                    "\(master.deviceName)\(setText(" --> ", color: .blue))" +
+                    "\(other.deviceName)_q\(queue.id) " +
                     "\(String(describing: Element.self))[\(count)]",
                     categories: .dataCopy)
             }
             // otherwise they are both unified, so do nothing
         } else if other.device.memory.addressing == .unified {
             // device to host
-            try queue.copyAsync(to: other.buffer, from: master)
+            queue.copyAsync(to: other.buffer, from: master)
             
             diagnostic("\(copyString) \(name)(\(trackingId)) " +
-                "\(master.device.name)_q\(queue.id)" +
-                "\(setText(" --> ", color: .blue))\(other.device.name) " +
+                "\(master.deviceName)_q\(queue.id)" +
+                "\(setText(" --> ", color: .blue))\(other.deviceName) " +
                 "\(String(describing: Element.self))[\(count)]",
                 categories: .dataCopy)
 
         } else {
             // both are discreet and not in the same service, so
             // transfer to host memory as an intermediate step
-            let host = try getArray(for: DeviceContext.hostQueue)
-            try queue.copyAsync(to: host.buffer, from: master)
+            let host = getArray(for: globalPlatform.transferQueue)
+            queue.copyAsync(to: host.buffer, from: master)
             
             diagnostic("\(copyString) \(name)(\(trackingId)) " +
-                "\(master.device.name)_q\(queue.id)" +
-                "\(setText(" --> ", color: .blue))\(other.device.name)" +
+                "\(master.deviceName)_q\(queue.id)" +
+                "\(setText(" --> ", color: .blue))\(other.deviceName)" +
                 "\(String(describing: Element.self))[\(count)]",
                 categories: .dataCopy)
             
             let hostBuffer = UnsafeRawBufferPointer(host.buffer)
-            try queue.copyAsync(to: other, from: hostBuffer)
+            queue.copyAsync(to: other, from: hostBuffer)
             
             diagnostic("\(copyString) \(name)(\(trackingId)) " +
-                "\(other.device.name)" +
+                "\(other.deviceName)" +
                 "\(setText(" --> ", color: .blue))" +
-                "\(master.device.name)_q\(queue.id) " +
+                "\(master.deviceName)_q\(queue.id) " +
                 "\(String(describing: Element.self))[\(count)]",
                 categories: .dataCopy)
         }
@@ -308,19 +307,19 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
     // copies from one discreet memory device to the other
     private func copyCrossDevice(to other: DeviceArray,
                                  from master: DeviceArray,
-                                 using queue: DeviceQueue) throws
+                                 using queue: DeviceQueue)
     {
         // only copy if the devices do not have unified memory
         guard master.device.memory.addressing == .discreet else { return }
         lastAccessCopiedBuffer = true
         
         // async copy and record completion event
-        try queue.copyAsync(to: other, from: master)
+        queue.copyAsync(to: other, from: master)
 
         diagnostic("\(copyString) \(name)(\(trackingId)) " +
-            "\(master.device.name)" +
+            "\(master.deviceName)" +
             "\(setText(" --> ", color: .blue))" +
-            "\(queue.device.name)_q\(queue.id) " +
+            "\(queue.deviceName)_q\(queue.id) " +
             "\(String(describing: Element.self))[\(count)]",
             categories: .dataCopy)
     }
@@ -330,7 +329,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
     // This manages a dictionary of replicated device arrays indexed
     // by serviceId and id. It will lazily create a device array if needed
     @inlinable
-    public func getArray(for queue: DeviceQueue) throws -> DeviceArray {
+    public func getArray(for queue: DeviceQueue) -> DeviceArray {
         // lookup array associated with this queue
         let key = queue.device.deviceArrayReplicaKey
         if let replica = replicas[key] {
@@ -338,11 +337,11 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         } else {
             // create the replica device array
             let byteCount = MemoryLayout<Element>.size * count
-            let array = try queue.device.createArray(byteCount: byteCount,
+            let array = queue.device.createArray(byteCount: byteCount,
                                                      heapIndex: 0,
                                                      zero: false)
             diagnostic("\(allocString) \(name)(\(trackingId)) " +
-                "device array on \(queue.device.name) " +
+                "device array on \(queue.deviceName) " +
                 "\(String(describing: Element.self))[\(count)]",
                 categories: .dataAlloc)
             
@@ -364,7 +363,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(name, forKey: .name)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
-        let buffer = try readOnly(using: DeviceContext.hostQueue)
+        let buffer = readOnly(using: globalPlatform.transferQueue)
         try buffer.forEach {
             try dataContainer.encode($0)
         }
@@ -377,7 +376,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
         if let count = dataContainer.count {
             self.init(count: count, name: name)
-            let elements = try readWrite(using: DeviceContext.hostQueue)
+            let elements = readWrite(using: globalPlatform.transferQueue)
             for i in 0..<count {
                 elements[i] = try dataContainer.decode(Element.self)
             }

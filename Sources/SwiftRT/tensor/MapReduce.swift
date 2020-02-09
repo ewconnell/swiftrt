@@ -24,7 +24,6 @@ public extension TensorView {
         into result: inout R,
         _ transform: (Element) -> R.MutableValues.Element)
     {
-        guard DeviceContext.lastError == nil else { return }
         let values = elements()
         var results = result.mutableElements()
         zip(values.indices, results.indices).forEach {

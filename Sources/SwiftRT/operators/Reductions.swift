@@ -146,7 +146,7 @@ public extension TensorView where Element: Numeric {
 /// - Parameter alongAxes: the axes to operate on
 public extension PlatformFunctions {
     @inlinable
-    public func mean<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
+    func mean<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: AlgebraicField
     {
         // the divisor is the product of the `axes` that are summed
@@ -238,7 +238,7 @@ public extension TensorView where Element: Numeric {
 /// - Parameter alongAxes: the axes to operate on
 public extension PlatformFunctions {
     @inlinable
-    public func prodNonZeros<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
+    func prodNonZeros<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
     {
         let extents = x.reductionExtents(alongAxes: axes)

@@ -30,7 +30,7 @@ public extension TensorView where Element: AnyConvertable {
     init<U>(_ other: U) where
         U: TensorView, U.Element: AnyConvertable, Shape == U.Shape
     {
-        self = cast(other)
+        self = globalPlatform.cast(other)
     }
 }
 
@@ -75,7 +75,8 @@ public extension TensorView {
     init(concatenating tensors: [Self], alongAxis axis: Int = 0,
          name: String? = nil)
     {
-        self = SwiftRT.concat(tensors: tensors, alongAxis: axis, name: name)
+        self = globalPlatform.concat(tensors: tensors, alongAxis: axis,
+                                     name: name)
     }
     
     //--------------------------------------------------------------------------
@@ -221,18 +222,18 @@ public extension TensorView {
             }
             return true
         }(), "stacked tensors must all be the same size")
-
+        
         // form stacked extents and create dense stacked result
         let expanded = others.map { Self(expanding: $0, alongAxes: axis) }
         var stackedExtents = expanded[0].extents
         stackedExtents[axis] = expanded.count
         var stacked = Self.create(Shape(extents: stackedExtents), nil)
-
+        
         // copy others into place
         var index = Shape.zeros
         for tensor in expanded {
             var view = stacked.mutableView(at: index, extents: tensor.extents)
-            copy(from: tensor, to: &view)
+            globalPlatform.copy(from: tensor, to: &view)
             index[axis] += 1
         }
         self = stacked
@@ -357,14 +358,14 @@ public extension TensorView {
 
 //==============================================================================
 //
-//public extension TensorView where Self: DifferentiableTensorView {
-//    @inlinable
-//    @derivative(of: init(repeating:to:name:))
-//    static func _vjpInit(repeating value: Element, to extents: Shape.Array,
-//                         name: String?) ->
-//        (value: Self, pullback: (Self) -> (Element))
-//    {
-//        (Self(repeating: value, to: extents), { $0.sum().element })
-//    }
-//}
+public extension TensorView where Self: DifferentiableTensorView {
+    @inlinable
+    @derivative(of: init(repeating:to:name:))
+    static func _vjpInit(repeating value: Element, to extents: Shape.Array,
+                         name: String?) ->
+        (value: Self, pullback: (Self) -> (Element))
+    {
+        (Self(repeating: value, to: extents), { $0.sum().element })
+    }
+}
 

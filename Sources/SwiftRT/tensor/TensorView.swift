@@ -106,7 +106,7 @@ public protocol TensorView: Codable, Logging {
     mutating func mutableElements(using queue: DeviceQueue?) -> MutableValues
 }
 
-public typealias TensorElementConformance = AnyElement & Codable & Equatable
+public typealias TensorElementConformance = Codable & Equatable
 
 //==============================================================================
 //
@@ -117,13 +117,7 @@ public extension TensorView {
     func elements(using queue: DeviceQueue? = nil)
         -> TensorValueCollection<Self>
     {
-        do {
-            let buffer = try readOnly(using: queue)
-            return TensorValueCollection(view: self, buffer: buffer)
-        } catch {
-            DeviceContext.report(error)
-            return TensorValueCollection(view: self)
-        }
+        TensorValueCollection(view: self, buffer: readOnly(using: queue))
     }
     
     @inlinable
@@ -135,13 +129,8 @@ public extension TensorView {
     mutating func mutableElements(using queue: DeviceQueue? = nil)
         -> TensorMutableValueCollection<Self>
     {
-        do {
-            let buffer = try readWrite(using: queue)
-            return TensorMutableValueCollection(view: &self, buffer: buffer)
-        } catch {
-            DeviceContext.report(error)
-            return TensorMutableValueCollection(view: &self)
-        }
+        TensorMutableValueCollection(view: &self,
+                                     buffer: readWrite(using: queue))
     }
 }
 
@@ -180,17 +169,12 @@ public enum TensorFormat: Int, Codable {
 
 //==============================================================================
 // TensorView default implementation
-public extension TensorView where Element: AnyElement {
+public extension TensorView {
     /// first
     /// - Returns: the first element in the tensor
     @inlinable
     var first: Element {
-        do {
-            return try readOnly()[0]
-        } catch {
-            DeviceContext.report(error)
-            return Element()
-        }
+        readOnly()[0]
     }
 
     /// element
@@ -207,11 +191,7 @@ public extension TensorView where Element: AnyElement {
         set {
             assert(shape.isScalar, "the `element` property expects " +
                 "the tensor to have a single Element")
-            do {
-                try readWrite()[0] = newValue
-            } catch {
-                DeviceContext.report(error)
-            }
+            readWrite()[0] = newValue
         }
     }
 }
@@ -316,19 +296,14 @@ public extension TensorView {
     mutating func mutableView(at index: Shape.Array, extents: Shape.Array,
                               strides: Shape.Array? = nil) -> Self
     {
-        do {
-            // copy the tensor array if not uniquely held or
-            // if this is a broadcasted value
-            try copyIfMutates(using: currentQueue)
-            
-            // return a mutable view against a safe dense tensor array
-            return createView(at: index, extents: extents,
-                              strides: strides ?? self.strides,
-                              isMutable: true)
-        } catch {
-            DeviceContext.report(error)
-            return Self()
-        }
+        // copy the tensor array if not uniquely held or
+        // if this is a broadcasted value
+        copyIfMutates(using: globalPlatform.currentQueue)
+        
+        // return a mutable view against a safe dense tensor array
+        return createView(at: index, extents: extents,
+                          strides: strides ?? self.strides,
+                          isMutable: true)
     }
 
     @inlinable
@@ -397,7 +372,7 @@ public extension TensorView {
     /// - Parameter using: the device queue to use for data transfer
     /// - Returns: `true` if the `tensorArray` was copied
     @inlinable
-    mutating func copyIfMutates(using queue: DeviceQueue) throws {
+    mutating func copyIfMutates(using queue: DeviceQueue) {
         guard writeWillMutateView() else { return }
         
         // the reference is not unique so a copy of the array must be made
@@ -406,8 +381,7 @@ public extension TensorView {
             categories: [.dataCopy, .dataMutation])
 
         // create the new array and do a simple copy of the elements
-        tensorArray = try TensorArray<Element>(copying: tensorArray,
-                                               using: queue)
+        tensorArray = TensorArray<Element>(copying: tensorArray, using: queue)
     }
     
     //--------------------------------------------------------------------------
@@ -417,17 +391,16 @@ public extension TensorView {
     /// on the new queue. This insures the lastQueue finishes before
     /// the new one begins
     @inlinable
-    func synchronize(queue lastQueue: DeviceQueue?,
-                     with nextQueue: DeviceQueue) throws
+    func synchronize(queue lastQueue: DeviceQueue?, with nextQueue: DeviceQueue)
     {
         if let lastQueue = lastQueue, nextQueue !== lastQueue {
-            let event = try lastQueue.createEvent()
+            let event = lastQueue.createEvent()
             diagnostic(
-                "\(nextQueue.device.name)_\(nextQueue.name) will wait for " +
-                    "\(lastQueue.device.name)_\(lastQueue.name) " +
+                "\(nextQueue.deviceName)_\(nextQueue.name) will wait for " +
+                    "\(lastQueue.deviceName)_\(lastQueue.name) " +
                 "using QueueEvent(\(event.trackingId))",
                 categories: .queueSync)
-            try nextQueue.wait(for: lastQueue.record(event: event))
+            nextQueue.wait(for: lastQueue.record(event: event))
         }
     }
     
@@ -436,12 +409,11 @@ public extension TensorView {
     /// Returns a read only device memory buffer synced with the specified
     /// queue.
     @inlinable
-    func readOnly(using queue: DeviceQueue? = nil) throws
+    func readOnly(using queue: DeviceQueue? = nil)
         -> UnsafeBufferPointer<Element>
     {
         // if no queue is specified then use the hostQueue
-        let deviceQueue = queue ?? DeviceContext.hostQueue
-        if let lastError = deviceQueue.lastError { throw lastError }
+        let deviceQueue = queue ?? globalPlatform.transferQueue
         
         // sync queues
         try synchronize(queue: tensorArray.lastMutatingQueue,
@@ -466,10 +438,10 @@ public extension TensorView {
     /// Returns a read only device raw memory pointer synced with the specified
     /// queue.
     @inlinable
-    func deviceReadOnly(using queue: DeviceQueue? = nil) throws
+    func deviceReadOnly(using queue: DeviceQueue? = nil)
         -> UnsafeRawPointer
     {
-        try UnsafeRawPointer(readOnly(using: queue).baseAddress!)
+        UnsafeRawPointer(readOnly(using: queue).baseAddress!)
     }
     
     //--------------------------------------------------------------------------
@@ -477,12 +449,11 @@ public extension TensorView {
     /// Returns a read write device memory buffer synced with the specified
     /// queue.
     @inlinable
-    mutating func readWrite(using queue: DeviceQueue? = nil) throws
+    mutating func readWrite(using queue: DeviceQueue? = nil)
         -> UnsafeMutableBufferPointer<Element>
     {
         precondition(!tensorArray.isReadOnly, "the tensor is read only")
-        let deviceQueue = queue ?? DeviceContext.hostQueue
-        if let lastError = deviceQueue.lastError { throw lastError }
+        let deviceQueue = queue ?? globalPlatform.transferQueue
         
         // sync queues
         try synchronize(queue: tensorArray.lastMutatingQueue,
@@ -491,7 +462,7 @@ public extension TensorView {
         try copyIfMutates(using: deviceQueue)
         
         // get the buffer
-        let buffer = try tensorArray.readWrite(using: deviceQueue)
+        let buffer = tensorArray.readWrite(using: deviceQueue)
         
         // if `queue` is nil then the deviceQueue is the hostQueue
         // and the caller wants to synchronize with the app thread
@@ -513,7 +484,7 @@ public extension TensorView {
     mutating func deviceReadWrite(using queue: DeviceQueue? = nil) throws
         -> UnsafeMutableRawPointer
     {
-        try UnsafeMutableRawPointer(readWrite(using: queue).baseAddress!)
+        UnsafeMutableRawPointer(readWrite(using: queue).baseAddress!)
     }
 }
 
@@ -535,7 +506,7 @@ public extension TensorView {
         -> Void) throws
     {
         assert(batchSize == nil || batchSize! <= extents[0])
-        let queue = DeviceContext.hostQueue
+        let queue = globalPlatform.transferQueue
         let errorDevice = queue.device
         var fullView = self.mutableView()
         let group = DispatchGroup()

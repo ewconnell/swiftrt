@@ -174,7 +174,7 @@ public extension TensorView {
             makeDense(view: self)
             let (extents, strides) = getExtents(lower, upper, steps)
             var view = mutableView(at: lower, extents: extents, strides: strides)
-            copy(from: newValue, to: &view)
+            globalPlatform.copy(from: newValue, to: &view)
         }
     }
     
@@ -200,7 +200,7 @@ public extension TensorView {
             categories: [.dataRealize, .dataCopy])
         
         // perform and indexed copy and assign to self
-        currentQueue.copy(from: self, to: &dense)
+        globalPlatform.copy(from: self, to: &dense)
         self = dense
     }
 }
@@ -215,7 +215,7 @@ extension TensorView where Self: DifferentiableTensorView {
         -> (value: Self, pullback: (Self) -> Self)
     {
         return (self[lower, upper, steps], { v in
-            var result = self.filled(with: Element())
+            var result = self.filled(with: Element.zero)
             result[lower, upper, steps] = v
             return result
         })

@@ -169,13 +169,13 @@ public protocol Logging : _Logging { }
 
 public extension Logging {
     @inlinable
-    var logWriter: Log { fatalError() } //DeviceContext.local.logInfo.logWriter }
+    var logWriter: Log { fatalError() } //globalPlatform.local.logInfo.logWriter }
     @inlinable
-    var logLevel: LogLevel { fatalError() } //DeviceContext.local.logInfo.logLevel }
+    var logLevel: LogLevel { fatalError() } //globalPlatform.local.logInfo.logLevel }
     @inlinable
-    var logNamePath: String { fatalError() } //DeviceContext.local.logInfo.namePath }
+    var logNamePath: String { fatalError() } //globalPlatform.local.logInfo.namePath }
     @inlinable
-    var logNestingLevel: Int { fatalError() } //DeviceContext.local.logInfo.nestingLevel }
+    var logNestingLevel: Int { fatalError() } //globalPlatform.local.logInfo.nestingLevel }
 }
 
 //==============================================================================
