@@ -416,16 +416,16 @@ public extension TensorView {
         let deviceQueue = queue ?? globalPlatform.transferQueue
         
         // sync queues
-        try synchronize(queue: tensorArray.lastMutatingQueue,
-                        with: deviceQueue)
+        synchronize(queue: tensorArray.lastMutatingQueue, with: deviceQueue)
+        
         // get the buffer
-        let buffer = try tensorArray.readOnly(using: deviceQueue)
+        let buffer = tensorArray.readOnly(using: deviceQueue)
         
         // if `queue` is nil then the deviceQueue is the hostQueue
         // and the caller wants to synchronize with the app thread
         if queue == nil {
             assert(deviceQueue.device.memory.addressing == .unified)
-            try deviceQueue.waitUntilQueueIsComplete()
+            deviceQueue.waitUntilQueueIsComplete()
         }
         
         return UnsafeBufferPointer(
@@ -456,10 +456,10 @@ public extension TensorView {
         let deviceQueue = queue ?? globalPlatform.transferQueue
         
         // sync queues
-        try synchronize(queue: tensorArray.lastMutatingQueue,
+        synchronize(queue: tensorArray.lastMutatingQueue,
                         with: deviceQueue)
         // mutating write?
-        try copyIfMutates(using: deviceQueue)
+        copyIfMutates(using: deviceQueue)
         
         // get the buffer
         let buffer = tensorArray.readWrite(using: deviceQueue)
@@ -468,7 +468,7 @@ public extension TensorView {
         // and the caller wants to synchronize with the app thread
         if queue == nil {
             assert(deviceQueue.device.memory.addressing == .unified)
-            try deviceQueue.waitUntilQueueIsComplete()
+            deviceQueue.waitUntilQueueIsComplete()
         }
         
         return UnsafeMutableBufferPointer(
@@ -502,8 +502,7 @@ public extension TensorView {
     mutating func hostMultiWrite(
         batchSize: Int? = nil,
         synchronous: Bool = false,
-        _ body: @escaping (_ view: inout Self) throws
-        -> Void) throws
+        _ body: @escaping (_ view: inout Self) throws -> Void) throws
     {
         assert(batchSize == nil || batchSize! <= extents[0])
         let queue = globalPlatform.transferQueue
@@ -525,7 +524,6 @@ public extension TensorView {
             if synchronous {
                 try body(&batchView)
             } else {
-                guard queue.lastError == nil else { throw queue.lastError! }
                 batchQueue.async(group: group) {
                     do {
                         try body(&batchView)
