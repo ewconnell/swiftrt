@@ -28,10 +28,10 @@ public struct LogInfo {
     /// `namePath` is used when reporting from hierarchical structures
     /// such as a model, so that duplicate names such as `weights` are
     /// put into context
-    public var namePath: String
+    public let namePath: String
     /// the nesting level within a hierarchical model to aid in
     /// message formatting.
-    public var nestingLevel: Int
+    public let nestingLevel: Int
  
     //--------------------------------------------------------------------------
     @inlinable

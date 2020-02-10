@@ -5,13 +5,10 @@ import SwiftRT
 // the actual tests
 fileprivate extension ComputePlatform {
     func test_add() {
-        let result = add(2, 3)
-        XCTAssert(result == 5)
-    }
-    
-    func test_addMore() {
-        let result = addMore(2, 3)
-        XCTAssert(result == 5)
+        let v0 = Vector(with: [2])
+        let v1 = Vector(with: [3])
+        let result = add(v0, v1)
+        XCTAssert(result.element == 5)
     }
 }
 
@@ -30,12 +27,11 @@ final class test_AddTestsCpu: XCTestCase {
     
     // delegates
     func test_add() { platform.test_add() }
-    func test_addMore() { platform.test_addMore() }
 }
 
 final class test_AddTestsCuda: XCTestCase {
     // type
-    let platform = Platform<CudaService>()
+    let platform = Platform<CpuService>()
     
     // static list
     static let allTests = [
@@ -44,6 +40,5 @@ final class test_AddTestsCuda: XCTestCase {
     
     // delegates
     func test_add() { platform.test_add() }
-    func test_addMore() { platform.test_addMore() }
 }
 
