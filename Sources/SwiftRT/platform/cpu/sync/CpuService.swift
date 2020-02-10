@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-import Foundation
 
 //==============================================================================
 /// CpuService
@@ -33,75 +32,5 @@ public struct CpuService: ComputeService {
         self.logInfo = parentLogInfo.child(name)
         self.id = id
         self.devices = [CpuDevice(parent: logInfo, id: 0)]
-    }
-}
-
-//==============================================================================
-/// CpuQueue
-public struct CpuQueue: DeviceQueue, Logger {
-    // properties
-    public let arrayReplicaKey: Int
-    public let defaultQueueEventOptions: QueueEventOptions
-    public let deviceId: Int
-    public let id: Int
-    public let logInfo: LogInfo
-    public let deviceName: String
-    public let memoryAddressing: MemoryAddressing
-    public let name: String
-
-    /// used to detect accidental queue access by other threads
-    @usableFromInline
-    let creatorThread: Thread
-
-    //--------------------------------------------------------------------------
-    // initializers
-    @inlinable
-    public init(id: Int, parent logInfo: LogInfo,
-                replicationKey: Int,
-                deviceId: Int, deviceName: String)
-    {
-        self.arrayReplicaKey = replicationKey
-        self.id = id
-        self.name = "q:\(id)"
-        self.logInfo = logInfo.child(name)
-        self.deviceId = deviceId
-        self.deviceName = deviceName
-        self.creatorThread = Thread.current
-        self.defaultQueueEventOptions = QueueEventOptions()
-        self.memoryAddressing = .unified
-
-        diagnostic("\(createString) DeviceQueue " +
-            "\(deviceName)_\(name)", categories: .queueAlloc)
-    }
-
-    //--------------------------------------------------------------------------
-
-    public func createEvent(options: QueueEventOptions) -> QueueEvent {
-        CpuQueueEvent(options: options)
-    }
-    
-    public func record(event: QueueEvent) -> QueueEvent {
-        return event
-    }
-    
-    public func wait(for event: QueueEvent) {
-    }
-    
-    public func waitUntilQueueIsComplete() {
-    }
-    
-    public func copy<T>(from view: T, to result: inout T) where T : TensorView {
-    }
-    
-    public func copyAsync(to array: DeviceArray, from otherArray: DeviceArray) {
-    }
-    
-    public func copyAsync(to array: DeviceArray, from hostBuffer: UnsafeRawBufferPointer) {
-    }
-    
-    public func copyAsync(to hostBuffer: UnsafeMutableRawBufferPointer, from array: DeviceArray) {
-    }
-    
-    public func zero(array: DeviceArray) {
     }
 }
