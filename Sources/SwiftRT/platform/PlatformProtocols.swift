@@ -310,6 +310,21 @@ public protocol QueueEvent {
 }
 
 //------------------------------------------------------------------------------
+public extension QueueEvent {
+    /// elapsedTime
+    /// computes the timeinterval between two queue event recorded times
+    /// - Parameter other: the other event used to compute the interval
+    /// - Returns: the elapsed interval. Will return `nil` if this event or
+    ///   the other have not been recorded.
+    @inlinable
+    func elapsedTime(since other: QueueEvent) -> TimeInterval? {
+        guard let time = recordedTime,
+            let other = other.recordedTime else { return nil }
+        return time.timeIntervalSince(other)
+    }
+}
+
+//------------------------------------------------------------------------------
 /// QueueEventOptions
 public struct QueueEventOptions: OptionSet {
     public let rawValue: Int
@@ -325,19 +340,4 @@ public struct QueueEventOptions: OptionSet {
 
 public enum QueueEventError: Error {
     case timedOut
-}
-
-public extension QueueEvent {
-    //--------------------------------------------------------------------------
-    /// elapsedTime
-    /// computes the timeinterval between two queue event recorded times
-    /// - Parameter other: the other event used to compute the interval
-    /// - Returns: the elapsed interval. Will return `nil` if this event or
-    ///   the other have not been recorded.
-    @inlinable
-    func elapsedTime(since other: QueueEvent) -> TimeInterval? {
-        guard let time = recordedTime,
-            let other = other.recordedTime else { return nil }
-        return time.timeIntervalSince(other)
-    }
 }

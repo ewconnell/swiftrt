@@ -19,35 +19,22 @@ import Foundation
 // CpuQueueEvent
 /// a queue event behaves like a barrier. The first caller to wait takes
 /// the wait semaphore
-public final class CpuQueueEvent: QueueEvent, ObjectTracking {
+public struct CpuQueueEvent: QueueEvent {
     // properties
-    public let trackingId: Int
     public var occurred: Bool
     public var recordedTime: Date?
-    public var id: Int { trackingId }
+    public var id: Int
 
-    //--------------------------------------------------------------------------
     // initializers
     @inlinable
     public init(options: QueueEventOptions) {
+        id = PlatformStatic.nextQueueEventId
         occurred = true
-        trackingId = ObjectTracker.global.nextId
-        #if DEBUG
-        ObjectTracker.global.register(self)
-        #endif
     }
-    
-    //--------------------------------------------------------------------------
-    // deinit
-    @inlinable
-    deinit {
-        #if DEBUG
-        ObjectTracker.global.remove(trackingId: trackingId)
-        #endif
-    }
-    
-    //--------------------------------------------------------------------------
-    /// wait
+
+    // wait
+    // a synchronous queue event is a noop since all ops are completed
+    // at the time they are queued
     @inlinable
     public func wait() throws { }
 }

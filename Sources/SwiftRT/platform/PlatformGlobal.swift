@@ -43,6 +43,22 @@ public var globalPlatform: ComputePlatform = Platform<CpuService>()
 #endif
 
 //==============================================================================
+/// PlatformStatic
+/// Platform is a generic type which are not allowed to contain stored
+/// static properties, so they are stored here.
+public struct PlatformStatic {
+    /// a platform instance unique id for queue events
+    @usableFromInline
+    static var queueEventCounter: Int = 0
+   
+    @inlinable
+    public static var nextQueueEventId: Int {
+        queueEventCounter += 1
+        return queueEventCounter
+    }
+}
+
+//==============================================================================
 /// PlatformContext
 /// Manages the scope for the current devices, log, and error handlers
 public class PlatformContext {

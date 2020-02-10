@@ -3,7 +3,7 @@ import SwiftRT
 
 //------------------------------------------------------------------------------
 // the actual tests
-fileprivate extension ComputePlatform {
+fileprivate extension Platform {
     func test_add() {
         let v0 = Vector(with: [2])
         let v1 = Vector(with: [3])
