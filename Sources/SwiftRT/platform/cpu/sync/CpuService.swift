@@ -16,11 +16,6 @@
 import Foundation
 
 //==============================================================================
-/// CudaService
-/// The collection of compute resources available to the application
-/// on the machine where the process is being run.
-
-//==============================================================================
 /// CpuService
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
@@ -38,64 +33,6 @@ public struct CpuService: ComputeService {
         self.logInfo = parentLogInfo.child(name)
         self.id = id
         self.devices = [CpuDevice(parent: logInfo, id: 0)]
-    }
-}
-
-//==============================================================================
-/// CpuDevice
-public struct CpuDevice: ComputeDeviceType {
-    // properties
-    public let id: Int
-    public let logInfo: LogInfo
-    public let name: String
-    public let queues: [CpuQueue]
-    
-    @inlinable
-    public init(parent logInfo: LogInfo, id: Int) {
-        let deviceName = "cpu:\(id)"
-        let arrayReplicaKey = globalPlatform.nextArrayReplicaKey
-        self.id = id
-        self.name = deviceName
-        self.logInfo = logInfo.child(name)
-        
-        // TODO create 1 queue for each active core
-        let queues = [CpuQueue(id: 0, parent: self.logInfo,
-                               replicationKey: arrayReplicaKey,
-                               deviceId: id, deviceName: name)]
-        self.queues = queues
-    }
-
-    //--------------------------------------------------------------------------
-    // createArray
-    //    This creates memory on the device
-    @inlinable
-    public func createArray(byteCount: Int, heapIndex: Int, zero: Bool)
-        -> DeviceArray
-    {
-        CpuDeviceArray(deviceName: name, deviceId: id,
-                       addressing: .unified,
-                       byteCount: byteCount, zero: zero)
-    }
-    
-    //--------------------------------------------------------------------------
-    // createMutableReferenceArray
-    /// creates a device array from a uma buffer.
-    @inlinable
-    public func createMutableReferenceArray(
-        buffer: UnsafeMutableRawBufferPointer) -> DeviceArray {
-        CpuDeviceArray(deviceName: name, deviceId: id,
-                       addressing: .unified, buffer: buffer)
-    }
-    
-    //--------------------------------------------------------------------------
-    // createReferenceArray
-    /// creates a device array from a uma buffer.
-    @inlinable
-    public func createReferenceArray(buffer: UnsafeRawBufferPointer)
-        -> DeviceArray
-    {
-        CpuDeviceArray(deviceName: name, deviceId: id,
-                       addressing: .unified, buffer: buffer)
     }
 }
 
