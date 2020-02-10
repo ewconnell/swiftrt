@@ -26,17 +26,18 @@ public struct Platform<Service>: ComputePlatformType
     public let id: Int
     public let name: String
     public let service: Service
+    public let logWriter: Log
     public var queueStack: [(device: Int, queue: Int)]
     public var arrayReplicaKeyCounter = AtomicCounter(value: -1)
 
     //--------------------------------------------------------------------------
     @inlinable
-    public init(id: Int = 0) {
+    public init(id: Int = 0, logWriter: Log? = nil) {
         self.id = id
         self.name = "platform:\(id)"
         // create the log
-        logInfo = LogInfo(logWriter: Log(isStatic: true), logLevel: .error,
-                          namePath: name, nestingLevel: 0)
+        self.logWriter = logWriter ?? Log(isStatic: true)
+        logInfo = LogInfo(logLevel: .error, namePath: name, nestingLevel: 0)
         
         // create the service
         self.service = Service(parent: logInfo, id: 0)

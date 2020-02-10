@@ -20,8 +20,6 @@ import Dispatch
 /// LogInfo
 /// this is used to manage which logWriter to use and message parameters
 public struct LogInfo {
-    /// the logWriter to write to
-    public var logWriter: Log
     /// the reporting level of the object, which allows different objects
     /// to have different reporting levels to fine tune output
     public var logLevel: LogLevel
@@ -35,9 +33,7 @@ public struct LogInfo {
  
     //--------------------------------------------------------------------------
     @inlinable
-    public init(logWriter: Log, logLevel: LogLevel,
-                namePath: String, nestingLevel: Int) {
-        self.logWriter = logWriter
+    public init(logLevel: LogLevel, namePath: String, nestingLevel: Int) {
         self.logLevel = logLevel
         self.namePath = namePath
         self.nestingLevel = nestingLevel
@@ -47,8 +43,8 @@ public struct LogInfo {
     /// a helper to create logging info for a child object in a hierarchy
     @inlinable
     public func child(_ name: String) -> LogInfo {
-        LogInfo(logWriter: logWriter, logLevel: .error,
-                namePath: "\(namePath).\(name)", nestingLevel: nestingLevel + 1)
+        LogInfo(logLevel: .error, namePath: "\(namePath).\(name)",
+            nestingLevel: nestingLevel + 1)
     }
 
     //--------------------------------------------------------------------------
@@ -56,15 +52,15 @@ public struct LogInfo {
     /// reporting structure
     @inlinable
     public func flat(_ name: String) -> LogInfo {
-        LogInfo(logWriter: logWriter, logLevel: .error,
-                namePath: "\(namePath).\(name)", nestingLevel: nestingLevel)
+        LogInfo(logLevel: .error, namePath: "\(namePath).\(name)",
+            nestingLevel: nestingLevel)
     }
 }
 
 //==============================================================================
 // _Logging
 public protocol _Logging {
-    /// the logWriter to write to
+    /// the log output object
     var logWriter: Log { get }
     /// the level of reporting for this node
     var logLevel: LogLevel { get }
@@ -169,7 +165,7 @@ public protocol Logging : _Logging { }
 
 public extension Logging {
     @inlinable
-    var logWriter: Log { globalPlatform.logInfo.logWriter }
+    var logWriter: Log { globalPlatform.logWriter }
     @inlinable
     var logLevel: LogLevel { globalPlatform.logInfo.logLevel }
     @inlinable
@@ -181,12 +177,11 @@ public extension Logging {
 //==============================================================================
 // Logger
 public protocol Logger : _Logging {
+    var logWriter: Log { get }
     var logInfo: LogInfo { get }
 }
 
 extension Logger {
-    @inlinable
-    public var logWriter: Log { logInfo.logWriter }
     @inlinable
     public var logLevel: LogLevel { logInfo.logLevel }
     @inlinable

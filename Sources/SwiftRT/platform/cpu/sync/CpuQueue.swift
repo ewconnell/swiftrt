@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 /// CpuQueue
-public struct CpuQueue: DeviceQueue, Logger {
+public struct CpuQueue: DeviceQueue, Logging {
     // properties
     public let arrayReplicaKey: Int
     public let defaultQueueEventOptions: QueueEventOptions
