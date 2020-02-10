@@ -77,11 +77,11 @@ public struct CpuQueue: DeviceQueue, Logger {
     //--------------------------------------------------------------------------
 
     public func createEvent(options: QueueEventOptions) -> QueueEvent {
-        CpuQueueEvent()
+        CpuQueueEvent(options: options)
     }
     
     public func record(event: QueueEvent) -> QueueEvent {
-        CpuQueueEvent()
+        return event
     }
     
     public func wait(for event: QueueEvent) {
@@ -103,25 +103,5 @@ public struct CpuQueue: DeviceQueue, Logger {
     }
     
     public func zero(array: DeviceArray) {
-    }
-}
-
-//==============================================================================
-/// CpuQueueEvent
-public struct CpuQueueEvent: QueueEvent {
-    // properties
-    public let id: Int
-    public var occurred: Bool
-    public var recordedTime: Date?
-
-    //--------------------------------------------------------------------------
-    public init() {
-        // the queue is synchronous so the event has already occurred
-        self.id = 0
-        self.occurred = true
-    }
-    
-    @inlinable
-    public func wait() throws {
     }
 }

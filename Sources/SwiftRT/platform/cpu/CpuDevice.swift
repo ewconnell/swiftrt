@@ -56,7 +56,8 @@ public struct CpuDevice: ComputeDeviceType {
     /// creates a device array from a uma buffer.
     @inlinable
     public func createMutableReferenceArray(
-        buffer: UnsafeMutableRawBufferPointer) -> DeviceArray {
+        buffer: UnsafeMutableRawBufferPointer) -> DeviceArray
+    {
         CpuDeviceArray(deviceName: name, deviceId: id,
                        addressing: .unified, buffer: buffer)
     }

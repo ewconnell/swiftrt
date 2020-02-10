@@ -26,7 +26,8 @@ public final class CpuDeviceArray : DeviceArray {
     //--------------------------------------------------------------------------
 	/// with count
     @inlinable
-    public init(deviceName: String, deviceId: Int, addressing: MemoryAddressing,
+    public init(deviceName: String, deviceId: Int,
+                addressing: MemoryAddressing,
                 byteCount: Int, zero: Bool)
     {
         self.deviceId = deviceId
@@ -46,7 +47,8 @@ public final class CpuDeviceArray : DeviceArray {
     //--------------------------------------------------------------------------
     /// readOnly uma buffer
     @inlinable
-    public init(deviceName: String, deviceId: Int, addressing: MemoryAddressing,
+    public init(deviceName: String, deviceId: Int,
+                addressing: MemoryAddressing,
                 buffer: UnsafeRawBufferPointer)
     {
         assert(buffer.baseAddress != nil)
@@ -65,7 +67,8 @@ public final class CpuDeviceArray : DeviceArray {
     //--------------------------------------------------------------------------
     /// readWrite uma buffer
     @inlinable
-    public init(deviceName: String, deviceId: Int, addressing: MemoryAddressing,
+    public init(deviceName: String, deviceId: Int,
+                addressing: MemoryAddressing,
                 buffer: UnsafeMutableRawBufferPointer)
     {
         self.isReadOnly = false
