@@ -390,7 +390,7 @@ public extension PlatformFunctions {
         currentQueue.reduce(x: x,
                             into: &result,
                             opId: .amax,
-                            opNext: { max(abs($0), abs($1)) },
+                            opNext: { Swift.max(Swift.abs($0), Swift.abs($1)) },
                             opFinal: nil)
         return result
     }
@@ -438,7 +438,7 @@ public extension PlatformFunctions {
         currentQueue.reduce(x: x,
                             into: &result,
                             opId: .asum,
-                            opNext: { $0 + abs($1) },
+                            opNext: { $0 + Swift.abs($1) },
                             opFinal: nil)
         return result
     }

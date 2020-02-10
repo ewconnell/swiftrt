@@ -116,6 +116,13 @@ public extension DeviceFunctions where Self: DeviceQueue {
     {
         mapOp(lhs, rhs, &result, +)
     }
+    /// and
+    @inlinable
+    func cpu_and<T>(lhs: T, rhs: T, result: inout T.BoolView) where
+        T: TensorView, T.Element == Bool
+    {
+        mapOp(lhs, rhs, &result) { $0 && $1 }
+    }
     /// cast
     @inlinable
     func cpu_cast<T, U>(from view: T, to result: inout U) where
@@ -256,6 +263,13 @@ public extension DeviceFunctions where Self: DeviceQueue {
         where T: TensorView
     {
         mapOp(lhs, rhs, &result, !=)
+    }
+    /// or
+    @inlinable
+    func cpu_or<T>(lhs: T, rhs: T, result: inout T.BoolView) where
+        T: TensorView, T.Element == Bool
+    {
+        mapOp(lhs, rhs, &result) { $0 || $1 }
     }
     /// pow
     @inlinable

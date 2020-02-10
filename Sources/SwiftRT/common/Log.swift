@@ -294,7 +294,7 @@ public final class Log: LogWriter {
     public var level: LogLevel
     public var _silent: Bool
     public var _tabSize: Int
-    public var trackingId: Int
+    public let trackingId: Int
 	public let queue = DispatchQueue(label: "Log.queue")
     public let logFile: FileHandle
 

@@ -27,7 +27,8 @@ public struct Platform<Service>: ComputePlatform
     public let name: String
     public let service: Service
     public var queueStack: [(device: Int, queue: Int)]
-    
+    public var arrayReplicaKeyCounter = AtomicCounter(value: -1)
+
     //--------------------------------------------------------------------------
     @inlinable
     public init(id: Int = 0) {

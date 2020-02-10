@@ -393,12 +393,12 @@ public extension TensorView {
     @inlinable
     func synchronize(queue lastQueue: DeviceQueue?, with nextQueue: DeviceQueue)
     {
-        if let lastQueue = lastQueue, nextQueue !== lastQueue {
+        if let lastQueue = lastQueue, nextQueue.id != lastQueue.id {
             let event = lastQueue.createEvent()
             diagnostic(
                 "\(nextQueue.deviceName)_\(nextQueue.name) will wait for " +
                     "\(lastQueue.deviceName)_\(lastQueue.name) " +
-                "using QueueEvent(\(event.trackingId))",
+                "using QueueEvent(\(event.id))",
                 categories: .queueSync)
             nextQueue.wait(for: lastQueue.record(event: event))
         }
@@ -424,7 +424,7 @@ public extension TensorView {
         // if `queue` is nil then the deviceQueue is the hostQueue
         // and the caller wants to synchronize with the app thread
         if queue == nil {
-            assert(deviceQueue.device.memory.addressing == .unified)
+            assert(deviceQueue.memoryAddressing == .unified)
             deviceQueue.waitUntilQueueIsComplete()
         }
         
@@ -467,7 +467,7 @@ public extension TensorView {
         // if `queue` is nil then the deviceQueue is the hostQueue
         // and the caller wants to synchronize with the app thread
         if queue == nil {
-            assert(deviceQueue.device.memory.addressing == .unified)
+            assert(deviceQueue.memoryAddressing == .unified)
             deviceQueue.waitUntilQueueIsComplete()
         }
         
@@ -506,7 +506,6 @@ public extension TensorView {
     {
         assert(batchSize == nil || batchSize! <= extents[0])
         let queue = globalPlatform.transferQueue
-        let errorDevice = queue.device
         var fullView = self.mutableView()
         let group = DispatchGroup()
         let batchQueue = DispatchQueue(label: "hostMultiWrite",
@@ -528,14 +527,14 @@ public extension TensorView {
                     do {
                         try body(&batchView)
                     } catch {
-                        errorDevice.report(error)
+                        globalPlatform.writeLog("\(error)")
                     }
                 }
             }
         }
         
         // ensure the data is local
-        _ = try fullView.readWrite(using: queue)
+        _ = fullView.readWrite(using: queue)
         
         // launch the batches
         let lastBatchIndex = Int(extents[0]) - remainder

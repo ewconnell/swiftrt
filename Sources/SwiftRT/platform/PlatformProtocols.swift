@@ -27,12 +27,25 @@ import Foundation
 /// PlatformFunctions
 /// All user facing API functions are extensions of this protocol. This is
 /// also where users should add application specific extensions.
-public protocol PlatformFunctions {
+public protocol PlatformFunctions: Logger {
+    /// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
+    var arrayReplicaKeyCounter: AtomicCounter { get set }
     /// the currently selected device queue to direct work
     /// - Returns: the current device queue
     var currentQueue: DeviceQueue { get }
     /// a device queue whose memory is shared with the application
     var transferQueue: DeviceQueue { get }
+    
+    /// returns the selected compute device
+    func device(_ id: Int) -> ComputeDevice
+}
+
+//--------------------------------------------------------------------------
+// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
+public extension PlatformFunctions {
+    var nextArrayReplicaKey: Int {
+        arrayReplicaKeyCounter.increment()
+    }
 }
 
 //==============================================================================
@@ -59,6 +72,18 @@ public protocol ComputePlatform: PlatformFunctions {
 //==============================================================================
 /// ComputePlatform extensions for queue stack manipulation
 public extension ComputePlatform {
+    /// the currently active queue that API functions will use
+    /// - Returns: the current device queue
+    @inlinable
+    var currentDevice: ComputeDevice {
+        service.devices[queueStack.last!.device]
+    }
+    /// returns the specified compute device
+    /// - Returns: the current device queue
+    @inlinable
+    func device(_ id: Int) -> ComputeDevice {
+        service.devices[id]
+    }
     /// the currently active queue that API functions will use
     /// - Returns: the current device queue
     @inlinable
@@ -122,7 +147,7 @@ public extension ComputePlatform {
 /// platform, such as (cpu, cuda, tpu, ...)
 public protocol ComputeService {
     // types
-    associatedtype Device: ComputeDevice
+    associatedtype Device: ComputeDeviceType
 
     //--------------------------------------------------------------------------
     // properties
@@ -139,24 +164,36 @@ public protocol ComputeService {
 }
 
 //==============================================================================
-/// ServiceOptimizer
-public protocol ServiceOptimizer: ComputeService {
-    associatedtype Service: ComputeService
-    
-    var service: Service { get }
-}
-
-//==============================================================================
 /// ComputeDevice
 /// a compute device represents a physical service device installed
 /// on the platform
 public protocol ComputeDevice {
-    associatedtype Queue: DeviceQueue
-    // properties
     /// the id of the device for example dev:0, dev:1, ...
     var id: Int { get }
     /// name used logging
     var name: String { get }
+    
+    //-------------------------------------
+    // device resource functions
+    /// creates an array on this device
+    /// - Parameter byteCount: the number of bytes to allocate on the device
+    /// - Parameter heapIndex: the index of the heap to use
+    /// - Parameter zero: `true` to inialize the array to zero
+    func createArray(byteCount: Int, heapIndex: Int, zero: Bool) -> DeviceArray
+    /// creates a device array from a uma buffer.
+    /// - Parameter buffer: a read only byte buffer in the device's
+    /// address space
+    func createReferenceArray(buffer: UnsafeRawBufferPointer) -> DeviceArray
+    /// creates a device array from a uma buffer.
+    /// - Parameter buffer: a read write byte buffer in the device's
+    /// address space
+    func createMutableReferenceArray(buffer: UnsafeMutableRawBufferPointer)
+        -> DeviceArray
+}
+
+// version that includes the generic components
+public protocol ComputeDeviceType: ComputeDevice {
+    associatedtype Queue: DeviceQueue
     /// a collection of device queues for scheduling work
     var queues: [Queue] { get }
 }
@@ -166,11 +203,18 @@ public protocol ComputeDevice {
 /// A device queue is an asynchronous sequential list of commands to be
 /// executed on the associated device.
 public protocol DeviceQueue: DeviceFunctions {
-    // properties
+    /// a key to lookup a DeviceArray replica associated with this device
+    var arrayReplicaKey: Int { get }
+    /// options to use when creating queue events
+    var defaultQueueEventOptions: QueueEventOptions { get }
+    /// the device id that this queue is associated with
+    var deviceId: Int { get }
     /// the id of the device for example queue:0, queue:1, ...
     var id: Int { get }
     /// name used logging
     var deviceName: String { get }
+    /// specifies the type of associated device memory
+    var memoryAddressing: MemoryAddressing { get }
     /// name used logging
     var name: String { get }
 
@@ -203,16 +247,43 @@ public protocol DeviceQueue: DeviceFunctions {
     func zero(array: DeviceArray)
 }
 
+public extension DeviceQueue {
+    @inlinable
+    func createEvent() -> QueueEvent {
+        createEvent(options: defaultQueueEventOptions)
+    }
+
+    @inlinable
+    var device: ComputeDevice { globalPlatform.device(deviceId) }
+}
+
+//==============================================================================
+/// MemoryAddressing
+public enum MemoryAddressing {
+    case unified, discreet
+}
+
 //==============================================================================
 // DeviceArray
 //    This represents a device data array
 public protocol DeviceArray: ObjectTracking {
     /// a pointer to the memory on the device
     var buffer: UnsafeMutableRawBufferPointer { get }
+    /// the device id that this array is associated with
+    var deviceId: Int { get }
+    /// name used logging
+    var deviceName: String { get }
     /// `true` if the array is read only
     var isReadOnly: Bool { get }
+    /// specifies the type of associated device memory
+    var memoryAddressing: MemoryAddressing { get }
     /// the array edit version number used for replication and synchronization
     var version: Int { get set }
+}
+
+public extension DeviceArray {
+    @inlinable
+    var id: Int { trackingId }
 }
 
 //==============================================================================
@@ -222,6 +293,8 @@ public protocol DeviceArray: ObjectTracking {
 /// - recorded on a queue to create a barrier
 /// - waited on by one or more threads for group synchronization
 public protocol QueueEvent {
+    /// the id of the event for diagnostics
+    var id: Int { get }
     /// is `true` if the even has occurred, used for polling
     var occurred: Bool { get }
     /// the last time the event was recorded

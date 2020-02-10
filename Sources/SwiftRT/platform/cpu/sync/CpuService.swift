@@ -43,20 +43,59 @@ public struct CpuService: ComputeService {
 
 //==============================================================================
 /// CpuDevice
-public struct CpuDevice: ComputeDevice {
+public struct CpuDevice: ComputeDeviceType {
     // properties
-    public var id: Int
+    public let id: Int
     public let logInfo: LogInfo
-    public var name: String
-    public var queues: [CpuQueue]
+    public let name: String
+    public let queues: [CpuQueue]
     
     @inlinable
     public init(parent logInfo: LogInfo, id: Int) {
+        let deviceName = "cpu:\(id)"
+        let arrayReplicaKey = globalPlatform.nextArrayReplicaKey
         self.id = id
-        self.name = "cpu:\(id)"
+        self.name = deviceName
         self.logInfo = logInfo.child(name)
-        self.queues = []
-        queues.append(CpuQueue(parent: self.logInfo, deviceName: name, id: 0))
+        
+        // TODO create 1 queue for each active core
+        let queues = [CpuQueue(id: 0, parent: self.logInfo,
+                               replicationKey: arrayReplicaKey,
+                               deviceId: id, deviceName: name)]
+        self.queues = queues
+    }
+
+    //--------------------------------------------------------------------------
+    // createArray
+    //    This creates memory on the device
+    @inlinable
+    public func createArray(byteCount: Int, heapIndex: Int, zero: Bool)
+        -> DeviceArray
+    {
+        CpuDeviceArray(deviceName: name, deviceId: id,
+                       addressing: .unified,
+                       byteCount: byteCount, zero: zero)
+    }
+    
+    //--------------------------------------------------------------------------
+    // createMutableReferenceArray
+    /// creates a device array from a uma buffer.
+    @inlinable
+    public func createMutableReferenceArray(
+        buffer: UnsafeMutableRawBufferPointer) -> DeviceArray {
+        CpuDeviceArray(deviceName: name, deviceId: id,
+                       addressing: .unified, buffer: buffer)
+    }
+    
+    //--------------------------------------------------------------------------
+    // createReferenceArray
+    /// creates a device array from a uma buffer.
+    @inlinable
+    public func createReferenceArray(buffer: UnsafeRawBufferPointer)
+        -> DeviceArray
+    {
+        CpuDeviceArray(deviceName: name, deviceId: id,
+                       addressing: .unified, buffer: buffer)
     }
 }
 
@@ -64,9 +103,13 @@ public struct CpuDevice: ComputeDevice {
 /// CpuQueue
 public struct CpuQueue: DeviceQueue, Logger {
     // properties
+    public let arrayReplicaKey: Int
+    public let defaultQueueEventOptions: QueueEventOptions
+    public let deviceId: Int
     public let id: Int
     public let logInfo: LogInfo
     public let deviceName: String
+    public let memoryAddressing: MemoryAddressing
     public let name: String
 
     /// used to detect accidental queue access by other threads
@@ -76,16 +119,25 @@ public struct CpuQueue: DeviceQueue, Logger {
     //--------------------------------------------------------------------------
     // initializers
     @inlinable
-    public init(parent logInfo: LogInfo, deviceName: String, id: Int) {
+    public init(id: Int, parent logInfo: LogInfo,
+                replicationKey: Int,
+                deviceId: Int, deviceName: String)
+    {
+        self.arrayReplicaKey = replicationKey
         self.id = id
         self.name = "q:\(id)"
         self.logInfo = logInfo.child(name)
+        self.deviceId = deviceId
         self.deviceName = deviceName
         self.creatorThread = Thread.current
+        self.defaultQueueEventOptions = QueueEventOptions()
+        self.memoryAddressing = .unified
 
         diagnostic("\(createString) DeviceQueue " +
             "\(deviceName)_\(name)", categories: .queueAlloc)
     }
+
+    //--------------------------------------------------------------------------
 
     public func createEvent(options: QueueEventOptions) -> QueueEvent {
         CpuQueueEvent()
@@ -96,11 +148,24 @@ public struct CpuQueue: DeviceQueue, Logger {
     }
     
     public func wait(for event: QueueEvent) {
-        fatalError()
     }
     
     public func waitUntilQueueIsComplete() {
-        fatalError()
+    }
+    
+    public func copy<T>(from view: T, to result: inout T) where T : TensorView {
+    }
+    
+    public func copyAsync(to array: DeviceArray, from otherArray: DeviceArray) {
+    }
+    
+    public func copyAsync(to array: DeviceArray, from hostBuffer: UnsafeRawBufferPointer) {
+    }
+    
+    public func copyAsync(to hostBuffer: UnsafeMutableRawBufferPointer, from array: DeviceArray) {
+    }
+    
+    public func zero(array: DeviceArray) {
     }
 }
 
@@ -108,12 +173,14 @@ public struct CpuQueue: DeviceQueue, Logger {
 /// CpuQueueEvent
 public struct CpuQueueEvent: QueueEvent {
     // properties
+    public let id: Int
     public var occurred: Bool
     public var recordedTime: Date?
 
     //--------------------------------------------------------------------------
     public init() {
         // the queue is synchronous so the event has already occurred
+        self.id = 0
         self.occurred = true
     }
     

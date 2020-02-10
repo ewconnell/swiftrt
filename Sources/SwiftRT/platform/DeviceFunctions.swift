@@ -267,6 +267,12 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: TensorView, T.Element: AdditiveArithmetic {
             cpu_add(lhs: lhs, rhs: rhs, result: &result)
     }
+    /// and
+    func and<T>(lhs: T, rhs: T, result: inout T.BoolView) where
+        T: TensorView, T.Element == Bool
+    {
+        cpu_and(lhs: lhs, rhs: rhs, result: &result)
+    }
     /// cast
     func cast<T, U>(from view: T, to result: inout U) where
         T: TensorView, T.Element: AnyConvertable,
@@ -359,6 +365,12 @@ public extension DeviceFunctions where Self: DeviceQueue {
     func notEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
         where T: TensorView {
             cpu_notEqual(lhs: lhs, rhs: rhs, result: &result)
+    }
+    /// or
+    func or<T>(lhs: T, rhs: T, result: inout T.BoolView) where
+        T: TensorView, T.Element == Bool
+    {
+        cpu_or(lhs: lhs, rhs: rhs, result: &result)
     }
     /// pow
     func pow<T>(x: T, y: T, result: inout T)

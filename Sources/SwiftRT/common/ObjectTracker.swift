@@ -59,6 +59,15 @@ public final class ObjectTracker {
 	public var hasUnreleasedObjects: Bool {
         return activeObjects.first { !$0.value.isStatic } != nil
     }
+    /// returns the next unique tracking id
+    @inlinable
+    public var nextId: Int {
+        #if DEBUG
+        return counter.increment()
+        #else
+        return 0
+        #endif
+    }
 
 	//--------------------------------------------------------------------------
 	// getActiveObjectReport
@@ -92,19 +101,15 @@ public final class ObjectTracker {
     public func register(_ object: ObjectTracking,
                          namePath: String? = nil,
                          supplementalInfo: @autoclosure () -> String? = nil,
-                         isStatic: Bool = false) -> Int {
+                         isStatic: Bool = false)
+    {
         #if DEBUG
         let info = ItemInfo(isStatic: isStatic,
                             namePath: namePath,
                             supplementalInfo: supplementalInfo(),
                             typeName: String(describing: object.self))
-        let trackingId = counter.increment()
 
-        register(trackingId: trackingId, info: info)
-        return trackingId
-        
-        #else
-        return counter.increment()
+        register(trackingId: object.trackingId, info: info)
         #endif
     }
 

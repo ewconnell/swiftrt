@@ -50,7 +50,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
     @usableFromInline
     var replicas: [Int : DeviceArray]
     /// the object tracking id
-    public var trackingId: Int
+    public let trackingId: Int
 
     //--------------------------------------------------------------------------
     // common
@@ -62,10 +62,10 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         self.masterVersion = -1
         self.name = name
         self.replicas = [Int : DeviceArray]()
-        self.trackingId = 0
+        self.trackingId = ObjectTracker.global.nextId
         #if DEBUG
-        trackingId = ObjectTracker.global
-            .register(self, namePath: logNamePath, supplementalInfo:
+        ObjectTracker.global.register(
+            self, namePath: logNamePath, supplementalInfo:
                 "\(String(describing: Element.self))[\(count)]")
 
         diagnostic("\(createString) \(name)(\(trackingId)) " +
@@ -126,8 +126,9 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         masterVersion = 0
         
         // create the replica device array
-        let queue = globalPlatform.currentQueue
-        let key = queue.device.deviceArrayReplicaKey
+        let platform = globalPlatform
+        let queue = platform.currentQueue
+        let key = queue.arrayReplicaKey
         let bytes = UnsafeRawBufferPointer(buffer)
         let array = queue.device.createReferenceArray(buffer: bytes)
         array.version = -1
@@ -147,7 +148,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         
         // create the replica device array
         let queue = globalPlatform.currentQueue
-        let key = queue.device.deviceArrayReplicaKey
+        let key = queue.arrayReplicaKey
         let bytes = UnsafeMutableRawBufferPointer(buffer)
         let array = queue.device.createMutableReferenceArray(buffer: bytes)
         array.version = -1
@@ -230,11 +231,12 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
 
         // compare with master and copy if needed
         if let master = master, replica.version != master.version {
-            // cross service?
-            if replica.device.service.id != master.device.service.id {
-                copyCrossService(to: replica, from: master, using: queue)
-
-            } else if replica.device.id != master.device.id {
+//            // cross service?
+//            if replica.device.service.id != master.device.service.id {
+//                copyCrossService(to: replica, from: master, using: queue)
+//
+//            } else
+            if replica.deviceId != master.deviceId {
                 copyCrossDevice(to: replica, from: master, using: queue)
             }
         }
@@ -254,9 +256,9 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
     {
         lastAccessCopiedBuffer = true
         
-        if master.device.memory.addressing == .unified {
+        if master.memoryAddressing == .unified {
             // copy host to discreet memory device
-            if other.device.memory.addressing == .discreet {
+            if other.memoryAddressing == .discreet {
                 // get the master uma buffer
                 let buffer = UnsafeRawBufferPointer(master.buffer)
                 queue.copyAsync(to: other, from: buffer)
@@ -268,7 +270,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
                     categories: .dataCopy)
             }
             // otherwise they are both unified, so do nothing
-        } else if other.device.memory.addressing == .unified {
+        } else if other.memoryAddressing == .unified {
             // device to host
             queue.copyAsync(to: other.buffer, from: master)
             
@@ -310,7 +312,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
                                  using queue: DeviceQueue)
     {
         // only copy if the devices do not have unified memory
-        guard master.device.memory.addressing == .discreet else { return }
+        guard master.memoryAddressing == .discreet else { return }
         lastAccessCopiedBuffer = true
         
         // async copy and record completion event
@@ -331,7 +333,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
     @inlinable
     public func getArray(for queue: DeviceQueue) -> DeviceArray {
         // lookup array associated with this queue
-        let key = queue.device.deviceArrayReplicaKey
+        let key = queue.arrayReplicaKey
         if let replica = replicas[key] {
             return replica
         } else {
