@@ -30,8 +30,6 @@ import Foundation
 public protocol ComputePlatform: Logger {
     /// a device queue whose memory is shared with the application
     var applicationQueue: DeviceQueue { get }
-    /// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
-    var arrayReplicaKeyCounter: AtomicCounter { get set }
     /// the currently selected device queue to direct work
     /// - Returns: the current device queue
     var currentQueue: DeviceQueue { get }
@@ -53,9 +51,6 @@ public protocol ComputePlatform: Logger {
 //------------------------------------------------------------------------------
 // platform wide unique value for the `ComputeDevice.arrayReplicaKey`
 public extension ComputePlatform {
-    var nextArrayReplicaKey: Int {
-        arrayReplicaKeyCounter.increment()
-    }
     /// changes the current device/queue to use cpu:0
     @inlinable
     mutating func useCpu() {

@@ -56,6 +56,17 @@ public struct PlatformStatic {
         queueEventCounter += 1
         return queueEventCounter
     }
+    
+    /// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
+    @usableFromInline
+    static var arrayReplicaKeyCounter: Int = 0
+
+    @inlinable
+    public static var nextArrayReplicaKey: Int {
+        arrayReplicaKeyCounter += 1
+        return arrayReplicaKeyCounter
+    }
+
 }
 
 //==============================================================================
