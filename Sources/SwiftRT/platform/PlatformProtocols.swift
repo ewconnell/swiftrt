@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-//  ComputePlatform
+//  ComputePlatformType
 //    ComputeService
 //        devices[]
 //          ComputeDevice (dev:0, dev:1, ...)
@@ -24,78 +24,37 @@
 import Foundation
 
 //==============================================================================
-/// PlatformFunctions
-/// All user facing API functions are extensions of this protocol. This is
-/// also where users should add application specific extensions.
-public protocol PlatformFunctions: Logger {
+/// ComputePlatform
+/// The root collection of compute resources available to the application
+/// on a given machine
+public protocol ComputePlatform: Logger {
+    /// a device queue whose memory is shared with the application
+    var applicationQueue: DeviceQueue { get }
     /// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
     var arrayReplicaKeyCounter: AtomicCounter { get set }
     /// the currently selected device queue to direct work
     /// - Returns: the current device queue
     var currentQueue: DeviceQueue { get }
-    /// a device queue whose memory is shared with the application
-    var transferQueue: DeviceQueue { get }
-    
-    /// returns the selected compute device
-    func device(_ id: Int) -> ComputeDevice
-}
-
-//--------------------------------------------------------------------------
-// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
-public extension PlatformFunctions {
-    var nextArrayReplicaKey: Int {
-        arrayReplicaKeyCounter.increment()
-    }
-}
-
-//==============================================================================
-/// ComputePlatform
-/// The root collection of compute resources available to the application
-/// on a given machine
-public protocol ComputePlatform: PlatformFunctions {
-    // types
-    associatedtype Service: ComputeService
-    
-    //--------------------------------------------------------------------------
-    // properties
     /// the platform id. Usually zero, but can be assigned in case a higher
     /// level object (e.g. cluster) will maintain a platform collection
     var id: Int { get }
     /// name used logging
     var name: String { get }
-    /// the local device compute service
-    var service: Service { get }
     /// the current device and queue to direct work
     var queueStack: [(device: Int, queue: Int)] { get set }
+
+    //-------------------------------------
+    /// returns the selected compute device
+    func device(_ id: Int) -> ComputeDevice
+    /// mods the specified indices to ensure they select valid objects
+    func ensureValidIndexes(_ device: Int, _ queue: Int) -> (Int, Int)
 }
 
-//==============================================================================
-/// ComputePlatform extensions for queue stack manipulation
+//------------------------------------------------------------------------------
+// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
 public extension ComputePlatform {
-    /// the currently active queue that API functions will use
-    /// - Returns: the current device queue
-    @inlinable
-    var currentDevice: ComputeDevice {
-        service.devices[queueStack.last!.device]
-    }
-    /// returns the specified compute device
-    /// - Returns: the current device queue
-    @inlinable
-    func device(_ id: Int) -> ComputeDevice {
-        service.devices[id]
-    }
-    /// the currently active queue that API functions will use
-    /// - Returns: the current device queue
-    @inlinable
-    var currentQueue: DeviceQueue {
-        let (device, queue) = queueStack.last!
-        return service.devices[device].queues[queue]
-    }
-    @inlinable
-    var transferQueue: DeviceQueue {
-        // TODO: add check to use current queue if it has unified memory
-        // return cpu device queue for now
-        service.devices[0].queues[0]
+    var nextArrayReplicaKey: Int {
+        arrayReplicaKeyCounter.increment()
     }
     /// changes the current device/queue to use cpu:0
     @inlinable
@@ -132,9 +91,52 @@ public extension ComputePlatform {
         defer { _ = queueStack.popLast() }
         return body()
     }
+}
+
+//==============================================================================
+/// ComputePlatformType
+/// The root collection of compute resources available to the application
+/// on a given machine
+public protocol ComputePlatformType: ComputePlatform {
+    // types
+    associatedtype Service: ComputeService
+    
+    // generic typed properties
+    /// the local device compute service
+    var service: Service { get }
+}
+
+//==============================================================================
+/// ComputePlatformType extensions for queue stack manipulation
+public extension ComputePlatformType {
+    /// the currently active queue that API functions will use
+    /// - Returns: the current device queue
+    @inlinable
+    var currentDevice: ComputeDevice {
+        service.devices[queueStack.last!.device]
+    }
+    /// returns the specified compute device
+    /// - Returns: the current device queue
+    @inlinable
+    func device(_ id: Int) -> ComputeDevice {
+        service.devices[id]
+    }
+    /// the currently active queue that API functions will use
+    /// - Returns: the current device queue
+    @inlinable
+    var currentQueue: DeviceQueue {
+        let (device, queue) = queueStack.last!
+        return service.devices[device].queues[queue]
+    }
+    @inlinable
+    var applicationQueue: DeviceQueue {
+        // TODO: add check to use current queue if it has unified memory
+        // return cpu device queue for now
+        service.devices[0].queues[0]
+    }
     // peforms a mod on the indexes to guarantee they are mapped into bounds
-    @usableFromInline
-    internal func ensureValidIndexes(_ device: Int, _ queue: Int) -> (Int, Int){
+    @inlinable
+    func ensureValidIndexes(_ device: Int, _ queue: Int) -> (Int, Int){
         let deviceIndex = device % service.devices.count
         let queueIndex = queue % service.devices[deviceIndex].queues.count
         return (deviceIndex, queueIndex)

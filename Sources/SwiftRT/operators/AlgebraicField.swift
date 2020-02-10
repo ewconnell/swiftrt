@@ -20,7 +20,7 @@ import Real
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func add<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AdditiveArithmetic
@@ -95,7 +95,7 @@ public extension TensorView where Self: DifferentiableTensorView {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func subtract<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AdditiveArithmetic
@@ -165,7 +165,7 @@ public extension TensorView
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor.
 /// - Returns: a new tensor containing the result
-    public extension PlatformFunctions {
+    public extension ComputePlatform {
     @inlinable
     func mul<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: Numeric
@@ -243,7 +243,7 @@ public extension TensorView where Self: DifferentiableTensorView {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor.
 /// - Returns: a new tensor containing the result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func div<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AlgebraicField

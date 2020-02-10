@@ -20,7 +20,7 @@ import Real
 /// casts elements of `x` to the output type
 /// - Parameter other: value tensor
 /// - Returns: result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func cast<T, U>(_ other: U) -> T where
         T: TensorView, T.Element: AnyConvertable,
@@ -41,7 +41,7 @@ public extension PlatformFunctions {
 /// computes the absolute value of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func abs<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
@@ -77,7 +77,7 @@ public extension TensorView where Element: Real {
 /// computes the exponential value of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func exp<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
@@ -113,7 +113,7 @@ public extension TensorView where Element: Real {
 /// computes the log of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func log<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
@@ -148,7 +148,7 @@ public extension TensorView where Element: Real {
 /// computes the negated value of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func neg<T>(_ x: T) -> T where T: TensorView, T.Element: SignedNumeric {
         var result = x.createDense()
@@ -181,7 +181,7 @@ public extension TensorView where Element: SignedNumeric {
 /// computes the elementwise squares of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func squared<T>(_ x: T) -> T
         where T: TensorView, T.Element: Numeric
@@ -222,7 +222,7 @@ public extension Numeric {
 /// - Parameter x: value tensor
 /// - Parameter y: power tensor
 /// - Returns: result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func pow<T>(_ x: T, _ y: T) -> T
         where T: TensorView, T.Element: Real
@@ -277,7 +277,7 @@ public extension TensorView where Element: Real {
 /// computes the square root of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func sqrt<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
@@ -313,7 +313,7 @@ public extension TensorView where Element: Real {
 ///
 /// - Parameter x: value tensor
 /// - Returns: the signs of `x`. -1 for negative `x` values, 1 for positive
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func sign<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real

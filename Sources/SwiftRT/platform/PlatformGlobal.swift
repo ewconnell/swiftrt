@@ -39,14 +39,14 @@ public func setGlobal<T>(platform: T) -> T where T: ComputePlatform {
 }
 
 /// This is an existential, so it is slower than if the
-public var globalPlatform: PlatformFunctions = Platform<CpuService>()
+public var globalPlatform: ComputePlatform = Platform<CpuService>()
 #endif
 
 //==============================================================================
 /// PlatformContext
 /// Manages the scope for the current devices, log, and error handlers
 public class PlatformContext {
-    public var platform: PlatformFunctions = Platform<CpuService>()
+    public var platform: ComputePlatform = Platform<CpuService>()
     
     @usableFromInline
     internal init() { }

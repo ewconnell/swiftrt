@@ -18,7 +18,7 @@
 /// concat
 /// - Parameter tensors: array of tensors whose elements will be joined
 /// - Parameter axis: dimension to append the elements
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func concat<T>(tensors: [T], alongAxis axis: Int = 0,
                    name: String? = nil) -> T where T: TensorView
@@ -45,14 +45,14 @@ public extension TensorView {
 /// copies the elements from `view` to `result`
 /// - Parameter from view: tensor to be copied
 /// - Parameter to result: the tensor where the result will be written
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func copy<T>(from view: T, to result: inout T) where T: TensorView {
         currentQueue.copy(from: view, to: &result)
     }
 }
 
-public extension PlatformFunctions {
+public extension ComputePlatform {
     //==============================================================================
     /// fill<T>(result:value:
     /// fills the view with the specified value
@@ -102,7 +102,7 @@ public extension TensorView {
 /// fillWithIndex
 /// a convenience function to fill the tensor with index values from
 /// `0..<count`. If a different range is desired, use `fill(with range:`
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func fillWithIndex<T>(_ result: inout T)
         where T: TensorView, T.Element: AnyNumeric & RangeBound
@@ -123,7 +123,7 @@ public extension TensorView where Element: AnyNumeric & RangeBound {
 //==============================================================================
 /// replace<T>(x:with:result:
 /// fills the view with the specified value
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func replace<T>(x: T, with y: T, where condition: T.BoolView,
                     result: inout T) where T: TensorView

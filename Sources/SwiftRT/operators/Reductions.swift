@@ -27,7 +27,7 @@ public let _messageTensorExtentsMismatch = "tensor extents mismatch"
 /// - Parameter x: value tensor
 /// - Parameter result: the scalar tensor where the result will be written
 /// - Precondition: Each value in `axes` must be in the range `-rank..<rank`.
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func all<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element == Bool
@@ -65,7 +65,7 @@ public extension TensorView where Element == Bool {
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
 /// - Returns: a new tensor containing the result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func any<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element == Bool
@@ -100,7 +100,7 @@ public extension TensorView where Element == Bool {
 /// Sums `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func sum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
@@ -144,7 +144,7 @@ public extension TensorView where Element: Numeric {
 ///
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func mean<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: AlgebraicField
@@ -193,7 +193,7 @@ public extension TensorView where Element: AlgebraicField {
 /// prod of `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func prod<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
@@ -236,7 +236,7 @@ public extension TensorView where Element: Numeric {
 /// product of non zero values of `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func prodNonZeros<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
@@ -284,7 +284,7 @@ public extension TensorView where Element: Numeric {
 /// TODO: add optional indices
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func min<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -331,7 +331,7 @@ public extension TensorView where
 /// returns the maximum element value of `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func max<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -378,7 +378,7 @@ public extension TensorView where
 /// absolute max of `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func absmax<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: SignedNumeric & Comparable
@@ -426,7 +426,7 @@ public extension TensorView where
 /// Sums the absolute values of `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func abssum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -470,7 +470,7 @@ public extension TensorView where Element: SignedNumeric & Comparable {
 /// Square root of the sum `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func sqrtSumSquares<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Real

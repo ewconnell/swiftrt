@@ -109,7 +109,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         // this should never fail since it is copying from host buffer to
         // host buffer. It is synchronous, so we don't need to create or
         // record a completion event.
-        let buffer = readWrite(using: globalPlatform.transferQueue)
+        let buffer = readWrite(using: globalPlatform.applicationQueue)
         for i in zip(buffer.indices, elements.indices) {
             buffer[i.0] = elements[i.1]
         }
@@ -283,7 +283,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         } else {
             // both are discreet and not in the same service, so
             // transfer to host memory as an intermediate step
-            let host = getArray(for: globalPlatform.transferQueue)
+            let host = getArray(for: globalPlatform.applicationQueue)
             queue.copyAsync(to: host.buffer, from: master)
             
             diagnostic("\(copyString) \(name)(\(trackingId)) " +
@@ -365,7 +365,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(name, forKey: .name)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
-        let buffer = readOnly(using: globalPlatform.transferQueue)
+        let buffer = readOnly(using: globalPlatform.applicationQueue)
         try buffer.forEach {
             try dataContainer.encode($0)
         }
@@ -378,7 +378,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
         if let count = dataContainer.count {
             self.init(count: count, name: name)
-            let elements = readWrite(using: globalPlatform.transferQueue)
+            let elements = readWrite(using: globalPlatform.applicationQueue)
             for i in 0..<count {
                 elements[i] = try dataContainer.decode(Element.self)
             }

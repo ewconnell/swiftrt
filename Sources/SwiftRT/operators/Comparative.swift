@@ -17,7 +17,7 @@ import Real
 
 //==============================================================================
 // utilities
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     func _vjpMinMaxHelper<T>(
         _ x: T, _ y: T, v: T,
@@ -36,7 +36,7 @@ public extension PlatformFunctions {
 //==============================================================================
 /// and
 /// Computes `lhs .&& rhs` element-wise and returns a tensor of Bool values
-public extension PlatformFunctions {
+public extension ComputePlatform {
     func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element == Bool
     {
@@ -81,7 +81,7 @@ public extension TensorView where Element == Bool {
 //==============================================================================
 /// or
 /// Computes `lhs .&& rhs` element-wise and returns a tensor of Bool values
-public extension PlatformFunctions {
+public extension ComputePlatform {
     func or<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element == Bool
     {
@@ -129,7 +129,7 @@ public extension TensorView where Element == Bool {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func max<T>(_ lhs: T, _ rhs: T) -> T where
@@ -177,7 +177,7 @@ public extension TensorView {
 
 //--------------------------------------
 // derivative functions
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     @derivative(of: max)
     func _vjpMax<T>(_ lhs: T, _ rhs: T)
@@ -222,7 +222,7 @@ public extension PlatformFunctions {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func min<T>(_ lhs: T, _ rhs: T) -> T where
@@ -270,7 +270,7 @@ public extension TensorView {
 
 //--------------------------------------
 // derivative functions
-public extension PlatformFunctions {
+public extension ComputePlatform {
     @inlinable
     @derivative(of: min)
     func _vjpMin<T>(_ lhs: T, _ rhs: T)
@@ -313,7 +313,7 @@ public extension PlatformFunctions {
 /// equal
 /// Performs element-wise equality comparison and returns a
 /// tensor of Bool values
-public extension PlatformFunctions {
+public extension ComputePlatform {
     func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
         assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
@@ -349,7 +349,7 @@ public extension TensorView where Element: Equatable {
 /// elementsAlmostEqual
 /// Performs element-wise equality comparison within the tolerance range
 /// and returns a tensor of Bool values
-public extension PlatformFunctions {
+public extension ComputePlatform {
     func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T,
                                 tolerance: T.Element) -> T.BoolView where
         T: TensorView, T.Element: SignedNumeric & Comparable
@@ -373,7 +373,7 @@ public extension TensorView where Element: SignedNumeric & Comparable {
 /// notEqual
 /// Computes `lhs != rhs` element-wise and returns a `TensorView` of Boolean
 /// values.
-public extension PlatformFunctions {
+public extension ComputePlatform {
     func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
         assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
@@ -392,7 +392,7 @@ public extension TensorView where Element: Equatable {
 //==============================================================================
 /// greater
 /// Computes `lhs .> rhs` element-wise and returns a tensor of Bool values
-public extension PlatformFunctions {
+public extension ComputePlatform {
     func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
     {
@@ -413,7 +413,7 @@ public extension TensorView where Element: Comparable {
 //==============================================================================
 /// greaterOrEqual
 /// Computes `lhs .>= rhs` element-wise and returns a tensor of Bool values
-public extension PlatformFunctions {
+public extension ComputePlatform {
     func greaterOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
     {
@@ -435,7 +435,7 @@ public extension TensorView where Element: Comparable {
 //==============================================================================
 /// less
 /// Computes `lhs .< rhs` element-wise and returns a tensor of Bool values
-public extension PlatformFunctions {
+public extension ComputePlatform {
     func less<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
     {
@@ -456,7 +456,7 @@ public extension TensorView where Element: Comparable {
 //==============================================================================
 /// lessOrEqual
 /// Computes `lhs .<= rhs` element-wise and returns a tensor of Bool values
-public extension PlatformFunctions {
+public extension ComputePlatform {
     func lessOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
     {

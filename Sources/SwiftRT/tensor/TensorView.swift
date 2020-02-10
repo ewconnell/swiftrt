@@ -413,7 +413,7 @@ public extension TensorView {
         -> UnsafeBufferPointer<Element>
     {
         // if no queue is specified then use the hostQueue
-        let deviceQueue = queue ?? globalPlatform.transferQueue
+        let deviceQueue = queue ?? globalPlatform.applicationQueue
         
         // sync queues
         synchronize(queue: tensorArray.lastMutatingQueue, with: deviceQueue)
@@ -453,7 +453,7 @@ public extension TensorView {
         -> UnsafeMutableBufferPointer<Element>
     {
         precondition(!tensorArray.isReadOnly, "the tensor is read only")
-        let deviceQueue = queue ?? globalPlatform.transferQueue
+        let deviceQueue = queue ?? globalPlatform.applicationQueue
         
         // sync queues
         synchronize(queue: tensorArray.lastMutatingQueue,
@@ -505,7 +505,7 @@ public extension TensorView {
         _ body: @escaping (_ view: inout Self) throws -> Void) throws
     {
         assert(batchSize == nil || batchSize! <= extents[0])
-        let queue = globalPlatform.transferQueue
+        let queue = globalPlatform.applicationQueue
         var fullView = self.mutableView()
         let group = DispatchGroup()
         let batchQueue = DispatchQueue(label: "hostMultiWrite",
