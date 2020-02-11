@@ -27,7 +27,7 @@ public class Current {
     /// the log output object
     @usableFromInline static var logWriter: Log = Log()
     /// the current compute platform for the thread
-    @usableFromInline var platform: ComputePlatform
+//    @usableFromInline var platform: ComputePlatform
     /// a platform instance unique id for queue events
     @usableFromInline static var queueEventCounter: Int = 0
     /// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
@@ -51,20 +51,21 @@ public class Current {
     }
 
     //--------------------------------------------------------------------------
-    // this is a singleton to the initializer is internal
+    // this is a singleton so the initializer is internal
     @usableFromInline
     internal init() {
-        platform = Platform<CpuService>()
+//        platform = Platform<CpuService>()
     }
     /// the current Platform for this thread
     /// NOTE: for performance critical applications, this could be redefined
     /// as a non thread local global static variable that is generic
     /// type specific instead of using the `ComputePlatform` existential
-    @inlinable
-    public static var platform: ComputePlatform {
-        get { threadLocal.platform }
-        set { threadLocal.platform = newValue }
-    }
+    public static var platform: ComputePlatform = Platform<CpuService>()
+//    @inlinable
+//    public static var platform: ComputePlatform {
+//        get { threadLocal.platform }
+//        set { threadLocal.platform = newValue }
+//    }
 
     //--------------------------------------------------------------------------
     /// returns the thread local instance of the queues stack

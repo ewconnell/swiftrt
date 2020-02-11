@@ -18,7 +18,7 @@
 /// LocalPlatform
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public struct Platform<Service>: ComputePlatformType
+public class Platform<Service>: ComputePlatformType
     where Service: ComputeService
 {
     // properties
