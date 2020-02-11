@@ -26,10 +26,10 @@ public struct LogInfo {
     /// `namePath` is used when reporting from hierarchical structures
     /// such as a model, so that duplicate names such as `weights` are
     /// put into context
-    public let namePath: String
+    public var namePath: String
     /// the nesting level within a hierarchical model to aid in
     /// message formatting.
-    public let nestingLevel: Int
+    public var nestingLevel: Int
  
     //--------------------------------------------------------------------------
     @inlinable
@@ -43,8 +43,8 @@ public struct LogInfo {
     /// a helper to create logging info for a child object in a hierarchy
     @inlinable
     public func child(_ name: String) -> LogInfo {
-        LogInfo(logLevel: .error, namePath: "\(namePath).\(name)",
-            nestingLevel: nestingLevel + 1)
+        LogInfo(logLevel: .error,
+                namePath: "\(namePath)/\(name)", nestingLevel: nestingLevel + 1)
     }
 
     //--------------------------------------------------------------------------
@@ -52,15 +52,15 @@ public struct LogInfo {
     /// reporting structure
     @inlinable
     public func flat(_ name: String) -> LogInfo {
-        LogInfo(logLevel: .error, namePath: "\(namePath).\(name)",
-            nestingLevel: nestingLevel)
+        LogInfo(logLevel: .error,
+                namePath: "\(namePath)/\(name)", nestingLevel: nestingLevel)
     }
 }
 
 //==============================================================================
-// _Logging
-public protocol _Logging {
-    /// the log output object
+// Logging
+public protocol Logging {
+    /// the logWriter to write to
     var logWriter: Log { get }
     /// the level of reporting for this node
     var logLevel: LogLevel { get }
@@ -103,7 +103,18 @@ public protocol _Logging {
                     minCount: Int)
 }
 
-public extension _Logging {
+//==============================================================================
+// Logging
+public extension Logging {
+    @inlinable
+    var logWriter: Log { Platform.current.logWriter }
+    @inlinable
+    var logLevel: LogLevel { logWriter.level }
+    @inlinable
+    var logNamePath: String { "" }
+    @inlinable
+    var logNestingLevel: Int { 0 }
+
     //--------------------------------------------------------------------------
     /// writeLog
     @inlinable
@@ -160,24 +171,8 @@ public extension _Logging {
 
 
 //==============================================================================
-// Logging
-public protocol Logging : _Logging { }
-
-public extension Logging {
-    @inlinable
-    var logWriter: Log { globalPlatform.logWriter }
-    @inlinable
-    var logLevel: LogLevel { globalPlatform.logInfo.logLevel }
-    @inlinable
-    var logNamePath: String { globalPlatform.logInfo.namePath }
-    @inlinable
-    var logNestingLevel: Int { globalPlatform.logInfo.nestingLevel }
-}
-
-//==============================================================================
 // Logger
-public protocol Logger : _Logging {
-    var logWriter: Log { get }
+public protocol Logger : Logging {
     var logInfo: LogInfo { get }
 }
 
@@ -193,7 +188,7 @@ extension Logger {
 //==============================================================================
 /// LogWriter
 /// implemented by objects that write to a logWriter.
-public protocol LogWriter {
+public protocol LogWriter: class {
     /// the diagnostic categories that will be logged. If `nil`,
     /// all diagnostic categories will be logged
     var categories: LogCategories? { get set }
@@ -252,7 +247,7 @@ public extension LogWriter {
                trailing: String = "",
                minCount: Int = 0) {
         // protect against mt writes
-        queue.sync {
+        queue.sync { [unowned self] in
             guard !self._silent else { return }
             
             // create fixed width string for level column
@@ -283,14 +278,14 @@ public extension LogWriter {
 
 //==============================================================================
 // Log
-public final class Log: LogWriter {
+public final class Log: LogWriter, ObjectTracking {
     // properties
     public var categories: LogCategories?
     public var level: LogLevel
     public var _silent: Bool
     public var _tabSize: Int
-    public let trackingId: Int
-	public let queue = DispatchQueue(label: "Log.queue")
+    public var trackingId: Int
+    public let queue = DispatchQueue(label: "Log.queue")
     public let logFile: FileHandle
 
     //--------------------------------------------------------------------------
@@ -323,6 +318,14 @@ public final class Log: LogWriter {
             }
         }
         logFile = file ?? FileHandle.standardOutput
+        trackingId = ObjectTracker.global.nextId
+        ObjectTracker.global.register(self, isStatic: isStatic)
+    }
+    
+    @inlinable
+    deinit {
+        logFile.closeFile()
+        ObjectTracker.global.remove(trackingId: trackingId)
     }
     
     @inlinable
@@ -335,54 +338,54 @@ public final class Log: LogWriter {
 //==============================================================================
 // LogEvent
 public struct LogEvent {
-	var level: LogLevel
-	var nestingLevel: Int
-	var message: String
+    var level: LogLevel
+    var nestingLevel: Int
+    var message: String
 }
 
 //------------------------------------------------------------------------------
 // LogColors
 //  http://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
 public enum LogColor: String {
-	case reset       = "\u{1b}[m"
-	case red         = "\u{1b}[31m"
-	case green       = "\u{1b}[32m"
-	case yellow      = "\u{1b}[33m"
-	case blue        = "\u{1b}[34m"
-	case magenta     = "\u{1b}[35m"
-	case cyan        = "\u{1b}[36m"
-	case white       = "\u{1b}[37m"
-	case bold        = "\u{1b}[1m"
-	case boldRed     = "\u{1b}[1;31m"
-	case boldGreen   = "\u{1b}[1;32m"
-	case boldYellow  = "\u{1b}[1;33m"
-	case boldBlue    = "\u{1b}[1;34m"
-	case boldMagenta = "\u{1b}[1;35m"
-	case boldCyan    = "\u{1b}[1;36m"
-	case boldWhite   = "\u{1b}[1;37m"
+    case reset       = "\u{1b}[m"
+    case red         = "\u{1b}[31m"
+    case green       = "\u{1b}[32m"
+    case yellow      = "\u{1b}[33m"
+    case blue        = "\u{1b}[34m"
+    case magenta     = "\u{1b}[35m"
+    case cyan        = "\u{1b}[36m"
+    case white       = "\u{1b}[37m"
+    case bold        = "\u{1b}[1m"
+    case boldRed     = "\u{1b}[1;31m"
+    case boldGreen   = "\u{1b}[1;32m"
+    case boldYellow  = "\u{1b}[1;33m"
+    case boldBlue    = "\u{1b}[1;34m"
+    case boldMagenta = "\u{1b}[1;35m"
+    case boldCyan    = "\u{1b}[1;36m"
+    case boldWhite   = "\u{1b}[1;37m"
 }
 
 public func setText(_ text: String, color: LogColor) -> String {
-	#if os(Linux)
-	return color.rawValue + text + LogColor.reset.rawValue
-	#else
-	return text
-	#endif
+    #if os(Linux)
+    return color.rawValue + text + LogColor.reset.rawValue
+    #else
+    return text
+    #endif
 }
 
 //------------------------------------------------------------------------------
 // LogCategories
 public struct LogCategories: OptionSet {
     public init(rawValue: Int) { self.rawValue = rawValue }
-	public let rawValue: Int
-	public static let dataAlloc    = LogCategories(rawValue: 1 << 0)
-	public static let dataCopy     = LogCategories(rawValue: 1 << 1)
-	public static let dataMutation = LogCategories(rawValue: 1 << 2)
+    public let rawValue: Int
+    public static let dataAlloc    = LogCategories(rawValue: 1 << 0)
+    public static let dataCopy     = LogCategories(rawValue: 1 << 1)
+    public static let dataMutation = LogCategories(rawValue: 1 << 2)
     public static let dataRealize  = LogCategories(rawValue: 1 << 3)
     public static let initialize   = LogCategories(rawValue: 1 << 4)
     public static let properties   = LogCategories(rawValue: 1 << 5)
-	public static let queueAlloc   = LogCategories(rawValue: 1 << 6)
-	public static let queueSync    = LogCategories(rawValue: 1 << 7)
+    public static let queueAlloc   = LogCategories(rawValue: 1 << 6)
+    public static let queueSync    = LogCategories(rawValue: 1 << 7)
     public static let scheduling   = LogCategories(rawValue: 1 << 8)
 }
 
@@ -405,18 +408,18 @@ public let waitString       = "[\(setText("WAIT     ", color: .red))]"
 //------------------------------------------------------------------------------
 // LogLevel
 public enum LogLevel: Int, Comparable {
-	case error, warning, status, diagnostic
+    case error, warning, status, diagnostic
 
     @inlinable
-	public init?(string: String) {
-		switch string {
-		case "error"     : self = .error
-		case "warning"   : self = .warning
-		case "status"    : self = .status
-		case "diagnostic": self = .diagnostic
-		default: return nil
-		}
-	}
+    public init?(string: String) {
+        switch string {
+        case "error"     : self = .error
+        case "warning"   : self = .warning
+        case "status"    : self = .status
+        case "diagnostic": self = .diagnostic
+        default: return nil
+        }
+    }
     
     public static let maxStringWidth =
         String(describing: LogLevel.diagnostic).count

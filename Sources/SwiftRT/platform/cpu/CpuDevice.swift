@@ -27,7 +27,7 @@ public struct CpuDevice: ComputeDeviceType {
     @inlinable
     public init(parent logInfo: LogInfo, id: Int) {
         let deviceName = "cpu:\(id)"
-        let arrayReplicaKey = PlatformStatic.nextArrayReplicaKey
+        let arrayReplicaKey = Platform.current.nextArrayReplicaKey
         self.id = id
         self.name = deviceName
         self.logInfo = logInfo.child(name)

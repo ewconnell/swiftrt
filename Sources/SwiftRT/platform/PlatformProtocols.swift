@@ -27,7 +27,7 @@ import Foundation
 /// ComputePlatform
 /// The root collection of compute resources available to the application
 /// on a given machine
-public protocol ComputePlatform: Logger {
+public protocol ComputePlatform: Logging {
     /// a device queue whose memory is shared with the application
     var applicationQueue: DeviceQueue { get }
     /// the currently selected device queue to direct work
@@ -49,7 +49,6 @@ public protocol ComputePlatform: Logger {
 }
 
 //------------------------------------------------------------------------------
-// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
 public extension ComputePlatform {
     /// changes the current device/queue to use cpu:0
     @inlinable

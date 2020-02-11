@@ -14,37 +14,98 @@
 // limitations under the License.
 //
 
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+import Darwin
+#else
+import Glibc
+#endif
+
+//==============================================================================
+// setGlobal(platform:
+// NOTE: do this in your app if the source is part of the app
+
+// let globalPlatform = Platform<XyzService>()
+// You can define APPCOLOCATED in the build, or just delete this file
+
+//==============================================================================
+/// setGlobal(platform:
+/// this is used to set the framework global variable for static functions
+/// and free floating objects to access the platform
+#if !APPCOLOCATED
+//@inlinable
+//public func setGlobal<T>(platform: T) -> T where T: ComputePlatform {
+//    globalPlatform = platform
+//    return platform
+//}
+
+/// This is an existential, so it is slower than if the
+//public var globalPlatform: ComputePlatform = Platform<CpuService>()
+public var globalPlatform = LocalPlatform<CpuService>()
+#endif
+
 //==============================================================================
 /// Platform
-/// The collection of compute resources available to the application
-/// on the machine where the process is being run.
-public struct Platform<Service>: ComputePlatformType
-    where Service: ComputeService
-{
-    // properties
-    public let logInfo: LogInfo
-    public let id: Int
-    public let name: String
-    public let service: Service
-    public let logWriter: Log
-    public var queueStack: [(device: Int, queue: Int)]
-    public var arrayReplicaKeyCounter = AtomicCounter(value: -1)
+/// Manages the scope for the current devices, log, and error handlers
+public class Platform {
+    public var platform: ComputePlatform
+    
+    /// the log output object
+    public var logWriter: Log = Log()
+    public var log: Log { logWriter }
+    
+    /// a platform instance unique id for queue events
+    @usableFromInline
+    var queueEventCounter: Int = 0
+    
+    @inlinable
+    public var nextQueueEventId: Int {
+        queueEventCounter += 1
+        return queueEventCounter
+    }
+    
+    /// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
+    @usableFromInline
+    var arrayReplicaKeyCounter: Int = 0
+    
+    @inlinable
+    public var nextArrayReplicaKey: Int {
+        arrayReplicaKeyCounter += 1
+        return arrayReplicaKeyCounter
+    }
+    
+    @usableFromInline
+    internal init() {
+        platform  = LocalPlatform<CpuService>()
+    }
+    
+    //--------------------------------------------------------------------------
+    /// thread data key
+    @usableFromInline
+    static let key: pthread_key_t = {
+        var key = pthread_key_t()
+        pthread_key_create(&key) {
+            #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+            let _: AnyObject = Unmanaged.fromOpaque($0).takeRetainedValue()
+            #else
+            let _: AnyObject = Unmanaged.fromOpaque($0!).takeRetainedValue()
+            #endif
+        }
+        return key
+    }()
 
     //--------------------------------------------------------------------------
+    /// returns the thread local instance of the queues stack
     @inlinable
-    public init(id: Int = 0, logWriter: Log? = nil) {
-        self.id = id
-        self.name = "platform:\(id)"
-        // create the log
-        self.logWriter = logWriter ?? Log(isStatic: true)
-        logInfo = LogInfo(logLevel: .error, namePath: name, nestingLevel: 0)
-        
-        // create the service
-        self.service = Service(parent: logInfo, id: 0)
-        
-        // selecting device 1 should be the first accelerated device
-        // if there is only one device, then the index will wrap to zero
-        self.queueStack = []
-        self.queueStack = [ensureValidIndexes(1, 0)]
+    public static var current: Platform {
+        // try to get an existing state
+        if let state = pthread_getspecific(key) {
+            return Unmanaged.fromOpaque(state).takeUnretainedValue()
+        } else {
+            // create and return new state
+            let state = Platform()
+            pthread_setspecific(key, Unmanaged.passRetained(state).toOpaque())
+            return state
+        }
     }
+
 }
