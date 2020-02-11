@@ -23,17 +23,18 @@ public struct Platform<Service>: ComputePlatformType
 {
     // properties
     public let logInfo: LogInfo
-    public let id: Int
     public let name: String
     public let service: Service
     public var queueStack: [(device: Int, queue: Int)]
 
     //--------------------------------------------------------------------------
     @inlinable
-    public init(id: Int = 0) {
-        self.id = id
-        self.name = "platform:\(id)"
-        logInfo = LogInfo(logLevel: .error, namePath: name, nestingLevel: 0)
+    public init(log: Log? = nil, name: String? = nil) {
+        self.name = name ?? "platform"
+        logInfo = LogInfo(logWriter: log ?? Current.log,
+                          logLevel: .error,
+                          namePath: self.name,
+                          nestingLevel: 0)
         
         // create the service
         self.service = Service(parent: logInfo, id: 0)

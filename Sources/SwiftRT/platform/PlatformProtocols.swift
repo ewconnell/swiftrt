@@ -27,15 +27,12 @@ import Foundation
 /// ComputePlatform
 /// The root collection of compute resources available to the application
 /// on a given machine
-public protocol ComputePlatform: Logging {
+public protocol ComputePlatform: Logger {
     /// a device queue whose memory is shared with the application
     var applicationQueue: DeviceQueue { get }
     /// the currently selected device queue to direct work
     /// - Returns: the current device queue
     var currentQueue: DeviceQueue { get }
-    /// the platform id. Usually zero, but can be assigned in case a higher
-    /// level object (e.g. cluster) will maintain a platform collection
-    var id: Int { get }
     /// name used logging
     var name: String { get }
     /// the current device and queue to direct work
@@ -141,7 +138,7 @@ public extension ComputePlatformType {
 /// ComputeService
 /// a compute service represents a category of installed devices on the
 /// platform, such as (cpu, cuda, tpu, ...)
-public protocol ComputeService {
+public protocol ComputeService: Logger {
     // types
     associatedtype Device: ComputeDeviceType
 
@@ -163,7 +160,7 @@ public protocol ComputeService {
 /// ComputeDevice
 /// a compute device represents a physical service device installed
 /// on the platform
-public protocol ComputeDevice {
+public protocol ComputeDevice: Logger {
     /// the id of the device for example dev:0, dev:1, ...
     var id: Int { get }
     /// name used logging
@@ -198,7 +195,7 @@ public protocol ComputeDeviceType: ComputeDevice {
 /// DeviceQueue
 /// A device queue is an asynchronous sequential list of commands to be
 /// executed on the associated device.
-public protocol DeviceQueue: DeviceFunctions {
+public protocol DeviceQueue: Logger, DeviceFunctions {
     /// a key to lookup a DeviceArray replica associated with this device
     var arrayReplicaKey: Int { get }
     /// options to use when creating queue events

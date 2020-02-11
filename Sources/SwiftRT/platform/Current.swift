@@ -25,21 +25,27 @@ import Glibc
 /// Manages the scope for the current devices, log, and error handlers
 public class Current {
     /// the log output object
-    @usableFromInline var logWriter: Log
+    @usableFromInline static var logWriter: Log = Log()
     /// the current compute platform for the thread
     @usableFromInline var platform: ComputePlatform
     /// a platform instance unique id for queue events
-    @usableFromInline var queueEventCounter: Int
+    @usableFromInline static var queueEventCounter: Int = 0
     /// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
-    @usableFromInline var arrayReplicaKeyCounter: Int
+    @usableFromInline static var arrayReplicaKeyCounter: Int = 0
 
     //--------------------------------------------------------------------------
-    // instance helpers
-    @usableFromInline var nextQueueEventId: Int {
+    /// the Platform log writing object
+    @inlinable public static var log: Log {
+        get { logWriter }
+        set { logWriter = newValue }
+    }
+    /// a counter used to uniquely identify queue events for diagnostics
+    @inlinable static var nextQueueEventId: Int {
         queueEventCounter += 1
         return queueEventCounter
     }
-    @usableFromInline var nextArrayReplicaKey: Int {
+    /// TODO: probably remove this
+    @inlinable static var nextArrayReplicaKey: Int {
         arrayReplicaKeyCounter += 1
         return arrayReplicaKeyCounter
     }
@@ -48,17 +54,7 @@ public class Current {
     // this is a singleton to the initializer is internal
     @usableFromInline
     internal init() {
-        logWriter = Log()
-        queueEventCounter = 0
-        arrayReplicaKeyCounter = 0
-        
-        platform  = Platform<CpuService>()
-    }
-    /// the Platform log writing object
-    @inlinable
-    public static var log: Log {
-        get { threadLocal.logWriter }
-        set { threadLocal.logWriter = newValue }
+        platform = Platform<CpuService>()
     }
     /// the current Platform for this thread
     /// NOTE: for performance critical applications, this could be redefined
@@ -68,16 +64,6 @@ public class Current {
     public static var platform: ComputePlatform {
         get { threadLocal.platform }
         set { threadLocal.platform = newValue }
-    }
-    /// a counter used to uniquely identify queue events for diagnostics
-    @inlinable
-    public static var nextQueueEventId: Int {
-        threadLocal.nextQueueEventId
-    }
-    /// TODO: probably remove this
-    @inlinable
-    public static var nextArrayReplicaKey: Int {
-        threadLocal.nextArrayReplicaKey
     }
 
     //--------------------------------------------------------------------------

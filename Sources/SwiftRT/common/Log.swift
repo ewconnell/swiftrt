@@ -124,6 +124,8 @@ public extension _Logging {
 /// LogInfo
 /// this is used to manage which logWriter to use and message parameters
 public struct LogInfo {
+    /// the log writing object to use
+    public var logWriter: Log
     /// the reporting level of the object, which allows different objects
     /// to have different reporting levels to fine tune output
     public var logLevel: LogLevel
@@ -134,10 +136,12 @@ public struct LogInfo {
     /// the nesting level within a hierarchical model to aid in
     /// message formatting.
     public var nestingLevel: Int
- 
+    
     //--------------------------------------------------------------------------
     @inlinable
-    public init(logLevel: LogLevel, namePath: String, nestingLevel: Int) {
+    public init(logWriter: Log, logLevel: LogLevel,
+                namePath: String, nestingLevel: Int) {
+        self.logWriter = logWriter
         self.logLevel = logLevel
         self.namePath = namePath
         self.nestingLevel = nestingLevel
@@ -147,7 +151,7 @@ public struct LogInfo {
     /// a helper to create logging info for a child object in a hierarchy
     @inlinable
     public func child(_ name: String) -> LogInfo {
-        LogInfo(logLevel: .error,
+        LogInfo(logWriter: logWriter, logLevel: .error,
                 namePath: "\(namePath)/\(name)", nestingLevel: nestingLevel + 1)
     }
 
@@ -156,7 +160,7 @@ public struct LogInfo {
     /// reporting structure
     @inlinable
     public func flat(_ name: String) -> LogInfo {
-        LogInfo(logLevel: .error,
+        LogInfo(logWriter: logWriter, logLevel: .error,
                 namePath: "\(namePath)/\(name)", nestingLevel: nestingLevel)
     }
 }
@@ -168,14 +172,10 @@ public struct LogInfo {
 public protocol Logging : _Logging {}
 
 public extension Logging {
-    @inlinable
-    var logWriter: Log { Current.log }
-    @inlinable
-    var logLevel: LogLevel { Current.log.level }
-    @inlinable
-    var logNamePath: String { "" }
-    @inlinable
-    var logNestingLevel: Int { 0 }
+    @inlinable var logWriter: Log { Current.log }
+    @inlinable var logLevel: LogLevel { Current.log.level }
+    @inlinable var logNamePath: String { "" }
+    @inlinable var logNestingLevel: Int { 0 }
 }
 
 //==============================================================================
@@ -187,12 +187,10 @@ public protocol Logger : Logging {
 }
 
 extension Logger {
-    @inlinable
-    public var logLevel: LogLevel { logInfo.logLevel }
-    @inlinable
-    public var logNamePath: String { logInfo.namePath }
-    @inlinable
-    public var logNestingLevel: Int { logInfo.nestingLevel }
+    @inlinable public var logWriter: Log { logInfo.logWriter }
+    @inlinable public var logLevel: LogLevel { logInfo.logLevel }
+    @inlinable public var logNamePath: String { logInfo.namePath }
+    @inlinable public var logNestingLevel: Int { logInfo.nestingLevel }
 }
 
 //==============================================================================
