@@ -20,6 +20,14 @@ import Real
 /// casts elements of `x` to the output type
 /// - Parameter other: value tensor
 /// - Returns: result
+@inlinable
+public func cast<T, U>(_ other: U) -> T where
+    T: TensorView, T.Element: AnyConvertable,
+    U: TensorView, U.Element: AnyConvertable, U.Shape == T.Shape
+{
+    Current.platform.cast(other)
+}
+
 public extension ComputePlatform {
     @inlinable
     func cast<T, U>(_ other: U) -> T where
@@ -41,6 +49,13 @@ public extension ComputePlatform {
 /// computes the absolute value of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
+@inlinable
+public func abs<T>(_ x: T) -> T
+    where T: TensorView, T.Element: Real
+{
+    Current.platform.abs(x)
+}
+
 public extension ComputePlatform {
     @inlinable
     func abs<T>(_ x: T) -> T
@@ -77,6 +92,13 @@ public extension TensorView where Element: Real {
 /// computes the exponential value of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
+@inlinable
+public func exp<T>(_ x: T) -> T
+    where T: TensorView, T.Element: Real
+{
+    Current.platform.exp(x)
+}
+
 public extension ComputePlatform {
     @inlinable
     func exp<T>(_ x: T) -> T
@@ -113,6 +135,13 @@ public extension TensorView where Element: Real {
 /// computes the log of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
+@inlinable
+public func log<T>(_ x: T) -> T
+    where T: TensorView, T.Element: Real
+{
+    Current.platform.log(x)
+}
+
 public extension ComputePlatform {
     @inlinable
     func log<T>(_ x: T) -> T
@@ -148,6 +177,11 @@ public extension TensorView where Element: Real {
 /// computes the negated value of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
+@inlinable
+public func neg<T>(_ x: T) -> T where T: TensorView, T.Element: SignedNumeric {
+    Current.platform.neg(x)
+}
+
 public extension ComputePlatform {
     @inlinable
     func neg<T>(_ x: T) -> T where T: TensorView, T.Element: SignedNumeric {
@@ -173,7 +207,7 @@ public extension TensorView where Element: SignedNumeric {
 
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func neg() -> Self { Current.platform.neg(self) }
+    func neg() -> Self { -self }
 }
 
 //==============================================================================
@@ -181,6 +215,13 @@ public extension TensorView where Element: SignedNumeric {
 /// computes the elementwise squares of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
+@inlinable
+public func squared<T>(_ x: T) -> T
+    where T: TensorView, T.Element: Numeric
+{
+    Current.platform.squared(x)
+}
+
 public extension ComputePlatform {
     @inlinable
     func squared<T>(_ x: T) -> T
@@ -222,11 +263,14 @@ public extension Numeric {
 /// - Parameter x: value tensor
 /// - Parameter y: power tensor
 /// - Returns: result
+@inlinable
+public func pow<T>(_ x: T, _ y: T) -> T where T: TensorView, T.Element: Real {
+    Current.platform.pow(x, y)
+}
+
 public extension ComputePlatform {
     @inlinable
-    func pow<T>(_ x: T, _ y: T) -> T
-        where T: TensorView, T.Element: Real
-    {
+    func pow<T>(_ x: T, _ y: T) -> T where T: TensorView, T.Element: Real {
         assert(x.extents == y.extents, _messageTensorExtentsMismatch)
         var result = x.createDense()
         currentQueue.squared(x: x, result: &result)
@@ -277,6 +321,11 @@ public extension TensorView where Element: Real {
 /// computes the square root of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
+@inlinable
+public func sqrt<T>(_ x: T) -> T where T: TensorView, T.Element: Real {
+    Current.platform.sqrt(x)
+}
+
 public extension ComputePlatform {
     @inlinable
     func sqrt<T>(_ x: T) -> T
@@ -313,6 +362,11 @@ public extension TensorView where Element: Real {
 ///
 /// - Parameter x: value tensor
 /// - Returns: the signs of `x`. -1 for negative `x` values, 1 for positive
+@inlinable
+public func sign<T>(_ x: T) -> T where T: TensorView, T.Element: Real {
+    Current.platform.sign(x)
+}
+
 public extension ComputePlatform {
     @inlinable
     func sign<T>(_ x: T) -> T

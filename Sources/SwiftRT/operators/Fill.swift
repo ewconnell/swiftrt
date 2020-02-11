@@ -18,6 +18,13 @@
 /// concat
 /// - Parameter tensors: array of tensors whose elements will be joined
 /// - Parameter axis: dimension to append the elements
+@inlinable
+public func concat<T>(tensors: [T], alongAxis axis: Int = 0,
+                      name: String? = nil) -> T where T: TensorView
+{
+    Current.platform.concat(tensors: tensors, alongAxis: axis, name: name)
+}
+
 public extension ComputePlatform {
     @inlinable
     func concat<T>(tensors: [T], alongAxis axis: Int = 0,
@@ -45,6 +52,11 @@ public extension TensorView {
 /// copies the elements from `view` to `result`
 /// - Parameter from view: tensor to be copied
 /// - Parameter to result: the tensor where the result will be written
+@inlinable
+public func copy<T>(from view: T, to result: inout T) where T: TensorView {
+    Current.platform.copy(from: view, to: &result)
+}
+
 public extension ComputePlatform {
     @inlinable
     func copy<T>(from view: T, to result: inout T) where T: TensorView {
@@ -52,10 +64,25 @@ public extension ComputePlatform {
     }
 }
 
+//==============================================================================
+/// fill<T>(result:value:
+/// fills the view with the specified value
+@inlinable
+public func fill<T>(_ result: inout T, with element: T.Element)
+    where T: TensorView
+{
+    Current.platform.fill(&result, with: element)
+}
+
+@inlinable
+public func fill<T, R>(_ result: inout T, with range: R) where
+    T: TensorView,
+    R: StridedRangeExpression, R.Bound == T.Element
+{
+    Current.platform.fill(&result, with: range)
+}
+
 public extension ComputePlatform {
-    //==============================================================================
-    /// fill<T>(result:value:
-    /// fills the view with the specified value
     @inlinable
     func fill<T>(_ result: inout T, with element: T.Element)
         where T: TensorView
@@ -82,7 +109,7 @@ public extension TensorView {
     @inlinable
     func filled(with element: Element) -> Self {
         var result = createDense()
-        Current.platform.fill(&result, with: element)
+        fill(&result, with: element)
         return result
     }
     
@@ -93,7 +120,7 @@ public extension TensorView {
         where R: StridedRangeExpression, R.Bound == Element
     {
         var result = createDense()
-        Current.platform.fill(&result, with: range)
+        fill(&result, with: range)
         return result
     }
 }
@@ -102,6 +129,13 @@ public extension TensorView {
 /// fillWithIndex
 /// a convenience function to fill the tensor with index values from
 /// `0..<count`. If a different range is desired, use `fill(with range:`
+@inlinable
+public func fillWithIndex<T>(_ result: inout T)
+    where T: TensorView, T.Element: AnyNumeric & RangeBound
+{
+    Current.platform.fillWithIndex(&result)
+}
+
 public extension ComputePlatform {
     @inlinable
     func fillWithIndex<T>(_ result: inout T)
@@ -115,7 +149,7 @@ public extension TensorView where Element: AnyNumeric & RangeBound {
     @inlinable
     func filledWithIndex() -> Self {
         var result = createDense()
-        Current.platform.fill(&result, with: 0..<Element(any: self.count))
+        fill(&result, with: 0..<Element(any: self.count))
         return result
     }
 }
@@ -123,24 +157,29 @@ public extension TensorView where Element: AnyNumeric & RangeBound {
 //==============================================================================
 /// replace<T>(x:with:result:
 /// fills the view with the specified value
+@inlinable
+public func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T
+    where T: TensorView
+{
+    Current.platform.replace(x: x, with: y, where: condition)
+}
+
 public extension ComputePlatform {
     @inlinable
-    func replace<T>(x: T, with y: T, where condition: T.BoolView,
-                    result: inout T) where T: TensorView
+    func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T
+        where T: TensorView
     {
+        var result = x.createDense()
         currentQueue.replace(x: x, with: y, where: condition,
                              result: &result)
+        return result
     }
 }
 
 public extension TensorView where Element: Comparable {
     @inlinable
-    func replacing(with y: Self, where condition: BoolView) -> Self
-    {
-        var result = createDense()
-        Current.platform.replace(x: self, with: y, where: condition,
-                               result: &result)
-        return result
+    func replacing(with y: Self, where condition: BoolView) -> Self {
+        replace(x: self, with: y, where: condition)
     }
     
     @inlinable
