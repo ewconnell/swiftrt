@@ -17,6 +17,110 @@ import Foundation
 import Dispatch
 
 //==============================================================================
+// Logging
+public protocol _Logging {
+    /// the logWriter to write to
+    var logWriter: Log { get }
+    /// the level of reporting for this node
+    var logLevel: LogLevel { get }
+    /// the name path of this node for hierarchical structures
+    var logNamePath: String { get }
+    /// the nesting level within a hierarchical model to aid in
+    /// message formatting.
+    var logNestingLevel: Int { get }
+    
+    /// tests if a message will be written to the logWriter
+    /// - Parameter level: the level of the message (error, warning, ...)
+    func willLog(level: LogLevel) -> Bool
+    
+    /// writes a message to the logWriter
+    /// - Parameter message: the message to write
+    /// - Parameter level: the level of the message (error, warning, ...)
+    /// - Parameter indent: optional indent level for formatting
+    /// - Parameter trailing: a trailing fill character to add to the message
+    /// - Parameter minCount: the minimum length of the message. If it exceeds
+    ///   the actual message length, then trailing fill is used. This is used
+    ///   mainly for creating message partitions i.e. "---------"
+    func writeLog(_ message: @autoclosure () -> String,
+                  level: LogLevel,
+                  indent: Int,
+                  trailing: String,
+                  minCount: Int)
+    
+    /// writes a diagnostic message to the logWriter
+    /// - Parameter message: the message to write
+    /// - Parameter categories: the categories this message applies to
+    /// - Parameter indent: optional indent level for formatting
+    /// - Parameter trailing: a trailing fill character to add to the message
+    /// - Parameter minCount: the minimum length of the message. If it exceeds
+    ///   the actual message length, then trailing fill is used. This is used
+    ///   mainly for creating message partitions i.e. "---------"
+    func diagnostic(_ message: @autoclosure () -> String,
+                    categories: LogCategories,
+                    indent: Int,
+                    trailing: String,
+                    minCount: Int)
+}
+
+//==============================================================================
+// Logging
+public extension _Logging {
+    //--------------------------------------------------------------------------
+    /// writeLog
+    @inlinable
+    func willLog(level: LogLevel) -> Bool {
+        level <= logWriter.level || level <= logLevel
+    }
+    
+    //--------------------------------------------------------------------------
+    /// writeLog
+    @inlinable
+    func writeLog(_ message: @autoclosure () -> String,
+                  level: LogLevel = .error,
+                  indent: Int = 0,
+                  trailing: String = "",
+                  minCount: Int = 80)
+    {
+        guard willLog(level: level) else { return }
+        logWriter.write(level: level,
+                        message: message(),
+                        nestingLevel: indent + logNestingLevel,
+                        trailing: trailing, minCount: minCount)
+    }
+    
+    //--------------------------------------------------------------------------
+    // diagnostic
+    #if DEBUG
+    @inlinable
+    func diagnostic(_ message: @autoclosure () -> String,
+                    categories: LogCategories,
+                    indent: Int = 0,
+                    trailing: String = "",
+                    minCount: Int = 80)
+    {
+        guard willLog(level: .diagnostic) else { return}
+        // if subcategories have been selected on the logWriter object
+        // then make sure the caller's category is desired
+        if let mask = logWriter.categories?.rawValue,
+            categories.rawValue & mask == 0 { return }
+        
+        logWriter.write(level: .diagnostic,
+                        message: message(),
+                        nestingLevel: indent + logNestingLevel,
+                        trailing: trailing, minCount: minCount)
+    }
+    #else
+    @inlinable
+    func diagnostic(_ message: @autoclosure () -> String,
+                    categories: LogCategories,
+                    indent: Int = 0,
+                    trailing: String = "",
+                    minCount: Int = 80) { }
+    #endif
+}
+
+
+//==============================================================================
 /// LogInfo
 /// this is used to manage which logWriter to use and message parameters
 public struct LogInfo {
@@ -58,120 +162,26 @@ public struct LogInfo {
 }
 
 //==============================================================================
-// Logging
-public protocol Logging {
-    /// the logWriter to write to
-    var logWriter: Log { get }
-    /// the level of reporting for this node
-    var logLevel: LogLevel { get }
-    /// the name path of this node for hierarchical structures
-    var logNamePath: String { get }
-    /// the nesting level within a hierarchical model to aid in
-    /// message formatting.
-    var logNestingLevel: Int { get }
+/// Logging
+/// this is conformed to by lightweight objects such as tensors that want
+/// to make log entries without carrying any logging state information
+public protocol Logging : _Logging {}
 
-    /// tests if a message will be written to the logWriter
-    /// - Parameter level: the level of the message (error, warning, ...)
-    func willLog(level: LogLevel) -> Bool
-    
-    /// writes a message to the logWriter
-    /// - Parameter message: the message to write
-    /// - Parameter level: the level of the message (error, warning, ...)
-    /// - Parameter indent: optional indent level for formatting
-    /// - Parameter trailing: a trailing fill character to add to the message
-    /// - Parameter minCount: the minimum length of the message. If it exceeds
-    ///   the actual message length, then trailing fill is used. This is used
-    ///   mainly for creating message partitions i.e. "---------"
-    func writeLog(_ message: @autoclosure () -> String,
-                  level: LogLevel,
-                  indent: Int,
-                  trailing: String,
-                  minCount: Int)
-    
-    /// writes a diagnostic message to the logWriter
-    /// - Parameter message: the message to write
-    /// - Parameter categories: the categories this message applies to
-    /// - Parameter indent: optional indent level for formatting
-    /// - Parameter trailing: a trailing fill character to add to the message
-    /// - Parameter minCount: the minimum length of the message. If it exceeds
-    ///   the actual message length, then trailing fill is used. This is used
-    ///   mainly for creating message partitions i.e. "---------"
-    func diagnostic(_ message: @autoclosure () -> String,
-                    categories: LogCategories,
-                    indent: Int,
-                    trailing: String,
-                    minCount: Int)
-}
-
-//==============================================================================
-// Logging
 public extension Logging {
     @inlinable
-    var logWriter: Log { Current.current.logWriter }
+    var logWriter: Log { Current.log }
     @inlinable
-    var logLevel: LogLevel { logWriter.level }
+    var logLevel: LogLevel { Current.log.level }
     @inlinable
     var logNamePath: String { "" }
     @inlinable
     var logNestingLevel: Int { 0 }
-
-    //--------------------------------------------------------------------------
-    /// writeLog
-    @inlinable
-    func willLog(level: LogLevel) -> Bool {
-        level <= logWriter.level || level <= logLevel
-    }
-
-    //--------------------------------------------------------------------------
-    /// writeLog
-    @inlinable
-    func writeLog(_ message: @autoclosure () -> String,
-                  level: LogLevel = .error,
-                  indent: Int = 0,
-                  trailing: String = "",
-                  minCount: Int = 80)
-    {
-        guard willLog(level: level) else { return }
-        logWriter.write(level: level,
-                  message: message(),
-                  nestingLevel: indent + logNestingLevel,
-                  trailing: trailing, minCount: minCount)
-    }
-    
-    //--------------------------------------------------------------------------
-    // diagnostic
-    #if DEBUG
-    @inlinable
-    func diagnostic(_ message: @autoclosure () -> String,
-                    categories: LogCategories,
-                    indent: Int = 0,
-                    trailing: String = "",
-                    minCount: Int = 80)
-    {
-        guard willLog(level: .diagnostic) else { return}
-        // if subcategories have been selected on the logWriter object
-        // then make sure the caller's category is desired
-        if let mask = logWriter.categories?.rawValue,
-            categories.rawValue & mask == 0 { return }
-        
-        logWriter.write(level: .diagnostic,
-                  message: message(),
-                  nestingLevel: indent + logNestingLevel,
-                  trailing: trailing, minCount: minCount)
-    }
-    #else
-    @inlinable
-    func diagnostic(_ message: @autoclosure () -> String,
-                    categories: LogCategories,
-                    indent: Int = 0,
-                    trailing: String = "",
-                    minCount: Int = 80) { }
-    #endif
 }
 
-
 //==============================================================================
-// Logger
+/// Logger
+/// this is conformed to by objects that have structured state such as an
+/// operator graph or device hierarchy
 public protocol Logger : Logging {
     var logInfo: LogInfo { get }
 }

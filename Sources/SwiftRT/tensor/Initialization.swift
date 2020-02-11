@@ -30,7 +30,7 @@ public extension TensorView where Element: AnyConvertable {
     init<U>(_ other: U) where
         U: TensorView, U.Element: AnyConvertable, Shape == U.Shape
     {
-        self = globalPlatform.cast(other)
+        self = Current.platform.cast(other)
     }
 }
 
@@ -75,8 +75,8 @@ public extension TensorView {
     init(concatenating tensors: [Self], alongAxis axis: Int = 0,
          name: String? = nil)
     {
-        self = globalPlatform.concat(tensors: tensors, alongAxis: axis,
-                                     name: name)
+        self = Current.platform.concat(tensors: tensors, alongAxis: axis,
+                                       name: name)
     }
     
     //--------------------------------------------------------------------------
@@ -233,7 +233,7 @@ public extension TensorView {
         var index = Shape.zeros
         for tensor in expanded {
             var view = stacked.mutableView(at: index, extents: tensor.extents)
-            globalPlatform.copy(from: tensor, to: &view)
+            Current.platform.copy(from: tensor, to: &view)
             index[axis] += 1
         }
         self = stacked

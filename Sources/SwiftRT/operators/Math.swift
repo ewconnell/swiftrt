@@ -65,7 +65,7 @@ public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func abs(_ x: Self) -> Self { globalPlatform.abs(x) }
+    func abs(_ x: Self) -> Self { Current.platform.abs(x) }
     
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
@@ -101,7 +101,7 @@ public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func exp(_ x: Self) -> Self { globalPlatform.exp(x) }
+    func exp(_ x: Self) -> Self { Current.platform.exp(x) }
 
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
@@ -136,7 +136,7 @@ public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func log(_ x: Self) -> Self { globalPlatform.log(x) }
+    func log(_ x: Self) -> Self { Current.platform.log(x) }
 
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
@@ -169,11 +169,11 @@ public extension TensorView where Element: SignedNumeric {
     // make glboal function visible for extension implementations
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    static prefix func - (x: Self) -> Self { globalPlatform.neg(x) }
+    static prefix func - (x: Self) -> Self { Current.platform.neg(x) }
 
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func neg() -> Self { globalPlatform.neg(self) }
+    func neg() -> Self { Current.platform.neg(self) }
 }
 
 //==============================================================================
@@ -204,7 +204,7 @@ public extension TensorView where Element: Numeric {
     // make glboal function visible for extension implementations
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func squared(_ x: Self) -> Self { globalPlatform.squared(x) }
+    func squared(_ x: Self) -> Self { Current.platform.squared(x) }
 
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
@@ -253,11 +253,11 @@ public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func pow(_ x: Self, _ y: Self) -> Self { globalPlatform.pow(x, y) }
+    func pow(_ x: Self, _ y: Self) -> Self { Current.platform.pow(x, y) }
 
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    static func **(_ x: Self, _ y: Self) -> Self { globalPlatform.pow(x, y) }
+    static func **(_ x: Self, _ y: Self) -> Self { Current.platform.pow(x, y) }
 
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
@@ -301,7 +301,7 @@ public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func sqrt(_ x: Self) -> Self { globalPlatform.sqrt(x) }
+    func sqrt(_ x: Self) -> Self { Current.platform.sqrt(x) }
 
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
@@ -336,7 +336,7 @@ public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func sign(_ x: Self) -> Self { globalPlatform.sign(x) }
+    func sign(_ x: Self) -> Self { Current.platform.sign(x) }
     
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable

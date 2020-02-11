@@ -60,12 +60,12 @@
 //    let almostEqual = elementsAlmostEqual(grad, expected, tolerance: tolerance)
 //        .all().element
 //    if !almostEqual {
-//        globalPlatform.current[0].writeLog(
+//        Current.platform.current[0].writeLog(
 //            "gradient values do not match numerical jvp values")
-//        globalPlatform.current[0].writeLog("gradient: \(grad.flatArray)")
-//        globalPlatform.current[0].writeLog("expected: \(expected.flatArray)")
+//        Current.platform.current[0].writeLog("gradient: \(grad.flatArray)")
+//        Current.platform.current[0].writeLog("expected: \(expected.flatArray)")
 //        let maxDiff = (grad - expected).absmax().element
-//        globalPlatform.current[0].writeLog("maxDiff: \(maxDiff)")
+//        Current.platform.current[0].writeLog("maxDiff: \(maxDiff)")
 //    }
 //    return almostEqual
 //}

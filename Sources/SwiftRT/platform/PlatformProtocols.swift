@@ -250,7 +250,7 @@ public extension DeviceQueue {
     }
 
     @inlinable
-    var device: ComputeDevice { globalPlatform.device(deviceId) }
+    var device: ComputeDevice { Current.platform.device(deviceId) }
 }
 
 //==============================================================================

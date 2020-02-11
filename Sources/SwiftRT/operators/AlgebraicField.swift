@@ -44,7 +44,7 @@ public extension ComputePlatform {
 public extension TensorView where Element: AdditiveArithmetic {
     @inlinable
     static func + (lhs: Self, rhs: Self) -> Self {
-        globalPlatform.add(lhs, rhs)
+        Current.platform.add(lhs, rhs)
     }
 
     @inlinable
@@ -69,7 +69,7 @@ public extension TensorView where Self: DifferentiableTensorView {
     static func _vjpAdd(lhs: Self, rhs: Self) ->
         (value: Self, pullback: (Self) -> (Self, Self))
     {
-        globalPlatform._vjpAdd(lhs: lhs, rhs: rhs)
+        Current.platform._vjpAdd(lhs: lhs, rhs: rhs)
     }
     
     @derivative(of: +)
@@ -120,7 +120,7 @@ public extension ComputePlatform {
 public extension TensorView where Element: AdditiveArithmetic {
     @inlinable
     static func - (lhs: Self, rhs: Self) -> Self {
-        globalPlatform.subtract(lhs, rhs)
+        Current.platform.subtract(lhs, rhs)
     }
 
     @inlinable
@@ -189,7 +189,7 @@ public extension TensorView
 public extension TensorView where Element: Numeric {
     @inlinable
     static func * (lhs: Self, rhs: Self) -> Self {
-        globalPlatform.mul(lhs, rhs)
+        Current.platform.mul(lhs, rhs)
     }
     
     @inlinable
@@ -217,7 +217,7 @@ public extension TensorView where Self: DifferentiableTensorView {
     static func _vjpMultiply(lhs: Self, rhs: Self) ->
         (value: Self, pullback: (Self) -> (Self, Self))
     {
-        globalPlatform._vjpMultiply(lhs, rhs)
+        Current.platform._vjpMultiply(lhs, rhs)
     }
     
     @derivative(of: *)
@@ -268,7 +268,7 @@ public extension ComputePlatform {
 public extension TensorView where Element: AlgebraicField {
     @inlinable
     static func / (lhs: Self, rhs: Self) -> Self {
-        globalPlatform.div(lhs, rhs)
+        Current.platform.div(lhs, rhs)
     }
 
     @inlinable
@@ -299,7 +299,7 @@ public extension TensorView where
     static func _vjpDivide(lhs: Self, rhs: Self) ->
         (value: Self, pullback: (Self) -> (Self, Self))
     {
-        globalPlatform._vjpDivide(lhs, rhs)
+        Current.platform._vjpDivide(lhs, rhs)
     }
     
     @derivative(of: /)

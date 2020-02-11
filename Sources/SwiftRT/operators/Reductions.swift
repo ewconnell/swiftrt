@@ -50,7 +50,7 @@ public extension ComputePlatform {
 public extension TensorView where Element == Bool {
     @inlinable
     func all(alongAxes axes: Set<Int>? = nil) -> Self {
-        globalPlatform.all(self, alongAxes: axes)
+        Current.platform.all(self, alongAxes: axes)
     }
     
     @inlinable
@@ -88,7 +88,7 @@ public extension ComputePlatform {
 public extension TensorView where Element == Bool {
     @inlinable
     func any(alongAxes axes: Set<Int>? = nil) -> Self {
-        globalPlatform.any(self, alongAxes: axes)
+        Current.platform.any(self, alongAxes: axes)
     }
 
     @inlinable
@@ -130,7 +130,7 @@ public extension TensorView where Element: Numeric {
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sum(alongAxes axes: Set<Int>? = nil) -> Self {
-        globalPlatform.sum(self, alongAxes: axes)
+        Current.platform.sum(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -180,7 +180,7 @@ public extension TensorView where Element: AlgebraicField {
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func mean(alongAxes axes: Set<Int>? = nil) -> Self {
-        globalPlatform.mean(self, alongAxes: axes)
+        Current.platform.mean(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -223,7 +223,7 @@ public extension TensorView where Element: Numeric {
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func prod(alongAxes axes: Set<Int>? = nil) -> Self {
-        globalPlatform.prod(self, alongAxes: axes)
+        Current.platform.prod(self, alongAxes: axes)
     }
 
     @differentiable(where Self: DifferentiableTensorView)
@@ -268,7 +268,7 @@ public extension TensorView where Element: Numeric {
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func prodNonZeros(alongAxes axes: Set<Int>? = nil) -> Self {
-        globalPlatform.prodNonZeros(self, alongAxes: axes)
+        Current.platform.prodNonZeros(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -318,7 +318,7 @@ public extension TensorView where
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func min(alongAxes axes: Set<Int>? = nil) -> Self {
-        globalPlatform.min(self, alongAxes: axes)
+        Current.platform.min(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -365,7 +365,7 @@ public extension TensorView where
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func max(alongAxes axes: Set<Int>? = nil) -> Self {
-        globalPlatform.max(self, alongAxes: axes)
+        Current.platform.max(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -411,7 +411,7 @@ public extension TensorView where
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func absmax(alongAxes axes: Set<Int>? = nil) -> Self {
-        globalPlatform.absmax(self, alongAxes: axes)
+        Current.platform.absmax(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -457,7 +457,7 @@ public extension TensorView where Element: SignedNumeric & Comparable {
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func abssum(alongAxes axes: Set<Int>? = nil) -> Self {
-        globalPlatform.abssum(self, alongAxes: axes)
+        Current.platform.abssum(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -500,7 +500,7 @@ public extension TensorView where Element: Real {
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sqrtSumSquares(alongAxes axes: Set<Int>? = nil) -> Self {
-        globalPlatform.sqrtSumSquares(self, alongAxes: axes)
+        Current.platform.sqrtSumSquares(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)

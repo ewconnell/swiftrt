@@ -109,7 +109,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         // this should never fail since it is copying from host buffer to
         // host buffer. It is synchronous, so we don't need to create or
         // record a completion event.
-        let buffer = readWrite(using: globalPlatform.applicationQueue)
+        let buffer = readWrite(using: Current.platform.applicationQueue)
         for i in zip(buffer.indices, elements.indices) {
             buffer[i.0] = elements[i.1]
         }
@@ -126,7 +126,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         masterVersion = 0
         
         // create the replica device array
-        let platform = globalPlatform
+        let platform = Current.platform
         let queue = platform.currentQueue
         let key = queue.arrayReplicaKey
         let bytes = UnsafeRawBufferPointer(buffer)
@@ -147,7 +147,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         masterVersion = 0
         
         // create the replica device array
-        let queue = globalPlatform.currentQueue
+        let queue = Current.platform.currentQueue
         let key = queue.arrayReplicaKey
         let bytes = UnsafeMutableRawBufferPointer(buffer)
         let array = queue.device.createMutableReferenceArray(buffer: bytes)
@@ -283,7 +283,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         } else {
             // both are discreet and not in the same service, so
             // transfer to host memory as an intermediate step
-            let host = getArray(for: globalPlatform.applicationQueue)
+            let host = getArray(for: Current.platform.applicationQueue)
             queue.copyAsync(to: host.buffer, from: master)
             
             diagnostic("\(copyString) \(name)(\(trackingId)) " +
@@ -365,7 +365,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(name, forKey: .name)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
-        let buffer = readOnly(using: globalPlatform.applicationQueue)
+        let buffer = readOnly(using: Current.platform.applicationQueue)
         try buffer.forEach {
             try dataContainer.encode($0)
         }
@@ -378,7 +378,7 @@ public final class TensorArray<Element>: ObjectTracking, Codable, Logging
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
         if let count = dataContainer.count {
             self.init(count: count, name: name)
-            let elements = readWrite(using: globalPlatform.applicationQueue)
+            let elements = readWrite(using: Current.platform.applicationQueue)
             for i in 0..<count {
                 elements[i] = try dataContainer.decode(Element.self)
             }

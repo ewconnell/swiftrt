@@ -36,7 +36,7 @@ public extension ComputePlatform {
 public extension TensorView {
     @inlinable
     func concat(_ others: Self..., alongAxis axis: Int = 0) -> Self {
-        globalPlatform.concat(tensors: [self] + others, alongAxis: axis)
+        Current.platform.concat(tensors: [self] + others, alongAxis: axis)
     }
 }
 
@@ -82,7 +82,7 @@ public extension TensorView {
     @inlinable
     func filled(with element: Element) -> Self {
         var result = createDense()
-        globalPlatform.fill(&result, with: element)
+        Current.platform.fill(&result, with: element)
         return result
     }
     
@@ -93,7 +93,7 @@ public extension TensorView {
         where R: StridedRangeExpression, R.Bound == Element
     {
         var result = createDense()
-        globalPlatform.fill(&result, with: range)
+        Current.platform.fill(&result, with: range)
         return result
     }
 }
@@ -115,7 +115,7 @@ public extension TensorView where Element: AnyNumeric & RangeBound {
     @inlinable
     func filledWithIndex() -> Self {
         var result = createDense()
-        globalPlatform.fill(&result, with: 0..<Element(any: self.count))
+        Current.platform.fill(&result, with: 0..<Element(any: self.count))
         return result
     }
 }
@@ -138,7 +138,7 @@ public extension TensorView where Element: Comparable {
     func replacing(with y: Self, where condition: BoolView) -> Self
     {
         var result = createDense()
-        globalPlatform.replace(x: self, with: y, where: condition,
+        Current.platform.replace(x: self, with: y, where: condition,
                                result: &result)
         return result
     }

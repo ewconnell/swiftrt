@@ -24,7 +24,7 @@ import Glibc
 // setGlobal(platform:
 // NOTE: do this in your app if the source is part of the app
 
-// let globalPlatform = Platform<XyzService>()
+// let Current.platform = Platform<XyzService>()
 // You can define APPCOLOCATED in the build, or just delete this file
 
 //==============================================================================
@@ -34,13 +34,13 @@ import Glibc
 #if !APPCOLOCATED
 //@inlinable
 //public func setGlobal<T>(platform: T) -> T where T: ComputePlatform {
-//    globalPlatform = platform
+//    Current.platform = platform
 //    return platform
 //}
 
 /// This is an existential, so it is slower than if the
-//public var globalPlatform: ComputePlatform = Platform<CpuService>()
-//public var globalPlatform = LocalPlatform<CpuService>()
+//public var Current.platform: ComputePlatform = Platform<CpuService>()
+//public var Current.platform = LocalPlatform<CpuService>()
 #endif
 
 //==============================================================================
