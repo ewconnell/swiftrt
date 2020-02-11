@@ -182,6 +182,8 @@ public protocol ComputeDevice: Logger {
     /// address space
     func createMutableReferenceArray(buffer: UnsafeMutableRawBufferPointer)
         -> DeviceArray
+    /// - Returns: selected queue interface
+    func queue(_ index: Int) -> DeviceQueue
 }
 
 // version that includes the generic components
@@ -189,6 +191,12 @@ public protocol ComputeDeviceType: ComputeDevice {
     associatedtype Queue: DeviceQueue
     /// a collection of device queues for scheduling work
     var queues: [Queue] { get }
+}
+
+public extension ComputeDeviceType {
+    func queue(_ index: Int) -> DeviceQueue {
+        queues[index]
+    }
 }
 
 //==============================================================================

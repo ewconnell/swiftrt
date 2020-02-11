@@ -27,6 +27,13 @@ public let _messageTensorExtentsMismatch = "tensor extents mismatch"
 /// - Parameter x: value tensor
 /// - Parameter result: the scalar tensor where the result will be written
 /// - Precondition: Each value in `axes` must be in the range `-rank..<rank`.
+@inlinable
+public func all<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
+    where T: TensorView, T.Element == Bool
+{
+    Current.platform.all(x, alongAxes: axes)
+}
+
 public extension ComputePlatform {
     @inlinable
     func all<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -65,6 +72,13 @@ public extension TensorView where Element == Bool {
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
 /// - Returns: a new tensor containing the result
+@inlinable
+public func any<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
+    where T: TensorView, T.Element == Bool
+{
+    Current.platform.any(x, alongAxes: axes)
+}
+
 public extension ComputePlatform {
     @inlinable
     func any<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -100,6 +114,13 @@ public extension TensorView where Element == Bool {
 /// Sums `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
+@inlinable
+public func sum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
+    where T: TensorView, T.Element: Numeric
+{
+    Current.platform.sum(x, alongAxes: axes)
+}
+
 public extension ComputePlatform {
     @inlinable
     func sum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -144,6 +165,13 @@ public extension TensorView where Element: Numeric {
 ///
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
+@inlinable
+public func mean<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
+    where T: TensorView, T.Element: AlgebraicField
+{
+    Current.platform.mean(x, alongAxes: axes)
+}
+
 public extension ComputePlatform {
     @inlinable
     func mean<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -193,6 +221,13 @@ public extension TensorView where Element: AlgebraicField {
 /// prod of `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
+@inlinable
+public func prod<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
+    where T: TensorView, T.Element: Numeric
+{
+    Current.platform.prod(x, alongAxes: axes)
+}
+
 public extension ComputePlatform {
     @inlinable
     func prod<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -236,6 +271,13 @@ public extension TensorView where Element: Numeric {
 /// product of non zero values of `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
+@inlinable
+public func prodNonZeros<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
+    where T: TensorView, T.Element: Numeric
+{
+    Current.platform.prodNonZeros(x, alongAxes: axes)
+}
+
 public extension ComputePlatform {
     @inlinable
     func prodNonZeros<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -284,6 +326,14 @@ public extension TensorView where Element: Numeric {
 /// TODO: add optional indices
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
+@inlinable
+@differentiable(where T: DifferentiableTensorView)
+public func min<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
+    where T: TensorView, T.Element: Comparable
+{
+    Current.platform.min(x, alongAxes: axes)
+}
+
 public extension ComputePlatform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
@@ -331,6 +381,14 @@ public extension TensorView where
 /// returns the maximum element value of `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
+@inlinable
+@differentiable(where T: DifferentiableTensorView)
+public func max<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
+    where T: TensorView, T.Element: Comparable
+{
+    Current.platform.max(x, alongAxes: axes)
+}
+
 public extension ComputePlatform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
@@ -378,6 +436,13 @@ public extension TensorView where
 /// absolute max of `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
+@inlinable
+public func absmax<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
+    where T: TensorView, T.Element: SignedNumeric & Comparable
+{
+    Current.platform.absmax(x, alongAxes: axes)
+}
+
 public extension ComputePlatform {
     @inlinable
     func absmax<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -425,6 +490,14 @@ public extension TensorView where Element: SignedNumeric & Comparable
 /// Sums the absolute values of `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
+@inlinable
+@differentiable(where T: DifferentiableTensorView)
+public func abssum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
+    where T: TensorView, T.Element: SignedNumeric & Comparable
+{
+    Current.platform.abssum(x, alongAxes: axes)
+}
+
 public extension ComputePlatform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
@@ -469,6 +542,13 @@ public extension TensorView where Element: SignedNumeric & Comparable {
 /// Square root of the sum `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter alongAxes: the axes to operate on
+@inlinable
+public func sqrtSumSquares<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
+    where T: TensorView, T.Element: Real
+{
+    Current.platform.sqrtSumSquares(x, alongAxes: axes)
+}
+
 public extension ComputePlatform {
     @inlinable
     func sqrtSumSquares<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
