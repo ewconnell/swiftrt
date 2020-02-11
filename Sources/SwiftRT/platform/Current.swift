@@ -21,29 +21,6 @@ import Glibc
 #endif
 
 //==============================================================================
-// setGlobal(platform:
-// NOTE: do this in your app if the source is part of the app
-
-// let Current.platform = Platform<XyzService>()
-// You can define APPCOLOCATED in the build, or just delete this file
-
-//==============================================================================
-/// setGlobal(platform:
-/// this is used to set the framework global variable for static functions
-/// and free floating objects to access the platform
-#if !APPCOLOCATED
-//@inlinable
-//public func setGlobal<T>(platform: T) -> T where T: ComputePlatform {
-//    Current.platform = platform
-//    return platform
-//}
-
-/// This is an existential, so it is slower than if the
-//public var Current.platform: ComputePlatform = Platform<CpuService>()
-//public var Current.platform = LocalPlatform<CpuService>()
-#endif
-
-//==============================================================================
 /// Platform
 /// Manages the scope for the current devices, log, and error handlers
 public class Current {
@@ -75,7 +52,7 @@ public class Current {
         queueEventCounter = 0
         arrayReplicaKeyCounter = 0
         
-        platform  = LocalPlatform<CpuService>()
+        platform  = Platform<CpuService>()
     }
     /// the Platform log writing object
     @inlinable
@@ -84,6 +61,9 @@ public class Current {
         set { threadLocal.logWriter = newValue }
     }
     /// the current Platform for this thread
+    /// NOTE: for performance critical applications, this could be redefined
+    /// as a non thread local global static variable that is generic
+    /// type specific instead of using the `ComputePlatform` existential
     @inlinable
     public static var platform: ComputePlatform {
         get { threadLocal.platform }
