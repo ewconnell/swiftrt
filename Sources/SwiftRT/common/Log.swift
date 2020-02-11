@@ -107,7 +107,7 @@ public protocol Logging {
 // Logging
 public extension Logging {
     @inlinable
-    var logWriter: Log { Platform.current.logWriter }
+    var logWriter: Log { Current.current.logWriter }
     @inlinable
     var logLevel: LogLevel { logWriter.level }
     @inlinable

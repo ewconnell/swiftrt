@@ -40,42 +40,79 @@ import Glibc
 
 /// This is an existential, so it is slower than if the
 //public var globalPlatform: ComputePlatform = Platform<CpuService>()
-public var globalPlatform = LocalPlatform<CpuService>()
+//public var globalPlatform = LocalPlatform<CpuService>()
 #endif
 
 //==============================================================================
 /// Platform
 /// Manages the scope for the current devices, log, and error handlers
-public class Platform {
-    public var platform: ComputePlatform
-    
+public class Current {
     /// the log output object
-    public var logWriter: Log = Log()
-    public var log: Log { logWriter }
-    
+    @usableFromInline var logWriter: Log
+    /// the current compute platform for the thread
+    @usableFromInline var platform: ComputePlatform
     /// a platform instance unique id for queue events
-    @usableFromInline
-    var queueEventCounter: Int = 0
-    
-    @inlinable
-    public var nextQueueEventId: Int {
+    @usableFromInline var queueEventCounter: Int
+    /// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
+    @usableFromInline var arrayReplicaKeyCounter: Int
+
+    //--------------------------------------------------------------------------
+    // instance helpers
+    @usableFromInline var nextQueueEventId: Int {
         queueEventCounter += 1
         return queueEventCounter
     }
-    
-    /// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
-    @usableFromInline
-    var arrayReplicaKeyCounter: Int = 0
-    
-    @inlinable
-    public var nextArrayReplicaKey: Int {
+    @usableFromInline var nextArrayReplicaKey: Int {
         arrayReplicaKeyCounter += 1
         return arrayReplicaKeyCounter
     }
-    
+
+    //--------------------------------------------------------------------------
+    // this is a singleton to the initializer is internal
     @usableFromInline
     internal init() {
+        logWriter = Log()
+        queueEventCounter = 0
+        arrayReplicaKeyCounter = 0
+        
         platform  = LocalPlatform<CpuService>()
+    }
+    /// the Platform log writing object
+    @inlinable
+    public static var log: Log {
+        get { threadLocal.logWriter }
+        set { threadLocal.logWriter = newValue }
+    }
+    /// the current Platform for this thread
+    @inlinable
+    public static var platform: ComputePlatform {
+        get { threadLocal.platform }
+        set { threadLocal.platform = newValue }
+    }
+    /// a counter used to uniquely identify queue events for diagnostics
+    @inlinable
+    public static var nextQueueEventId: Int {
+        threadLocal.nextQueueEventId
+    }
+    /// TODO: probably remove this
+    @inlinable
+    public static var nextArrayReplicaKey: Int {
+        threadLocal.nextArrayReplicaKey
+    }
+
+    //--------------------------------------------------------------------------
+    /// returns the thread local instance of the queues stack
+    @usableFromInline
+    static var threadLocal: Current {
+        // try to get an existing state
+        if let state = pthread_getspecific(key) {
+            return Unmanaged.fromOpaque(state).takeUnretainedValue()
+        } else {
+            // create and return new state
+            let state = Current()
+            pthread_setspecific(key, Unmanaged.passRetained(state).toOpaque())
+            return state
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -92,20 +129,4 @@ public class Platform {
         }
         return key
     }()
-
-    //--------------------------------------------------------------------------
-    /// returns the thread local instance of the queues stack
-    @inlinable
-    public static var current: Platform {
-        // try to get an existing state
-        if let state = pthread_getspecific(key) {
-            return Unmanaged.fromOpaque(state).takeUnretainedValue()
-        } else {
-            // create and return new state
-            let state = Platform()
-            pthread_setspecific(key, Unmanaged.passRetained(state).toOpaque())
-            return state
-        }
-    }
-
 }
