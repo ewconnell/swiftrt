@@ -36,7 +36,29 @@ public extension ComputePlatform {
 //==============================================================================
 /// and
 /// Computes `lhs .&& rhs` element-wise and returns a tensor of Bool values
+@inlinable
+public func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+    T: TensorView, T.Element == Bool
+{
+    Current.platform.and(lhs, rhs)
+}
+
+@inlinable
+public func and<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
+    where T: TensorView, T.Element == Bool
+{
+    Current.platform.and(lhs, rhs)
+}
+
+@inlinable
+func and<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
+    where T: TensorView, T.Element == Bool
+{
+    Current.platform.and(lhs, rhs)
+}
+
 public extension ComputePlatform {
+    @inlinable
     func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element == Bool
     {
@@ -46,12 +68,14 @@ public extension ComputePlatform {
         return result
     }
     
+    @inlinable
     func and<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
         where T: TensorView, T.Element == Bool
     {
         and(lhs, T(repeating: rhs, like: lhs))
     }
     
+    @inlinable
     func and<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
         where T: TensorView, T.Element == Bool
     {
@@ -63,25 +87,41 @@ infix operator .&& : LogicalConjunctionPrecedence
 
 public extension TensorView where Element == Bool {
     @inlinable
-    static func .&&(_ lhs: Self, _ rhs: Self) -> BoolView {
-        Current.platform.and(lhs, rhs)
-    }
+    static func .&&(_ lhs: Self, _ rhs: Self) -> BoolView { and(lhs, rhs) }
     
     @inlinable
-    static func .&&(_ lhs: Self, _ rhs: Element) -> BoolView {
-        Current.platform.and(lhs, rhs)
-    }
+    static func .&&(_ lhs: Self, _ rhs: Element) -> BoolView { and(lhs, rhs) }
     
     @inlinable
-    static func .&&(_ lhs: Element, _ rhs: Self) -> BoolView {
-        Current.platform.and(lhs, rhs)
-    }
+    static func .&&(_ lhs: Element, _ rhs: Self) -> BoolView { and(lhs, rhs) }
 }
 
 //==============================================================================
 /// or
 /// Computes `lhs .&& rhs` element-wise and returns a tensor of Bool values
+@inlinable
+public func or<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+    T: TensorView, T.Element == Bool
+{
+    Current.platform.or(lhs, rhs)
+}
+
+@inlinable
+public func or<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
+    where T: TensorView, T.Element == Bool
+{
+    Current.platform.or(lhs, rhs)
+}
+
+@inlinable
+public func or<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
+    where T: TensorView, T.Element == Bool
+{
+    Current.platform.or(lhs, rhs)
+}
+
 public extension ComputePlatform {
+    @inlinable
     func or<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element == Bool
     {
@@ -91,12 +131,14 @@ public extension ComputePlatform {
         return result
     }
     
+    @inlinable
     func or<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
         where T: TensorView, T.Element == Bool
     {
         or(lhs, T(repeating: rhs, like: lhs))
     }
     
+    @inlinable
     func or<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
         where T: TensorView, T.Element == Bool
     {
@@ -108,19 +150,13 @@ infix operator .|| : LogicalConjunctionPrecedence
 
 public extension TensorView where Element == Bool {
     @inlinable
-    static func .||(_ lhs: Self, _ rhs: Self) -> BoolView {
-        Current.platform.or(lhs, rhs)
-    }
+    static func .||(_ lhs: Self, _ rhs: Self) -> BoolView { or(lhs, rhs) }
     
     @inlinable
-    static func .||(_ lhs: Self, _ rhs: Element) -> BoolView {
-        Current.platform.or(lhs, rhs)
-    }
+    static func .||(_ lhs: Self, _ rhs: Element) -> BoolView { or(lhs, rhs) }
     
     @inlinable
-    static func .||(_ lhs: Element, _ rhs: Self) -> BoolView {
-        Current.platform.or(lhs, rhs)
-    }
+    static func .||(_ lhs: Element, _ rhs: Self) -> BoolView { or(lhs, rhs) }
 }
 
 //==============================================================================
@@ -129,6 +165,30 @@ public extension TensorView where Element == Bool {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
+@inlinable
+@differentiable(where T: DifferentiableTensorView)
+public func max<T>(_ lhs: T, _ rhs: T) -> T where
+    T: TensorView, T.Element: Comparable
+{
+    Current.platform.max(lhs, rhs)
+}
+
+@inlinable
+@differentiable(where T: DifferentiableTensorView)
+public func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
+    T: TensorView, T.Element: Comparable
+{
+    Current.platform.max(lhs, rhs)
+}
+
+@inlinable
+@differentiable(where T: DifferentiableTensorView)
+public func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
+    T: TensorView, T.Element: Comparable
+{
+    Current.platform.max(lhs, rhs)
+}
+
 public extension ComputePlatform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
@@ -158,22 +218,22 @@ public extension ComputePlatform {
     }
 }
 
-public extension TensorView {
-    @inlinable
-    @differentiable(where T: DifferentiableTensorView)
-    func max<T>(_ lhs: T, _ rhs: T) -> T where
-        T: TensorView, T.Element: Comparable { Current.platform.max(lhs, rhs) }
-
-    @inlinable
-    @differentiable(where T: DifferentiableTensorView)
-    func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
-        T: TensorView, T.Element: Comparable { Current.platform.max(lhs, rhs) }
-
-    @inlinable
-    @differentiable(where T: DifferentiableTensorView)
-    func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
-        T: TensorView, T.Element: Comparable { Current.platform.max(lhs, rhs) }
-}
+//public extension TensorView {
+//    @inlinable
+//    @differentiable(where T: DifferentiableTensorView)
+//    func max<T>(_ lhs: T, _ rhs: T) -> T where
+//        T: TensorView, T.Element: Comparable { max(lhs, rhs) }
+//
+//    @inlinable
+//    @differentiable(where T: DifferentiableTensorView)
+//    func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
+//        T: TensorView, T.Element: Comparable { max(lhs, rhs) }
+//
+//    @inlinable
+//    @differentiable(where T: DifferentiableTensorView)
+//    func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
+//        T: TensorView, T.Element: Comparable { max(lhs, rhs) }
+//}
 
 //--------------------------------------
 // derivative functions
@@ -222,6 +282,30 @@ public extension ComputePlatform {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
+@inlinable
+@differentiable(where T: DifferentiableTensorView)
+public func min<T>(_ lhs: T, _ rhs: T) -> T where
+    T: TensorView, T.Element: Comparable
+{
+    Current.platform.min(lhs, rhs)
+}
+
+@inlinable
+@differentiable(where T: DifferentiableTensorView)
+public func min<T>(_ lhs: T, _ rhs: T.Element) -> T
+    where T: TensorView, T.Element: Comparable
+{
+    Current.platform.min(lhs, rhs)
+}
+
+@inlinable
+@differentiable(where T: DifferentiableTensorView)
+public func min<T>(_ lhs: T.Element, _ rhs: T) -> T
+    where T: TensorView, T.Element: Comparable
+{
+    Current.platform.min(lhs, rhs)
+}
+
 public extension ComputePlatform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
@@ -251,22 +335,22 @@ public extension ComputePlatform {
     }
 }
 
-public extension TensorView {
-    @inlinable
-    @differentiable(where T: DifferentiableTensorView)
-    func min<T>(_ lhs: T, _ rhs: T) -> T where
-        T: TensorView, T.Element: Comparable { Current.platform.min(lhs, rhs) }
-
-    @inlinable
-    @differentiable(where T: DifferentiableTensorView)
-    func min<T>(_ lhs: T, _ rhs: T.Element) -> T where
-        T: TensorView, T.Element: Comparable { Current.platform.min(lhs, rhs) }
-
-    @inlinable
-    @differentiable(where T: DifferentiableTensorView)
-    func min<T>(_ lhs: T.Element, _ rhs: T) -> T where
-        T: TensorView, T.Element: Comparable { Current.platform.min(lhs, rhs) }
-}
+//public extension TensorView {
+//    @inlinable
+//    @differentiable(where T: DifferentiableTensorView)
+//    func min<T>(_ lhs: T, _ rhs: T) -> T where
+//        T: TensorView, T.Element: Comparable { Current.platform.min(lhs, rhs) }
+//
+//    @inlinable
+//    @differentiable(where T: DifferentiableTensorView)
+//    func min<T>(_ lhs: T, _ rhs: T.Element) -> T where
+//        T: TensorView, T.Element: Comparable { Current.platform.min(lhs, rhs) }
+//
+//    @inlinable
+//    @differentiable(where T: DifferentiableTensorView)
+//    func min<T>(_ lhs: T.Element, _ rhs: T) -> T where
+//        T: TensorView, T.Element: Comparable { Current.platform.min(lhs, rhs) }
+//}
 
 //--------------------------------------
 // derivative functions
@@ -313,7 +397,13 @@ public extension ComputePlatform {
 /// equal
 /// Performs element-wise equality comparison and returns a
 /// tensor of Bool values
+@inlinable
+public func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
+    Current.platform.equal(lhs, rhs)
+}
+
 public extension ComputePlatform {
+    @inlinable
     func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
         assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
@@ -324,9 +414,7 @@ public extension ComputePlatform {
 
 public extension TensorView where Element: Equatable {
     @inlinable
-    static func .== (_ lhs: Self, _ rhs: Self) -> BoolView {
-        Current.platform.equal(lhs, rhs)
-    }
+    static func .== (_ lhs: Self, _ rhs: Self) -> BoolView { equal(lhs, rhs) }
     
     /// - Parameter lhs: left hand tensor
     /// - Parameter rhs: right hand tensor
@@ -349,7 +437,16 @@ public extension TensorView where Element: Equatable {
 /// elementsAlmostEqual
 /// Performs element-wise equality comparison within the tolerance range
 /// and returns a tensor of Bool values
+@inlinable
+public func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T,
+                            tolerance: T.Element) -> T.BoolView where
+    T: TensorView, T.Element: SignedNumeric & Comparable
+{
+    Current.platform.elementsAlmostEqual(lhs, rhs, tolerance: tolerance)
+}
+
 public extension ComputePlatform {
+    @inlinable
     func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T,
                                 tolerance: T.Element) -> T.BoolView where
         T: TensorView, T.Element: SignedNumeric & Comparable
@@ -364,6 +461,7 @@ public extension ComputePlatform {
 }
 
 public extension TensorView where Element: SignedNumeric & Comparable {
+    @inlinable
     func elementsAlmostEqual(_ other: Self, tolerance: Element) -> BoolView {
         Current.platform.elementsAlmostEqual(self, other, tolerance: tolerance)
     }
@@ -373,7 +471,13 @@ public extension TensorView where Element: SignedNumeric & Comparable {
 /// notEqual
 /// Computes `lhs != rhs` element-wise and returns a `TensorView` of Boolean
 /// values.
+@inlinable
+public func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
+    Current.platform.notEqual(lhs, rhs)
+}
+
 public extension ComputePlatform {
+    @inlinable
     func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
         assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
@@ -384,15 +488,21 @@ public extension ComputePlatform {
 
 public extension TensorView where Element: Equatable {
     @inlinable
-    static func .!=(_ lhs: Self, _ rhs: Self) -> BoolView {
-        Current.platform.notEqual(lhs, rhs)
-    }
+    static func .!=(_ lhs: Self, _ rhs: Self) -> BoolView { notEqual(lhs, rhs) }
 }
 
 //==============================================================================
 /// greater
 /// Computes `lhs .> rhs` element-wise and returns a tensor of Bool values
+@inlinable
+public func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+    T: TensorView, T.Element: Comparable
+{
+    Current.platform.greater(lhs, rhs)
+}
+
 public extension ComputePlatform {
+    @inlinable
     func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
     {
@@ -405,15 +515,21 @@ public extension ComputePlatform {
 
 public extension TensorView where Element: Comparable {
     @inlinable
-    static func .>(_ lhs: Self, _ rhs: Self) -> BoolView {
-        Current.platform.greater(lhs, rhs)
-    }
+    static func .>(_ lhs: Self, _ rhs: Self) -> BoolView { greater(lhs, rhs) }
 }
 
 //==============================================================================
 /// greaterOrEqual
 /// Computes `lhs .>= rhs` element-wise and returns a tensor of Bool values
+@inlinable
+public func greaterOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+    T: TensorView, T.Element: Comparable
+{
+    Current.platform.greaterOrEqual(lhs, rhs)
+}
+
 public extension ComputePlatform {
+    @inlinable
     func greaterOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
     {
@@ -428,14 +544,22 @@ public extension ComputePlatform {
 public extension TensorView where Element: Comparable {
     @inlinable
     static func .>=(_ lhs: Self, _ rhs: Self) -> BoolView {
-        Current.platform.greaterOrEqual(lhs, rhs)
+        greaterOrEqual(lhs, rhs)
     }
 }
 
 //==============================================================================
 /// less
 /// Computes `lhs .< rhs` element-wise and returns a tensor of Bool values
+@inlinable
+public func less<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+    T: TensorView, T.Element: Comparable
+{
+    Current.platform.less(lhs, rhs)
+}
+
 public extension ComputePlatform {
+    @inlinable
     func less<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
     {
@@ -448,15 +572,35 @@ public extension ComputePlatform {
 
 public extension TensorView where Element: Comparable {
     @inlinable
-    static func .<(_ lhs: Self, _ rhs: Self) -> BoolView {
-        Current.platform.less(lhs, rhs)
-    }
+    static func .<(_ lhs: Self, _ rhs: Self) -> BoolView { less(lhs, rhs) }
 }
 
 //==============================================================================
 /// lessOrEqual
 /// Computes `lhs .<= rhs` element-wise and returns a tensor of Bool values
+@inlinable
+public func lessOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+    T: TensorView, T.Element: Comparable
+{
+    Current.platform.lessOrEqual(lhs, rhs)
+}
+
+@inlinable
+public func lessOrEqual<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
+    where T: TensorView, T.Element: Comparable
+{
+    Current.platform.lessOrEqual(lhs, rhs)
+}
+
+@inlinable
+public func lessOrEqual<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
+    where T: TensorView, T.Element: Comparable
+{
+    Current.platform.lessOrEqual(lhs, rhs)
+}
+
 public extension ComputePlatform {
+    @inlinable
     func lessOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
     {
@@ -466,12 +610,14 @@ public extension ComputePlatform {
         return result
     }
     
+    @inlinable
     func lessOrEqual<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
         where T: TensorView, T.Element: Comparable
     {
         lessOrEqual(lhs, T(repeating: rhs, like: lhs))
     }
     
+    @inlinable
     func lessOrEqual<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
         where T: TensorView, T.Element: Comparable
     {
@@ -482,16 +628,16 @@ public extension ComputePlatform {
 public extension TensorView where Element: Comparable {
     @inlinable
     static func .<=(_ lhs: Self, _ rhs: Self) -> BoolView {
-        Current.platform.lessOrEqual(lhs, rhs)
+        lessOrEqual(lhs, rhs)
     }
 
     @inlinable
     static func .<=(_ lhs: Self, _ rhs: Element) -> BoolView {
-        Current.platform.lessOrEqual(lhs, rhs)
+        lessOrEqual(lhs, rhs)
     }
 
     @inlinable
     static func .<=(_ lhs: Element, _ rhs: Self) -> BoolView {
-        Current.platform.lessOrEqual(lhs, rhs)
+        lessOrEqual(lhs, rhs)
     }
 }

@@ -20,6 +20,13 @@ import Real
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
+@inlinable
+public func add<T>(_ lhs: T, _ rhs: T) -> T
+    where T: TensorView, T.Element: AdditiveArithmetic
+{
+    Current.platform.add(lhs, rhs)
+}
+
 public extension ComputePlatform {
     @inlinable
     func add<T>(_ lhs: T, _ rhs: T) -> T
@@ -43,9 +50,7 @@ public extension ComputePlatform {
 
 public extension TensorView where Element: AdditiveArithmetic {
     @inlinable
-    static func + (lhs: Self, rhs: Self) -> Self {
-        Current.platform.add(lhs, rhs)
-    }
+    static func + (lhs: Self, rhs: Self) -> Self { add(lhs, rhs) }
 
     @inlinable
     static func += (lhs: inout Self, rhs: Element) { lhs = lhs + rhs }
@@ -95,6 +100,13 @@ public extension TensorView where Self: DifferentiableTensorView {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
+@inlinable
+public func subtract<T>(_ lhs: T, _ rhs: T) -> T
+    where T: TensorView, T.Element: AdditiveArithmetic
+{
+    Current.platform.subtract(lhs, rhs)
+}
+
 public extension ComputePlatform {
     @inlinable
     func subtract<T>(_ lhs: T, _ rhs: T) -> T
@@ -119,9 +131,7 @@ public extension ComputePlatform {
 
 public extension TensorView where Element: AdditiveArithmetic {
     @inlinable
-    static func - (lhs: Self, rhs: Self) -> Self {
-        Current.platform.subtract(lhs, rhs)
-    }
+    static func - (lhs: Self, rhs: Self) -> Self { subtract(lhs, rhs) }
 
     @inlinable
     static func -= (lhs: inout Self, rhs: Element) { lhs = lhs - rhs }
@@ -165,7 +175,14 @@ public extension TensorView
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor.
 /// - Returns: a new tensor containing the result
-    public extension ComputePlatform {
+@inlinable
+public func mul<T>(_ lhs: T, _ rhs: T) -> T
+    where T: TensorView, T.Element: Numeric
+{
+    Current.platform.mul(lhs, rhs)
+}
+
+public extension ComputePlatform {
     @inlinable
     func mul<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: Numeric
@@ -188,9 +205,7 @@ public extension TensorView
 
 public extension TensorView where Element: Numeric {
     @inlinable
-    static func * (lhs: Self, rhs: Self) -> Self {
-        Current.platform.mul(lhs, rhs)
-    }
+    static func * (lhs: Self, rhs: Self) -> Self { mul(lhs, rhs) }
     
     @inlinable
     static func *= (lhs: inout Self, rhs: Element) { lhs = lhs * rhs }
@@ -243,6 +258,13 @@ public extension TensorView where Self: DifferentiableTensorView {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor.
 /// - Returns: a new tensor containing the result
+@inlinable
+public func div<T>(_ lhs: T, _ rhs: T) -> T
+    where T: TensorView, T.Element: AlgebraicField
+{
+    Current.platform.div(lhs, rhs)
+}
+
 public extension ComputePlatform {
     @inlinable
     func div<T>(_ lhs: T, _ rhs: T) -> T
@@ -267,9 +289,7 @@ public extension ComputePlatform {
 
 public extension TensorView where Element: AlgebraicField {
     @inlinable
-    static func / (lhs: Self, rhs: Self) -> Self {
-        Current.platform.div(lhs, rhs)
-    }
+    static func / (lhs: Self, rhs: Self) -> Self { div(lhs, rhs) }
 
     @inlinable
     static func /= (lhs: inout Self, rhs: Element) { lhs = lhs / rhs }
