@@ -405,8 +405,7 @@ public extension ComputePlatform {
     }
 }
 
-public extension TensorView where
-    Element: SignedNumeric & Comparable & AnyElement
+public extension TensorView where Element: SignedNumeric & Comparable
 {
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
