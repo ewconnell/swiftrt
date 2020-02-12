@@ -120,7 +120,7 @@ class test_Async: XCTestCase {
         
         // sum the values with a delay on device 1
         let sum_m1m2: IndexMatrix = using(device: 1) {
-            DeviceContext.currentQueue.delayQueue(atLeast: 0.1)
+            delayQueue(atLeast: 0.1)
             return m1 + m2
         }
         
@@ -143,18 +143,22 @@ class test_Async: XCTestCase {
     //==========================================================================
     // test_QueueEventWait
     func test_QueueEventWait() {
-//        Current.log.level = .diagnostic
-//        Current.log.categories = [.queueSync]
+        Current.log.level = .diagnostic
+        Current.log.categories = [.queueSync]
         
-//        let queue = Platform.testCpu1.queues[0]
-//        let event = try queue.createEvent()
-//        queue.delayQueue(atLeast: 0.001)
-//        try queue.record(event: event).wait()
-//        XCTAssert(event.occurred, "wait failed to block")
-//
-//        if ObjectTracker.global.hasUnreleasedObjects {
-//            XCTFail(ObjectTracker.global.getActiveObjectReport())
-//        }
+        do {
+            let queue = Current.platform.device(0).queue(0)
+            let event = queue.createEvent()
+            queue.delay(atLeast: 0.001)
+            try queue.record(event: event).wait()
+            XCTAssert(event.occurred, "wait failed to block")
+        } catch {
+            XCTFail("\(error)")
+        }
+
+        if ObjectTracker.global.hasUnreleasedObjects {
+            XCTFail(ObjectTracker.global.getActiveObjectReport())
+        }
     }
     
     //==========================================================================
