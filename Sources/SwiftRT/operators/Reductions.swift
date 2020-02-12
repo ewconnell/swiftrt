@@ -34,7 +34,7 @@ public func all<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     Current.platform.all(x, alongAxes: axes)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func all<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element == Bool
@@ -79,7 +79,7 @@ public func any<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     Current.platform.any(x, alongAxes: axes)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func any<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element == Bool
@@ -121,7 +121,7 @@ public func sum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     Current.platform.sum(x, alongAxes: axes)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func sum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
@@ -172,7 +172,7 @@ public func mean<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     Current.platform.mean(x, alongAxes: axes)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func mean<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: AlgebraicField
@@ -228,7 +228,7 @@ public func prod<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     Current.platform.prod(x, alongAxes: axes)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func prod<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
@@ -278,7 +278,7 @@ public func prodNonZeros<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     Current.platform.prodNonZeros(x, alongAxes: axes)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func prodNonZeros<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
@@ -334,7 +334,7 @@ public func min<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     Current.platform.min(x, alongAxes: axes)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func min<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -389,7 +389,7 @@ public func max<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     Current.platform.max(x, alongAxes: axes)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func max<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -443,7 +443,7 @@ public func absmax<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     Current.platform.absmax(x, alongAxes: axes)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func absmax<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: SignedNumeric & Comparable
@@ -498,7 +498,7 @@ public func abssum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     Current.platform.abssum(x, alongAxes: axes)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func abssum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -549,7 +549,7 @@ public func sqrtSumSquares<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     Current.platform.sqrtSumSquares(x, alongAxes: axes)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func sqrtSumSquares<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Real

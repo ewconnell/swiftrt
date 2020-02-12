@@ -46,17 +46,17 @@ public protocol ComputePlatform: Logger {
 }
 
 //------------------------------------------------------------------------------
-public extension ComputePlatform {
+extension ComputePlatform {
     /// changes the current device/queue to use cpu:0
     @inlinable
-    mutating func useCpu() {
+    public mutating func useCpu() {
         queueStack[queueStack.count - 1] = (0, 0)
     }
     /// selects the specified device queue for output
     /// - Parameter device: the device to use. Device 0 is the cpu
     /// - Parameter queue: the queue on the device to use
     @inlinable
-    mutating func use(device: Int, queue: Int = 0) {
+    public mutating func use(device: Int, queue: Int = 0) {
         queueStack[queueStack.count - 1] = ensureValidIndexes(device, queue)
     }
     /// selects the specified device queue for output within the scope of
@@ -65,7 +65,8 @@ public extension ComputePlatform {
     /// - Parameter queue: the queue on the device to use
     /// - Parameter body: a closure where the device queue will be used
     @inlinable
-    mutating func using<R>(device: Int, queue: Int = 0, _ body: () -> R) -> R {
+    public mutating func using<R>(device: Int,
+                                  queue: Int = 0, _ body: () -> R) -> R {
         // push the selection onto the queue stack
         queueStack.append(ensureValidIndexes(device, queue))
         defer { _ = queueStack.popLast() }
@@ -76,7 +77,7 @@ public extension ComputePlatform {
     /// - Parameter queue: the queue on the device to use
     /// - Parameter body: a closure where the device queue will be used
     @inlinable
-    mutating func using<R>(queue: Int, _ body: () -> R) -> R {
+    public mutating func using<R>(queue: Int, _ body: () -> R) -> R {
         // push the selection onto the queue stack
         queueStack.append(ensureValidIndexes(queueStack.last!.device, queue))
         defer { _ = queueStack.popLast() }
@@ -99,35 +100,35 @@ public protocol ComputePlatformType: ComputePlatform {
 
 //==============================================================================
 /// ComputePlatformType extensions for queue stack manipulation
-public extension ComputePlatformType {
+extension ComputePlatformType {
     /// the currently active queue that API functions will use
     /// - Returns: the current device queue
     @inlinable
-    var currentDevice: ComputeDevice {
+    public var currentDevice: ComputeDevice {
         service.devices[queueStack.last!.device]
     }
     /// returns the specified compute device
     /// - Returns: the current device queue
     @inlinable
-    func device(_ id: Int) -> ComputeDevice {
+    public func device(_ id: Int) -> ComputeDevice {
         service.devices[id]
     }
     /// the currently active queue that API functions will use
     /// - Returns: the current device queue
     @inlinable
-    var currentQueue: DeviceQueue {
+    public var currentQueue: DeviceQueue {
         let (device, queue) = queueStack.last!
         return service.devices[device].queues[queue]
     }
     @inlinable
-    var applicationQueue: DeviceQueue {
+    public var applicationQueue: DeviceQueue {
         // TODO: add check to use current queue if it has unified memory
         // return cpu device queue for now
         service.devices[0].queues[0]
     }
     // peforms a mod on the indexes to guarantee they are mapped into bounds
     @inlinable
-    func ensureValidIndexes(_ device: Int, _ queue: Int) -> (Int, Int){
+    public func ensureValidIndexes(_ device: Int, _ queue: Int) -> (Int, Int){
         let deviceIndex = device % service.devices.count
         let queueIndex = queue % service.devices[deviceIndex].queues.count
         return (deviceIndex, queueIndex)

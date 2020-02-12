@@ -27,7 +27,7 @@ public func add<T>(_ lhs: T, _ rhs: T) -> T
     Current.platform.add(lhs, rhs)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func add<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AdditiveArithmetic
@@ -107,7 +107,7 @@ public func subtract<T>(_ lhs: T, _ rhs: T) -> T
     Current.platform.subtract(lhs, rhs)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func subtract<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AdditiveArithmetic
@@ -182,7 +182,7 @@ public func mul<T>(_ lhs: T, _ rhs: T) -> T
     Current.platform.mul(lhs, rhs)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func mul<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: Numeric
@@ -265,7 +265,7 @@ public func div<T>(_ lhs: T, _ rhs: T) -> T
     Current.platform.div(lhs, rhs)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func div<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AlgebraicField

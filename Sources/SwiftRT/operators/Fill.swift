@@ -25,7 +25,7 @@ public func concat<T>(tensors: [T], alongAxis axis: Int = 0,
     Current.platform.concat(tensors: tensors, alongAxis: axis, name: name)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func concat<T>(tensors: [T], alongAxis axis: Int = 0,
                    name: String? = nil) -> T where T: TensorView
@@ -57,7 +57,7 @@ public func copy<T>(from view: T, to result: inout T) where T: TensorView {
     Current.platform.copy(from: view, to: &result)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func copy<T>(from view: T, to result: inout T) where T: TensorView {
         currentQueue.copy(from: view, to: &result)
@@ -82,7 +82,7 @@ public func fill<T, R>(_ result: inout T, with range: R) where
     Current.platform.fill(&result, with: range)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func fill<T>(_ result: inout T, with element: T.Element)
         where T: TensorView
@@ -136,7 +136,7 @@ public func fillWithIndex<T>(_ result: inout T)
     Current.platform.fillWithIndex(&result)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func fillWithIndex<T>(_ result: inout T)
         where T: TensorView, T.Element: AnyNumeric & RangeBound
@@ -164,7 +164,7 @@ public func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T
     Current.platform.replace(x: x, with: y, where: condition)
 }
 
-public extension ComputePlatform {
+extension ComputePlatform {
     @inlinable
     func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T
         where T: TensorView
