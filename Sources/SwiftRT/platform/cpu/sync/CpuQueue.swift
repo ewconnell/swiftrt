@@ -20,6 +20,7 @@ import Foundation
 public struct CpuQueue: CpuQueueProtocol, Logging {
     // properties
     public let arrayReplicaKey: Int
+    public let creatorThread: Thread
     public let defaultQueueEventOptions: QueueEventOptions
     public let deviceId: Int
     public let id: Int
@@ -27,10 +28,6 @@ public struct CpuQueue: CpuQueueProtocol, Logging {
     public let deviceName: String
     public let memoryAddressing: MemoryAddressing
     public let name: String
-
-    /// used to detect accidental queue access by other threads
-    @usableFromInline
-    let creatorThread: Thread
 
     //--------------------------------------------------------------------------
     // initializers

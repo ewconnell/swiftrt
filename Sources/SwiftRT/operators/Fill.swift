@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+import Foundation
 
 //==============================================================================
 /// concat
@@ -59,10 +60,28 @@ public func copy<T>(from view: T, to result: inout T) where T: TensorView {
 
 extension ComputePlatform {
     @inlinable
-    func copy<T>(from view: T, to result: inout T) where T: TensorView {
+    public func copy<T>(from view: T, to result: inout T) where T: TensorView {
         currentQueue.copy(from: view, to: &result)
     }
 }
+
+//==============================================================================
+/// copy
+/// copies the elements from `view` to `result`
+/// - Parameter from view: tensor to be copied
+/// - Parameter to result: the tensor where the result will be written
+@inlinable
+public func delayQueue(atLeast interval: TimeInterval) {
+    Current.platform.delayQueue(atLeast: interval)
+}
+
+extension ComputePlatform {
+    @inlinable
+    public func delayQueue(atLeast interval: TimeInterval) {
+        currentQueue.delay(atLeast: interval)
+    }
+}
+
 
 //==============================================================================
 /// fill<T>(result:value:

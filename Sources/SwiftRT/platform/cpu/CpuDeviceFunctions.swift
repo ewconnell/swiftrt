@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+import Foundation
 import Real
-
 
 //==============================================================================
 // parameter matching helper
@@ -145,6 +145,11 @@ public extension DeviceFunctions where Self: DeviceQueue {
             tensor.map(into: &view) { $0 }
             index[axis] += tensor.extents[axis]
         }
+    }
+    /// delay
+    func cpu_delay(atLeast interval: TimeInterval) {
+        assert(Thread.current === creatorThread, _messageQueueThreadViolation)
+        Thread.sleep(forTimeInterval: interval)
     }
     /// div
     @inlinable

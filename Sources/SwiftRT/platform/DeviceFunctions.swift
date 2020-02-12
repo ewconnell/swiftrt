@@ -13,20 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+import Foundation
 import Real
-
-// TODO move these
-infix operator **  : MultiplicationPrecedence
-infix operator .<  : ComparisonPrecedence
-infix operator .<= : ComparisonPrecedence
-infix operator .>= : ComparisonPrecedence
-infix operator .>  : ComparisonPrecedence
-infix operator .== : ComparisonPrecedence
-infix operator .!= : ComparisonPrecedence
 
 //==============================================================================
 // DeviceFunctions
 public protocol DeviceFunctions {
+    /// the thread that created this queue. Used to detect accidental access
+    var creatorThread: Thread { get }
+
     //--------------------------------------------------------------------------
     // generic helpers
     /// mapOp 1
@@ -82,6 +77,8 @@ public protocol DeviceFunctions {
     /// concat
     func concat<T>(tensors: [T], alongAxis axis: Int, result: inout T) where
         T: TensorView
+    /// delay
+    func delay(atLeast interval: TimeInterval)
     /// div
     func div<T>(lhs: T, rhs: T, result: inout T) where
         T: TensorView, T.Element: AlgebraicField
@@ -283,6 +280,10 @@ public extension DeviceFunctions where Self: DeviceQueue {
     func concat<T>(tensors: [T], alongAxis axis: Int, result: inout T)
         where T: TensorView {
             cpu_concat(tensors: tensors, alongAxis: axis, result: &result)
+    }
+    /// delay
+    func delay(atLeast interval: TimeInterval) {
+        cpu_delay(atLeast: interval)
     }
     /// div
     func div<T>(lhs: T, rhs: T, result: inout T)

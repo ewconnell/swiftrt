@@ -412,6 +412,8 @@ extension ComputePlatform {
     }
 }
 
+infix operator .== : ComparisonPrecedence
+
 public extension TensorView where Element: Equatable {
     @inlinable
     static func .== (_ lhs: Self, _ rhs: Self) -> BoolView { equal(lhs, rhs) }
@@ -486,6 +488,8 @@ extension ComputePlatform {
     }
 }
 
+infix operator .!= : ComparisonPrecedence
+
 public extension TensorView where Element: Equatable {
     @inlinable
     static func .!=(_ lhs: Self, _ rhs: Self) -> BoolView { notEqual(lhs, rhs) }
@@ -512,6 +516,8 @@ extension ComputePlatform {
         return result
     }
 }
+
+infix operator .> : ComparisonPrecedence
 
 public extension TensorView where Element: Comparable {
     @inlinable
@@ -541,6 +547,8 @@ extension ComputePlatform {
     }
 }
 
+infix operator .>= : ComparisonPrecedence
+
 public extension TensorView where Element: Comparable {
     @inlinable
     static func .>=(_ lhs: Self, _ rhs: Self) -> BoolView {
@@ -569,6 +577,8 @@ extension ComputePlatform {
         return result
     }
 }
+
+infix operator .< : ComparisonPrecedence
 
 public extension TensorView where Element: Comparable {
     @inlinable
@@ -624,6 +634,8 @@ extension ComputePlatform {
         lessOrEqual(T(repeating: lhs, like: rhs), rhs)
     }
 }
+
+infix operator .<= : ComparisonPrecedence
 
 public extension TensorView where Element: Comparable {
     @inlinable

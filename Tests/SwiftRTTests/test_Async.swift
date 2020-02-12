@@ -18,6 +18,10 @@ import Foundation
 import SwiftRT
 
 class test_Async: XCTestCase {
+    override class func setUp() {
+        Current.platform = Platform<TestCpuService>()
+    }
+    
     //==========================================================================
     // support terminal test run
     static var allTests = [
@@ -89,48 +93,46 @@ class test_Async: XCTestCase {
     // initializes two matrices on the app thread, executes them on `queue1`,
     // the retrieves the results
     func test_secondaryDiscreetMemoryQueue() {
-//        Current.log.level = .diagnostic
-//        Current.log.categories = [.dataAlloc, .dataCopy, .scheduling, .queueSync]
+        Current.log.level = .diagnostic
+        Current.log.categories = [.dataAlloc, .dataCopy, .scheduling, .queueSync]
         
-//        let m1 = IndexMatrix(2, 5, with: 0..<10, name: "m1")
-//        let m2 = IndexMatrix(2, 5, with: 0..<10, name: "m2")
-//
-//        // perform on user provided discreet memory queue
-//        // synchronize with host queue and retrieve result values
-//        let result = using(device: 1) { m1 + m2 }
-//        XCTAssert(result == (0..<10).map { $0 + $0 })
-//
-//        if ObjectTracker.global.hasUnreleasedObjects {
-//            XCTFail(ObjectTracker.global.getActiveObjectReport())
-//        }
+        let m1 = IndexMatrix(2, 5, with: 0..<10, name: "m1")
+        let m2 = IndexMatrix(2, 5, with: 0..<10, name: "m2")
+
+        // perform on user provided discreet memory queue
+        // synchronize with host queue and retrieve result values
+        let result = using(device: 1) { m1 + m2 }
+        XCTAssert(result == (0..<10).map { $0 + $0 })
+
+        if ObjectTracker.global.hasUnreleasedObjects {
+            XCTFail(ObjectTracker.global.getActiveObjectReport())
+        }
     }
     
     //==========================================================================
     // test_threeQueueInterleave
     func test_threeQueueInterleave() {
-//        Current.log.level = .diagnostic
-//            let device1 = Platform.testCpu1
-//            let device2 = Platform.testCpu2
-//
-//            let m1 = IndexMatrix(2, 3, with: 0..<6, name: "m1")
-//            let m2 = IndexMatrix(2, 3, with: 0..<6, name: "m2")
-//            let m3 = IndexMatrix(2, 3, with: 0..<6, name: "m3")
-//
-//            // sum the values with a delay on device 1
-//            let sum_m1m2: IndexMatrix = using(device: 1) {
-//                DeviceContext.currentQueue.delayQueue(atLeast: 0.1)
-//                return m1 + m2
-//            }
-//
-//            // multiply the values on device 2
-//            let result = using(device2) {
-//                sum_m1m2 * m3
-//            }
-//            XCTAssert(result == (0..<6).map { ($0 + $0) * $0 })
+        Current.log.level = .diagnostic
+
+        let m1 = IndexMatrix(2, 3, with: 0..<6, name: "m1")
+        let m2 = IndexMatrix(2, 3, with: 0..<6, name: "m2")
+        let m3 = IndexMatrix(2, 3, with: 0..<6, name: "m3")
         
-//        if ObjectTracker.global.hasUnreleasedObjects {
-//            XCTFail(ObjectTracker.global.getActiveObjectReport())
-//        }
+        // sum the values with a delay on device 1
+        let sum_m1m2: IndexMatrix = using(device: 1) {
+            DeviceContext.currentQueue.delayQueue(atLeast: 0.1)
+            return m1 + m2
+        }
+        
+        // multiply the values on device 2
+        let result = using(device: 2) {
+            sum_m1m2 * m3
+        }
+        XCTAssert(result == (0..<6).map { ($0 + $0) * $0 })
+        
+        if ObjectTracker.global.hasUnreleasedObjects {
+            XCTFail(ObjectTracker.global.getActiveObjectReport())
+        }
     }
     
     //==========================================================================

@@ -357,6 +357,8 @@ extension ComputePlatform {
     }
 }
 
+infix operator ** : MultiplicationPrecedence
+
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations

@@ -24,6 +24,11 @@
 import Foundation
 
 //==============================================================================
+// assert messages
+let _messageQueueThreadViolation =
+"a queue can only be accessed by the thread that created it"
+
+//==============================================================================
 /// ComputePlatform
 /// The root collection of compute resources available to the application
 /// on a given machine
@@ -46,6 +51,20 @@ public protocol ComputePlatform: Logger {
 }
 
 //------------------------------------------------------------------------------
+//
+@inlinable public func useCpu() { Current.platform.useCpu() }
+@inlinable public func use(device: Int, queue: Int = 0) {
+    Current.platform.use(device: device, queue: queue)
+}
+@inlinable public func using<R>(device: Int, queue: Int = 0,
+                                _ body: () -> R) -> R {
+    Current.platform.using(device: device, queue: queue, body)
+}
+@inlinable public func using<R>(queue: Int, _ body: () -> R) -> R {
+    Current.platform.using(queue: queue, body)
+}
+
+// Platform extensions
 extension ComputePlatform {
     /// changes the current device/queue to use cpu:0
     @inlinable
@@ -207,6 +226,8 @@ public extension ComputeDeviceType {
 public protocol DeviceQueue: Logger, DeviceFunctions {
     /// a key to lookup a DeviceArray replica associated with this device
     var arrayReplicaKey: Int { get }
+    /// the thread that created this queue. Used to detect accidental access
+    var creatorThread: Thread { get }
     /// options to use when creating queue events
     var defaultQueueEventOptions: QueueEventOptions { get }
     /// the device id that this queue is associated with
