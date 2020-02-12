@@ -16,16 +16,29 @@
 import Foundation
 
 //==============================================================================
+/// CpuQueueProtocol
+public protocol CpuQueueProtocol: DeviceQueue {
+    init(id: Int,
+         parent logInfo: LogInfo,
+         addressing: MemoryAddressing,
+         replicationKey: Int,
+         deviceId: Int, deviceName: String)
+}
+
+//==============================================================================
 /// CpuDevice
-public struct CpuDevice: ComputeDeviceType {
+public struct CpuDevice<Queue>: ComputeDeviceType
+    where Queue: CpuQueueProtocol
+{
     // properties
     public let id: Int
     public let logInfo: LogInfo
     public let name: String
-    public let queues: [CpuQueue]
+    public let queues: [Queue]
     
     @inlinable
-    public init(parent logInfo: LogInfo, id: Int) {
+    public init(parent logInfo: LogInfo, addressing: MemoryAddressing, id: Int)
+    {
         let deviceName = "cpu:\(id)"
         let arrayReplicaKey = Current.nextArrayReplicaKey
         self.id = id
@@ -33,9 +46,10 @@ public struct CpuDevice: ComputeDeviceType {
         self.logInfo = logInfo.child(name)
         
         // TODO create 1 queue for each active core
-        let queues = [CpuQueue(id: 0, parent: self.logInfo,
-                               replicationKey: arrayReplicaKey,
-                               deviceId: id, deviceName: name)]
+        let queues = [Queue(id: 0, parent: self.logInfo,
+                            addressing: addressing,
+                            replicationKey: arrayReplicaKey,
+                            deviceId: id, deviceName: name)]
         self.queues = queues
     }
 

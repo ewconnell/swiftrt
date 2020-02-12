@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 /// CpuQueue
-public struct CpuQueue: DeviceQueue, Logging {
+public struct CpuQueue: CpuQueueProtocol, Logging {
     // properties
     public let arrayReplicaKey: Int
     public let defaultQueueEventOptions: QueueEventOptions
@@ -35,9 +35,8 @@ public struct CpuQueue: DeviceQueue, Logging {
     //--------------------------------------------------------------------------
     // initializers
     @inlinable
-    public init(id: Int, parent logInfo: LogInfo,
-                replicationKey: Int,
-                deviceId: Int, deviceName: String)
+    public init(id: Int, parent logInfo: LogInfo, addressing: MemoryAddressing,
+                replicationKey: Int, deviceId: Int, deviceName: String)
     {
         self.arrayReplicaKey = replicationKey
         self.id = id
@@ -47,7 +46,7 @@ public struct CpuQueue: DeviceQueue, Logging {
         self.deviceName = deviceName
         self.creatorThread = Thread.current
         self.defaultQueueEventOptions = QueueEventOptions()
-        self.memoryAddressing = .unified
+        self.memoryAddressing = addressing
 
         diagnostic("\(createString) DeviceQueue " +
             "\(deviceName)_\(name)", categories: .queueAlloc)

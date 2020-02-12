@@ -20,7 +20,7 @@
 /// on the machine where the process is being run.
 public struct CpuService: ComputeService {
     // properties
-    public let devices: [CpuDevice]
+    public let devices: [CpuDevice<CpuQueue>]
     public let id: Int
     public let logInfo: LogInfo
     public let name: String
@@ -31,6 +31,8 @@ public struct CpuService: ComputeService {
         self.name = "CpuService"
         self.logInfo = parentLogInfo.child(name)
         self.id = id
-        self.devices = [CpuDevice(parent: logInfo, id: 0)]
+        self.devices = [
+            CpuDevice<CpuQueue>(parent: logInfo, addressing: .unified, id: 0)
+        ]
     }
 }
