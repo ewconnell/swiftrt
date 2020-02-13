@@ -19,7 +19,7 @@ import Foundation
 /// CpuService
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public struct AsyncCpuService: ComputeService {
+public struct AsyncCpuService: PlatformService {
     // properties
     public let devices: [CpuDevice<CpuQueue>]
     public let id: Int

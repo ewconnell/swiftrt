@@ -13,26 +13,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+import Foundation
 
 //==============================================================================
-/// CpuService
-/// The collection of compute resources available to the application
-/// on the machine where the process is being run.
-public struct CpuService: PlatformService {
-    // properties
-    public let devices: [CpuDevice<CpuQueue>]
-    public let id: Int
-    public let logInfo: LogInfo
-    public let name: String
+// DeviceArray
+//    This represents a device data array
+public protocol DeviceArray: ObjectTracking {
+    /// a pointer to the memory on the device
+    var buffer: UnsafeMutableRawBufferPointer { get }
+    /// the device id that this array is associated with
+    var deviceId: Int { get }
+    /// name used logging
+    var deviceName: String { get }
+    /// `true` if the array is read only
+    var isReadOnly: Bool { get }
+    /// specifies the type of associated device memory
+    var memoryAddressing: MemoryAddressing { get }
+    /// the array edit version number used for replication and synchronization
+    var version: Int { get set }
+}
 
-    //--------------------------------------------------------------------------
+public extension DeviceArray {
     @inlinable
-    public init(parent parentLogInfo: LogInfo, id: Int) {
-        self.name = "CpuService"
-        self.logInfo = parentLogInfo.child(name)
-        self.id = id
-        self.devices = [
-            CpuDevice<CpuQueue>(parent: logInfo, addressing: .unified, id: 0)
-        ]
-    }
+    var id: Int { trackingId }
 }

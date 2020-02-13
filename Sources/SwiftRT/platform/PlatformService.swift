@@ -1,4 +1,4 @@
-//******************************************************************************
+////******************************************************************************
 // Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,27 +12,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
 
 //==============================================================================
-/// CpuService
-/// The collection of compute resources available to the application
-/// on the machine where the process is being run.
-public struct CpuService: PlatformService {
-    // properties
-    public let devices: [CpuDevice<CpuQueue>]
-    public let id: Int
-    public let logInfo: LogInfo
-    public let name: String
+/// PlatformService
+/// a compute service represents a category of installed devices on the
+/// platform, such as (cpu, cuda, tpu, ...)
+public protocol PlatformService: Logger {
+    // types
+    associatedtype Device: ServiceDeviceType
 
     //--------------------------------------------------------------------------
-    @inlinable
-    public init(parent parentLogInfo: LogInfo, id: Int) {
-        self.name = "CpuService"
-        self.logInfo = parentLogInfo.child(name)
-        self.id = id
-        self.devices = [
-            CpuDevice<CpuQueue>(parent: logInfo, addressing: .unified, id: 0)
-        ]
-    }
+    // properties
+    /// a collection of available compute devices
+    var devices: [Device] { get }
+    /// service id used for logging, usually zero
+    var id: Int { get }
+    /// name used logging
+    var name: String { get }
+
+    //--------------------------------------------------------------------------
+    // initializers
+    init(parent parentLogInfo: LogInfo, id: Int)
 }

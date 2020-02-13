@@ -19,7 +19,7 @@
 /// This is used only for testing. It is an asynchronous cpu version
 /// that reports having discreet memory instead of unified to exercise
 /// memory management unit tests
-public struct TestCpuService: ComputeService {
+public struct TestCpuService: PlatformService {
     // properties
     public let devices: [CpuDevice<CpuQueue>]
     public let id: Int

@@ -27,7 +27,7 @@ public protocol CpuQueueProtocol: DeviceQueue {
 
 //==============================================================================
 /// CpuDevice
-public struct CpuDevice<Queue>: ComputeDeviceType
+public struct CpuDevice<Queue>: ServiceDeviceType
     where Queue: CpuQueueProtocol
 {
     // properties

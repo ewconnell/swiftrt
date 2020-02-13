@@ -30,7 +30,7 @@ public class Current {
 //    @usableFromInline var platform: ComputePlatform
     /// a platform instance unique id for queue events
     @usableFromInline static var queueEventCounter: Int = 0
-    /// platform wide unique value for the `ComputeDevice.arrayReplicaKey`
+    /// platform wide unique value for the `ServiceDevice.arrayReplicaKey`
     @usableFromInline static var arrayReplicaKeyCounter: Int = 0
 
     //--------------------------------------------------------------------------
