@@ -49,6 +49,8 @@ public struct BufferDescription {
     var version: Int
 }
 
+public typealias BufferHandle = Int
+
 //==============================================================================
 /// ServiceMemoryManagement
 public protocol ServiceMemoryManagement {
@@ -56,13 +58,13 @@ public protocol ServiceMemoryManagement {
     /// number, and keyed by the handle returned from `createBuffer`.
     /// By convention device 0 will always be a unified memory device with
     /// the application.
-    var deviceBuffers: [[Int : BufferDescription]] { get set }
+    var deviceBuffers: [[BufferHandle : BufferDescription]] { get set }
     /// a dictionary relating a buffer handle to which device has the
     /// most recently mutated version. This is updated each time a write
     /// buffer is obtained on a different device
     /// - Parameter key: the buffer handle
     /// - Parameter value: the index of the device that has the master version
-    var masterVersion: [Int : Int] { get set }
+    var masterVersion: [BufferHandle : Int] { get set }
 
     //--------------------------------------------------------------------------
     /// createBuffer(byteCount:
@@ -72,7 +74,7 @@ public protocol ServiceMemoryManagement {
     /// - Parameter byteCount: the size of the associated buffer in bytes
     /// suitably aligned for any type
     /// - Returns: a handle used to reference the buffer
-    func createBuffer(byteCount: Int) -> Int
+    func createBuffer(byteCount: Int) -> BufferHandle
     /// createReference(to:
     /// creates a platform buffer entry whose storage is associated with
     /// the specified buffer pointer. No memory is allocated, so the
@@ -81,21 +83,25 @@ public protocol ServiceMemoryManagement {
     /// memory mapped files, network buffers, database results, without
     /// requiring an additional copy operation.
     /// - Parameter buffer: a buffer pointer to the data
-    func createReference(to buffer: UnsafeRawBufferPointer)
+    /// - Returns: a handle used to reference the buffer
+    func createReference(to buffer: UnsafeRawBufferPointer) -> BufferHandle
     /// createMutableReference(to:
     /// - Parameter buffer: a mutable buffer pointer to the data
+    /// - Returns: a handle used to reference the buffer
     func createMutableReference(to buffer: UnsafeMutableRawBufferPointer)
+        -> BufferHandle
     /// release(buffer:
     /// Releases a buffer created by calling `createBuffer`
     /// - Parameter buffer: the handle of the buffer to release.
-    func release(buffer handle: Int)
+    func release(buffer handle: BufferHandle)
     /// read(buffer:on:
     /// - Parameter buffer: handle to the buffer
     /// - Parameter on: specifies the device queue for synchronization.
     /// A value of `nil` blocks the caller until synchronization is complete.
     /// - Returns: a buffer pointer to the bytes associated with the
     /// specified handle. The data will be synchronized
-    func read(buffer: Int, on: (device: Int, queue: Int)?) -> UnsafeRawBufferPointer
+    func read(buffer: BufferHandle,
+              on: (device: Int, queue: Int)?) -> UnsafeRawBufferPointer
     /// readWrite(buffer:on:
     /// - Parameter buffer: handle to the buffer
     /// - Parameter on: specifies the device queue for synchronization.
@@ -103,7 +109,8 @@ public protocol ServiceMemoryManagement {
     /// - Returns: a mutable buffer pointer to the bytes associated with the
     /// specified handle. The data will be synchronized so elements can be
     /// read before written, or sparsely written to
-    func readWrite(buffer: Int, on: (device: Int, queue: Int)?) -> UnsafeMutableRawBufferPointer
+    func readWrite(buffer: BufferHandle, on: (device: Int, queue: Int)?)
+        -> UnsafeMutableRawBufferPointer
     /// overwrite(buffer:on:
     /// This function will be higher performance than `readWrite` if it is
     /// known that all elements will be written to, because it does not
@@ -114,17 +121,18 @@ public protocol ServiceMemoryManagement {
     /// - Returns: a mutable buffer pointer to the bytes associated with the
     /// specified handle. The data will not be synchronized and it is
     /// required that the operation will overwrite all elements of the buffer.
-    func overwrite(buffer: Int, on: (device: Int, queue: Int)?) -> UnsafeMutableRawBufferPointer
+    func overwrite(buffer: BufferHandle, on: (device: Int, queue: Int)?)
+        -> UnsafeMutableRawBufferPointer
 }
 
 //==============================================================================
 // placeholder
 public extension ServiceMemoryManagement {
-    func createBuffer(byteCount: Int) -> Int { fatalError() }
-    func createReference(to buffer: UnsafeRawBufferPointer)  { fatalError() }
-    func createMutableReference(to buffer: UnsafeMutableRawBufferPointer)  { fatalError() }
-    func release(buffer handle: Int)  { fatalError() }
-    func read(buffer: Int, on: (device: Int, queue: Int)?) -> UnsafeRawBufferPointer  { fatalError() }
-    func readWrite(buffer: Int, on: (device: Int, queue: Int)?) -> UnsafeMutableRawBufferPointer  { fatalError() }
-    func overwrite(buffer: Int, on: (device: Int, queue: Int)?) -> UnsafeMutableRawBufferPointer  { fatalError() }
+    func createBuffer(byteCount: Int) -> BufferHandle { fatalError() }
+    func createReference(to buffer: UnsafeRawBufferPointer) -> BufferHandle { fatalError() }
+    func createMutableReference(to buffer: UnsafeMutableRawBufferPointer) -> BufferHandle  { fatalError() }
+    func release(buffer handle: BufferHandle)  { fatalError() }
+    func read(buffer: BufferHandle, on: (device: Int, queue: Int)?) -> UnsafeRawBufferPointer  { fatalError() }
+    func readWrite(buffer: BufferHandle, on: (device: Int, queue: Int)?) -> UnsafeMutableRawBufferPointer  { fatalError() }
+    func overwrite(buffer: BufferHandle, on: (device: Int, queue: Int)?) -> UnsafeMutableRawBufferPointer  { fatalError() }
 }
