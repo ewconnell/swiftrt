@@ -21,8 +21,10 @@
 public struct CpuService: PlatformService {
     // properties
     public let devices: [CpuDevice<CpuQueue>]
+    public var deviceBuffers: [[Int : BufferDescription]]
     public let id: Int
     public let logInfo: LogInfo
+    public var masterVersion: [Int : Int]
     public let name: String
 
     //--------------------------------------------------------------------------
@@ -31,6 +33,9 @@ public struct CpuService: PlatformService {
         self.name = "CpuService"
         self.logInfo = parentLogInfo.child(name)
         self.id = id
+        self.deviceBuffers = [[Int : BufferDescription]]()
+        self.masterVersion = [Int : Int]()
+
         self.devices = [
             CpuDevice<CpuQueue>(parent: logInfo, addressing: .unified, id: 0)
         ]
