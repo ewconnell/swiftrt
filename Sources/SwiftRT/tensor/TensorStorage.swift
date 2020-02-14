@@ -89,11 +89,10 @@ public final class TensorStorage<Element>:
     public let storage: BufferId
     public let trackingId: Int
 
-    public init(count: Int, isReadOnly: Bool, name: String) {
+    @usableFromInline
+    init(_ storageId: BufferId, _ name: String, _ count: Int) {
         self.name = name
-        self.storage = Current.service
-            .createBuffer(byteCount: MemoryLayout<Element>.size * count)
-
+        self.storage = storageId
         self.trackingId = ObjectTracker.global.nextId
         #if DEBUG
         ObjectTracker.global.register(
@@ -102,12 +101,45 @@ public final class TensorStorage<Element>:
         #endif
     }
     
+    //--------------------------------------------------------------------------
+    // creates a buffer of the specified size
+    @inlinable
+    public convenience init(count: Int, name: String)
+    {
+        let bufferId = Current.service
+            .createBuffer(byteCount: MemoryLayout<Element>.size * count)
+        self.init(bufferId, name, count)
+    }
+
+    //--------------------------------------------------------------------------
+    // creates a buffer that is a read only reference to an applicaiton buffer
+    @inlinable
+    public convenience
+    init(referenceTo buffer: UnsafeBufferPointer<Element>, name: String)
+    {
+        let bufferId = Current.service
+            .createReference(to: UnsafeRawBufferPointer(buffer))
+        self.init(bufferId, name, buffer.count)
+    }
+
+    //--------------------------------------------------------------------------
+    // creates a buffer that is a read write reference to an applicaiton buffer
+    @inlinable
+    public convenience
+    init(referenceTo buffer: UnsafeMutableBufferPointer<Element>, name: String)
+    {
+        let bufferId = Current.service
+            .createMutableReference(to: UnsafeMutableRawBufferPointer(buffer))
+        self.init(bufferId, name, buffer.count)
+    }
+
+    //--------------------------------------------------------------------------
+    // release the storage buffer when the reference count reaches zero
     deinit {
         Current.service.release(storage)
         ObjectTracker.global.remove(trackingId: trackingId)
     }
 }
-
 
 //==============================================================================
 // Codable
@@ -134,13 +166,13 @@ extension TensorStorage: Codable where Element: Codable {
         let name = try container.decode(String.self, forKey: .name)
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
         if let count = dataContainer.count {
-            self.init(count: count, isReadOnly: false, name: name)
+            self.init(count: count, name: name)
             let elements = overwrite(storage, using: cpuDevice)
             for i in 0..<count {
                 elements[i] = try dataContainer.decode(Element.self)
             }
         } else {
-            self.init(count: 0, isReadOnly: false, name: name)
+            self.init(count: 0, name: name)
         }
     }
 }
