@@ -19,13 +19,13 @@ import Foundation
 /// CpuService
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public struct AsyncCpuService: PlatformService {
+public struct AsyncCpuService: PlatformServiceType {
     // properties
     public let devices: [CpuDevice<CpuQueue>]
-    public var deviceBuffers: [[Int : BufferDescription]]
+    public var deviceBuffers: [[BufferId : BufferDescription]]
     public let id: Int
     public let logInfo: LogInfo
-    public var masterVersion: [Int : Int]
+    public var masterVersion: [BufferId : Int]
     public let name: String
 
     //--------------------------------------------------------------------------
@@ -33,8 +33,8 @@ public struct AsyncCpuService: PlatformService {
         self.name = "AsyncCpuService"
         self.logInfo = parentLogInfo.child(name)
         self.id = id
-        self.deviceBuffers = [[Int : BufferDescription]]()
-        self.masterVersion = [Int : Int]()
+        self.deviceBuffers = [[BufferId : BufferDescription]]()
+        self.masterVersion = [BufferId : Int]()
 
         self.devices = [
             CpuDevice<CpuQueue>(parent: logInfo, addressing: .unified, id: 0)

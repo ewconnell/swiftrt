@@ -18,13 +18,6 @@
 /// a compute service represents a category of installed devices on the
 /// platform, such as (cpu, cuda, tpu, ...)
 public protocol PlatformService: ServiceMemoryManagement, Logger {
-    // types
-    associatedtype Device: ServiceDeviceType
-    
-    //--------------------------------------------------------------------------
-    // properties
-    /// a collection of available compute devices
-    var devices: [Device] { get }
     /// service id used for logging, usually zero
     var id: Int { get }
     /// name used logging
@@ -33,6 +26,16 @@ public protocol PlatformService: ServiceMemoryManagement, Logger {
     //--------------------------------------------------------------------------
     // initializers
     init(parent parentLogInfo: LogInfo, id: Int)
+}
+
+//==============================================================================
+/// PlatformServiceType
+public protocol PlatformServiceType: PlatformService {
+    // types
+    associatedtype Device: ServiceDeviceType
+    
+    /// a collection of available compute devices
+    var devices: [Device] { get }
 }
 
 //==============================================================================
@@ -49,22 +52,25 @@ public struct BufferDescription {
     var version: Int
 }
 
-public typealias BufferHandle = Int
+public struct BufferId: Hashable {
+    public let id: Int
+    public init(_ id: Int) { self.id = id }
+}
 
 //==============================================================================
 /// ServiceMemoryManagement
 public protocol ServiceMemoryManagement {
     /// a collection of device buffer dictionaries indexed by the device
-    /// number, and keyed by the handle returned from `createBuffer`.
+    /// number, and keyed by the id returned from `createBuffer`.
     /// By convention device 0 will always be a unified memory device with
     /// the application.
-    var deviceBuffers: [[BufferHandle : BufferDescription]] { get set }
-    /// a dictionary relating a buffer handle to which device has the
+    var deviceBuffers: [[BufferId : BufferDescription]] { get set }
+    /// a dictionary relating a buffer id to which device has the
     /// most recently mutated version. This is updated each time a write
     /// buffer is obtained on a different device
-    /// - Parameter key: the buffer handle
+    /// - Parameter key: the buffer id
     /// - Parameter value: the index of the device that has the master version
-    var masterVersion: [BufferHandle : Int] { get set }
+    var masterVersion: [BufferId : Int] { get set }
 
     //--------------------------------------------------------------------------
     /// createBuffer(byteCount:
@@ -73,8 +79,8 @@ public protocol ServiceMemoryManagement {
     /// platform between accesses in order to maximize memory utilization.
     /// - Parameter byteCount: the size of the associated buffer in bytes
     /// suitably aligned for any type
-    /// - Returns: a handle used to reference the buffer
-    func createBuffer(byteCount: Int) -> BufferHandle
+    /// - Returns: an id used to reference the buffer
+    func createBuffer(byteCount: Int) -> BufferId
     /// createReference(to:
     /// creates a platform buffer entry whose storage is associated with
     /// the specified buffer pointer. No memory is allocated, so the
@@ -83,56 +89,53 @@ public protocol ServiceMemoryManagement {
     /// memory mapped files, network buffers, database results, without
     /// requiring an additional copy operation.
     /// - Parameter buffer: a buffer pointer to the data
-    /// - Returns: a handle used to reference the buffer
-    func createReference(to buffer: UnsafeRawBufferPointer) -> BufferHandle
+    /// - Returns: an id used to reference the buffer
+    func createReference(to buffer: UnsafeRawBufferPointer) -> BufferId
     /// createMutableReference(to:
     /// - Parameter buffer: a mutable buffer pointer to the data
-    /// - Returns: a handle used to reference the buffer
+    /// - Returns: an id used to reference the buffer
     func createMutableReference(to buffer: UnsafeMutableRawBufferPointer)
-        -> BufferHandle
-    /// release(buffer:
+        -> BufferId
+    /// release(id:
     /// Releases a buffer created by calling `createBuffer`
-    /// - Parameter buffer: the handle of the buffer to release.
-    func release(buffer handle: BufferHandle)
+    /// - Parameter id: the id of the buffer to release
+    func release(_ id: BufferId)
     /// read(buffer:on:
-    /// - Parameter buffer: handle to the buffer
-    /// - Parameter on: specifies the device queue for synchronization.
-    /// A value of `nil` blocks the caller until synchronization is complete.
+    /// - Parameter id: id of the buffer
+    /// - Parameter using: specifies the device/queue for synchronization.
     /// - Returns: a buffer pointer to the bytes associated with the
-    /// specified handle. The data will be synchronized
-    func read(buffer: BufferHandle,
-              on: (device: Int, queue: Int)?) -> UnsafeRawBufferPointer
+    /// specified buffer id. The data will be synchronized
+    func read(_ id: BufferId, using deviceQueue: (Int, Int))
+        -> UnsafeRawBufferPointer
     /// readWrite(buffer:on:
-    /// - Parameter buffer: handle to the buffer
-    /// - Parameter on: specifies the device queue for synchronization.
-    /// A value of `nil` blocks the caller until synchronization is complete.
+    /// - Parameter id: id of the buffer
+    /// - Parameter using: specifies the device queue for synchronization.
     /// - Returns: a mutable buffer pointer to the bytes associated with the
-    /// specified handle. The data will be synchronized so elements can be
+    /// specified buffer id. The data will be synchronized so elements can be
     /// read before written, or sparsely written to
-    func readWrite(buffer: BufferHandle, on: (device: Int, queue: Int)?)
+    func readWrite(_ id: BufferId, using deviceQueue: (Int, Int))
         -> UnsafeMutableRawBufferPointer
     /// overwrite(buffer:on:
     /// This function will be higher performance than `readWrite` if it is
     /// known that all elements will be written to, because it does not
     /// need to synchronize.
-    /// - Parameter buffer: handle to the buffer
-    /// - Parameter on: specifies the device queue for synchronization.
-    /// A value of `nil` blocks the caller until synchronization is complete.
+    /// - Parameter id: id of the buffer
+    /// - Parameter using: specifies the device queue for synchronization.
     /// - Returns: a mutable buffer pointer to the bytes associated with the
-    /// specified handle. The data will not be synchronized and it is
+    /// specified buffer id. The data will not be synchronized and it is
     /// required that the operation will overwrite all elements of the buffer.
-    func overwrite(buffer: BufferHandle, on: (device: Int, queue: Int)?)
+    func overwrite(_ id: BufferId, using deviceQueue: (Int, Int))
         -> UnsafeMutableRawBufferPointer
 }
 
 //==============================================================================
 // placeholder
 public extension ServiceMemoryManagement {
-    func createBuffer(byteCount: Int) -> BufferHandle { fatalError() }
-    func createReference(to buffer: UnsafeRawBufferPointer) -> BufferHandle { fatalError() }
-    func createMutableReference(to buffer: UnsafeMutableRawBufferPointer) -> BufferHandle  { fatalError() }
-    func release(buffer handle: BufferHandle)  { fatalError() }
-    func read(buffer: BufferHandle, on: (device: Int, queue: Int)?) -> UnsafeRawBufferPointer  { fatalError() }
-    func readWrite(buffer: BufferHandle, on: (device: Int, queue: Int)?) -> UnsafeMutableRawBufferPointer  { fatalError() }
-    func overwrite(buffer: BufferHandle, on: (device: Int, queue: Int)?) -> UnsafeMutableRawBufferPointer  { fatalError() }
+    func createBuffer(byteCount: Int) -> BufferId { fatalError() }
+    func createReference(to buffer: UnsafeRawBufferPointer) -> BufferId { fatalError() }
+    func createMutableReference(to buffer: UnsafeMutableRawBufferPointer) -> BufferId  { fatalError() }
+    func release(_ id: BufferId)  { fatalError() }
+    func read(_ id: BufferId, using deviceQueue: (Int, Int)) -> UnsafeRawBufferPointer  { fatalError() }
+    func readWrite(_ id: BufferId, using deviceQueue: (Int, Int)) -> UnsafeMutableRawBufferPointer  { fatalError() }
+    func overwrite(_ id: BufferId, using deviceQueue: (Int, Int)) -> UnsafeMutableRawBufferPointer  { fatalError() }
 }

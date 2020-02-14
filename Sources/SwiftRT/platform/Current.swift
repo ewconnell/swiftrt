@@ -39,6 +39,10 @@ public class Current {
         get { logWriter }
         set { logWriter = newValue }
     }
+    /// the Platform service object
+    @inlinable public static var service: PlatformService {
+        get { platform.service }
+    }
     /// a counter used to uniquely identify queue events for diagnostics
     @inlinable static var nextQueueEventId: Int {
         queueEventCounter += 1

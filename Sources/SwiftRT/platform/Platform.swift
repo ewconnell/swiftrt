@@ -19,12 +19,12 @@
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
 public class Platform<Service>: ComputePlatformType
-    where Service: PlatformService
+    where Service: PlatformServiceType
 {
     // properties
     public let logInfo: LogInfo
     public let name: String
-    public let service: Service
+    public let platformService: Service
     public var queueStack: [(device: Int, queue: Int)]
 
     //--------------------------------------------------------------------------
@@ -37,7 +37,7 @@ public class Platform<Service>: ComputePlatformType
                           nestingLevel: 0)
         
         // create the service
-        self.service = Service(parent: logInfo, id: 0)
+        self.platformService = Service(parent: logInfo, id: 0)
         
         // selecting device 1 should be the first accelerated device
         // if there is only one device, then the index will wrap to zero
@@ -60,6 +60,8 @@ public protocol ComputePlatform: Logger {
     var name: String { get }
     /// the current device and queue to direct work
     var queueStack: [(device: Int, queue: Int)] { get set }
+    /// the platform compute service
+    var service: PlatformService { get }
 
     //-------------------------------------
     /// returns the selected compute device
@@ -128,46 +130,48 @@ extension ComputePlatform {
 /// on a given machine
 public protocol ComputePlatformType: ComputePlatform {
     // types
-    associatedtype Service: PlatformService
+    associatedtype Service: PlatformServiceType
     
     // generic typed properties
     /// the local device compute service
-    var service: Service { get }
+    var platformService: Service { get }
 }
 
 //==============================================================================
 /// ComputePlatformType extensions for queue stack manipulation
 extension ComputePlatformType {
+    @inlinable
+    public var service: PlatformService { platformService }
     /// the currently active queue that API functions will use
     /// - Returns: the current device queue
     @inlinable
     public var currentDevice: ServiceDevice {
-        service.devices[queueStack.last!.device]
+        platformService.devices[queueStack.last!.device]
     }
     /// returns the specified compute device
     /// - Returns: the current device queue
     @inlinable
     public func device(_ id: Int) -> ServiceDevice {
-        service.devices[id]
+        platformService.devices[id]
     }
     /// the currently active queue that API functions will use
     /// - Returns: the current device queue
     @inlinable
     public var currentQueue: DeviceQueue {
         let (device, queue) = queueStack.last!
-        return service.devices[device].queues[queue]
+        return platformService.devices[device].queues[queue]
     }
     @inlinable
     public var applicationQueue: DeviceQueue {
         // TODO: add check to use current queue if it has unified memory
         // return cpu device queue for now
-        service.devices[0].queues[0]
+        platformService.devices[0].queues[0]
     }
     // peforms a mod on the indexes to guarantee they are mapped into bounds
     @inlinable
     public func ensureValidIndexes(_ device: Int, _ queue: Int) -> (Int, Int){
-        let deviceIndex = device % service.devices.count
-        let queueIndex = queue % service.devices[deviceIndex].queues.count
+        let deviceIndex = device % platformService.devices.count
+        let queueIndex = queue % platformService.devices[deviceIndex].queues.count
         return (deviceIndex, queueIndex)
     }
 }
