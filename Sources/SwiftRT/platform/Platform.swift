@@ -50,6 +50,10 @@ public class Platform<Service>: ComputePlatformType
 /// ComputePlatform
 /// The root collection of compute resources available to the application
 /// on a given machine
+// *** NOTE: the queue stack is on the platform instead of the service,
+// because it supports the platform API and it avoids duplicating
+// the queue stack logic for each service type
+//
 public protocol ComputePlatform: Logger {
     /// a device queue whose memory is shared with the application
     var applicationQueue: DeviceQueue { get }
