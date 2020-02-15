@@ -27,21 +27,20 @@ public protocol TensorStorageProtocol
     /// the id returned from `createBuffer`
     var deviceStorage: BufferId { get }
     
-    /// read(buffer:on:
-    /// - Parameter id: id of the buffer
-    /// - Parameter using: specifies the device/queue for synchronization.
-    /// A value of `nil` blocks the caller until synchronization is complete.
+    /// read(queue:
+    /// - Parameter queue: device queue specification for data placement and
+    /// synchronization. A value of `nil` will block the caller until the data
+    /// is available in the application address space
     /// - Returns: a buffer pointer to the stored elements
-    func read(_ id: BufferId, using queue: QueueId)
-        -> UnsafeBufferPointer<Element>
-    /// readWrite(buffer:on:
-    /// - Parameter id: id of the buffer
-    /// - Parameter using: specifies the device queue for synchronization.
-    /// A value of `nil` blocks the caller until synchronization is complete.
+    func read(using queue: QueueId?) -> UnsafeBufferPointer<Element>
+    /// readWrite(queue:
+    /// - Parameter queue: device queue specification for data placement and
+    /// synchronization. A value of `nil` will block the caller until the data
+    /// is available in the application address space
     /// - Parameter overwrite: `true` if the caller guarantees all
     /// buffer elements will be overwritten
     /// - Returns: a mutable buffer pointer to the stored elements
-    func readWrite(_ id: BufferId, using queue: QueueId, overwrite: Bool)
+    func readWrite(using queue: QueueId?, overwrite: Bool)
         -> UnsafeMutableBufferPointer<Element>
 }
 
@@ -49,18 +48,16 @@ public protocol TensorStorageProtocol
 /// TensorStorageProtocol
 public extension TensorStorageProtocol
 {
-    func read(_ id: BufferId, using queue: QueueId)
-        -> UnsafeBufferPointer<Element>
-    {
+    func read(using queue: QueueId? = nil) -> UnsafeBufferPointer<Element> {
         Current.service.read(deviceStorage, using: queue)
             .bindMemory(to: Element.self)
     }
     
-    func readWrite(_ id: BufferId, using queue: QueueId, overwrite: Bool)
+    func readWrite(using queue: QueueId? = nil, overwrite: Bool)
         -> UnsafeMutableBufferPointer<Element>
     {
-        Current.service.readWrite(deviceStorage, using: queue,
-                                  overwrite: overwrite)
+        Current.service
+            .readWrite(deviceStorage, using: queue, overwrite: overwrite)
             .bindMemory(to: Element.self)
     }
 }
@@ -142,7 +139,7 @@ extension TensorStorage: Codable where Element: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(name, forKey: .name)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
-        let buffer = read(deviceStorage, using: QueueId.cpu)
+        let buffer = read()
         try buffer.forEach {
             try dataContainer.encode($0)
         }
@@ -155,8 +152,7 @@ extension TensorStorage: Codable where Element: Codable {
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
         if let count = dataContainer.count {
             self.init(count: count, name: name)
-            let elements = readWrite(deviceStorage, using: QueueId.cpu,
-                                     overwrite: true)
+            let elements = readWrite(overwrite: true)
             for i in 0..<count {
                 elements[i] = try dataContainer.decode(Element.self)
             }

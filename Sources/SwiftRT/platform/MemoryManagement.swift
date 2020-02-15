@@ -67,19 +67,23 @@ public protocol ServiceMemoryManagement {
     func release(_ id: BufferId)
     /// read(buffer:on:
     /// - Parameter id: id of the buffer
-    /// - Parameter queue: specifies the device/queue for synchronization.
+    /// - Parameter queue: device queue specification for data placement and
+    /// synchronization. A value of `nil` will block the caller until the data
+    /// is available in the application address space
     /// - Returns: a buffer pointer to the bytes associated with the
     /// specified buffer id. The data will be synchronized
-    func read(_ id: BufferId, using queue: QueueId) -> UnsafeRawBufferPointer
+    func read(_ id: BufferId, using queue: QueueId?) -> UnsafeRawBufferPointer
     /// readWrite(buffer:on:
     /// - Parameter id: id of the buffer
-    /// - Parameter queue: specifies the device queue for synchronization.
+    /// - Parameter queue: device queue specification for data placement and
+    /// synchronization. A value of `nil` will block the caller until the data
+    /// is available in the application address space
     /// - Parameter overwrite: `true` if the caller guarantees all
     /// buffer elements will be overwritten
     /// - Returns: a mutable buffer pointer to the bytes associated with the
     /// specified buffer id. The data will be synchronized so elements can be
     /// read before written, or sparsely written to
-    func readWrite(_ id: BufferId, using queue: QueueId, overwrite: Bool)
+    func readWrite(_ id: BufferId, using queue: QueueId?, overwrite: Bool)
         -> UnsafeMutableRawBufferPointer
 }
 
@@ -110,6 +114,6 @@ public extension ServiceMemoryManagement {
     func createMutableReference(to buffer: UnsafeMutableRawBufferPointer) -> BufferId  { fatalError() }
     func duplicate(_ id: BufferId, using queue: QueueId) -> BufferId  { fatalError() }
     func release(_ id: BufferId)  { fatalError() }
-    func read(_ id: BufferId, using queue: QueueId) -> UnsafeRawBufferPointer  { fatalError() }
-    func readWrite(_ id: BufferId, using queue: QueueId, overwrite: Bool) -> UnsafeMutableRawBufferPointer  { fatalError() }
+    func read(_ id: BufferId, using queue: QueueId?) -> UnsafeRawBufferPointer  { fatalError() }
+    func readWrite(_ id: BufferId, using queue: QueueId?, overwrite: Bool) -> UnsafeMutableRawBufferPointer  { fatalError() }
 }

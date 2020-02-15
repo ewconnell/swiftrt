@@ -41,8 +41,6 @@ public struct QueueId {
         self.device = device
         self.queue = queue
     }
-    
-    public static let cpu = QueueId(0, 0, 0)
 }
 
 //==============================================================================
