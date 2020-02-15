@@ -32,7 +32,7 @@ public protocol TensorStorageProtocol
     /// - Parameter using: specifies the device/queue for synchronization.
     /// A value of `nil` blocks the caller until synchronization is complete.
     /// - Returns: a buffer pointer to the stored elements
-    func read(_ id: BufferId, using deviceQueue: (device: Int, queue: Int))
+    func read(_ id: BufferId, using queue: QueueId)
         -> UnsafeBufferPointer<Element>
     /// readWrite(buffer:on:
     /// - Parameter id: id of the buffer
@@ -41,8 +41,7 @@ public protocol TensorStorageProtocol
     /// - Parameter overwrite: `true` if the caller guarantees all
     /// buffer elements will be overwritten
     /// - Returns: a mutable buffer pointer to the stored elements
-    func readWrite(_ id: BufferId, using deviceQueue: (device: Int, queue: Int),
-                   overwrite: Bool)
+    func readWrite(_ id: BufferId, using queue: QueueId, overwrite: Bool)
         -> UnsafeMutableBufferPointer<Element>
 }
 
@@ -50,18 +49,17 @@ public protocol TensorStorageProtocol
 /// TensorStorageProtocol
 public extension TensorStorageProtocol
 {
-    func read(_ id: BufferId, using deviceQueue: (device: Int, queue: Int))
+    func read(_ id: BufferId, using queue: QueueId)
         -> UnsafeBufferPointer<Element>
     {
-        Current.service.read(deviceStorage, using: deviceQueue)
+        Current.service.read(deviceStorage, using: queue)
             .bindMemory(to: Element.self)
     }
     
-    func readWrite(_ id: BufferId, using deviceQueue: (device: Int, queue: Int),
-                   overwrite: Bool)
+    func readWrite(_ id: BufferId, using queue: QueueId, overwrite: Bool)
         -> UnsafeMutableBufferPointer<Element>
     {
-        Current.service.readWrite(deviceStorage, using: deviceQueue,
+        Current.service.readWrite(deviceStorage, using: queue,
                                   overwrite: overwrite)
             .bindMemory(to: Element.self)
     }
@@ -144,7 +142,7 @@ extension TensorStorage: Codable where Element: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(name, forKey: .name)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
-        let buffer = read(deviceStorage, using: cpuDevice)
+        let buffer = read(deviceStorage, using: QueueId.cpu)
         try buffer.forEach {
             try dataContainer.encode($0)
         }
@@ -157,7 +155,7 @@ extension TensorStorage: Codable where Element: Codable {
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
         if let count = dataContainer.count {
             self.init(count: count, name: name)
-            let elements = readWrite(deviceStorage, using: cpuDevice,
+            let elements = readWrite(deviceStorage, using: QueueId.cpu,
                                      overwrite: true)
             for i in 0..<count {
                 elements[i] = try dataContainer.decode(Element.self)

@@ -58,31 +58,28 @@ public protocol ServiceMemoryManagement {
     /// makes a duplicate of the specified buffer. Used to support
     /// copy-on-write semantics
     /// - Parameter id: id of the buffer to duplicate
-    /// - Parameter using: specifies the device/queue for synchronization.
+    /// - Parameter queue: specifies the device/queue for synchronization.
     /// - Returns: id of the new buffer
-    func duplicate(_ id: BufferId, using deviceQueue: (device: Int, queue: Int))
-        -> BufferId
+    func duplicate(_ id: BufferId, using queue: QueueId) -> BufferId
     /// release(id:
     /// Releases a buffer created by calling `createBuffer`
     /// - Parameter id: the id of the buffer to release
     func release(_ id: BufferId)
     /// read(buffer:on:
     /// - Parameter id: id of the buffer
-    /// - Parameter using: specifies the device/queue for synchronization.
+    /// - Parameter queue: specifies the device/queue for synchronization.
     /// - Returns: a buffer pointer to the bytes associated with the
     /// specified buffer id. The data will be synchronized
-    func read(_ id: BufferId, using deviceQueue: (device: Int, queue: Int))
-        -> UnsafeRawBufferPointer
+    func read(_ id: BufferId, using queue: QueueId) -> UnsafeRawBufferPointer
     /// readWrite(buffer:on:
     /// - Parameter id: id of the buffer
-    /// - Parameter using: specifies the device queue for synchronization.
+    /// - Parameter queue: specifies the device queue for synchronization.
     /// - Parameter overwrite: `true` if the caller guarantees all
     /// buffer elements will be overwritten
     /// - Returns: a mutable buffer pointer to the bytes associated with the
     /// specified buffer id. The data will be synchronized so elements can be
     /// read before written, or sparsely written to
-    func readWrite(_ id: BufferId, using deviceQueue: (device: Int, queue: Int),
-                   overwrite: Bool)
+    func readWrite(_ id: BufferId, using queue: QueueId, overwrite: Bool)
         -> UnsafeMutableRawBufferPointer
 }
 
@@ -111,10 +108,8 @@ public extension ServiceMemoryManagement {
     func createBuffer(byteCount: Int) -> BufferId { fatalError() }
     func createReference(to buffer: UnsafeRawBufferPointer) -> BufferId { fatalError() }
     func createMutableReference(to buffer: UnsafeMutableRawBufferPointer) -> BufferId  { fatalError() }
-    func duplicate(_ id: BufferId, using deviceQueue: (device: Int, queue: Int))
-        -> BufferId  { fatalError() }
+    func duplicate(_ id: BufferId, using queue: QueueId) -> BufferId  { fatalError() }
     func release(_ id: BufferId)  { fatalError() }
-    func read(_ id: BufferId, using deviceQueue: (device: Int, queue: Int)) -> UnsafeRawBufferPointer  { fatalError() }
-    func readWrite(_ id: BufferId, using deviceQueue: (device: Int, queue: Int),
-                   overwrite: Bool) -> UnsafeMutableRawBufferPointer  { fatalError() }
+    func read(_ id: BufferId, using queue: QueueId) -> UnsafeRawBufferPointer  { fatalError() }
+    func readWrite(_ id: BufferId, using queue: QueueId, overwrite: Bool) -> UnsafeMutableRawBufferPointer  { fatalError() }
 }

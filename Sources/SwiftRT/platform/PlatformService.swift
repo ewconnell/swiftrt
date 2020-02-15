@@ -28,7 +28,22 @@ public protocol PlatformService: ServiceMemoryManagement, Logger {
     init(parent parentLogInfo: LogInfo, id: Int)
 }
 
-public let cpuDevice = (0, 0)
+//==============================================================================
+/// QueueId
+/// a unique service device queue identifier that is used to index
+/// through the service device tree for directing workflow
+public struct QueueId {
+    public let service: Int
+    public let device: Int
+    public let queue: Int
+    public init(_ service: Int, _ device: Int, _ queue: Int) {
+        self.service = service
+        self.device = device
+        self.queue = queue
+    }
+    
+    public static let cpu = QueueId(0, 0, 0)
+}
 
 //==============================================================================
 /// PlatformServiceType
