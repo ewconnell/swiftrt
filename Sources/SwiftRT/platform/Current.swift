@@ -41,7 +41,7 @@ public class Current {
     }
     /// the Platform service object
     @inlinable public static var service: PlatformService {
-        get { platform.service }
+        get { platform.platformService }
     }
     /// a counter used to uniquely identify queue events for diagnostics
     @inlinable static var nextQueueEventId: Int {
