@@ -54,6 +54,14 @@ public protocol ServiceMemoryManagement {
     /// - Returns: an id used to reference the buffer
     func createMutableReference(to buffer: UnsafeMutableRawBufferPointer)
         -> BufferId
+    /// duplicate
+    /// makes a duplicate of the specified buffer. Used to support
+    /// copy-on-write semantics
+    /// - Parameter id: id of the buffer to duplicate
+    /// - Parameter using: specifies the device/queue for synchronization.
+    /// - Returns: id of the new buffer
+    func duplicate(_ id: BufferId, using deviceQueue: (device: Int, queue: Int))
+        -> BufferId
     /// release(id:
     /// Releases a buffer created by calling `createBuffer`
     /// - Parameter id: the id of the buffer to release
@@ -103,6 +111,8 @@ public extension ServiceMemoryManagement {
     func createBuffer(byteCount: Int) -> BufferId { fatalError() }
     func createReference(to buffer: UnsafeRawBufferPointer) -> BufferId { fatalError() }
     func createMutableReference(to buffer: UnsafeMutableRawBufferPointer) -> BufferId  { fatalError() }
+    func duplicate(_ id: BufferId, using deviceQueue: (device: Int, queue: Int))
+        -> BufferId  { fatalError() }
     func release(_ id: BufferId)  { fatalError() }
     func read(_ id: BufferId, using deviceQueue: (device: Int, queue: Int)) -> UnsafeRawBufferPointer  { fatalError() }
     func readWrite(_ id: BufferId, using deviceQueue: (device: Int, queue: Int),
