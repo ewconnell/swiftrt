@@ -68,21 +68,13 @@ public protocol ServiceMemoryManagement {
     /// readWrite(buffer:on:
     /// - Parameter id: id of the buffer
     /// - Parameter using: specifies the device queue for synchronization.
+    /// - Parameter overwrite: `true` if the caller guarantees all
+    /// buffer elements will be overwritten
     /// - Returns: a mutable buffer pointer to the bytes associated with the
     /// specified buffer id. The data will be synchronized so elements can be
     /// read before written, or sparsely written to
-    func readWrite(_ id: BufferId, using deviceQueue: (device: Int, queue: Int))
-        -> UnsafeMutableRawBufferPointer
-    /// overwrite(buffer:on:
-    /// This function will be higher performance than `readWrite` if it is
-    /// known that all elements will be written to, because it does not
-    /// need to synchronize.
-    /// - Parameter id: id of the buffer
-    /// - Parameter using: specifies the device queue for synchronization.
-    /// - Returns: a mutable buffer pointer to the bytes associated with the
-    /// specified buffer id. The data will not be synchronized and it is
-    /// required that the operation will overwrite all elements of the buffer.
-    func overwrite(_ id: BufferId, using deviceQueue: (device: Int, queue: Int))
+    func readWrite(_ id: BufferId, using deviceQueue: (device: Int, queue: Int),
+                   overwrite: Bool)
         -> UnsafeMutableRawBufferPointer
 }
 
@@ -113,6 +105,6 @@ public extension ServiceMemoryManagement {
     func createMutableReference(to buffer: UnsafeMutableRawBufferPointer) -> BufferId  { fatalError() }
     func release(_ id: BufferId)  { fatalError() }
     func read(_ id: BufferId, using deviceQueue: (device: Int, queue: Int)) -> UnsafeRawBufferPointer  { fatalError() }
-    func readWrite(_ id: BufferId, using deviceQueue: (device: Int, queue: Int)) -> UnsafeMutableRawBufferPointer  { fatalError() }
-    func overwrite(_ id: BufferId, using deviceQueue: (device: Int, queue: Int)) -> UnsafeMutableRawBufferPointer  { fatalError() }
+    func readWrite(_ id: BufferId, using deviceQueue: (device: Int, queue: Int),
+                   overwrite: Bool) -> UnsafeMutableRawBufferPointer  { fatalError() }
 }
