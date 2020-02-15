@@ -37,10 +37,10 @@ public protocol TensorStorageProtocol
     /// - Parameter queue: device queue specification for data placement and
     /// synchronization. A value of `nil` will block the caller until the data
     /// is available in the application address space
-    /// - Parameter overwrite: `true` if the caller guarantees all
+    /// - Parameter willOverwrite: `true` if the caller guarantees all
     /// buffer elements will be overwritten
     /// - Returns: a mutable buffer pointer to the stored elements
-    func readWrite(using queue: QueueId?, overwrite: Bool)
+    func readWrite(using queue: QueueId?, willOverwrite: Bool)
         -> UnsafeMutableBufferPointer<Element>
 }
 
@@ -53,11 +53,11 @@ public extension TensorStorageProtocol
             .bindMemory(to: Element.self)
     }
     
-    func readWrite(using queue: QueueId? = nil, overwrite: Bool)
+    func readWrite(using queue: QueueId? = nil, willOverwrite: Bool)
         -> UnsafeMutableBufferPointer<Element>
     {
-        Current.service
-            .readWrite(deviceStorage, using: queue, overwrite: overwrite)
+        Current.service.readWrite(deviceStorage, using: queue,
+                                  willOverwrite: willOverwrite)
             .bindMemory(to: Element.self)
     }
 }
@@ -152,7 +152,7 @@ extension TensorStorage: Codable where Element: Codable {
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
         if let count = dataContainer.count {
             self.init(count: count, name: name)
-            let elements = readWrite(overwrite: true)
+            let elements = readWrite(willOverwrite: true)
             for i in 0..<count {
                 elements[i] = try dataContainer.decode(Element.self)
             }
