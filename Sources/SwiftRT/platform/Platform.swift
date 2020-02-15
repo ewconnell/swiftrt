@@ -25,7 +25,7 @@ public class Platform<Service>: ComputePlatformType
     public let logInfo: LogInfo
     public let name: String
     public let service: Service
-    public var queueStack: [(device: Int, queue: Int)]
+    public var queueStack: [QueueId]
 
     //--------------------------------------------------------------------------
     @inlinable
@@ -42,7 +42,7 @@ public class Platform<Service>: ComputePlatformType
         // selecting device 1 should be the first accelerated device
         // if there is only one device, then the index will wrap to zero
         self.queueStack = []
-        self.queueStack = [ensureValidIndexes(1, 0)]
+        self.queueStack = [ensureValidId(0, 1, 0)]
     }
 }
 
@@ -59,15 +59,16 @@ public protocol ComputePlatform: Logger {
     /// name used logging
     var name: String { get }
     /// the current device and queue to direct work
-    var queueStack: [(device: Int, queue: Int)] { get set }
+    var queueStack: [QueueId] { get set }
     /// the platform compute service existential
     var platformService: PlatformService { get }
 
     //-------------------------------------
     /// returns the selected compute device
     func device(_ id: Int) -> ServiceDevice
-    /// mods the specified indices to ensure they select valid objects
-    func ensureValidIndexes(_ device: Int, _ queue: Int) -> (Int, Int)
+    /// mods the specified indices to ensure they select valid a valid queue
+    func ensureValidId(_ serviceId: Int, _ deviceId: Int, _ queueId: Int)
+        -> QueueId
 }
 
 //------------------------------------------------------------------------------
@@ -89,14 +90,14 @@ extension ComputePlatform {
     /// changes the current device/queue to use cpu:0
     @inlinable
     public mutating func useCpu() {
-        queueStack[queueStack.count - 1] = (0, 0)
+        queueStack[queueStack.count - 1] = QueueId(0, 0, 0)
     }
     /// selects the specified device queue for output
     /// - Parameter device: the device to use. Device 0 is the cpu
     /// - Parameter queue: the queue on the device to use
     @inlinable
     public mutating func use(device: Int, queue: Int = 0) {
-        queueStack[queueStack.count - 1] = ensureValidIndexes(device, queue)
+        queueStack[queueStack.count - 1] = ensureValidId(0, device, queue)
     }
     /// selects the specified device queue for output within the scope of
     /// the body
@@ -107,7 +108,7 @@ extension ComputePlatform {
     public mutating func using<R>(device: Int,
                                   queue: Int = 0, _ body: () -> R) -> R {
         // push the selection onto the queue stack
-        queueStack.append(ensureValidIndexes(device, queue))
+        queueStack.append(ensureValidId(0, device, queue))
         defer { _ = queueStack.popLast() }
         return body()
     }
@@ -118,7 +119,8 @@ extension ComputePlatform {
     @inlinable
     public mutating func using<R>(queue: Int, _ body: () -> R) -> R {
         // push the selection onto the queue stack
-        queueStack.append(ensureValidIndexes(queueStack.last!.device, queue))
+        let current = queueStack.last!
+        queueStack.append(ensureValidId(current.service, current.device, queue))
         defer { _ = queueStack.popLast() }
         return body()
     }
@@ -158,8 +160,8 @@ extension ComputePlatformType {
     /// - Returns: the current device queue
     @inlinable
     public var currentQueue: DeviceQueue {
-        let (device, queue) = queueStack.last!
-        return service.devices[device].queues[queue]
+        let current = queueStack.last!
+        return service.devices[current.device].queues[current.queue]
     }
     @inlinable
     public var applicationQueue: DeviceQueue {
@@ -169,10 +171,12 @@ extension ComputePlatformType {
     }
     // peforms a mod on the indexes to guarantee they are mapped into bounds
     @inlinable
-    public func ensureValidIndexes(_ device: Int, _ queue: Int) -> (Int, Int){
-        let deviceIndex = device % service.devices.count
-        let queueIndex = queue % service.devices[deviceIndex].queues.count
-        return (deviceIndex, queueIndex)
+    public func ensureValidId(_ serviceId: Int, _ deviceId: Int, _ queueId: Int)
+        -> QueueId
+    {
+        let device = deviceId % service.devices.count
+        let queue = queueId % service.devices[device].queues.count
+        return QueueId(serviceId, device, queue)
     }
 }
 

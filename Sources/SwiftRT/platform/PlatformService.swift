@@ -22,7 +22,7 @@ public protocol PlatformService: ServiceMemoryManagement, Logger {
     var id: Int { get }
     /// name used logging
     var name: String { get }
-    
+
     //--------------------------------------------------------------------------
     // initializers
     init(parent parentLogInfo: LogInfo, id: Int)
