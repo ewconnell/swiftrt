@@ -30,8 +30,9 @@ public protocol ShapeProtocol: Codable {
 
     //--------------------------------------------------------------------------
     // properties
+    /// the dense number of elements in the shape
     var count: Int { get }
-    /// The sparse number of elements spanned by the shape
+    /// The strided number of elements spanned by the shape
     var spanCount: Int { get }
     /// The extent of the shape in each dimension
     var extents: Array { get }
