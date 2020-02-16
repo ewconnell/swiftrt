@@ -16,16 +16,16 @@ import Foundation
 
 //==============================================================================
 /// TensorStorageProtocol
-public protocol TensorStorageProtocol
-{
+public protocol TensorStorageProtocol {
+    // types
     associatedtype Element
     
     /// the number of stored elements
     var count: Int { get }
     /// a name used in diagnostic messages
     var name: String { get }
-    /// the id returned from `createBuffer`
-    var deviceStorage: BufferId { get }
+    /// the id returned from `createStorage`
+    var deviceStorage: DeviceStorage { get }
     
     /// read(queue:
     /// - Parameter queue: device queue specification for data placement and
@@ -70,11 +70,11 @@ public final class TensorStorage<Element>:
 {
     public let count: Int
     public let name: String
-    public let deviceStorage: BufferId
+    public let deviceStorage: DeviceStorage
     public let trackingId: Int
 
     @usableFromInline
-    init(_ storageId: BufferId, _ name: String, _ count: Int) {
+    init(_ storageId: DeviceStorage, _ name: String, _ count: Int) {
         self.count = count
         self.name = name
         self.deviceStorage = storageId
@@ -92,7 +92,7 @@ public final class TensorStorage<Element>:
     public convenience init(count: Int, name: String)
     {
         let bufferId = Current.service
-            .createBuffer(byteCount: MemoryLayout<Element>.size * count)
+            .createStorage(byteCount: MemoryLayout<Element>.size * count)
         self.init(bufferId, name, count)
     }
 
