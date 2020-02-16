@@ -45,12 +45,14 @@ public protocol ShapeProtocol: Codable {
     init(extents: Array, strides: Array?)
     /// Expanding initializer
     /// - Parameter expanding: the lower order shape to expand
+    /// - Parameter axes: the set of axes to be expanded
     init<S>(expanding other: S, alongAxes axes: Set<Int>?) where S: ShapeProtocol
     /// Flattening initializer
     /// - Parameter flattening: the higher order shape to flatten
     init<S>(flattening other: S) where S: ShapeProtocol
     /// Squeezing initializer
     /// - Parameter squeezing: the higher order shape to squeeze
+    /// - Parameter axes: the set of axes to be squeezed
     init<S>(squeezing other: S, alongAxes axes: Set<Int>?) where S: ShapeProtocol
 }
 
