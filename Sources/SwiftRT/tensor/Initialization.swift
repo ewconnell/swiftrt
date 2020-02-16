@@ -26,6 +26,8 @@ public let _messageNewTensorsShouldBeDense = "new tensors should be dense"
 public extension TensorView where Element: AnyConvertable {
     //--------------------------------------------------------------------------
     /// casting
+    /// - Parameter other: a tensor of the same shape whose elements are
+    /// to be cast
     @inlinable
     init<U>(_ other: U) where
         U: TensorView, U.Element: AnyConvertable, Shape == U.Shape
@@ -33,9 +35,6 @@ public extension TensorView where Element: AnyConvertable {
         self = Current.platform.cast(other)
     }
 }
-
-public typealias RangeInterval = (from: Int?, to: Int?, step: Int?)
-public typealias ResolvedRangeInterval = (from: Int, to: Int, step: Int)
 
 //==============================================================================
 //
