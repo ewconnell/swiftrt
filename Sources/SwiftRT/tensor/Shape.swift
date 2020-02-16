@@ -19,7 +19,10 @@ import Foundation
 //
 public protocol ShapeProtocol: Codable {
     // types
-    associatedtype Array: StaticArrayProtocol
+    associatedtype Array: StaticArrayProtocol where
+        Array: Equatable & Codable,
+        Array.Element == Int,
+        Array.Index == Int
 
     // constants
     static var zeros: Array { get }
@@ -348,7 +351,7 @@ public extension ShapeProtocol {
 // Shape1
 public struct Shape1: ShapeProtocol {
     // constants
-    public typealias Array = StaticArray<(Int)>
+    public typealias Array = StaticArray<Int, (Int)>
     public static let zeros = Array((0))
     public static let ones = Array((1))
 
@@ -378,7 +381,7 @@ public struct Shape1: ShapeProtocol {
 // Shape2
 public struct Shape2: ShapeProtocol {
     // constants
-    public typealias Array = StaticArray<(Int, Int)>
+    public typealias Array = StaticArray<Int, (Int, Int)>
     public static let zeros = Array((0, 0))
     public static let ones = Array((1, 1))
 
@@ -411,7 +414,7 @@ public struct Shape2: ShapeProtocol {
 // Shape3
 public struct Shape3: ShapeProtocol {
     // constants
-    public typealias Array = StaticArray<(Int, Int, Int)>
+    public typealias Array = StaticArray<Int, (Int, Int, Int)>
     public static let zeros = Array((0, 0, 0))
     public static let ones = Array((1, 1, 1))
 
@@ -447,7 +450,7 @@ public struct Shape3: ShapeProtocol {
 // Shape4
 public struct Shape4: ShapeProtocol {
     // constants
-    public typealias Array = StaticArray<(Int, Int, Int, Int)>
+    public typealias Array = StaticArray<Int, (Int, Int, Int, Int)>
     public static let zeros = Array((0, 0, 0, 0))
     public static let ones = Array((1, 1, 1, 1))
     
@@ -484,7 +487,7 @@ public struct Shape4: ShapeProtocol {
 // Shape5
 public struct Shape5: ShapeProtocol {
     // constants
-    public typealias Array = StaticArray<(Int, Int, Int, Int, Int)>
+    public typealias Array = StaticArray<Int, (Int, Int, Int, Int, Int)>
     public static let zeros = Array((0, 0, 0, 0, 0))
     public static let ones = Array((1, 1, 1, 1, 1))
     

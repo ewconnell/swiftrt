@@ -31,6 +31,18 @@ public protocol ServiceMemoryManagement {
     var masterVersion: [BufferId : Int] { get set }
     
     //--------------------------------------------------------------------------
+    /// cachedBuffer(element:
+    /// returns a device buffer initialized with the specified `Element`
+    /// value. User expressions use a lot of constant scalar values
+    /// which are repeated. For example: `let m = matrix + 1`. These
+    /// expressions are frequently iterated thousands of times. This function
+    /// will maintain a cache of constant values, which are likely to
+    /// already be present on a discreet accelerator device,
+    /// saving a lot of time.
+    /// - Parameter element: the element value to cache
+    /// - Returns: a buffer containing the value. One is created if it
+    /// is not already cached.
+    func cachedBuffer<Element>(with element: Element) -> BufferId
     /// createBuffer(byteCount:
     /// creates a lazily allocated buffer to be used in tensor operations.
     /// Handles are used because the associated memory can be moved by the
@@ -109,6 +121,7 @@ public struct BufferId: Hashable {
 //==============================================================================
 // placeholder
 public extension ServiceMemoryManagement {
+    func cachedBuffer<Element>(with element: Element) -> BufferId { fatalError() }
     func createBuffer(byteCount: Int) -> BufferId { fatalError() }
     func createReference(to buffer: UnsafeRawBufferPointer) -> BufferId { fatalError() }
     func createMutableReference(to buffer: UnsafeMutableRawBufferPointer) -> BufferId  { fatalError() }

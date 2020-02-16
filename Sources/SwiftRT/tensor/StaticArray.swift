@@ -16,20 +16,19 @@
 import Foundation
 
 //==============================================================================
-//
+// StaticArrayProtocol
 public protocol StaticArrayProtocol:
     RandomAccessCollection,
     MutableCollection,
-    CustomStringConvertible,
-    Equatable,
-    Codable
-    where Element == Int, Index == Int
+    CustomStringConvertible
 {
-    // types
+    /// the element type in the array
+    associatedtype Element
+    /// a tuple that is used for storage whose size must
+    /// be a multiple of `Element` size
     associatedtype Storage
-
-    // properties
-    var array: [Int] { get }
+    
+    /// the array storage
     var storage: Storage { get set }
 
     // initialzers
@@ -38,14 +37,12 @@ public protocol StaticArrayProtocol:
 }
 
 //==============================================================================
-//
-public struct StaticArray<Storage> : StaticArrayProtocol {
+/// StaticArrayProtocol extension
+extension StaticArrayProtocol {
     /// the collection as a Swift Array
     @inlinable
-    public var array: [Int] { [Int](self) }
-    /// some value object used for storage space
-    public var storage: Storage
-    /// alias
+    public var array: [Element] { [Element](self) }
+    /// alias used to make clear what is being handled
     @inlinable
     public var tuple: Storage { storage }
     /// the number of elements in the array
@@ -59,16 +56,22 @@ public struct StaticArray<Storage> : StaticArrayProtocol {
     /// ending index
     @inlinable
     public var endIndex: Int { count }
-
-    /// description
+    /// description for diagnostics
+    @inlinable
     public var description: String { String(describing: array) }
+}
+
+//==============================================================================
+/// StaticArray
+public struct StaticArray<Element, Storage> : StaticArrayProtocol {
+    public var storage: Storage
     
-    //--------------------------------------------------------------------------
+    //------------------------------------
     // initializers
     @inlinable
     public init(_ data: Storage) {
-        assert(MemoryLayout<Storage>.size % MemoryLayout<Int>.size == 0,
-               "Storage size must be multiple of Int size")
+        assert(MemoryLayout<Storage>.size % MemoryLayout<Element>.size == 0,
+               "Storage size must be multiple of Element size")
         storage = data
     }
 
@@ -77,9 +80,26 @@ public struct StaticArray<Storage> : StaticArrayProtocol {
         guard let data = data else { return nil }
         self.init(data)
     }
+    
+    // subscript
+    @inlinable
+    public subscript(index: Int) -> Element {
+        get {
+            withUnsafeBytes(of: storage) {
+                $0.bindMemory(to: Element.self)[index]
+            }
+        }
+        set {
+            withUnsafeMutableBytes(of: &storage) {
+                $0.bindMemory(to: Element.self)[index] = newValue
+            }
+        }
+    }
+}
 
-    //--------------------------------------------------------------------------
-    // Equatable
+//------------------------------------------------------------------------------
+// Equatable
+extension StaticArray: Equatable where Element: Equatable {
     @inlinable
     public static func == (lhs: Self, rhs: Self) -> Bool {
         withUnsafeBytes(of: lhs.storage) { lhsPtr in
@@ -92,7 +112,7 @@ public struct StaticArray<Storage> : StaticArrayProtocol {
     }
 
     @inlinable
-    public static func == (lhs: Self, rhs: [Int]) -> Bool {
+    public static func == (lhs: Self, rhs: [Element]) -> Bool {
         guard lhs.count == rhs.count else { return false }
         for i in 0..<lhs.count {
             if lhs[i] != rhs[i] { return false }
@@ -101,32 +121,18 @@ public struct StaticArray<Storage> : StaticArrayProtocol {
     }
 
     @inlinable
-    public static func == (lhs: [Int], rhs: Self) -> Bool {
+    public static func == (lhs: [Element], rhs: Self) -> Bool {
         guard lhs.count == rhs.count else { return false }
         for i in 0..<lhs.count {
             if lhs[i] != rhs[i] { return false }
         }
         return true
     }
+}
 
-    //--------------------------------------------------------------------------
-    // indexing
-    @inlinable
-    public subscript(index: Int) -> Int {
-        get {
-            withUnsafeBytes(of: storage) {
-                $0.bindMemory(to: Int.self)[index]
-            }
-        }
-        set {
-            withUnsafeMutableBytes(of: &storage) {
-                $0.bindMemory(to: Int.self)[index] = newValue
-            }
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    // Codable
+//------------------------------------------------------------------------------
+// Codable
+extension StaticArray: Codable where Element: Codable {
     enum CodingKeys: String, CodingKey { case data }
     
     /// encodes the contents of the array
@@ -151,15 +157,6 @@ public struct StaticArray<Storage> : StaticArrayProtocol {
         })
     }
 }
-
-//public extension StaticArray where Element: Numeric {
-    //    @inlinable
-    //    public init() {
-    //        assert(MemoryLayout<Storage>.size % MemoryLayout<Int>.size == 0,
-    //               "Storage size must be multiple of Int size")
-    //        memset(&storage, 0, MemoryLayout<Storage>.size)
-    //    }
-//}
 
 //==============================================================================
 //
