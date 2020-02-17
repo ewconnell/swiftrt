@@ -50,6 +50,9 @@ extension StaticArrayProtocol {
     public var count: Int {
         MemoryLayout<Storage>.size / MemoryLayout<Element>.size
     }
+    /// the last index value
+    @inlinable
+    public var lastIndex: Int { count - 1 }
     /// starting index
     @inlinable
     public var startIndex: Int { 0 }
