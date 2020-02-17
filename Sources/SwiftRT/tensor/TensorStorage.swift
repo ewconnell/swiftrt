@@ -25,7 +25,7 @@ public protocol TensorStorageProtocol {
     /// a name used in diagnostic messages
     var name: String { get }
     /// the id returned from `createStorage`
-    var deviceStorage: DeviceBuffer { get }
+    var deviceBuffer: DeviceBuffer { get }
     
     /// read(queue:
     /// - Parameter queue: device queue specification for data placement and
@@ -49,14 +49,14 @@ public protocol TensorStorageProtocol {
 public extension TensorStorageProtocol
 {
     func read(using queue: QueueId? = nil) -> UnsafeBufferPointer<Element> {
-        Current.service.read(deviceStorage, using: queue)
+        Current.service.read(deviceBuffer, using: queue)
             .bindMemory(to: Element.self)
     }
     
     func readWrite(using queue: QueueId? = nil, willOverwrite: Bool)
         -> UnsafeMutableBufferPointer<Element>
     {
-        Current.service.readWrite(deviceStorage, using: queue,
+        Current.service.readWrite(deviceBuffer, using: queue,
                                   willOverwrite: willOverwrite)
             .bindMemory(to: Element.self)
     }
@@ -70,14 +70,14 @@ public final class TensorStorage<Element>:
 {
     public let count: Int
     public let name: String
-    public let deviceStorage: DeviceBuffer
+    public let deviceBuffer: DeviceBuffer
     public let trackingId: Int
 
     @usableFromInline
     init(_ storageId: DeviceBuffer, _ name: String, _ count: Int) {
         self.count = count
         self.name = name
-        self.deviceStorage = storageId
+        self.deviceBuffer = storageId
         self.trackingId = ObjectTracker.global.nextId
         #if DEBUG
         ObjectTracker.global.register(
@@ -121,7 +121,7 @@ public final class TensorStorage<Element>:
     //--------------------------------------------------------------------------
     // release the storage buffer when the reference count reaches zero
     deinit {
-        Current.service.release(deviceStorage)
+        Current.service.release(deviceBuffer)
         ObjectTracker.global.remove(trackingId: trackingId)
     }
 }
