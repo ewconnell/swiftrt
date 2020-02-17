@@ -40,7 +40,10 @@ public extension ShapeIndex {
     }
     
     @inlinable
-    func distance(to other: Self) -> Int { other.sequenceIndex - sequenceIndex }
+    func distance(to other: Self) -> Int {
+        other.sequenceIndex - sequenceIndex
+        
+    }
 }
 
 //==============================================================================
@@ -77,9 +80,7 @@ public struct RankedShapeIndex<Array>: ShapeIndex, Codable
 public protocol ShapeProtocol: Codable, Collection {
     // types
     associatedtype Array: StaticArrayProtocol where
-        Array: Equatable & Codable,
-        Array.Element == Int,
-        Array.Index == Int
+        Array: Equatable & Codable, Array.Element == Int
 
     /// a rank matched array of zeros
     static var zeros: Array { get }
@@ -127,16 +128,17 @@ extension ShapeProtocol where Index == RankedShapeIndex<Array> {
         return Index(sequenceIndex: count, stridedPosition: end)
     }
 
-    //-----------------------------------
-    // Collection
-    @inlinable
-    public func index(after i: Index) -> Index {
-        fatalError()
-    }
+    // returns the data buffer index corresponding to the sequence index
+    @inlinable public subscript(index: Index) -> Int { index.bufferIndex }
 
-    @inlinable
-    public subscript(index: Index) -> Int {
-        fatalError()
+    // computes the next index in the sequence
+    @inlinable public func index(after i: Index) -> Index {
+        var next = i
+        next.sequenceIndex += 1
+        
+//        update the stridedPosition
+        
+        return next
     }
 }
 
@@ -442,23 +444,19 @@ public extension ShapeProtocol {
 public struct Shape1: ShapeProtocol {
     // types
     public typealias Array = StaticArray<Int, (Int)>
-    public typealias Index = VectorShapeIndex
+    public typealias Index = Int
     
     // constants
     public static let zeros = Array((0))
     public static let ones = Array((1))
-    public static let start = Index()
+    public static let start = 0
 
     // properties
     public let count: Int
     public let spanCount: Int
     public let extents: Array
     public let strides: Array
-    
-    // indexing
-    @inlinable public var endIndex: Index {
-        Index(sequenceIndex: count, bufferIndex: spanCount)
-    }
+    public let endIndex: Index
 
     @inlinable
     public init(extents: Array, strides: Array? = nil) {
@@ -466,6 +464,7 @@ public struct Shape1: ShapeProtocol {
         self.strides = strides ?? Self.denseStrides(extents)
         self.count = extents[0]
         self.spanCount = Self.computeSpanCount(self.extents, self.strides)
+        self.endIndex = (spanCount - 1) + self.strides.lastElement
     }
 
     //-----------------------------------
@@ -477,18 +476,8 @@ public struct Shape1: ShapeProtocol {
 
     //-----------------------------------
     // Collection
-    @inlinable
-    public func index(after i: Index) -> Index {
-        var next = i
-        next.sequenceIndex += 1
-        next.bufferIndex += strides[0]
-        return next
-    }
-
-    @inlinable
-    public subscript(index: Index) -> Int {
-        index.bufferIndex
-    }
+    @inlinable public func index(after i: Index) -> Index { i + strides[0] }
+    @inlinable public subscript(index: Index) -> Int { index }
 }
 
 //==============================================================================

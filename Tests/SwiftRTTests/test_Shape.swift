@@ -26,6 +26,13 @@ class test_Shape: XCTestCase {
     ]
 
     //--------------------------------------------------------------------------
+    // test_ShapeCollection
+    func test_ShapeCollection() {
+        let s = Shape1(extents: (5), strides: (3))
+        print([Int](s))
+    }
+
+    //--------------------------------------------------------------------------
     // test_transposed
     func test_transposed() {
         let volume = Volume(2,3,4).filledWithIndex().transposed(with: (2,1,0))

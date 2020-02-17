@@ -21,6 +21,7 @@ public protocol StaticArrayProtocol:
     RandomAccessCollection,
     MutableCollection,
     CustomStringConvertible
+    where Index == Int
 {
     /// the element type in the array
     associatedtype Element
@@ -53,6 +54,9 @@ extension StaticArrayProtocol {
     /// the last index value
     @inlinable
     public var lastIndex: Int { count - 1 }
+    /// the last index value
+    @inlinable
+    public var lastElement: Element { self[lastIndex] }
     /// starting index
     @inlinable
     public var startIndex: Int { 0 }
