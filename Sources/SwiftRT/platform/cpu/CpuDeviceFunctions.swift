@@ -51,6 +51,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     {
         zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = op($1.0, $1.1) }
     }
+    //--------------------------------------------------------------------------
 
     // mapOp 1
     /// generically maps a tensor
