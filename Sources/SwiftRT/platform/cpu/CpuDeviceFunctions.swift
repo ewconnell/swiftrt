@@ -45,13 +45,11 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
     
     func cpu_mapOp<LHS, RHS, R>(
-        _ lhs: LHS, _ rhs: RHS, _ result: inout R,
+        _ lhs: LHS, _ rhs: RHS, _ r: inout R,
         _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
         LHS: ShapedBuffer, RHS: ShapedBuffer, R: MutableShapedBuffer
     {
-        for (i, (l, r)) in zip(lhs.buffer, rhs.buffer).enumerated() {
-            result.buffer[i] = op(l, r)
-        }
+        zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = op($1.0, $1.1) }
     }
 
     // mapOp 1

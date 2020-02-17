@@ -22,8 +22,7 @@ public protocol ShapedBuffer: Collection {
     associatedtype Element
     associatedtype Shape: ShapeProtocol
 
-    var buffer: UnsafeBufferPointer<Element> { get }
-    var position: Index { get set }
+    var buffer: UnsafePointer<Element> { get }
     var shape: Shape { get }
 }
 
@@ -33,20 +32,18 @@ public struct ElementBuffer<Element, Shape>: ShapedBuffer
     where Shape: ShapeProtocol
 {
     public typealias Index = Int
-    public let buffer: UnsafeBufferPointer<Element>
+    public let buffer: UnsafePointer<Element>
     public var count: Int { shape.count }
     public let endIndex: Index
-    public var position: Index
     public let shape: Shape
     public let startIndex: Index
 
     @inlinable
-    public init(_ shape: Shape, _ buffer: UnsafeBufferPointer<Element>) {
+    public init(_ shape: Shape, _ buffer: UnsafePointer<Element>) {
         self.shape = shape
         self.buffer = buffer
         startIndex = 0 //Shape.zeros
         endIndex = 0 //shape.extents
-        position = startIndex
     }
     
     //-----------------------------------
@@ -65,12 +62,12 @@ public struct ElementBuffer<Element, Shape>: ShapedBuffer
 
 //==============================================================================
 /// MutableShapedBuffer
-public protocol MutableShapedBuffer {
+public protocol MutableShapedBuffer: MutableCollection {
     associatedtype Element
     associatedtype Shape: ShapeProtocol
 
     var shape: Shape { get }
-    var buffer: UnsafeMutableBufferPointer<Element> { get }
+    var buffer: UnsafeMutablePointer<Element> { get }
 }
 
 //==============================================================================
@@ -78,7 +75,32 @@ public protocol MutableShapedBuffer {
 public struct MutableElementBuffer<Element, Shape>: MutableShapedBuffer
     where Shape: ShapeProtocol
 {
-    public var shape: Shape
-    public var buffer: UnsafeMutableBufferPointer<Element>
+    public typealias Index = Int
+    public var buffer: UnsafeMutablePointer<Element>
+    public var count: Int { shape.count }
+    public let endIndex: Index
+    public let shape: Shape
+    public let startIndex: Index
+    
+    @inlinable
+    public init(_ shape: Shape, _ buffer: UnsafeMutablePointer<Element>) {
+        self.shape = shape
+        self.buffer = buffer
+        startIndex = 0 //Shape.zeros
+        endIndex = 0 //shape.extents
+    }
+    
+    //-----------------------------------
+    // Collection
+    @inlinable
+    public func index(after i: Index) -> Index {
+        fatalError()
+    }
+    
+    @inlinable
+    public subscript(index: Index) -> Element {
+        get { fatalError() }
+        set { fatalError() }
+    }
 }
 
