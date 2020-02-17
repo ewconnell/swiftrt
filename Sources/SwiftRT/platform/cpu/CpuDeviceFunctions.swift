@@ -34,6 +34,26 @@ public func implicitlyMatchExtents<T>(_ lhs: T, _ rhs: T) -> (T, T)
 //==============================================================================
 // DeviceQueue default implementations
 public extension DeviceFunctions where Self: DeviceQueue {
+    //--------------------------------------------------------------------------
+
+    /// add
+    func cpu_add<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: AdditiveArithmetic,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        cpu_mapOp(lhs, rhs, &result, +)
+    }
+    
+    func cpu_mapOp<LHS, RHS, R>(
+        _ lhs: LHS, _ rhs: RHS, _ result: inout R,
+        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
+        LHS: ShapedBuffer, RHS: ShapedBuffer, R: MutableShapedBuffer
+    {
+        for (i, (l, r)) in zip(lhs.buffer, rhs.buffer).enumerated() {
+            result.buffer[i] = op(l, r)
+        }
+    }
+
     // mapOp 1
     /// generically maps a tensor
     @inlinable

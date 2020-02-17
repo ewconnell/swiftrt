@@ -23,6 +23,18 @@ public protocol DeviceFunctions {
     var creatorThread: Thread { get }
 
     //--------------------------------------------------------------------------
+
+    /// add
+    func add<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: AdditiveArithmetic,
+        R: MutableShapedBuffer
+
+    func mapOp<LHS, RHS, R>(
+        _ lhs: LHS, _ rhs: RHS, _ result: inout R,
+        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
+        LHS: ShapedBuffer, RHS: ShapedBuffer, R: MutableShapedBuffer
+    
+    //--------------------------------------------------------------------------
     // generic helpers
     /// mapOp 1
     /// generically maps tensor elements
@@ -200,6 +212,25 @@ public typealias ReduceOpFinal<T: TensorView> = (T.Element) -> T.Element
 //==============================================================================
 // DeviceQueue default delegating implementations
 public extension DeviceFunctions where Self: DeviceQueue {
+    //--------------------------------------------------------------------------
+
+    /// add
+    func add<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: AdditiveArithmetic,
+        R: MutableShapedBuffer
+    {
+        
+    }
+    
+    func mapOp<LHS, RHS, R>(
+        _ lhs: LHS, _ rhs: RHS, _ result: inout R,
+        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
+        LHS: ShapedBuffer, RHS: ShapedBuffer, R: MutableShapedBuffer
+    {
+        
+    }
+    
+    //--------------------------------------------------------------------------
     // mapOp 1
     /// generically maps a tensor
     func mapOp<T, R>(_ x: T, _ result: inout R,

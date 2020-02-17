@@ -19,7 +19,7 @@ import Foundation
 /// ServiceMemoryManagement
 public protocol ServiceMemoryManagement {
     /// a collection of device buffer dictionaries indexed by the device
-    /// number, and keyed by the id returned from `createStorage`.
+    /// number, and keyed by the id returned from `createDeviceBuffer`.
     /// By convention device 0 will always be a unified memory device with
     /// the application.
     var deviceBuffers: [[Int : BufferDescription]] { get set }
@@ -31,7 +31,7 @@ public protocol ServiceMemoryManagement {
     var masterVersion: [Int : Int] { get set }
     
     //--------------------------------------------------------------------------
-    /// cachedStorage(element:
+    /// cachedDeviceBuffer(element:
     /// returns a device buffer initialized with the specified `Element`
     /// value. User expressions use a lot of constant scalar values
     /// which are repeated. For example: `let m = matrix + 1`. These
@@ -40,55 +40,56 @@ public protocol ServiceMemoryManagement {
     /// already be present on a discreet accelerator device,
     /// saving a lot of time.
     /// - Parameter element: the element value to cache
-    /// - Returns: a reference to storage that contains the element value.
-    /// Storage is created if it does not already exist.
-    func cachedStorage<Element>(for element: Element) -> DeviceStorage
-    /// createStorage(byteCount:
+    /// - Returns: a device buffer reference that contains the element value.
+    /// A DeviceBuffer is created if it does not already exist.
+    func cachedDeviceBuffer<Element>(for element: Element) -> DeviceBuffer
+    /// createDeviceBuffer(byteCount:
     /// creates a lazily allocated buffer to be used in tensor operations.
     /// Id(s) are used because the associated memory can be moved by the
     /// platform between accesses in order to maximize memory utilization.
     /// - Parameter byteCount: the size of the associated buffer in bytes
     /// suitably aligned for any type
-    /// - Returns: a reference to storage
-    func createStorage(byteCount: Int) -> DeviceStorage
+    /// - Returns: a reference to the device buffer
+    func createDeviceBuffer(byteCount: Int) -> DeviceBuffer
     /// createReference(to:
-    /// creates a platform buffer entry whose storage is associated with
+    /// creates a device buffer whose data is associated with
     /// the specified buffer pointer. No memory is allocated, so the
-    /// buffer must point to valid storage space managed by the application.
+    /// buffer must point to valid data space managed by the application.
     /// This can be used to access things like hardware buffers or
     /// memory mapped files, network buffers, database results, without
     /// requiring an additional copy operation.
-    /// - Parameter buffer: a buffer pointer to the data
-    /// - Returns: a reference to storage
-    func createReference(to buffer: UnsafeRawBufferPointer) -> DeviceStorage
+    /// - Parameter applicationBuffer: a buffer pointer to the data
+    /// - Returns: a reference to the device buffer
+    func createReference(to applicationBuffer: UnsafeRawBufferPointer)
+        -> DeviceBuffer
     /// createMutableReference(to:
-    /// - Parameter buffer: a mutable buffer pointer to the data
-    /// - Returns: a reference to storage
-    func createMutableReference(to buffer: UnsafeMutableRawBufferPointer)
-        -> DeviceStorage
+    /// - Parameter applicationBuffer: a mutable buffer pointer to the data
+    /// - Returns: a reference to the device buffer
+    func createMutableReference(to applicationBuffer: UnsafeMutableRawBufferPointer)
+        -> DeviceBuffer
     /// duplicate
-    /// makes a duplicate of the specified storage. Used to support
+    /// makes a duplicate of the specified device buffer. Used to support
     /// copy-on-write semantics
-    /// - Parameter storage: the storage id of the buffer to duplicate
+    /// - Parameter buffer: the id of the device buffer to duplicate
     /// - Parameter queue: specifies the device/queue for synchronization.
-    /// - Returns: a reference to storage
-    func duplicate(_ storage: DeviceStorage, using queue: QueueId)
-        -> DeviceStorage
-    /// release(storage:
-    /// Releases a buffer created by calling `createStorage`
-    /// - Parameter storage: the device storage to release
-    func release(_ storage: DeviceStorage)
-    /// read(storage:queue:
-    /// - Parameter storage: the device storage to read
+    /// - Returns: a reference to the device buffer
+    func duplicate(_ buffer: DeviceBuffer, using queue: QueueId)
+        -> DeviceBuffer
+    /// release(buffer:
+    /// Releases a buffer created by calling `createDeviceBuffer`
+    /// - Parameter buffer: the device buffer to release
+    func release(_ buffer: DeviceBuffer)
+    /// read(buffer:queue:
+    /// - Parameter buffer: the device buffer to read
     /// - Parameter queue: device queue specification for data placement and
     /// synchronization. A value of `nil` will block the caller until the data
     /// is available in the application address space
     /// - Returns: a buffer pointer to the bytes associated with the
     /// specified buffer id. The data will be synchronized
-    func read(_ storage: DeviceStorage, using queue: QueueId?)
+    func read(_ buffer: DeviceBuffer, using queue: QueueId?)
         -> UnsafeRawBufferPointer
-    /// readWrite(storage:queue:
-    /// - Parameter storage: the device storage to read/write
+    /// readWrite(buffer:queue:
+    /// - Parameter buffer: the device buffer to read/write
     /// - Parameter queue: device queue specification for data placement and
     /// synchronization. A value of `nil` will block the caller until the data
     /// is available in the application address space
@@ -97,7 +98,7 @@ public protocol ServiceMemoryManagement {
     /// - Returns: a mutable buffer pointer to the bytes associated with the
     /// specified buffer id. The data will be synchronized so elements can be
     /// read before written, or sparsely written to
-    func readWrite(_ storage: DeviceStorage, using queue: QueueId?,
+    func readWrite(_ buffer: DeviceBuffer, using queue: QueueId?,
                    willOverwrite: Bool) -> UnsafeMutableRawBufferPointer
 }
 
@@ -116,9 +117,9 @@ public struct BufferDescription {
 }
 
 //==============================================================================
-/// DeviceStorage
-/// a reference counted id for device storage
-public class DeviceStorage {
+/// DeviceBuffer
+/// a reference counted id for a service device buffer
+public class DeviceBuffer {
     public let id: Int
     public init(_ id: Int) { self.id = id }
 }
@@ -126,12 +127,12 @@ public class DeviceStorage {
 //==============================================================================
 // placeholder
 public extension ServiceMemoryManagement {
-    func cachedStorage<Element>(for element: Element) -> DeviceStorage { fatalError() }
-    func createStorage(byteCount: Int) -> DeviceStorage { fatalError() }
-    func createReference(to buffer: UnsafeRawBufferPointer) -> DeviceStorage { fatalError() }
-    func createMutableReference(to buffer: UnsafeMutableRawBufferPointer) -> DeviceStorage  { fatalError() }
-    func duplicate(_ storage: DeviceStorage, using queue: QueueId) -> DeviceStorage  { fatalError() }
-    func release(_ storage: DeviceStorage)  { fatalError() }
-    func read(_ storage: DeviceStorage, using queue: QueueId?) -> UnsafeRawBufferPointer  { fatalError() }
-    func readWrite(_ storage: DeviceStorage, using queue: QueueId?, willOverwrite: Bool) -> UnsafeMutableRawBufferPointer  { fatalError() }
+    func cachedDeviceBuffer<Element>(for element: Element) -> DeviceBuffer { fatalError() }
+    func createDeviceBuffer(byteCount: Int) -> DeviceBuffer { fatalError() }
+    func createReference(to applicationBuffer: UnsafeRawBufferPointer) -> DeviceBuffer { fatalError() }
+    func createMutableReference(to applicationBuffer: UnsafeMutableRawBufferPointer) -> DeviceBuffer  { fatalError() }
+    func duplicate(_ buffer: DeviceBuffer, using queue: QueueId) -> DeviceBuffer  { fatalError() }
+    func release(_ buffer: DeviceBuffer)  { fatalError() }
+    func read(_ buffer: DeviceBuffer, using queue: QueueId?) -> UnsafeRawBufferPointer  { fatalError() }
+    func readWrite(_ buffer: DeviceBuffer, using queue: QueueId?, willOverwrite: Bool) -> UnsafeMutableRawBufferPointer  { fatalError() }
 }

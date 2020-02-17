@@ -25,7 +25,7 @@ public protocol TensorStorageProtocol {
     /// a name used in diagnostic messages
     var name: String { get }
     /// the id returned from `createStorage`
-    var deviceStorage: DeviceStorage { get }
+    var deviceStorage: DeviceBuffer { get }
     
     /// read(queue:
     /// - Parameter queue: device queue specification for data placement and
@@ -70,11 +70,11 @@ public final class TensorStorage<Element>:
 {
     public let count: Int
     public let name: String
-    public let deviceStorage: DeviceStorage
+    public let deviceStorage: DeviceBuffer
     public let trackingId: Int
 
     @usableFromInline
-    init(_ storageId: DeviceStorage, _ name: String, _ count: Int) {
+    init(_ storageId: DeviceBuffer, _ name: String, _ count: Int) {
         self.count = count
         self.name = name
         self.deviceStorage = storageId
@@ -92,7 +92,7 @@ public final class TensorStorage<Element>:
     public convenience init(count: Int, name: String)
     {
         let bufferId = Current.service
-            .createStorage(byteCount: MemoryLayout<Element>.size * count)
+            .createDeviceBuffer(byteCount: MemoryLayout<Element>.size * count)
         self.init(bufferId, name, count)
     }
 
