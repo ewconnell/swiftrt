@@ -124,7 +124,7 @@ extension ShapeProtocol where Index == ShapeIndex<Array> {
 
     //--------------------------------------------------------------------------
     // returns the data buffer index corresponding to the sequence index
-    @inlinable
+    @inlinable @inline(__always)
     public subscript(index: Index) -> Int { index.stridedIndex }
 
     //--------------------------------------------------------------------------
