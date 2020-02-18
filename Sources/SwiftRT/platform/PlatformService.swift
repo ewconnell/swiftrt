@@ -29,6 +29,16 @@ public protocol PlatformService: ServiceMemoryManagement, Logger {
 }
 
 //==============================================================================
+/// PlatformServiceType
+public protocol PlatformServiceType: PlatformService {
+    // types
+    associatedtype Device: ServiceDeviceType
+    
+    /// a collection of available compute devices
+    var devices: [Device] { get }
+}
+
+//==============================================================================
 /// QueueId
 /// a unique service device queue identifier that is used to index
 /// through the service device tree for directing workflow
@@ -43,13 +53,4 @@ public struct QueueId {
     }
 }
 
-//==============================================================================
-/// PlatformServiceType
-public protocol PlatformServiceType: PlatformService {
-    // types
-    associatedtype Device: ServiceDeviceType
-    
-    /// a collection of available compute devices
-    var devices: [Device] { get }
-}
 
