@@ -28,14 +28,13 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_ShapeCollection
     func test_ShapeCollection() {
-        let s1 = Shape1(extents: (5), strides: (3))
-        XCTAssert([Int](s1) == [0, 3, 6, 9, 12])
-
-        let s2 = Shape2(extents: (2, 3))
-        XCTAssert([Int](s2) == [0, 1, 2, 3, 4, 5])
-
-        let s3 = Shape2(extents: (2, 3), strides: (6, 2))
-        XCTAssert([Int](s3) == [0, 2, 4, 6, 8, 10])
+        XCTAssert(Shape1(extents: (5), strides: (3)) == [0, 3, 6, 9, 12])
+        XCTAssert(Shape1(extents: (5), strides: (3)) == [0, 3, 6, 9, 12])
+        
+        XCTAssert(Shape2(extents: (2, 3)) == [0, 1, 2, 3, 4, 5])
+        XCTAssert(Shape2(extents: (2, 3), strides: (6, 2)) == [0, 2, 4, 6, 8, 10])
+        
+        XCTAssert(Shape3(extents: (2, 3, 4)) == [Int](0..<24))
     }
 
     //--------------------------------------------------------------------------

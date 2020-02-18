@@ -20,7 +20,8 @@ import Foundation
 public protocol ShapeProtocol: Codable, Collection {
     // types
     associatedtype Array: StaticArrayProtocol where
-        Array: Equatable & Codable, Array.Element == Int
+        Element == Int,
+        Array: Equatable & Codable, Array.Element == Element
 
     /// a rank matched array of zeros
     static var zeros: Array { get }
@@ -156,6 +157,8 @@ public extension ShapeProtocol {
     
     //--------------------------------------------------------------------------
     // computed properties
+    /// array
+    @inlinable var array: [Int] { [Int](self) }
     /// `true` if the underlying data for the whole shape has a stride of 1.
     @inlinable
     var isContiguous: Bool { count == spanCount }
@@ -436,6 +439,12 @@ public extension ShapeProtocol {
             newStrides.swapAt(r1, r2)
         }
         return Self(extents: newExtents, strides: newStrides)
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable
+    static func == (lhs: Self, rhs: [Int]) -> Bool {
+        lhs.array == rhs
     }
 }
 
