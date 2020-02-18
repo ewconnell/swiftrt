@@ -91,10 +91,12 @@ public struct ShapeIndex<Array>: Comparable, Codable
 }
 
 //==============================================================================
-// ShapeProtocol Collection
+// ShapeProtocol Collection extension
 extension ShapeProtocol where Index == ShapeIndex<Array> {
-    // indexing
-    @inlinable public var endIndex: Index {
+    //--------------------------------------------------------------------------
+    // indexes
+    @inlinable
+    public var endIndex: Index {
         var end = Self.zeros
         if isContiguous {
             end[lastDimension] = count
@@ -106,11 +108,15 @@ extension ShapeProtocol where Index == ShapeIndex<Array> {
         return Index(end)
     }
 
+    //--------------------------------------------------------------------------
     // returns the data buffer index corresponding to the sequence index
-    @inlinable public subscript(index: Index) -> Int { index.bufferIndex }
+    @inlinable
+    public subscript(index: Index) -> Int { index.bufferIndex }
     
+    //--------------------------------------------------------------------------
     // computes the next index in the sequence
-    @inlinable public func index(after i: Index) -> Index {
+    @inlinable
+    public func index(after i: Index) -> Index {
         if isContiguous {
             var next = i
             next.position[lastDimension] += 1

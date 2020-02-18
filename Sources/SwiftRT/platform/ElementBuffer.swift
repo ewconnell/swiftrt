@@ -22,7 +22,7 @@ public protocol ShapedBuffer: Collection {
     associatedtype Element
     associatedtype Shape: ShapeProtocol
 
-    var buffer: UnsafePointer<Element> { get }
+    var bufferPointer: UnsafePointer<Element> { get }
     var shape: Shape { get }
 }
 
@@ -32,7 +32,7 @@ public struct ElementBuffer<Element, Shape>: ShapedBuffer
     where Shape: ShapeProtocol
 {
     public typealias Index = Int
-    public let buffer: UnsafePointer<Element>
+    public let bufferPointer: UnsafePointer<Element>
     public var count: Int { shape.count }
     public let endIndex: Index
     public let shape: Shape
@@ -41,7 +41,7 @@ public struct ElementBuffer<Element, Shape>: ShapedBuffer
     @inlinable
     public init(_ shape: Shape, _ buffer: UnsafePointer<Element>) {
         self.shape = shape
-        self.buffer = buffer
+        self.bufferPointer = buffer
         startIndex = 0 //Shape.zeros
         endIndex = 0 //shape.extents
     }
@@ -66,8 +66,8 @@ public protocol MutableShapedBuffer: MutableCollection {
     associatedtype Element
     associatedtype Shape: ShapeProtocol
 
+    var bufferPointer: UnsafeMutablePointer<Element> { get }
     var shape: Shape { get }
-    var buffer: UnsafeMutablePointer<Element> { get }
 }
 
 //==============================================================================
@@ -76,7 +76,7 @@ public struct MutableElementBuffer<Element, Shape>: MutableShapedBuffer
     where Shape: ShapeProtocol
 {
     public typealias Index = Int
-    public var buffer: UnsafeMutablePointer<Element>
+    public var bufferPointer: UnsafeMutablePointer<Element>
     public var count: Int { shape.count }
     public let endIndex: Index
     public let shape: Shape
@@ -85,7 +85,7 @@ public struct MutableElementBuffer<Element, Shape>: MutableShapedBuffer
     @inlinable
     public init(_ shape: Shape, _ buffer: UnsafeMutablePointer<Element>) {
         self.shape = shape
-        self.buffer = buffer
+        self.bufferPointer = buffer
         startIndex = 0 //Shape.zeros
         endIndex = 0 //shape.extents
     }
