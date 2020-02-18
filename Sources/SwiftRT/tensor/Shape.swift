@@ -20,9 +20,11 @@ import Foundation
 public protocol ShapeProtocol: Codable, Collection {
     // types
     associatedtype Array: StaticArrayProtocol where
-        Element == Int,
-        Array: Equatable & Codable, Array.Element == Element
+        Array: Equatable & Codable, Array.Element == Int,
+        Element == Array.Element
 
+    //--------------------------------------------------------------------------
+    // constants
     /// a rank matched array of zeros
     static var zeros: Array { get }
     /// a rank matched array of ones
@@ -61,32 +63,48 @@ public protocol ShapeProtocol: Codable, Collection {
 
 //==============================================================================
 /// ShapeIndex
+/// a rank generic index type
 public struct ShapeIndex<Array>: Comparable, Codable
     where Array: StaticArrayProtocol & Codable, Array.Element == Int
 {
+    //------------------------------------
+    /// the cumulative logical position along each axis
+    public var position: Array
+    /// linear sequence index
+    public var sequenceIndex: Int
     /// the cumulative strided position along each axis
-    @usableFromInline
-    var position: Array
-
+    public var stridedPosition: Array
+    /// linear strided index
+    @inlinable public var stridedIndex: Int { stridedPosition.lastElement }
+    
+    //------------------------------------
     // initializers
     @inlinable
-    public init(_ position: Array) {
+    public init(startAt zeros: Array) {
+        position = zeros
+        sequenceIndex = 0
+        stridedPosition = zeros
+    }
+    
+    @inlinable
+    public init(position: Array, sequenceIndex: Int, stridedPosition: Array) {
         self.position = position
+        self.sequenceIndex = sequenceIndex
+        self.stridedPosition = stridedPosition
     }
 
-    @inlinable
-    public var bufferIndex: Int { position.lastElement }
-    
+    //------------------------------------
     // Equatable
     @inlinable
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.bufferIndex == rhs.bufferIndex
+        lhs.sequenceIndex == rhs.sequenceIndex
     }
     
+    //------------------------------------
     // Comparable
     @inlinable
     public static func < (lhs: Self, rhs: Self) -> Bool {
-        lhs.bufferIndex < rhs.bufferIndex
+        lhs.sequenceIndex < rhs.sequenceIndex
     }
 }
 
@@ -97,56 +115,54 @@ extension ShapeProtocol where Index == ShapeIndex<Array> {
     // indexes
     @inlinable
     public var endIndex: Index {
-        var end = Self.zeros
-        if isContiguous {
-            end[lastDimension] = count
-            
-        } else {
-            let endBufferIndex = (spanCount - 1) + strides.lastElement
-            for i in 0..<end.count { end[i] = endBufferIndex }
-        }
-        return Index(end)
+        // the only value examined to determine the end of the sequence
+        // is `sequenceIndex`
+        return Index(position: Self.zeros,
+                     sequenceIndex: count,
+                     stridedPosition: Self.zeros)
     }
 
     //--------------------------------------------------------------------------
     // returns the data buffer index corresponding to the sequence index
     @inlinable
-    public subscript(index: Index) -> Int { index.bufferIndex }
-    
+    public subscript(index: Index) -> Int { index.stridedIndex }
+
     //--------------------------------------------------------------------------
     // computes the next index in the sequence
     @inlinable
     public func index(after i: Index) -> Index {
+        var next = i
+        let lastDim = next.position.lastIndex
+        // advance the sequence position
+        next.sequenceIndex += 1
+        
         if isContiguous {
-            var next = i
-            next.position[lastDimension] += 1
-            return next
-            
+            next.stridedPosition[lastDim] += strides[lastDim]
+
         } else {
-            var position = i.position
-            
-            // recursively advance through the dimensions
             func advance(_ dim: Int) {
-                // move to the next position
-                position[dim] += strides[dim]
-                // if the dim is greater than 0, then check for the
-                // possibility to advance larger sized dimensions
-                if dim > 0 {
-                    // compute the end of this dimension
-                    let lower = dim - 1
-                    let end = position[lower] + (extents[dim] * strides[dim])
-                    if position[dim] == end {
-                        // advance to the next lower dimension
-                        advance(lower)
-                        // position[lower] is now the new next position
-                        position[dim] = position[lower]
-                    }
+                // move to the next logical position
+                next.position[dim] += 1
+                // if we reach the end of the dimension and the `dim`
+                // is greater than zero, then advance the larger dim
+                if next.position[dim] == extents[dim] && dim > 0 {
+                    // reset the logical position to the start
+                    next.position[dim] = 0
+                    // advance the lower dimension
+                    advance(dim - 1)
+                    // stridedPosition[lower] is now the new
+                    // next stridedPosition
+                    next.stridedPosition[dim] = next.stridedPosition[dim - 1]
+                } else {
+                    // advance the strided position
+                    next.stridedPosition[dim] += strides[dim]
                 }
             }
             
-            advance(lastDimension)
-            return Index(position)
+            // recursively advance through the dimensions
+            advance(lastDim)
         }
+        return next
     }
 }
 
@@ -472,7 +488,7 @@ public struct Shape1: ShapeProtocol {
     public let spanCount: Int
     public let extents: Array
     public let strides: Array
-    public let endIndex: Index
+    @inlinable public var endIndex: Index { count }
 
     @inlinable
     public init(extents: Array, strides: Array? = nil) {
@@ -480,7 +496,6 @@ public struct Shape1: ShapeProtocol {
         self.strides = strides ?? Self.denseStrides(extents)
         self.count = extents[0]
         self.spanCount = Self.computeSpanCount(self.extents, self.strides)
-        self.endIndex = (spanCount - 1) + self.strides[0]
     }
 
     //-----------------------------------
@@ -492,8 +507,8 @@ public struct Shape1: ShapeProtocol {
 
     //-----------------------------------
     // Collection
-    @inlinable public func index(after i: Index) -> Index { i + strides[0] }
-    @inlinable public subscript(index: Index) -> Int { index }
+    @inlinable public func index(after i: Index) -> Index { i + 1 }
+    @inlinable public subscript(index: Index) -> Int { index * strides[0] }
 }
 
 //==============================================================================
@@ -506,7 +521,7 @@ public struct Shape2: ShapeProtocol {
     // constants
     public static let zeros = Array((0, 0))
     public static let ones = Array((1, 1))
-    public static let start = Index(zeros)
+    public static let start = Index(startAt: zeros)
 
     // properties
     public let count: Int
@@ -543,7 +558,7 @@ public struct Shape3: ShapeProtocol {
     // constants
     public static let zeros = Array((0, 0, 0))
     public static let ones = Array((1, 1, 1))
-    public static let start = Index(zeros)
+    public static let start = Index(startAt: zeros)
 
     // properties
     public let count: Int
@@ -583,7 +598,7 @@ public struct Shape4: ShapeProtocol {
     // constants
     public static let zeros = Array((0, 0, 0, 0))
     public static let ones = Array((1, 1, 1, 1))
-    public static let start = Index(zeros)
+    public static let start = Index(startAt: zeros)
 
     // properties
     public let count: Int
@@ -624,7 +639,7 @@ public struct Shape5: ShapeProtocol {
     // constants
     public static let zeros = Array((0, 0, 0, 0, 0))
     public static let ones = Array((1, 1, 1, 1, 1))
-    public static let start = Index(zeros)
+    public static let start = Index(startAt: zeros)
 
     // properties
     public let count: Int
