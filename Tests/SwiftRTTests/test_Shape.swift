@@ -21,6 +21,7 @@ class test_Shape: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_ShapeCollection", test_ShapeCollection),
         ("test_transposed", test_transposed),
         ("test_perfShape2", test_perfShape2),
     ]
@@ -28,12 +29,18 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_ShapeCollection
     func test_ShapeCollection() {
+        // repeating
+        XCTAssert(Shape1(extents: (3), strides: (0)) == [0, 0, 0])
+        XCTAssert(Shape2(extents: (2, 3), strides: (0, 1)) == [0, 1, 2, 0, 1, 2])
+        XCTAssert(Shape2(extents: (2, 3), strides: (1, 0)) == [0, 0, 0, 1, 1, 1])
+
+        // strided
         XCTAssert(Shape1(extents: (5), strides: (3)) == [0, 3, 6, 9, 12])
         XCTAssert(Shape1(extents: (5), strides: (3)) == [0, 3, 6, 9, 12])
-        
-        XCTAssert(Shape2(extents: (2, 3)) == [0, 1, 2, 3, 4, 5])
         XCTAssert(Shape2(extents: (2, 3), strides: (6, 2)) == [0, 2, 4, 6, 8, 10])
-        
+
+        // dense
+        XCTAssert(Shape2(extents: (2, 3)) == [0, 1, 2, 3, 4, 5])
         XCTAssert(Shape3(extents: (2, 3, 4)) == [Int](0..<24))
     }
 

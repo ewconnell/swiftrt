@@ -65,7 +65,8 @@ public struct ShapeIndex<Array>: Comparable, Codable
     where Array: StaticArrayProtocol & Codable, Array.Element == Int
 {
     /// the cumulative strided position along each axis
-    public var position: Array
+    @usableFromInline
+    var position: Array
 
     // initializers
     @inlinable
