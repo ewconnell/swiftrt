@@ -16,66 +16,6 @@
 import Foundation
 
 //==============================================================================
-/// ShapeIndex
-public protocol ShapeIndex: Comparable {
-    /// linear data buffer index
-    var bufferIndex: Int { get }
-    /// the sequential index position
-    /// Shapes are iterated from (0, 0, ...) to `extents` along all dimensions
-    /// The `sequenceIndex` ranges from 0 to shape.count
-    var sequenceIndex: Int { get }
-}
-
-public extension ShapeIndex {
-    // Equatable
-    @inlinable
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.sequenceIndex == rhs.sequenceIndex
-    }
-    
-    // Comparable
-    @inlinable
-    static func < (lhs: Self, rhs: Self) -> Bool {
-        lhs.sequenceIndex < rhs.sequenceIndex
-    }
-    
-    @inlinable
-    func distance(to other: Self) -> Int {
-        other.sequenceIndex - sequenceIndex
-        
-    }
-}
-
-//==============================================================================
-/// VectorShapeIndex
-public struct VectorShapeIndex: ShapeIndex, Codable {
-    public var sequenceIndex: Int
-    public var bufferIndex: Int
-
-    public init() { sequenceIndex = 0; bufferIndex = 0 }
-    public init(sequenceIndex: Int, bufferIndex: Int) {
-        self.sequenceIndex = sequenceIndex
-        self.bufferIndex = bufferIndex
-    }
-}
-
-//==============================================================================
-/// RankedShapeIndex
-public struct RankedShapeIndex<Array>: ShapeIndex, Codable
-    where Array: StaticArrayProtocol & Codable, Array.Element == Int
-{
-    public var bufferIndex: Int { stridedPosition.last! }
-    public var sequenceIndex: Int
-    public var stridedPosition: Array
-    
-    // initializers
-    public init(sequenceIndex: Int, stridedPosition: Array) {
-        self.sequenceIndex = sequenceIndex
-        self.stridedPosition = stridedPosition
-    }
-}
-
-//==============================================================================
 /// ShapeProtocol
 public protocol ShapeProtocol: Codable, Collection {
     // types
@@ -119,26 +59,86 @@ public protocol ShapeProtocol: Codable, Collection {
 }
 
 //==============================================================================
-// Collection
-extension ShapeProtocol where Index == RankedShapeIndex<Array> {
+/// ShapeIndex
+public struct ShapeIndex<Array>: Comparable, Codable
+    where Array: StaticArrayProtocol & Codable, Array.Element == Int
+{
+    /// the cumulative strided position along each axis
+    public var position: Array
+
+    // initializers
+    @inlinable
+    public init(_ position: Array) {
+        self.position = position
+    }
+
+    @inlinable
+    public var bufferIndex: Int { position.lastElement }
+    
+    // Equatable
+    @inlinable
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.bufferIndex == rhs.bufferIndex
+    }
+    
+    // Comparable
+    @inlinable
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.bufferIndex < rhs.bufferIndex
+    }
+}
+
+//==============================================================================
+// ShapeProtocol Collection
+extension ShapeProtocol where Index == ShapeIndex<Array> {
     // indexing
     @inlinable public var endIndex: Index {
         var end = Self.zeros
-        end[0] = spanCount
-        return Index(sequenceIndex: count, stridedPosition: end)
+        if isContiguous {
+            end[lastDimension] = count
+            
+        } else {
+            let endBufferIndex = (spanCount - 1) + strides.lastElement
+            for i in 0..<end.count { end[i] = endBufferIndex }
+        }
+        return Index(end)
     }
 
     // returns the data buffer index corresponding to the sequence index
     @inlinable public subscript(index: Index) -> Int { index.bufferIndex }
-
+    
     // computes the next index in the sequence
     @inlinable public func index(after i: Index) -> Index {
-        var next = i
-        next.sequenceIndex += 1
-        
-//        update the stridedPosition
-        
-        return next
+        if isContiguous {
+            var next = i
+            next.position[lastDimension] += 1
+            return next
+            
+        } else {
+            var position = i.position
+            
+            // recursively advance through the dimensions
+            func advance(_ dim: Int) {
+                // move to the next position
+                position[dim] += strides[dim]
+                // if the dim is greater than 0, then check for the
+                // possibility to advance larger sized dimensions
+                if dim > 0 {
+                    // compute the end of this dimension
+                    let lower = dim - 1
+                    let end = position[lower] + (extents[dim] * strides[dim])
+                    if position[dim] == end {
+                        // advance to the next lower dimension
+                        advance(lower)
+                        // position[lower] is now the new next position
+                        position[dim] = position[lower]
+                    }
+                }
+            }
+            
+            advance(lastDimension)
+            return Index(position)
+        }
     }
 }
 
@@ -464,7 +464,7 @@ public struct Shape1: ShapeProtocol {
         self.strides = strides ?? Self.denseStrides(extents)
         self.count = extents[0]
         self.spanCount = Self.computeSpanCount(self.extents, self.strides)
-        self.endIndex = (spanCount - 1) + self.strides.lastElement
+        self.endIndex = (spanCount - 1) + self.strides[0]
     }
 
     //-----------------------------------
@@ -485,12 +485,12 @@ public struct Shape1: ShapeProtocol {
 public struct Shape2: ShapeProtocol {
     // types
     public typealias Array = StaticArray<Int, (Int, Int)>
-    public typealias Index = RankedShapeIndex<Array>
+    public typealias Index = ShapeIndex<Array>
     
     // constants
     public static let zeros = Array((0, 0))
     public static let ones = Array((1, 1))
-    public static let start = Index(sequenceIndex: 0, stridedPosition: zeros)
+    public static let start = Index(zeros)
 
     // properties
     public let count: Int
@@ -522,12 +522,12 @@ public struct Shape2: ShapeProtocol {
 public struct Shape3: ShapeProtocol {
     // types
     public typealias Array = StaticArray<Int, (Int, Int, Int)>
-    public typealias Index = RankedShapeIndex<Array>
+    public typealias Index = ShapeIndex<Array>
 
     // constants
     public static let zeros = Array((0, 0, 0))
     public static let ones = Array((1, 1, 1))
-    public static let start = Index(sequenceIndex: 0, stridedPosition: zeros)
+    public static let start = Index(zeros)
 
     // properties
     public let count: Int
@@ -562,12 +562,12 @@ public struct Shape3: ShapeProtocol {
 public struct Shape4: ShapeProtocol {
     // types
     public typealias Array = StaticArray<Int, (Int, Int, Int, Int)>
-    public typealias Index = RankedShapeIndex<Array>
+    public typealias Index = ShapeIndex<Array>
 
     // constants
     public static let zeros = Array((0, 0, 0, 0))
     public static let ones = Array((1, 1, 1, 1))
-    public static let start = Index(sequenceIndex: 0, stridedPosition: zeros)
+    public static let start = Index(zeros)
 
     // properties
     public let count: Int
@@ -603,12 +603,12 @@ public struct Shape4: ShapeProtocol {
 public struct Shape5: ShapeProtocol {
     // types
     public typealias Array = StaticArray<Int, (Int, Int, Int, Int, Int)>
-    public typealias Index = RankedShapeIndex<Array>
+    public typealias Index = ShapeIndex<Array>
 
     // constants
     public static let zeros = Array((0, 0, 0, 0, 0))
     public static let ones = Array((1, 1, 1, 1, 1))
-    public static let start = Index(sequenceIndex: 0, stridedPosition: zeros)
+    public static let start = Index(zeros)
 
     // properties
     public let count: Int
