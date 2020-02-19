@@ -25,9 +25,9 @@ public protocol DeviceFunctions {
     //--------------------------------------------------------------------------
 
     /// add
-    func add<T, R>(lhs: T, rhs: T, result: inout R) where
+    func newAdd<T, R>(lhs: T, rhs: T, result: inout R) where
         T: ShapedBuffer, T.Element: AdditiveArithmetic,
-        R: MutableShapedBuffer
+        R: MutableShapedBuffer, R.Element == T.Element
 
     func mapOp<LHS, RHS, R>(
         _ lhs: LHS, _ rhs: RHS, _ result: inout R,
@@ -215,11 +215,11 @@ public extension DeviceFunctions where Self: DeviceQueue {
     //--------------------------------------------------------------------------
 
     /// add
-    func add<T, R>(lhs: T, rhs: T, result: inout R) where
+    func newAdd<T, R>(lhs: T, rhs: T, result: inout R) where
         T: ShapedBuffer, T.Element: AdditiveArithmetic,
-        R: MutableShapedBuffer
+        R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_newAdd(lhs: lhs, rhs: rhs, result: &result)
     }
     
     func mapOp<LHS, RHS, R>(

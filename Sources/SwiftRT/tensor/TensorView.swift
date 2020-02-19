@@ -66,6 +66,8 @@ public protocol TensorView: Codable, Logging {
     // properties
     /// a label for the type used as a default name in diagnostics
     static var diagnosticName: String { get }
+    /// class reference to the underlying byte buffer
+//    var elementBuffer: BufferId { get set }
     /// returns an index one past the end of the tensor used for collections
     var endIndex: Index { get }
     /// format describes how to interpret the meaning of each dimension

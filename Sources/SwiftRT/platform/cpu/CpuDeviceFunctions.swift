@@ -37,7 +37,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     //--------------------------------------------------------------------------
 
     /// add
-    func cpu_add<T, R>(lhs: T, rhs: T, result: inout R) where
+    func cpu_newAdd<T, R>(lhs: T, rhs: T, result: inout R) where
         T: ShapedBuffer, T.Element: AdditiveArithmetic,
         R: MutableShapedBuffer, R.Element == T.Element
     {

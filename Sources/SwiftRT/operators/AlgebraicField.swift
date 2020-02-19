@@ -27,7 +27,30 @@ public func add<T>(_ lhs: T, _ rhs: T) -> T
     Current.platform.add(lhs, rhs)
 }
 
+@inlinable
+public func newAdd<T>(_ lhs: T, _ rhs: T) -> T
+    where T: TensorView, T.Element: AdditiveArithmetic
+{
+    Current.platform.newAdd(lhs, rhs)
+}
+
 extension ComputePlatform {
+    //--------------------------------------------------------------------------
+    @inlinable
+    func newAdd<T>(_ lhs: T, _ rhs: T) -> T
+        where T: TensorView, T.Element: AdditiveArithmetic
+    {
+        let (lhs, rhs) = implicitlyMatchExtents(lhs, rhs)
+        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        var (result, resultBuffer) = createResultBuffer(like: lhs)
+        currentQueue.newAdd(lhs: getBuffer(lhs),
+                            rhs: getBuffer(rhs),
+                            result: &resultBuffer)
+        return result
+    }
+    
+    //--------------------------------------------------------------------------
+
     @inlinable
     func add<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AdditiveArithmetic

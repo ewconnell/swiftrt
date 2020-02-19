@@ -42,10 +42,11 @@ public struct ElementBuffer<Element, Shape>: ShapedBuffer
     //-----------------------------------
     // initializers
     @inlinable
-    public init(_ shape: Shape, _ rawBuffer: UnsafeRawBufferPointer) {
-        let buffer = rawBuffer.bindMemory(to: Element.self)
-        assert(buffer.count == shape.spanCount)
-        self.shape = shape
+    public init<T>(_ tensor: T, _ buffer: UnsafeBufferPointer<Element>)
+        where T: TensorView, T.Shape == Shape
+    {
+        assert(tensor.viewOffset + tensor.shape.spanCount <= buffer.count)
+        self.shape = tensor.shape
         self.bufferPointer = UnsafePointer(buffer.baseAddress!)
     }
     

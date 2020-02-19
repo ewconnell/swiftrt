@@ -73,6 +73,33 @@ public protocol ComputePlatform: Logger {
     /// mods the specified indices to ensure they select valid a valid queue
     func ensureValidId(_ serviceId: Int, _ deviceId: Int, _ queueId: Int)
         -> QueueId
+    
+    //-------------------------------------
+    /// getBuffer
+    /// - Parameter tensor: the tensor to get the buffer for
+    /// - Returns: a read only element buffer for the tensor
+    func getBuffer<T>(_ tensor: T, using queue: QueueId?) ->
+        ElementBuffer<T.Element, T.Shape> where T: TensorView
+    
+    /// createResultBuffer
+    /// - Parameter other: a tensor shape and type to use as a template
+    /// - Returns: a tuple of the new `result` tensor and an associate `buffer`
+    func createResultBuffer<T>(like other: T, using queue: QueueId?)
+        -> (result: T, buffer: MutableElementBuffer<T.Element, T.Shape>)
+        where T: TensorView
+}
+
+extension ComputePlatform {
+    public func getBuffer<T>(_ tensor: T) -> ElementBuffer<T.Element, T.Shape>
+        where T: TensorView {
+            getBuffer(tensor, using: nil)
+    }
+
+    public func createResultBuffer<T>(like other: T)
+        -> (result: T, buffer: MutableElementBuffer<T.Element, T.Shape>)
+        where T: TensorView {
+            createResultBuffer(like: other, using: nil)
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -181,6 +208,37 @@ extension ComputePlatformType {
         let device = deviceId % service.devices.count
         let queue = queueId % service.devices[device].queues.count
         return QueueId(serviceId, device, queue)
+    }
+    
+    //--------------------------------------------------------------------------
+    /// getBuffer
+    public func getBuffer<T>(_ tensor: T, using queue: QueueId?)
+        -> ElementBuffer<T.Element, T.Shape>
+        where T: TensorView
+    {
+//        let buffer = tensor.elementBuffer
+        let id = BufferId(0)
+        let buffer = service.read(id, of: T.Element.self,
+                                  at: tensor.viewOffset, using: queue)
+        return ElementBuffer(tensor, buffer)
+    }
+    
+    //--------------------------------------------------------------------------
+    /// createResultBuffer
+    public func createResultBuffer<T>(like other: T, using queue: QueueId?)
+        -> (result: T, buffer: MutableElementBuffer<T.Element, T.Shape>)
+        where T: TensorView
+    {
+//        let buffer = service.createDeviceBuffer(of: T.Element.self,
+//                                                count: other.count)
+        //        let result = T(shape: other.shape.dense,
+        //                       deviceBuffer: )
+        //        let resultBuffer = service.duplicate(tensor.deviceBuffer)
+        //        let bufferPointer = service.readWrite(resultBuffer, using: currentQueue,
+        //                                              willOverwrite: true)
+        //        let result = T(shape: , tensorArray: <#T##TensorArray<Decodable & Encodable & Equatable>#>, viewOffset: <#T##Int#>, isMutable: <#T##Bool#>)
+        //        let buffer = MutableElementBuffer(tensor.shape, bufferPointer)
+        fatalError()
     }
 }
 
