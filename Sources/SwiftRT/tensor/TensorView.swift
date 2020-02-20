@@ -17,78 +17,38 @@ import Foundation
 
 //==============================================================================
 /// TensorView protocol
-/// A TensorView object is the primary interface for working with data in
-/// the app and on various devices. Specialized shaped instances such as
-/// Vector, Matrix, Volume, etc.. adopt this protocol. They will generically
-/// be referred to as tensors after this.
+/// A TensorView object is the primary interface for working with data.
+/// Specialized shaped instances such as Vector, Matrix, Volume, etc..
+/// conform to this protocol
 ///
-/// Data can be safely accessed on the app thread and asynchronously on
-/// device queues without the user needing be concerned with synchronization.
-/// A tensor view is a value type. It should not be used simultaneously by
-/// more than one thread. However, copying it into a closure used by another
-/// thread is safe. The behavior should be the same as a Swift array type.
-///
-/// When a tensor is created, no memory is allocated until the first time
-/// access is requested. The location of the access determines where the
-/// buffer is created. No host shadow buffer is created. So temporary tensors
-/// on local discrete devices or remote hosts can be freely created and
-/// manipulated without any host resources being used, or data being transited
-/// to the target device.
-///
-/// Data replication and synchronization are transparent to the user.
-///
-/// TensorViews are references to data and respect copy on write semantics,
-/// locally and on device. Many operations can be performed with zero copy.
-///
-public protocol TensorView: Codable, Logging {
-    //--------------------------------------------------------------------------
+public protocol TensorView: Logging {
     /// the type of element stored by the tensor
-    associatedtype Element: TensorElementConformance
-    /// A tensor shape specific indexer used to calculate a data buffer
-    /// index based on a view's spatial position
-    associatedtype Index: TensorIndexing
-    /// the type of read only elements collection
-    associatedtype Values: RandomAccessCollection
-        where Values.Element == Element
-    /// the type of read write elements collection
-    associatedtype MutableValues: RandomAccessCollection & MutableCollection
-        where MutableValues.Element == Element
+    associatedtype Element
+    /// tensor shape
+    associatedtype Shape: ShapeProtocol
     /// A concrete type used in generics to pass Boolean values
     associatedtype BoolView: TensorView where
         BoolView.Element == Bool, BoolView.Shape == Shape
     /// A concrete type used in generics to return index results
     associatedtype IndexView: TensorView where
         IndexView.Element == IndexType, IndexView.Shape == Shape
-    /// tensor shape
-    associatedtype Shape: ShapeProtocol
 
     //--------------------------------------------------------------------------
     // properties
     /// a label for the type used as a default name in diagnostics
     static var diagnosticName: String { get }
     /// class reference to the underlying byte buffer
-//    var elementBuffer: BufferId { get set }
-    /// returns an index one past the end of the tensor used for collections
-    var endIndex: Index { get }
-    /// format describes how to interpret the meaning of each dimension
-    var format: TensorFormat { get }
+    var elementBuffer: BufferId { get }
     /// if `true` then readWrite buffer access will not cause copy-on-write
     var isMutable: Bool { get }
     /// the shape of the view used for indexing
     var shape: Shape { get }
-    /// returns the first tensor index used for collections
-    var startIndex: Index { get }
-    /// class reference to the underlying byte buffer
-    var tensorArray: TensorArray<Element> { get set }
     /// the linear element offset where the view begins
-    var viewOffset: Int { get }
+    var offset: Int { get }
     
     //--------------------------------------------------------------------------
-    /// fully specified used for creating views
-    init(shape: Shape,
-         tensorArray: TensorArray<Element>,
-         viewOffset: Int,
-         isMutable: Bool)
+    /// fully specified used for creating tensors
+    init(shape: Shape, elementBuffer: BufferId, offset: Int, isMutable: Bool)
 
     //--------------------------------------------------------------------------
     /// creates a new dense tensor of the same type with the specified extents
@@ -99,40 +59,19 @@ public protocol TensorView: Codable, Logging {
     /// creates a new dense tensor where `Element` equals `IndexType`
     /// with the specified extents and initial values
     func createIndexTensor(with extents: Shape.Array) -> IndexView
-
-    //--------------------------------------------------------------------------
-    /// returns a collection of viewed elements
-    func elements(using queue: DeviceQueue?) -> Values
-
-    /// returns a collection of mutable viewed elements
-    mutating func mutableElements(using queue: DeviceQueue?) -> MutableValues
 }
-
-public typealias TensorElementConformance = Codable & Equatable
 
 //==============================================================================
 //
 public extension TensorView {
-    //--------------------------------------------------------------------------
-    /// returns a collection of read only elements
     @inlinable
-    func elements(using queue: DeviceQueue? = nil)
-        -> TensorValueCollection<Self>
-    {
-        TensorValueCollection(view: self, buffer: readOnly(using: queue))
+    var elements: ElementBuffer<Element, Shape> {
+        fatalError()
     }
-    
-    @inlinable
-    var elements: TensorValueCollection<Self> { elements() }
 
-    //--------------------------------------------------------------------------
-    /// returns a collection of read write values
     @inlinable
-    mutating func mutableElements(using queue: DeviceQueue? = nil)
-        -> TensorMutableValueCollection<Self>
-    {
-        TensorMutableValueCollection(view: &self,
-                                     buffer: readWrite(using: queue))
+    var mutableElements: MutableElementBuffer<Element, Shape> {
+        fatalError()
     }
 }
 
@@ -147,26 +86,6 @@ public enum ScalarType: Int {
     case real16F, real32F, real64F
     // non numeric
     case bool
-}
-
-//==============================================================================
-/// TensorFormat
-/// an enumeration describing how to interpret the meaning of each
-/// dimension in a tensor.
-///
-/// n: the number of items in the set
-/// d: the number of depths per item
-/// h: the number of rows per depth
-/// w: the number of columns in a row
-/// c: the number of channels per column
-// https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#tensor-descriptor
-public enum TensorFormat: Int, Codable {
-    // simple 0-3D layouts
-    case scalar, vector, matrix, volume
-    /// 4D layouts
-    case nchw, nhwc
-    /// 5D layouts
-    case ncdhw, ndhwc
 }
 
 //==============================================================================

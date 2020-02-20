@@ -236,7 +236,7 @@ extension ComputePlatformType {
         //        let resultBuffer = service.duplicate(tensor.deviceBuffer)
         //        let bufferPointer = service.readWrite(resultBuffer, using: currentQueue,
         //                                              willOverwrite: true)
-        //        let result = T(shape: , tensorArray: <#T##TensorArray<Decodable & Encodable & Equatable>#>, viewOffset: <#T##Int#>, isMutable: <#T##Bool#>)
+        //        let result = T(shape: , tensorArray: , viewOffset: , isMutable: )
         //        let buffer = MutableElementBuffer(tensor.shape, bufferPointer)
         fatalError()
     }
