@@ -84,8 +84,8 @@ public protocol DeviceFunctions {
 
     /// fill(result:with range:
     func fill<T, R>(result: inout R, with range: T) where
-        T: Collection,
-        R: MutableShapedBuffer, R.Element == T.Element
+        T: StridedRangeExpression,
+        R: MutableShapedBuffer, R.Element == T.Bound
 
     /// greater
     func greater<T, R>(lhs: T, rhs: T, result: inout R) where
@@ -304,8 +304,8 @@ public extension DeviceFunctions where Self: DeviceQueue {
 
     /// fill(result:with range:
     func fill<T, R>(result: inout R, with range: T) where
-        T: Collection,
-        R: MutableShapedBuffer, R.Element == T.Element
+        T: StridedRangeExpression,
+        R: MutableShapedBuffer, R.Element == T.Bound
     {
         
     }

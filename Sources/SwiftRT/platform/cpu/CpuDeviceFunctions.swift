@@ -102,8 +102,8 @@ public extension DeviceFunctions where Self: DeviceQueue {
 //    }
 //
 //    func cpu_fill<T, R>(result: inout R, with range: T) where
-//        T: Collection,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//T: StridedRangeExpression,
+//R: MutableShapedBuffer, R.Element == T.Bound
 //    {
 //        // add a new mapOp for ranges
 //        fatalError()
@@ -287,7 +287,7 @@ public extension DeviceFunctions {
     // inPlaceOp
     @inlinable
     func cpu_inPlaceOp<R>(_ r: inout R,_ op: @escaping (R.Element) -> R.Element)
-        where R: MutableShapedBuffer
+        where R: MutableCollection
     {
         r.indices.forEach { r[$0] = op(r[$0]) }
     }
@@ -296,7 +296,7 @@ public extension DeviceFunctions {
     @inlinable
     func cpu_mapOp<T, R>(_ x: T, _ r: inout R,
                          _ op: @escaping (T.Element) -> R.Element) where
-        T: ShapedBuffer, R: MutableShapedBuffer
+        T: Collection, R: MutableCollection
     {
         zip(r.indices, x).forEach { r[$0] = op($1) }
     }
@@ -306,7 +306,7 @@ public extension DeviceFunctions {
     func cpu_mapOp<LHS, RHS, R>(
         _ lhs: LHS, _ rhs: RHS, _ r: inout R,
         _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
-        LHS: ShapedBuffer, RHS: ShapedBuffer, R: MutableShapedBuffer
+        LHS: Collection, RHS: Collection, R: MutableCollection
     {
         zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = op($1.0, $1.1) }
     }
@@ -316,7 +316,7 @@ public extension DeviceFunctions {
     func cpu_mapOp<T1, T2, T3, R>(
         _ a: T1, _ b: T2, _ c: T3, _ r: inout R,
         _ op: @escaping (T1.Element, T2.Element, T3.Element) -> R.Element) where
-        T1: ShapedBuffer, T2: ShapedBuffer, T3: ShapedBuffer, R: MutableShapedBuffer
+        T1: Collection, T2: Collection, T3: Collection, R: MutableCollection
     {
         zip(r.indices, zip(a, zip(b, c))).forEach { r[$0] = op($1.0, $1.1.0, $1.1.1) }
     }
@@ -329,8 +329,8 @@ public extension DeviceFunctions {
         _ op: @escaping
         (T1.Element, T2.Element, T3.Element) -> (R1.Element, R2.Element))
         where
-        T1: ShapedBuffer, T2: ShapedBuffer, T3: ShapedBuffer,
-        R1: MutableShapedBuffer, R2: MutableShapedBuffer
+        T1: Collection, T2: Collection, T3: Collection,
+        R1: MutableCollection, R2: MutableCollection
     {
         zip(zip(r1.indices, r2.indices), zip(a, zip(b, c))).forEach {
             let (r1v, r2v) = op($1.0, $1.1.0, $1.1.1)
@@ -344,7 +344,7 @@ public extension DeviceFunctions {
     func cpu_reductionOp<T, R>(
         _ x: T, _ r: inout R,
         _ op: @escaping (R.Element, T.Element) -> R.Element)
-        where T: ShapedBuffer, R: MutableShapedBuffer
+        where T: Collection, R: MutableCollection
     {
         zip(r.indices, x).forEach { r[$0] = op(r[$0], $1) }
     }
