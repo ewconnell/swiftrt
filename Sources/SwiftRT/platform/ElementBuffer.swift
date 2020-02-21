@@ -42,11 +42,8 @@ public struct ElementBuffer<Element, Shape>: ShapedBuffer
     //-----------------------------------
     // initializers
     @inlinable
-    public init<T>(_ tensor: T, _ buffer: UnsafeBufferPointer<Element>)
-        where T: TensorView, T.Shape == Shape
-    {
-        assert(tensor.viewOffset + tensor.shape.spanCount <= buffer.count)
-        self.shape = tensor.shape
+    public init(_ shape: Shape, _ buffer: UnsafeBufferPointer<Element>) {
+        self.shape = buffer.count > 0 ? shape : Shape(extents: Shape.zeros)
         self.bufferPointer = UnsafePointer(buffer.baseAddress!)
     }
     
@@ -87,10 +84,8 @@ public struct MutableElementBuffer<Element, Shape>: MutableShapedBuffer
     //-----------------------------------
     // initializers
     @inlinable
-    public init(_ shape: Shape, _ rawBuffer: UnsafeMutableRawBufferPointer) {
-        let buffer = rawBuffer.bindMemory(to: Element.self)
-        assert(buffer.count == shape.spanCount)
-        self.shape = shape
+    public init(_ shape: Shape, _ buffer: UnsafeMutableBufferPointer<Element>) {
+        self.shape = buffer.count > 0 ? shape : Shape(extents: Shape.zeros)
         self.bufferPointer = UnsafeMutablePointer(buffer.baseAddress!)
     }
     

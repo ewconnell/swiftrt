@@ -21,8 +21,8 @@ import Foundation
 /// short vector Element types.
 /// For example: Matrix<RGBA<Float>> -> NHWCTensor<Float>
 ///
-public protocol FixedSizeVector: Equatable {
-    associatedtype Scalar: Equatable & Codable
+public protocol FixedSizeVector {
+    associatedtype Scalar
     static var count: Int { get }
 }
 
@@ -35,14 +35,14 @@ public extension FixedSizeVector {
 
 //==============================================================================
 // RGB
-public protocol RGBProtocol: FixedSizeVector, AnyElement, Codable {
+public protocol RGBProtocol: FixedSizeVector {
     var r: Scalar { get set }
     var g: Scalar { get set }
     var b: Scalar { get set }
     init(_ r: Scalar, _ g: Scalar, _ b: Scalar)
 }
 
-public extension RGBProtocol {
+public extension RGBProtocol where Scalar: Codable {
     // useful discussion on Codable
     // https://www.raywenderlich.com/3418439-encoding-and-decoding-in-swift
     @inlinable
@@ -63,7 +63,7 @@ public extension RGBProtocol {
 }
 
 public struct RGB<Scalar>: RGBProtocol
-    where Scalar: TensorElementConformance & Numeric
+    where Scalar: Numeric
 {
     public var r, g, b: Scalar
 
@@ -76,9 +76,12 @@ public struct RGB<Scalar>: RGBProtocol
     }
 }
 
+extension RGB: Codable where Scalar: Codable {}
+extension RGB: Equatable where Scalar: Equatable {}
+
 //==============================================================================
 // RGBA
-public protocol RGBAProtocol: FixedSizeVector, AnyElement, Codable {
+public protocol RGBAProtocol: FixedSizeVector {
     var r: Scalar { get set }
     var g: Scalar { get set }
     var b: Scalar { get set }
@@ -86,7 +89,7 @@ public protocol RGBAProtocol: FixedSizeVector, AnyElement, Codable {
     init(_ r: Scalar, _ g: Scalar, _ b: Scalar, _ a: Scalar)
 }
 
-public extension RGBAProtocol {
+public extension RGBAProtocol where Scalar: Codable {
     @inlinable
     func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
@@ -107,7 +110,7 @@ public extension RGBAProtocol {
 }
 
 public struct RGBA<Scalar> : RGBAProtocol
-    where Scalar: Numeric & Codable & Equatable
+    where Scalar: Numeric
 {
     public var r, g, b, a: Scalar
 
@@ -122,12 +125,15 @@ public struct RGBA<Scalar> : RGBAProtocol
     }
 }
 
+extension RGBA: Codable where Scalar: Codable {}
+extension RGBA: Equatable where Scalar: Equatable {}
+
 //==============================================================================
 // Stereo
-public protocol StereoProtocol: FixedSizeVector, AnyElement, Codable {}
+public protocol StereoProtocol: FixedSizeVector {}
 
-public struct Stereo<Scalar>: StereoProtocol
-    where Scalar: Numeric & Codable & Equatable
+public struct StereoSample<Scalar>: StereoProtocol
+    where Scalar: Numeric
 {
     public var left, right: Scalar
 
@@ -140,3 +146,5 @@ public struct Stereo<Scalar>: StereoProtocol
     }
 }
 
+extension StereoSample: Codable where Scalar: Codable {}
+extension StereoSample: Equatable where Scalar: Equatable {}

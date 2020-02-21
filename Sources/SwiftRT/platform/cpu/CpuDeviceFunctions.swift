@@ -17,360 +17,246 @@ import Foundation
 import Real
 
 //==============================================================================
-// parameter matching helper
-@inlinable
-public func implicitlyMatchExtents<T>(_ lhs: T, _ rhs: T) -> (T, T)
-    where T: TensorView
-{
-    if lhs.count == rhs.count {
-        return (lhs, rhs)
-    } else if lhs.count > rhs.count {
-        return (lhs, rhs.repeated(to: lhs.extents))
-    } else {
-        return (lhs.repeated(to: rhs.extents), rhs)
-    }
-}
-
-//==============================================================================
 // DeviceQueue default implementations
 public extension DeviceFunctions where Self: DeviceQueue {
-    //--------------------------------------------------------------------------
-
-    /// add
-    func cpu_newAdd<T, R>(lhs: T, rhs: T, result: inout R) where
+    func cpu_abs<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        cpu_mapOp(x, &result) { Swift.abs($0) }
+    }
+    
+    func cpu_add<T, R>(lhs: T, rhs: T, result: inout R) where
         T: ShapedBuffer, T.Element: AdditiveArithmetic,
         R: MutableShapedBuffer, R.Element == T.Element
     {
         cpu_mapOp(lhs, rhs, &result, +)
     }
     
-    func cpu_mapOp<LHS, RHS, R>(
-        _ lhs: LHS, _ rhs: RHS, _ r: inout R,
-        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
-        LHS: ShapedBuffer, RHS: ShapedBuffer, R: MutableShapedBuffer
+    func cpu_and<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element == Bool,
+        R: MutableShapedBuffer, R.Element == Bool
     {
-        zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = op($1.0, $1.1) }
-    }
-    //--------------------------------------------------------------------------
-
-    // mapOp 1
-    /// generically maps a tensor
-    @inlinable
-    func cpu_mapOp<T, R>(_ x: T, _ result: inout R,
-                     _ op: @escaping (T.Element) -> R.Element) where
-        T: TensorView, R: TensorView
-    {
-        x.map(into: &result, op)
-    }
-    // mapOp 2
-    /// generically combines two tensors
-    @inlinable
-    func cpu_mapOp<LHS, RHS, R>(
-        _ lhs: LHS, _ rhs: RHS, _ result: inout R,
-        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
-        LHS: TensorView, RHS: TensorView, R: TensorView
-    {
-        zip(lhs, rhs).map(into: &result, op)
-    }
-    // mapOp 3
-    /// generically combines three tensors
-    @inlinable
-    func cpu_mapOp<T1, T2, T3, R>(
-        _ a: T1, _ b: T2, _ c: T3, _ result: inout R,
-        _ op: @escaping (T1.Element, T2.Element, T3.Element) -> R.Element) where
-        T1: TensorView, T2: TensorView, T3: TensorView, R: TensorView
-    {
-        zip(a, b, c).map(into: &result, op)
-    }
-    // mapOp 3R2
-    /// generically combines three tensors
-    @inlinable
-    func cpu_mapOp<T1, T2, T3, R>(
-        _ a: T1, _ b: T2, _ c: T3, _ result1: inout R,  _ result2: inout R,
-        _ op: @escaping
-        (T1.Element, T2.Element, T3.Element) -> (R.Element, R.Element))
-        where T1: TensorView, T2: TensorView, T3: TensorView, R: TensorView
-    {
-        var r1 = result1.mutableElements()
-        var r2 = result2.mutableElements()
-        
-        for ((av, bv, cv), (i1, i2)) in
-            zip(zip(a, b, c), zip(r1.indices, r2.indices))
-        {
-            let (rv1, rv2) = op(av, bv, cv)
-            r1[i1] = rv1
-            r2[i2] = rv2
-        }
-    }
-    // inPlaceOp
-    @inlinable
-    func cpu_inPlaceOp<T>(_ result: inout T,
-                      _ op: @escaping (T.Element) -> T.Element) where
-        T: MutableCollection
-    {
-        result.indices.forEach { result[$0] = op(result[$0]) }
-    }
-    // reductionOp
-    @inlinable
-    func cpu_reductionOp<T, R>(
-        _ x: T, _ result: inout R,
-        _ op: @escaping (R.Element, T.Element) -> R.Element) where
-        T: Collection, R: MutableCollection
-    {
-        zip(result.indices, x).forEach { result[$0] = op(result[$0], $1) }
+        cpu_mapOp(lhs, rhs, &result) { $0 && $1 }
     }
     
-    //==========================================================================
-    /// abs
-    @inlinable
-    func cpu_abs<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
+    func cpu_cast<T, R>(from buffer: T, to result: inout R) where
+        T: ShapedBuffer, T.Element: AnyConvertable,
+        R: MutableShapedBuffer, R.Element: AnyConvertable
     {
-        mapOp(x, &result) { Swift.abs($0) }
+        cpu_mapOp(buffer, &result) { R.Element(any: $0) }
     }
-    // add
-    @inlinable
-    func cpu_add<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: AdditiveArithmetic
-    {
-        mapOp(lhs, rhs, &result, +)
-    }
-    /// and
-    @inlinable
-    func cpu_and<T>(lhs: T, rhs: T, result: inout T.BoolView) where
-        T: TensorView, T.Element == Bool
-    {
-        mapOp(lhs, rhs, &result) { $0 && $1 }
-    }
-    /// cast
-    @inlinable
-    func cpu_cast<T, U>(from view: T, to result: inout U) where
-        T: TensorView, T.Element: AnyConvertable,
-        U: TensorView, U.Element: AnyConvertable
-    {
-        mapOp(view, &result) { U.Element(any: $0) }
-    }
-    // concat
-    // TODO: if the tensors are large they could
-    // be copied in parallel. Maybe leave for the compiler in the future
-    @inlinable
-    func cpu_concat<T>(tensors: [T], alongAxis axis: Int, result: inout T) where
-        T: TensorView
-    {
-        var index = T.Shape.zeros
-        
-        for tensor in tensors {
-            var view = result.mutableView(at: index, extents: tensor.extents)
-            tensor.map(into: &view) { $0 }
-            index[axis] += tensor.extents[axis]
-        }
-    }
-    /// delay
-    func cpu_delay(atLeast interval: TimeInterval) {
-        assert(Thread.current === creatorThread, _messageQueueThreadViolation)
-        Thread.sleep(forTimeInterval: interval)
-    }
-    /// div
-    @inlinable
-    func cpu_div<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: AlgebraicField
-    {
-        mapOp(lhs, rhs, &result, /)
-    }
-    /// elementsAlmostEqual
-    @inlinable
-    func cpu_elementsAlmostEqual<T>(lhs: T, rhs: T, tolerance: T.Element,
-                                result: inout T.BoolView) where
-        T: TensorView, T.Element: SignedNumeric & Comparable
-    {
-        mapOp(lhs, rhs, &result) { Swift.abs($0 - $1) <= tolerance }
-    }
-    /// equal
-    @inlinable
-    func cpu_equal<T>(lhs: T, rhs: T, result: inout T.BoolView) where
-        T: TensorView
-    {
-        mapOp(lhs, rhs, &result, ==)
-    }
-    /// exp
-    @inlinable
-    func cpu_exp<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
-    {
-        mapOp(x, &result) { .exp($0) }
-    }
-    /// fill(result:with:
-    @inlinable
-    func cpu_fill<T>(result: inout T, with value: T.Element) where T: TensorView
-    {
-        // TODO: go through a map op
-        var elements = result.mutableElements()
-        elements.indices.forEach { elements[$0] = value }
-    }
-    /// fill(result:with range:
-    func cpu_fill<T, R>(result: inout T, with range: R) where
-        T: TensorView,
-        R: StridedRangeExpression, R.Bound == T.Element
-    {
-        // TODO: go through a map op
-        var elements = result.mutableElements()
-        zip(elements.indices, range.stridedRange).forEach {
-            elements[$0] = $1
-        }
-    }
-    /// less
-    @inlinable
-    func cpu_less<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable
-    {
-        mapOp(lhs, rhs, &result, <)
-    }
-    /// lessOrEqual
-    @inlinable
-    func cpu_lessOrEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable
-    {
-        mapOp(lhs, rhs, &result, <=)
-    }
-    /// greater
-    @inlinable
-    func cpu_greater<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable
-    {
-        mapOp(lhs, rhs, &result, >)
-    }
-    /// greaterOrEqual
-    @inlinable
-    func cpu_greaterOrEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable
-    {
-        mapOp(lhs, rhs, &result, >=)
-    }
-    /// log
-    @inlinable
-    func cpu_log<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
-    {
-        mapOp(x, &result) { .log($0) }
-    }
-    /// Computes the element-wise maximum of two tensors.
-    @inlinable
-    func cpu_max<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: Comparable
-    {
-        mapOp(lhs, rhs, &result) { $0 >= $1 ? $0 : $1 }
-    }
-    /// Computes the element-wise minimum of two tensors.
-    @inlinable
-    func cpu_min<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: Comparable
-    {
-        mapOp(lhs, rhs, &result) { $0 <= $1 ? $0 : $1 }
-    }
-    /// mul
-    @inlinable
-    func cpu_mul<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: Numeric
-    {
-        mapOp(lhs, rhs, &result, *)
-    }
-    /// neg
-    @inlinable
-    func cpu_neg<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: SignedNumeric
-    {
-        mapOp(x, &result, -)
-    }
-    /// notEqual
-    @inlinable
-    func cpu_notEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView
-    {
-        mapOp(lhs, rhs, &result, !=)
-    }
-    /// or
-    @inlinable
-    func cpu_or<T>(lhs: T, rhs: T, result: inout T.BoolView) where
-        T: TensorView, T.Element == Bool
-    {
-        mapOp(lhs, rhs, &result) { $0 || $1 }
-    }
-    /// pow
-    @inlinable
-    func cpu_pow<T>(x: T, y: T, result: inout T) where
-        T: TensorView, T.Element: Real
-    {
-        mapOp(x, y, &result) { .pow($0, $1) }
-    }
-    /// replace
-    @inlinable
-    func cpu_replace<T>(x: T, with y: T, where condition: T.BoolView,
-                    result: inout T)
-        where T: TensorView
-    {
-        mapOp(condition, y, x, &result) { $0 ? $1 : $2 }
-    }
-    /// sign
-    @inlinable
-    func cpu_sign<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
-    {
-        mapOp(x, &result) { $0 < 0 ? -1 : 1 }
-    }
-    /// subtract
-    @inlinable
-    func cpu_subtract<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: AdditiveArithmetic
-    {
-        mapOp(lhs, rhs, &result, -)
-    }
-    /// sqrt
-    @inlinable
-    func cpu_sqrt<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
-    {
-        mapOp(x, &result) { .sqrt($0) }
-    }
-    /// squared
-    @inlinable
-    func cpu_squared<T>(x: T, result: inout T)
-        where T: TensorView, T.Element: Numeric
-    {
-        mapOp(x, &result) { $0 * $0 }
-    }
-    /// reduce
-    /// Reduces `x` along the specified axes
-    /// - Parameter x: value tensor
-    /// - Parameter result: contains the initial value of the result on entry
-    ///  and then final reduction result on return
-    /// - Parameter opNext: the operation to perform on pairs of elements
-    /// - Parameter opFinal: the operation to perform on the final result
-    /// - Precondition: Each value in `axes` must be in the range `-rank..<rank`.
-    @inlinable
-    func cpu_reduce<T>(x: T,
-                   into result: inout T,
-                   opId: ReductionOp,
-                   opNext: @escaping (T.Element, T.Element) -> T.Element,
-                   opFinal: ReduceOpFinal<T>?)
-        where T: TensorView
-    {
-        assert(result.isContiguous, "Result storage must be contiguous")
-        
-        // created a repeated view of the initial results to match `x`
-        var repeated = T(shape: result.shape.repeated(to: x.extents),
-                         tensorArray: result.tensorArray,
-                         viewOffset: result.viewOffset,
-                         isMutable: true)
-        
-        // get the elements collection and do the reduction
-        var repeatedElements = repeated.mutableElements(using: self)
-        reductionOp(x.elements, &repeatedElements, opNext)
-        
-        if let op = opFinal {
-            var elements = result.mutableElements(using: self)
-            inPlaceOp(&elements, op)
-        }
-    }
+//
+//    func cpu_concat<T, R>(buffers: [T], alongAxis axis: Int, result: inout R) where
+//        T: ShapedBuffer,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        //        var index = T.Shape.zeros
+//        // rewrite
+//        fatalError()
+//        //        for buffer in buffers {
+//        //            var view = result.mutableView(at: index, extents: tensor.extents)
+//        //            tensor.map(into: &view) { $0 }
+//        //            index[axis] += tensor.extents[axis]
+//        //        }
+//    }
+//
+//    func cpu_delay(atLeast interval: TimeInterval) {
+//        assert(Thread.current === creatorThread, _messageQueueThreadViolation)
+//        Thread.sleep(forTimeInterval: interval)
+//    }
+//
+//    func cpu_div<T, R>(lhs: T, rhs: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: AlgebraicField,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        cpu_mapOp(lhs, rhs, &result, /)
+//    }
+//
+//    func cpu_elementsAlmostEqual<T, R>(lhs: T, rhs: T, tolerance: T.Element,
+//                                       result: inout R) where
+//        T: ShapedBuffer, T.Element: SignedNumeric & Comparable,
+//        R: MutableShapedBuffer, R.Element == Bool
+//    {
+//        cpu_mapOp(lhs, rhs, &result) { Swift.abs($0 - $1) <= tolerance }
+//    }
+//
+//    func cpu_equal<T, R>(lhs: T, rhs: T, result: inout R) where
+//        T: ShapedBuffer,
+//        R: MutableShapedBuffer, R.Element == Bool
+//    {
+//        cpu_mapOp(lhs, rhs, &result, ==)
+//    }
+//
+//    func cpu_exp<T, R>(x: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: Real,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        cpu_mapOp(x, &result) { .exp($0) }
+//    }
+//
+//    func cpu_fill<Element, R>(result: inout R, with element: Element) where
+//        R: MutableShapedBuffer, R.Element == Element
+//    {
+//        cpu_inPlaceOp(&result) { _ in element }
+//    }
+//
+//    func cpu_fill<T, R>(result: inout R, with range: T) where
+//        T: Collection,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        // add a new mapOp for ranges
+//        fatalError()
+//        //        cpu_mapOp(&result) { $0 }
+//    }
+//
+//    func cpu_greater<T, R>(lhs: T, rhs: T, result: inout R)
+//        where T: ShapedBuffer, T.Element: Comparable,
+//        R: MutableShapedBuffer, R.Element == Bool
+//    {
+//        cpu_mapOp(lhs, rhs, &result, >)
+//    }
+//
+//    func cpu_greaterOrEqual<T, R>(lhs: T, rhs: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: Comparable,
+//        R: MutableShapedBuffer, R.Element == Bool
+//    {
+//        cpu_mapOp(lhs, rhs, &result, >=)
+//    }
+//
+//    func cpu_less<T, R>(lhs: T, rhs: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: Comparable,
+//        R: MutableShapedBuffer, R.Element == Bool
+//    {
+//        cpu_mapOp(lhs, rhs, &result, <)
+//    }
+//
+//    func cpu_lessOrEqual<T, R>(lhs: T, rhs: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: Comparable,
+//        R: MutableShapedBuffer, R.Element == Bool
+//    {
+//        cpu_mapOp(lhs, rhs, &result, <=)
+//    }
+//
+//    func cpu_log<T, R>(x: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: Real,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        cpu_mapOp(x, &result) { .log($0) }
+//    }
+//
+//    func cpu_max<T, R>(lhs: T, rhs: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: Comparable,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        cpu_mapOp(lhs, rhs, &result) { $0 >= $1 ? $0 : $1 }
+//    }
+//
+//    func cpu_min<T, R>(lhs: T, rhs: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: Comparable,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        cpu_mapOp(lhs, rhs, &result) { $0 <= $1 ? $0 : $1 }
+//    }
+//
+//    func cpu_mul<T, R>(lhs: T, rhs: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: Numeric,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        cpu_mapOp(lhs, rhs, &result, *)
+//    }
+//
+//    func cpu_neg<T, R>(x: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: SignedNumeric,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        cpu_mapOp(x, &result, -)
+//    }
+//
+//    func cpu_notEqual<T, R>(lhs: T, rhs: T, result: inout R) where
+//        T: ShapedBuffer,
+//        R: MutableShapedBuffer, R.Element == Bool
+//    {
+//        cpu_mapOp(lhs, rhs, &result, !=)
+//    }
+//
+//    func cpu_or<T, R>(lhs: T, rhs: T, result: inout R) where
+//        T: ShapedBuffer, T.Element == Bool,
+//        R: MutableShapedBuffer, R.Element == Bool
+//    {
+//        cpu_mapOp(lhs, rhs, &result) { $0 || $1 }
+//    }
+//
+//    func cpu_pow<T, R>(x: T, y: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: Real,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        cpu_mapOp(x, y, &result) { .pow($0, $1) }
+//    }
+//
+//    func cpu_replace<T, C, R>(x: T, with y: T, where condition: C,
+//                              result: inout R) where
+//        T: ShapedBuffer,
+//        C: ShapedBuffer, C.Element == Bool,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        cpu_mapOp(condition, y, x, &result) { $0 ? $1 : $2 }
+//    }
+//
+//    func cpu_sign<T, R>(x: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: Real,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        cpu_mapOp(x, &result) { $0 < 0 ? -1 : 1 }
+//    }
+//
+//    func cpu_subtract<T, R>(lhs: T, rhs: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: AdditiveArithmetic,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        cpu_mapOp(lhs, rhs, &result, -)
+//    }
+//
+//    func cpu_sqrt<T, R>(x: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: Real,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        cpu_mapOp(x, &result) { .sqrt($0) }
+//    }
+//
+//    func cpu_squared<T, R>(x: T, result: inout R) where
+//        T: ShapedBuffer, T.Element: Numeric,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        cpu_mapOp(x, &result) { $0 * $0 }
+//    }
+//
+//    func cpu_reduce<T, R>(x: T,
+//                          into result: inout R,
+//                          opId: ReductionOp,
+//                          opNext: @escaping (T.Element, T.Element) -> T.Element,
+//                          opFinal: ReduceOpFinal<T>?) where
+//        T: ShapedBuffer,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//        fatalError()
+////        assert(result.isContiguous, "Result storage must be contiguous")
+////
+////        // created a repeated view of the initial results to match `x`
+////        var repeated = T(shape: result.shape.repeated(to: x.extents),
+////                         tensorArray: result.tensorArray,
+////                         viewOffset: result.viewOffset,
+////                         isMutable: true)
+////
+////        // get the elements collection and do the reduction
+////        var repeatedElements = repeated.mutableElements(using: self)
+////        reductionOp(x.elements, &repeatedElements, opNext)
+////
+////        if let op = opFinal {
+////            var elements = result.mutableElements(using: self)
+////            inPlaceOp(&elements, op)
+////        }
+//    }
 }
 
 //==============================================================================
@@ -378,13 +264,88 @@ public extension DeviceFunctions where Self: DeviceQueue {
 public extension DeviceFunctions where Self: DeviceQueue {
     /// vjpMinMax
     @inlinable
-    func cpu_vjpMinMax<T>(
-        x: T, y: T, scale: T, op: @escaping (T.Element, T.Element) -> Bool,
-        resultTrue: inout T, resultFalse: inout T)
-        where T: TensorView, T.Element: Comparable & Numeric
+    
+    func cpu_vjpMinMax<T, R>(
+        x: T, y: T, scale: T,
+        op: @escaping (T.Element, T.Element) -> Bool,
+        resultTrue: inout R, resultFalse: inout R)
+        where
+        T : ShapedBuffer, T.Element : Comparable & Numeric,
+        R : MutableShapedBuffer, R.Element == T.Element
     {
-        mapOp(x, y, scale, &resultTrue, &resultFalse) {
+        cpu_mapOp(x, y, scale, &resultTrue, &resultFalse) {
             op($0, $1) ? ($2, T.Element.zero) : (T.Element.zero, $2)
         }
+    }
+}
+
+
+//==============================================================================
+// DeviceFunctions mapOps
+public extension DeviceFunctions {
+    
+    // inPlaceOp
+    @inlinable
+    func cpu_inPlaceOp<R>(_ r: inout R,_ op: @escaping (R.Element) -> R.Element)
+        where R: MutableShapedBuffer
+    {
+        r.indices.forEach { r[$0] = op(r[$0]) }
+    }
+    
+    // mapOp 1
+    @inlinable
+    func cpu_mapOp<T, R>(_ x: T, _ r: inout R,
+                         _ op: @escaping (T.Element) -> R.Element) where
+        T: ShapedBuffer, R: MutableShapedBuffer
+    {
+        zip(r.indices, x).forEach { r[$0] = op($1) }
+    }
+    
+    // mapOp 2
+    @inlinable
+    func cpu_mapOp<LHS, RHS, R>(
+        _ lhs: LHS, _ rhs: RHS, _ r: inout R,
+        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
+        LHS: ShapedBuffer, RHS: ShapedBuffer, R: MutableShapedBuffer
+    {
+        zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = op($1.0, $1.1) }
+    }
+    
+    // mapOp 3
+    @inlinable
+    func cpu_mapOp<T1, T2, T3, R>(
+        _ a: T1, _ b: T2, _ c: T3, _ r: inout R,
+        _ op: @escaping (T1.Element, T2.Element, T3.Element) -> R.Element) where
+        T1: ShapedBuffer, T2: ShapedBuffer, T3: ShapedBuffer, R: MutableShapedBuffer
+    {
+        zip(r.indices, zip(a, zip(b, c))).forEach { r[$0] = op($1.0, $1.1.0, $1.1.1) }
+    }
+    
+    // mapOp 3R2
+    /// generically combines three tensors
+    @inlinable
+    func cpu_mapOp<T1, T2, T3, R1, R2>(
+        _ a: T1, _ b: T2, _ c: T3, _ r1: inout R1,  _ r2: inout R2,
+        _ op: @escaping
+        (T1.Element, T2.Element, T3.Element) -> (R1.Element, R2.Element))
+        where
+        T1: ShapedBuffer, T2: ShapedBuffer, T3: ShapedBuffer,
+        R1: MutableShapedBuffer, R2: MutableShapedBuffer
+    {
+        zip(zip(r1.indices, r2.indices), zip(a, zip(b, c))).forEach {
+            let (r1v, r2v) = op($1.0, $1.1.0, $1.1.1)
+            r1[$0.0] = r1v
+            r2[$0.1] = r2v
+        }
+    }
+    
+    // reductionOp
+    @inlinable
+    func cpu_reductionOp<T, R>(
+        _ x: T, _ r: inout R,
+        _ op: @escaping (R.Element, T.Element) -> R.Element)
+        where T: ShapedBuffer, R: MutableShapedBuffer
+    {
+        zip(r.indices, x).forEach { r[$0] = op(r[$0], $1) }
     }
 }

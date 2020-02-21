@@ -17,7 +17,7 @@ import Real
 
 //==============================================================================
 // utilities
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     func _vjpMinMaxHelper<T>(
         _ x: T, _ y: T, v: T,
@@ -40,24 +40,24 @@ extension ComputePlatform {
 public func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
     T: TensorView, T.Element == Bool
 {
-    Current.platform.and(lhs, rhs)
+    Platform.service.and(lhs, rhs)
 }
 
 @inlinable
 public func and<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
     where T: TensorView, T.Element == Bool
 {
-    Current.platform.and(lhs, rhs)
+    Platform.service.and(lhs, rhs)
 }
 
 @inlinable
 func and<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
     where T: TensorView, T.Element == Bool
 {
-    Current.platform.and(lhs, rhs)
+    Platform.service.and(lhs, rhs)
 }
 
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element == Bool
@@ -103,24 +103,24 @@ public extension TensorView where Element == Bool {
 public func or<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
     T: TensorView, T.Element == Bool
 {
-    Current.platform.or(lhs, rhs)
+    Platform.service.or(lhs, rhs)
 }
 
 @inlinable
 public func or<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
     where T: TensorView, T.Element == Bool
 {
-    Current.platform.or(lhs, rhs)
+    Platform.service.or(lhs, rhs)
 }
 
 @inlinable
 public func or<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
     where T: TensorView, T.Element == Bool
 {
-    Current.platform.or(lhs, rhs)
+    Platform.service.or(lhs, rhs)
 }
 
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     func or<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element == Bool
@@ -170,7 +170,7 @@ public extension TensorView where Element == Bool {
 public func max<T>(_ lhs: T, _ rhs: T) -> T where
     T: TensorView, T.Element: Comparable
 {
-    Current.platform.max(lhs, rhs)
+    Platform.service.max(lhs, rhs)
 }
 
 @inlinable
@@ -178,7 +178,7 @@ public func max<T>(_ lhs: T, _ rhs: T) -> T where
 public func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
     T: TensorView, T.Element: Comparable
 {
-    Current.platform.max(lhs, rhs)
+    Platform.service.max(lhs, rhs)
 }
 
 @inlinable
@@ -186,10 +186,10 @@ public func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
 public func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
     T: TensorView, T.Element: Comparable
 {
-    Current.platform.max(lhs, rhs)
+    Platform.service.max(lhs, rhs)
 }
 
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func max<T>(_ lhs: T, _ rhs: T) -> T where
@@ -237,7 +237,7 @@ extension ComputePlatform {
 
 //--------------------------------------
 // derivative functions
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     @derivative(of: max)
     func _vjpMax<T>(_ lhs: T, _ rhs: T)
@@ -287,7 +287,7 @@ extension ComputePlatform {
 public func min<T>(_ lhs: T, _ rhs: T) -> T where
     T: TensorView, T.Element: Comparable
 {
-    Current.platform.min(lhs, rhs)
+    Platform.service.min(lhs, rhs)
 }
 
 @inlinable
@@ -295,7 +295,7 @@ public func min<T>(_ lhs: T, _ rhs: T) -> T where
 public func min<T>(_ lhs: T, _ rhs: T.Element) -> T
     where T: TensorView, T.Element: Comparable
 {
-    Current.platform.min(lhs, rhs)
+    Platform.service.min(lhs, rhs)
 }
 
 @inlinable
@@ -303,10 +303,10 @@ public func min<T>(_ lhs: T, _ rhs: T.Element) -> T
 public func min<T>(_ lhs: T.Element, _ rhs: T) -> T
     where T: TensorView, T.Element: Comparable
 {
-    Current.platform.min(lhs, rhs)
+    Platform.service.min(lhs, rhs)
 }
 
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func min<T>(_ lhs: T, _ rhs: T) -> T where
@@ -339,22 +339,22 @@ extension ComputePlatform {
 //    @inlinable
 //    @differentiable(where T: DifferentiableTensorView)
 //    func min<T>(_ lhs: T, _ rhs: T) -> T where
-//        T: TensorView, T.Element: Comparable { Current.platform.min(lhs, rhs) }
+//        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
 //
 //    @inlinable
 //    @differentiable(where T: DifferentiableTensorView)
 //    func min<T>(_ lhs: T, _ rhs: T.Element) -> T where
-//        T: TensorView, T.Element: Comparable { Current.platform.min(lhs, rhs) }
+//        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
 //
 //    @inlinable
 //    @differentiable(where T: DifferentiableTensorView)
 //    func min<T>(_ lhs: T.Element, _ rhs: T) -> T where
-//        T: TensorView, T.Element: Comparable { Current.platform.min(lhs, rhs) }
+//        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
 //}
 
 //--------------------------------------
 // derivative functions
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     @derivative(of: min)
     func _vjpMin<T>(_ lhs: T, _ rhs: T)
@@ -399,10 +399,10 @@ extension ComputePlatform {
 /// tensor of Bool values
 @inlinable
 public func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
-    Current.platform.equal(lhs, rhs)
+    Platform.service.equal(lhs, rhs)
 }
 
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
         assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
@@ -444,10 +444,10 @@ public func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T,
                             tolerance: T.Element) -> T.BoolView where
     T: TensorView, T.Element: SignedNumeric & Comparable
 {
-    Current.platform.elementsAlmostEqual(lhs, rhs, tolerance: tolerance)
+    Platform.service.elementsAlmostEqual(lhs, rhs, tolerance: tolerance)
 }
 
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T,
                                 tolerance: T.Element) -> T.BoolView where
@@ -465,7 +465,7 @@ extension ComputePlatform {
 public extension TensorView where Element: SignedNumeric & Comparable {
     @inlinable
     func elementsAlmostEqual(_ other: Self, tolerance: Element) -> BoolView {
-        Current.platform.elementsAlmostEqual(self, other, tolerance: tolerance)
+        Platform.service.elementsAlmostEqual(self, other, tolerance: tolerance)
     }
 }
 
@@ -475,10 +475,10 @@ public extension TensorView where Element: SignedNumeric & Comparable {
 /// values.
 @inlinable
 public func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
-    Current.platform.notEqual(lhs, rhs)
+    Platform.service.notEqual(lhs, rhs)
 }
 
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
         assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
@@ -502,10 +502,10 @@ public extension TensorView where Element: Equatable {
 public func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
     T: TensorView, T.Element: Comparable
 {
-    Current.platform.greater(lhs, rhs)
+    Platform.service.greater(lhs, rhs)
 }
 
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
@@ -531,10 +531,10 @@ public extension TensorView where Element: Comparable {
 public func greaterOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
     T: TensorView, T.Element: Comparable
 {
-    Current.platform.greaterOrEqual(lhs, rhs)
+    Platform.service.greaterOrEqual(lhs, rhs)
 }
 
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     func greaterOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
@@ -563,10 +563,10 @@ public extension TensorView where Element: Comparable {
 public func less<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
     T: TensorView, T.Element: Comparable
 {
-    Current.platform.less(lhs, rhs)
+    Platform.service.less(lhs, rhs)
 }
 
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     func less<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
@@ -592,24 +592,24 @@ public extension TensorView where Element: Comparable {
 public func lessOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
     T: TensorView, T.Element: Comparable
 {
-    Current.platform.lessOrEqual(lhs, rhs)
+    Platform.service.lessOrEqual(lhs, rhs)
 }
 
 @inlinable
 public func lessOrEqual<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
     where T: TensorView, T.Element: Comparable
 {
-    Current.platform.lessOrEqual(lhs, rhs)
+    Platform.service.lessOrEqual(lhs, rhs)
 }
 
 @inlinable
 public func lessOrEqual<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
     where T: TensorView, T.Element: Comparable
 {
-    Current.platform.lessOrEqual(lhs, rhs)
+    Platform.service.lessOrEqual(lhs, rhs)
 }
 
-extension ComputePlatform {
+extension PlatformService {
     @inlinable
     func lessOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable

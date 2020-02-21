@@ -28,7 +28,7 @@ public struct CpuQueueEvent: QueueEvent {
     // initializers
     @inlinable
     public init(options: QueueEventOptions) {
-        id = Current.nextQueueEventId
+        id = Platform.nextQueueEventId
         occurred = true
     }
 

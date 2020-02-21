@@ -53,7 +53,7 @@ public func gradient<T, U, V, R>(
 
 //==========================================================================
 /// compareGradients
-extension ComputePlatform {
+extension PlatformService {
     public func compareGradients<T>(_ grad: T, _ expected: T,
                                     _ tolerance: T.Element) -> Bool
         where T: DifferentiableTensorView, T.Element: SignedNumeric & Comparable
@@ -82,7 +82,7 @@ public func gradientIsValid<T>(
     in body: @differentiable (T) -> T) -> Bool
     where T: DifferentiableTensorView, T.Element: AnyFloatingPoint
 {
-    Current.platform.compareGradients(
+    Platform.service.compareGradients(
         gradient(at: x, in: body),
         numericalGradient(at: x, delta: delta, in: body),
         T.Element(any: tolerance))
@@ -115,8 +115,8 @@ public func gradientIsValid<T>(
 {
     let (dx, dy) = gradient(at: x, y, in: body)
     let (ndx, ndy) = numericalGradient(at: x, y, delta: delta, in: body)
-    let xEqual = Current.platform.compareGradients(dx, ndx, T.Element(any: tolerance))
-    let yEqual = Current.platform.compareGradients(dy, ndy, T.Element(any: tolerance))
+    let xEqual = Platform.service.compareGradients(dx, ndx, T.Element(any: tolerance))
+    let yEqual = Platform.service.compareGradients(dy, ndy, T.Element(any: tolerance))
     return xEqual && yEqual
 }
 

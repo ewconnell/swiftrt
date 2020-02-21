@@ -174,7 +174,7 @@ public extension TensorView {
             makeDense(view: self)
             let (extents, strides) = getExtents(lower, upper, steps)
             var view = mutableView(at: lower, extents: extents, strides: strides)
-            Current.platform.copy(from: newValue, to: &view)
+            Platform.service.copy(from: newValue, to: &view)
         }
     }
     
@@ -200,7 +200,7 @@ public extension TensorView {
             categories: [.dataRealize, .dataCopy])
         
         // perform and indexed copy and assign to self
-        Current.platform.copy(from: self, to: &dense)
+        Platform.service.copy(from: self, to: &dense)
         self = dense
     }
 }

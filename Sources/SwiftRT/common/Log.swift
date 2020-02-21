@@ -172,8 +172,8 @@ public struct LogInfo {
 public protocol Logging : _Logging {}
 
 public extension Logging {
-    @inlinable var logWriter: Log { Current.log }
-    @inlinable var logLevel: LogLevel { Current.log.level }
+    @inlinable var logWriter: Log { Platform.log }
+    @inlinable var logLevel: LogLevel { Platform.log.level }
     @inlinable var logNamePath: String { "" }
     @inlinable var logNestingLevel: Int { 0 }
 }

@@ -21,13 +21,12 @@ public protocol CpuQueueProtocol: DeviceQueue {
     init(id: Int,
          parent logInfo: LogInfo,
          addressing: MemoryAddressing,
-         replicationKey: Int,
          deviceId: Int, deviceName: String)
 }
 
 //==============================================================================
 /// CpuDevice
-public struct CpuDevice<Queue>: ServiceDeviceType
+public struct CpuDevice<Queue>: ServiceDevice
     where Queue: CpuQueueProtocol
 {
     // properties
@@ -40,7 +39,6 @@ public struct CpuDevice<Queue>: ServiceDeviceType
     public init(parent logInfo: LogInfo, addressing: MemoryAddressing, id: Int)
     {
         let deviceName = "cpu:\(id)"
-        let arrayReplicaKey = Current.nextArrayReplicaKey
         self.id = id
         self.name = deviceName
         self.logInfo = logInfo.child(name)
@@ -48,7 +46,6 @@ public struct CpuDevice<Queue>: ServiceDeviceType
         // TODO create 1 queue for each active core
         let queues = [Queue(id: 0, parent: self.logInfo,
                             addressing: addressing,
-                            replicationKey: arrayReplicaKey,
                             deviceId: id, deviceName: name)]
         self.queues = queues
     }

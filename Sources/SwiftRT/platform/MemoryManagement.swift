@@ -16,13 +16,14 @@
 import Foundation
 
 //==============================================================================
-/// ServiceMemoryManagement
-public protocol ServiceMemoryManagement {
+/// MemoryManagement
+public protocol MemoryManagement {
     /// a collection of device buffer dictionaries indexed by the device
-    /// number, and keyed by the id returned from `createDeviceBuffer`.
+    /// number, and keyed by the id returned from `createBuffer`.
     /// By convention device 0 will always be a unified memory device with
     /// the application.
     var deviceBuffers: [[Int : BufferDescription]] { get set }
+    
     /// a dictionary relating a buffer id to which device has the
     /// most recently mutated version. This is updated each time a write
     /// buffer is obtained on a different device
@@ -31,17 +32,34 @@ public protocol ServiceMemoryManagement {
     var masterVersion: [Int : Int] { get set }
     
     //--------------------------------------------------------------------------
-    /// createDeviceBuffer(byteCount:
+    init()
+    
+    //--------------------------------------------------------------------------
+    /// `createBuffer(type:count:`
     /// creates a lazily allocated buffer to be used in tensor operations.
-    /// Id(s) are used because the associated memory can be moved by the
-    /// platform between accesses in order to maximize memory utilization.
+    /// A `BufferId` is used so the associated memory can be moved by the
+    /// service between accesses in order to maximize memory utilization.
     /// - Parameter type: the element type of the buffer
     /// - Parameter count: size of the buffer in `Element` units
     /// - Returns: a reference to the device buffer
-    func createDeviceBuffer<Element>(of type: Element.Type, count: Int)
-        -> BufferId
+    func createBuffer<Element>(of type: Element.Type, count: Int) -> BufferId
 
-    /// cachedDeviceBuffer(element:
+    /// `createBuffer(blockSize:bufferedBlocks:sequence:`
+    /// creates a streaming device buffer to be used in tensor operations.
+    /// - Parameter shape: the shape of the blocks read or written to
+    /// the sequence in a given transaction. This might be the number
+    /// of elements in a view.
+    /// - Parameter bufferedBlocks: the size of the device buffer
+    /// to reserve in block units
+    /// - Parameter stream: the I/O object for read/write operations
+    /// - Returns: a buffer id and the size of the stream in block units.
+    /// An endless sequence will return infinity for the block count.
+    func createBuffer<Shape, Stream>(block shape: Shape,
+                                     bufferedBlocks: Int,
+                                     stream: Stream) -> (BufferId, Int)
+        where Shape: ShapeProtocol, Stream: BufferStream
+
+    /// `cachedBuffer(element:`
     /// returns a device buffer initialized with the specified `Element`
     /// value. User expressions use a lot of constant scalar values
     /// which are repeated. For example: `let m = matrix + 1`. These
@@ -52,9 +70,9 @@ public protocol ServiceMemoryManagement {
     /// - Parameter element: the element value to cache
     /// - Returns: a device buffer reference that contains the element value.
     /// A BufferId is created if it does not already exist.
-    func cachedDeviceBuffer<Element>(for element: Element) -> BufferId
+    func cachedBuffer<Element>(for element: Element) -> BufferId
 
-    /// createReference(to:
+    /// `createReference(applicationBuffer:`
     /// creates a device buffer whose data is associated with
     /// the specified buffer pointer. No memory is allocated, so the
     /// buffer must point to valid data space managed by the application.
@@ -66,13 +84,13 @@ public protocol ServiceMemoryManagement {
     func createReference<Element>(
         to applicationBuffer: UnsafeBufferPointer<Element>) -> BufferId
 
-    /// createMutableReference(to:
+    /// `createMutableReference(applicationBuffer:`
     /// - Parameter applicationBuffer: a mutable buffer pointer to the data
     /// - Returns: a reference to the device buffer
     func createMutableReference<Element>(
         to applicationBuffer: UnsafeMutableBufferPointer<Element>) -> BufferId
 
-    /// duplicate
+    /// `duplicate(other:queue:`
     /// makes a duplicate of the specified device buffer. Used to support
     /// copy-on-write semantics
     /// - Parameter other: the id of the other device buffer to duplicate
@@ -80,40 +98,39 @@ public protocol ServiceMemoryManagement {
     /// - Returns: a reference to the device buffer
     func duplicate(_ other: BufferId, using queue: QueueId) -> BufferId
 
-    /// release(buffer:
-    /// Releases a buffer created by calling `createDeviceBuffer`
+    /// `release(buffer:`
+    /// Releases a buffer created by calling `createBuffer`
     /// - Parameter buffer: the device buffer to release
     func release(_ buffer: BufferId)
 
-    /// read(buffer:type:offset:queue:
+    /// `read(buffer:type:offset:queue:`
     /// - Parameter buffer: the device buffer id to read
     /// - Parameter type: the element type of the buffer
     /// - Parameter offset: the offset in element sized units from
     /// the beginning of the buffer to read
-    /// - Parameter queue: device queue specification for data placement and
-    /// synchronization. A value of `nil` will block the caller until the data
-    /// is available in the application address space
+    /// - Parameter count: the number of elements to be accessed
+    /// - Parameter queue: device queue for data placement and synchronization
     /// - Returns: a buffer pointer to the bytes associated with the
     /// specified buffer id. The data will be synchronized
-    func read<Element>(_ buffer: BufferId, of type: Element.Type, at offset: Int,
-                       using queue: QueueId?) -> UnsafeBufferPointer<Element>
+    func read<Element>(_ buffer: BufferId, of type: Element.Type,
+                       at offset: Int, count: Int,
+                       using queue: DeviceQueue) -> UnsafeBufferPointer<Element>
 
-    /// readWrite(buffer:type:offset:queue:willOverwrite:
+    /// `readWrite(buffer:type:offset:queue:willOverwrite:`
     /// - Parameter buffer: the device buffer id to readWrite
     /// - Parameter type: the element type of the buffer
     /// - Parameter offset: the offset in element sized units from
     /// the beginning of the buffer to read
-    /// - Parameter queue: device queue specification for data placement and
-    /// synchronization. A value of `nil` will block the caller until the data
-    /// is available in the application address space
+    /// - Parameter count: the number of elements to be accessed
     /// - Parameter willOverwrite: `true` if the caller guarantees all
     /// buffer elements will be overwritten
+    /// - Parameter queue: device queue for data placement and synchronization
     /// - Returns: a mutable buffer pointer to the elements associated with the
     /// specified buffer id. The data will be synchronized so elements can be
     /// read before written, or sparsely written to
     func readWrite<Element>(_ buffer: BufferId, of type: Element.Type,
-                            at offset: Int, using queue: QueueId?,
-                            willOverwrite: Bool)
+                            at offset: Int, count: Int, willOverwrite: Bool,
+                            using queue: DeviceQueue)
         -> UnsafeMutableBufferPointer<Element>
 }
 
@@ -140,14 +157,10 @@ public class BufferId {
 }
 
 //==============================================================================
-// placeholder
-public extension ServiceMemoryManagement {
-    func cachedDeviceBuffer<Element>(for element: Element) -> BufferId { fatalError() }
-    func createDeviceBuffer<T>(of type: T.Type, count: Int) -> BufferId { fatalError() }
-    func createReference<Element>(to applicationBuffer: UnsafeBufferPointer<Element>) -> BufferId { fatalError() }
-    func createMutableReference<Element>(to applicationBuffer: UnsafeMutableBufferPointer<Element>) -> BufferId  { fatalError() }
-    func duplicate(_ buffer: BufferId, using queue: QueueId) -> BufferId  { fatalError() }
-    func release(_ buffer: BufferId)  { fatalError() }
-    func read<T>(_ buffer: BufferId, of type: T.Type, at offset: Int, using queue: QueueId?) -> UnsafeBufferPointer<T> { fatalError() }
-    func readWrite<T>(_ buffer: BufferId, of type: T.Type, at offset: Int, using queue: QueueId?, willOverwrite: Bool) -> UnsafeMutableBufferPointer<T> { fatalError() }
+/// DeviceStreamReader
+/// a reference counted stream reader
+public protocol BufferStream {
+    /// `true` if the stream can be written to
+    var isMutable: Bool { get }
+
 }

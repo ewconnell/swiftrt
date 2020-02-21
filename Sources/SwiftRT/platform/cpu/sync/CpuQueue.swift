@@ -19,7 +19,6 @@ import Foundation
 /// CpuQueue
 public struct CpuQueue: CpuQueueProtocol, Logging {
     // properties
-    public let arrayReplicaKey: Int
     public let creatorThread: Thread
     public let defaultQueueEventOptions: QueueEventOptions
     public let deviceId: Int
@@ -32,10 +31,10 @@ public struct CpuQueue: CpuQueueProtocol, Logging {
     //--------------------------------------------------------------------------
     // initializers
     @inlinable
-    public init(id: Int, parent logInfo: LogInfo, addressing: MemoryAddressing,
-                replicationKey: Int, deviceId: Int, deviceName: String)
+    public init(id: Int, parent logInfo: LogInfo,
+                addressing: MemoryAddressing,
+                deviceId: Int, deviceName: String)
     {
-        self.arrayReplicaKey = replicationKey
         self.id = id
         self.name = "q:\(id)"
         self.logInfo = logInfo.child(name)
@@ -57,7 +56,7 @@ public struct CpuQueue: CpuQueueProtocol, Logging {
     public func createEvent(options: QueueEventOptions) -> QueueEvent {
         let event = CpuQueueEvent(options: options)
         diagnostic("\(createString) QueueEvent(\(event.id)) on " +
-            "\(device.name)_\(name)", categories: .queueAlloc)
+            "\(deviceName)_\(name)", categories: .queueAlloc)
         return event
     }
     
@@ -67,7 +66,7 @@ public struct CpuQueue: CpuQueueProtocol, Logging {
     @discardableResult
     public func record(event: QueueEvent) -> QueueEvent {
         diagnostic("\(recordString) QueueEvent(\(event.id)) on " +
-            "\(device.name)_\(name)", categories: .queueSync)
+            "\(deviceName)_\(name)", categories: .queueSync)
         
         // set event time
         if defaultQueueEventOptions.contains(.timing) {
@@ -86,7 +85,7 @@ public struct CpuQueue: CpuQueueProtocol, Logging {
     public func wait(for event: QueueEvent) {
         guard !event.occurred else { return }
         diagnostic("\(waitString) QueueEvent(\(event.id)) on " +
-            "\(device.name)_\(name)", categories: .queueSync)
+            "\(deviceName)_\(name)", categories: .queueSync)
         do {
             try event.wait()
         } catch {
@@ -102,57 +101,4 @@ public struct CpuQueue: CpuQueueProtocol, Logging {
     // so it is always complete
     @inlinable
     public func waitUntilQueueIsComplete() { }
-
-    //--------------------------------------------------------------------------
-    /// perform indexed copy from source view to result view
-    @inlinable
-    public func copy<T>(from view: T, to result: inout T) where T : TensorView {
-        // if the queue is in an error state, no additional work
-        // will be queued
-        view.map(into: &result) { $0 }
-    }
-
-    //--------------------------------------------------------------------------
-    /// copies from one device array to another
-    @inlinable
-    public func copyAsync(to array: DeviceArray,
-                          from otherArray: DeviceArray) {
-        assert(!array.isReadOnly, "cannot mutate read only reference buffer")
-        assert(array.buffer.count == otherArray.buffer.count,
-               "buffer sizes don't match")
-        array.buffer.copyMemory(from: UnsafeRawBufferPointer(otherArray.buffer))
-    }
-
-    //--------------------------------------------------------------------------
-    /// copies a host buffer to a device array
-    @inlinable
-    public func copyAsync(to array: DeviceArray,
-                          from hostBuffer: UnsafeRawBufferPointer)
-    {
-        assert(!array.isReadOnly, "cannot mutate read only reference buffer")
-        assert(hostBuffer.baseAddress != nil)
-        assert(array.buffer.count == hostBuffer.count,
-               "buffer sizes don't match")
-        array.buffer.copyMemory(from: hostBuffer)
-    }
-    
-    //--------------------------------------------------------------------------
-    /// copies a device array to a host buffer
-    @inlinable
-    public func copyAsync(to hostBuffer: UnsafeMutableRawBufferPointer,
-                          from array: DeviceArray)
-    {
-        assert(hostBuffer.baseAddress != nil)
-        assert(array.buffer.count == hostBuffer.count,
-               "buffer sizes don't match")
-        hostBuffer.copyMemory(from: UnsafeRawBufferPointer(array.buffer))
-    }
-
-    //--------------------------------------------------------------------------
-    /// fills the device array with zeros
-    @inlinable
-    public func zero(array: DeviceArray) {
-        assert(!array.isReadOnly, "cannot mutate read only reference buffer")
-        array.buffer.initializeMemory(as: UInt8.self, repeating: 0)
-    }
 }

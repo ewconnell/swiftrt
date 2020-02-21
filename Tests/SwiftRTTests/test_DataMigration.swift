@@ -19,7 +19,7 @@ import SwiftRT
 
 class test_DataMigration: XCTestCase {
     override class func setUp() {
-        Current.platform = Platform<TestCpuService>()
+        Platform.service = Platform<TestCpuService>()
     }
     
     //==========================================================================

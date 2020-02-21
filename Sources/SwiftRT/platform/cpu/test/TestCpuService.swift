@@ -19,28 +19,33 @@
 /// This is used only for testing. It is an asynchronous cpu version
 /// that reports having discreet memory instead of unified to exercise
 /// memory management unit tests
-public struct TestCpuService: PlatformServiceType {
+public struct TestCpuService: PlatformService {
     // properties
     public let devices: [CpuDevice<CpuQueue>]
-    public var deviceBuffers: [[Int : BufferDescription]]
-    public let id: Int
     public let logInfo: LogInfo
-    public var masterVersion: [Int : Int]
+    public let memory: CpuMemoryManager
     public let name: String
+    public var queueStack: [QueueId]
 
     //--------------------------------------------------------------------------
     @inlinable
     public init(parent parentLogInfo: LogInfo, id: Int) {
         self.name = "TestCpuService"
-        self.logInfo = parentLogInfo.child(name)
-        self.id = id
-        self.deviceBuffers = [[Int : BufferDescription]]()
-        self.masterVersion = [Int : Int]()
+        self.logInfo = LogInfo(logWriter: Platform.log,
+                               logLevel: .error,
+                               namePath: self.name,
+                               nestingLevel: 0)
+        
+        self.memory = MemoryManager()
 
         self.devices = [
             CpuDevice<CpuQueue>(parent: logInfo, addressing: .unified,  id: 0),
             CpuDevice<CpuQueue>(parent: logInfo, addressing: .discreet, id: 1),
             CpuDevice<CpuQueue>(parent: logInfo, addressing: .discreet, id: 2),
         ]
+        
+        // select device 0 queue 0 by default
+        self.queueStack = []
+        self.queueStack = [ensureValidId(0, 0)]
     }
 }

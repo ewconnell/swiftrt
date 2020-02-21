@@ -19,7 +19,7 @@ import SwiftRT
 
 class test_Async: XCTestCase {
     override class func setUp() {
-        Current.platform = Platform<TestCpuService>()
+        Platform.service = Platform<TestCpuService>()
     }
     
     //==========================================================================
@@ -147,7 +147,7 @@ class test_Async: XCTestCase {
         Current.log.categories = [.queueSync]
         
         do {
-            let queue = Current.platform.device(0).queue(0)
+            let queue = Platform.service.device(0).queue(0)
             let event = queue.createEvent()
             queue.delay(atLeast: 0.001)
             try queue.record(event: event).wait()

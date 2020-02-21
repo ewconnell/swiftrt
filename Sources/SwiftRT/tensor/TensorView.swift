@@ -219,7 +219,7 @@ public extension TensorView {
     {
         // copy the tensor array if not uniquely held or
         // if this is a broadcasted value
-        copyIfMutates(using: Current.platform.currentQueue)
+        copyIfMutates(using: Platform.service.currentQueue)
         
         // return a mutable view against a safe dense tensor array
         return createView(at: index, extents: extents,
@@ -334,7 +334,7 @@ public extension TensorView {
         -> UnsafeBufferPointer<Element>
     {
         // if no queue is specified then use the hostQueue
-        let deviceQueue = queue ?? Current.platform.applicationQueue
+        let deviceQueue = queue ?? Platform.service.applicationQueue
         
         // sync queues
         synchronize(queue: tensorArray.lastMutatingQueue, with: deviceQueue)
@@ -374,7 +374,7 @@ public extension TensorView {
         -> UnsafeMutableBufferPointer<Element>
     {
         precondition(!tensorArray.isReadOnly, "the tensor is read only")
-        let deviceQueue = queue ?? Current.platform.applicationQueue
+        let deviceQueue = queue ?? Platform.service.applicationQueue
         
         // sync queues
         synchronize(queue: tensorArray.lastMutatingQueue,
@@ -426,7 +426,7 @@ public extension TensorView {
         _ body: @escaping (_ view: inout Self) throws -> Void) throws
     {
         assert(batchSize == nil || batchSize! <= extents[0])
-        let queue = Current.platform.applicationQueue
+        let queue = Platform.service.applicationQueue
         var fullView = self.mutableView()
         let group = DispatchGroup()
         let batchQueue = DispatchQueue(label: "hostMultiWrite",
@@ -448,7 +448,7 @@ public extension TensorView {
                     do {
                         try body(&batchView)
                     } catch {
-                        Current.platform.writeLog("\(error)")
+                        Platform.service.writeLog("\(error)")
                     }
                 }
             }

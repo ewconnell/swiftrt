@@ -1,5 +1,5 @@
 //******************************************************************************
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,154 +13,163 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 import Foundation
 import Real
 
 //==============================================================================
-// DeviceFunctions
+/// DeviceFunctions
 public protocol DeviceFunctions {
     /// the thread that created this queue. Used to detect accidental access
     var creatorThread: Thread { get }
-
+    
     //--------------------------------------------------------------------------
+    /// abs
+    func abs<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
 
     /// add
-    func newAdd<T, R>(lhs: T, rhs: T, result: inout R) where
+    func add<T, R>(lhs: T, rhs: T, result: inout R) where
         T: ShapedBuffer, T.Element: AdditiveArithmetic,
         R: MutableShapedBuffer, R.Element == T.Element
 
-    func mapOp<LHS, RHS, R>(
-        _ lhs: LHS, _ rhs: RHS, _ result: inout R,
-        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
-        LHS: ShapedBuffer, RHS: ShapedBuffer, R: MutableShapedBuffer
-    
-    //--------------------------------------------------------------------------
-    // generic helpers
-    /// mapOp 1
-    /// generically maps tensor elements
-    func mapOp<T, R>(_ x: T, _ result: inout R,
-                     _ op: @escaping (T.Element) -> R.Element) where
-        T: TensorView, R: TensorView
-    /// mapOp 2
-    /// generically combines two tensors
-    func mapOp<LHS, RHS, R>(
-        _ lhs: LHS, _ rhs: RHS, _ result: inout R,
-        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
-        LHS: TensorView, RHS: TensorView, R: TensorView
-    /// mapOp 3
-    /// generically combines three tensors
-    func mapOp<T1, T2, T3, R>(
-        _ a: T1, _ b: T2, _ c: T3, _ result: inout R,
-        _ op: @escaping (T1.Element, T2.Element, T3.Element) -> R.Element)
-        where T1: TensorView, T2: TensorView, T3: TensorView, R: TensorView
-    /// mapOp 3R2
-    func mapOp<T1, T2, T3, R>(
-        _ a: T1, _ b: T2, _ c: T3, _ result1: inout R,  _ result2: inout R,
-        _ op: @escaping
-        (T1.Element, T2.Element, T3.Element) -> (R.Element, R.Element))
-        where T1: TensorView, T2: TensorView, T3: TensorView, R: TensorView
-    /// inPlaceOp
-    /// does in place op on a mutable collection
-    func inPlaceOp<T>(_ result: inout T,
-                      _ op: @escaping (T.Element) -> T.Element) where
-        T: MutableCollection
-    /// reductionOp
-    /// does a tensor reduction op
-    func reductionOp<T, R>(
-        _ x: T, _ result: inout R,
-        _ op: @escaping (R.Element, T.Element) -> R.Element) where
-        T: Collection, R: MutableCollection
-    
-    //--------------------------------------------------------------------------
-    // ops
-    /// Computes the absolute value of the specified TensorView element-wise.
-    func abs<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
-    /// add
-    func add<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: AdditiveArithmetic
     /// and
-    func and<T>(lhs: T, rhs: T, result: inout T.BoolView) where
-        T: TensorView, T.Element == Bool
+    func and<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element == Bool,
+        R: MutableShapedBuffer, R.Element == Bool
+
     /// cast
-    func cast<T, U>(from view: T, to result: inout U) where
-        T: TensorView, T.Element: AnyConvertable,
-        U: TensorView, U.Element: AnyConvertable
+    func cast<T, R>(from buffer: T, to result: inout R) where
+        T: ShapedBuffer, T.Element: AnyConvertable,
+        R: MutableShapedBuffer, R.Element: AnyConvertable
+
     /// concat
-    func concat<T>(tensors: [T], alongAxis axis: Int, result: inout T) where
-        T: TensorView
+    func concat<T, R>(buffers: [T], alongAxis axis: Int, result: inout R) where
+        T: ShapedBuffer,
+        R: MutableShapedBuffer, R.Element == T.Element
+
     /// delay
     func delay(atLeast interval: TimeInterval)
+
     /// div
-    func div<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: AlgebraicField
+    func div<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: AlgebraicField,
+        R: MutableShapedBuffer, R.Element == T.Element
+
     /// elementsAlmostEqual
-    func elementsAlmostEqual<T>(lhs: T, rhs: T, tolerance: T.Element,
-                                result: inout T.BoolView) where
-        T: TensorView, T.Element: SignedNumeric & Comparable
+    func elementsAlmostEqual<T, R>(lhs: T, rhs: T, tolerance: T.Element,
+                                result: inout R) where
+        T: ShapedBuffer, T.Element: SignedNumeric & Comparable,
+        R: MutableShapedBuffer, R.Element == Bool
+
     /// equal
-    func equal<T>(lhs: T, rhs: T, result: inout T.BoolView) where T: TensorView
+    func equal<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer,
+        R: MutableShapedBuffer, R.Element == Bool
+
     /// exp
-    func exp<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
+    func exp<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+
     /// fill(result:with element:
-    func fill<T>(result: inout T, with element: T.Element) where T: TensorView
+    func fill<Element, R>(result: inout R, with element: Element) where
+        R: MutableShapedBuffer, R.Element == Element
+
     /// fill(result:with range:
-    func fill<T, R>(result: inout T, with range: R) where
-        T: TensorView,
-        R: StridedRangeExpression, R.Bound == T.Element
+    func fill<T, R>(result: inout R, with range: T) where
+        T: Collection,
+        R: MutableShapedBuffer, R.Element == T.Element
+
     /// greater
-    func greater<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable
+    func greater<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Comparable,
+        R: MutableShapedBuffer, R.Element == Bool
+    
     /// greaterOrEqual
-    func greaterOrEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable
+    func greaterOrEqual<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Comparable,
+        R: MutableShapedBuffer, R.Element == Bool
+    
     /// less
-    func less<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable
+    func less<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Comparable,
+        R: MutableShapedBuffer, R.Element == Bool
+    
     /// lessOrEqual
-    func lessOrEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable
+    func lessOrEqual<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Comparable,
+        R: MutableShapedBuffer, R.Element == Bool
+    
     /// log
-    func log<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
+    func log<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    
     /// Computes the element-wise maximum of two tensors.
-    func max<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: Comparable
+    func max<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Comparable,
+        R: MutableShapedBuffer, R.Element == T.Element
+    
     /// Computes the element-wise minimum of two tensors.
-    func min<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: Comparable
+    func min<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Comparable,
+        R: MutableShapedBuffer, R.Element == T.Element
+    
     /// mul
-    func mul<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: Numeric
+    func mul<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Numeric,
+        R: MutableShapedBuffer, R.Element == T.Element
+    
     /// neg
     /// returns the element-wise negation of `x`
-    func neg<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: SignedNumeric
+    func neg<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: SignedNumeric,
+        R: MutableShapedBuffer, R.Element == T.Element
+    
     /// notEqual
-    func notEqual<T>(lhs: T, rhs: T, result: inout T.BoolView) where
-        T: TensorView
+    func notEqual<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer,
+        R: MutableShapedBuffer, R.Element == Bool
+    
     /// or
-    func or<T>(lhs: T, rhs: T, result: inout T.BoolView) where
-        T: TensorView, T.Element == Bool
+    func or<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element == Bool,
+        R: MutableShapedBuffer, R.Element == Bool
+    
     /// pow
-    func pow<T>(x: T, y: T, result: inout T) where
-        T: TensorView, T.Element: Real
+    func pow<T, R>(x: T, y: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    
     /// replace
-    func replace<T>(x: T, with y: T, where condition: T.BoolView,
-                    result: inout T) where T: TensorView
+    func replace<T, C, R>(x: T, with y: T, where condition: C,
+                          result: inout R) where
+        T: ShapedBuffer,
+        C: ShapedBuffer, C.Element == Bool,
+        R: MutableShapedBuffer, R.Element == T.Element
+    
     /// sign
-    func sign<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
+    func sign<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    
     /// subtract
-    func subtract<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: AdditiveArithmetic
+    func subtract<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: AdditiveArithmetic,
+        R: MutableShapedBuffer, R.Element == T.Element
+    
     /// sqrt
-    func sqrt<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
+    func sqrt<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    
     /// squared
-    func squared<T>(x: T, result: inout T)
-        where T: TensorView, T.Element: Numeric
+    func squared<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Numeric,
+        R: MutableShapedBuffer, R.Element == T.Element
+    
     /// reduce
     /// Reduces `x` along the specified axes
     /// - Parameter x: value tensor
@@ -169,282 +178,281 @@ public protocol DeviceFunctions {
     /// - Parameter opNext: the operation to perform on pairs of elements
     /// - Parameter opFinal: the operation to perform on the final result
     /// - Precondition: Each value in `axes` must be in the range `-rank..<rank`.
-    func reduce<T>(x: T,
-                   into result: inout T,
+    func reduce<T, R>(x: T,
+                   into result: inout R,
                    opId: ReductionOp,
                    opNext: @escaping (T.Element, T.Element) -> T.Element,
-                   opFinal: ReduceOpFinal<T>?)
-        where T: TensorView
+                   opFinal: ReduceOpFinal<T>?) where
+        T: ShapedBuffer,
+        R: MutableShapedBuffer, R.Element == T.Element
     
     //==========================================================================
     // derivative function declarations
     
     /// vjpMinMax
-    func vjpMinMax<T>(
-        x: T, y: T, scale: T, op: @escaping (T.Element, T.Element) -> Bool,
-        resultTrue: inout T, resultFalse: inout T)
-        where T: TensorView, T.Element: Comparable & Numeric
-}
-
-//==============================================================================
-/// NanPropagation
-public enum NanPropagation: Int, Codable {
-    case propagate, noPropagate
-}
-
-//==============================================================================
-/// ReductionOp
-public enum ReductionOp: Int, Codable {
-    case add
-    case mean
-    case mul
-    case min
-    case max
-    case amax
-    case asum
-    case sqrtSumSquares
-    case mulNonZeros
-    case compare
-}
-
-public typealias ReduceOpFinal<T: TensorView> = (T.Element) -> T.Element
-
-//==============================================================================
-// DeviceQueue default delegating implementations
-public extension DeviceFunctions where Self: DeviceQueue {
-    //--------------------------------------------------------------------------
-
-    /// add
-    func newAdd<T, R>(lhs: T, rhs: T, result: inout R) where
-        T: ShapedBuffer, T.Element: AdditiveArithmetic,
+    func vjpMinMax<T, R>(
+        x: T, y: T, scale: T,
+        op: @escaping (T.Element, T.Element) -> Bool,
+        resultTrue: inout R, resultFalse: inout R)
+        where
+        T: ShapedBuffer, T.Element: Comparable & Numeric,
         R: MutableShapedBuffer, R.Element == T.Element
-    {
-        cpu_newAdd(lhs: lhs, rhs: rhs, result: &result)
-    }
-    
-    func mapOp<LHS, RHS, R>(
-        _ lhs: LHS, _ rhs: RHS, _ result: inout R,
-        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
-        LHS: ShapedBuffer, RHS: ShapedBuffer, R: MutableShapedBuffer
+}
+
+
+//==============================================================================
+// DeviceQueue default cpu delegating implementations
+public extension DeviceFunctions where Self: DeviceQueue {
+    /// abs
+    func abs<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
     {
         
     }
-    
-    //--------------------------------------------------------------------------
-    // mapOp 1
-    /// generically maps a tensor
-    func mapOp<T, R>(_ x: T, _ result: inout R,
-                     _ op: @escaping (T.Element) -> R.Element) where
-        T: TensorView, R: TensorView
+
+    /// add
+    func add<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: AdditiveArithmetic,
+        R: MutableShapedBuffer, R.Element == T.Element
     {
-        cpu_mapOp(x, &result, op)
+        
     }
-    // mapOp 2
-    /// generically combines two tensors
-    func mapOp<LHS, RHS, R>(
-        _ lhs: LHS, _ rhs: RHS, _ result: inout R,
-        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
-        LHS: TensorView, RHS: TensorView, R: TensorView
-    {
-        cpu_mapOp(lhs, rhs, &result, op)
-    }
-    // mapOp 3
-    /// generically combines three tensors
-    func mapOp<T1, T2, T3, R>(
-        _ a: T1, _ b: T2, _ c: T3, _ result: inout R,
-        _ op: @escaping (T1.Element, T2.Element, T3.Element) -> R.Element) where
-        T1: TensorView, T2: TensorView, T3: TensorView, R: TensorView
-    {
-        cpu_mapOp(a, b, c, &result, op)
-    }
-    // mapOp 3R2
-    /// generically combines three tensors
-    
-    func mapOp<T1, T2, T3, R>(
-        _ a: T1, _ b: T2, _ c: T3, _ result1: inout R,  _ result2: inout R,
-        _ op: @escaping
-        (T1.Element, T2.Element, T3.Element) -> (R.Element, R.Element))
-        where T1: TensorView, T2: TensorView, T3: TensorView, R: TensorView
-    {
-        cpu_mapOp(a, b, c, &result1, &result2, op)
-    }
-    // inPlaceOp
-    func inPlaceOp<T>(_ result: inout T,
-                      _ op: @escaping (T.Element) -> T.Element) where
-        T: MutableCollection
-    {
-        cpu_inPlaceOp(&result, op)
-    }
-    // reductionOp
-    func reductionOp<T, R>(
-        _ x: T, _ result: inout R,
-        _ op: @escaping (R.Element, T.Element) -> R.Element) where
-        T: Collection, R: MutableCollection
-    {
-        cpu_reductionOp(x, &result, op)
-    }
-    
-    //==========================================================================
-    /// abs
-    func abs<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real {
-            cpu_abs(x: x, result: &result)
-    }
-    // add
-    func add<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: AdditiveArithmetic {
-            cpu_add(lhs: lhs, rhs: rhs, result: &result)
-    }
+
     /// and
-    func and<T>(lhs: T, rhs: T, result: inout T.BoolView) where
-        T: TensorView, T.Element == Bool
+    func and<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element == Bool,
+        R: MutableShapedBuffer, R.Element == Bool
     {
-        cpu_and(lhs: lhs, rhs: rhs, result: &result)
+        
     }
+
     /// cast
-    func cast<T, U>(from view: T, to result: inout U) where
-        T: TensorView, T.Element: AnyConvertable,
-        U: TensorView, U.Element: AnyConvertable {
-            cpu_cast(from: view, to: &result)
+    func cast<T, R>(from buffer: T, to result: inout R) where
+        T: ShapedBuffer, T.Element: AnyConvertable,
+        R: MutableShapedBuffer, R.Element: AnyConvertable
+    {
+        
     }
-    // concat
-    func concat<T>(tensors: [T], alongAxis axis: Int, result: inout T)
-        where T: TensorView {
-            cpu_concat(tensors: tensors, alongAxis: axis, result: &result)
+
+    /// concat
+    func concat<T, R>(buffers: [T], alongAxis axis: Int, result: inout R) where
+        T: ShapedBuffer,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
     }
+
     /// delay
-    func delay(atLeast interval: TimeInterval) {
-        cpu_delay(atLeast: interval)
+    func delay(atLeast interval: TimeInterval)
+    {
+        
     }
+
     /// div
-    func div<T>(lhs: T, rhs: T, result: inout T)
-        where T: TensorView, T.Element: AlgebraicField {
-            cpu_div(lhs: lhs, rhs: rhs, result: &result)
+    func div<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: AlgebraicField,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
     }
+
     /// elementsAlmostEqual
-    func elementsAlmostEqual<T>(lhs: T, rhs: T, tolerance: T.Element,
-                                result: inout T.BoolView)
-        where T: TensorView, T.Element: SignedNumeric & Comparable {
-            cpu_elementsAlmostEqual(lhs: lhs, rhs: rhs, tolerance: tolerance,
-                                    result: &result)
+    func elementsAlmostEqual<T, R>(lhs: T, rhs: T, tolerance: T.Element,
+                                result: inout R) where
+        T: ShapedBuffer, T.Element: SignedNumeric & Comparable,
+        R: MutableShapedBuffer, R.Element == Bool
+    {
+        
     }
+
     /// equal
-    func equal<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView {
-            cpu_equal(lhs: lhs, rhs: rhs, result: &result)
+    func equal<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer,
+        R: MutableShapedBuffer, R.Element == Bool
+    {
+        
     }
+
     /// exp
-    func exp<T>(x: T, result: inout T)
-        where T: TensorView, T.Element: Real {
-            cpu_exp(x: x, result: &result)
+    func exp<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
     }
-    /// fill(result:with:
-    func fill<T>(result: inout T, with element: T.Element) where T: TensorView {
-        cpu_fill(result: &result, with: element)
+
+    /// fill(result:with element:
+    func fill<Element, R>(result: inout R, with element: Element) where
+        R: MutableShapedBuffer, R.Element == Element
+    {
+        
     }
+
     /// fill(result:with range:
-    func fill<T, R>(result: inout T, with range: R) where
-        T: TensorView,
-        R: StridedRangeExpression, R.Bound == T.Element {
-            cpu_fill(result: &result, with: range)
+    func fill<T, R>(result: inout R, with range: T) where
+        T: Collection,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
     }
-    /// less
-    func less<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable {
-            cpu_less(lhs: lhs, rhs: rhs, result: &result)
-    }
-    /// lessOrEqual
-    func lessOrEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable {
-            cpu_lessOrEqual(lhs: lhs, rhs: rhs, result: &result)
-    }
+
     /// greater
-    func greater<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable {
-            cpu_greater(lhs: lhs, rhs: rhs, result: &result)
+    func greater<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Comparable,
+        R: MutableShapedBuffer, R.Element == Bool
+    {
+        
     }
+
     /// greaterOrEqual
-    func greaterOrEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView, T.Element: Comparable {
-            cpu_greaterOrEqual(lhs: lhs, rhs: rhs, result: &result)
+    func greaterOrEqual<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Comparable,
+        R: MutableShapedBuffer, R.Element == Bool
+    {
+        
     }
+
+    /// less
+    func less<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Comparable,
+        R: MutableShapedBuffer, R.Element == Bool
+    {
+        
+    }
+
+    /// lessOrEqual
+    func lessOrEqual<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Comparable,
+        R: MutableShapedBuffer, R.Element == Bool
+    {
+        
+    }
+
     /// log
-    func log<T>(x: T, result: inout T)
-        where T: TensorView, T.Element: Real {
-            cpu_log(x: x, result: &result)
+    func log<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
     }
+
     /// Computes the element-wise maximum of two tensors.
-    func max<T>(lhs: T, rhs: T, result: inout T)
-        where T: TensorView, T.Element: Comparable {
-            cpu_max(lhs: lhs, rhs: rhs, result: &result)
+    func max<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Comparable,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
     }
+
     /// Computes the element-wise minimum of two tensors.
-    func min<T>(lhs: T, rhs: T, result: inout T)
-        where T: TensorView, T.Element: Comparable {
-            cpu_min(lhs: lhs, rhs: rhs, result: &result)
+    func min<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Comparable,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
     }
+
     /// mul
-    func mul<T>(lhs: T, rhs: T, result: inout T)
-        where T: TensorView, T.Element: Numeric {
-            cpu_mul(lhs: lhs, rhs: rhs, result: &result)
+    func mul<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Numeric,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
     }
+
     /// neg
-    func neg<T>(x: T, result: inout T)
-        where T: TensorView, T.Element: SignedNumeric {
-            cpu_neg(x: x, result: &result)
+    /// returns the element-wise negation of `x`
+    func neg<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: SignedNumeric,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
     }
+
     /// notEqual
-    func notEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
-        where T: TensorView {
-            cpu_notEqual(lhs: lhs, rhs: rhs, result: &result)
+    func notEqual<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer,
+        R: MutableShapedBuffer, R.Element == Bool
+    {
+        
     }
+
     /// or
-    func or<T>(lhs: T, rhs: T, result: inout T.BoolView) where
-        T: TensorView, T.Element == Bool
+    func or<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element == Bool,
+        R: MutableShapedBuffer, R.Element == Bool
     {
-        cpu_or(lhs: lhs, rhs: rhs, result: &result)
+        
     }
+
     /// pow
-    func pow<T>(x: T, y: T, result: inout T)
-        where T: TensorView, T.Element: Real {
-            cpu_pow(x: x, y: y, result: &result)
-    }
-    /// replace
-    func replace<T>(x: T, with y: T, where condition: T.BoolView,
-                    result: inout T) where T: TensorView {
-        cpu_replace(x: x, with: y, where: condition, result: &result)
-    }
-    /// sign
-    func sign<T>(x: T, result: inout T)
-        where T: TensorView, T.Element: Real {
-            cpu_sign(x: x, result: &result)
-    }
-    /// subtract
-    func subtract<T>(lhs: T, rhs: T, result: inout T)
-        where T: TensorView, T.Element: AdditiveArithmetic {
-            cpu_subtract(lhs: lhs, rhs: rhs, result: &result)
-    }
-    /// sqrt
-    func sqrt<T>(x: T, result: inout T)
-        where T: TensorView, T.Element: Real {
-            cpu_sqrt(x: x, result: &result)
-    }
-    /// squared
-    func squared<T>(x: T, result: inout T)
-        where T: TensorView, T.Element: Numeric
+    func pow<T, R>(x: T, y: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
     {
-        cpu_squared(x: x, result: &result)
+        
     }
+
+    /// replace
+    func replace<T, C, R>(x: T, with y: T, where condition: C,
+                          result: inout R) where
+        T: ShapedBuffer,
+        C: ShapedBuffer, C.Element == Bool,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
+    }
+
+    /// sign
+    func sign<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
+    }
+
+    /// subtract
+    func subtract<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: ShapedBuffer, T.Element: AdditiveArithmetic,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
+    }
+
+    /// sqrt
+    func sqrt<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
+    }
+
+    /// squared
+    func squared<T, R>(x: T, result: inout R) where
+        T: ShapedBuffer, T.Element: Numeric,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
+    }
+
     /// reduce
-    func reduce<T>(x: T,
-                   into result: inout T,
+    /// Reduces `x` along the specified axes
+    /// - Parameter x: value tensor
+    /// - Parameter result: contains the initial value of the result on entry
+    ///  and then final reduction result on return
+    /// - Parameter opNext: the operation to perform on pairs of elements
+    /// - Parameter opFinal: the operation to perform on the final result
+    /// - Precondition: Each value in `axes` must be in the range `-rank..<rank`.
+    func reduce<T, R>(x: T,
+                   into result: inout R,
                    opId: ReductionOp,
                    opNext: @escaping (T.Element, T.Element) -> T.Element,
-                   opFinal: ReduceOpFinal<T>?)
-        where T: TensorView
+                   opFinal: ReduceOpFinal<T>?) where
+        T: ShapedBuffer,
+        R: MutableShapedBuffer, R.Element == T.Element
     {
-        cpu_reduce(x: x, into: &result, opId: opId,
-                   opNext: opNext, opFinal: opFinal)
+        
     }
 }
 
@@ -452,12 +460,16 @@ public extension DeviceFunctions where Self: DeviceQueue {
 // DeviceQueue default derivative implementations
 public extension DeviceFunctions where Self: DeviceQueue {
     /// vjpMinMax
-    func vjpMinMax<T>(
-        x: T, y: T, scale: T, op: @escaping (T.Element, T.Element) -> Bool,
-        resultTrue: inout T, resultFalse: inout T)
-        where T: TensorView, T.Element: Comparable & Numeric
+    func vjpMinMax<T, R>(
+        x: T, y: T, scale: T,
+        op: @escaping (T.Element, T.Element) -> Bool,
+        resultTrue: inout R, resultFalse: inout R)
+        where
+        T: ShapedBuffer, T.Element: Comparable & Numeric,
+        R: MutableShapedBuffer, R.Element == T.Element
     {
         cpu_vjpMinMax(x: x, y: y, scale: scale, op: op,
                       resultTrue: &resultTrue, resultFalse: &resultFalse)
     }
 }
+
