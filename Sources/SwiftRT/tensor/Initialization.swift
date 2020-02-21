@@ -46,7 +46,7 @@ public extension TensorView {
     @inlinable
     init() {
         self.init(shape: Shape(extents: Shape.zeros),
-                  elementBuffer: TensorArray(),
+                  elementBuffer: BufferId(-1),
                   offset: 0,
                   isMutable: false)
     }
@@ -74,8 +74,7 @@ public extension TensorView {
     init(concatenating tensors: [Self], alongAxis axis: Int = 0,
          name: String? = nil)
     {
-        self = Platform.service.concat(tensors: tensors, alongAxis: axis,
-                                       name: name)
+        self = Platform.service.concat(tensors, along: axis, name)
     }
     
     //--------------------------------------------------------------------------

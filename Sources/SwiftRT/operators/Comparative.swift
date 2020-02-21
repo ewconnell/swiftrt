@@ -25,10 +25,12 @@ extension PlatformService {
         where T: DifferentiableTensorView, T.Element: Comparable
     {
         var resultTrue = x.createDense()
+        var trueBuffer = write(&resultTrue)
         var resultFalse = x.createDense()
-        currentQueue.vjpMinMax(
-            x: x, y: y, scale: v, op: op,
-            resultTrue: &resultTrue, resultFalse: &resultFalse)
+        var falseBuffer = write(&resultFalse)
+        
+        currentQueue.vjpMinMax(read(x), read(y), read(v), op,
+                               &trueBuffer, &falseBuffer)
         return (resultTrue, resultFalse)
     }
 }
@@ -47,36 +49,37 @@ public func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
 public func and<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
     where T: TensorView, T.Element == Bool
 {
-    Platform.service.and(lhs, rhs)
+    Platform.service.and(lhs, T(repeating: rhs, like: lhs))
 }
 
 @inlinable
-func and<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
+public func and<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
     where T: TensorView, T.Element == Bool
 {
-    Platform.service.and(lhs, rhs)
+    Platform.service.and(T(repeating: lhs, like: rhs), rhs)
 }
 
 extension PlatformService {
     @inlinable
-    func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+    public func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element == Bool
     {
         assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
-        currentQueue.and(lhs: lhs, rhs: rhs, result: &result)
+        var resultBuffer = write(&result)
+        currentQueue.and(read(lhs), read(rhs), &resultBuffer)
         return result
     }
-    
+
     @inlinable
-    func and<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
+    public func and<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
         where T: TensorView, T.Element == Bool
     {
         and(lhs, T(repeating: rhs, like: lhs))
     }
-    
+
     @inlinable
-    func and<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
+    public func and<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
         where T: TensorView, T.Element == Bool
     {
         and(T(repeating: lhs, like: rhs), rhs)

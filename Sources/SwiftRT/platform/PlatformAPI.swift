@@ -35,51 +35,52 @@ public protocol PlatformAPI {
 
     //--------------------------------------------------------------------------
     /// abs
-    func abs<T>(x: T, result: inout T) where
+    func abs<T>(_ x: T) -> T where
         T: TensorView, T.Element: Real
     
     /// add
-    func add<T>(lhs: T, rhs: T, result: inout T) where
+    func add<T>(_ lhs: T, _ rhs: T) -> T where
         T: TensorView, T.Element: AdditiveArithmetic
     
     /// and
-    func and<T>(lhs: T, rhs: T, result: inout T.BoolView) where
+    func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element == Bool
     
     /// cast
-    func cast<T, U>(from view: T, to result: inout U) where
+    func cast<T, U>(_ other: U) -> T where
         T: TensorView, T.Element: AnyConvertable,
         U: TensorView, U.Element: AnyConvertable
     
     /// concat
-    func concat<T>(tensors: [T], alongAxis axis: Int, name: String?) -> T where
+    func concat<T>(_ tensors: [T], along axis: Int, _ name: String?) -> T where
         T: TensorView
     
     /// copy  performs an indexed copy
     func copy<T>(from x: T, to result: inout T) where T: TensorView
     
     /// delay
-    func delay(atLeast interval: TimeInterval)
+    func delay(_ interval: TimeInterval)
     
     /// div
-    func div<T>(lhs: T, rhs: T, result: inout T) where
+    func div<T>(_ lhs: T, _ rhs: T) -> T where
         T: TensorView, T.Element: AlgebraicField
     
     /// elementsAlmostEqual
-    func elementsAlmostEqual<T>(lhs: T, rhs: T, tolerance: T.Element,
-                                result: inout T.BoolView) where
+    func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T,
+                                _ tolerance: T.Element) -> T.BoolView where
         T: TensorView, T.Element: SignedNumeric & Comparable
     
     /// equal
-    func equal<T>(lhs: T, rhs: T, result: inout T.BoolView) where
+    func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView
     
     /// exp
-    func exp<T>(x: T, result: inout T) where
+    func exp<T>(_ x: T) -> T where
         T: TensorView, T.Element: Real
     
     /// fill(result:with element:
-    func fill<T>(_ result: inout T, with element: T.Element) where T: TensorView
+    func fill<T>(_ result: inout T, with element: T.Element)
+        where T: TensorView
     
     /// fill(result:with range:
     func fill<T, R>(_ result: inout T, with range: R) where
@@ -87,72 +88,72 @@ public protocol PlatformAPI {
         R: StridedRangeExpression, R.Bound == T.Element
     
     /// greater
-    func greater<T>(lhs: T, rhs: T, result: inout T.BoolView)
+    func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView
         where T: TensorView, T.Element: Comparable
     
     /// greaterOrEqual
-    func greaterOrEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
+    func greaterOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView
         where T: TensorView, T.Element: Comparable
     
     /// less
-    func less<T>(lhs: T, rhs: T, result: inout T.BoolView)
+    func less<T>(_ lhs: T, _ rhs: T, result: inout T.BoolView)
         where T: TensorView, T.Element: Comparable
     
     /// lessOrEqual
-    func lessOrEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
+    func lessOrEqual<T>(_ lhs: T, _ rhs: T) ->T.BoolView
         where T: TensorView, T.Element: Comparable
     
     /// log
-    func log<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
+    func log<T>(_ x: T) -> T
+        where T: TensorView, T.Element: Real
     
     /// Computes the element-wise maximum of two tensors.
-    func max<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: Comparable
+    func max<T>(_ lhs: T, _ rhs: T) -> T
+         where T: TensorView, T.Element: Comparable
     
     /// Computes the element-wise minimum of two tensors.
-    func min<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: Comparable
+    func min<T>(_ lhs: T, _ rhs: T) -> T
+        where T: TensorView, T.Element: Comparable
     
     /// mul
-    func mul<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: Numeric
+    func mul<T>(_ lhs: T, _ rhs: T) -> T
+        where T: TensorView, T.Element: Numeric
     
     /// neg
     /// returns the element-wise negation of `x`
-    func neg<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: SignedNumeric
+    func neg<T>(_ x: T) -> T
+        where T: TensorView, T.Element: SignedNumeric
     
     /// notEqual
-    func notEqual<T>(lhs: T, rhs: T, result: inout T.BoolView) where
-        T: TensorView
+    func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView
+        where T: TensorView
     
     /// or
-    func or<T>(lhs: T, rhs: T, result: inout T.BoolView) where
-        T: TensorView, T.Element == Bool
+    func or<T>(_ lhs: T, _ rhs: T) -> T.BoolView
+        where T: TensorView, T.Element == Bool
     
     /// pow
-    func pow<T>(x: T, y: T, result: inout T) where
-        T: TensorView, T.Element: Real
+    func pow<T>(_ x: T, _ y: T) -> T
+        where T: TensorView, T.Element: Real
     
     /// replace
-    func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T where
-        T: TensorView
+    func replace<T>(_ x: T, with y: T, where condition: T.BoolView) -> T
+        where T: TensorView
     
     /// sign
-    func sign<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
+    func sign<T>(_ x: T) -> T
+        where T: TensorView, T.Element: Real
     
     /// subtract
-    func subtract<T>(lhs: T, rhs: T, result: inout T) where
-        T: TensorView, T.Element: AdditiveArithmetic
+    func subtract<T>(_ lhs: T, _ rhs: T) -> T
+        where T: TensorView, T.Element: AdditiveArithmetic
     
     /// sqrt
-    func sqrt<T>(x: T, result: inout T) where
-        T: TensorView, T.Element: Real
+    func sqrt<T>(_ x: T) -> T
+        where T: TensorView, T.Element: Real
     
     /// squared
-    func squared<T>(x: T, result: inout T)
+    func squared<T>(_ x: T) -> T
         where T: TensorView, T.Element: Numeric
     
     /// reduce
@@ -163,20 +164,18 @@ public protocol PlatformAPI {
     /// - Parameter opNext: the operation to perform on pairs of elements
     /// - Parameter opFinal: the operation to perform on the final result
     /// - Precondition: Each value in `axes` must be in the range `-rank..<rank`.
-    func reduce<T>(x: T,
-                   into result: inout T,
-                   opId: ReductionOp,
-                   opNext: @escaping (T.Element, T.Element) -> T.Element,
-                   opFinal: ReduceOpFinal<T>?)
+    func reduce<T>(_ x: T,
+                   _ opId: ReductionOp,
+                   _ opNext: @escaping (T.Element, T.Element) -> T.Element,
+                   _ opFinal: ReduceOpFinal<T>?) -> T
         where T: TensorView
     
     //==========================================================================
     // derivative function declarations
     
     /// vjpMinMax
-    func vjpMinMax<T>(
-        x: T, y: T, scale: T, op: @escaping (T.Element, T.Element) -> Bool,
-        resultTrue: inout T, resultFalse: inout T)
+    func vjpMinMax<T>(_ x: T, _ y: T, _ scale: T,
+                      _ op: @escaping (T.Element, T.Element) -> Bool) -> (T, T)
         where T: TensorView, T.Element: Comparable & Numeric
 }
 

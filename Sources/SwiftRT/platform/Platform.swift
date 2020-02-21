@@ -130,7 +130,7 @@ public extension PlatformService {
     /// - Parameter willOverwrite: `true` if all elements will be written
     /// - Returns: an `ElementBuffer` that can be used to iterate the shape
     @inlinable
-    func write<T>(_ tensor: T, willOverwrite: Bool = true)
+    func write<T>(_ tensor: inout T, willOverwrite: Bool = true)
         -> MutableElementBuffer<T.Element, T.Shape> where T: TensorView
     {
         let buffer = memory.readWrite(tensor.elementBuffer,
@@ -155,8 +155,8 @@ public extension PlatformService {
     func createResult<T>(like other: T, with shape: T.Shape, name: String? = nil)
         -> (T, MutableElementBuffer<T.Element, T.Shape>) where T: TensorView
     {
-        let result = other.createDense(with: shape.dense, name: name)
-        return (result, write(result))
+        var result = other.createDense(with: shape.dense, name: name)
+        return (result, write(&result))
     }
 
     //--------------------------------------------------------------------------

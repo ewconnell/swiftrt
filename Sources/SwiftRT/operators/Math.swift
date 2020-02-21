@@ -35,12 +35,9 @@ extension PlatformService {
         T: TensorView, T.Element: AnyConvertable,
         U: TensorView, U.Element: AnyConvertable, U.Shape == T.Shape
     {
-        let name = String(describing: T.self)
-        let array = TensorArray<T.Element>(count: other.count, name: name)
-        var result = T(shape: other.shape.dense, elementBuffer: array,
-                       offset: 0, isMutable: false)
-        
-        currentQueue.cast(from: other, to: &result)
+        var result = T.create(other.shape.dense, nil)
+        var resultBuffer = write(&result)
+        currentQueue.cast(from: read(other), to: &resultBuffer)
         return result
     }
 }

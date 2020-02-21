@@ -23,13 +23,13 @@ import Foundation
 public func concat<T>(tensors: [T], alongAxis axis: Int = 0,
                       name: String? = nil) -> T where T: TensorView
 {
-    Platform.service.concat(tensors: tensors, alongAxis: axis, name: name)
+    Platform.service.concat(tensors, along: axis, name)
 }
 
 extension PlatformService {
     @inlinable
-    func concat<T>(tensors: [T], alongAxis axis: Int = 0,
-                   name: String? = nil) -> T where T: TensorView
+    public func concat<T>(tensors: [T], along axis: Int = 0,
+                          name: String? = nil) -> T where T: TensorView
     {
         assert(tensors.count > 1)
         // compute joined shape and create result buffer
@@ -40,8 +40,7 @@ extension PlatformService {
                                                   with: joinedShape,
                                                   name: name)
 
-        currentQueue.concat(buffers: tensors.map { read($0) },
-                            alongAxis: axis, result: &resultBuffer)
+        currentQueue.concat(tensors.map {read($0)}, along: axis, &resultBuffer)
         return result
     }
 }
@@ -51,8 +50,7 @@ public extension TensorView {
     func concat(_ others: Self..., alongAxis axis: Int = 0,
                 name: String? = nil) -> Self
     {
-        Platform.service.concat(tensors: [self] + others,
-                                alongAxis: axis, name: name)
+        Platform.service.concat([self] + others, along: axis, name)
     }
 }
 
@@ -70,7 +68,7 @@ extension PlatformService {
     @inlinable
     public func copy<T>(from view: T, to result: inout T) where T: TensorView
     {
-        var resultBuffer = write(result)
+        var resultBuffer = write(&result)
         currentQueue.copy(from: read(view), to: &resultBuffer)
     }
 }
@@ -81,13 +79,13 @@ extension PlatformService {
 /// - Parameter interval: the number of seconds to delay
 @inlinable
 public func delayQueue(atLeast interval: TimeInterval) {
-    Platform.service.delay(atLeast: interval)
+    Platform.service.delay(interval)
 }
 
 extension PlatformService {
     @inlinable
     public func delayQueue(atLeast interval: TimeInterval) {
-        currentQueue.delay(atLeast: interval)
+        currentQueue.delay(interval)
     }
 }
 
@@ -114,8 +112,8 @@ extension PlatformService {
     func fill<T>(_ result: inout T, with element: T.Element)
         where T: TensorView
     {
-        var resultBuffer = write(result)
-        currentQueue.fill(result: &resultBuffer, with: element)
+        var resultBuffer = write(&result)
+        currentQueue.fill(&resultBuffer, with: element)
     }
     
     /// fill(result:with range:
@@ -126,8 +124,8 @@ extension PlatformService {
         R: StridedRangeExpression, R.Bound == T.Element
     {
         assert(result.count == range.stridedRange.count)
-        var resultBuffer = write(result)
-        currentQueue.fill(result: &resultBuffer, with: range)
+        var resultBuffer = write(&result)
+        currentQueue.fill(&resultBuffer, with: range)
     }
 }
 
@@ -183,7 +181,7 @@ public extension TensorView where Element: AnyNumeric & RangeBound {
 public func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T
     where T: TensorView
 {
-    Platform.service.replace(x: x, with: y, where: condition)
+    Platform.service.replace(x, with: y, where: condition)
 }
 
 extension PlatformService {
@@ -192,10 +190,7 @@ extension PlatformService {
         where T: TensorView
     {
         var (result, resultBuffer) = createResult(like: x)
-        currentQueue.replace(x: read(x),
-                             with: read(y),
-                             where: read(condition),
-                             result: &resultBuffer)
+        currentQueue.replace(read(x), read(y), read(condition), &resultBuffer)
         return result
     }
 }
