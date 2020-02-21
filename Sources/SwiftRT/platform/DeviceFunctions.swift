@@ -19,6 +19,10 @@ import Real
 
 //==============================================================================
 /// DeviceFunctions
+/// Device functions require input arguments to conform to `ShapedBuffer`
+/// and output arguments to conform to `MutableShapedBuffer`. They cannot
+/// simply be Collections, because accelerator device kernels will require
+/// the shaped extents and strides information to compute indices in parallel.
 public protocol DeviceFunctions {
     /// the thread that created this queue. Used to detect accidental access
     var creatorThread: Thread { get }
@@ -213,7 +217,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_abs(x: x, result: &result)
     }
 
     /// add

@@ -18,38 +18,39 @@ import Real
 
 //==============================================================================
 // DeviceQueue default implementations
+// TODO: investigate use of SIMD for cpu_mapOps
 public extension DeviceFunctions where Self: DeviceQueue {
     func cpu_abs<T, R>(x: T, result: inout R) where
-        T: ShapedBuffer, T.Element: Real,
-        R: MutableShapedBuffer, R.Element == T.Element
+        T: Collection, T.Element: Real,
+        R: MutableCollection, R.Element == T.Element
     {
         cpu_mapOp(x, &result) { Swift.abs($0) }
     }
     
     func cpu_add<T, R>(lhs: T, rhs: T, result: inout R) where
-        T: ShapedBuffer, T.Element: AdditiveArithmetic,
-        R: MutableShapedBuffer, R.Element == T.Element
+        T: Collection, T.Element: AdditiveArithmetic,
+        R: MutableCollection, R.Element == T.Element
     {
         cpu_mapOp(lhs, rhs, &result, +)
     }
     
     func cpu_and<T, R>(lhs: T, rhs: T, result: inout R) where
-        T: ShapedBuffer, T.Element == Bool,
-        R: MutableShapedBuffer, R.Element == Bool
+        T: Collection, T.Element == Bool,
+        R: MutableCollection, R.Element == Bool
     {
         cpu_mapOp(lhs, rhs, &result) { $0 && $1 }
     }
     
     func cpu_cast<T, R>(from buffer: T, to result: inout R) where
-        T: ShapedBuffer, T.Element: AnyConvertable,
-        R: MutableShapedBuffer, R.Element: AnyConvertable
+        T: Collection, T.Element: AnyConvertable,
+        R: MutableCollection, R.Element: AnyConvertable
     {
         cpu_mapOp(buffer, &result) { R.Element(any: $0) }
     }
 //
 //    func cpu_concat<T, R>(buffers: [T], alongAxis axis: Int, result: inout R) where
-//        T: ShapedBuffer,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        //        var index = T.Shape.zeros
 //        // rewrite
@@ -61,49 +62,49 @@ public extension DeviceFunctions where Self: DeviceQueue {
 //        //        }
 //    }
 //
-//    func cpu_delay(atLeast interval: TimeInterval) {
-//        assert(Thread.current === creatorThread, _messageQueueThreadViolation)
-//        Thread.sleep(forTimeInterval: interval)
-//    }
-//
-//    func cpu_div<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: AlgebraicField,
-//        R: MutableShapedBuffer, R.Element == T.Element
-//    {
-//        cpu_mapOp(lhs, rhs, &result, /)
-//    }
+    func cpu_delay(atLeast interval: TimeInterval) {
+        assert(Thread.current === creatorThread, _messageQueueThreadViolation)
+        Thread.sleep(forTimeInterval: interval)
+    }
+
+    func cpu_div<T, R>(lhs: T, rhs: T, result: inout R) where
+        T: Collection, T.Element: AlgebraicField,
+        R: MutableCollection, R.Element == T.Element
+    {
+        cpu_mapOp(lhs, rhs, &result, /)
+    }
 //
 //    func cpu_elementsAlmostEqual<T, R>(lhs: T, rhs: T, tolerance: T.Element,
 //                                       result: inout R) where
-//        T: ShapedBuffer, T.Element: SignedNumeric & Comparable,
-//        R: MutableShapedBuffer, R.Element == Bool
+//        T: Collection, T.Element: SignedNumeric & Comparable,
+//        R: MutableCollection, R.Element == Bool
 //    {
 //        cpu_mapOp(lhs, rhs, &result) { Swift.abs($0 - $1) <= tolerance }
 //    }
 //
 //    func cpu_equal<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: ShapedBuffer,
-//        R: MutableShapedBuffer, R.Element == Bool
+//        T: Collection,
+//        R: MutableCollection, R.Element == Bool
 //    {
 //        cpu_mapOp(lhs, rhs, &result, ==)
 //    }
 //
 //    func cpu_exp<T, R>(x: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: Real,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection, T.Element: Real,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        cpu_mapOp(x, &result) { .exp($0) }
 //    }
 //
 //    func cpu_fill<Element, R>(result: inout R, with element: Element) where
-//        R: MutableShapedBuffer, R.Element == Element
+//        R: MutableCollection, R.Element == Element
 //    {
 //        cpu_inPlaceOp(&result) { _ in element }
 //    }
 //
 //    func cpu_fill<T, R>(result: inout R, with range: T) where
 //T: StridedRangeExpression,
-//R: MutableShapedBuffer, R.Element == T.Bound
+//R: MutableCollection, R.Element == T.Bound
 //    {
 //        // add a new mapOp for ranges
 //        fatalError()
@@ -111,122 +112,122 @@ public extension DeviceFunctions where Self: DeviceQueue {
 //    }
 //
 //    func cpu_greater<T, R>(lhs: T, rhs: T, result: inout R)
-//        where T: ShapedBuffer, T.Element: Comparable,
-//        R: MutableShapedBuffer, R.Element == Bool
+//        where T: Collection, T.Element: Comparable,
+//        R: MutableCollection, R.Element == Bool
 //    {
 //        cpu_mapOp(lhs, rhs, &result, >)
 //    }
 //
 //    func cpu_greaterOrEqual<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: Comparable,
-//        R: MutableShapedBuffer, R.Element == Bool
+//        T: Collection, T.Element: Comparable,
+//        R: MutableCollection, R.Element == Bool
 //    {
 //        cpu_mapOp(lhs, rhs, &result, >=)
 //    }
 //
 //    func cpu_less<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: Comparable,
-//        R: MutableShapedBuffer, R.Element == Bool
+//        T: Collection, T.Element: Comparable,
+//        R: MutableCollection, R.Element == Bool
 //    {
 //        cpu_mapOp(lhs, rhs, &result, <)
 //    }
 //
 //    func cpu_lessOrEqual<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: Comparable,
-//        R: MutableShapedBuffer, R.Element == Bool
+//        T: Collection, T.Element: Comparable,
+//        R: MutableCollection, R.Element == Bool
 //    {
 //        cpu_mapOp(lhs, rhs, &result, <=)
 //    }
 //
 //    func cpu_log<T, R>(x: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: Real,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection, T.Element: Real,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        cpu_mapOp(x, &result) { .log($0) }
 //    }
 //
 //    func cpu_max<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: Comparable,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection, T.Element: Comparable,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        cpu_mapOp(lhs, rhs, &result) { $0 >= $1 ? $0 : $1 }
 //    }
 //
 //    func cpu_min<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: Comparable,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection, T.Element: Comparable,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        cpu_mapOp(lhs, rhs, &result) { $0 <= $1 ? $0 : $1 }
 //    }
 //
 //    func cpu_mul<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: Numeric,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection, T.Element: Numeric,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        cpu_mapOp(lhs, rhs, &result, *)
 //    }
 //
 //    func cpu_neg<T, R>(x: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: SignedNumeric,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection, T.Element: SignedNumeric,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        cpu_mapOp(x, &result, -)
 //    }
 //
 //    func cpu_notEqual<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: ShapedBuffer,
-//        R: MutableShapedBuffer, R.Element == Bool
+//        T: Collection,
+//        R: MutableCollection, R.Element == Bool
 //    {
 //        cpu_mapOp(lhs, rhs, &result, !=)
 //    }
 //
 //    func cpu_or<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: ShapedBuffer, T.Element == Bool,
-//        R: MutableShapedBuffer, R.Element == Bool
+//        T: Collection, T.Element == Bool,
+//        R: MutableCollection, R.Element == Bool
 //    {
 //        cpu_mapOp(lhs, rhs, &result) { $0 || $1 }
 //    }
 //
 //    func cpu_pow<T, R>(x: T, y: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: Real,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection, T.Element: Real,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        cpu_mapOp(x, y, &result) { .pow($0, $1) }
 //    }
 //
 //    func cpu_replace<T, C, R>(x: T, with y: T, where condition: C,
 //                              result: inout R) where
-//        T: ShapedBuffer,
-//        C: ShapedBuffer, C.Element == Bool,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection,
+//        C: Collection, C.Element == Bool,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        cpu_mapOp(condition, y, x, &result) { $0 ? $1 : $2 }
 //    }
 //
 //    func cpu_sign<T, R>(x: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: Real,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection, T.Element: Real,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        cpu_mapOp(x, &result) { $0 < 0 ? -1 : 1 }
 //    }
 //
 //    func cpu_subtract<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: AdditiveArithmetic,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection, T.Element: AdditiveArithmetic,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        cpu_mapOp(lhs, rhs, &result, -)
 //    }
 //
 //    func cpu_sqrt<T, R>(x: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: Real,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection, T.Element: Real,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        cpu_mapOp(x, &result) { .sqrt($0) }
 //    }
 //
 //    func cpu_squared<T, R>(x: T, result: inout R) where
-//        T: ShapedBuffer, T.Element: Numeric,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection, T.Element: Numeric,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        cpu_mapOp(x, &result) { $0 * $0 }
 //    }
@@ -236,8 +237,8 @@ public extension DeviceFunctions where Self: DeviceQueue {
 //                          opId: ReductionOp,
 //                          opNext: @escaping (T.Element, T.Element) -> T.Element,
 //                          opFinal: ReduceOpFinal<T>?) where
-//        T: ShapedBuffer,
-//        R: MutableShapedBuffer, R.Element == T.Element
+//        T: Collection,
+//        R: MutableCollection, R.Element == T.Element
 //    {
 //        fatalError()
 ////        assert(result.isContiguous, "Result storage must be contiguous")
@@ -270,8 +271,8 @@ public extension DeviceFunctions where Self: DeviceQueue {
         op: @escaping (T.Element, T.Element) -> Bool,
         resultTrue: inout R, resultFalse: inout R)
         where
-        T : ShapedBuffer, T.Element : Comparable & Numeric,
-        R : MutableShapedBuffer, R.Element == T.Element
+        T : Collection, T.Element : Comparable & Numeric,
+        R : MutableCollection, R.Element == T.Element
     {
         cpu_mapOp(x, y, scale, &resultTrue, &resultFalse) {
             op($0, $1) ? ($2, T.Element.zero) : (T.Element.zero, $2)
