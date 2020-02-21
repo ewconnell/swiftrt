@@ -32,8 +32,9 @@ public struct CpuMemoryManager: MemoryManagement {
 //==============================================================================
 // stubs
 public extension MemoryManagement {
+    func bufferName(_ id: BufferId) -> String { fatalError() }
     func cachedBuffer<Element>(for element: Element) -> BufferId { fatalError() }
-    func createBuffer<T>(of type: T.Type, count: Int) -> BufferId { fatalError() }
+    func createBuffer<T>(of type: T.Type, count: Int, name: String) -> BufferId { fatalError() }
     func createBuffer<Shape, Stream>(block shape: Shape, bufferedBlocks: Int, stream: Stream) -> (BufferId, Int)
         where Shape: ShapeProtocol, Stream: BufferStream { fatalError() }
     func createReference<Element>(to applicationBuffer: UnsafeBufferPointer<Element>) -> BufferId { fatalError() }

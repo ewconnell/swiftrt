@@ -26,6 +26,9 @@ public protocol PlatformAPI {
     mutating func use(device: Int, queue: Int)
     mutating func using<R>(device: Int, queue: Int, _ body: () -> R) -> R
     mutating func using<R>(queue: Int, _ body: () -> R) -> R
+    
+    /// retrieve the name of a buffer for diagnostics
+    func bufferName(_ id: BufferId) -> String
 
     /// the thread that created this queue. Used to detect accidental access
     var creatorThread: Thread { get }
@@ -49,7 +52,7 @@ public protocol PlatformAPI {
         U: TensorView, U.Element: AnyConvertable
     
     /// concat
-    func concat<T>(tensors: [T], alongAxis axis: Int, result: inout T) where
+    func concat<T>(tensors: [T], alongAxis axis: Int, name: String?) -> T where
         T: TensorView
     
     /// copy  performs an indexed copy
@@ -76,10 +79,10 @@ public protocol PlatformAPI {
         T: TensorView, T.Element: Real
     
     /// fill(result:with element:
-    func fill<T>(result: inout T, with element: T.Element) where T: TensorView
+    func fill<T>(_ result: inout T, with element: T.Element) where T: TensorView
     
     /// fill(result:with range:
-    func fill<T, R>(result: inout T, with range: R) where
+    func fill<T, R>(_ result: inout T, with range: R) where
         T: TensorView,
         R: StridedRangeExpression, R.Bound == T.Element
     
@@ -133,8 +136,8 @@ public protocol PlatformAPI {
         T: TensorView, T.Element: Real
     
     /// replace
-    func replace<T>(x: T, with y: T, where condition: T.BoolView,
-                    result: inout T) where T: TensorView
+    func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T where
+        T: TensorView
     
     /// sign
     func sign<T>(x: T, result: inout T) where

@@ -129,61 +129,61 @@ class test_DataMigration: XCTestCase {
 //        var view = Matrix(6, 4, with: 0..<24)
 //
 //        _ = view.readOnly()
-//        XCTAssert(!view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(!view.elementBuffer.lastAccessCopiedBuffer)
 //
 //        _ = view.readOnly()
-//        XCTAssert(!view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(!view.elementBuffer.lastAccessCopiedBuffer)
 //
 //        // this device is not UMA so it
 //        // ALLOC device array on cpu:1
 //        // COPY  cpu:0 --> cpu:1_q0
 //        _ = view.readOnly(using: queue1)
-//        XCTAssert(view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(view.elementBuffer.lastAccessCopiedBuffer)
 //
 //        // write access hasn't been taken, so this is still up to date
 //        _ = view.readOnly()
-//        XCTAssert(!view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(!view.elementBuffer.lastAccessCopiedBuffer)
 //
 //        // an up to date copy is already there, so won't copy
 //        _ = view.readWrite(using: queue1)
-//        XCTAssert(!view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(!view.elementBuffer.lastAccessCopiedBuffer)
 //
 //        // ALLOC device array on cpu:2
 //        // COPY  cpu:1 --> cpu:2_q0
 //        _ = view.readOnly(using: queue2)
-//        XCTAssert(view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(view.elementBuffer.lastAccessCopiedBuffer)
 //
 //        _ = view.readOnly(using: queue1)
-//        XCTAssert(!view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(!view.elementBuffer.lastAccessCopiedBuffer)
 //
 //        _ = view.readOnly(using: queue2)
-//        XCTAssert(!view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(!view.elementBuffer.lastAccessCopiedBuffer)
 //
 //        _ = view.readWrite(using: queue1)
-//        XCTAssert(!view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(!view.elementBuffer.lastAccessCopiedBuffer)
 //
 //        // the master is on cpu:1 so we need to update cpu:2's version
 //        // COPY cpu:1 --> cpu:2_q0
 //        _ = view.readOnly(using: queue2)
-//        XCTAssert(view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(view.elementBuffer.lastAccessCopiedBuffer)
 //
 //        _ = view.readWrite(using: queue2)
-//        XCTAssert(!view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(!view.elementBuffer.lastAccessCopiedBuffer)
 //
 //        // the master is on cpu:2 so we need to update cpu:1's version
 //        // COPY cpu:2 --> cpu:1_q0
 //        _ = view.readWrite(using: queue1)
-//        XCTAssert(view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(view.elementBuffer.lastAccessCopiedBuffer)
 //
 //        // the master is on cpu:1 so we need to update cpu:2's version
 //        // COPY cpu:1 --> cpu:2_q0
 //        _ = view.readWrite(using: queue2)
-//        XCTAssert(view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(view.elementBuffer.lastAccessCopiedBuffer)
 //
 //        // accessing data without a queue causes transfer to the host
 //        // COPY discreet_cpu:2_q0 --> cpu:0
 //        _ = view.readOnly()
-//        XCTAssert(view.tensorArray.lastAccessCopiedBuffer)
+//        XCTAssert(view.elementBuffer.lastAccessCopiedBuffer)
     }
 
     //==========================================================================

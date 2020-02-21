@@ -19,8 +19,8 @@ import Foundation
 // VectorView protocol
 public protocol VectorView: TensorView where Shape == Shape1 { }
 
-extension VectorType: CustomStringConvertible where Element: AnyConvertable {
-    public var description: String { return formatted() }
+extension VectorType: CustomStringConvertible {
+    public var description: String { "\(self.array)" }
 }
 
 extension VectorType: Equatable where Element: Equatable { }
@@ -119,49 +119,34 @@ public extension VectorView {
     func createIndexTensor(with extents: Shape.Array) -> VectorType<IndexType> {
         VectorType<IndexType>(extents: extents)
     }
-}
-
-//==============================================================================
-// VectorView subscripting and collections
-public extension VectorView {
+    
+    
     //--------------------------------------------------------------------------
-    // TODO: probably move these off onto the TensorViewCollection
+    // Swift array of elements
     @inlinable
-    var startIndex: VectorIndex { VectorIndex(view: self, at: Shape.zeros.tuple)}
-
-    @inlinable
-    var endIndex: VectorIndex { VectorIndex(endOf: self) }
-
-    //--------------------------------------------------------------------------
-    /// Swift array of elements
-    @inlinable
-    var array: [Element] { [Element](elements()) }
+    var array: [Element] { [Element](self.elements) }
 }
 
 //==============================================================================
 // VectorType
-public struct VectorType<Element>: VectorView
-    where Element: TensorElementConformance
-{
+public struct VectorType<Element>: VectorView {
     // properties
     public static var diagnosticName: String { "Vector" }
+    public let elementBuffer: BufferId
     public let isMutable: Bool
-    public let format: TensorFormat
+    public let offset: Int
     public let shape: Shape1
-    public var tensorArray: TensorArray<Element>
-    public let viewOffset: Int
     
     @inlinable
     public init(shape: Shape1,
-                tensorArray: TensorArray<Element>,
-                viewOffset: Int,
+                elementBuffer: BufferId,
+                offset: Int,
                 isMutable: Bool)
     {
         self.shape = shape
-        self.tensorArray = tensorArray
-        self.viewOffset = viewOffset
+        self.elementBuffer = elementBuffer
+        self.offset = offset
         self.isMutable = isMutable
-        self.format = .vector
     }
 }
 
@@ -181,8 +166,8 @@ public protocol MatrixView: TensorView  where Shape == Shape2 { }
 
 public enum MatrixLayout { case rowMajor, columnMajor }
 
-extension MatrixType: CustomStringConvertible where Element: AnyConvertable {
-    public var description: String { return formatted() }
+extension MatrixType: CustomStringConvertible {
+    public var description: String { "\(self.array)" }
 }
 
 extension MatrixType: Equatable where Element: Equatable { }
@@ -328,8 +313,8 @@ public extension MatrixView {
     @inlinable
     var t: Self {
         Self.init(shape: shape.transposed(),
-                  tensorArray: tensorArray,
-                  viewOffset: viewOffset,
+                  elementBuffer: elementBuffer,
+                  offset: offset,
                   isMutable: isMutable)
     }
     
@@ -348,20 +333,12 @@ public extension MatrixView {
 // MatrixView collection extensions
 public extension MatrixView {
     //--------------------------------------------------------------------------
-    // TODO: probably move these off onto the TensorViewCollection
-    @inlinable
-    var startIndex: MatrixIndex { MatrixIndex(view: self, at: Shape.zeros.tuple)}
-
-    @inlinable
-    var endIndex: MatrixIndex { MatrixIndex(endOf: self) }
-    
-    //--------------------------------------------------------------------------
     /// Swift array of elements
     @inlinable
     var array: [[Element]] {
         var result = [[Element]]()
         for row in 0..<extents[0] {
-            result.append([Element](self[row..|1, ...].elements()))
+            result.append([Element](self[row..|1, ...].elements))
         }
         return result
     }
@@ -426,28 +403,24 @@ public extension MatrixView {
 
 //==============================================================================
 // MatrixType
-public struct MatrixType<Element>: MatrixView
-    where Element: TensorElementConformance
-{
+public struct MatrixType<Element>: MatrixView {
     // properties
     public static var diagnosticName: String { "Matrix" }
+    public var elementBuffer: BufferId
     public let isMutable: Bool
-    public let format: TensorFormat
+    public let offset: Int
     public let shape: Shape2
-    public var tensorArray: TensorArray<Element>
-    public let viewOffset: Int
 
     @inlinable
     public init(shape: Shape2,
-                tensorArray: TensorArray<Element>,
-                viewOffset: Int,
+                elementBuffer: BufferId,
+                offset: Int,
                 isMutable: Bool)
     {
         self.shape = shape
-        self.tensorArray = tensorArray
-        self.viewOffset = viewOffset
+        self.elementBuffer = elementBuffer
+        self.offset = offset
         self.isMutable = isMutable
-        self.format = .matrix
     }
 }
 
@@ -465,8 +438,8 @@ extension MatrixType: Differentiable & DifferentiableTensorView where
 // VolumeView protocol
 public protocol VolumeView: TensorView  where Shape == Shape3 {}
 
-extension VolumeType: CustomStringConvertible where Element: AnyConvertable {
-    public var description: String { return formatted() }
+extension VolumeType: CustomStringConvertible {
+    public var description: String { "\(self.array)" }
 }
 
 extension VolumeType: Equatable where Element: Equatable { }
@@ -606,17 +579,6 @@ public extension VolumeView {
 //==============================================================================
 // MatrixView extensions
 public extension VolumeView {
-    //--------------------------------------------------------------------------
-    // TODO: probably move these off onto the TensorViewCollection
-    @inlinable
-    var startIndex: VolumeIndex {
-        VolumeIndex(view: self, at: Shape.zeros.tuple)
-    }
-
-    @inlinable
-    var endIndex: VolumeIndex { VolumeIndex(endOf: self) }
-    
-    //--------------------------------------------------------------------------
     /// Swift array of elements
     @inlinable
     var array: [[[Element]]] {
@@ -624,7 +586,7 @@ public extension VolumeView {
         for di in 0..<extents[0] {
             var depth = [[Element]]()
             for ri in 0..<extents[1] {
-                depth.append([Element](self[di..|1, ri..|1, ...].elements()))
+                depth.append([Element](self[di..|1, ri..|1, ...].elements))
             }
             result.append(depth)
         }
@@ -715,28 +677,24 @@ public extension VolumeView {
 
 //==============================================================================
 // VolumeType
-public struct VolumeType<Element>: VolumeView
-    where Element: TensorElementConformance
-{
+public struct VolumeType<Element>: VolumeView {
     // properties
     public static var diagnosticName: String { "Volume" }
+    public var elementBuffer: BufferId
     public let isMutable: Bool
-    public let format: TensorFormat
+    public let offset: Int
     public let shape: Shape3
-    public var tensorArray: TensorArray<Element>
-    public let viewOffset: Int
     
     @inlinable
     public init(shape: Shape3,
-                tensorArray: TensorArray<Element>,
-                viewOffset: Int,
+                elementBuffer: BufferId,
+                offset: Int,
                 isMutable: Bool)
     {
         self.shape = shape
-        self.tensorArray = tensorArray
-        self.viewOffset = viewOffset
+        self.elementBuffer = elementBuffer
+        self.offset = offset
         self.isMutable = isMutable
-        self.format = .volume
     }
 }
 

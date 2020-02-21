@@ -37,8 +37,8 @@ extension PlatformService {
     {
         let name = String(describing: T.self)
         let array = TensorArray<T.Element>(count: other.count, name: name)
-        var result = T(shape: other.shape.dense, tensorArray: array,
-                       viewOffset: 0, isMutable: false)
+        var result = T(shape: other.shape.dense, elementBuffer: array,
+                       offset: 0, isMutable: false)
         
         currentQueue.cast(from: other, to: &result)
         return result

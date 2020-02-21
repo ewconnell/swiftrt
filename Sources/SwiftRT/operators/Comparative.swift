@@ -427,8 +427,8 @@ public extension TensorView where Element: Equatable {
         guard lhs.extents == rhs.extents else { return false }
         
         // if lhs is an alias for rhs, then they match
-        if lhs.tensorArray === rhs.tensorArray &&
-            lhs.viewOffset == rhs.viewOffset { return true }
+        if lhs.elementBuffer === rhs.elementBuffer &&
+            lhs.offset == rhs.offset { return true }
         
         // compare elements
         return (lhs .== rhs).all().element

@@ -143,17 +143,35 @@ public extension PlatformService {
     }
 
     //--------------------------------------------------------------------------
-    /// write(tensor:willOverwrite:
+    /// `createResult(shape:name:`
     /// creates a new tensor like the one specified and access to it's
     /// `elementBuffer`
     /// - Parameter other: a tensor to use as a template
-    /// - Returns: an `ElementBuffer` that can be used to iterate the shape
+    /// - Parameter shape: the shape of the tensor to create
+    /// - Parameter name: an optional name for the new tensor
+    /// - Returns: a tensor and an associated `MutableElementBuffer`
+    /// that can be used to iterate the shape
     @inlinable
-    func createResult<T>(like other: T)
+    func createResult<T>(like other: T, with shape: T.Shape, name: String? = nil)
         -> (T, MutableElementBuffer<T.Element, T.Shape>) where T: TensorView
     {
-        let result = other.createDense()
+        let result = other.createDense(with: shape.dense, name: name)
         return (result, write(result))
+    }
+
+    //--------------------------------------------------------------------------
+    /// `createResult(other:name:`
+    /// creates a new tensor like the one specified and access to it's
+    /// `elementBuffer`
+    /// - Parameter other: a tensor to use as a template
+    /// - Parameter name: an optional name for the new tensor
+    /// - Returns: a tensor and an associated `MutableElementBuffer`
+    /// that can be used to iterate the shape
+    @inlinable
+    func createResult<T>(like other: T, name: String? = nil)
+        -> (T, MutableElementBuffer<T.Element, T.Shape>) where T: TensorView
+    {
+        createResult(like: other, with: other.shape, name: name)
     }
 }
 

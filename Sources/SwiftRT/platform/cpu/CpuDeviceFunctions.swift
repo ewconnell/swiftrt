@@ -245,8 +245,8 @@ public extension DeviceFunctions where Self: DeviceQueue {
 ////
 ////        // created a repeated view of the initial results to match `x`
 ////        var repeated = T(shape: result.shape.repeated(to: x.extents),
-////                         tensorArray: result.tensorArray,
-////                         viewOffset: result.viewOffset,
+////                         elementBuffer: result.elementBuffer,
+////                         offset: result.offset,
 ////                         isMutable: true)
 ////
 ////        // get the elements collection and do the reduction

@@ -35,14 +35,21 @@ public protocol MemoryManagement {
     init()
     
     //--------------------------------------------------------------------------
+    /// `bufferName(id:`
+    /// - Parameter id: the id of the buffer
+    /// - Returns: the name of the buffer used in diagnostic messages
+    func bufferName(_ id: BufferId) -> String
+    
     /// `createBuffer(type:count:`
     /// creates a lazily allocated buffer to be used in tensor operations.
     /// A `BufferId` is used so the associated memory can be moved by the
     /// service between accesses in order to maximize memory utilization.
     /// - Parameter type: the element type of the buffer
     /// - Parameter count: size of the buffer in `Element` units
+    /// - Parameter name: name used in diagnostic messages
     /// - Returns: a reference to the device buffer
-    func createBuffer<Element>(of type: Element.Type, count: Int) -> BufferId
+    func createBuffer<Element>(of type: Element.Type, count: Int,
+                               name: String) -> BufferId
 
     /// `createBuffer(blockSize:bufferedBlocks:sequence:`
     /// creates a streaming device buffer to be used in tensor operations.
@@ -153,7 +160,13 @@ public struct BufferDescription {
 /// a reference counted id for a service device buffer
 public class BufferId {
     public let id: Int
+
+    @inlinable
     public init(_ id: Int) { self.id = id }
+
+    /// a buffer name used in diagnostic messages
+    @inlinable
+    public var name: String { Platform.service.bufferName(self) }
 }
 
 //==============================================================================

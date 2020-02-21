@@ -136,7 +136,7 @@ public extension TensorView {
     var items: Int { shape.items }
     /// the name of the view, which can optionally be set to aid in debugging
     @inlinable
-    var name: String { tensorArray.name }
+    var name: String { elementBuffer.name }
     /// the number of dimensions in the view
     @inlinable
     var rank: Int { shape.rank }
@@ -145,13 +145,13 @@ public extension TensorView {
     var strides: Shape.Array { shape.strides }
     /// an array of viewed elements
     @inlinable
-    var flatArray: [Element] { [Element](elements()) }
+    var flatArray: [Element] { [Element](elements) }
     /// repeated(to extents:
     @inlinable
     func repeated(to extents: Shape.Array) -> Self {
         return Self(shape: shape.repeated(to: extents),
-                    tensorArray: tensorArray,
-                    viewOffset: viewOffset,
+                    elementBuffer: elementBuffer,
+                    offset: offset,
                     isMutable: isMutable)
     }
     
@@ -234,7 +234,7 @@ public extension TensorView {
 
     //--------------------------------------------------------------------------
     /// createView
-    /// Returns a view of the tensorArray relative to this view
+    /// Returns a view of the elementBuffer relative to this view
     @usableFromInline
     internal func createView(at index: Shape.Array, extents: Shape.Array,
                              strides: Shape.Array, isMutable: Bool) -> Self
@@ -244,10 +244,10 @@ public extension TensorView {
         assert(shape.contains(index: index, extents: extents))
         
         // the subview offset is the current plus the offset of index
-        let subViewOffset = viewOffset + shape.linearIndex(of: index)
+        let subViewOffset = offset + shape.linearIndex(of: index)
         return Self(shape: Shape(extents: extents, strides: strides),
-                    tensorArray: tensorArray,
-                    viewOffset: subViewOffset,
+                    elementBuffer: elementBuffer,
+                    offset: subViewOffset,
                     isMutable: isMutable)
     }
     
@@ -261,8 +261,8 @@ public extension TensorView {
         guard self.rank > 1 else { return self }
         let permuted = self.shape.transposed(with: Shape.Array(permutations))
         return Self(shape: permuted,
-                    tensorArray: tensorArray,
-                    viewOffset: viewOffset,
+                    elementBuffer: elementBuffer,
+                    offset: offset,
                     isMutable: isMutable)
     }
 }
@@ -272,15 +272,15 @@ public extension TensorView {
 public extension TensorView {
     //--------------------------------------------------------------------------
     /// isUniqueReference
-    /// `true` if this view is the only view holding a reference to tensorArray
+    /// `true` if this view is the only view holding a reference to elementBuffer
     @inlinable
     mutating func isUniqueReference() -> Bool {
-        isKnownUniquelyReferenced(&tensorArray)
+        isKnownUniquelyReferenced(&elementBuffer)
     }
     
     //--------------------------------------------------------------------------
     /// writeWillMutateView
-    /// `true` if write access will cause the underlying `tensorArray`
+    /// `true` if write access will cause the underlying `elementBuffer`
     ///  to be copied
     @inlinable
     mutating func writeWillMutateView() -> Bool {
@@ -289,20 +289,20 @@ public extension TensorView {
     
     //--------------------------------------------------------------------------
     /// copyIfMutates
-    /// Creates a copy of the tensorArray if read-write access causes mutation
+    /// Creates a copy of the elementBuffer if read-write access causes mutation
     /// - Parameter using: the device queue to use for data transfer
-    /// - Returns: `true` if the `tensorArray` was copied
+    /// - Returns: `true` if the `elementBuffer` was copied
     @inlinable
     mutating func copyIfMutates(using queue: DeviceQueue) {
         guard writeWillMutateView() else { return }
         
         // the reference is not unique so a copy of the array must be made
-        diagnostic("\(mutationString) \(name)(\(tensorArray.trackingId)) " +
+        diagnostic("\(mutationString) \(name)(\(elementBuffer.trackingId)) " +
             "\(String(describing: Element.self))[\(shape.count)]",
             categories: [.dataCopy, .dataMutation])
 
         // create the new array and do a simple copy of the elements
-        tensorArray = TensorArray<Element>(copying: tensorArray, using: queue)
+        elementBuffer = TensorArray<Element>(copying: elementBuffer, using: queue)
     }
     
     //--------------------------------------------------------------------------
@@ -337,10 +337,10 @@ public extension TensorView {
         let deviceQueue = queue ?? Platform.service.applicationQueue
         
         // sync queues
-        synchronize(queue: tensorArray.lastMutatingQueue, with: deviceQueue)
+        synchronize(queue: elementBuffer.lastMutatingQueue, with: deviceQueue)
         
         // get the buffer
-        let buffer = tensorArray.readOnly(using: deviceQueue)
+        let buffer = elementBuffer.readOnly(using: deviceQueue)
         
         // if `queue` is nil then the deviceQueue is the hostQueue
         // and the caller wants to synchronize with the app thread
@@ -350,7 +350,7 @@ public extension TensorView {
         }
         
         return UnsafeBufferPointer(
-            start: buffer.baseAddress!.advanced(by: viewOffset),
+            start: buffer.baseAddress!.advanced(by: offset),
             count: shape.spanCount)
     }
     
@@ -373,17 +373,17 @@ public extension TensorView {
     mutating func readWrite(using queue: DeviceQueue? = nil)
         -> UnsafeMutableBufferPointer<Element>
     {
-        precondition(!tensorArray.isReadOnly, "the tensor is read only")
+        precondition(!elementBuffer.isReadOnly, "the tensor is read only")
         let deviceQueue = queue ?? Platform.service.applicationQueue
         
         // sync queues
-        synchronize(queue: tensorArray.lastMutatingQueue,
+        synchronize(queue: elementBuffer.lastMutatingQueue,
                         with: deviceQueue)
         // mutating write?
         copyIfMutates(using: deviceQueue)
         
         // get the buffer
-        let buffer = tensorArray.readWrite(using: deviceQueue)
+        let buffer = elementBuffer.readWrite(using: deviceQueue)
         
         // if `queue` is nil then the deviceQueue is the hostQueue
         // and the caller wants to synchronize with the app thread
@@ -393,7 +393,7 @@ public extension TensorView {
         }
         
         return UnsafeMutableBufferPointer(
-            start: buffer.baseAddress!.advanced(by: viewOffset),
+            start: buffer.baseAddress!.advanced(by: offset),
             count: shape.spanCount)
     }
     
@@ -481,7 +481,7 @@ public extension TensorView {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: TensorCodingKeys.self)
         try container.encode(extents, forKey: .extents)
-        try container.encode(tensorArray, forKey: .data)
+        try container.encode(elementBuffer, forKey: .data)
     }
     
     @inlinable
@@ -490,8 +490,8 @@ public extension TensorView {
         let extents = try container.decode(Shape.Array.self, forKey: .extents)
         let array = try container.decode(TensorArray<Element>.self,
                                          forKey: .data)
-        self = Self(shape: Shape(extents: extents), tensorArray: array,
-                    viewOffset: 0, isMutable: false)
+        self = Self(shape: Shape(extents: extents), elementBuffer: array,
+                    offset: 0, isMutable: false)
     }
 }
 

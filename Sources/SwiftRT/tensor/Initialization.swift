@@ -46,8 +46,8 @@ public extension TensorView {
     @inlinable
     init() {
         self.init(shape: Shape(extents: Shape.zeros),
-                  tensorArray: TensorArray(),
-                  viewOffset: 0,
+                  elementBuffer: TensorArray(),
+                  offset: 0,
                   isMutable: false)
     }
 
@@ -83,8 +83,8 @@ public extension TensorView {
     @inlinable
     init<T>(flattening other: T) where T: TensorView, T.Element == Element {
         self.init(shape: Shape(flattening: other.shape),
-                  tensorArray: other.tensorArray,
-                  viewOffset: other.viewOffset,
+                  elementBuffer: other.elementBuffer,
+                  offset: other.offset,
                   isMutable: other.isMutable)
     }
 
@@ -116,8 +116,8 @@ public extension TensorView {
     @inlinable
     init<T>(indenting other: T) where T: TensorView, T.Element == Element {
         self.init(shape: Shape(indenting: other.shape),
-                  tensorArray: other.tensorArray,
-                  viewOffset: other.viewOffset,
+                  elementBuffer: other.elementBuffer,
+                  offset: other.offset,
                   isMutable: other.isMutable)
     }
         
@@ -126,8 +126,8 @@ public extension TensorView {
     @inlinable
     init<T>(padding other: T) where T: TensorView, T.Element == Element {
         self.init(shape: Shape(padding: other.shape),
-                  tensorArray: other.tensorArray,
-                  viewOffset: other.viewOffset,
+                  elementBuffer: other.elementBuffer,
+                  offset: other.offset,
                   isMutable: other.isMutable)
     }
     
@@ -139,8 +139,8 @@ public extension TensorView {
         where T: TensorView, T.Element == Element
     {
         self.init(shape: Shape(expanding: other.shape, alongAxes: axes),
-                  tensorArray: other.tensorArray,
-                  viewOffset: other.viewOffset,
+                  elementBuffer: other.elementBuffer,
+                  offset: other.offset,
                   isMutable: other.isMutable)
     }
     
@@ -172,8 +172,8 @@ public extension TensorView {
         where T: TensorView, T.Element == Element
     {
         self.init(shape: Shape(squeezing: other.shape, alongAxes: axes),
-                  tensorArray: other.tensorArray,
-                  viewOffset: other.viewOffset,
+                  elementBuffer: other.elementBuffer,
+                  offset: other.offset,
                   isMutable: other.isMutable)
     }
     
@@ -313,8 +313,8 @@ public extension TensorView {
     static func create(_ shape: Shape, _ name: String?) -> Self {
         let label = name ?? Self.diagnosticName
         let array = TensorArray<Element>(count: shape.count, name: label)
-        return Self(shape: shape, tensorArray: array,
-                    viewOffset: 0, isMutable: false)
+        return Self(shape: shape, elementBuffer: array,
+                    offset: 0, isMutable: false)
     }
     
     @inlinable
@@ -325,8 +325,8 @@ public extension TensorView {
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
         let array = TensorArray<Element>(referenceTo: buffer, name: label)
-        return Self(shape: shape, tensorArray: array,
-                    viewOffset: 0, isMutable: false)
+        return Self(shape: shape, elementBuffer: array,
+                    offset: 0, isMutable: false)
     }
     
     @inlinable
@@ -337,8 +337,8 @@ public extension TensorView {
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
         let array = TensorArray<Element>(referenceTo: buffer, name: label)
-        return Self(shape: shape, tensorArray: array,
-                    viewOffset: 0, isMutable: false)
+        return Self(shape: shape, elementBuffer: array,
+                    offset: 0, isMutable: false)
     }
     
     @inlinable
@@ -350,8 +350,8 @@ public extension TensorView {
         assert(elements.count <= shape.count, _messageElementCountMismatch)
         let label = name ?? Self.diagnosticName
         let array = TensorArray<Element>(elements: elements, name: label)
-        return Self(shape: shape, tensorArray: array,
-                    viewOffset: 0, isMutable: false)
+        return Self(shape: shape, elementBuffer: array,
+                    offset: 0, isMutable: false)
     }
 }
 

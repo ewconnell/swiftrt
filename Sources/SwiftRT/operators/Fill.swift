@@ -32,19 +32,27 @@ extension PlatformService {
                    name: String? = nil) -> T where T: TensorView
     {
         assert(tensors.count > 1)
-        let joined = tensors[0].shape
+        // compute joined shape and create result buffer
+        let joinedShape = tensors[0].shape
             .joined(with: tensors[1...].map { $0.shape }, alongAxis: axis)
-        var result = tensors[0].createDense(with: joined, name: name)
-        currentQueue.concat(tensors: tensors, alongAxis: axis,
-                            result: &result)
+
+        var (result, resultBuffer) = createResult(like: tensors[0],
+                                                  with: joinedShape,
+                                                  name: name)
+
+        currentQueue.concat(buffers: tensors.map { read($0) },
+                            alongAxis: axis, result: &resultBuffer)
         return result
     }
 }
 
 public extension TensorView {
     @inlinable
-    func concat(_ others: Self..., alongAxis axis: Int = 0) -> Self {
-        Platform.service.concat(tensors: [self] + others, alongAxis: axis)
+    func concat(_ others: Self..., alongAxis axis: Int = 0,
+                name: String? = nil) -> Self
+    {
+        Platform.service.concat(tensors: [self] + others,
+                                alongAxis: axis, name: name)
     }
 }
 
@@ -68,13 +76,12 @@ extension PlatformService {
 }
 
 //==============================================================================
-/// copy
-/// copies the elements from `view` to `result`
-/// - Parameter from view: tensor to be copied
-/// - Parameter to result: the tensor where the result will be written
+/// delayQueue
+/// adds a time delay into the current queue for testing purposes``
+/// - Parameter interval: the number of seconds to delay
 @inlinable
 public func delayQueue(atLeast interval: TimeInterval) {
-    Platform.service.delayQueue(atLeast: interval)
+    Platform.service.delay(atLeast: interval)
 }
 
 extension PlatformService {
@@ -83,7 +90,6 @@ extension PlatformService {
         currentQueue.delay(atLeast: interval)
     }
 }
-
 
 //==============================================================================
 /// fill<T>(result:value:
@@ -108,7 +114,8 @@ extension PlatformService {
     func fill<T>(_ result: inout T, with element: T.Element)
         where T: TensorView
     {
-        currentQueue.fill(result: &result, with: element)
+        var resultBuffer = write(result)
+        currentQueue.fill(result: &resultBuffer, with: element)
     }
     
     /// fill(result:with range:
@@ -119,7 +126,8 @@ extension PlatformService {
         R: StridedRangeExpression, R.Bound == T.Element
     {
         assert(result.count == range.stridedRange.count)
-        currentQueue.fill(result: &result, with: range)
+        var resultBuffer = write(result)
+        currentQueue.fill(result: &resultBuffer, with: range)
     }
 }
 
@@ -150,13 +158,6 @@ public extension TensorView {
 /// fillWithIndex
 /// a convenience function to fill the tensor with index values from
 /// `0..<count`. If a different range is desired, use `fill(with range:`
-@inlinable
-public func fillWithIndex<T>(_ result: inout T)
-    where T: TensorView, T.Element: AnyNumeric & RangeBound
-{
-    Platform.service.fillWithIndex(&result)
-}
-
 extension PlatformService {
     @inlinable
     func fillWithIndex<T>(_ result: inout T)
@@ -190,9 +191,11 @@ extension PlatformService {
     func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T
         where T: TensorView
     {
-        var result = x.createDense()
-        currentQueue.replace(x: x, with: y, where: condition,
-                             result: &result)
+        var (result, resultBuffer) = createResult(like: x)
+        currentQueue.replace(x: read(x),
+                             with: read(y),
+                             where: read(condition),
+                             result: &resultBuffer)
         return result
     }
 }
