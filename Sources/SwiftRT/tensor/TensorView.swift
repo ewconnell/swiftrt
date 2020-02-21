@@ -25,7 +25,7 @@ public protocol TensorView: Logging {
     /// the type of element stored by the tensor
     associatedtype Element
     /// tensor shape
-    associatedtype Shape: ShapeProtocol
+    associatedtype Shape: ShapeProtocol where Shape.Index == Int
     /// A concrete type used in generics to pass Boolean values
     associatedtype BoolView: TensorView where
         BoolView.Element == Bool, BoolView.Shape == Shape
@@ -38,9 +38,13 @@ public protocol TensorView: Logging {
     /// a label for the type used as a default name in diagnostics
     static var diagnosticName: String { get }
     /// class reference to the underlying byte buffer
-    var elementBuffer: BufferId { get }
+    var elementBuffer: BufferId { get set }
+    /// a shaped element buffer pointer and collection
+    var elements: ElementBuffer<Element, Shape> { get }
     /// if `true` then readWrite buffer access will not cause copy-on-write
     var isMutable: Bool { get }
+    /// a shaped mutable element buffer pointer and collection
+    var mutableElements: MutableElementBuffer<Element, Shape> { get set }
     /// the shape of the view used for indexing
     var shape: Shape { get }
     /// the linear element offset where the view begins
@@ -95,7 +99,7 @@ public extension TensorView {
     /// - Returns: the first element in the tensor
     @inlinable
     var first: Element {
-        readOnly()[0]
+        elements[0]
     }
 
     /// element
@@ -112,7 +116,7 @@ public extension TensorView {
         set {
             assert(shape.isScalar, "the `element` property expects " +
                 "the tensor to have a single Element")
-            readWrite()[0] = newValue
+            mutableElements[0] = newValue
         }
     }
 }
@@ -219,7 +223,9 @@ public extension TensorView {
     {
         // copy the tensor array if not uniquely held or
         // if this is a broadcasted value
-        copyIfMutates(using: Platform.service.currentQueue)
+        
+        // TODO: fix this
+//        copyIfMutates(using: Platform.service.currentQueue)
         
         // return a mutable view against a safe dense tensor array
         return createView(at: index, extents: extents,
@@ -286,235 +292,61 @@ public extension TensorView {
     mutating func writeWillMutateView() -> Bool {
         !isUniqueReference() && !isMutable
     }
-    
-    //--------------------------------------------------------------------------
-    /// copyIfMutates
-    /// Creates a copy of the elementBuffer if read-write access causes mutation
-    /// - Parameter using: the device queue to use for data transfer
-    /// - Returns: `true` if the `elementBuffer` was copied
-    @inlinable
-    mutating func copyIfMutates(using queue: DeviceQueue) {
-        guard writeWillMutateView() else { return }
-        
-        // the reference is not unique so a copy of the array must be made
-        diagnostic("\(mutationString) \(name)(\(elementBuffer.trackingId)) " +
-            "\(String(describing: Element.self))[\(shape.count)]",
-            categories: [.dataCopy, .dataMutation])
-
-        // create the new array and do a simple copy of the elements
-        elementBuffer = TensorArray<Element>(copying: elementBuffer, using: queue)
-    }
-    
-    //--------------------------------------------------------------------------
-    /// synchronizeQueues
-    /// If the queue is changing, then this creates an event and
-    /// records it onto the end of the lastQueue, then records a wait
-    /// on the new queue. This insures the lastQueue finishes before
-    /// the new one begins
-    @inlinable
-    func synchronize(queue lastQueue: DeviceQueue?, with nextQueue: DeviceQueue)
-    {
-        if let lastQueue = lastQueue, nextQueue.id != lastQueue.id {
-            let event = lastQueue.createEvent()
-            diagnostic(
-                "\(nextQueue.deviceName)_\(nextQueue.name) will wait for " +
-                    "\(lastQueue.deviceName)_\(lastQueue.name) " +
-                "using QueueEvent(\(event.id))",
-                categories: .queueSync)
-            nextQueue.wait(for: lastQueue.record(event: event))
-        }
-    }
-    
-    //--------------------------------------------------------------------------
-    /// readOnly(using queue:
-    /// Returns a read only device memory buffer synced with the specified
-    /// queue.
-    @inlinable
-    func readOnly(using queue: DeviceQueue? = nil)
-        -> UnsafeBufferPointer<Element>
-    {
-        // if no queue is specified then use the hostQueue
-        let deviceQueue = queue ?? Platform.service.applicationQueue
-        
-        // sync queues
-        synchronize(queue: elementBuffer.lastMutatingQueue, with: deviceQueue)
-        
-        // get the buffer
-        let buffer = elementBuffer.readOnly(using: deviceQueue)
-        
-        // if `queue` is nil then the deviceQueue is the hostQueue
-        // and the caller wants to synchronize with the app thread
-        if queue == nil {
-            assert(deviceQueue.memoryAddressing == .unified)
-            deviceQueue.waitUntilQueueIsComplete()
-        }
-        
-        return UnsafeBufferPointer(
-            start: buffer.baseAddress!.advanced(by: offset),
-            count: shape.spanCount)
-    }
-    
-    //--------------------------------------------------------------------------
-    /// deviceReadOnly(using queue:
-    /// Returns a read only device raw memory pointer synced with the specified
-    /// queue.
-    @inlinable
-    func deviceReadOnly(using queue: DeviceQueue? = nil)
-        -> UnsafeRawPointer
-    {
-        UnsafeRawPointer(readOnly(using: queue).baseAddress!)
-    }
-    
-    //--------------------------------------------------------------------------
-    /// readWrite(using queue:
-    /// Returns a read write device memory buffer synced with the specified
-    /// queue.
-    @inlinable
-    mutating func readWrite(using queue: DeviceQueue? = nil)
-        -> UnsafeMutableBufferPointer<Element>
-    {
-        precondition(!elementBuffer.isReadOnly, "the tensor is read only")
-        let deviceQueue = queue ?? Platform.service.applicationQueue
-        
-        // sync queues
-        synchronize(queue: elementBuffer.lastMutatingQueue,
-                        with: deviceQueue)
-        // mutating write?
-        copyIfMutates(using: deviceQueue)
-        
-        // get the buffer
-        let buffer = elementBuffer.readWrite(using: deviceQueue)
-        
-        // if `queue` is nil then the deviceQueue is the hostQueue
-        // and the caller wants to synchronize with the app thread
-        if queue == nil {
-            assert(deviceQueue.memoryAddressing == .unified)
-            deviceQueue.waitUntilQueueIsComplete()
-        }
-        
-        return UnsafeMutableBufferPointer(
-            start: buffer.baseAddress!.advanced(by: offset),
-            count: shape.spanCount)
-    }
-    
-    //--------------------------------------------------------------------------
-    /// deviceReadWrite(using queue:
-    /// Returns a read write device raw memory pointer synced with the specified
-    /// queue.
-    @inlinable
-    mutating func deviceReadWrite(using queue: DeviceQueue? = nil) throws
-        -> UnsafeMutableRawPointer
-    {
-        UnsafeMutableRawPointer(readWrite(using: queue).baseAddress!)
-    }
-}
-
-//==============================================================================
-public extension TensorView {
-    //--------------------------------------------------------------------------
-    /// hostMultiWrite
-    /// divides a tensor into mutable batches and concurrently passes them
-    /// to the `body` for processing
-    /// - Parameter batchSize: the number of items to process at a time. The
-    /// default is the total divided by the number of active cores
-    /// - Parameter synchronous: if `true` the batches will be executed
-    /// synchronously to aid in debugging
-    /// - Parameter body: the function to perform
-    mutating func hostMultiWrite(
-        batchSize: Int? = nil,
-        synchronous: Bool = false,
-        _ body: @escaping (_ view: inout Self) throws -> Void) throws
-    {
-        assert(batchSize == nil || batchSize! <= extents[0])
-        let queue = Platform.service.applicationQueue
-        var fullView = self.mutableView()
-        let group = DispatchGroup()
-        let batchQueue = DispatchQueue(label: "hostMultiWrite",
-                                       attributes: .concurrent)
-        let batchSize = batchSize ?? {
-            let size = Int(extents[0]) /
-                ProcessInfo.processInfo.activeProcessorCount
-            return size == 0 ? Int(extents[0]) : size
-        }()
-        let remainder = Int(extents[0]) % batchSize
-        
-        // do the work
-        func queueBatch(item: Int, count: Int) throws {
-            var batchView = fullView[item..|count]
-            if synchronous {
-                try body(&batchView)
-            } else {
-                batchQueue.async(group: group) {
-                    do {
-                        try body(&batchView)
-                    } catch {
-                        Platform.service.writeLog("\(error)")
-                    }
-                }
-            }
-        }
-        
-        // ensure the data is local
-        _ = fullView.readWrite(using: queue)
-        
-        // launch the batches
-        let lastBatchIndex = Int(extents[0]) - remainder
-        for i in stride(from: 0, to: lastBatchIndex, by: batchSize) {
-            try queueBatch(item: i, count: batchSize)
-        }
-        
-        // process remaining items
-        if remainder > 0 {
-            try queueBatch(item: lastBatchIndex, count: remainder)
-        }
-        group.wait()
-    }
 }
 
 //==============================================================================
 // Codable
-public enum TensorCodingKeys: String, CodingKey { case extents, data }
+public enum TensorCodingKeys: String, CodingKey { case data, extents, name }
 
-public extension TensorView {
+public extension TensorView where Element: Codable {
     /// encodes the contents of the array
     @inlinable
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: TensorCodingKeys.self)
+        try container.encode(name, forKey: .name)
         try container.encode(extents, forKey: .extents)
-        try container.encode(elementBuffer, forKey: .data)
+        var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
+        try self.elements.forEach {
+            try dataContainer.encode($0)
+        }
     }
     
     @inlinable
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: TensorCodingKeys.self)
+        let name = try container.decode(String.self, forKey: .name)
         let extents = try container.decode(Shape.Array.self, forKey: .extents)
-        let array = try container.decode(TensorArray<Element>.self,
-                                         forKey: .data)
-        self = Self(shape: Shape(extents: extents), elementBuffer: array,
-                    offset: 0, isMutable: false)
+        var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
+        self = Self.create(Self.Shape(extents: extents), name)
+        var mutableElements = self.mutableElements
+        if let count = dataContainer.count {
+            for i in 0..<count {
+                mutableElements[i] = try dataContainer.decode(Element.self)
+            }
+        }
     }
 }
 
 //==============================================================================
 // == operator to simplify unit test syntax
-public extension TensorView {
+public extension TensorView where Element: Equatable {
     /// compares the flat elements of self with a Swift array of elements
     @inlinable
     static func == (lhs: Self, rhs: [Element]) -> Bool {
-        for (i, element) in lhs.elements().enumerated() {
-            if element != rhs[i] { return false }
+        for (lhsElement, rhsElement) in zip(lhs.elements, rhs) {
+            if lhsElement != rhsElement { return false }
         }
         return true
     }
 }
 
-public extension TensorView where Element: AnyConvertable {
+public extension TensorView where Element: Equatable & AnyConvertable {
     /// compares the flat elements of self with a Swift collection of elements
     @inlinable
     static func == <R>(lhs: Self, rhs: R) -> Bool
         where R: Collection, R.Element: AnyConvertable
     {
-        for (lhsElement, rhsElement) in zip(lhs.elements(), rhs) {
+        for (lhsElement, rhsElement) in zip(lhs.elements, rhs) {
             if lhsElement != Element(any: rhsElement) { return false }
         }
         return true
