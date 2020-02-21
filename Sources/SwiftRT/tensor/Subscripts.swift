@@ -105,7 +105,9 @@ public extension TensorView {
         }(), "lower must be less than or equal to upper")
 
         var extents = upper
-        zip(upper, lower).map(into: &extents, -)
+        zip(extents.indices, zip(upper, lower)).forEach {
+            extents[$0] = $1.0 - $1.1
+        }
         return extents
     }
 
@@ -135,12 +137,13 @@ public extension TensorView {
             func divceil(_ x: Int, _ y: Int) -> Int { (x - 1 + y) / y }
             
             var subExtents = getExtents(from: lower, to: upper)
-            zip(subExtents, steps).map(into: &subExtents) {
-                divceil($0, Swift.abs($1))
+            zip(subExtents.indices, zip(subExtents, steps)).forEach {
+                subExtents[$0] = divceil($1.0, Swift.abs($1.1))
             }
-            
             var subStrides = strides
-            zip(strides, steps).map(into: &subStrides, *)
+            zip(subStrides.indices, zip(strides, steps)).forEach {
+                subStrides[$0] = $1.0 * $1.1
+            }
             return (subExtents, subStrides)
         }
     }
@@ -193,7 +196,7 @@ public extension TensorView {
         var dense = createDense()
         
         // report
-        diagnostic("\(realizeString) \(name)(\(tensorArray.trackingId)) " +
+        diagnostic("\(realizeString) \(name)(\(elementBuffer.id)) " +
             "expanding from: \(String(describing: Element.self))" +
             "[\(shape.spanCount)] " +
             "to: \(String(describing: Element.self))[\(dense.count)]",

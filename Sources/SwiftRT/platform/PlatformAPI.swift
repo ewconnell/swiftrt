@@ -34,91 +34,124 @@ public protocol PlatformAPI {
     /// abs
     func abs<T>(x: T, result: inout T) where
         T: TensorView, T.Element: Real
+    
     /// add
     func add<T>(lhs: T, rhs: T, result: inout T) where
         T: TensorView, T.Element: AdditiveArithmetic
+    
     /// and
     func and<T>(lhs: T, rhs: T, result: inout T.BoolView) where
         T: TensorView, T.Element == Bool
+    
     /// cast
     func cast<T, U>(from view: T, to result: inout U) where
         T: TensorView, T.Element: AnyConvertable,
         U: TensorView, U.Element: AnyConvertable
+    
     /// concat
     func concat<T>(tensors: [T], alongAxis axis: Int, result: inout T) where
         T: TensorView
+    
+    /// copy  performs an indexed copy
+    func copy<T>(from x: T, to result: inout T) where T: TensorView
+    
     /// delay
     func delay(atLeast interval: TimeInterval)
+    
     /// div
     func div<T>(lhs: T, rhs: T, result: inout T) where
         T: TensorView, T.Element: AlgebraicField
+    
     /// elementsAlmostEqual
     func elementsAlmostEqual<T>(lhs: T, rhs: T, tolerance: T.Element,
                                 result: inout T.BoolView) where
         T: TensorView, T.Element: SignedNumeric & Comparable
+    
     /// equal
-    func equal<T>(lhs: T, rhs: T, result: inout T.BoolView) where T: TensorView
+    func equal<T>(lhs: T, rhs: T, result: inout T.BoolView) where
+        T: TensorView
+    
     /// exp
     func exp<T>(x: T, result: inout T) where
         T: TensorView, T.Element: Real
+    
     /// fill(result:with element:
     func fill<T>(result: inout T, with element: T.Element) where T: TensorView
+    
     /// fill(result:with range:
     func fill<T, R>(result: inout T, with range: R) where
         T: TensorView,
         R: StridedRangeExpression, R.Bound == T.Element
+    
     /// greater
     func greater<T>(lhs: T, rhs: T, result: inout T.BoolView)
         where T: TensorView, T.Element: Comparable
+    
     /// greaterOrEqual
     func greaterOrEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
         where T: TensorView, T.Element: Comparable
+    
     /// less
     func less<T>(lhs: T, rhs: T, result: inout T.BoolView)
         where T: TensorView, T.Element: Comparable
+    
     /// lessOrEqual
     func lessOrEqual<T>(lhs: T, rhs: T, result: inout T.BoolView)
         where T: TensorView, T.Element: Comparable
+    
     /// log
     func log<T>(x: T, result: inout T) where
         T: TensorView, T.Element: Real
+    
     /// Computes the element-wise maximum of two tensors.
     func max<T>(lhs: T, rhs: T, result: inout T) where
         T: TensorView, T.Element: Comparable
+    
     /// Computes the element-wise minimum of two tensors.
     func min<T>(lhs: T, rhs: T, result: inout T) where
         T: TensorView, T.Element: Comparable
+    
     /// mul
     func mul<T>(lhs: T, rhs: T, result: inout T) where
         T: TensorView, T.Element: Numeric
+    
     /// neg
     /// returns the element-wise negation of `x`
     func neg<T>(x: T, result: inout T) where
         T: TensorView, T.Element: SignedNumeric
+    
     /// notEqual
     func notEqual<T>(lhs: T, rhs: T, result: inout T.BoolView) where
         T: TensorView
+    
     /// or
     func or<T>(lhs: T, rhs: T, result: inout T.BoolView) where
         T: TensorView, T.Element == Bool
+    
     /// pow
     func pow<T>(x: T, y: T, result: inout T) where
         T: TensorView, T.Element: Real
+    
     /// replace
     func replace<T>(x: T, with y: T, where condition: T.BoolView,
                     result: inout T) where T: TensorView
+    
     /// sign
     func sign<T>(x: T, result: inout T) where
         T: TensorView, T.Element: Real
+    
     /// subtract
     func subtract<T>(lhs: T, rhs: T, result: inout T) where
         T: TensorView, T.Element: AdditiveArithmetic
+    
     /// sqrt
     func sqrt<T>(x: T, result: inout T) where
         T: TensorView, T.Element: Real
+    
     /// squared
     func squared<T>(x: T, result: inout T)
         where T: TensorView, T.Element: Numeric
+    
     /// reduce
     /// Reduces `x` along the specified axes
     /// - Parameter x: value tensor

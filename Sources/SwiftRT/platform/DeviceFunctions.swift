@@ -49,6 +49,11 @@ public protocol DeviceFunctions {
         T: ShapedBuffer,
         R: MutableShapedBuffer, R.Element == T.Element
 
+    /// copy
+    func copy<T, R>(from x: T, to result: inout R) where
+        T: ShapedBuffer,
+        R: MutableShapedBuffer, R.Element == T.Element
+
     /// delay
     func delay(atLeast interval: TimeInterval)
 
@@ -243,6 +248,14 @@ public extension DeviceFunctions where Self: DeviceQueue {
         
     }
 
+    /// copy
+    func copy<T, R>(from x: T, to result: inout R) where
+        T: ShapedBuffer,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
+    }
+    
     /// delay
     func delay(atLeast interval: TimeInterval)
     {

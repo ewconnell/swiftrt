@@ -60,8 +60,10 @@ public func copy<T>(from view: T, to result: inout T) where T: TensorView {
 
 extension PlatformService {
     @inlinable
-    public func copy<T>(from view: T, to result: inout T) where T: TensorView {
-        currentQueue.copy(from: view, to: &result)
+    public func copy<T>(from view: T, to result: inout T) where T: TensorView
+    {
+        var resultBuffer = write(result)
+        currentQueue.copy(from: read(view), to: &resultBuffer)
     }
 }
 
