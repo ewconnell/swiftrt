@@ -103,39 +103,39 @@ public let _messageTensorExtentsMismatch = "tensor extents mismatch"
 //    func any(along axes: Int...) -> Self { any(along: Set(axes)) }
 //}
 //
-////==============================================================================
-///// sum(x:along:
-///// Sums `x` along the specified axes
-///// - Parameter x: value tensor
-///// - Parameter along: the axes to operate on
-//@inlinable
-//public func sum<T>(_ x: T, along axes: Set<Int>? = nil) -> T
-//    where T: TensorView, T.Element: Numeric
-//{
-//    Platform.service.sum(x, along: axes)
-//}
-//
-//extension PlatformService {
-//    @inlinable
-//    public func sum<T>(_ x: T, along axes: Set<Int>? = nil) -> T
-//        where T: TensorView, T.Element: Numeric
-//    {
-//        let extents = x.reductionExtents(along: axes)
-//        var result = x.createDense(with: extents).filled(with: T.Element.zero)
-//        var resultBuffer = write(&result)
-//        currentQueue.reduce(read(x), &resultBuffer, .add, +, nil)
-//        return result
-//    }
-//
-//    @derivative(of: sum)
-//    @inlinable
-//    func _vjpSum<T>(_ x: T, along axes: Set<Int>? = nil)
-//        -> (value: T, pullback: (T) -> T) where T: DifferentiableTensorView
-//    {
-//        let value = x.sum(along: axes)
-//        return (value, { [xext = x.extents] in $0.repeated(to: xext) })
-//    }
-//}
+//==============================================================================
+/// sum(x:along:
+/// Sums `x` along the specified axes
+/// - Parameter x: value tensor
+/// - Parameter along: the axes to operate on
+@inlinable
+public func sum<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+    where T: TensorView, T.Element: Numeric
+{
+    Platform.service.sum(x, along: axes)
+}
+
+extension PlatformService {
+    @inlinable
+    public func sum<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+        where T: TensorView, T.Element: Numeric
+    {
+        let extents = x.reductionExtents(along: axes)
+        var result = x.createDense(with: extents).filled(with: T.Element.zero)
+        var resultBuffer = write(&result)
+        currentQueue.reduce(read(x), &resultBuffer, .add, +, nil)
+        return result
+    }
+
+    @derivative(of: sum)
+    @inlinable
+    public func _vjpSum<T>(_ x: T, along axes: Set<Int>? = nil)
+        -> (value: T, pullback: (T) -> T) where T: DifferentiableTensorView
+    {
+        let value = sum(x, along: axes)
+        return (value, { [xext = x.extents] in $0.repeated(to: xext) })
+    }
+}
 //
 //public extension TensorView where Element: Numeric {
 //    @differentiable(where Self: DifferentiableTensorView)

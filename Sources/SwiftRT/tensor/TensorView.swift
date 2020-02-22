@@ -25,7 +25,7 @@ public protocol TensorView: Logging {
     /// the type of element stored by the tensor
     associatedtype Element
     /// tensor shape
-    associatedtype Shape: ShapeProtocol where Shape.Index == Int
+    associatedtype Shape: ShapeProtocol
     /// A concrete type used in generics to pass Boolean values
     associatedtype BoolView: TensorView where
         BoolView.Element == Bool, BoolView.Shape == Shape
@@ -99,7 +99,7 @@ public extension TensorView {
     /// - Returns: the first element in the tensor
     @inlinable
     var first: Element {
-        elements[0]
+        elements[elements.startIndex]
     }
 
     /// element
@@ -116,7 +116,7 @@ public extension TensorView {
         set {
             assert(shape.isScalar, "the `element` property expects " +
                 "the tensor to have a single Element")
-            mutableElements[0] = newValue
+            mutableElements[mutableElements.startIndex] = newValue
         }
     }
 }
@@ -317,12 +317,13 @@ public extension TensorView where Element: Codable {
         let name = try container.decode(String.self, forKey: .name)
         let extents = try container.decode(Shape.Array.self, forKey: .extents)
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
+
         self = Self.create(Self.Shape(extents: extents), name)
+
+        assert(self.count == dataContainer.count)
         var mutableElements = self.mutableElements
-        if let count = dataContainer.count {
-            for i in 0..<count {
-                mutableElements[i] = try dataContainer.decode(Element.self)
-            }
+        for i in mutableElements.indices {
+            mutableElements[i] = try dataContainer.decode(Element.self)
         }
     }
 }

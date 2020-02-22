@@ -41,7 +41,7 @@ extension PlatformService {
     
     @derivative(of: add)
     @inlinable
-    func _vjpAdd<T>(lhs: T, rhs: T) -> (value: T, pullback: (T) ->(T, T))
+    public func _vjpAdd<T>(lhs: T, rhs: T) -> (value: T, pullback: (T) ->(T, T))
         where T: DifferentiableTensorView
     {
         (lhs + rhs, { v in (v, v) })
@@ -122,7 +122,8 @@ extension PlatformService {
     
     @derivative(of: subtract)
     @inlinable
-    func _vjpSubtract<T>(lhs: T, rhs: T) -> (value: T, pullback: (T) ->(T, T))
+    public func _vjpSubtract<T>(lhs: T, rhs: T) ->
+        (value: T, pullback: (T) ->(T, T))
         where T: DifferentiableTensorView
     {
         (lhs - rhs, { v in (v, v) })
@@ -196,7 +197,7 @@ extension PlatformService {
     
     @derivative(of: mul)
     @inlinable
-    func _vjpMultiply<T>(_ lhs: T, _ rhs: T) ->
+    public func _vjpMultiply<T>(_ lhs: T, _ rhs: T) ->
         (value: T, pullback: (T) -> (T, T)) where T: DifferentiableTensorView
     {
         (lhs * rhs, { v in (v * rhs, v * lhs) })
@@ -279,7 +280,7 @@ extension PlatformService {
     
     @derivative(of: div)
     @inlinable
-    func _vjpDivide<T>(_ lhs: T, _ rhs: T) ->
+    public func _vjpDivide<T>(_ lhs: T, _ rhs: T) ->
         (value: T, pullback: (T) -> (T, T)) where
         T: DifferentiableTensorView, T.Element: AlgebraicField & SignedNumeric
     {
