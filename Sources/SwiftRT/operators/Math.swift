@@ -68,8 +68,8 @@ extension PlatformService {
     public func abs<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
     {
-        var result = x.createDense()
-        currentQueue.abs(x: x, result: &result)
+        var (result, resultBuffer) = createResult(like: x)
+        currentQueue.abs(read(x), &resultBuffer)
         return result
     }
     
@@ -121,8 +121,8 @@ extension PlatformService {
     public func exp<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
     {
-        var result = x.createDense()
-        currentQueue.exp(x: x, result: &result)
+        var (result, resultBuffer) = createResult(like: x)
+        currentQueue.exp(read(x), &resultBuffer)
         return result
     }
     
@@ -171,11 +171,11 @@ func _vjpLog<T>(_ x: T) -> (value: T, pullback: (T) -> T)
 // Platform extension
 extension PlatformService {
     @inlinable
-    func log<T>(_ x: T) -> T
+    public func log<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
     {
-        var result = x.createDense()
-        currentQueue.log(x: x, result: &result)
+        var (result, resultBuffer) = createResult(like: x)
+        currentQueue.log(read(x), &resultBuffer)
         return result
     }
     
@@ -223,9 +223,9 @@ func _vjpNeg<T>(_ x: T) -> (value: T, pullback: (T) -> T)
 // Platform extension
 extension PlatformService {
     @inlinable
-    func neg<T>(_ x: T) -> T where T: TensorView, T.Element: SignedNumeric {
-        var result = x.createDense()
-        currentQueue.neg(x: x, result: &result)
+    public func neg<T>(_ x: T) -> T where T: TensorView, T.Element: SignedNumeric {
+        var (result, resultBuffer) = createResult(like: x)
+        currentQueue.neg(read(x), &resultBuffer)
         return result
     }
     
@@ -273,11 +273,11 @@ func _vjpSquared<T>(_ x: T) -> (value: T, pullback: (T) -> (T))
 // Platform extension
 extension PlatformService {
     @inlinable
-    func squared<T>(_ x: T) -> T
+    public func squared<T>(_ x: T) -> T
         where T: TensorView, T.Element: Numeric
     {
-        var result = x.createDense()
-        currentQueue.squared(x: x, result: &result)
+        var (result, resultBuffer) = createResult(like: x)
+        currentQueue.squared(read(x), &resultBuffer)
         return result
     }
 
@@ -331,10 +331,12 @@ func _vjpPow<T>(_ x: T, _ y: T) -> (value: T, pullback: (T) -> (T, T))
 // Platform extension
 extension PlatformService {
     @inlinable
-    func pow<T>(_ x: T, _ y: T) -> T where T: TensorView, T.Element: Real {
+    public func pow<T>(_ x: T, _ y: T) -> T
+        where T: TensorView, T.Element: Real
+    {
         assert(x.extents == y.extents, _messageTensorExtentsMismatch)
-        var result = x.createDense()
-        currentQueue.squared(x: x, result: &result)
+        var (result, resultBuffer) = createResult(like: x)
+        currentQueue.squared(read(x), &resultBuffer)
         return result
     }
     
@@ -403,11 +405,11 @@ func _vjpSqrt<T>(_ x: T) -> (value: T, pullback: (T) -> T)
 // Platform extension
 extension PlatformService {
     @inlinable
-    func sqrt<T>(_ x: T) -> T
+    public func sqrt<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
     {
-        var result = x.createDense()
-        currentQueue.sqrt(x: x, result: &result)
+        var (result, resultBuffer) = createResult(like: x)
+        currentQueue.sqrt(read(x), &resultBuffer)
         return result
     }
     
@@ -456,11 +458,11 @@ func _vjpSign<T>(_ x: T) -> (value: T, pullback: (T) -> T)
 // Platform extension
 extension PlatformService {
     @inlinable
-    func sign<T>(_ x: T) -> T
+    public func sign<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
     {
-        var result = x.createDense()
-        currentQueue.sign(x: x, result: &result)
+        var (result, resultBuffer) = createResult(like: x)
+        currentQueue.sign(read(x), &resultBuffer)
         return result
     }
 

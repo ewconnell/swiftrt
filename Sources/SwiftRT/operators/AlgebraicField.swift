@@ -109,13 +109,13 @@ public func subtract<T>(_ lhs: T, _ rhs: T) -> T
 
 extension PlatformService {
     @inlinable
-    func subtract<T>(_ lhs: T, _ rhs: T) -> T
+    public func subtract<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AdditiveArithmetic
     {
         let (lhs, rhs) = implicitlyMatchExtents(lhs, rhs)
         assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-        var result = lhs.createDense()
-        currentQueue.subtract(lhs: lhs, rhs: rhs, result: &result)
+        var (result, resultBuffer) = createResult(like: lhs)
+        currentQueue.subtract(read(lhs), read(rhs), &resultBuffer)
         return result
     }
     
@@ -196,7 +196,7 @@ extension PlatformService {
     
     @derivative(of: mul)
     @inlinable
-    internal func _vjpMultiply<T>(_ lhs: T, _ rhs: T) ->
+    func _vjpMultiply<T>(_ lhs: T, _ rhs: T) ->
         (value: T, pullback: (T) -> (T, T)) where T: DifferentiableTensorView
     {
         (lhs * rhs, { v in (v * rhs, v * lhs) })
@@ -267,19 +267,19 @@ public func div<T>(_ lhs: T, _ rhs: T) -> T
 
 extension PlatformService {
     @inlinable
-    func div<T>(_ lhs: T, _ rhs: T) -> T
+    public func div<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AlgebraicField
     {
         let (lhs, rhs) = implicitlyMatchExtents(lhs, rhs)
         assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-        var result = lhs.createDense()
-        currentQueue.div(lhs: lhs, rhs: rhs, result: &result)
+        var (result, resultBuffer) = createResult(like: lhs)
+        currentQueue.div(read(lhs), read(rhs), &resultBuffer)
         return result
     }
     
     @derivative(of: div)
     @inlinable
-    internal func _vjpDivide<T>(_ lhs: T, _ rhs: T) ->
+    func _vjpDivide<T>(_ lhs: T, _ rhs: T) ->
         (value: T, pullback: (T) -> (T, T)) where
         T: DifferentiableTensorView, T.Element: AlgebraicField & SignedNumeric
     {

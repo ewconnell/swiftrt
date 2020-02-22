@@ -87,15 +87,19 @@ public protocol MemoryManagement {
     /// memory mapped files, network buffers, database results, without
     /// requiring an additional copy operation.
     /// - Parameter applicationBuffer: a buffer pointer to the data
+    /// - Parameter name: name used in diagnostic messages
     /// - Returns: a reference to the device buffer
     func createReference<Element>(
-        to applicationBuffer: UnsafeBufferPointer<Element>) -> BufferId
+        to applicationBuffer: UnsafeBufferPointer<Element>,
+        name: String) -> BufferId
 
     /// `createMutableReference(applicationBuffer:`
     /// - Parameter applicationBuffer: a mutable buffer pointer to the data
+    /// - Parameter name: name used in diagnostic messages
     /// - Returns: a reference to the device buffer
     func createMutableReference<Element>(
-        to applicationBuffer: UnsafeMutableBufferPointer<Element>) -> BufferId
+        to applicationBuffer: UnsafeMutableBufferPointer<Element>,
+        name: String) -> BufferId
 
     /// `duplicate(other:queue:`
     /// makes a duplicate of the specified device buffer. Used to support
@@ -158,7 +162,7 @@ public struct BufferDescription {
 //==============================================================================
 /// BufferId
 /// a reference counted id for a service device buffer
-public class BufferId {
+public class BufferId: Equatable {
     public let id: Int
 
     @inlinable
@@ -167,6 +171,10 @@ public class BufferId {
     /// a buffer name used in diagnostic messages
     @inlinable
     public var name: String { Platform.service.bufferName(self) }
+
+    public static func == (lhs: BufferId, rhs: BufferId) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
 //==============================================================================

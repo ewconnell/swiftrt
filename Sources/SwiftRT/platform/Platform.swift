@@ -24,7 +24,7 @@ import Glibc
 //==============================================================================
 /// Platform
 /// Manages the scope for the current devices, log, and error handlers
-public class Platform {
+public final class Platform {
     /// the log output object
     @usableFromInline static var logWriter: Log = Log()
     /// the current compute platform for the thread
@@ -99,6 +99,9 @@ public protocol PlatformService: PlatformAPI, Logger {
 }
 
 public extension PlatformService {
+    @inlinable
+    var memoryManager: MemoryManagement { self.memory }
+
     /// the currently active queue that platform service functions will use
     /// - Returns: the current device queue
     @inlinable

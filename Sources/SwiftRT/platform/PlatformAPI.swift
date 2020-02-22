@@ -27,33 +27,56 @@ public protocol PlatformAPI {
     mutating func using<R>(device: Int, queue: Int, _ body: () -> R) -> R
     mutating func using<R>(queue: Int, _ body: () -> R) -> R
     
-    /// retrieve the name of a buffer for diagnostics
-    func bufferName(_ id: BufferId) -> String
-
+    //--------------------------------------------------------------------------
     /// the thread that created this queue. Used to detect accidental access
     var creatorThread: Thread { get }
 
+    /// retrieve the name of a buffer for diagnostics
+    func bufferName(_ id: BufferId) -> String
+    
+    var memoryManager: MemoryManagement { get }
+    
+    func read<T>(_ tensor: T) -> ElementBuffer<T.Element, T.Shape>
+        where T: TensorView
+
+    func write<T>(_ tensor: inout T, willOverwrite: Bool)
+        -> MutableElementBuffer<T.Element, T.Shape> where T: TensorView
+
     //--------------------------------------------------------------------------
     /// abs
-    func abs<T>(_ x: T) -> T where
-        T: TensorView, T.Element: Real
+    func abs<T>(_ x: T) -> T
+        where T: TensorView, T.Element: Real
+    
+    func absmax<T>(_ x: T, along axes: Set<Int>?) -> T
+        where T: TensorView, T.Element: SignedNumeric & Comparable
+    
+    func abssum<T>(_ x: T, along axes: Set<Int>?) -> T
+        where T: TensorView, T.Element: SignedNumeric & Comparable
     
     /// add
-    func add<T>(_ lhs: T, _ rhs: T) -> T where
-        T: TensorView, T.Element: AdditiveArithmetic
+    func add<T>(_ lhs: T, _ rhs: T) -> T
+        where T: TensorView, T.Element: AdditiveArithmetic
     
+    // all
+    func all<T>(_ x: T, along axes: Set<Int>?) -> T
+        where T: TensorView, T.Element == Bool
+
     /// and
-    func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-        T: TensorView, T.Element == Bool
-    
+    func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView
+        where T: TensorView, T.Element == Bool
+
+    // any
+    func any<T>(_ x: T, along axes: Set<Int>?) -> T
+        where T: TensorView, T.Element == Bool
+
     /// cast
     func cast<T, U>(_ other: U) -> T where
         T: TensorView, T.Element: AnyConvertable,
         U: TensorView, U.Element: AnyConvertable
     
     /// concat
-    func concat<T>(_ tensors: [T], along axis: Int, _ name: String?) -> T where
-        T: TensorView
+    func concat<T>(_ tensors: [T], along axis: Int, _ name: String?) -> T
+        where T: TensorView
     
     /// copy  performs an indexed copy
     func copy<T>(from x: T, to result: inout T) where T: TensorView
@@ -66,9 +89,9 @@ public protocol PlatformAPI {
         T: TensorView, T.Element: AlgebraicField
     
     /// elementsAlmostEqual
-    func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T,
-                                _ tolerance: T.Element) -> T.BoolView where
-        T: TensorView, T.Element: SignedNumeric & Comparable
+    func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T, tolerance: T.Element)
+        -> T.BoolView
+        where T: TensorView, T.Element: SignedNumeric & Comparable
     
     /// equal
     func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
@@ -96,7 +119,7 @@ public protocol PlatformAPI {
         where T: TensorView, T.Element: Comparable
     
     /// less
-    func less<T>(_ lhs: T, _ rhs: T, result: inout T.BoolView)
+    func less<T>(_ lhs: T, _ rhs: T) -> T.BoolView
         where T: TensorView, T.Element: Comparable
     
     /// lessOrEqual
@@ -111,10 +134,19 @@ public protocol PlatformAPI {
     func max<T>(_ lhs: T, _ rhs: T) -> T
          where T: TensorView, T.Element: Comparable
     
+    func max<T>(_ x: T, along axes: Set<Int>?) -> T
+        where T: TensorView, T.Element: Comparable
+
+    func mean<T>(_ x: T, along axes: Set<Int>?) -> T
+        where T: TensorView, T.Element: AlgebraicField
+
     /// Computes the element-wise minimum of two tensors.
     func min<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: Comparable
     
+    func min<T>(_ x: T, along axes: Set<Int>?) -> T
+        where T: TensorView, T.Element: Comparable
+
     /// mul
     func mul<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: Numeric
@@ -136,6 +168,12 @@ public protocol PlatformAPI {
     func pow<T>(_ x: T, _ y: T) -> T
         where T: TensorView, T.Element: Real
     
+    func prod<T>(_ x: T, along axes: Set<Int>?) -> T
+        where T: TensorView, T.Element: Numeric
+
+    func prodNonZeros<T>(_ x: T, along axes: Set<Int>?) -> T
+        where T: TensorView, T.Element: Numeric
+
     /// replace
     func replace<T>(_ x: T, with y: T, where condition: T.BoolView) -> T
         where T: TensorView
@@ -152,31 +190,63 @@ public protocol PlatformAPI {
     func sqrt<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
     
+    /// sqrtSumSquares
+    func sqrtSumSquares<T>(_ x: T, along axes: Set<Int>?) -> T
+        where T: TensorView, T.Element: Real
+
     /// squared
     func squared<T>(_ x: T) -> T
         where T: TensorView, T.Element: Numeric
     
-    /// reduce
-    /// Reduces `x` along the specified axes
-    /// - Parameter x: value tensor
-    /// - Parameter result: contains the initial value of the result on entry
-    ///  and then final reduction result on return
-    /// - Parameter opNext: the operation to perform on pairs of elements
-    /// - Parameter opFinal: the operation to perform on the final result
-    /// - Precondition: Each value in `axes` must be in the range `-rank..<rank`.
-    func reduce<T>(_ x: T,
-                   _ opId: ReductionOp,
-                   _ opNext: @escaping (T.Element, T.Element) -> T.Element,
-                   _ opFinal: ReduceOpFinal<T>?) -> T
-        where T: TensorView
-    
+    func sum<T>(_ x: T, along axes: Set<Int>?) -> T
+        where T: TensorView, T.Element: Numeric
+
     //==========================================================================
     // derivative function declarations
     
-    /// vjpMinMax
-    func vjpMinMax<T>(_ x: T, _ y: T, _ scale: T,
+    func _vjpAbs<T>(_ x: T) -> (value: T, pullback: (T) -> T)
+        where T: DifferentiableTensorView, T.Element: Real
+    
+    func _vjpAdd<T>(lhs: T, rhs: T) -> (value: T, pullback: (T) ->(T, T))
+        where T: DifferentiableTensorView
+
+    func _vjpDivide<T>(_ lhs: T, _ rhs: T) ->
+        (value: T, pullback: (T) -> (T, T)) where
+        T: DifferentiableTensorView, T.Element: AlgebraicField & SignedNumeric
+
+    func _vjpExp<T>(_ x: T) -> (value: T, pullback: (T) -> T)
+        where T: DifferentiableTensorView, T.Element: Real
+
+    func _vjpLog<T>(_ x: T) -> (value: T, pullback: (T) -> T)
+        where T: DifferentiableTensorView, T.Element: Real
+
+    func _vjpMinMax<T>(_ x: T, _ y: T, _ scale: T,
                       _ op: @escaping (T.Element, T.Element) -> Bool) -> (T, T)
         where T: TensorView, T.Element: Comparable & Numeric
+    
+    func _vjpMultiply<T>(_ lhs: T, _ rhs: T) ->
+        (value: T, pullback: (T) -> (T, T)) where T: DifferentiableTensorView
+
+    func _vjpNeg<T>(_ x: T) -> (value: T, pullback: (T) -> T)
+        where T: DifferentiableTensorView, T.Element: SignedNumeric
+
+    func _vjpPow<T>(_ x: T, _ y: T) -> (value: T, pullback: (T) -> (T, T))
+        where T: DifferentiableTensorView, T.Element: Real
+
+    func _vjpSign<T>(_ x: T) -> (value: T, pullback: (T) -> T)
+        where T: DifferentiableTensorView, T.Element: Real
+
+    func _vjpSqrt<T>(_ x: T) -> (value: T, pullback: (T) -> T)
+        where T: DifferentiableTensorView, T.Element: Real
+
+    func _vjpSquared<T>(_ x: T) -> (value: T, pullback: (T) -> (T))
+        where T: DifferentiableTensorView
+
+    func _vjpSubtract<T>(lhs: T, rhs: T) -> (value: T, pullback: (T) ->(T, T))
+        where T: DifferentiableTensorView
+
+    func _vjpSum<T>(_ x: T, along axes: Set<Int>?)
+        -> (value: T, pullback: (T) -> T) where T: DifferentiableTensorView
 }
 
 //==============================================================================
@@ -200,7 +270,7 @@ public enum ReductionOp: Int, Codable {
     case compare
 }
 
-public typealias ReduceOpFinal<T: TensorView> = (T.Element) -> T.Element
+public typealias ReduceOpFinal<R: MutableShapedBuffer> = (R.Element) -> R.Element
 
 //==============================================================================
 // parameter matching helper

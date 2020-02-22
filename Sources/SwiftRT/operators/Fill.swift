@@ -109,7 +109,7 @@ public func fill<T, R>(_ result: inout T, with range: R) where
 
 extension PlatformService {
     @inlinable
-    func fill<T>(_ result: inout T, with element: T.Element)
+    public func fill<T>(_ result: inout T, with element: T.Element)
         where T: TensorView
     {
         var resultBuffer = write(&result)
@@ -119,7 +119,7 @@ extension PlatformService {
     /// fill(result:with range:
     /// fills the tensor with values formed by the specified range
     @inlinable
-    func fill<T, R>(_ result: inout T, with range: R) where
+    public func fill<T, R>(_ result: inout T, with range: R) where
         T: TensorView,
         R: StridedRangeExpression, R.Bound == T.Element
     {
@@ -158,7 +158,7 @@ public extension TensorView {
 /// `0..<count`. If a different range is desired, use `fill(with range:`
 extension PlatformService {
     @inlinable
-    func fillWithIndex<T>(_ result: inout T)
+    public func fillWithIndex<T>(_ result: inout T)
         where T: TensorView, T.Element: AnyNumeric & RangeBound
     {
         fill(&result, with: 0..<T.Element(any: result.count))
@@ -186,7 +186,7 @@ public func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T
 
 extension PlatformService {
     @inlinable
-    func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T
+    public func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T
         where T: TensorView
     {
         var (result, resultBuffer) = createResult(like: x)

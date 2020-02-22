@@ -290,7 +290,7 @@ public extension TensorView {
     /// reductionExtents
     /// determines the extents of a reduction result along the specified axes
     @inlinable
-    func reductionExtents(alongAxes axes: Set<Int>?) -> Shape.Array {
+    func reductionExtents(along axes: Set<Int>?) -> Shape.Array {
         guard let axes = axes else { return Shape.ones }
         assert(axes.isSubset(of: 0..<rank), "axis is out of bounds")
         var resultExtents = extents
@@ -311,8 +311,9 @@ public extension TensorView {
     @inlinable
     static func create(_ shape: Shape, _ name: String?) -> Self {
         let label = name ?? Self.diagnosticName
-        let array = TensorArray<Element>(count: shape.count, name: label)
-        return Self(shape: shape, elementBuffer: array,
+        let bufferId = Platform.service.memoryManager
+            .createBuffer(of: Element.self, count: shape.count, name: label)
+        return Self(shape: shape, elementBuffer: bufferId,
                     offset: 0, isMutable: false)
     }
     
@@ -323,8 +324,9 @@ public extension TensorView {
                "shape count does not match buffer count")
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
-        let array = TensorArray<Element>(referenceTo: buffer, name: label)
-        return Self(shape: shape, elementBuffer: array,
+        let bufferId = Platform.service.memoryManager
+            .createReference(to: buffer, name: label)
+        return Self(shape: shape, elementBuffer: bufferId,
                     offset: 0, isMutable: false)
     }
     
@@ -335,8 +337,9 @@ public extension TensorView {
                "shape count does not match buffer count")
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
-        let array = TensorArray<Element>(referenceTo: buffer, name: label)
-        return Self(shape: shape, elementBuffer: array,
+        let bufferId = Platform.service.memoryManager
+            .createMutableReference(to: buffer, name: label)
+        return Self(shape: shape, elementBuffer: bufferId,
                     offset: 0, isMutable: false)
     }
     
@@ -348,9 +351,20 @@ public extension TensorView {
         // it can be less if the elements are being repeated
         assert(elements.count <= shape.count, _messageElementCountMismatch)
         let label = name ?? Self.diagnosticName
-        let array = TensorArray<Element>(elements: elements, name: label)
-        return Self(shape: shape, elementBuffer: array,
-                    offset: 0, isMutable: false)
+        
+        // create the buffer
+        let bufferId = Platform.service.memoryManager
+            .createBuffer(of: Element.self, count: shape.count, name: label)
+        
+        // create the tensor
+        var tensor = Self(shape: shape, elementBuffer: bufferId,
+                          offset: 0, isMutable: false)
+        
+        // copy the collection into the tensor buffer
+        var buffer = Platform.service.write(&tensor, willOverwrite: true)
+        zip(buffer.indices, elements).forEach { buffer[$0] = $1 }
+        
+        return tensor
     }
 }
 

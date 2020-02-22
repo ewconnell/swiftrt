@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 /// ShapeProtocol
-public protocol ShapeProtocol: Codable, Collection {
+public protocol ShapeProtocol: Codable, Equatable, Collection {
     // types
     associatedtype Array: StaticArrayProtocol where
         Array: Equatable & Codable, Array.Element == Int,

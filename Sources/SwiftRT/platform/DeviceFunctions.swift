@@ -465,7 +465,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
                    _ result: inout R,
                    _ opId: ReductionOp,
                    _ opNext: @escaping (T.Element, T.Element) -> T.Element,
-                   _ opFinal: ReduceOpFinal<T>?) where
+                   _ opFinal: ReduceOpFinal<R>?) where
         T: ShapedBuffer,
         R: MutableShapedBuffer, R.Element == T.Element
     {

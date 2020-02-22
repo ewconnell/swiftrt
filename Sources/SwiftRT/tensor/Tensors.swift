@@ -130,9 +130,11 @@ public extension VectorView {
 //==============================================================================
 // VectorType
 public struct VectorType<Element>: VectorView {
+    public var mutableElements: MutableElementBuffer<Element, Shape1>
+    
     // properties
     public static var diagnosticName: String { "Vector" }
-    public let elementBuffer: BufferId
+    public var elementBuffer: BufferId
     public let isMutable: Bool
     public let offset: Int
     public let shape: Shape1
