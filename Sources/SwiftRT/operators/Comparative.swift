@@ -19,7 +19,7 @@ import Real
 // utilities
 public extension PlatformService {
     @inlinable
-    func _vjpMinMaxHelper<T>(
+    func _vjpMinMax<T>(
         _ x: T, _ y: T, v: T,
         op: @escaping (T.Element, T.Element) -> Bool) -> (T, T)
         where T: DifferentiableTensorView, T.Element: Comparable
@@ -249,7 +249,7 @@ public extension PlatformService {
 //        where T: DifferentiableTensorView, T.Element: Comparable
 //    {
 //        return (value: max(lhs, rhs), {
-//            _vjpMinMaxHelper(lhs, rhs, v: $0, op: >=)
+//            _vjpMinMax(lhs, rhs, v: $0, op: >=)
 //        })
 //    }
 //
@@ -261,7 +261,7 @@ public extension PlatformService {
 //    {
 //        let rhs = T(repeating: rhs, like: lhs)
 //        return (value: max(lhs, rhs), {
-//            let (lhsGrad, rhsGrad) = _vjpMinMaxHelper(lhs, rhs, v: $0, op: >=)
+//            let (lhsGrad, rhsGrad) = _vjpMinMax(lhs, rhs, v: $0, op: >=)
 //            return (lhsGrad, rhsGrad.sum().element)
 //        })
 //    }
@@ -274,7 +274,7 @@ public extension PlatformService {
 //    {
 //        let lhs = T(repeating: lhs, like: rhs)
 //        return (value: max(lhs, rhs), {
-//            let (lhsGrad, rhsGrad) = _vjpMinMaxHelper(lhs, rhs, v: $0, op: >=)
+//            let (lhsGrad, rhsGrad) = _vjpMinMax(lhs, rhs, v: $0, op: >=)
 //            return (lhsGrad.sum().element, rhsGrad)
 //        })
 //    }
@@ -366,7 +366,7 @@ public extension PlatformService {
 //        where T: DifferentiableTensorView, T.Element: Comparable
 //    {
 //        return (value: min(lhs, rhs), {
-//            _vjpMinMaxHelper(lhs, rhs, v: $0, op: <=)
+//            _vjpMinMax(lhs, rhs, v: $0, op: <=)
 //        })
 //    }
 //
@@ -378,7 +378,7 @@ public extension PlatformService {
 //    {
 //        let rhs = T(repeating: rhs, like: lhs)
 //        return (value: min(lhs, rhs), {
-//            let (lhsGrad, rhsGrad) = _vjpMinMaxHelper(lhs, rhs, v: $0, op: <=)
+//            let (lhsGrad, rhsGrad) = _vjpMinMax(lhs, rhs, v: $0, op: <=)
 //            return (lhsGrad, rhsGrad.sum().element)
 //        })
 //    }
@@ -391,7 +391,7 @@ public extension PlatformService {
 //    {
 //        let lhs = T(repeating: lhs, like: rhs)
 //        return (value: min(lhs, rhs), {
-//            let (lhsGrad, rhsGrad) = _vjpMinMaxHelper(lhs, rhs, v: $0, op: <=)
+//            let (lhsGrad, rhsGrad) = _vjpMinMax(lhs, rhs, v: $0, op: <=)
 //            return (lhsGrad.sum().element, rhsGrad)
 //        })
 //    }

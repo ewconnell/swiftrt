@@ -170,7 +170,7 @@ public class BufferId: Equatable {
 
     /// a buffer name used in diagnostic messages
     @inlinable
-    public var name: String { Platform.service.bufferName(self) }
+    public var name: String { Platform.service.memoryManager.bufferName(self) }
 
     public static func == (lhs: BufferId, rhs: BufferId) -> Bool {
         lhs.id == rhs.id

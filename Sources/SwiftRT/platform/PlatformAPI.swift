@@ -28,12 +28,7 @@ public protocol PlatformAPI {
     mutating func using<R>(queue: Int, _ body: () -> R) -> R
     
     //--------------------------------------------------------------------------
-    /// the thread that created this queue. Used to detect accidental access
-    var creatorThread: Thread { get }
-
     /// retrieve the name of a buffer for diagnostics
-    func bufferName(_ id: BufferId) -> String
-    
     var memoryManager: MemoryManagement { get }
     
     func read<T>(_ tensor: T) -> ElementBuffer<T.Element, T.Shape>
@@ -81,8 +76,8 @@ public protocol PlatformAPI {
     /// copy  performs an indexed copy
     func copy<T>(from x: T, to result: inout T) where T: TensorView
     
-    /// delay
-    func delay(_ interval: TimeInterval)
+    /// delayQueue
+    func delayQueue(atLeast interval: TimeInterval)
     
     /// div
     func div<T>(_ lhs: T, _ rhs: T) -> T where

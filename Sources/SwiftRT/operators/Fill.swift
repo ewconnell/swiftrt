@@ -79,7 +79,7 @@ public extension PlatformService {
 /// - Parameter interval: the number of seconds to delay
 @inlinable
 public func delayQueue(atLeast interval: TimeInterval) {
-    Platform.service.delay(interval)
+    Platform.service.delayQueue(atLeast: interval)
 }
 
 public extension PlatformService {
