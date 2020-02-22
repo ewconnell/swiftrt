@@ -67,7 +67,7 @@ public protocol PlatformAPI {
     /// cast
     func cast<T, U>(_ other: U) -> T where
         T: TensorView, T.Element: AnyConvertable,
-        U: TensorView, U.Element: AnyConvertable
+        U: TensorView, U.Element: AnyConvertable, U.Shape == T.Shape
     
     /// concat
     func concat<T>(_ tensors: [T], along axis: Int, _ name: String?) -> T
@@ -216,8 +216,8 @@ public protocol PlatformAPI {
         where T: DifferentiableTensorView, T.Element: Real
 
     func _vjpMinMax<T>(_ x: T, _ y: T, _ scale: T,
-                      _ op: @escaping (T.Element, T.Element) -> Bool) -> (T, T)
-        where T: TensorView, T.Element: Comparable & Numeric
+                       _ op: @escaping (T.Element, T.Element) -> Bool) -> (T, T)
+        where T : TensorView, T.Element : Comparable, T.Element : Numeric
     
     func _vjpMultiply<T>(_ lhs: T, _ rhs: T) ->
         (value: T, pullback: (T) -> (T, T)) where T: DifferentiableTensorView

@@ -19,17 +19,16 @@ import Real
 // utilities
 public extension PlatformService {
     @inlinable
-    func _vjpMinMax<T>(
-        _ x: T, _ y: T, v: T,
-        op: @escaping (T.Element, T.Element) -> Bool) -> (T, T)
-        where T: DifferentiableTensorView, T.Element: Comparable
+    func _vjpMinMax<T>(_ x: T, _ y: T, _ scale: T,
+                       _ op: @escaping (T.Element, T.Element) -> Bool) -> (T, T)
+        where T : TensorView, T.Element : Comparable, T.Element : Numeric
     {
         var resultTrue = x.createDense()
         var trueBuffer = write(&resultTrue)
         var resultFalse = x.createDense()
         var falseBuffer = write(&resultFalse)
         
-        currentQueue.vjpMinMax(read(x), read(y), read(v), op,
+        currentQueue.vjpMinMax(read(x), read(y), read(scale), op,
                                &trueBuffer, &falseBuffer)
         return (resultTrue, resultFalse)
     }
