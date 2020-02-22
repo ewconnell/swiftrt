@@ -198,17 +198,17 @@ public extension PlatformService {
 }
 
 // Platform extensions
-extension PlatformService {
+public extension PlatformService {
     /// changes the current device/queue to use cpu:0
     @inlinable
-    public mutating func useCpu() {
+    mutating func useCpu() {
         queueStack[queueStack.count - 1] = QueueId(0, 0)
     }
     /// selects the specified device queue for output
     /// - Parameter device: the device to use. Device 0 is the cpu
     /// - Parameter queue: the queue on the device to use
     @inlinable
-    public mutating func use(device: Int, queue: Int = 0) {
+    mutating func use(device: Int, queue: Int = 0) {
         queueStack[queueStack.count - 1] = ensureValidId(device, queue)
     }
     /// selects the specified device queue for output within the scope of
@@ -217,7 +217,7 @@ extension PlatformService {
     /// - Parameter queue: the queue on the device to use
     /// - Parameter body: a closure where the device queue will be used
     @inlinable
-    public mutating func using<R>(device: Int,
+    mutating func using<R>(device: Int,
                                   queue: Int = 0, _ body: () -> R) -> R {
         // push the selection onto the queue stack
         queueStack.append(ensureValidId(device, queue))
@@ -229,7 +229,7 @@ extension PlatformService {
     /// - Parameter queue: the queue on the device to use
     /// - Parameter body: a closure where the device queue will be used
     @inlinable
-    public mutating func using<R>(queue: Int, _ body: () -> R) -> R {
+    mutating func using<R>(queue: Int, _ body: () -> R) -> R {
         // push the selection onto the queue stack
         let current = queueStack.last!
         queueStack.append(ensureValidId(current.device, queue))
@@ -238,7 +238,7 @@ extension PlatformService {
     }
     // peforms a mod on the indexes to guarantee they are mapped into bounds
     @inlinable
-    public func ensureValidId(_ deviceId: Int, _ queueId: Int) -> QueueId {
+    func ensureValidId(_ deviceId: Int, _ queueId: Int) -> QueueId {
         let device = deviceId % devices.count
         let queue = queueId % devices[device].queues.count
         return QueueId(device, queue)

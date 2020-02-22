@@ -39,12 +39,8 @@ public protocol TensorView: Logging {
     static var diagnosticName: String { get }
     /// class reference to the underlying byte buffer
     var elementBuffer: BufferId { get set }
-    /// a shaped element buffer pointer and collection
-    var elements: ElementBuffer<Element, Shape> { get }
     /// if `true` then readWrite buffer access will not cause copy-on-write
     var isMutable: Bool { get }
-    /// a shaped mutable element buffer pointer and collection
-    var mutableElements: MutableElementBuffer<Element, Shape> { get set }
     /// the shape of the view used for indexing
     var shape: Shape { get }
     /// the linear element offset where the view begins
@@ -116,7 +112,8 @@ public extension TensorView {
         set {
             assert(shape.isScalar, "the `element` property expects " +
                 "the tensor to have a single Element")
-            mutableElements[mutableElements.startIndex] = newValue
+            var buffer = mutableElements
+            buffer[buffer.startIndex] = newValue
         }
     }
 }

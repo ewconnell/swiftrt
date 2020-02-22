@@ -26,10 +26,10 @@ public func concat<T>(tensors: [T], alongAxis axis: Int = 0,
     Platform.service.concat(tensors, along: axis, name)
 }
 
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func concat<T>(tensors: [T], along axis: Int = 0,
-                          name: String? = nil) -> T where T: TensorView
+    func concat<T>(_ tensors: [T], along axis: Int = 0,
+                          _ name: String? = nil) -> T where T: TensorView
     {
         assert(tensors.count > 1)
         // compute joined shape and create result buffer
@@ -47,7 +47,7 @@ extension PlatformService {
 
 public extension TensorView {
     @inlinable
-    func concat(_ others: Self..., alongAxis axis: Int = 0,
+    func concat(_ others: Self..., along axis: Int = 0,
                 name: String? = nil) -> Self
     {
         Platform.service.concat([self] + others, along: axis, name)
@@ -64,9 +64,9 @@ public func copy<T>(from view: T, to result: inout T) where T: TensorView {
     Platform.service.copy(from: view, to: &result)
 }
 
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func copy<T>(from view: T, to result: inout T) where T: TensorView
+    func copy<T>(from view: T, to result: inout T) where T: TensorView
     {
         var resultBuffer = write(&result)
         currentQueue.copy(from: read(view), to: &resultBuffer)
@@ -82,9 +82,9 @@ public func delayQueue(atLeast interval: TimeInterval) {
     Platform.service.delay(interval)
 }
 
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func delayQueue(atLeast interval: TimeInterval) {
+    func delayQueue(atLeast interval: TimeInterval) {
         currentQueue.delay(interval)
     }
 }
@@ -107,9 +107,9 @@ public func fill<T, R>(_ result: inout T, with range: R) where
     Platform.service.fill(&result, with: range)
 }
 
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func fill<T>(_ result: inout T, with element: T.Element)
+    func fill<T>(_ result: inout T, with element: T.Element)
         where T: TensorView
     {
         var resultBuffer = write(&result)
@@ -119,7 +119,7 @@ extension PlatformService {
     /// fill(result:with range:
     /// fills the tensor with values formed by the specified range
     @inlinable
-    public func fill<T, R>(_ result: inout T, with range: R) where
+    func fill<T, R>(_ result: inout T, with range: R) where
         T: TensorView,
         R: StridedRangeExpression, R.Bound == T.Element
     {
@@ -156,9 +156,9 @@ public extension TensorView {
 /// fillWithIndex
 /// a convenience function to fill the tensor with index values from
 /// `0..<count`. If a different range is desired, use `fill(with range:`
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func fillWithIndex<T>(_ result: inout T)
+    func fillWithIndex<T>(_ result: inout T)
         where T: TensorView, T.Element: AnyNumeric & RangeBound
     {
         fill(&result, with: 0..<T.Element(any: result.count))
@@ -184,9 +184,9 @@ public func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T
     Platform.service.replace(x, with: y, where: condition)
 }
 
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T
+    func replace<T>(_ x: T, with y: T, where condition: T.BoolView) -> T
         where T: TensorView
     {
         var (result, resultBuffer) = createResult(like: x)

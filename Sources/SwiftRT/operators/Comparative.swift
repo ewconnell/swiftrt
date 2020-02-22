@@ -17,7 +17,7 @@ import Real
 
 //==============================================================================
 // utilities
-extension PlatformService {
+public extension PlatformService {
     @inlinable
     func _vjpMinMaxHelper<T>(
         _ x: T, _ y: T, v: T,
@@ -59,9 +59,9 @@ public func and<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
     Platform.service.and(T(repeating: lhs, like: rhs), rhs)
 }
 
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+    func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element == Bool
     {
         assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
@@ -72,14 +72,14 @@ extension PlatformService {
     }
 
     @inlinable
-    public func and<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
+    func and<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
         where T: TensorView, T.Element == Bool
     {
         and(lhs, T(repeating: rhs, like: lhs))
     }
 
     @inlinable
-    public func and<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
+    func and<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
         where T: TensorView, T.Element == Bool
     {
         and(T(repeating: lhs, like: rhs), rhs)
@@ -123,9 +123,9 @@ public func or<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
     or(T(repeating: lhs, like: rhs), rhs)
 }
 
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func or<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+    func or<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element == Bool
     {
         assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
@@ -163,88 +163,88 @@ public extension TensorView where Element == Bool {
     static func .||(_ lhs: Element, _ rhs: Self) -> BoolView { or(lhs, rhs) }
 }
 
-////==============================================================================
-///// max
-///// Computes the element-wise maximum of two tensors
-///// - Parameter lhs: left hand tensor
-///// - Parameter rhs: right hand tensor
-///// - Returns: result
-//@inlinable
+//==============================================================================
+/// max
+/// Computes the element-wise maximum of two tensors
+/// - Parameter lhs: left hand tensor
+/// - Parameter rhs: right hand tensor
+/// - Returns: result
+@inlinable
 //@differentiable(where T: DifferentiableTensorView)
-//public func max<T>(_ lhs: T, _ rhs: T) -> T where
-//    T: TensorView, T.Element: Comparable
-//{
-//    Platform.service.max(lhs, rhs)
-//}
-//
-//@inlinable
+public func max<T>(_ lhs: T, _ rhs: T) -> T where
+    T: TensorView, T.Element: Comparable
+{
+    Platform.service.max(lhs, rhs)
+}
+
+@inlinable
 //@differentiable(where T: DifferentiableTensorView)
-//public func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
-//    T: TensorView, T.Element: Comparable
-//{
-//    max(lhs, T(repeating: rhs, like: lhs))
-//}
-//
-//@inlinable
+public func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
+    T: TensorView, T.Element: Comparable
+{
+    max(lhs, T(repeating: rhs, like: lhs))
+}
+
+@inlinable
 //@differentiable(where T: DifferentiableTensorView)
-//public func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
-//    T: TensorView, T.Element: Comparable
-//{
-//    max(T(repeating: lhs, like: rhs), rhs)
-//}
-//
-//extension PlatformService {
+public func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
+    T: TensorView, T.Element: Comparable
+{
+    max(T(repeating: lhs, like: rhs), rhs)
+}
+
+public extension PlatformService {
+    @inlinable
+//    @differentiable(where T: DifferentiableTensorView)
+    func max<T>(_ lhs: T, _ rhs: T) -> T where
+        T: TensorView, T.Element: Comparable
+    {
+        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        var (result, resultBuffer) = createResult(like: lhs)
+        currentQueue.max(read(lhs), read(rhs), &resultBuffer)
+        return result
+    }
+
+    @inlinable
+//    @differentiable(where T: DifferentiableTensorView)
+    func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
+        T: TensorView, T.Element: Comparable
+    {
+        max(lhs, T(repeating: rhs, like: lhs))
+    }
+
+    @inlinable
+//    @differentiable(where T: DifferentiableTensorView)
+    func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
+        T: TensorView, T.Element: Comparable
+    {
+        max(T(repeating: lhs, like: rhs), rhs)
+    }
+}
+
+//public extension TensorView {
 //    @inlinable
 //    @differentiable(where T: DifferentiableTensorView)
 //    func max<T>(_ lhs: T, _ rhs: T) -> T where
-//        T: TensorView, T.Element: Comparable
-//    {
-//        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-//        var (result, resultBuffer) = createResult(like: lhs)
-//        currentQueue.max(read(lhs), read(rhs), &resultBuffer)
-//        return result
-//    }
+//        T: TensorView, T.Element: Comparable { max(lhs, rhs) }
 //
 //    @inlinable
 //    @differentiable(where T: DifferentiableTensorView)
 //    func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
-//        T: TensorView, T.Element: Comparable
-//    {
-//        max(lhs, T(repeating: rhs, like: lhs))
-//    }
+//        T: TensorView, T.Element: Comparable { max(lhs, rhs) }
 //
 //    @inlinable
 //    @differentiable(where T: DifferentiableTensorView)
 //    func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
-//        T: TensorView, T.Element: Comparable
-//    {
-//        max(T(repeating: lhs, like: rhs), rhs)
-//    }
+//        T: TensorView, T.Element: Comparable { max(lhs, rhs) }
 //}
-//
-////public extension TensorView {
-////    @inlinable
-////    @differentiable(where T: DifferentiableTensorView)
-////    func max<T>(_ lhs: T, _ rhs: T) -> T where
-////        T: TensorView, T.Element: Comparable { max(lhs, rhs) }
-////
-////    @inlinable
-////    @differentiable(where T: DifferentiableTensorView)
-////    func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
-////        T: TensorView, T.Element: Comparable { max(lhs, rhs) }
-////
-////    @inlinable
-////    @differentiable(where T: DifferentiableTensorView)
-////    func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
-////        T: TensorView, T.Element: Comparable { max(lhs, rhs) }
-////}
-//
-////--------------------------------------
+
+//--------------------------------------
 //// derivative functions
-//extension PlatformService {
+//public extension PlatformService {
 //    @inlinable
 //    @derivative(of: max)
-//    func _vjpMax<T>(_ lhs: T, _ rhs: T)
+//    public func _vjpMax<T>(_ lhs: T, _ rhs: T)
 //        -> (value: T, pullback: (T) -> (T, T))
 //        where T: DifferentiableTensorView, T.Element: Comparable
 //    {
@@ -255,7 +255,7 @@ public extension TensorView where Element == Bool {
 //
 //    @inlinable
 //    @derivative(of: max)
-//    func _vjpMax<T>(_ lhs: T, _ rhs: T.Element) ->
+//    public func _vjpMax<T>(_ lhs: T, _ rhs: T.Element) ->
 //        (value: T, pullback: (T) -> (T, T.Element))
 //        where T: DifferentiableTensorView, T.Element: Comparable
 //    {
@@ -268,7 +268,7 @@ public extension TensorView where Element == Bool {
 //
 //    @inlinable
 //    @derivative(of: max)
-//    func _vjpMax<T>(_ lhs: T.Element, _ rhs: T) ->
+//    public func _vjpMax<T>(_ lhs: T.Element, _ rhs: T) ->
 //        (value: T, pullback: (T) -> (T.Element, T))
 //        where T: DifferentiableTensorView, T.Element: Comparable
 //    {
@@ -280,88 +280,88 @@ public extension TensorView where Element == Bool {
 //    }
 //}
 //
-////==============================================================================
-///// min
-///// Computes the element-wise minimum of two tensors
-///// - Parameter lhs: left hand tensor
-///// - Parameter rhs: right hand tensor
-///// - Returns: result
-//@inlinable
+//==============================================================================
+/// min
+/// Computes the element-wise minimum of two tensors
+/// - Parameter lhs: left hand tensor
+/// - Parameter rhs: right hand tensor
+/// - Returns: result
+@inlinable
 //@differentiable(where T: DifferentiableTensorView)
-//public func min<T>(_ lhs: T, _ rhs: T) -> T where
-//    T: TensorView, T.Element: Comparable
-//{
-//    Platform.service.min(lhs, rhs)
-//}
-//
-//@inlinable
+public func min<T>(_ lhs: T, _ rhs: T) -> T where
+    T: TensorView, T.Element: Comparable
+{
+    Platform.service.min(lhs, rhs)
+}
+
+@inlinable
 //@differentiable(where T: DifferentiableTensorView)
-//public func min<T>(_ lhs: T, _ rhs: T.Element) -> T
-//    where T: TensorView, T.Element: Comparable
-//{
-//    min(lhs, T(repeating: rhs, like: lhs))
-//}
-//
-//@inlinable
+public func min<T>(_ lhs: T, _ rhs: T.Element) -> T
+    where T: TensorView, T.Element: Comparable
+{
+    min(lhs, T(repeating: rhs, like: lhs))
+}
+
+@inlinable
 //@differentiable(where T: DifferentiableTensorView)
-//public func min<T>(_ lhs: T.Element, _ rhs: T) -> T
-//    where T: TensorView, T.Element: Comparable
-//{
-//    min(T(repeating: lhs, like: rhs), rhs)
-//}
-//
-//extension PlatformService {
+public func min<T>(_ lhs: T.Element, _ rhs: T) -> T
+    where T: TensorView, T.Element: Comparable
+{
+    min(T(repeating: lhs, like: rhs), rhs)
+}
+
+public extension PlatformService {
+    @inlinable
+//    @differentiable(where T: DifferentiableTensorView)
+    func min<T>(_ lhs: T, _ rhs: T) -> T where
+        T: TensorView, T.Element: Comparable
+    {
+        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        var (result, resultBuffer) = createResult(like: lhs)
+        currentQueue.min(read(lhs), read(rhs), &resultBuffer)
+        return result
+    }
+
+    @inlinable
+//    @differentiable(where T: DifferentiableTensorView)
+    func min<T>(_ lhs: T, _ rhs: T.Element) -> T
+        where T: TensorView, T.Element: Comparable
+    {
+        min(lhs, T(repeating: rhs, like: lhs))
+    }
+
+    @inlinable
+//    @differentiable(where T: DifferentiableTensorView)
+    func min<T>(_ lhs: T.Element, _ rhs: T) -> T
+        where T: TensorView, T.Element: Comparable
+    {
+        min(T(repeating: lhs, like: rhs), rhs)
+    }
+}
+
+//public extension TensorView {
 //    @inlinable
 //    @differentiable(where T: DifferentiableTensorView)
 //    func min<T>(_ lhs: T, _ rhs: T) -> T where
-//        T: TensorView, T.Element: Comparable
-//    {
-//        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-//        var (result, resultBuffer) = createResult(like: lhs)
-//        currentQueue.min(read(lhs), read(rhs), &resultBuffer)
-//        return result
-//    }
+//        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
 //
 //    @inlinable
 //    @differentiable(where T: DifferentiableTensorView)
-//    func min<T>(_ lhs: T, _ rhs: T.Element) -> T
-//        where T: TensorView, T.Element: Comparable
-//    {
-//        min(lhs, T(repeating: rhs, like: lhs))
-//    }
+//    func min<T>(_ lhs: T, _ rhs: T.Element) -> T where
+//        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
 //
 //    @inlinable
 //    @differentiable(where T: DifferentiableTensorView)
-//    func min<T>(_ lhs: T.Element, _ rhs: T) -> T
-//        where T: TensorView, T.Element: Comparable
-//    {
-//        min(T(repeating: lhs, like: rhs), rhs)
-//    }
+//    func min<T>(_ lhs: T.Element, _ rhs: T) -> T where
+//        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
 //}
-//
-////public extension TensorView {
-////    @inlinable
-////    @differentiable(where T: DifferentiableTensorView)
-////    func min<T>(_ lhs: T, _ rhs: T) -> T where
-////        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
-////
-////    @inlinable
-////    @differentiable(where T: DifferentiableTensorView)
-////    func min<T>(_ lhs: T, _ rhs: T.Element) -> T where
-////        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
-////
-////    @inlinable
-////    @differentiable(where T: DifferentiableTensorView)
-////    func min<T>(_ lhs: T.Element, _ rhs: T) -> T where
-////        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
-////}
-//
+
 ////--------------------------------------
 //// derivative functions
-//extension PlatformService {
+//public extension PlatformService {
 //    @inlinable
 //    @derivative(of: min)
-//    func _vjpMin<T>(_ lhs: T, _ rhs: T)
+//    public func _vjpMin<T>(_ lhs: T, _ rhs: T)
 //        -> (value: T, pullback: (T) -> (T, T))
 //        where T: DifferentiableTensorView, T.Element: Comparable
 //    {
@@ -372,7 +372,7 @@ public extension TensorView where Element == Bool {
 //
 //    @inlinable
 //    @derivative(of: min)
-//    func _vjpMin<T>(_ lhs: T, _ rhs: T.Element) ->
+//    public func _vjpMin<T>(_ lhs: T, _ rhs: T.Element) ->
 //        (value: T, pullback: (T) -> (T, T.Element))
 //        where T: DifferentiableTensorView, T.Element: Comparable
 //    {
@@ -385,7 +385,7 @@ public extension TensorView where Element == Bool {
 //
 //    @inlinable
 //    @derivative(of: min)
-//    func _vjpMin<T>(_ lhs: T.Element, _ rhs: T) ->
+//    public func _vjpMin<T>(_ lhs: T.Element, _ rhs: T) ->
 //        (value: T, pullback: (T) -> (T.Element, T))
 //        where T: DifferentiableTensorView, T.Element: Comparable
 //    {
@@ -397,202 +397,202 @@ public extension TensorView where Element == Bool {
 //    }
 //}
 //
-////==============================================================================
-///// equal
-///// Performs element-wise equality comparison and returns a
-///// tensor of Bool values
-//@inlinable
-//public func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
-//    Platform.service.equal(lhs, rhs)
-//}
-//
-//extension PlatformService {
-//    @inlinable
-//    func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
-//        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-//        var result = lhs.createBoolTensor()
-//        var resultBuffer = write(&result)
-//        currentQueue.equal(read(lhs), read(rhs), &resultBuffer)
-//        return result
-//    }
-//}
-//
-//infix operator .== : ComparisonPrecedence
-//
-//public extension TensorView where Element: Equatable {
-//    @inlinable
-//    static func .== (_ lhs: Self, _ rhs: Self) -> BoolView { equal(lhs, rhs) }
-//
-//    /// - Parameter lhs: left hand tensor
-//    /// - Parameter rhs: right hand tensor
-//    /// - Returns: `true` if the tensors are equal
-//    @inlinable
-//    static func == (lhs: Self, rhs: Self) -> Bool {
-//        // the extents must match or they are not equal
-//        guard lhs.extents == rhs.extents else { return false }
-//
-//        // if lhs is an alias for rhs, then they match
-//        if lhs.elementBuffer === rhs.elementBuffer &&
-//            lhs.offset == rhs.offset { return true }
-//
-//        // compare elements
-//        return (lhs .== rhs).all().element
-//    }
-//}
-//
-////==============================================================================
-///// elementsAlmostEqual
-///// Performs element-wise equality comparison within the tolerance range
-///// and returns a tensor of Bool values
-//@inlinable
-//public func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T,
-//                                   tolerance: T.Element) -> T.BoolView where
-//    T: TensorView, T.Element: SignedNumeric & Comparable
-//{
-//    Platform.service.elementsAlmostEqual(lhs, rhs, tolerance: tolerance)
-//}
-//
-//extension PlatformService {
-//    @inlinable
-//    func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T,
-//                                tolerance: T.Element) -> T.BoolView
-//        where T: TensorView, T.Element: SignedNumeric & Comparable
-//    {
-//        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-//        var result = lhs.createBoolTensor()
-//        var resultBuffer = write(&result)
-//        currentQueue.elementsAlmostEqual(read(lhs), read(rhs),
-//                                         tolerance, &resultBuffer)
-//        return result
-//    }
-//}
-//
-//public extension TensorView where Element: SignedNumeric & Comparable {
-//    @inlinable
-//    func elementsAlmostEqual(_ rhs: Self, tolerance: Element) -> BoolView {
-//        Platform.service.elementsAlmostEqual(self, rhs, tolerance: tolerance)
-//    }
-//}
-//
-////==============================================================================
-///// notEqual
-///// Computes `lhs != rhs` element-wise and returns a `TensorView` of Boolean
-///// values.
-//@inlinable
-//public func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
-//    Platform.service.notEqual(lhs, rhs)
-//}
-//
-//extension PlatformService {
-//    @inlinable
-//    func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
-//        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-//        var result = lhs.createBoolTensor()
-//        var resultBuffer = write(&result)
-//        currentQueue.notEqual(read(lhs), read(rhs), &resultBuffer)
-//        return result
-//    }
-//}
-//
-//infix operator .!= : ComparisonPrecedence
-//
-//public extension TensorView where Element: Equatable {
-//    @inlinable
-//    static func .!=(_ lhs: Self, _ rhs: Self) -> BoolView { notEqual(lhs, rhs) }
-//}
-//
-////==============================================================================
-///// greater
-///// Computes `lhs .> rhs` element-wise and returns a tensor of Bool values
-//@inlinable
-//public func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//    T: TensorView, T.Element: Comparable
-//{
-//    Platform.service.greater(lhs, rhs)
-//}
-//
-//extension PlatformService {
-//    @inlinable
-//    func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//        T: TensorView, T.Element: Comparable
-//    {
-//        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-//        var result = lhs.createBoolTensor()
-//        var resultBuffer = write(&result)
-//        currentQueue.greater(read(lhs), read(rhs), &resultBuffer)
-//        return result
-//    }
-//}
-//
-//infix operator .> : ComparisonPrecedence
-//
-//public extension TensorView where Element: Comparable {
-//    @inlinable
-//    static func .>(_ lhs: Self, _ rhs: Self) -> BoolView { greater(lhs, rhs) }
-//}
-//
-////==============================================================================
-///// greaterOrEqual
-///// Computes `lhs .>= rhs` element-wise and returns a tensor of Bool values
-//@inlinable
-//public func greaterOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//    T: TensorView, T.Element: Comparable
-//{
-//    Platform.service.greaterOrEqual(lhs, rhs)
-//}
-//
-//extension PlatformService {
-//    @inlinable
-//    func greaterOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//        T: TensorView, T.Element: Comparable
-//    {
-//        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-//        var result = lhs.createBoolTensor()
-//        var resultBuffer = write(&result)
-//        currentQueue.greaterOrEqual(read(lhs), read(rhs), &resultBuffer)
-//        return result
-//    }
-//}
-//
-//infix operator .>= : ComparisonPrecedence
-//
-//public extension TensorView where Element: Comparable {
-//    @inlinable
-//    static func .>=(_ lhs: Self, _ rhs: Self) -> BoolView {
-//        greaterOrEqual(lhs, rhs)
-//    }
-//}
-//
-////==============================================================================
-///// less
-///// Computes `lhs .< rhs` element-wise and returns a tensor of Bool values
-//@inlinable
-//public func less<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//    T: TensorView, T.Element: Comparable
-//{
-//    Platform.service.less(lhs, rhs)
-//}
-//
-//extension PlatformService {
-//    @inlinable
-//    func less<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//        T: TensorView, T.Element: Comparable
-//    {
-//        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-//        var result = lhs.createBoolTensor()
-//        var resultBuffer = write(&result)
-//        currentQueue.less(read(lhs), read(rhs), &resultBuffer)
-//        return result
-//    }
-//}
-//
-//infix operator .< : ComparisonPrecedence
-//
-//public extension TensorView where Element: Comparable {
-//    @inlinable
-//    static func .<(_ lhs: Self, _ rhs: Self) -> BoolView { less(lhs, rhs) }
-//}
-//
+//==============================================================================
+/// equal
+/// Performs element-wise equality comparison and returns a
+/// tensor of Bool values
+@inlinable
+public func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
+    Platform.service.equal(lhs, rhs)
+}
+
+public extension PlatformService {
+    @inlinable
+    func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
+        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        var result = lhs.createBoolTensor()
+        var resultBuffer = write(&result)
+        currentQueue.equal(read(lhs), read(rhs), &resultBuffer)
+        return result
+    }
+}
+
+infix operator .== : ComparisonPrecedence
+
+public extension TensorView where Element: Equatable {
+    @inlinable
+    static func .== (_ lhs: Self, _ rhs: Self) -> BoolView { equal(lhs, rhs) }
+
+    /// - Parameter lhs: left hand tensor
+    /// - Parameter rhs: right hand tensor
+    /// - Returns: `true` if the tensors are equal
+    @inlinable
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        // the extents must match or they are not equal
+        guard lhs.extents == rhs.extents else { return false }
+
+        // if lhs is an alias for rhs, then they match
+        if lhs.elementBuffer === rhs.elementBuffer &&
+            lhs.offset == rhs.offset { return true }
+
+        // compare elements
+        return (lhs .== rhs).all().element
+    }
+}
+
+//==============================================================================
+/// elementsAlmostEqual
+/// Performs element-wise equality comparison within the tolerance range
+/// and returns a tensor of Bool values
+@inlinable
+public func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T,
+                                   tolerance: T.Element) -> T.BoolView where
+    T: TensorView, T.Element: SignedNumeric & Comparable
+{
+    Platform.service.elementsAlmostEqual(lhs, rhs, tolerance: tolerance)
+}
+
+public extension PlatformService {
+    @inlinable
+    func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T,
+                                tolerance: T.Element) -> T.BoolView
+        where T: TensorView, T.Element: SignedNumeric & Comparable
+    {
+        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        var result = lhs.createBoolTensor()
+        var resultBuffer = write(&result)
+        currentQueue.elementsAlmostEqual(read(lhs), read(rhs),
+                                         tolerance, &resultBuffer)
+        return result
+    }
+}
+
+public extension TensorView where Element: SignedNumeric & Comparable {
+    @inlinable
+    func elementsAlmostEqual(_ rhs: Self, tolerance: Element) -> BoolView {
+        Platform.service.elementsAlmostEqual(self, rhs, tolerance: tolerance)
+    }
+}
+
+//==============================================================================
+/// notEqual
+/// Computes `lhs != rhs` element-wise and returns a `TensorView` of Boolean
+/// values.
+@inlinable
+public func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
+    Platform.service.notEqual(lhs, rhs)
+}
+
+public extension PlatformService {
+    @inlinable
+    func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
+        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        var result = lhs.createBoolTensor()
+        var resultBuffer = write(&result)
+        currentQueue.notEqual(read(lhs), read(rhs), &resultBuffer)
+        return result
+    }
+}
+
+infix operator .!= : ComparisonPrecedence
+
+public extension TensorView where Element: Equatable {
+    @inlinable
+    static func .!=(_ lhs: Self, _ rhs: Self) -> BoolView { notEqual(lhs, rhs) }
+}
+
+//==============================================================================
+/// greater
+/// Computes `lhs .> rhs` element-wise and returns a tensor of Bool values
+@inlinable
+public func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+    T: TensorView, T.Element: Comparable
+{
+    Platform.service.greater(lhs, rhs)
+}
+
+public extension PlatformService {
+    @inlinable
+    func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+        T: TensorView, T.Element: Comparable
+    {
+        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        var result = lhs.createBoolTensor()
+        var resultBuffer = write(&result)
+        currentQueue.greater(read(lhs), read(rhs), &resultBuffer)
+        return result
+    }
+}
+
+infix operator .> : ComparisonPrecedence
+
+public extension TensorView where Element: Comparable {
+    @inlinable
+    static func .>(_ lhs: Self, _ rhs: Self) -> BoolView { greater(lhs, rhs) }
+}
+
+//==============================================================================
+/// greaterOrEqual
+/// Computes `lhs .>= rhs` element-wise and returns a tensor of Bool values
+@inlinable
+public func greaterOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+    T: TensorView, T.Element: Comparable
+{
+    Platform.service.greaterOrEqual(lhs, rhs)
+}
+
+public extension PlatformService {
+    @inlinable
+    func greaterOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+        T: TensorView, T.Element: Comparable
+    {
+        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        var result = lhs.createBoolTensor()
+        var resultBuffer = write(&result)
+        currentQueue.greaterOrEqual(read(lhs), read(rhs), &resultBuffer)
+        return result
+    }
+}
+
+infix operator .>= : ComparisonPrecedence
+
+public extension TensorView where Element: Comparable {
+    @inlinable
+    static func .>=(_ lhs: Self, _ rhs: Self) -> BoolView {
+        greaterOrEqual(lhs, rhs)
+    }
+}
+
+//==============================================================================
+/// less
+/// Computes `lhs .< rhs` element-wise and returns a tensor of Bool values
+@inlinable
+public func less<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+    T: TensorView, T.Element: Comparable
+{
+    Platform.service.less(lhs, rhs)
+}
+
+public extension PlatformService {
+    @inlinable
+    func less<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
+        T: TensorView, T.Element: Comparable
+    {
+        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        var result = lhs.createBoolTensor()
+        var resultBuffer = write(&result)
+        currentQueue.less(read(lhs), read(rhs), &resultBuffer)
+        return result
+    }
+}
+
+infix operator .< : ComparisonPrecedence
+
+public extension TensorView where Element: Comparable {
+    @inlinable
+    static func .<(_ lhs: Self, _ rhs: Self) -> BoolView { less(lhs, rhs) }
+}
+
 //==============================================================================
 /// lessOrEqual
 /// Computes `lhs .<= rhs` element-wise and returns a tensor of Bool values
@@ -617,7 +617,7 @@ public func lessOrEqual<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
     lessOrEqual(T(repeating: lhs, like: rhs), rhs)
 }
 
-extension PlatformService {
+public extension PlatformService {
     @inlinable
     func lessOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable

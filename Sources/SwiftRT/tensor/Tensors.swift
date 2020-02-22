@@ -130,8 +130,6 @@ public extension VectorView {
 //==============================================================================
 // VectorType
 public struct VectorType<Element>: VectorView {
-    public var mutableElements: MutableElementBuffer<Element, Shape1>
-    
     // properties
     public static var diagnosticName: String { "Vector" }
     public var elementBuffer: BufferId

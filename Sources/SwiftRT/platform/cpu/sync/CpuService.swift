@@ -21,6 +21,20 @@
 public struct CpuServiceType<MemoryManager>: PlatformService
     where MemoryManager: MemoryManagement
 {
+    public var creatorThread: Thread
+    
+    public func bufferName(_ id: BufferId) -> String {
+        <#code#>
+    }
+    
+    public func delay(_ interval: TimeInterval) {
+        <#code#>
+    }
+    
+    public func _vjpMinMax<T>(_ x: T, _ y: T, _ scale: T, _ op: @escaping (T.Element, T.Element) -> Bool) -> (T, T) where T : TensorView, T.Element : Comparable, T.Element : Numeric {
+        <#code#>
+    }
+    
     // properties
     public let devices: [CpuDevice<CpuQueue>]
     public let logInfo: LogInfo

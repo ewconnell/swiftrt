@@ -27,9 +27,9 @@ public func add<T>(_ lhs: T, _ rhs: T) -> T
     Platform.service.add(lhs, rhs)
 }
 
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func add<T>(_ lhs: T, _ rhs: T) -> T
+    func add<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AdditiveArithmetic
     {
         let (lhs, rhs) = implicitlyMatchExtents(lhs, rhs)
@@ -41,7 +41,7 @@ extension PlatformService {
     
     @derivative(of: add)
     @inlinable
-    public func _vjpAdd<T>(lhs: T, rhs: T) -> (value: T, pullback: (T) ->(T, T))
+    func _vjpAdd<T>(lhs: T, rhs: T) -> (value: T, pullback: (T) ->(T, T))
         where T: DifferentiableTensorView
     {
         (lhs + rhs, { v in (v, v) })
@@ -107,9 +107,9 @@ public func subtract<T>(_ lhs: T, _ rhs: T) -> T
     Platform.service.subtract(lhs, rhs)
 }
 
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func subtract<T>(_ lhs: T, _ rhs: T) -> T
+    func subtract<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AdditiveArithmetic
     {
         let (lhs, rhs) = implicitlyMatchExtents(lhs, rhs)
@@ -122,7 +122,7 @@ extension PlatformService {
     
     @derivative(of: subtract)
     @inlinable
-    public func _vjpSubtract<T>(lhs: T, rhs: T) ->
+    func _vjpSubtract<T>(lhs: T, rhs: T) ->
         (value: T, pullback: (T) ->(T, T))
         where T: DifferentiableTensorView
     {
@@ -183,9 +183,9 @@ public func mul<T>(_ lhs: T, _ rhs: T) -> T
     Platform.service.mul(lhs, rhs)
 }
 
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func mul<T>(_ lhs: T, _ rhs: T) -> T
+    func mul<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: Numeric
     {
         let (lhs, rhs) = implicitlyMatchExtents(lhs, rhs)
@@ -197,7 +197,7 @@ extension PlatformService {
     
     @derivative(of: mul)
     @inlinable
-    public func _vjpMultiply<T>(_ lhs: T, _ rhs: T) ->
+    func _vjpMultiply<T>(_ lhs: T, _ rhs: T) ->
         (value: T, pullback: (T) -> (T, T)) where T: DifferentiableTensorView
     {
         (lhs * rhs, { v in (v * rhs, v * lhs) })
@@ -266,9 +266,9 @@ public func div<T>(_ lhs: T, _ rhs: T) -> T
     Platform.service.div(lhs, rhs)
 }
 
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func div<T>(_ lhs: T, _ rhs: T) -> T
+    func div<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AlgebraicField
     {
         let (lhs, rhs) = implicitlyMatchExtents(lhs, rhs)
@@ -280,7 +280,7 @@ extension PlatformService {
     
     @derivative(of: div)
     @inlinable
-    public func _vjpDivide<T>(_ lhs: T, _ rhs: T) ->
+    func _vjpDivide<T>(_ lhs: T, _ rhs: T) ->
         (value: T, pullback: (T) -> (T, T)) where
         T: DifferentiableTensorView, T.Element: AlgebraicField & SignedNumeric
     {

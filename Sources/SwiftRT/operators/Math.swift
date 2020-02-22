@@ -29,9 +29,9 @@ public func cast<T, U>(_ other: U) -> T where
 }
 
 // Platform extension
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func cast<T, U>(_ other: U) -> T where
+    func cast<T, U>(_ other: U) -> T where
         T: TensorView, T.Element: AnyConvertable,
         U: TensorView, U.Element: AnyConvertable, U.Shape == T.Shape
     {
@@ -63,9 +63,9 @@ func _vjpAbs<T>(_ x: T) -> (value: T, pullback: (T) -> T)
 }
 
 // Platform extension
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func abs<T>(_ x: T) -> T
+    func abs<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
     {
         var (result, resultBuffer) = createResult(like: x)
@@ -86,11 +86,11 @@ extension PlatformService {
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func abs(_ x: Self) -> Self { Platform.service.abs(x) }
     
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func abs() -> Self { abs(self) }
 }
@@ -116,9 +116,9 @@ func _vjpExp<T>(_ x: T) -> (value: T, pullback: (T) -> T)
 }
 
 // Platform extension
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func exp<T>(_ x: T) -> T
+    func exp<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
     {
         var (result, resultBuffer) = createResult(like: x)
@@ -139,11 +139,11 @@ extension PlatformService {
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func exp(_ x: Self) -> Self { Platform.service.exp(x) }
 
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func exp() -> Self { exp(self) }
 }
@@ -169,9 +169,9 @@ func _vjpLog<T>(_ x: T) -> (value: T, pullback: (T) -> T)
 }
 
 // Platform extension
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func log<T>(_ x: T) -> T
+    func log<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
     {
         var (result, resultBuffer) = createResult(like: x)
@@ -191,11 +191,11 @@ extension PlatformService {
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func log(_ x: Self) -> Self { Platform.service.log(x) }
 
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func log() -> Self { log(self) }
 }
@@ -221,9 +221,9 @@ func _vjpNeg<T>(_ x: T) -> (value: T, pullback: (T) -> T)
 }
 
 // Platform extension
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func neg<T>(_ x: T) -> T where T: TensorView, T.Element: SignedNumeric {
+    func neg<T>(_ x: T) -> T where T: TensorView, T.Element: SignedNumeric {
         var (result, resultBuffer) = createResult(like: x)
         currentQueue.neg(read(x), &resultBuffer)
         return result
@@ -241,11 +241,11 @@ extension PlatformService {
 // Tensor extension
 public extension TensorView where Element: SignedNumeric {
     // make glboal function visible for extension implementations
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     static prefix func - (x: Self) -> Self { Platform.service.neg(x) }
 
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func neg() -> Self { -self }
 }
@@ -271,9 +271,9 @@ func _vjpSquared<T>(_ x: T) -> (value: T, pullback: (T) -> (T))
 }
 
 // Platform extension
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func squared<T>(_ x: T) -> T
+    func squared<T>(_ x: T) -> T
         where T: TensorView, T.Element: Numeric
     {
         var (result, resultBuffer) = createResult(like: x)
@@ -293,11 +293,11 @@ extension PlatformService {
 // Tensor extension
 public extension TensorView where Element: Numeric {
     // make glboal function visible for extension implementations
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func squared(_ x: Self) -> Self { Platform.service.squared(x) }
 
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func squared() -> Self { squared(self) }
 }
@@ -329,9 +329,9 @@ func _vjpPow<T>(_ x: T, _ y: T) -> (value: T, pullback: (T) -> (T, T))
 }
 
 // Platform extension
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func pow<T>(_ x: T, _ y: T) -> T
+    func pow<T>(_ x: T, _ y: T) -> T
         where T: TensorView, T.Element: Real
     {
         assert(x.extents == y.extents, _messageTensorExtentsMismatch)
@@ -345,14 +345,15 @@ extension PlatformService {
     func _vjpPow<T>(_ x: T, _ y: T) -> (value: T, pullback: (T) -> (T, T))
         where T: DifferentiableTensorView, T.Element: Real
     {
-        let value = pow(x, y)
-        return (value, { v in
-            let safeX = x.replacing(with: 1, where: x .<= 0)
-            let lhsGrad = v * y * pow(x, y - 1)
-            let rhsGrad = value * v * log(safeX)
-            return (T(repeating: lhsGrad.sum().element, like: x),
-                    T(repeating: rhsGrad.sum().element, like: y))
-        })
+        fatalError()
+//        let value = pow(x, y)
+//        return (value, { v in
+//            let safeX = x.replacing(with: 1, where: x .<= 0)
+//            let lhsGrad = v * y * pow(x, y - 1)
+//            let rhsGrad = value * v * log(safeX)
+//            return (T(repeating: lhsGrad.sum().element, like: x),
+//                    T(repeating: rhsGrad.sum().element, like: y))
+//        })
     }
 }
 
@@ -361,11 +362,11 @@ infix operator ** : MultiplicationPrecedence
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func pow(_ x: Self, _ y: Self) -> Self { Platform.service.pow(x, y) }
 
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     static func **(_ x: Self, _ y: Self) -> Self { Platform.service.pow(x, y) }
 
@@ -403,9 +404,9 @@ func _vjpSqrt<T>(_ x: T) -> (value: T, pullback: (T) -> T)
 }
 
 // Platform extension
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func sqrt<T>(_ x: T) -> T
+    func sqrt<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
     {
         var (result, resultBuffer) = createResult(like: x)
@@ -426,11 +427,11 @@ extension PlatformService {
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sqrt(_ x: Self) -> Self { Platform.service.sqrt(x) }
 
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sqrt() -> Self { sqrt(self) }
 }
@@ -456,9 +457,9 @@ func _vjpSign<T>(_ x: T) -> (value: T, pullback: (T) -> T)
 }
 
 // Platform extension
-extension PlatformService {
+public extension PlatformService {
     @inlinable
-    public func sign<T>(_ x: T) -> T
+    func sign<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
     {
         var (result, resultBuffer) = createResult(like: x)
@@ -478,11 +479,11 @@ extension PlatformService {
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sign(_ x: Self) -> Self { Platform.service.sign(x) }
     
-    @differentiable(where Self: DifferentiableTensorView)
+//    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sign() -> Self { sign(self) }
 }
