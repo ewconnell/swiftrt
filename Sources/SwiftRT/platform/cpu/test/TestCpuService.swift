@@ -29,7 +29,7 @@ public struct TestCpuService: PlatformService {
 
     //--------------------------------------------------------------------------
     @inlinable
-    public init(parent parentLogInfo: LogInfo, id: Int) {
+    public init() {
         self.name = "TestCpuService"
         self.logInfo = LogInfo(logWriter: Platform.log,
                                logLevel: .error,

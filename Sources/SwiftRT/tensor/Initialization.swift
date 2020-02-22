@@ -74,7 +74,7 @@ public extension TensorView {
     init(concatenating tensors: [Self], alongAxis axis: Int = 0,
          name: String? = nil)
     {
-        self = Platform.service.concat(tensors, along: axis, name)
+        self = Platform.service.concat(tensors, alongAxis: axis, name)
     }
     
     //--------------------------------------------------------------------------
@@ -290,7 +290,7 @@ public extension TensorView {
     /// reductionExtents
     /// determines the extents of a reduction result along the specified axes
     @inlinable
-    func reductionExtents(along axes: Set<Int>?) -> Shape.Array {
+    func reductionExtents(alongAxes axes: Set<Int>?) -> Shape.Array {
         guard let axes = axes else { return Shape.ones }
         assert(axes.isSubset(of: 0..<rank), "axis is out of bounds")
         var resultExtents = extents

@@ -28,18 +28,18 @@ public let _messageTensorExtentsMismatch = "tensor extents mismatch"
 /// - Parameter result: the scalar tensor where the result will be written
 /// - Precondition: Each value in `axes` must be in the range `-rank..<rank`.
 @inlinable
-public func all<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+public func all<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element == Bool
 {
-    Platform.service.all(x, along: axes)
+    Platform.service.all(x, alongAxes: axes)
 }
 
 public extension PlatformService {
     @inlinable
-    func all<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+    func all<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element == Bool
     {
-        let extents = x.reductionExtents(along: axes)
+        let extents = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: extents)
         copy(from: x.view(at: T.Shape.zeros, extents: extents), to: &result)
 
@@ -53,12 +53,12 @@ public extension PlatformService {
 /// - Returns: a new tensor containing the result
 public extension TensorView where Element == Bool {
     @inlinable
-    func all(along axes: Set<Int>? = nil) -> Self {
-        Platform.service.all(self, along: axes)
+    func all(alongAxes axes: Set<Int>? = nil) -> Self {
+        Platform.service.all(self, alongAxes: axes)
     }
 
     @inlinable
-    func all(along axes: Int...) -> Self { all(along: Set(axes)) }
+    func all(alongAxes axes: Int...) -> Self { all(alongAxes: Set(axes)) }
 }
 
 //==============================================================================
@@ -70,18 +70,18 @@ public extension TensorView where Element == Bool {
 /// - Parameter along: the axes to operate on
 /// - Returns: a new tensor containing the result
 @inlinable
-public func any<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+public func any<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element == Bool
 {
-    Platform.service.any(x, along: axes)
+    Platform.service.any(x, alongAxes: axes)
 }
 
 public extension PlatformService {
     @inlinable
-    func any<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+    func any<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element == Bool
     {
-        let extents = x.reductionExtents(along: axes)
+        let extents = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: extents)
         copy(from: x.view(at: T.Shape.zeros, extents: extents), to: &result)
 
@@ -95,12 +95,12 @@ public extension PlatformService {
 /// - Returns: a new tensor containing the result
 public extension TensorView where Element == Bool {
     @inlinable
-    func any(along axes: Set<Int>? = nil) -> Self {
-        Platform.service.any(self, along: axes)
+    func any(alongAxes axes: Set<Int>? = nil) -> Self {
+        Platform.service.any(self, alongAxes: axes)
     }
 
     @inlinable
-    func any(along axes: Int...) -> Self { any(along: Set(axes)) }
+    func any(alongAxes axes: Int...) -> Self { any(alongAxes: Set(axes)) }
 }
 
 //==============================================================================
@@ -109,18 +109,18 @@ public extension TensorView where Element == Bool {
 /// - Parameter x: value tensor
 /// - Parameter along: the axes to operate on
 @inlinable
-public func sum<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+public func sum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: Numeric
 {
-    Platform.service.sum(x, along: axes)
+    Platform.service.sum(x, alongAxes: axes)
 }
 
 public extension PlatformService {
     @inlinable
-    func sum<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+    func sum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
     {
-        let extents = x.reductionExtents(along: axes)
+        let extents = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: extents).filled(with: T.Element.zero)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .add, +, nil)
@@ -129,10 +129,10 @@ public extension PlatformService {
 
     @derivative(of: sum)
     @inlinable
-    func _vjpSum<T>(_ x: T, along axes: Set<Int>? = nil)
+    func _vjpSum<T>(_ x: T, alongAxes axes: Set<Int>? = nil)
         -> (value: T, pullback: (T) -> T) where T: DifferentiableTensorView
     {
-        let value = sum(x, along: axes)
+        let value = sum(x, alongAxes: axes)
         return (value, { [xext = x.extents] in $0.repeated(to: xext) })
     }
 }
@@ -140,13 +140,13 @@ public extension PlatformService {
 public extension TensorView where Element: Numeric {
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func sum(along axes: Set<Int>? = nil) -> Self {
-        Platform.service.sum(self, along: axes)
+    func sum(alongAxes axes: Set<Int>? = nil) -> Self {
+        Platform.service.sum(self, alongAxes: axes)
     }
 
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func sum(along axes: Int...) -> Self { sum(along: Set(axes)) }
+    func sum(alongAxes axes: Int...) -> Self { sum(alongAxes: Set(axes)) }
 }
 
 //==============================================================================
@@ -156,15 +156,15 @@ public extension TensorView where Element: Numeric {
 /// - Parameter x: value tensor
 /// - Parameter along: the axes to operate on
 @inlinable
-public func mean<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+public func mean<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: AlgebraicField
 {
-    Platform.service.mean(x, along: axes)
+    Platform.service.mean(x, alongAxes: axes)
 }
 
 public extension PlatformService {
     @inlinable
-    func mean<T>(_ x: T, along axes: Set<Int>?) -> T
+    func mean<T>(_ x: T, alongAxes axes: Set<Int>?) -> T
         where T: TensorView, T.Element: AlgebraicField
     {
         // the divisor is the product of the `axes` that are summed
@@ -172,7 +172,7 @@ public extension PlatformService {
             $0 * T.Element(exactly: x.extents[$1])!
             }) ?? T.Element(exactly: x.count)!
 
-        let extents = x.reductionExtents(along: axes)
+        let extents = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: extents).filled(with: T.Element.zero)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .add, +, { $0 / divisor })
@@ -181,11 +181,11 @@ public extension PlatformService {
     
     @derivative(of: mean)
     @inlinable
-    func _vjpMean<T>(_ x: T, along axes: Set<Int>? = nil)
+    func _vjpMean<T>(_ x: T, alongAxes axes: Set<Int>? = nil)
         -> (value: T, pullback: (T) -> T)
         where T: DifferentiableTensorView, T.Element: AlgebraicField
     {
-        let value = x.mean(along: axes)
+        let value = x.mean(alongAxes: axes)
         let count = T.Element(exactly: x.count)!
         return (value, { [xext = x.extents] in $0.repeated(to: xext) / count })
     }
@@ -194,13 +194,13 @@ public extension PlatformService {
 public extension TensorView where Element: AlgebraicField {
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func mean(along axes: Set<Int>? = nil) -> Self {
-        Platform.service.mean(self, along: axes)
+    func mean(alongAxes axes: Set<Int>? = nil) -> Self {
+        Platform.service.mean(self, alongAxes: axes)
     }
 
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func mean(along axes: Int...) -> Self { mean(along: Set(axes)) }
+    func mean(alongAxes axes: Int...) -> Self { mean(alongAxes: Set(axes)) }
 }
 
 //==============================================================================
@@ -209,18 +209,18 @@ public extension TensorView where Element: AlgebraicField {
 /// - Parameter x: value tensor
 /// - Parameter along: the axes to operate on
 @inlinable
-public func prod<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+public func prod<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: Numeric
 {
-    Platform.service.prod(x, along: axes)
+    Platform.service.prod(x, alongAxes: axes)
 }
 
 public extension PlatformService {
     @inlinable
-    func prod<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+    func prod<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
     {
-        let extents = x.reductionExtents(along: axes)
+        let extents = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: extents).filled(with: T.Element.one)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .mul, { $0 * $1 }, nil)
@@ -229,10 +229,10 @@ public extension PlatformService {
 
     @derivative(of: prod)
     @inlinable
-    func _vjpProd<T>(_ x: T, along axes: Set<Int>? = nil)
+    func _vjpProd<T>(_ x: T, alongAxes axes: Set<Int>? = nil)
         -> (value: T, pullback: (T) -> T) where T: DifferentiableTensorView
     {
-        let value = x.prod(along: axes)
+        let value = x.prod(alongAxes: axes)
         return (value, { [xext = x.extents] in $0.repeated(to: xext) })
     }
 }
@@ -240,13 +240,13 @@ public extension PlatformService {
 public extension TensorView where Element: Numeric {
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func prod(along axes: Set<Int>? = nil) -> Self {
-        Platform.service.prod(self, along: axes)
+    func prod(alongAxes axes: Set<Int>? = nil) -> Self {
+        Platform.service.prod(self, alongAxes: axes)
     }
 
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func prod(along axes: Int...) -> Self { prod(along: Set(axes)) }
+    func prod(alongAxes axes: Int...) -> Self { prod(alongAxes: Set(axes)) }
 }
 
 //==============================================================================
@@ -255,18 +255,18 @@ public extension TensorView where Element: Numeric {
 /// - Parameter x: value tensor
 /// - Parameter along: the axes to operate on
 @inlinable
-public func prodNonZeros<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+public func prodNonZeros<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: Numeric
 {
-    Platform.service.prodNonZeros(x, along: axes)
+    Platform.service.prodNonZeros(x, alongAxes: axes)
 }
 
 public extension PlatformService {
     @inlinable
-    func prodNonZeros<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+    func prodNonZeros<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
     {
-        let extents = x.reductionExtents(along: axes)
+        let extents = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: extents).filled(with: T.Element.one)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .mulNonZeros,
@@ -276,12 +276,12 @@ public extension PlatformService {
 
     @derivative(of: prodNonZeros)
     @inlinable
-    internal func _vjpProdNonZeros<T>(_ x: T, along axes: Set<Int>? = nil)
+    internal func _vjpProdNonZeros<T>(_ x: T, alongAxes axes: Set<Int>? = nil)
         -> (value: T, pullback: (T) -> T)
         where T: DifferentiableTensorView
     {
         // REVIEW: this is probably wrong
-        let value = x.prodNonZeros(along: axes)
+        let value = x.prodNonZeros(alongAxes: axes)
         return (value, { [xext = x.extents] in $0.repeated(to: xext) })
     }
 }
@@ -289,14 +289,14 @@ public extension PlatformService {
 public extension TensorView where Element: Numeric {
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func prodNonZeros(along axes: Set<Int>? = nil) -> Self {
-        Platform.service.prodNonZeros(self, along: axes)
+    func prodNonZeros(alongAxes axes: Set<Int>? = nil) -> Self {
+        Platform.service.prodNonZeros(self, alongAxes: axes)
     }
 
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func prodNonZeros(along axes: Int...) -> Self {
-        prodNonZeros(along: Set(axes))
+    func prodNonZeros(alongAxes axes: Int...) -> Self {
+        prodNonZeros(alongAxes: Set(axes))
     }
 }
 
@@ -308,19 +308,19 @@ public extension TensorView where Element: Numeric {
 /// - Parameter along: the axes to operate on
 @inlinable
 //@differentiable(where T: DifferentiableTensorView)
-public func min<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+public func min<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: Comparable
 {
-    Platform.service.min(x, along: axes)
+    Platform.service.min(x, alongAxes: axes)
 }
 
 public extension PlatformService {
     @inlinable
 //    @differentiable(where T: DifferentiableTensorView)
-    func min<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+    func min<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Comparable
     {
-        let extents = x.reductionExtents(along: axes)
+        let extents = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: extents)
         copy(from: x.view(at: T.Shape.zeros, extents: extents), to: &result)
         var resultBuffer = write(&result)
@@ -331,7 +331,7 @@ public extension PlatformService {
 
     @derivative(of: min)
     @inlinable
-    internal func _vjpMin<T>(_ x: T, along axes: Set<Int>? = nil)
+    internal func _vjpMin<T>(_ x: T, alongAxes axes: Set<Int>? = nil)
         -> (value: T, pullback: (T) -> T)
         where T: DifferentiableTensorView, T.Element: Comparable
     {
@@ -344,13 +344,13 @@ public extension TensorView where
 {
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func min(along axes: Set<Int>? = nil) -> Self {
-        Platform.service.min(self, along: axes)
+    func min(alongAxes axes: Set<Int>? = nil) -> Self {
+        Platform.service.min(self, alongAxes: axes)
     }
 
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func min(along axes: Int...) -> Self { min(along: Set(axes)) }
+    func min(alongAxes axes: Int...) -> Self { min(alongAxes: Set(axes)) }
 }
 
 //==============================================================================
@@ -360,19 +360,19 @@ public extension TensorView where
 /// - Parameter along: the axes to operate on
 @inlinable
 //@differentiable(where T: DifferentiableTensorView)
-public func max<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+public func max<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: Comparable
 {
-    Platform.service.max(x, along: axes)
+    Platform.service.max(x, alongAxes: axes)
 }
 
 public extension PlatformService {
     @inlinable
 //    @differentiable(where T: DifferentiableTensorView)
-    func max<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+    func max<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Comparable
     {
-        let extents = x.reductionExtents(along: axes)
+        let extents = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: extents)
         copy(from: x.view(at: T.Shape.zeros, extents: extents), to: &result)
         var resultBuffer = write(&result)
@@ -383,7 +383,7 @@ public extension PlatformService {
 
     @derivative(of: max)
     @inlinable
-    internal func _vjpMax<T>(_ x: T, along axes: Set<Int>? = nil)
+    internal func _vjpMax<T>(_ x: T, alongAxes axes: Set<Int>? = nil)
         -> (value: T, pullback: (T) -> T) where
         T: DifferentiableTensorView, T.Element: Comparable
     {
@@ -396,13 +396,13 @@ public extension TensorView where
 {
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func max(along axes: Set<Int>? = nil) -> Self {
-        Platform.service.max(self, along: axes)
+    func max(alongAxes axes: Set<Int>? = nil) -> Self {
+        Platform.service.max(self, alongAxes: axes)
     }
 
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func max(along axes: Int...) -> Self { max(along: Set(axes)) }
+    func max(alongAxes axes: Int...) -> Self { max(alongAxes: Set(axes)) }
 }
 
 //==============================================================================
@@ -411,18 +411,18 @@ public extension TensorView where
 /// - Parameter x: value tensor
 /// - Parameter along: the axes to operate on
 @inlinable
-public func absmax<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+public func absmax<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: SignedNumeric & Comparable
 {
-    Platform.service.absmax(x, along: axes)
+    Platform.service.absmax(x, alongAxes: axes)
 }
 
 public extension PlatformService {
     @inlinable
-    func absmax<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+    func absmax<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: SignedNumeric & Comparable
     {
-        let extents = x.reductionExtents(along: axes)
+        let extents = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: extents)
         copy(from: x.view(at: T.Shape.zeros, extents: extents), to: &result)
         var resultBuffer = write(&result)
@@ -433,7 +433,7 @@ public extension PlatformService {
 
     @derivative(of: absmax)
     @inlinable
-    internal func _vjpAbsmax<T>(_ x: T, along axes: Set<Int>? = nil)
+    internal func _vjpAbsmax<T>(_ x: T, alongAxes axes: Set<Int>? = nil)
         -> (value: T, pullback: (T) -> T)
         where T: DifferentiableTensorView, T.Element: SignedNumeric & Comparable
     {
@@ -445,14 +445,14 @@ public extension TensorView where Element: SignedNumeric & Comparable
 {
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func absmax(along axes: Set<Int>? = nil) -> Self {
-        Platform.service.absmax(self, along: axes)
+    func absmax(alongAxes axes: Set<Int>? = nil) -> Self {
+        Platform.service.absmax(self, alongAxes: axes)
     }
 
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func absmax(along axes: Int...) -> Self {
-        absmax(along: Set(axes))
+    func absmax(alongAxes axes: Int...) -> Self {
+        absmax(alongAxes: Set(axes))
     }
 }
 
@@ -463,19 +463,19 @@ public extension TensorView where Element: SignedNumeric & Comparable
 /// - Parameter along: the axes to operate on
 @inlinable
 //@differentiable(where T: DifferentiableTensorView)
-public func abssum<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+public func abssum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: SignedNumeric & Comparable
 {
-    Platform.service.abssum(x, along: axes)
+    Platform.service.abssum(x, alongAxes: axes)
 }
 
 public extension PlatformService {
     @inlinable
 //    @differentiable(where T: DifferentiableTensorView)
-    func abssum<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+    func abssum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: SignedNumeric & Comparable
     {
-        let extents = x.reductionExtents(along: axes)
+        let extents = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: extents).filled(with: T.Element.zero)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .asum,
@@ -485,7 +485,7 @@ public extension PlatformService {
 
     @derivative(of: abssum)
     @inlinable
-    internal func _vjpAbsSum<T>(_ x: T, along axes: Set<Int>? = nil)
+    internal func _vjpAbsSum<T>(_ x: T, alongAxes axes: Set<Int>? = nil)
         -> (value: T, pullback: (T) -> T)
         where T: DifferentiableTensorView, T.Element: SignedNumeric & Comparable
     {
@@ -496,13 +496,13 @@ public extension PlatformService {
 public extension TensorView where Element: SignedNumeric & Comparable {
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func abssum(along axes: Set<Int>? = nil) -> Self {
-        Platform.service.abssum(self, along: axes)
+    func abssum(alongAxes axes: Set<Int>? = nil) -> Self {
+        Platform.service.abssum(self, alongAxes: axes)
     }
 
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func abssum(along axes: Int...) -> Self { abssum(along: Set(axes)) }
+    func abssum(alongAxes axes: Int...) -> Self { abssum(alongAxes: Set(axes)) }
 }
 
 //==============================================================================
@@ -511,18 +511,18 @@ public extension TensorView where Element: SignedNumeric & Comparable {
 /// - Parameter x: value tensor
 /// - Parameter along: the axes to operate on
 @inlinable
-public func sqrtSumSquares<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+public func sqrtSumSquares<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: Real
 {
-    Platform.service.sqrtSumSquares(x, along: axes)
+    Platform.service.sqrtSumSquares(x, alongAxes: axes)
 }
 
 public extension PlatformService {
     @inlinable
-    func sqrtSumSquares<T>(_ x: T, along axes: Set<Int>? = nil) -> T
+    func sqrtSumSquares<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Real
     {
-        let extents = x.reductionExtents(along: axes)
+        let extents = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: extents).filled(with: T.Element.zero)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .sqrtSumSquares,
@@ -532,7 +532,7 @@ public extension PlatformService {
 
     @derivative(of: sqrtSumSquares)
     @inlinable
-    internal func _vjpSqrtSumSquares<T>(_ x: T, along axes: Set<Int>? = nil)
+    internal func _vjpSqrtSumSquares<T>(_ x: T, alongAxes axes: Set<Int>? = nil)
         -> (value: T, pullback: (T) -> T)
         where T: DifferentiableTensorView, T.Element: Real
     {
@@ -543,13 +543,13 @@ public extension PlatformService {
 public extension TensorView where Element: Real {
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func sqrtSumSquares(along axes: Set<Int>? = nil) -> Self {
-        Platform.service.sqrtSumSquares(self, along: axes)
+    func sqrtSumSquares(alongAxes axes: Set<Int>? = nil) -> Self {
+        Platform.service.sqrtSumSquares(self, alongAxes: axes)
     }
 
 //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
-    func sqrtSumSquares(along axes: Int...) -> Self {
-        sqrtSumSquares(along: Set(axes))
+    func sqrtSumSquares(alongAxes axes: Int...) -> Self {
+        sqrtSumSquares(alongAxes: Set(axes))
     }
 }

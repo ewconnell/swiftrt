@@ -19,7 +19,7 @@ import SwiftRT
 
 class test_DataMigration: XCTestCase {
     override class func setUp() {
-        Platform.service = Platform<TestCpuService>()
+        Platform.service = TestCpuService()
     }
     
     //==========================================================================
@@ -50,8 +50,8 @@ class test_DataMigration: XCTestCase {
     // test_stressCopyOnWriteDevice
     // stresses view mutation and async copies on device
     func test_stressCopyOnWriteDevice() {
-        Current.log.level = .diagnostic
-        Current.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
+        Platform.log.level = .diagnostic
+        Platform.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
             
         let matrix = Matrix(3, 2, with: 0..<6, name: "matrix")
         
@@ -69,41 +69,41 @@ class test_DataMigration: XCTestCase {
     //==========================================================================
 	// test_viewMutateOnWrite
 	func test_viewMutateOnWrite() {
-        Current.log.level = .diagnostic
-        Current.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
+        Platform.log.level = .diagnostic
+        Platform.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
         
         // create a Matrix and give it an optional name for logging
-        var m0 = Matrix(3, 4, with: 0..<12, name: "weights")
+//        var m0 = Matrix(3, 4, with: 0..<12, name: "weights")
         
-        XCTAssert(!m0.writeWillMutateView())
-        let _ = m0.readWrite()
-        
-        XCTAssert(!m0.writeWillMutateView())
-        let _ = m0.readOnly()
-        
-        XCTAssert(!m0.writeWillMutateView())
-        let _ = m0.readWrite()
-        
-        // copy the view
-        var m1 = m0
-        // rw access m0 should mutate m0
-        XCTAssert(m0.writeWillMutateView())
-        let _ = m0.readWrite()
-        
-        // m1 should now be unique reference
-        XCTAssert(m1.isUniqueReference())
-        XCTAssert(!m1.writeWillMutateView())
-        let _ = m1.readOnly()
-        
-        // copy the view
-        var m2 = m0
-        let _ = m2.readOnly()
-        
-        // rw request should cause copy of m0 data
-        XCTAssert(m2.writeWillMutateView())
-        let _ = m2.readWrite()
-        // m2 should now be unique reference
-        XCTAssert(m2.isUniqueReference())
+//        XCTAssert(!m0.writeWillMutateView())
+//        let _ = m0.readWrite()
+//
+//        XCTAssert(!m0.writeWillMutateView())
+//        let _ = m0.readOnly()
+//
+//        XCTAssert(!m0.writeWillMutateView())
+//        let _ = m0.readWrite()
+//
+//        // copy the view
+//        var m1 = m0
+//        // rw access m0 should mutate m0
+//        XCTAssert(m0.writeWillMutateView())
+//        let _ = m0.readWrite()
+//
+//        // m1 should now be unique reference
+//        XCTAssert(m1.isUniqueReference())
+//        XCTAssert(!m1.writeWillMutateView())
+//        let _ = m1.readOnly()
+//
+//        // copy the view
+//        var m2 = m0
+//        let _ = m2.readOnly()
+//
+//        // rw request should cause copy of m0 data
+//        XCTAssert(m2.writeWillMutateView())
+//        let _ = m2.readWrite()
+//        // m2 should now be unique reference
+//        XCTAssert(m2.isUniqueReference())
 	}
 	
     //==========================================================================
@@ -122,8 +122,8 @@ class test_DataMigration: XCTestCase {
     //                 (cuda gpu:1 -> cpu cpu:0)
     //
     func test_tensorDataMigration() {
-//        Current.log.level = .diagnostic
-//        Current.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
+//        Platform.log.level = .diagnostic
+//        Platform.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
 //
 //        // create a tensor and validate migration
 //        var view = Matrix(6, 4, with: 0..<24)
@@ -189,8 +189,8 @@ class test_DataMigration: XCTestCase {
     //==========================================================================
     // test_mutateOnDevice
     func test_mutateOnDevice() {
-        Current.log.level = .diagnostic
-        Current.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
+        Platform.log.level = .diagnostic
+        Platform.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
 //
 //        // create a Matrix on device 1 and fill with indexes
 //        // memory is only allocated on device 1. This also shows how a
@@ -266,8 +266,8 @@ class test_DataMigration: XCTestCase {
     //--------------------------------------------------------------------------
     // test_copyOnWriteDevice
     func test_copyOnWriteDevice() {
-//        Current.log.level = .diagnostic
-//        Current.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
+//        Platform.log.level = .diagnostic
+//        Platform.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
 
 //        // fill with index on device 1
 //        var matrix1 = Matrix(3, 2)
@@ -292,8 +292,8 @@ class test_DataMigration: XCTestCase {
     //--------------------------------------------------------------------------
     // test_copyOnWriteCrossDevice
     func test_copyOnWriteCrossDevice() {
-//            Current.log.level = .diagnostic
-//            Current.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
+//            Platform.log.level = .diagnostic
+//            Platform.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
             
 //        var matrix1 = Matrix(3, 2)
         
@@ -336,8 +336,8 @@ class test_DataMigration: XCTestCase {
     // test_copyOnWrite
     // NOTE: uses the default queue
     func test_copyOnWrite() {
-//        Current.log.level = .diagnostic
-//        Current.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
+//        Platform.log.level = .diagnostic
+//        Platform.log.categories = [.dataAlloc, .dataCopy, .dataMutation]
         
         let m1 = Matrix(3, 2).filledWithIndex()
         XCTAssert(m1[1, 1] == 3)

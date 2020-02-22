@@ -163,11 +163,13 @@ class test_Subscripting: XCTestCase {
         let v = Vector(with: 0..<10)
 
         // simple range selection
-        XCTAssert(gradientIsValid(at: v[1..<3], tolerance: 0.7, in: { exp($0) }))
+        let ones = Vector(repeating: 1, like: v)
+        let g = pullback(at: v[1..<3], in: { exp($0) })(ones)
+        XCTAssert(g == [])
 
         // test expression gradient
-        let derivatives = v[2...] - v[1..<-1]
-        XCTAssert(gradientIsValid(at: derivatives, tolerance: 0.7, in: { exp($0) }))
+        let g2 = pullback(at: v[2...] - v[1..<-1], in: { exp($0) })(ones)
+        XCTAssert(g2 == [])
     }
 
     //==========================================================================
@@ -216,7 +218,9 @@ class test_Subscripting: XCTestCase {
         v1[2...4] = sevens
         XCTAssert(v1 == [0, 1, 7, 7, 7, 5, 6])
         
-        let m2 = Vector(with: 1...6)
-        XCTAssert(gradientIsValid(at: m2, tolerance: 0.7, in: { exp($0) }))
+        let v2 = Vector(with: 1...6)
+        let ones = Vector(repeating: 1, like: v2)
+        let g = pullback(at: v2, in: { exp($0) })(ones)
+        XCTAssert(g == [])
     }
 }

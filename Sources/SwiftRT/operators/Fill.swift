@@ -23,12 +23,12 @@ import Foundation
 public func concat<T>(tensors: [T], alongAxis axis: Int = 0,
                       name: String? = nil) -> T where T: TensorView
 {
-    Platform.service.concat(tensors, along: axis, name)
+    Platform.service.concat(tensors, alongAxis: axis, name)
 }
 
 public extension PlatformService {
     @inlinable
-    func concat<T>(_ tensors: [T], along axis: Int = 0,
+    func concat<T>(_ tensors: [T], alongAxis axis: Int = 0,
                           _ name: String? = nil) -> T where T: TensorView
     {
         assert(tensors.count > 1)
@@ -40,17 +40,18 @@ public extension PlatformService {
                                                   with: joinedShape,
                                                   name: name)
 
-        currentQueue.concat(tensors.map {read($0)}, along: axis, &resultBuffer)
+        currentQueue.concat(tensors.map {read($0)},
+                            along: axis, &resultBuffer)
         return result
     }
 }
 
 public extension TensorView {
     @inlinable
-    func concat(_ others: Self..., along axis: Int = 0,
+    func concat(_ others: Self..., alongAxis axis: Int = 0,
                 name: String? = nil) -> Self
     {
-        Platform.service.concat([self] + others, along: axis, name)
+        Platform.service.concat([self] + others, alongAxis: axis, name)
     }
 }
 

@@ -19,20 +19,6 @@ import Foundation
 // VectorView protocol
 public protocol VectorView: TensorView where Shape == Shape1 { }
 
-extension VectorType: CustomStringConvertible {
-    public var description: String { "\(self.array)" }
-}
-
-extension VectorType: Equatable where Element: Equatable { }
-
-extension VectorType: AdditiveArithmetic where Element: Numeric {
-    @inlinable
-    public static var zero: VectorType<Element> {
-        VectorType<Element>(element: Element.zero)
-    }
-}
-
-//==============================================================================
 // VectorView initialization extensions
 public extension VectorView {
     //--------------------------------------------------------------------------
@@ -120,7 +106,6 @@ public extension VectorView {
         VectorType<IndexType>(extents: extents)
     }
     
-    
     //--------------------------------------------------------------------------
     // Swift array of elements
     @inlinable
@@ -150,10 +135,26 @@ public struct VectorType<Element>: VectorView {
     }
 }
 
-extension VectorType: Differentiable & DifferentiableTensorView where
-    Element: DifferentiableElement
+//==============================================================================
+// VectorType extensions
+extension VectorType: Equatable where Element: Equatable { }
+extension VectorType: Codable where Element: Codable { }
+
+extension VectorType: CustomStringConvertible {
+    public var description: String { "\(self.array)" }
+}
+
+extension VectorType: Differentiable & DifferentiableTensorView
+    where Element: DifferentiableElement
 {
     public typealias TangentVector = VectorType
+}
+
+extension VectorType: AdditiveArithmetic where Element: Numeric {
+    @inlinable
+    public static var zero: VectorType<Element> {
+        VectorType<Element>(element: Element.zero)
+    }
 }
 
 //******************************************************************************
@@ -166,20 +167,6 @@ public protocol MatrixView: TensorView  where Shape == Shape2 { }
 
 public enum MatrixLayout { case rowMajor, columnMajor }
 
-extension MatrixType: CustomStringConvertible {
-    public var description: String { "\(self.array)" }
-}
-
-extension MatrixType: Equatable where Element: Equatable { }
-
-extension MatrixType: AdditiveArithmetic where Element: Numeric {
-    @inlinable
-    public static var zero: MatrixType<Element> {
-        MatrixType<Element>(element: Element.zero)
-    }
-}
-
-//==============================================================================
 // MatrixView initialization extensions
 public extension MatrixView {
     //--------------------------------------------------------------------------
@@ -424,10 +411,26 @@ public struct MatrixType<Element>: MatrixView {
     }
 }
 
-extension MatrixType: Differentiable & DifferentiableTensorView where
-    Element: DifferentiableElement
+//==============================================================================
+// MatrixType extensions
+extension MatrixType: Equatable where Element: Equatable { }
+extension MatrixType: Codable where Element: Codable { }
+
+extension MatrixType: CustomStringConvertible {
+    public var description: String { "\(self.array)" }
+}
+
+extension MatrixType: Differentiable & DifferentiableTensorView
+    where Element: DifferentiableElement
 {
     public typealias TangentVector = MatrixType
+}
+
+extension MatrixType: AdditiveArithmetic where Element: Numeric {
+    @inlinable
+    public static var zero: MatrixType<Element> {
+        MatrixType<Element>(element: Element.zero)
+    }
 }
 
 //******************************************************************************
@@ -438,20 +441,6 @@ extension MatrixType: Differentiable & DifferentiableTensorView where
 // VolumeView protocol
 public protocol VolumeView: TensorView  where Shape == Shape3 {}
 
-extension VolumeType: CustomStringConvertible {
-    public var description: String { "\(self.array)" }
-}
-
-extension VolumeType: Equatable where Element: Equatable { }
-
-extension VolumeType: AdditiveArithmetic where Element: Numeric {
-    @inlinable
-    public static var zero: VolumeType<Element> {
-        VolumeType<Element>(element: Element.zero)
-    }
-}
-
-//==============================================================================
 // VolumeView extensions
 public extension VolumeView {
     //--------------------------------------------------------------------------
@@ -699,8 +688,25 @@ public struct VolumeType<Element>: VolumeView {
     }
 }
 
-extension VolumeType: Differentiable & DifferentiableTensorView where
-    Element: DifferentiableElement
+//==============================================================================
+// VolumeType extensions
+extension VolumeType: Equatable where Element: Equatable { }
+extension VolumeType: Codable where Element: Codable { }
+
+extension VolumeType: CustomStringConvertible {
+    public var description: String { "\(self.array)" }
+}
+
+extension VolumeType: Differentiable & DifferentiableTensorView
+    where Element: DifferentiableElement
 {
     public typealias TangentVector = VolumeType
 }
+
+extension VolumeType: AdditiveArithmetic where Element: Numeric {
+    @inlinable
+    public static var zero: VolumeType<Element> {
+        VolumeType<Element>(element: Element.zero)
+    }
+}
+

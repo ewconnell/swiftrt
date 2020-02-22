@@ -114,7 +114,8 @@ class test_BinaryFunctions: XCTestCase {
         let result = m1 + m2
         XCTAssert(result == [0, 2, 4, 6, 8, 10])
   
-        let (g1, g2) = gradient(at: m1, m2, in: { $0 + $1 })
+        let ones = Matrix(repeating: 1, like: m1)
+        let (g1, g2) = pullback(at: m1, m2, in: { $0 + $1 })(ones)
         XCTAssert(g1 == [1, 1, 1, 1, 1, 1])
         XCTAssert(g2 == [1, 1, 1, 1, 1, 1])
     }
@@ -165,7 +166,8 @@ class test_BinaryFunctions: XCTestCase {
         let result = m1 - m2
         XCTAssert(result == [1, 1, 1, 1, 1, 1])
         
-        let (g1, g2) = gradient(at: m1, m2, in: { $0 - $1 })
+        let ones = Matrix(repeating: 1, like: m1)
+        let (g1, g2) = pullback(at: m1, m2, in: { $0 - $1 })(ones)
         XCTAssert(g1 == [1, 1, 1, 1, 1, 1])
         XCTAssert(g2 == [-1, -1, -1, -1, -1, -1])
     }
@@ -224,7 +226,8 @@ class test_BinaryFunctions: XCTestCase {
         let result = m1 * m2
         XCTAssert(result == [0, 1, 4, 9, 16, 25])
         
-        let (g1, g2) = gradient(at: m1, m2, in: { $0 * $1 })
+        let ones = Matrix(repeating: 1, like: m1)
+        let (g1, g2) = pullback(at: m1, m2, in: { $0 * $1 })(ones)
         XCTAssert(g1 == [0, 1, 2, 3, 4, 5])
         XCTAssert(g2 == [0, 1, 2, 3, 4, 5])
     }
@@ -254,7 +257,8 @@ class test_BinaryFunctions: XCTestCase {
         XCTAssert(result == [1, 2, 3, 4, 5, 6])
         
         do {
-            let (g1, g2) = gradient(at: m1, m2, in: { $0 / $1 })
+            let ones = Matrix(repeating: 1, like: m1)
+            let (g1, g2) = pullback(at: m1, m2, in: { $0 / $1 })(ones)
             let g1Expected = Matrix(3, 2, with:
                 [1, 0.5, 0.3333333, 0.25, 0.2, 0.1666666])
             XCTAssert(abssum(g1 - g1Expected).element <= 1e-6)

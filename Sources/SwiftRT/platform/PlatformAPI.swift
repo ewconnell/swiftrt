@@ -42,10 +42,10 @@ public protocol PlatformAPI {
     func abs<T>(_ x: T) -> T
         where T: TensorView, T.Element: Real
     
-    func absmax<T>(_ x: T, along axes: Set<Int>?) -> T
+    func absmax<T>(_ x: T, alongAxes: Set<Int>?) -> T
         where T: TensorView, T.Element: SignedNumeric & Comparable
     
-    func abssum<T>(_ x: T, along axes: Set<Int>?) -> T
+    func abssum<T>(_ x: T, alongAxes: Set<Int>?) -> T
         where T: TensorView, T.Element: SignedNumeric & Comparable
     
     /// add
@@ -53,7 +53,7 @@ public protocol PlatformAPI {
         where T: TensorView, T.Element: AdditiveArithmetic
     
     // all
-    func all<T>(_ x: T, along axes: Set<Int>?) -> T
+    func all<T>(_ x: T, alongAxes: Set<Int>?) -> T
         where T: TensorView, T.Element == Bool
 
     /// and
@@ -61,7 +61,7 @@ public protocol PlatformAPI {
         where T: TensorView, T.Element == Bool
 
     // any
-    func any<T>(_ x: T, along axes: Set<Int>?) -> T
+    func any<T>(_ x: T, alongAxes: Set<Int>?) -> T
         where T: TensorView, T.Element == Bool
 
     /// cast
@@ -70,7 +70,7 @@ public protocol PlatformAPI {
         U: TensorView, U.Element: AnyConvertable, U.Shape == T.Shape
     
     /// concat
-    func concat<T>(_ tensors: [T], along axis: Int, _ name: String?) -> T
+    func concat<T>(_ tensors: [T], alongAxis axis: Int, _ name: String?) -> T
         where T: TensorView
     
     /// copy  performs an indexed copy
@@ -129,17 +129,17 @@ public protocol PlatformAPI {
     func max<T>(_ lhs: T, _ rhs: T) -> T
          where T: TensorView, T.Element: Comparable
     
-    func max<T>(_ x: T, along axes: Set<Int>?) -> T
+    func max<T>(_ x: T, alongAxes axes: Set<Int>?) -> T
         where T: TensorView, T.Element: Comparable
 
-    func mean<T>(_ x: T, along axes: Set<Int>?) -> T
+    func mean<T>(_ x: T, alongAxes: Set<Int>?) -> T
         where T: TensorView, T.Element: AlgebraicField
 
     /// Computes the element-wise minimum of two tensors.
     func min<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: Comparable
     
-    func min<T>(_ x: T, along axes: Set<Int>?) -> T
+    func min<T>(_ x: T, alongAxes: Set<Int>?) -> T
         where T: TensorView, T.Element: Comparable
 
     /// mul
@@ -163,10 +163,10 @@ public protocol PlatformAPI {
     func pow<T>(_ x: T, _ y: T) -> T
         where T: TensorView, T.Element: Real
     
-    func prod<T>(_ x: T, along axes: Set<Int>?) -> T
+    func prod<T>(_ x: T, alongAxes: Set<Int>?) -> T
         where T: TensorView, T.Element: Numeric
 
-    func prodNonZeros<T>(_ x: T, along axes: Set<Int>?) -> T
+    func prodNonZeros<T>(_ x: T, alongAxes: Set<Int>?) -> T
         where T: TensorView, T.Element: Numeric
 
     /// replace
@@ -186,14 +186,14 @@ public protocol PlatformAPI {
         where T: TensorView, T.Element: Real
     
     /// sqrtSumSquares
-    func sqrtSumSquares<T>(_ x: T, along axes: Set<Int>?) -> T
+    func sqrtSumSquares<T>(_ x: T, alongAxes: Set<Int>?) -> T
         where T: TensorView, T.Element: Real
 
     /// squared
     func squared<T>(_ x: T) -> T
         where T: TensorView, T.Element: Numeric
     
-    func sum<T>(_ x: T, along axes: Set<Int>?) -> T
+    func sum<T>(_ x: T, alongAxes: Set<Int>?) -> T
         where T: TensorView, T.Element: Numeric
 
     //==========================================================================
@@ -240,7 +240,7 @@ public protocol PlatformAPI {
     func _vjpSubtract<T>(lhs: T, rhs: T) -> (value: T, pullback: (T) ->(T, T))
         where T: DifferentiableTensorView
 
-    func _vjpSum<T>(_ x: T, along axes: Set<Int>?)
+    func _vjpSum<T>(_ x: T, alongAxes: Set<Int>?)
         -> (value: T, pullback: (T) -> T) where T: DifferentiableTensorView
 }
 
