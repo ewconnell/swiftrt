@@ -64,14 +64,29 @@ public protocol TensorView: Logging {
 //==============================================================================
 //
 public extension TensorView {
+    /// `elementBuffer`
+    /// - Returns: an element buffer that can be used to iterate the shape
     @inlinable
     func elementBuffer() -> ElementBuffer<Element, Shape> {
-        fatalError()
+        Platform.service.read(self)
     }
 
+    /// `mutableElementBuffer`
+    /// - Parameter copyIfNotUniquelyReferenced: `true` if the associated
+    /// buffer should be copied if the buffer is not uniquely referenced
+    /// by the `tensor`. This would be set to `false` to enable multi-threaded
+    /// write operations
+    /// - Parameter willOverwrite: `true` if all elements will be written
+    /// - Returns: an element buffer that can be used to iterate the shape
     @inlinable
-    func mutableElementBuffer() -> MutableElementBuffer<Element, Shape> {
-        fatalError()
+    mutating func mutableElementBuffer(copyIfNotUniquelyReferenced: Bool = true,
+                                       willOverwrite: Bool = true)
+        -> MutableElementBuffer<Element, Shape>
+    {
+        Platform.service.write(
+            &self,
+            copyIfNotUniquelyReferenced: copyIfNotUniquelyReferenced,
+            willOverwrite: willOverwrite)
     }
 }
 

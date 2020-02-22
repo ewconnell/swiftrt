@@ -134,10 +134,16 @@ public extension PlatformService {
     /// write(tensor:willOverwrite:
     /// gains synchronized read write access to the tensor `elementBuffer`
     /// - Parameter tensor: the tensor to read
+    /// - Parameter copyIfNotUniquelyReferenced: `true` if the associated
+    /// buffer should be copied if the buffer is not uniquely referenced
+    /// by the `tensor`. This would be set to `false` to enable multi-threaded
+    /// write operations
     /// - Parameter willOverwrite: `true` if all elements will be written
     /// - Returns: an `ElementBuffer` that can be used to iterate the shape
     @inlinable
-    func write<T>(_ tensor: inout T, willOverwrite: Bool = true)
+    func write<T>(_ tensor: inout T,
+                  copyIfNotUniquelyReferenced: Bool = true,
+                  willOverwrite: Bool = true)
         -> MutableElementBuffer<T.Element, T.Shape> where T: TensorView
     {
         let buffer = memory.readWrite(tensor.elementBuffer,
