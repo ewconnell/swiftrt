@@ -134,26 +134,66 @@ public extension PlatformService {
     /// write(tensor:willOverwrite:
     /// gains synchronized read write access to the tensor `elementBuffer`
     /// - Parameter tensor: the tensor to read
+    /// - Parameter willOverwrite: `true` if all elements will be written
     /// - Parameter copyIfNotUniquelyReferenced: `true` if the associated
     /// buffer should be copied if the buffer is not uniquely referenced
     /// by the `tensor`. This would be set to `false` to enable multi-threaded
     /// write operations
-    /// - Parameter willOverwrite: `true` if all elements will be written
+    /// - Parameter copyIfNotDense: `true` copies the tensor if it does not
+    /// have dense strides or is repeated.
     /// - Returns: an `ElementBuffer` that can be used to iterate the shape
     @inlinable
     func write<T>(_ tensor: inout T,
+                  willOverwrite: Bool = true,
                   copyIfNotUniquelyReferenced: Bool = true,
-                  willOverwrite: Bool = true)
+                  copyIfNotDense: Bool = true)
         -> MutableElementBuffer<T.Element, T.Shape> where T: TensorView
     {
+        // check if we need to copy
+        if (copyIfNotDense && tensor.count != tensor.shape.spanCount) ||
+            (copyIfNotUniquelyReferenced && !tensor.isUniquelyReference())
+        {
+
+        }
+        
+        // get the write buffer
         let buffer = memory.readWrite(tensor.elementBuffer,
                                       of: T.Element.self,
                                       at: tensor.offset,
                                       count: tensor.shape.spanCount,
                                       willOverwrite: willOverwrite,
                                       using: currentQueue)
+        
+        // return a mutable shaped buffer iterator
         return MutableElementBuffer(tensor.shape, buffer)
     }
+
+    
+//    //--------------------------------------------------------------------------
+//    /// makeDense(view:
+//    /// if the view is already dense, then noop. If the view is repeated,
+//    /// then the view virtual elements are realized and the view is converted
+//    /// to dense.
+//    // Note: This is not part of mutableView, because there are cases
+//    // where we want to interact with a repeated view, such as in reductions
+//    @inlinable
+//    mutating func makeDense(view: Self) {
+//        guard shape.spanCount < shape.count else { return }
+//
+//        // create storage for all elements
+//        var dense = createDense()
+//
+//        // report
+//        diagnostic("\(realizeString) \(name)(\(elementBuffer.id)) " +
+//            "expanding from: \(String(describing: Element.self))" +
+//            "[\(shape.spanCount)] " +
+//            "to: \(String(describing: Element.self))[\(dense.count)]",
+//            categories: [.dataRealize, .dataCopy])
+//
+//        // perform and indexed copy and assign to self
+//        Platform.service.copy(from: self, to: &dense)
+//        self = dense
+//    }
 
     //--------------------------------------------------------------------------
     /// `createResult(shape:name:`

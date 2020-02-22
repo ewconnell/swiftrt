@@ -117,21 +117,19 @@ public extension VectorView {
 public struct VectorType<Element>: VectorView {
     // properties
     public static var diagnosticName: String { "Vector" }
-    public var elementBuffer: BufferId
-    public let isMutable: Bool
-    public let offset: Int
     public let shape: Shape1
+    public var elementBuffer: BufferId
+    public let offset: Int
+    public let shared: Bool
     
     @inlinable
-    public init(shape: Shape1,
-                elementBuffer: BufferId,
-                offset: Int,
-                isMutable: Bool)
+    public init(shape: Shape1, elementBuffer: BufferId,
+                offset: Int, shared: Bool)
     {
         self.shape = shape
         self.elementBuffer = elementBuffer
         self.offset = offset
-        self.isMutable = isMutable
+        self.shared = shared
     }
 }
 
@@ -301,8 +299,7 @@ public extension MatrixView {
     var t: Self {
         Self.init(shape: shape.transposed(),
                   elementBuffer: elementBuffer,
-                  offset: offset,
-                  isMutable: isMutable)
+                  offset: offset, shared: shared)
     }
     
     //--------------------------------------------------------------------------
@@ -333,7 +330,6 @@ public extension MatrixView {
     //--------------------------------------------------------------------------
     // single element
     @inlinable
-    // TODO: fix this!!
     @differentiable(where Self: DifferentiableTensorView)
     subscript(r: Int, c: Int) -> Element {
         get {
@@ -341,12 +337,9 @@ public extension MatrixView {
                  extents: Shape.ones, strides: Shape.ones).element
         }
         set {
-            // make sure a possibly repeated view is dense before getting
-            // the extents and strides used for writing.
-            makeDense(view: self)
-            var view = mutableView(at: makePositive(index: (r, c)),
-                                   extents: Shape.ones, strides: Shape.ones)
-            view.element = newValue
+            var single = view(at: makePositive(index: (r, c)),
+                              extents: Shape.ones, strides: Shape.ones)
+            single.element = newValue
         }
     }
 
@@ -393,21 +386,19 @@ public extension MatrixView {
 public struct MatrixType<Element>: MatrixView {
     // properties
     public static var diagnosticName: String { "Matrix" }
-    public var elementBuffer: BufferId
-    public let isMutable: Bool
-    public let offset: Int
     public let shape: Shape2
+    public var elementBuffer: BufferId
+    public let offset: Int
+    public let shared: Bool
 
     @inlinable
-    public init(shape: Shape2,
-                elementBuffer: BufferId,
-                offset: Int,
-                isMutable: Bool)
+    public init(shape: Shape2, elementBuffer: BufferId,
+                offset: Int, shared: Bool)
     {
         self.shape = shape
         self.elementBuffer = elementBuffer
         self.offset = offset
-        self.isMutable = isMutable
+        self.shared = shared
     }
 }
 
@@ -590,9 +581,8 @@ public extension VolumeView {
     subscript(d: Int, r: Int, c: Int) -> Element {
         get { self[(d, r, c), (d + 1, r + 1, c + 1), Shape.ones.tuple].element }
         set {
-            var elements = self[(d, r, c), (d + 1, r + 1, c + 1),
-                Shape.ones.tuple].mutableElementBuffer()
-            elements[elements.startIndex] = newValue
+            var single = self[(d, r, c), (d + 1, r + 1, c + 1),Shape.ones.tuple]
+            single.element = newValue
         }
     }
     
@@ -670,21 +660,19 @@ public extension VolumeView {
 public struct VolumeType<Element>: VolumeView {
     // properties
     public static var diagnosticName: String { "Volume" }
-    public var elementBuffer: BufferId
-    public let isMutable: Bool
-    public let offset: Int
     public let shape: Shape3
-    
+    public var elementBuffer: BufferId
+    public let offset: Int
+    public let shared: Bool
+
     @inlinable
-    public init(shape: Shape3,
-                elementBuffer: BufferId,
-                offset: Int,
-                isMutable: Bool)
+    public init(shape: Shape3, elementBuffer: BufferId,
+                offset: Int, shared: Bool)
     {
         self.shape = shape
         self.elementBuffer = elementBuffer
         self.offset = offset
-        self.isMutable = isMutable
+        self.shared = shared
     }
 }
 

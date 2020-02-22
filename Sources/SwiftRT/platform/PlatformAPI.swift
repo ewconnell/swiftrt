@@ -34,8 +34,10 @@ public protocol PlatformAPI {
     func read<T>(_ tensor: T) -> ElementBuffer<T.Element, T.Shape>
         where T: TensorView
 
-    func write<T>(_ tensor: inout T, copyIfNotUniquelyReferenced: Bool,
-                  willOverwrite: Bool)
+    func write<T>(_ tensor: inout T,
+                  willOverwrite: Bool,
+                  copyIfNotUniquelyReferenced: Bool,
+                  copyIfNotDense: Bool)
         -> MutableElementBuffer<T.Element, T.Shape> where T: TensorView
 
     //--------------------------------------------------------------------------
@@ -251,8 +253,9 @@ public extension PlatformAPI {
     func write<T>(_ tensor: inout T, willOverwrite: Bool)
         -> MutableElementBuffer<T.Element, T.Shape> where T: TensorView
     {
-        write(&tensor, copyIfNotUniquelyReferenced: true,
-              willOverwrite: willOverwrite)
+        write(&tensor, willOverwrite: willOverwrite,
+              copyIfNotUniquelyReferenced: true,
+              copyIfNotDense: true)
     }
 }
 

@@ -47,8 +47,7 @@ public extension TensorView {
     init() {
         self.init(shape: Shape(extents: Shape.zeros),
                   elementBuffer: BufferId(-1),
-                  offset: 0,
-                  isMutable: false)
+                  offset: 0, shared: false)
     }
 
     //--------------------------------------------------------------------------
@@ -83,8 +82,7 @@ public extension TensorView {
     init<T>(flattening other: T) where T: TensorView, T.Element == Element {
         self.init(shape: Shape(flattening: other.shape),
                   elementBuffer: other.elementBuffer,
-                  offset: other.offset,
-                  isMutable: other.isMutable)
+                  offset: other.offset, shared: other.shared)
     }
 
     // noop flattening case
@@ -116,8 +114,7 @@ public extension TensorView {
     init<T>(indenting other: T) where T: TensorView, T.Element == Element {
         self.init(shape: Shape(indenting: other.shape),
                   elementBuffer: other.elementBuffer,
-                  offset: other.offset,
-                  isMutable: other.isMutable)
+                  offset: other.offset, shared: other.shared)
     }
         
     //--------------------------------------------------------------------------
@@ -126,8 +123,7 @@ public extension TensorView {
     init<T>(padding other: T) where T: TensorView, T.Element == Element {
         self.init(shape: Shape(padding: other.shape),
                   elementBuffer: other.elementBuffer,
-                  offset: other.offset,
-                  isMutable: other.isMutable)
+                  offset: other.offset, shared: other.shared)
     }
     
     //--------------------------------------------------------------------------
@@ -139,8 +135,7 @@ public extension TensorView {
     {
         self.init(shape: Shape(expanding: other.shape, alongAxes: axes),
                   elementBuffer: other.elementBuffer,
-                  offset: other.offset,
-                  isMutable: other.isMutable)
+                  offset: other.offset, shared: other.shared)
     }
     
     @inlinable
@@ -172,8 +167,7 @@ public extension TensorView {
     {
         self.init(shape: Shape(squeezing: other.shape, alongAxes: axes),
                   elementBuffer: other.elementBuffer,
-                  offset: other.offset,
-                  isMutable: other.isMutable)
+                  offset: other.offset, shared: other.shared)
     }
     
     @inlinable
@@ -230,7 +224,7 @@ public extension TensorView {
         // copy others into place
         var index = Shape.zeros
         for tensor in expanded {
-            var view = stacked.mutableView(at: index, extents: tensor.extents)
+            var view = stacked.sharedView(at: index, extents: tensor.extents)
             Platform.service.copy(from: tensor, to: &view)
             index[axis] += 1
         }
@@ -314,7 +308,7 @@ public extension TensorView {
         let id = Platform.memory.createBuffer(of: Element.self,
                                                     count: shape.count,
                                                     name: label)
-        return Self(shape: shape, elementBuffer: id, offset: 0, isMutable: false)
+        return Self(shape: shape, elementBuffer: id, offset: 0, shared: false)
     }
     
     @inlinable
@@ -325,7 +319,7 @@ public extension TensorView {
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
         let id = Platform.memory.createReference(to: buffer, name: label)
-        return Self(shape: shape, elementBuffer: id, offset: 0, isMutable: false)
+        return Self(shape: shape, elementBuffer: id, offset: 0, shared: false)
     }
     
     @inlinable
@@ -336,7 +330,7 @@ public extension TensorView {
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
         let id = Platform.memory.createMutableReference(to: buffer, name: label)
-        return Self(shape: shape, elementBuffer: id, offset: 0, isMutable: false)
+        return Self(shape: shape, elementBuffer: id, offset: 0, shared: false)
     }
     
     @inlinable
@@ -354,7 +348,7 @@ public extension TensorView {
         
         // create the tensor
         var tensor = Self(shape: shape, elementBuffer: bufferId,
-                          offset: 0, isMutable: false)
+                          offset: 0, shared: false)
         
         // copy the collection into the tensor buffer
         var buffer = Platform.service.write(&tensor, willOverwrite: true)

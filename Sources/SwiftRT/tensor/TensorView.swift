@@ -37,18 +37,18 @@ public protocol TensorView: Logging {
     // properties
     /// a label for the type used as a default name in diagnostics
     static var diagnosticName: String { get }
-    /// class reference to the underlying byte buffer
-    var elementBuffer: BufferId { get set }
-    /// if `true` then readWrite buffer access will not cause copy-on-write
-    var isMutable: Bool { get }
     /// the shape of the view used for indexing
     var shape: Shape { get }
+    /// class reference to the underlying byte buffer
+    var elementBuffer: BufferId { get set }
     /// the linear element offset where the view begins
     var offset: Int { get }
+    /// `true` if the view will be shared by by multiple writers
+    var shared: Bool { get }
     
     //--------------------------------------------------------------------------
     /// fully specified used for creating tensors
-    init(shape: Shape, elementBuffer: BufferId, offset: Int, isMutable: Bool)
+    init(shape: Shape, elementBuffer: BufferId, offset: Int, shared: Bool)
 
     //--------------------------------------------------------------------------
     /// creates a new dense tensor of the same type with the specified extents
@@ -85,8 +85,9 @@ public extension TensorView {
     {
         Platform.service.write(
             &self,
+            willOverwrite: willOverwrite,
             copyIfNotUniquelyReferenced: copyIfNotUniquelyReferenced,
-            willOverwrite: willOverwrite)
+            copyIfNotDense: true)
     }
 }
 
@@ -168,13 +169,18 @@ public extension TensorView {
     func repeated(to extents: Shape.Array) -> Self {
         return Self(shape: shape.repeated(to: extents),
                     elementBuffer: elementBuffer,
-                    offset: offset,
-                    isMutable: isMutable)
+                    offset: offset, shared: shared)
     }
-    
+    ///
     @inlinable
     func repeated(to extents: Shape.Tuple) -> Self {
         repeated(to: Shape.Array(extents))
+    }
+    /// isUniquelyReference
+    /// `true` if this view is the only one holding a reference to elementBuffer
+    @inlinable
+    mutating func isUniquelyReference() -> Bool {
+        isKnownUniquelyReferenced(&elementBuffer)
     }
 }
 
@@ -209,54 +215,38 @@ public extension TensorView {
     func view(at index: Shape.Array, extents: Shape.Array,
               strides: Shape.Array? = nil) -> Self
     {
-        createView(at: index, extents: extents,
-                   strides: strides ?? self.strides,
-                   isMutable: isMutable)
+        createView(at: index, with: extents,
+                   and: strides ?? self.strides, shared: self.shared)
     }
     
     //--------------------------------------------------------------------------
-    /// mutableView
-    /// A mutableView does not perform a copy-on-write check for
-    /// a readWrite buffer access. However, the data is copied the first time
-    /// if the tensor is not uniquely held. Mutable views derived from a
-    /// mutable view will not copy the data irrespective to reference count.
-    /// This allows for multi-threaded tensor write operations.
+    /// sharedView
+    /// Creates a a subview that can be shared by multiple writers
     @inlinable
-    mutating func mutableView(at index: Shape.Tuple, extents: Shape.Tuple,
-                              strides: Shape.Tuple? = nil) -> Self
+    mutating func sharedView(at index: Shape.Tuple, extents: Shape.Tuple,
+                             strides: Shape.Tuple? = nil) -> Self
     {
-        mutableView(at: Shape.Array(index),
-                    extents: Shape.Array(extents),
-                    strides: Shape.Array(strides))
+        sharedView(at: Shape.Array(index),
+                   extents: Shape.Array(extents),
+                   strides: Shape.Array(strides))
     }
     
     @inlinable
-    mutating func mutableView(at index: Shape.Array, extents: Shape.Array,
-                              strides: Shape.Array? = nil) -> Self
+    mutating func sharedView(at index: Shape.Array, extents: Shape.Array,
+                             strides: Shape.Array? = nil) -> Self
     {
-        // copy the tensor array if not uniquely held or
-        // if this is a broadcasted value
-        
-        // TODO: fix this
-//        copyIfMutates(using: Platform.service.currentQueue)
-        
-        // return a mutable view against a safe dense tensor array
-        return createView(at: index, extents: extents,
-                          strides: strides ?? self.strides,
-                          isMutable: true)
+        createView(at: index, with: extents,
+                   and: strides ?? self.strides, shared: true)
     }
-
-    @inlinable
-    mutating func mutableView() -> Self {
-        mutableView(at: Shape.zeros, extents: self.extents)
-    }
-
+    
     //--------------------------------------------------------------------------
     /// createView
     /// Returns a view of the elementBuffer relative to this view
     @usableFromInline
-    internal func createView(at index: Shape.Array, extents: Shape.Array,
-                             strides: Shape.Array, isMutable: Bool) -> Self
+    internal func createView(at index: Shape.Array,
+                             with extents: Shape.Array,
+                             and strides: Shape.Array,
+                             shared: Bool) -> Self
     {
         // validate
         assert(index.count == shape.rank && extents.count == shape.rank)
@@ -266,8 +256,7 @@ public extension TensorView {
         let subViewOffset = offset + shape.linearIndex(of: index)
         return Self(shape: Shape(extents: extents, strides: strides),
                     elementBuffer: elementBuffer,
-                    offset: subViewOffset,
-                    isMutable: isMutable)
+                    offset: subViewOffset, shared: shared)
     }
     
     //--------------------------------------------------------------------------
@@ -278,32 +267,9 @@ public extension TensorView {
     @inlinable
     func transposed(with permutations: Shape.Tuple? = nil) -> Self {
         guard self.rank > 1 else { return self }
-        let permuted = self.shape.transposed(with: Shape.Array(permutations))
-        return Self(shape: permuted,
-                    elementBuffer: elementBuffer,
-                    offset: offset,
-                    isMutable: isMutable)
-    }
-}
-
-//==============================================================================
-// TensorView buffer access functions
-public extension TensorView {
-    //--------------------------------------------------------------------------
-    /// isUniqueReference
-    /// `true` if this view is the only view holding a reference to elementBuffer
-    @inlinable
-    mutating func isUniqueReference() -> Bool {
-        isKnownUniquelyReferenced(&elementBuffer)
-    }
-    
-    //--------------------------------------------------------------------------
-    /// writeWillMutateView
-    /// `true` if write access will cause the underlying `elementBuffer`
-    ///  to be copied
-    @inlinable
-    mutating func writeWillMutateView() -> Bool {
-        !isUniqueReference() && !isMutable
+        let shape = self.shape.transposed(with: Shape.Array(permutations))
+        return Self(shape: shape, elementBuffer: elementBuffer,
+                    offset: offset, shared: shared)
     }
 }
 

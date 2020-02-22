@@ -25,12 +25,9 @@ public extension TensorView where Self: VectorView {
                  extents: Shape.ones, strides: Shape.ones).element
         }
         set {
-            // make sure a possibly repeated view is dense before getting
-            // the extents and strides used for writing.
-            makeDense(view: self)
-            var view = mutableView(at: makePositive(index: (index)),
-                                   extents: Shape.ones, strides: Shape.ones)
-            view.element = newValue
+            var subview = view(at: makePositive(index: (index)),
+                               extents: Shape.ones, strides: Shape.ones)
+            subview.element = newValue
         }
     }
     
@@ -172,39 +169,10 @@ public extension TensorView {
             return view(at: lower, extents: extents, strides: strides)
         }
         set {
-            // make sure a possibly repeated view is dense before getting
-            // the extents and strides used for writing.
-            makeDense(view: self)
             let (extents, strides) = getExtents(lower, upper, steps)
-            var view = mutableView(at: lower, extents: extents, strides: strides)
-            Platform.service.copy(from: newValue, to: &view)
+            var subview = view(at: lower, extents: extents, strides: strides)
+            Platform.service.copy(from: newValue, to: &subview)
         }
-    }
-    
-    //--------------------------------------------------------------------------
-    /// makeDense(view:
-    /// if the view is already dense, then noop. If the view is repeated,
-    /// then the view virtual elements are realized and the view is converted
-    /// to dense.
-    // Note: This is not part of mutableView, because there are cases
-    // where we want to interact with a repeated view, such as in reductions
-    @inlinable
-    mutating func makeDense(view: Self) {
-        guard shape.spanCount < shape.count else { return }
-
-        // create storage for all elements
-        var dense = createDense()
-        
-        // report
-        diagnostic("\(realizeString) \(name)(\(elementBuffer.id)) " +
-            "expanding from: \(String(describing: Element.self))" +
-            "[\(shape.spanCount)] " +
-            "to: \(String(describing: Element.self))[\(dense.count)]",
-            categories: [.dataRealize, .dataCopy])
-        
-        // perform and indexed copy and assign to self
-        Platform.service.copy(from: self, to: &dense)
-        self = dense
     }
 }
 
