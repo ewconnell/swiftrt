@@ -72,22 +72,14 @@ public extension TensorView {
     }
 
     /// `mutableElementBuffer`
-    /// - Parameter copyIfNotUniquelyReferenced: `true` if the associated
-    /// buffer should be copied if the buffer is not uniquely referenced
-    /// by the `tensor`. This would be set to `false` to enable multi-threaded
-    /// write operations
     /// - Parameter willOverwrite: `true` if all elements will be written
     /// - Returns: an element buffer that can be used to iterate the shape
     @inlinable
-    mutating func mutableElementBuffer(copyIfNotUniquelyReferenced: Bool = true,
-                                       willOverwrite: Bool = true)
+    mutating func mutableElementBuffer(willOverwrite: Bool = true)
         -> MutableElementBuffer<Element, Shape>
     {
-        Platform.service.write(
-            &self,
-            willOverwrite: willOverwrite,
-            copyIfNotUniquelyReferenced: copyIfNotUniquelyReferenced,
-            copyIfNotDense: true)
+        Platform.service.write(&self, willOverwrite: willOverwrite,
+                               copyIfNotDense: true)
     }
 }
 
