@@ -65,12 +65,12 @@ public protocol TensorView: Logging {
 //
 public extension TensorView {
     @inlinable
-    var elements: ElementBuffer<Element, Shape> {
+    func elementBuffer() -> ElementBuffer<Element, Shape> {
         fatalError()
     }
 
     @inlinable
-    var mutableElements: MutableElementBuffer<Element, Shape> {
+    func mutableElementBuffer() -> MutableElementBuffer<Element, Shape> {
         fatalError()
     }
 }
@@ -95,7 +95,8 @@ public extension TensorView {
     /// - Returns: the first element in the tensor
     @inlinable
     var first: Element {
-        elements[elements.startIndex]
+        let elements = elementBuffer()
+        return elements[elements.startIndex]
     }
 
     /// element
@@ -112,8 +113,8 @@ public extension TensorView {
         set {
             assert(shape.isScalar, "the `element` property expects " +
                 "the tensor to have a single Element")
-            var buffer = mutableElements
-            buffer[buffer.startIndex] = newValue
+            var elements = mutableElementBuffer()
+            elements[elements.startIndex] = newValue
         }
     }
 }
@@ -146,7 +147,7 @@ public extension TensorView {
     var strides: Shape.Array { shape.strides }
     /// an array of viewed elements
     @inlinable
-    var flatArray: [Element] { [Element](elements) }
+    var flatArray: [Element] { [Element](elementBuffer()) }
     /// repeated(to extents:
     @inlinable
     func repeated(to extents: Shape.Array) -> Self {
@@ -303,7 +304,7 @@ public extension TensorView where Element: Codable {
         try container.encode(name, forKey: .name)
         try container.encode(extents, forKey: .extents)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
-        try self.elements.forEach {
+        try elementBuffer().forEach {
             try dataContainer.encode($0)
         }
     }
@@ -318,7 +319,7 @@ public extension TensorView where Element: Codable {
         self = Self.create(Self.Shape(extents: extents), name)
 
         assert(self.count == dataContainer.count)
-        var mutableElements = self.mutableElements
+        var mutableElements = mutableElementBuffer()
         for i in mutableElements.indices {
             mutableElements[i] = try dataContainer.decode(Element.self)
         }
@@ -331,7 +332,7 @@ public extension TensorView where Element: Equatable {
     /// compares the flat elements of self with a Swift array of elements
     @inlinable
     static func == (lhs: Self, rhs: [Element]) -> Bool {
-        for (lhsElement, rhsElement) in zip(lhs.elements, rhs) {
+        for (lhsElement, rhsElement) in zip(lhs.elementBuffer(), rhs) {
             if lhsElement != rhsElement { return false }
         }
         return true
@@ -344,7 +345,7 @@ public extension TensorView where Element: Equatable & AnyConvertable {
     static func == <R>(lhs: Self, rhs: R) -> Bool
         where R: Collection, R.Element: AnyConvertable
     {
-        for (lhsElement, rhsElement) in zip(lhs.elements, rhs) {
+        for (lhsElement, rhsElement) in zip(lhs.elementBuffer(), rhs) {
             if lhsElement != Element(any: rhsElement) { return false }
         }
         return true

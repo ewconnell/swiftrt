@@ -311,10 +311,10 @@ public extension TensorView {
     @inlinable
     static func create(_ shape: Shape, _ name: String?) -> Self {
         let label = name ?? Self.diagnosticName
-        let bufferId = Platform.service.memoryManager
-            .createBuffer(of: Element.self, count: shape.count, name: label)
-        return Self(shape: shape, elementBuffer: bufferId,
-                    offset: 0, isMutable: false)
+        let id = Platform.memory.createBuffer(of: Element.self,
+                                                    count: shape.count,
+                                                    name: label)
+        return Self(shape: shape, elementBuffer: id, offset: 0, isMutable: false)
     }
     
     @inlinable
@@ -324,10 +324,8 @@ public extension TensorView {
                "shape count does not match buffer count")
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
-        let bufferId = Platform.service.memoryManager
-            .createReference(to: buffer, name: label)
-        return Self(shape: shape, elementBuffer: bufferId,
-                    offset: 0, isMutable: false)
+        let id = Platform.memory.createReference(to: buffer, name: label)
+        return Self(shape: shape, elementBuffer: id, offset: 0, isMutable: false)
     }
     
     @inlinable
@@ -337,10 +335,8 @@ public extension TensorView {
                "shape count does not match buffer count")
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
-        let bufferId = Platform.service.memoryManager
-            .createMutableReference(to: buffer, name: label)
-        return Self(shape: shape, elementBuffer: bufferId,
-                    offset: 0, isMutable: false)
+        let id = Platform.memory.createMutableReference(to: buffer, name: label)
+        return Self(shape: shape, elementBuffer: id, offset: 0, isMutable: false)
     }
     
     @inlinable
@@ -353,7 +349,7 @@ public extension TensorView {
         let label = name ?? Self.diagnosticName
         
         // create the buffer
-        let bufferId = Platform.service.memoryManager
+        let bufferId = Platform.memory
             .createBuffer(of: Element.self, count: shape.count, name: label)
         
         // create the tensor

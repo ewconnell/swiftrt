@@ -42,6 +42,10 @@ public final class Platform {
         get { logWriter }
         set { logWriter = newValue }
     }
+    /// the Platform log writing object
+    @inlinable public static var memory: MemoryManagement {
+        get { service.memoryManager }
+    }
     /// a counter used to uniquely identify queue events for diagnostics
     @inlinable static var nextQueueEventId: Int {
         queueEventCounter += 1

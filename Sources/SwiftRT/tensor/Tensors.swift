@@ -124,7 +124,7 @@ public extension VectorView {
     //--------------------------------------------------------------------------
     // Swift array of elements
     @inlinable
-    var array: [Element] { [Element](self.elements) }
+    var array: [Element] { [Element](elementBuffer()) }
 }
 
 //==============================================================================
@@ -338,7 +338,7 @@ public extension MatrixView {
     var array: [[Element]] {
         var result = [[Element]]()
         for row in 0..<extents[0] {
-            result.append([Element](self[row..|1, ...].elements))
+            result.append([Element](self[row..|1, ...].elementBuffer()))
         }
         return result
     }
@@ -346,7 +346,7 @@ public extension MatrixView {
     //--------------------------------------------------------------------------
     // single element
     @inlinable
-    // TODO: fix this
+    // TODO: fix this!!
     @differentiable(where Self: DifferentiableTensorView)
     subscript(r: Int, c: Int) -> Element {
         get {
@@ -586,7 +586,8 @@ public extension VolumeView {
         for di in 0..<extents[0] {
             var depth = [[Element]]()
             for ri in 0..<extents[1] {
-                depth.append([Element](self[di..|1, ri..|1, ...].elements))
+                let elements = self[di..|1, ri..|1, ...].elementBuffer()
+                depth.append([Element](elements))
             }
             result.append(depth)
         }
@@ -600,9 +601,9 @@ public extension VolumeView {
     subscript(d: Int, r: Int, c: Int) -> Element {
         get { self[(d, r, c), (d + 1, r + 1, c + 1), Shape.ones.tuple].element }
         set {
-            fatalError()
-//            self[(d, r, c), (d + 1, r + 1, c + 1), Shape.ones.tuple]
-            
+            var elements = self[(d, r, c), (d + 1, r + 1, c + 1),
+                Shape.ones.tuple].mutableElementBuffer()
+            elements[elements.startIndex] = newValue
         }
     }
     
