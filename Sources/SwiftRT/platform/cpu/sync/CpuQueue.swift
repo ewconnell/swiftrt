@@ -18,6 +18,10 @@ import Foundation
 //==============================================================================
 /// CpuQueue
 public struct CpuQueue: CpuQueueProtocol, Logging {
+    public func fill<T, R>(_ result: inout R, with range: T) where T : Collection, T : StridedRangeExpression, R : MutableShapedBuffer, T.Bound == R.Element {
+        fatalError()
+    }
+    
     // properties
     public let creatorThread: Thread
     public let defaultQueueEventOptions: QueueEventOptions

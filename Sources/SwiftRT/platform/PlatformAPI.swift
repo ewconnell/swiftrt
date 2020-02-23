@@ -103,7 +103,7 @@ public protocol PlatformAPI {
     /// fill(result:with range:
     func fill<T, R>(_ result: inout T, with range: R) where
         T: TensorView,
-        R: StridedRangeExpression, R.Bound == T.Element
+        R: StridedRangeExpression & Collection, R.Bound == T.Element
     
     /// greater
     func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView

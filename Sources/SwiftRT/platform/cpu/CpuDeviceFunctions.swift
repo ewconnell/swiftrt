@@ -111,12 +111,10 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     func cpu_fill<T, R>(_ result: inout R, with range: T) where
-        T: StridedRangeExpression,
-        R: MutableCollection, R.Element == T.Bound
+        T: StridedRangeExpression & Collection,
+        R: MutableCollection, R.Element == T.Element
     {
-        // add a new mapOp for ranges
-        fatalError()
-        //        cpu_mapOp(&result) { $0 }
+        cpu_mapOp(range, &result) { $0 }
     }
 
     func cpu_greater<T, R>(_ lhs: T, _ rhs: T, _ result: inout R)

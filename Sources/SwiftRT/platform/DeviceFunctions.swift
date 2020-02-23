@@ -88,7 +88,7 @@ public protocol DeviceFunctions {
 
     /// fill(result:with range:
     func fill<T, R>(_ result: inout R, with range: T) where
-        T: StridedRangeExpression,
+        T: StridedRangeExpression & Collection,
         R: MutableShapedBuffer, R.Element == T.Bound
 
     /// greater
@@ -309,8 +309,8 @@ public extension DeviceFunctions where Self: DeviceQueue {
 
     /// fill(result:with range:
     func fill<T, R>(_ result: inout R, with range: T) where
-        T: StridedRangeExpression,
-        R: MutableShapedBuffer, R.Element == T.Bound
+        T: StridedRangeExpression & Collection,
+        R: MutableShapedBuffer, R.Element == T.Element
     {
         cpu_fill(&result, with: range)
     }
