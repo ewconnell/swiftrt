@@ -90,12 +90,12 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result) { Swift.abs($0 - $1) <= tolerance }
     }
 
-//    func cpu_equal<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
-//        T: Collection,
-//        R: MutableCollection, R.Element == Bool
-//    {
+    func cpu_equal<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
+        T: Collection,
+        R: MutableCollection, R.Element == Bool
+    {
 //        cpu_mapOp(lhs, rhs, &result, ==)
-//    }
+    }
 
     func cpu_exp<T, R>(_ x: T, _ result: inout R) where
         T: Collection, T.Element: Real,
@@ -182,12 +182,12 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(x, &result, -)
     }
 
-//    func cpu_notEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
-//        T: Collection,
-//        R: MutableCollection, R.Element == Bool
-//    {
+    func cpu_notEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
+        T: Collection,
+        R: MutableCollection, R.Element == Bool
+    {
 //        cpu_mapOp(lhs, rhs, &result, !=)
-//    }
+    }
 
     func cpu_or<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element == Bool,

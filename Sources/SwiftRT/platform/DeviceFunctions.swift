@@ -289,7 +289,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer,
         R: MutableShapedBuffer, R.Element == Bool
     {
-//        cpu_equal(lhs, rhs, &result)
+        cpu_equal(lhs, rhs, &result)
     }
 
     /// exp
@@ -393,7 +393,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer,
         R: MutableShapedBuffer, R.Element == Bool
     {
-        
+        cpu_notEqual(lhs, rhs, &result)
     }
 
     /// or
