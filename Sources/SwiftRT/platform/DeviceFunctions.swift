@@ -74,7 +74,7 @@ public protocol DeviceFunctions {
 
     /// equal
     func equal<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
-        T: ShapedBuffer,
+        T: ShapedBuffer, T.Element: Equatable,
         R: MutableShapedBuffer, R.Element == Bool
 
     /// exp
@@ -139,7 +139,7 @@ public protocol DeviceFunctions {
     
     /// notEqual
     func notEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
-        T: ShapedBuffer,
+        T: ShapedBuffer, T.Element: Equatable,
         R: MutableShapedBuffer, R.Element == Bool
     
     /// or
@@ -286,7 +286,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
 
     /// equal
     func equal<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
-        T: ShapedBuffer,
+        T: ShapedBuffer, T.Element: Equatable,
         R: MutableShapedBuffer, R.Element == Bool
     {
         cpu_equal(lhs, rhs, &result)
@@ -390,7 +390,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
 
     /// notEqual
     func notEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
-        T: ShapedBuffer,
+        T: ShapedBuffer, T.Element: Equatable,
         R: MutableShapedBuffer, R.Element == Bool
     {
         cpu_notEqual(lhs, rhs, &result)

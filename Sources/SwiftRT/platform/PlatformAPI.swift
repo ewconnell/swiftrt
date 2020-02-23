@@ -90,7 +90,7 @@ public protocol PlatformAPI {
     
     /// equal
     func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-        T: TensorView
+        T: TensorView, T.Element: Equatable
     
     /// exp
     func exp<T>(_ x: T) -> T where
@@ -153,7 +153,7 @@ public protocol PlatformAPI {
     
     /// notEqual
     func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView
-        where T: TensorView
+        where T: TensorView, T.Element: Equatable
     
     /// or
     func or<T>(_ lhs: T, _ rhs: T) -> T.BoolView

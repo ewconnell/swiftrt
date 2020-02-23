@@ -401,13 +401,17 @@ public extension PlatformService {
 /// Performs element-wise equality comparison and returns a
 /// tensor of Bool values
 @inlinable
-public func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
+public func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView
+    where T: TensorView, T.Element: Equatable
+{
     Platform.service.equal(lhs, rhs)
 }
 
 public extension PlatformService {
     @inlinable
-    func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
+    func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView
+        where T: TensorView, T.Element: Equatable
+    {
         assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
         var resultBuffer = write(&result)
@@ -478,13 +482,17 @@ public extension TensorView where Element: SignedNumeric & Comparable {
 /// Computes `lhs != rhs` element-wise and returns a `TensorView` of Boolean
 /// values.
 @inlinable
-public func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
+public func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView
+    where T: TensorView, T.Element: Equatable
+{
     Platform.service.notEqual(lhs, rhs)
 }
 
 public extension PlatformService {
     @inlinable
-    func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where T: TensorView {
+    func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView
+        where T: TensorView, T.Element: Equatable
+    {
         assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
         var resultBuffer = write(&result)

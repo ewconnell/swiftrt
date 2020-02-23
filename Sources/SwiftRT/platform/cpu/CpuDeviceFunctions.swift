@@ -91,10 +91,10 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     func cpu_equal<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
-        T: Collection,
+        T: Collection, T.Element: Equatable,
         R: MutableCollection, R.Element == Bool
     {
-//        cpu_mapOp(lhs, rhs, &result, ==)
+        cpu_mapOp(lhs, rhs, &result, ==)
     }
 
     func cpu_exp<T, R>(_ x: T, _ result: inout R) where
@@ -183,10 +183,10 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     func cpu_notEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
-        T: Collection,
+        T: Collection, T.Element: Equatable,
         R: MutableCollection, R.Element == Bool
     {
-//        cpu_mapOp(lhs, rhs, &result, !=)
+        cpu_mapOp(lhs, rhs, &result, !=)
     }
 
     func cpu_or<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
