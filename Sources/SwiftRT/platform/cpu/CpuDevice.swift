@@ -50,38 +50,16 @@ public struct CpuDevice<Queue>: ServiceDevice
         self.queues = queues
     }
 
-    //--------------------------------------------------------------------------
-    // createArray
-    //    This creates memory on the device
-    @inlinable
-    public func createArray(byteCount: Int, heapIndex: Int, zero: Bool)
-        -> DeviceArray
-    {
-        CpuDeviceArray(deviceName: name, deviceId: id,
-                       addressing: .unified,
-                       byteCount: byteCount, zero: zero)
-    }
-    
-    //--------------------------------------------------------------------------
-    // createMutableReferenceArray
-    /// creates a device array from a uma buffer.
-    @inlinable
-    public func createMutableReferenceArray(
-        buffer: UnsafeMutableRawBufferPointer) -> DeviceArray
-    {
-        CpuDeviceArray(deviceName: name, deviceId: id,
-                       addressing: .unified, buffer: buffer)
-    }
-    
-    //--------------------------------------------------------------------------
-    // createReferenceArray
-    /// creates a device array from a uma buffer.
-    @inlinable
-    public func createReferenceArray(buffer: UnsafeRawBufferPointer)
-        -> DeviceArray
-    {
-        CpuDeviceArray(deviceName: name, deviceId: id,
-                       addressing: .unified, buffer: buffer)
+    //--------------------------------------
+    // allocate
+    public func allocate(byteCount: Int, heapIndex: Int) -> DeviceMemory {
+        // allocate a host memory buffer
+        let buffer = UnsafeMutableRawBufferPointer.allocate(
+            byteCount: byteCount, alignment: MemoryLayout<Double>.alignment)
+        
+        return DeviceMemory(buffer.baseAddress, byteCount) {
+            buffer.deallocate()
+        }
     }
 }
 
