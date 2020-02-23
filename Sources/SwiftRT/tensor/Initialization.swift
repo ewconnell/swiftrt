@@ -343,9 +343,9 @@ public extension TensorView {
         let label = name ?? Self.diagnosticName
         
         // create the buffer
-        let bufferId = Platform.memory
-            .createBuffer(of: Element.self, count: shape.count, name: label)
-        
+        let bufferId = Platform.memory.createBuffer(of: Element.self,
+                                                    count: shape.count,
+                                                    name: label)
         // create the tensor
         var tensor = Self(shape: shape, elementBuffer: bufferId,
                           offset: 0, shared: false)

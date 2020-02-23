@@ -20,21 +20,21 @@ import Real
 // DeviceQueue default implementations
 // TODO: investigate use of SIMD for cpu_mapOps
 public extension DeviceFunctions where Self: DeviceQueue {
-    func cpu_abs<T, R>(x: T, result: inout R) where
+    func cpu_abs<T, R>(_ x: T, _ result: inout R) where
         T: Collection, T.Element: Real,
         R: MutableCollection, R.Element == T.Element
     {
         cpu_mapOp(x, &result) { Swift.abs($0) }
     }
     
-    func cpu_add<T, R>(lhs: T, rhs: T, result: inout R) where
+    func cpu_add<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element: AdditiveArithmetic,
         R: MutableCollection, R.Element == T.Element
     {
         cpu_mapOp(lhs, rhs, &result, +)
     }
     
-    func cpu_and<T, R>(lhs: T, rhs: T, result: inout R) where
+    func cpu_and<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element == Bool,
         R: MutableCollection, R.Element == Bool
     {
@@ -47,217 +47,225 @@ public extension DeviceFunctions where Self: DeviceQueue {
     {
         cpu_mapOp(buffer, &result) { R.Element(any: $0) }
     }
-//
-//    func cpu_concat<T, R>(buffers: [T], alongAxis axis: Int, result: inout R) where
-//        T: Collection,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        //        var index = T.Shape.zeros
-//        // rewrite
-//        fatalError()
-//        //        for buffer in buffers {
-//        //            var view = result.mutableView(at: index, extents: tensor.extents)
-//        //            tensor.map(into: &view) { $0 }
-//        //            index[axis] += tensor.extents[axis]
-//        //        }
-//    }
-//
+
+    func cpu_concat<T, R>(_ buffers: [T], along axis: Int, _ result: inout R)
+        where
+        T: Collection,
+        R: MutableCollection, R.Element == T.Element
+    {
+        //        var index = T.Shape.zeros
+        // rewrite
+        fatalError()
+        //        for buffer in buffers {
+        //            var view = result.mutableView(at: index, extents: tensor.extents)
+        //            tensor.map(into: &view) { $0 }
+        //            index[axis] += tensor.extents[axis]
+        //        }
+    }
+
+    func cpu_copy<T, R>(from x: T, to result: inout R) where
+        T: Collection,
+        R: MutableCollection, R.Element == T.Element
+    {
+    }
+    
     func cpu_delay(atLeast interval: TimeInterval) {
         assert(Thread.current === creatorThread, _messageQueueThreadViolation)
         Thread.sleep(forTimeInterval: interval)
     }
 
-    func cpu_div<T, R>(lhs: T, rhs: T, result: inout R) where
+    func cpu_div<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element: AlgebraicField,
         R: MutableCollection, R.Element == T.Element
     {
         cpu_mapOp(lhs, rhs, &result, /)
     }
-//
-//    func cpu_elementsAlmostEqual<T, R>(lhs: T, rhs: T, tolerance: T.Element,
-//                                       result: inout R) where
-//        T: Collection, T.Element: SignedNumeric & Comparable,
-//        R: MutableCollection, R.Element == Bool
-//    {
-//        cpu_mapOp(lhs, rhs, &result) { Swift.abs($0 - $1) <= tolerance }
-//    }
-//
-//    func cpu_equal<T, R>(lhs: T, rhs: T, result: inout R) where
+
+    func cpu_elementsAlmostEqual<T, R>(_ lhs: T, _ rhs: T,
+                                       _ tolerance: T.Element,
+                                       _ result: inout R) where
+        T: Collection, T.Element: SignedNumeric & Comparable,
+        R: MutableCollection, R.Element == Bool
+    {
+        cpu_mapOp(lhs, rhs, &result) { Swift.abs($0 - $1) <= tolerance }
+    }
+
+//    func cpu_equal<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
 //        T: Collection,
 //        R: MutableCollection, R.Element == Bool
 //    {
 //        cpu_mapOp(lhs, rhs, &result, ==)
 //    }
-//
-//    func cpu_exp<T, R>(x: T, result: inout R) where
-//        T: Collection, T.Element: Real,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        cpu_mapOp(x, &result) { .exp($0) }
-//    }
-//
-//    func cpu_fill<Element, R>(result: inout R, with element: Element) where
-//        R: MutableCollection, R.Element == Element
-//    {
-//        cpu_inPlaceOp(&result) { _ in element }
-//    }
-//
-//    func cpu_fill<T, R>(result: inout R, with range: T) where
-//T: StridedRangeExpression,
-//R: MutableCollection, R.Element == T.Bound
-//    {
-//        // add a new mapOp for ranges
-//        fatalError()
-//        //        cpu_mapOp(&result) { $0 }
-//    }
-//
-//    func cpu_greater<T, R>(lhs: T, rhs: T, result: inout R)
-//        where T: Collection, T.Element: Comparable,
-//        R: MutableCollection, R.Element == Bool
-//    {
-//        cpu_mapOp(lhs, rhs, &result, >)
-//    }
-//
-//    func cpu_greaterOrEqual<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: Collection, T.Element: Comparable,
-//        R: MutableCollection, R.Element == Bool
-//    {
-//        cpu_mapOp(lhs, rhs, &result, >=)
-//    }
-//
-//    func cpu_less<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: Collection, T.Element: Comparable,
-//        R: MutableCollection, R.Element == Bool
-//    {
-//        cpu_mapOp(lhs, rhs, &result, <)
-//    }
-//
-//    func cpu_lessOrEqual<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: Collection, T.Element: Comparable,
-//        R: MutableCollection, R.Element == Bool
-//    {
-//        cpu_mapOp(lhs, rhs, &result, <=)
-//    }
-//
-//    func cpu_log<T, R>(x: T, result: inout R) where
-//        T: Collection, T.Element: Real,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        cpu_mapOp(x, &result) { .log($0) }
-//    }
-//
-//    func cpu_max<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: Collection, T.Element: Comparable,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        cpu_mapOp(lhs, rhs, &result) { $0 >= $1 ? $0 : $1 }
-//    }
-//
-//    func cpu_min<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: Collection, T.Element: Comparable,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        cpu_mapOp(lhs, rhs, &result) { $0 <= $1 ? $0 : $1 }
-//    }
-//
-//    func cpu_mul<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: Collection, T.Element: Numeric,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        cpu_mapOp(lhs, rhs, &result, *)
-//    }
-//
-//    func cpu_neg<T, R>(x: T, result: inout R) where
-//        T: Collection, T.Element: SignedNumeric,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        cpu_mapOp(x, &result, -)
-//    }
-//
-//    func cpu_notEqual<T, R>(lhs: T, rhs: T, result: inout R) where
+
+    func cpu_exp<T, R>(_ x: T, _ result: inout R) where
+        T: Collection, T.Element: Real,
+        R: MutableCollection, R.Element == T.Element
+    {
+        cpu_mapOp(x, &result) { .exp($0) }
+    }
+
+    func cpu_fill<Element, R>(_ result: inout R, with element: Element) where
+        R: MutableCollection, R.Element == Element
+    {
+        cpu_inPlaceOp(&result) { _ in element }
+    }
+
+    func cpu_fill<T, R>(_ result: inout R, with range: T) where
+        T: StridedRangeExpression,
+        R: MutableCollection, R.Element == T.Bound
+    {
+        // add a new mapOp for ranges
+        fatalError()
+        //        cpu_mapOp(&result) { $0 }
+    }
+
+    func cpu_greater<T, R>(_ lhs: T, _ rhs: T, _ result: inout R)
+        where T: Collection, T.Element: Comparable,
+        R: MutableCollection, R.Element == Bool
+    {
+        cpu_mapOp(lhs, rhs, &result, >)
+    }
+
+    func cpu_greaterOrEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
+        T: Collection, T.Element: Comparable,
+        R: MutableCollection, R.Element == Bool
+    {
+        cpu_mapOp(lhs, rhs, &result, >=)
+    }
+
+    func cpu_less<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
+        T: Collection, T.Element: Comparable,
+        R: MutableCollection, R.Element == Bool
+    {
+        cpu_mapOp(lhs, rhs, &result, <)
+    }
+
+    func cpu_lessOrEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
+        T: Collection, T.Element: Comparable,
+        R: MutableCollection, R.Element == Bool
+    {
+        cpu_mapOp(lhs, rhs, &result, <=)
+    }
+
+    func cpu_log<T, R>(_ x: T, _ result: inout R) where
+        T: Collection, T.Element: Real,
+        R: MutableCollection, R.Element == T.Element
+    {
+        cpu_mapOp(x, &result) { .log($0) }
+    }
+
+    func cpu_max<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
+        T: Collection, T.Element: Comparable,
+        R: MutableCollection, R.Element == T.Element
+    {
+        cpu_mapOp(lhs, rhs, &result) { $0 >= $1 ? $0 : $1 }
+    }
+
+    func cpu_min<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
+        T: Collection, T.Element: Comparable,
+        R: MutableCollection, R.Element == T.Element
+    {
+        cpu_mapOp(lhs, rhs, &result) { $0 <= $1 ? $0 : $1 }
+    }
+
+    func cpu_mul<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
+        T: Collection, T.Element: Numeric,
+        R: MutableCollection, R.Element == T.Element
+    {
+        cpu_mapOp(lhs, rhs, &result, *)
+    }
+
+    func cpu_neg<T, R>(_ x: T, _ result: inout R) where
+        T: Collection, T.Element: SignedNumeric,
+        R: MutableCollection, R.Element == T.Element
+    {
+        cpu_mapOp(x, &result, -)
+    }
+
+//    func cpu_notEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
 //        T: Collection,
 //        R: MutableCollection, R.Element == Bool
 //    {
 //        cpu_mapOp(lhs, rhs, &result, !=)
 //    }
+
+    func cpu_or<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
+        T: Collection, T.Element == Bool,
+        R: MutableCollection, R.Element == Bool
+    {
+        cpu_mapOp(lhs, rhs, &result) { $0 || $1 }
+    }
+
+    func cpu_pow<T, R>(_ x: T, _ y: T, _ result: inout R) where
+        T: Collection, T.Element: Real,
+        R: MutableCollection, R.Element == T.Element
+    {
+        cpu_mapOp(x, y, &result) { .pow($0, $1) }
+    }
+
+    func cpu_replace<T, C, R>(_ x: T, _ y: T, _ condition: C,
+                              _ result: inout R) where
+        T: Collection,
+        C: Collection, C.Element == Bool,
+        R: MutableCollection, R.Element == T.Element
+    {
+        cpu_mapOp(condition, y, x, &result) { $0 ? $1 : $2 }
+    }
+
+    func cpu_sign<T, R>(_ x: T, _ result: inout R) where
+        T: Collection, T.Element: Real,
+        R: MutableCollection, R.Element == T.Element
+    {
+        cpu_mapOp(x, &result) { $0 < 0 ? -1 : 1 }
+    }
+
+    func cpu_subtract<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
+        T: Collection, T.Element: AdditiveArithmetic,
+        R: MutableCollection, R.Element == T.Element
+    {
+        cpu_mapOp(lhs, rhs, &result, -)
+    }
+
+    func cpu_sqrt<T, R>(_ x: T, _ result: inout R) where
+        T: Collection, T.Element: Real,
+        R: MutableCollection, R.Element == T.Element
+    {
+        cpu_mapOp(x, &result) { .sqrt($0) }
+    }
+
+    func cpu_squared<T, R>(_ x: T, _ result: inout R) where
+        T: Collection, T.Element: Numeric,
+        R: MutableCollection, R.Element == T.Element
+    {
+        cpu_mapOp(x, &result) { $0 * $0 }
+    }
+
+    func cpu_reduce<T, R>(_ x: T,
+                          _ result: inout R,
+                          _ opId: ReductionOp,
+                          _ opNext: @escaping (T.Element, T.Element) -> T.Element,
+                          _ opFinal: ReduceOpFinal<R>?) where
+        T: ShapedBuffer,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        fatalError()
+//        assert(result.isContiguous, "Result storage must be contiguous")
 //
-//    func cpu_or<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: Collection, T.Element == Bool,
-//        R: MutableCollection, R.Element == Bool
-//    {
-//        cpu_mapOp(lhs, rhs, &result) { $0 || $1 }
-//    }
+//        // created a repeated view of the initial results to match `x`
+//        var repeated = T(shape: result.shape.repeated(to: x.extents),
+//                         elementBuffer: result.elementBuffer,
+//                         offset: result.offset,
+//                         isMutable: true)
 //
-//    func cpu_pow<T, R>(x: T, y: T, result: inout R) where
-//        T: Collection, T.Element: Real,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        cpu_mapOp(x, y, &result) { .pow($0, $1) }
-//    }
+//        // get the elements collection and do the reduction
+//        var repeatedElements = repeated.mutableElements(using: self)
+//        reductionOp(x.elements, &repeatedElements, opNext)
 //
-//    func cpu_replace<T, C, R>(x: T, with y: T, where condition: C,
-//                              result: inout R) where
-//        T: Collection,
-//        C: Collection, C.Element == Bool,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        cpu_mapOp(condition, y, x, &result) { $0 ? $1 : $2 }
-//    }
-//
-//    func cpu_sign<T, R>(x: T, result: inout R) where
-//        T: Collection, T.Element: Real,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        cpu_mapOp(x, &result) { $0 < 0 ? -1 : 1 }
-//    }
-//
-//    func cpu_subtract<T, R>(lhs: T, rhs: T, result: inout R) where
-//        T: Collection, T.Element: AdditiveArithmetic,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        cpu_mapOp(lhs, rhs, &result, -)
-//    }
-//
-//    func cpu_sqrt<T, R>(x: T, result: inout R) where
-//        T: Collection, T.Element: Real,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        cpu_mapOp(x, &result) { .sqrt($0) }
-//    }
-//
-//    func cpu_squared<T, R>(x: T, result: inout R) where
-//        T: Collection, T.Element: Numeric,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        cpu_mapOp(x, &result) { $0 * $0 }
-//    }
-//
-//    func cpu_reduce<T, R>(x: T,
-//                          into result: inout R,
-//                          opId: ReductionOp,
-//                          opNext: @escaping (T.Element, T.Element) -> T.Element,
-//                          opFinal: ReduceOpFinal<T>?) where
-//        T: Collection,
-//        R: MutableCollection, R.Element == T.Element
-//    {
-//        fatalError()
-////        assert(result.isContiguous, "Result storage must be contiguous")
-////
-////        // created a repeated view of the initial results to match `x`
-////        var repeated = T(shape: result.shape.repeated(to: x.extents),
-////                         elementBuffer: result.elementBuffer,
-////                         offset: result.offset,
-////                         isMutable: true)
-////
-////        // get the elements collection and do the reduction
-////        var repeatedElements = repeated.mutableElements(using: self)
-////        reductionOp(x.elements, &repeatedElements, opNext)
-////
-////        if let op = opFinal {
-////            var elements = result.mutableElements(using: self)
-////            inPlaceOp(&elements, op)
-////        }
-//    }
+//        if let op = opFinal {
+//            var elements = result.mutableElements(using: self)
+//            inPlaceOp(&elements, op)
+//        }
+    }
 }
 
 //==============================================================================
@@ -267,9 +275,9 @@ public extension DeviceFunctions where Self: DeviceQueue {
     @inlinable
     
     func cpu_vjpMinMax<T, R>(
-        x: T, y: T, scale: T,
-        op: @escaping (T.Element, T.Element) -> Bool,
-        resultTrue: inout R, resultFalse: inout R)
+        _ x: T, _ y: T, _ scale: T,
+        _ op: @escaping (T.Element, T.Element) -> Bool,
+        _ resultTrue: inout R, _ resultFalse: inout R)
         where
         T : Collection, T.Element : Comparable & Numeric,
         R : MutableCollection, R.Element == T.Element

@@ -217,7 +217,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        cpu_abs(x: x, result: &result)
+        cpu_abs(x, &result)
     }
 
     /// add
@@ -225,7 +225,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: AdditiveArithmetic,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_add(lhs, rhs, &result)
     }
 
     /// and
@@ -233,7 +233,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element == Bool,
         R: MutableShapedBuffer, R.Element == Bool
     {
-        
+        cpu_and(lhs, rhs, &result)
     }
 
     /// cast
@@ -241,7 +241,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: AnyConvertable,
         R: MutableShapedBuffer, R.Element: AnyConvertable
     {
-        
+        cpu_cast(from: buffer, to: &result)
     }
 
     /// concat
@@ -249,7 +249,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_concat(buffers, along: axis, &result)
     }
 
     /// copy
@@ -257,13 +257,13 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_copy(from: x, to: &result)
     }
     
     /// delay
     func delay(_ interval: TimeInterval)
     {
-        
+        cpu_delay(atLeast: interval)
     }
 
     /// div
@@ -271,16 +271,17 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: AlgebraicField,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_div(lhs, rhs, &result)
     }
 
     /// elementsAlmostEqual
-    func elementsAlmostEqual<T, R>(_ lhs: T, _ rhs: T, _ tolerance: T.Element,
+    func elementsAlmostEqual<T, R>(_ lhs: T, _ rhs: T,
+                                   _ tolerance: T.Element,
                                    _ result: inout R) where
         T: ShapedBuffer, T.Element: SignedNumeric & Comparable,
         R: MutableShapedBuffer, R.Element == Bool
     {
-        
+        cpu_elementsAlmostEqual(lhs, rhs, tolerance, &result)
     }
 
     /// equal
@@ -288,7 +289,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer,
         R: MutableShapedBuffer, R.Element == Bool
     {
-        
+//        cpu_equal(lhs, rhs, &result)
     }
 
     /// exp
@@ -296,14 +297,14 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_exp(x, &result)
     }
 
     /// fill(result:with element:
     func fill<Element, R>(_ result: inout R, with element: Element) where
         R: MutableShapedBuffer, R.Element == Element
     {
-        
+        cpu_fill(&result, with: element)
     }
 
     /// fill(result:with range:
@@ -311,7 +312,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: StridedRangeExpression,
         R: MutableShapedBuffer, R.Element == T.Bound
     {
-        
+        cpu_fill(&result, with: range)
     }
 
     /// greater
@@ -319,7 +320,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Comparable,
         R: MutableShapedBuffer, R.Element == Bool
     {
-        
+        cpu_greater(lhs, rhs, &result)
     }
 
     /// greaterOrEqual
@@ -327,7 +328,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Comparable,
         R: MutableShapedBuffer, R.Element == Bool
     {
-        
+        cpu_greaterOrEqual(lhs, rhs, &result)
     }
 
     /// less
@@ -335,7 +336,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Comparable,
         R: MutableShapedBuffer, R.Element == Bool
     {
-        
+        cpu_less(lhs, rhs, &result)
     }
 
     /// lessOrEqual
@@ -343,7 +344,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Comparable,
         R: MutableShapedBuffer, R.Element == Bool
     {
-        
+        cpu_lessOrEqual(lhs, rhs, &result)
     }
 
     /// log
@@ -351,7 +352,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_log(x, &result)
     }
 
     /// Computes the element-wise maximum of two tensors.
@@ -359,7 +360,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Comparable,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_max(lhs, rhs, &result)
     }
 
     /// Computes the element-wise minimum of two tensors.
@@ -367,7 +368,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Comparable,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_min(lhs, rhs, &result)
     }
 
     /// mul
@@ -375,7 +376,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Numeric,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_mul(lhs, rhs, &result)
     }
 
     /// neg
@@ -384,7 +385,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: SignedNumeric,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_neg(x, &result)
     }
 
     /// notEqual
@@ -400,7 +401,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element == Bool,
         R: MutableShapedBuffer, R.Element == Bool
     {
-        
+        cpu_or(lhs, rhs, &result)
     }
 
     /// pow
@@ -408,7 +409,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_pow(x, y, &result)
     }
 
     /// replace
@@ -418,7 +419,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         C: ShapedBuffer, C.Element == Bool,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_replace(x, y, condition, &result)
     }
 
     /// sign
@@ -426,7 +427,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_sign(x, &result)
     }
 
     /// subtract
@@ -434,7 +435,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: AdditiveArithmetic,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_subtract(lhs, rhs, &result)
     }
 
     /// sqrt
@@ -442,7 +443,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_sqrt(x, &result)
     }
 
     /// squared
@@ -450,7 +451,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Numeric,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_squared(x, &result)
     }
 
     /// reduce
@@ -469,7 +470,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        
+        cpu_reduce(x, &result, opId, opNext, opFinal)
     }
 }
 
@@ -485,8 +486,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         T: ShapedBuffer, T.Element: Comparable & Numeric,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        cpu_vjpMinMax(x: x, y: y, scale: scale, op: op,
-                      resultTrue: &resultTrue, resultFalse: &resultFalse)
+        cpu_vjpMinMax(x, y, scale, op, &resultTrue, &resultFalse)
     }
 }
 

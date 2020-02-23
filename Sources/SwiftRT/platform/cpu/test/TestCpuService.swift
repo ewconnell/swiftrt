@@ -23,7 +23,7 @@ public struct TestCpuService: PlatformService {
     // properties
     public let devices: [CpuDevice<CpuQueue>]
     public let logInfo: LogInfo
-    public let memory: CpuMemoryManager
+    public var memory: MemoryManager
     public let name: String
     public var queueStack: [QueueId]
 

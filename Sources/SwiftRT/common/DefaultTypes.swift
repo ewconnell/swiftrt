@@ -56,7 +56,7 @@ extension Complex: AnyElement {
 
 //==============================================================================
 // Default Service types
-public typealias CpuService = CpuServiceType<CpuMemoryManager>
+public typealias CpuService = CpuServiceType<MemoryManager>
 
 //==============================================================================
 // Default Tensor types

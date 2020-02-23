@@ -18,13 +18,13 @@
 /// CpuServiceType
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public struct CpuServiceType<MemoryManager>: PlatformService
-    where MemoryManager: MemoryManagement
+public struct CpuServiceType<Memory>: PlatformService
+    where Memory: MemoryManagement
 {
     // properties
     public let devices: [CpuDevice<CpuQueue>]
     public let logInfo: LogInfo
-    public let memory: MemoryManager
+    public var memory: Memory
     public let name: String
     public var queueStack: [QueueId]
 
@@ -37,7 +37,7 @@ public struct CpuServiceType<MemoryManager>: PlatformService
                                namePath: self.name,
                                nestingLevel: 0)
         
-        self.memory = MemoryManager()
+        self.memory = Memory()
         
         self.devices = [
             CpuDevice<CpuQueue>(parent: logInfo, addressing: .unified, id: 0)
