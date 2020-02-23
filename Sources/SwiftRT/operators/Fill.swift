@@ -162,7 +162,8 @@ public extension PlatformService {
     func fillWithIndex<T>(_ result: inout T)
         where T: TensorView, T.Element: AnyNumeric & RangeBound
     {
-        let range = StridedRange(from: 0, to: T.Element(any: result.count), by: 1)
+        let count = T.Element(any: result.count)
+        let range = StridedRange(from: 0, to: count, by: 1)
         fill(&result, with: range)
     }
 }
