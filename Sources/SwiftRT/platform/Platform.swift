@@ -118,13 +118,15 @@ public struct DeviceMemory {
     let byteCount: Int
     /// function to free the memory
     let deallocate: () -> Void
+    /// version
+    var version: Int
     
-    public init(_ baseAddress: UnsafeMutableRawPointer?,
-                _ byteCount: Int,
-                _ deallocate: @escaping () -> Void)
+    public init(_ baseAddress: UnsafeMutableRawPointer?, byteCount: Int,
+                version: Int, _ deallocate: @escaping () -> Void)
     {
         self.baseAddress = baseAddress
         self.byteCount = byteCount
+        self.version = version
         self.deallocate = deallocate
     }
 }

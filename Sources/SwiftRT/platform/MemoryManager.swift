@@ -255,7 +255,8 @@ public extension MemoryManagement where Self: PlatformService {
         let rawBuffer = UnsafeRawBufferPointer(buffer)
         let pointer = UnsafeMutableRawPointer(mutating: rawBuffer.baseAddress!)
         var deviceBuffer = DeviceBuffer(name: name, isReadOnly: true)
-        deviceBuffer.deviceMemory[0] = DeviceMemory(pointer, rawBuffer.count,{})
+        deviceBuffer.deviceMemory[0] =
+            DeviceMemory(pointer, byteCount: rawBuffer.count, version: -1, { })
         deviceBuffers[ref.id] = deviceBuffer
         return ref
     }
@@ -271,7 +272,8 @@ public extension MemoryManagement where Self: PlatformService {
         let rawBuffer = UnsafeMutableRawBufferPointer(buffer)
         let pointer = UnsafeMutableRawPointer(mutating: rawBuffer.baseAddress!)
         var deviceBuffer = DeviceBuffer(name: name, isReadOnly: false)
-        deviceBuffer.deviceMemory[0] = DeviceMemory(pointer, rawBuffer.count,{})
+        deviceBuffer.deviceMemory[0] =
+            DeviceMemory(pointer, byteCount: rawBuffer.count, version: -1, { })
         deviceBuffers[ref.id] = deviceBuffer
         return ref
     }
