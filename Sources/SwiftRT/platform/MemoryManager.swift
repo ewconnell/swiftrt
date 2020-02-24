@@ -23,6 +23,7 @@ public protocol MemoryManagement: class {
     /// By convention device 0 will always be a unified memory device with
     /// the application.
     var deviceBuffers: [Int : DeviceBuffer] { get set }
+    
     /// generates a unique buffer reference
     var nextBufferRef: BufferRef { get }
     
@@ -175,18 +176,24 @@ public struct DeviceBuffer {
     /// - Parameter key: the device index
     /// - Returns: the associated device memory object
     public var deviceMemory: [Int : DeviceMemory]
+    
     /// `true` if the buffer is not mutable, such as in the case of a readOnly
     /// reference buffer.
     public let isReadOnly: Bool
+    
     /// the buffer name used in diagnostic messages
     public let name: String
+    
     /// the index of the device holding the master version
     public var masterDevice: Int
+    
     /// the masterVersion is incremented each time write access is taken.
     /// All device buffers will stay in sync with this version, copying as
     /// necessary.
     public var masterVersion: Int
     
+    //--------------------------------------------------------------------------
+    /// initializer
     public init(name: String, isReadOnly: Bool = false) {
         self.deviceMemory = [Int : DeviceMemory]()
         self.isReadOnly = isReadOnly
@@ -195,7 +202,11 @@ public struct DeviceBuffer {
         self.masterVersion = 0
     }
     
-    ///
+    //--------------------------------------------------------------------------
+    /// `deallocate`
+    /// releases device memory associated with this buffer descriptor
+    /// - Parameter device: the device to release memory from. `nil` will
+    /// release all associated device memory for this buffer.
     public func deallocate(device: Int? = nil) {
         if let device = device {
             deviceMemory[device]!.deallocate()
