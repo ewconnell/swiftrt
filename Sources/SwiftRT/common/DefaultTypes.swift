@@ -55,10 +55,6 @@ extension Complex: AnyElement {
 }
 
 //==============================================================================
-// Default Service types
-public typealias CpuService = CpuServiceType<MemoryManager>
-
-//==============================================================================
 // Default Tensor types
 public typealias IndexType = Int32
 public typealias Vector = VectorType<Float>

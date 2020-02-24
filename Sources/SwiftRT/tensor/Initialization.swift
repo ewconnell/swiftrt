@@ -46,7 +46,7 @@ public extension TensorView {
     @inlinable
     init() {
         self.init(shape: Shape(extents: Shape.zeros),
-                  elementBuffer: BufferId(-1),
+                  elementBuffer: BufferRef(-1),
                   offset: 0, shared: false)
     }
 
@@ -305,10 +305,9 @@ public extension TensorView {
     @inlinable
     static func create(_ shape: Shape, _ name: String?) -> Self {
         let label = name ?? Self.diagnosticName
-        let id = Platform.memory.createBuffer(of: Element.self,
-                                                    count: shape.count,
-                                                    name: label)
-        return Self(shape: shape, elementBuffer: id, offset: 0, shared: false)
+        let ref = Platform.service
+            .createBuffer(of: Element.self, count: shape.count, name: label)
+        return Self(shape: shape, elementBuffer: ref, offset: 0, shared: false)
     }
     
     @inlinable
@@ -318,8 +317,8 @@ public extension TensorView {
                "shape count does not match buffer count")
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
-        let id = Platform.memory.createReference(to: buffer, name: label)
-        return Self(shape: shape, elementBuffer: id, offset: 0, shared: false)
+        let ref = Platform.service.createReference(to: buffer, name: label)
+        return Self(shape: shape, elementBuffer: ref, offset: 0, shared: false)
     }
     
     @inlinable
@@ -329,8 +328,8 @@ public extension TensorView {
                "shape count does not match buffer count")
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
-        let id = Platform.memory.createMutableReference(to: buffer, name: label)
-        return Self(shape: shape, elementBuffer: id, offset: 0, shared: false)
+        let ref = Platform.service.createMutableReference(to: buffer, name: label)
+        return Self(shape: shape, elementBuffer: ref, offset: 0, shared: false)
     }
     
     @inlinable
@@ -343,9 +342,9 @@ public extension TensorView {
         let label = name ?? Self.diagnosticName
         
         // create the buffer
-        let bufferId = Platform.memory.createBuffer(of: Element.self,
-                                                    count: shape.count,
-                                                    name: label)
+        let bufferId = Platform.service
+            .createBuffer(of: Element.self, count: shape.count, name: label)
+        
         // create the tensor
         var tensor = Self(shape: shape, elementBuffer: bufferId,
                           offset: 0, shared: false)

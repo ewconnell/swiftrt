@@ -20,20 +20,21 @@ import Real
 // PlatformAPI
 // This is the platform user application interface
 //
-public protocol PlatformAPI {
+public protocol PlatformAPI: MemoryManagement {
     // queue managment
-    mutating func useCpu()
-    mutating func use(device: Int, queue: Int)
-    mutating func using<R>(device: Int, queue: Int, _ body: () -> R) -> R
-    mutating func using<R>(queue: Int, _ body: () -> R) -> R
-    
+    func useCpu()
+    func use(device: Int, queue: Int)
+    func using<R>(device: Int, queue: Int, _ body: () -> R) -> R
+    func using<R>(queue: Int, _ body: () -> R) -> R
+
     //--------------------------------------------------------------------------
-    /// retrieve the name of a buffer for diagnostics
-    var memoryManager: MemoryManagement { get }
-    
+    /// `read`
+    /// prepares read access of a tensor before queuing an operation
     func read<T>(_ tensor: T) -> ElementBuffer<T.Element, T.Shape>
         where T: TensorView
 
+    /// `write`
+    /// prepares write access of a tensor before queuing an operation
     func write<T>(_ tensor: inout T, willOverwrite: Bool, copyIfNotDense: Bool)
         -> MutableElementBuffer<T.Element, T.Shape> where T: TensorView
 

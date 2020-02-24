@@ -31,8 +31,9 @@ public final class Platform {
     //    @usableFromInline var platform: PlatformService
     /// a platform instance unique id for queue events
     @usableFromInline static var queueEventCounter: Int = 0
-    
-    
+    /// counter for unique buffer ids
+    @usableFromInline static var bufferIdCounter: Int = 0
+
     // maybe thread local
     public static var service: PlatformAPI = CpuService()
     
@@ -42,16 +43,17 @@ public final class Platform {
         get { logWriter }
         set { logWriter = newValue }
     }
-    /// the Platform log writing object
-    @inlinable public static var memory: MemoryManagement {
-        get { service.memoryManager }
-    }
     /// a counter used to uniquely identify queue events for diagnostics
     @inlinable static var nextQueueEventId: Int {
         queueEventCounter += 1
         return queueEventCounter
     }
-    
+    /// nextBufferRef
+    @inlinable public static var nextBufferRef: BufferRef {
+        Self.bufferIdCounter += 1
+        return BufferRef(Self.bufferIdCounter)
+    }
+
     //--------------------------------------------------------------------------
     /// returns the thread local instance of the queues stack
     @usableFromInline

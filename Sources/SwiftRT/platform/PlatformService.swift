@@ -22,12 +22,9 @@ import Foundation
 public protocol PlatformService: PlatformAPI, Logger {
     // types
     associatedtype Device: ServiceDevice
-    associatedtype MemoryManager: MemoryManagement
 
     /// a collection of available compute devices
     var devices: [Device] { get }
-    /// service memory manager
-    var memory: MemoryManager { get }
     /// name used for logging
     var name: String { get }
     /// the current device and queue to direct work
@@ -35,9 +32,6 @@ public protocol PlatformService: PlatformAPI, Logger {
 }
 
 public extension PlatformService {
-    @inlinable
-    var memoryManager: MemoryManagement { self.memory }
-
     /// the currently active queue that platform service functions will use
     /// - Returns: the current device queue
     @inlinable
@@ -55,10 +49,10 @@ public extension PlatformService {
     func read<T>(_ tensor: T) -> ElementBuffer<T.Element, T.Shape>
         where T: TensorView
     {
-        let buffer = memory.read(tensor.elementBuffer, of: T.Element.self,
-                                 at: tensor.offset,
-                                 count: tensor.shape.spanCount,
-                                 using: currentQueue)
+        let buffer = read(tensor.elementBuffer, of: T.Element.self,
+                          at: tensor.offset,
+                          count: tensor.shape.spanCount,
+                          using: currentQueue)
         return ElementBuffer(tensor.shape, buffer)
     }
 
@@ -84,12 +78,12 @@ public extension PlatformService {
         }
         
         // get the write buffer
-        let buffer = memory.readWrite(tensor.elementBuffer,
-                                      of: T.Element.self,
-                                      at: tensor.offset,
-                                      count: tensor.shape.spanCount,
-                                      willOverwrite: willOverwrite,
-                                      using: currentQueue)
+        let buffer = readWrite(tensor.elementBuffer,
+                               of: T.Element.self,
+                               at: tensor.offset,
+                               count: tensor.shape.spanCount,
+                               willOverwrite: willOverwrite,
+                               using: currentQueue)
         
         // return a mutable shaped buffer iterator
         return MutableElementBuffer(tensor.shape, buffer)
@@ -178,14 +172,14 @@ public extension PlatformService {
 public extension PlatformService {
     /// changes the current device/queue to use cpu:0
     @inlinable
-    mutating func useCpu() {
+    func useCpu() {
         queueStack[queueStack.count - 1] = QueueId(0, 0)
     }
     /// selects the specified device queue for output
     /// - Parameter device: the device to use. Device 0 is the cpu
     /// - Parameter queue: the queue on the device to use
     @inlinable
-    mutating func use(device: Int, queue: Int = 0) {
+    func use(device: Int, queue: Int = 0) {
         queueStack[queueStack.count - 1] = ensureValidId(device, queue)
     }
     /// selects the specified device queue for output within the scope of
@@ -194,7 +188,7 @@ public extension PlatformService {
     /// - Parameter queue: the queue on the device to use
     /// - Parameter body: a closure where the device queue will be used
     @inlinable
-    mutating func using<R>(device: Int,
+    func using<R>(device: Int,
                                   queue: Int = 0, _ body: () -> R) -> R {
         // push the selection onto the queue stack
         queueStack.append(ensureValidId(device, queue))
@@ -206,7 +200,7 @@ public extension PlatformService {
     /// - Parameter queue: the queue on the device to use
     /// - Parameter body: a closure where the device queue will be used
     @inlinable
-    mutating func using<R>(queue: Int, _ body: () -> R) -> R {
+    func using<R>(queue: Int, _ body: () -> R) -> R {
         // push the selection onto the queue stack
         let current = queueStack.last!
         queueStack.append(ensureValidId(current.device, queue))

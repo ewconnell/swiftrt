@@ -15,30 +15,26 @@
 //
 
 //==============================================================================
-/// CpuServiceType
+/// CpuService
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public struct CpuServiceType<Memory>: PlatformService
-    where Memory: MemoryManagement
-{
+public class CpuService: PlatformService {
     // properties
+    public var deviceBuffers: [Int : DeviceBuffer]
     public let devices: [CpuDevice<CpuQueue>]
     public let logInfo: LogInfo
-    public var memory: Memory
     public let name: String
     public var queueStack: [QueueId]
 
     //--------------------------------------------------------------------------
     @inlinable
     public init() {
+        self.deviceBuffers = [Int : DeviceBuffer]()
         self.name = "CpuService"
         self.logInfo = LogInfo(logWriter: Platform.log,
                                logLevel: .error,
                                namePath: self.name,
                                nestingLevel: 0)
-        
-        self.memory = Memory()
-        
         self.devices = [
             CpuDevice<CpuQueue>(parent: logInfo, addressing: .unified, id: 0)
         ]

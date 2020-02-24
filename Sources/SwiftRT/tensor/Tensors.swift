@@ -118,12 +118,12 @@ public struct VectorType<Element>: VectorView {
     // properties
     public static var diagnosticName: String { "Vector" }
     public let shape: Shape1
-    public var elementBuffer: BufferId
+    public var elementBuffer: BufferRef
     public let offset: Int
     public let shared: Bool
     
     @inlinable
-    public init(shape: Shape1, elementBuffer: BufferId,
+    public init(shape: Shape1, elementBuffer: BufferRef,
                 offset: Int, shared: Bool)
     {
         self.shape = shape
@@ -387,12 +387,12 @@ public struct MatrixType<Element>: MatrixView {
     // properties
     public static var diagnosticName: String { "Matrix" }
     public let shape: Shape2
-    public var elementBuffer: BufferId
+    public var elementBuffer: BufferRef
     public let offset: Int
     public let shared: Bool
 
     @inlinable
-    public init(shape: Shape2, elementBuffer: BufferId,
+    public init(shape: Shape2, elementBuffer: BufferRef,
                 offset: Int, shared: Bool)
     {
         self.shape = shape
@@ -661,12 +661,12 @@ public struct VolumeType<Element>: VolumeView {
     // properties
     public static var diagnosticName: String { "Volume" }
     public let shape: Shape3
-    public var elementBuffer: BufferId
+    public var elementBuffer: BufferRef
     public let offset: Int
     public let shared: Bool
 
     @inlinable
-    public init(shape: Shape3, elementBuffer: BufferId,
+    public init(shape: Shape3, elementBuffer: BufferRef,
                 offset: Int, shared: Bool)
     {
         self.shape = shape

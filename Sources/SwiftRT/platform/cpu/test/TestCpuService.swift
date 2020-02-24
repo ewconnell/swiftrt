@@ -19,25 +19,23 @@
 /// This is used only for testing. It is an asynchronous cpu version
 /// that reports having discreet memory instead of unified to exercise
 /// memory management unit tests
-public struct TestCpuService: PlatformService {
+public class TestCpuService: PlatformService {
     // properties
+    public var deviceBuffers: [Int : DeviceBuffer]
     public let devices: [CpuDevice<CpuQueue>]
     public let logInfo: LogInfo
-    public var memory: MemoryManager
     public let name: String
     public var queueStack: [QueueId]
 
     //--------------------------------------------------------------------------
     @inlinable
     public init() {
+        self.deviceBuffers = [Int : DeviceBuffer]()
         self.name = "TestCpuService"
         self.logInfo = LogInfo(logWriter: Platform.log,
                                logLevel: .error,
                                namePath: self.name,
                                nestingLevel: 0)
-        
-        self.memory = MemoryManager()
-
         self.devices = [
             CpuDevice<CpuQueue>(parent: logInfo, addressing: .unified,  id: 0),
             CpuDevice<CpuQueue>(parent: logInfo, addressing: .discreet, id: 1),

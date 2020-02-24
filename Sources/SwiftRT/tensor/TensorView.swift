@@ -40,7 +40,7 @@ public protocol TensorView: Logging {
     /// the shape of the view used for indexing
     var shape: Shape { get }
     /// class reference to the underlying byte buffer
-    var elementBuffer: BufferId { get set }
+    var elementBuffer: BufferRef { get set }
     /// the linear element offset where the view begins
     var offset: Int { get }
     /// `true` if the view will be shared by by multiple writers
@@ -48,7 +48,7 @@ public protocol TensorView: Logging {
     
     //--------------------------------------------------------------------------
     /// fully specified used for creating tensors
-    init(shape: Shape, elementBuffer: BufferId, offset: Int, shared: Bool)
+    init(shape: Shape, elementBuffer: BufferRef, offset: Int, shared: Bool)
 
     //--------------------------------------------------------------------------
     /// creates a new dense tensor of the same type with the specified extents
