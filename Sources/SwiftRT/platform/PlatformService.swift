@@ -55,8 +55,9 @@ public extension PlatformService {
     {
         let buffer = read(tensor.elementBuffer, of: T.Element.self,
                           at: tensor.offset,
-                          count: tensor.shape.spanCount,
+                          count: tensor.spanCount,
                           using: currentQueueId)
+        
         return ElementBuffer(tensor.shape, buffer)
     }
 
@@ -78,8 +79,7 @@ public extension PlatformService {
         // this can happen when writing through a subscript to a repeated shape
         if copyIfNotDense && !tensor.isContiguous {
             diagnostic("\(realizeString) \(name)(\(tensor.elementBuffer.id)) " +
-                "expanding from: \(T.Element.self)" +
-                "[\(tensor.shape.spanCount)] " +
+                "expanding from: \(T.Element.self) [\(tensor.spanCount)] " +
                 "to: \(T.Element.self)[\(tensor.count)]",
                 categories: [.dataCopy, .dataRealize])
             
@@ -102,40 +102,13 @@ public extension PlatformService {
         let buffer = readWrite(tensor.elementBuffer,
                                of: T.Element.self,
                                at: tensor.offset,
-                               count: tensor.shape.spanCount,
+                               count: tensor.spanCount,
                                willOverwrite: willOverwrite,
                                using: currentQueueId)
         
         // return a mutable shaped buffer iterator
         return MutableElementBuffer(tensor.shape, buffer)
     }
-
-    
-//    //--------------------------------------------------------------------------
-//    /// makeDense(view:
-//    /// if the view is already dense, then noop. If the view is repeated,
-//    /// then the view virtual elements are realized and the view is converted
-//    /// to dense.
-//    // Note: This is not part of mutableView, because there are cases
-//    // where we want to interact with a repeated view, such as in reductions
-//    @inlinable
-//    mutating func makeDense(view: Self) {
-//        guard shape.spanCount < shape.count else { return }
-//
-//        // create storage for all elements
-//        var dense = createDense()
-//
-//        // report
-//        diagnostic("\(realizeString) \(name)(\(elementBuffer.id)) " +
-//            "expanding from: \(String(describing: Element.self))" +
-//            "[\(shape.spanCount)] " +
-//            "to: \(String(describing: Element.self))[\(dense.count)]",
-//            categories: [.dataRealize, .dataCopy])
-//
-//        // perform and indexed copy and assign to self
-//        Platform.service.copy(from: self, to: &dense)
-//        self = dense
-//    }
 
     //--------------------------------------------------------------------------
     /// `createResult(shape:name:`

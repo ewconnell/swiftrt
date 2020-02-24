@@ -138,6 +138,9 @@ public extension TensorView {
     @inlinable
     @_semantics("autodiff.nonvarying")
     var extents: Shape.Array { shape.extents }
+    /// a 1D array of tensor elements
+    @inlinable
+    var flatArray: [Element] { [Element](elementBuffer()) }
     /// `true` if the values are contiguosly arranged in memory
     @inlinable
     var isContiguous: Bool { shape.isContiguous }
@@ -150,12 +153,12 @@ public extension TensorView {
     /// the number of dimensions in the view
     @inlinable
     var rank: Int { shape.rank }
+    /// the strided element span of this view
+    @inlinable
+    var spanCount: Int { shape.spanCount }
     /// the strides of the tensor elements
     @inlinable
     var strides: Shape.Array { shape.strides }
-    /// an array of viewed elements
-    @inlinable
-    var flatArray: [Element] { [Element](elementBuffer()) }
     /// repeated(to extents:
     @inlinable
     func repeated(to extents: Shape.Array) -> Self {

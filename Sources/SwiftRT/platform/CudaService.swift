@@ -19,9 +19,9 @@ import Foundation
 /// CudaService
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public class CudaService: PlatformService {
+public class CudaService: PlatformService, DiscreetMemoryManagement {
     // properties
-    public var deviceBuffers: [Int : DeviceBuffer]
+    public var deviceBuffers: [Int : MultiDeviceBuffer]
     public let devices: [CudaDevice]
     public let logInfo: LogInfo
     public let name: String
@@ -30,7 +30,7 @@ public class CudaService: PlatformService {
     //--------------------------------------------------------------------------
     @inlinable
     public init() {
-        self.deviceBuffers = [Int : DeviceBuffer]()
+        self.deviceBuffers = [Int : MultiDeviceBuffer]()
         self.name = "CudaService"
         self.logInfo = LogInfo(logWriter: Platform.log,
                                logLevel: .error,
