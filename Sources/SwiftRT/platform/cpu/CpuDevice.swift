@@ -43,7 +43,6 @@ public struct CpuDevice<Queue>: ServiceDevice
         self.name = deviceName
         self.logInfo = logInfo.child(name)
         
-        // TODO create 1 queue for each active core
         let queues = [Queue(id: 0, parent: self.logInfo,
                             addressing: addressing,
                             deviceId: id, deviceName: name)]
@@ -57,8 +56,11 @@ public struct CpuDevice<Queue>: ServiceDevice
         let buffer = UnsafeMutableRawBufferPointer.allocate(
             byteCount: byteCount, alignment: MemoryLayout<Double>.alignment)
 
-        return DeviceMemory(buffer.baseAddress, byteCount: byteCount,
-                            version: 0, { buffer.deallocate() })
+        return DeviceMemory(buffer.baseAddress,
+                            byteCount: byteCount,
+                            version: 0,
+                            memoryAddressing: .unified,
+                            { buffer.deallocate() })
     }
 }
 

@@ -118,14 +118,20 @@ public struct DeviceMemory {
     let byteCount: Int
     /// function to free the memory
     let deallocate: () -> Void
+    /// specifies the memory space of this memory
+    let memoryAddressing: MemoryAddressing
     /// version
     var version: Int
     
-    public init(_ baseAddress: UnsafeMutableRawPointer?, byteCount: Int,
-                version: Int, _ deallocate: @escaping () -> Void)
+    public init(_ baseAddress: UnsafeMutableRawPointer?,
+                byteCount: Int,
+                version: Int,
+                memoryAddressing: MemoryAddressing,
+                _ deallocate: @escaping () -> Void)
     {
         self.baseAddress = baseAddress
         self.byteCount = byteCount
+        self.memoryAddressing = memoryAddressing
         self.version = version
         self.deallocate = deallocate
     }
@@ -163,6 +169,11 @@ public protocol DeviceQueue: Logger, DeviceFunctions {
     func wait(for event: QueueEvent)
     /// blocks the calling thread until the queue queue has completed all work
     func waitUntilQueueIsComplete()
+    
+    //--------------------------------------------------------------------------
+    /// asynchronously copies the contents of a device memeory buffer to another
+    func copyAsync(from deviceMemory: DeviceMemory,
+                   to otherDeviceMemory: DeviceMemory)
 }
 
 //==============================================================================

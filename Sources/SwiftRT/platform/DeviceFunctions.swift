@@ -89,7 +89,7 @@ public protocol DeviceFunctions {
     /// fill(result:with range:
     func fill<T, R>(_ result: inout R, with range: T) where
         T: StridedRangeExpression & Collection,
-        R: MutableShapedBuffer, R.Element == T.Bound
+        R: MutableShapedBuffer, R.Element == T.Element
 
     /// greater
     func greater<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where

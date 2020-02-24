@@ -103,7 +103,7 @@ public func fill<T>(_ result: inout T, with element: T.Element)
 @inlinable
 public func fill<T, R>(_ result: inout T, with range: R) where
     T: TensorView,
-    R: StridedRangeExpression & Collection, R.Bound == T.Element
+    R: StridedRangeExpression & Collection, R.Element == T.Element
 {
     Platform.service.fill(&result, with: range)
 }
@@ -122,7 +122,7 @@ public extension PlatformService {
     @inlinable
     func fill<T, R>(_ result: inout T, with range: R) where
         T: TensorView,
-        R: StridedRangeExpression & Collection, R.Bound == T.Element
+        R: StridedRangeExpression & Collection, R.Element == T.Element
     {
         assert(result.count == range.stridedRange.count)
         var resultBuffer = write(&result)
@@ -145,7 +145,7 @@ public extension TensorView {
     /// - Parameter range: the range of values used to fill the tensor
     @inlinable
     func filled<R>(with range: R) -> Self
-        where R: StridedRangeExpression & Collection, R.Bound == Element
+        where R: StridedRangeExpression & Collection, R.Element == Element
     {
         var result = createDense()
         fill(&result, with: range)
