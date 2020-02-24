@@ -172,6 +172,8 @@ public protocol BufferStream {
 /// DeviceBuffer
 /// Used internally to manage the state of a collection of device buffers
 public struct DeviceBuffer {
+    /// the number of bytes in the buffer
+    public let byteCount: Int
     /// a dictionary of device memory instances allocated from the device
     /// - Parameter key: the device index
     /// - Returns: the associated device memory object
@@ -194,7 +196,8 @@ public struct DeviceBuffer {
     
     //--------------------------------------------------------------------------
     /// initializer
-    public init(name: String, isReadOnly: Bool = false) {
+    public init(byteCount: Int, name: String, isReadOnly: Bool = false) {
+        self.byteCount = byteCount
         self.deviceMemory = [Int : DeviceMemory]()
         self.isReadOnly = isReadOnly
         self.name = name
@@ -236,7 +239,8 @@ public extension MemoryManagement where Self: PlatformService {
         -> BufferRef
     {
         let ref = self.nextBufferRef
-        deviceBuffers[ref.id] = DeviceBuffer(name: name)
+        let byteCount = count * MemoryLayout<Element>.size
+        deviceBuffers[ref.id] = DeviceBuffer(byteCount: byteCount, name: name)
         return ref
     }
     
@@ -270,7 +274,8 @@ public extension MemoryManagement where Self: PlatformService {
         let pointer = UnsafeMutableRawPointer(mutating: roBuffer.baseAddress!)
         let rawBuffer = UnsafeMutableRawBufferPointer(start: pointer,
                                                       count: roBuffer.count)
-        var deviceBuffer = DeviceBuffer(name: name, isReadOnly: true)
+        var deviceBuffer = DeviceBuffer(byteCount: rawBuffer.count,
+                                        name: name, isReadOnly: true)
         deviceBuffer.deviceMemory[0] = DeviceMemory(buffer: rawBuffer,
                                                     version: -1,
                                                     addressing: .unified,
@@ -291,7 +296,8 @@ public extension MemoryManagement where Self: PlatformService {
         
         // create a device buffer entry for the id
         let rawBuffer = UnsafeMutableRawBufferPointer(buffer)
-        var deviceBuffer = DeviceBuffer(name: name, isReadOnly: false)
+        var deviceBuffer = DeviceBuffer(byteCount: rawBuffer.count,
+                                        name: name, isReadOnly: false)
         deviceBuffer.deviceMemory[0] = DeviceMemory(buffer: rawBuffer,
                                                     version: -1,
                                                     addressing: .unified,
