@@ -56,8 +56,8 @@ public struct CpuDevice<Queue>: ServiceDevice
         let buffer = UnsafeMutableRawBufferPointer.allocate(
             byteCount: byteCount, alignment: MemoryLayout<Double>.alignment)
 
-        return DeviceMemory(buffer: buffer, version: 0,
-                            addressing: addressing, { buffer.deallocate() })
+        return DeviceMemory(buffer: buffer, addressing: addressing,
+                            { buffer.deallocate() })
     }
 }
 

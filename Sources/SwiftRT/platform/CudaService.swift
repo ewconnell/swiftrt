@@ -77,7 +77,7 @@ public struct CudaDevice: ServiceDevice {
     public func allocate(byteCount: Int, heapIndex: Int) -> DeviceMemory {
         // TODO
         let buffer = UnsafeMutableRawBufferPointer(start: nil, count: byteCount)
-        return DeviceMemory(buffer: buffer, version: 0, addressing: addressing, {})
+        return DeviceMemory(buffer: buffer, addressing: addressing, {})
     }
 }
 

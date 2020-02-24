@@ -125,12 +125,12 @@ public struct DeviceMemory {
     
     @inlinable
     public init(buffer: UnsafeMutableRawBufferPointer,
-                version: Int, addressing: MemoryAddressing,
+                addressing: MemoryAddressing,
                 _ deallocate: @escaping () -> Void)
     {
         self.buffer = buffer
         self.addressing = addressing
-        self.version = version
+        self.version = -1
         self.deallocate = deallocate
     }
 }

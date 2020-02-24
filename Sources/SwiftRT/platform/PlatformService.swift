@@ -36,10 +36,14 @@ public extension PlatformService {
     /// - Returns: the current device queue
     @inlinable
     var currentQueue: DeviceQueue {
-        let queueId = queueStack.last!
+        let queueId = currentQueueId
         return devices[queueId.device].queues[queueId.queue]
     }
-    
+    /// the currently active queue that platform service functions will use
+    /// - Returns: the current device queue
+    @inlinable
+    var currentQueueId: QueueId { queueStack.last! }
+
     //--------------------------------------------------------------------------
     /// read(tensor:
     /// gains synchronized read only access to the tensor `elementBuffer`
@@ -52,7 +56,7 @@ public extension PlatformService {
         let buffer = read(tensor.elementBuffer, of: T.Element.self,
                           at: tensor.offset,
                           count: tensor.shape.spanCount,
-                          using: currentQueue)
+                          using: currentQueueId)
         return ElementBuffer(tensor.shape, buffer)
     }
 
@@ -83,7 +87,7 @@ public extension PlatformService {
                                at: tensor.offset,
                                count: tensor.shape.spanCount,
                                willOverwrite: willOverwrite,
-                               using: currentQueue)
+                               using: currentQueueId)
         
         // return a mutable shaped buffer iterator
         return MutableElementBuffer(tensor.shape, buffer)
