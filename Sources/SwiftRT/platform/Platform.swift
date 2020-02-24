@@ -98,6 +98,8 @@ public protocol ServiceDevice: Logger {
     var name: String { get }
     /// a collection of device queues for scheduling work
     var queues: [Queue] { get }
+    /// specifies the type of associated device memory
+    var addressing: MemoryAddressing { get }
 
     //-------------------------------------
     /// `allocate(bytes:heapIndex:`
@@ -112,26 +114,22 @@ public protocol ServiceDevice: Logger {
 //==============================================================================
 /// DeviceMemory
 public struct DeviceMemory {
-    /// pointer the buffer base address on the device
-    let baseAddress: UnsafeMutableRawPointer?
-    /// size of the buffer in bytes
-    let byteCount: Int
+    /// base address and size of buffer
+    public let buffer: UnsafeMutableRawBufferPointer
     /// function to free the memory
-    let deallocate: () -> Void
+    public let deallocate: () -> Void
     /// specifies the memory space of this memory
-    let memoryAddressing: MemoryAddressing
+    public let addressing: MemoryAddressing
     /// version
-    var version: Int
+    public var version: Int
     
-    public init(_ baseAddress: UnsafeMutableRawPointer?,
-                byteCount: Int,
-                version: Int,
-                memoryAddressing: MemoryAddressing,
+    @inlinable
+    public init(buffer: UnsafeMutableRawBufferPointer,
+                version: Int, addressing: MemoryAddressing,
                 _ deallocate: @escaping () -> Void)
     {
-        self.baseAddress = baseAddress
-        self.byteCount = byteCount
-        self.memoryAddressing = memoryAddressing
+        self.buffer = buffer
+        self.addressing = addressing
         self.version = version
         self.deallocate = deallocate
     }
@@ -152,8 +150,6 @@ public protocol DeviceQueue: Logger, DeviceFunctions {
     var id: Int { get }
     /// name used logging
     var deviceName: String { get }
-    /// specifies the type of associated device memory
-    var memoryAddressing: MemoryAddressing { get }
     /// name used logging
     var name: String { get }
 
@@ -228,24 +224,6 @@ public struct QueueEventOptions: OptionSet {
 
 public enum QueueEventError: Error {
     case timedOut
-}
-
-//==============================================================================
-// DeviceArray
-//    This represents a device data array
-public protocol DeviceArray: ObjectTracking {
-    /// a pointer to the memory on the device
-    var buffer: UnsafeMutableRawBufferPointer { get }
-    /// the device id that this array is associated with
-    var deviceId: Int { get }
-    /// name used logging
-    var deviceName: String { get }
-    /// `true` if the array is read only
-    var isReadOnly: Bool { get }
-    /// specifies the type of associated device memory
-    var memoryAddressing: MemoryAddressing { get }
-    /// the array edit version number used for replication and synchronization
-    var version: Int { get set }
 }
 
 //==============================================================================

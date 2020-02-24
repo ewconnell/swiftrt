@@ -255,13 +255,14 @@ public extension MemoryManagement where Self: PlatformService {
         let ref = self.nextBufferRef
         
         // create a device buffer entry for the id
-        let rawBuffer = UnsafeRawBufferPointer(buffer)
-        let pointer = UnsafeMutableRawPointer(mutating: rawBuffer.baseAddress!)
+        let roBuffer = UnsafeRawBufferPointer(buffer)
+        let pointer = UnsafeMutableRawPointer(mutating: roBuffer.baseAddress!)
+        let rawBuffer = UnsafeMutableRawBufferPointer(start: pointer,
+                                                      count: roBuffer.count)
         var deviceBuffer = DeviceBuffer(name: name, isReadOnly: true)
-        deviceBuffer.deviceMemory[0] = DeviceMemory(pointer,
-                                                    byteCount: rawBuffer.count,
+        deviceBuffer.deviceMemory[0] = DeviceMemory(buffer: rawBuffer,
                                                     version: -1,
-                                                    memoryAddressing: .unified,
+                                                    addressing: .unified,
                                                     { })
         deviceBuffers[ref.id] = deviceBuffer
         return ref
@@ -279,12 +280,10 @@ public extension MemoryManagement where Self: PlatformService {
         
         // create a device buffer entry for the id
         let rawBuffer = UnsafeMutableRawBufferPointer(buffer)
-        let pointer = UnsafeMutableRawPointer(mutating: rawBuffer.baseAddress!)
         var deviceBuffer = DeviceBuffer(name: name, isReadOnly: false)
-        deviceBuffer.deviceMemory[0] = DeviceMemory(pointer,
-                                                    byteCount: rawBuffer.count,
+        deviceBuffer.deviceMemory[0] = DeviceMemory(buffer: rawBuffer,
                                                     version: -1,
-                                                    memoryAddressing: .unified,
+                                                    addressing: .unified,
                                                     { })
         deviceBuffers[ref.id] = deviceBuffer
         return ref

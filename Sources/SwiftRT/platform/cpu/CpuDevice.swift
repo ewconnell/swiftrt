@@ -20,7 +20,6 @@ import Foundation
 public protocol CpuQueueProtocol: DeviceQueue {
     init(id: Int,
          parent logInfo: LogInfo,
-         addressing: MemoryAddressing,
          deviceId: Int, deviceName: String)
 }
 
@@ -34,7 +33,8 @@ public struct CpuDevice<Queue>: ServiceDevice
     public let logInfo: LogInfo
     public let name: String
     public let queues: [Queue]
-    
+    public let addressing: MemoryAddressing
+
     @inlinable
     public init(parent logInfo: LogInfo, addressing: MemoryAddressing, id: Int)
     {
@@ -42,9 +42,9 @@ public struct CpuDevice<Queue>: ServiceDevice
         self.id = id
         self.name = deviceName
         self.logInfo = logInfo.child(name)
+        self.addressing = addressing
         
         let queues = [Queue(id: 0, parent: self.logInfo,
-                            addressing: addressing,
                             deviceId: id, deviceName: name)]
         self.queues = queues
     }
@@ -56,11 +56,8 @@ public struct CpuDevice<Queue>: ServiceDevice
         let buffer = UnsafeMutableRawBufferPointer.allocate(
             byteCount: byteCount, alignment: MemoryLayout<Double>.alignment)
 
-        return DeviceMemory(buffer.baseAddress,
-                            byteCount: byteCount,
-                            version: 0,
-                            memoryAddressing: .unified,
-                            { buffer.deallocate() })
+        return DeviceMemory(buffer: buffer, version: 0,
+                            addressing: addressing, { buffer.deallocate() })
     }
 }
 

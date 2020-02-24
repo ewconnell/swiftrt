@@ -25,14 +25,12 @@ public struct CpuQueue: CpuQueueProtocol, Logging {
     public let id: Int
     public let logInfo: LogInfo
     public let deviceName: String
-    public let memoryAddressing: MemoryAddressing
     public let name: String
 
     //--------------------------------------------------------------------------
     // initializers
     @inlinable
     public init(id: Int, parent logInfo: LogInfo,
-                addressing: MemoryAddressing,
                 deviceId: Int, deviceName: String)
     {
         self.id = id
@@ -42,7 +40,6 @@ public struct CpuQueue: CpuQueueProtocol, Logging {
         self.deviceName = deviceName
         self.creatorThread = Thread.current
         self.defaultQueueEventOptions = QueueEventOptions()
-        self.memoryAddressing = addressing
 
         diagnostic("\(createString) DeviceQueue " +
             "\(deviceName)_\(name)", categories: .queueAlloc)
@@ -108,6 +105,10 @@ public struct CpuQueue: CpuQueueProtocol, Logging {
     public func copyAsync(from deviceMemory: DeviceMemory,
                           to otherDeviceMemory: DeviceMemory)
     {
-        
+        assert(deviceMemory.addressing == .unified &&
+            otherDeviceMemory.addressing == .unified)
+
+        let buffer = UnsafeRawBufferPointer(deviceMemory.buffer)
+        otherDeviceMemory.buffer.copyMemory(from: buffer)
     }
 }
