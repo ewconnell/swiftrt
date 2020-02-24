@@ -29,11 +29,11 @@ public struct CpuDevice<Queue>: ServiceDevice
     where Queue: CpuQueueProtocol
 {
     // properties
+    public let addressing: MemoryAddressing
     public let id: Int
     public let logInfo: LogInfo
     public let name: String
     public let queues: [Queue]
-    public let addressing: MemoryAddressing
 
     @inlinable
     public init(parent logInfo: LogInfo, addressing: MemoryAddressing, id: Int)

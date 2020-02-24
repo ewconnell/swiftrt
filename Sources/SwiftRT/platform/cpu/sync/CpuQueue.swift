@@ -20,11 +20,11 @@ import Foundation
 public struct CpuQueue: CpuQueueProtocol, Logging {
     // properties
     public let creatorThread: Thread
-    public let defaultQueueEventOptions: QueueEventOptions
+    public var defaultQueueEventOptions: QueueEventOptions
     public let deviceId: Int
+    public let deviceName: String
     public let id: Int
     public let logInfo: LogInfo
-    public let deviceName: String
     public let name: String
 
     //--------------------------------------------------------------------------
