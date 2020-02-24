@@ -36,7 +36,7 @@ public class CpuService: PlatformService {
                                namePath: self.name,
                                nestingLevel: 0)
         self.devices = [
-            CpuDevice<CpuQueue>(parent: logInfo, addressing: .unified, id: 0)
+            CpuDevice<CpuQueue>(parent: logInfo, memoryType: .unified, id: 0)
         ]
         
         // select device 0 queue 0 by default

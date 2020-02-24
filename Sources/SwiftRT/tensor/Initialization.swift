@@ -341,16 +341,20 @@ public extension TensorView {
         assert(elements.count <= shape.count, _messageElementCountMismatch)
         let label = name ?? Self.diagnosticName
         
-        // create the buffer
-        let bufferId = Platform.service
-            .createBuffer(of: Element.self, count: shape.count, name: label)
-        
         // create the tensor
-        var tensor = Self(shape: shape, elementBuffer: bufferId,
-                          offset: 0, shared: false)
+        var tensor: Self = {
+            // create the buffer
+            let bufferId = Platform.service
+                .createBuffer(of: Element.self, count: shape.count, name: label)
+            
+            return Self(shape: shape, elementBuffer: bufferId,
+                        offset: 0, shared: false)
+        }()
         
         // copy the collection into the tensor buffer
-        var buffer = Platform.service.write(&tensor, willOverwrite: true)
+        assert(tensor.isUniquelyReference())
+        var buffer = Platform.service.write(&tensor, willOverwrite: true,
+                                            copyIfNotDense: false)
         zip(buffer.indices, elements).forEach { buffer[$0] = $1 }
         
         return tensor

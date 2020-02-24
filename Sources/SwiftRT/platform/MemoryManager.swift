@@ -177,7 +177,7 @@ public struct DeviceBuffer {
     /// a dictionary of device memory replicas allocated on each device
     /// - Parameter key: the device index
     /// - Returns: the associated device memory object
-    public var replicas: [Int : DeviceMemory]
+    public var memory: [Int : DeviceMemory]
     
     /// `true` if the buffer is not mutable, such as in the case of a readOnly
     /// reference buffer.
@@ -208,7 +208,7 @@ public struct DeviceBuffer {
     @inlinable
     public init(byteCount: Int, name: String, isReadOnly: Bool = false) {
         self.byteCount = byteCount
-        self.replicas = [Int : DeviceMemory]()
+        self.memory = [Int : DeviceMemory]()
         self.isReadOnly = isReadOnly
         self.lastMutatingQueue = QueueId(0, 0)
         self.masterDevice = 0
@@ -224,9 +224,9 @@ public struct DeviceBuffer {
     @inlinable
     public func deallocate(device: Int? = nil) {
         if let device = device {
-            replicas[device]!.deallocate()
+            memory[device]!.deallocate()
         } else {
-            replicas.values.forEach { $0.deallocate() }
+            memory.values.forEach { $0.deallocate() }
         }
     }
 }
@@ -288,8 +288,8 @@ public extension MemoryManagement where Self: PlatformService {
                                                       count: roBuffer.count)
         var deviceBuffer = DeviceBuffer(byteCount: rawBuffer.count,
                                         name: name, isReadOnly: true)
-        deviceBuffer.replicas[0] = DeviceMemory(buffer: rawBuffer,
-                                                    addressing: .unified, { })
+        deviceBuffer.memory[0] = DeviceMemory(buffer: rawBuffer,
+                                              memoryType: .unified, { })
         deviceBuffers[ref.id] = deviceBuffer
         return ref
     }
@@ -308,8 +308,8 @@ public extension MemoryManagement where Self: PlatformService {
         let rawBuffer = UnsafeMutableRawBufferPointer(buffer)
         var deviceBuffer = DeviceBuffer(byteCount: rawBuffer.count,
                                         name: name, isReadOnly: false)
-        deviceBuffer.replicas[0] = DeviceMemory(buffer: rawBuffer,
-                                                    addressing: .unified, { })
+        deviceBuffer.memory[0] = DeviceMemory(buffer: rawBuffer,
+                                              memoryType: .unified, { })
         deviceBuffers[ref.id] = deviceBuffer
         return ref
     }
@@ -332,6 +332,7 @@ public extension MemoryManagement where Self: PlatformService {
                        at offset: Int, count: Int, using queueId: QueueId)
         -> UnsafeBufferPointer<Element>
     {
+        assert(deviceBuffers[ref.id] != nil)
         let buffer = migrate(ref, of: type, readOnly: true, using: queueId)
         return UnsafeBufferPointer(
             start: buffer.baseAddress!.advanced(by: offset),
@@ -345,6 +346,7 @@ public extension MemoryManagement where Self: PlatformService {
                             using queueId: QueueId)
         -> UnsafeMutableBufferPointer<Element>
     {
+        assert(deviceBuffers[ref.id] != nil)
         // record the mutating queueId
         deviceBuffers[ref.id]!.lastMutatingQueue = queueId
         let buffer = migrate(ref, of: type, readOnly: false, using: queueId)
@@ -363,7 +365,6 @@ public extension MemoryManagement where Self: PlatformService {
     {
         // get a reference to the device buffer
         let device = queueId.device
-        var buffer = deviceBuffers[ref.id]!
         var deviceMemory = getDeviceMemory(ref, of: type, for: device)
         
 //        // compare with master and copy if needed
@@ -380,13 +381,12 @@ public extension MemoryManagement where Self: PlatformService {
         
         // set version
         if !readOnly {
-            buffer.masterDevice = device
-            buffer.masterVersion += 1
+            deviceBuffers[ref.id]!.masterDevice = device
+            deviceBuffers[ref.id]!.masterVersion += 1
         }
-        deviceMemory.version = buffer.masterVersion
-        
-        // update collection
-        deviceBuffers[ref.id]!.replicas[device] = deviceMemory
+        deviceMemory.version = deviceBuffers[ref.id]!.masterVersion
+        deviceBuffers[ref.id]!.memory[device] = deviceMemory
+
         return deviceMemory.buffer.bindMemory(to: Element.self)
     }
     
@@ -402,7 +402,7 @@ public extension MemoryManagement where Self: PlatformService {
         let buffer = deviceBuffers[ref.id]!
         
         // if the memory exists then return it
-        if let deviceMemory = buffer.replicas[device] {
+        if let deviceMemory = buffer.memory[device] {
             return deviceMemory
         } else {
             // allocate the memory on the target device

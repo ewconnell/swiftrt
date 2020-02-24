@@ -102,13 +102,10 @@ public struct CpuQueue: CpuQueueProtocol, Logging {
     //--------------------------------------------------------------------------
     // copyAsync
     @inlinable
-    public func copyAsync(from deviceMemory: DeviceMemory,
-                          to otherDeviceMemory: DeviceMemory)
+    public func copyAsync(from memory: DeviceMemory, to other: DeviceMemory)
     {
-        assert(deviceMemory.addressing == .unified &&
-            otherDeviceMemory.addressing == .unified)
-
-        let buffer = UnsafeRawBufferPointer(deviceMemory.buffer)
-        otherDeviceMemory.buffer.copyMemory(from: buffer)
+        assert(memory.memoryType == .unified && other.memoryType == .unified)
+        let buffer = UnsafeRawBufferPointer(memory.buffer)
+        other.buffer.copyMemory(from: buffer)
     }
 }

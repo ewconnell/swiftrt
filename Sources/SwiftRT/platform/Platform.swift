@@ -98,8 +98,8 @@ public protocol ServiceDevice: Logger {
     var name: String { get }
     /// a collection of device queues for scheduling work
     var queues: [Queue] { get }
-    /// specifies the type of associated device memory
-    var addressing: MemoryAddressing { get }
+    /// specifies the type of device memory for data transfer
+    var memoryType: MemoryType { get }
 
     //-------------------------------------
     /// `allocate(bytes:heapIndex:`
@@ -118,18 +118,18 @@ public struct DeviceMemory {
     public let buffer: UnsafeMutableRawBufferPointer
     /// function to free the memory
     public let deallocate: () -> Void
-    /// specifies the memory space of this memory
-    public let addressing: MemoryAddressing
+    /// specifies the device memory type for data transfer
+    public let memoryType: MemoryType
     /// version
     public var version: Int
     
     @inlinable
     public init(buffer: UnsafeMutableRawBufferPointer,
-                addressing: MemoryAddressing,
+                memoryType: MemoryType,
                 _ deallocate: @escaping () -> Void)
     {
         self.buffer = buffer
-        self.addressing = addressing
+        self.memoryType = memoryType
         self.version = -1
         self.deallocate = deallocate
     }
@@ -227,8 +227,8 @@ public enum QueueEventError: Error {
 }
 
 //==============================================================================
-/// MemoryAddressing
-public enum MemoryAddressing {
+/// MemoryType
+public enum MemoryType {
     case unified, discreet
 }
 

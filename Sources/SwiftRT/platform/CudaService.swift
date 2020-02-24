@@ -55,9 +55,9 @@ public class CudaService: PlatformService {
 /// CudaDevice
 public struct CudaDevice: ServiceDevice {
     // properties
-    public let addressing: MemoryAddressing
     public let id: Int
     public let logInfo: LogInfo
+    public let memoryType: MemoryType
     public let name: String
     public var queues: [CudaQueue]
 
@@ -68,7 +68,7 @@ public struct CudaDevice: ServiceDevice {
 
         // create queues
         let isCpuDevice = id == 0
-        self.addressing = isCpuDevice ? .unified : .discreet
+        self.memoryType = isCpuDevice ? .unified : .discreet
         let numQueues = isCpuDevice ? 1 : 3
         self.queues = []
         for queueId in 0..<numQueues {
@@ -81,7 +81,7 @@ public struct CudaDevice: ServiceDevice {
     public func allocate(byteCount: Int, heapIndex: Int) -> DeviceMemory {
         // TODO
         let buffer = UnsafeMutableRawBufferPointer(start: nil, count: byteCount)
-        return DeviceMemory(buffer: buffer, addressing: addressing, {})
+        return DeviceMemory(buffer: buffer, memoryType: memoryType, {})
     }
 }
 
@@ -141,8 +141,8 @@ public struct CudaQueue: DeviceQueue, DeviceFunctions {
     public func copyAsync(from deviceMemory: DeviceMemory,
                           to otherDeviceMemory: DeviceMemory)
     {
-        assert(deviceMemory.addressing == .unified &&
-            otherDeviceMemory.addressing == .unified)
+        assert(deviceMemory.memoryType == .unified &&
+            otherDeviceMemory.memoryType == .unified)
         
         let buffer = UnsafeRawBufferPointer(deviceMemory.buffer)
         otherDeviceMemory.buffer.copyMemory(from: buffer)

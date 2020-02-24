@@ -37,9 +37,9 @@ public class TestCpuService: PlatformService {
                                namePath: self.name,
                                nestingLevel: 0)
         self.devices = [
-            CpuDevice<CpuQueue>(parent: logInfo, addressing: .unified,  id: 0),
-            CpuDevice<CpuQueue>(parent: logInfo, addressing: .discreet, id: 1),
-            CpuDevice<CpuQueue>(parent: logInfo, addressing: .discreet, id: 2),
+            CpuDevice<CpuQueue>(parent: logInfo, memoryType: .unified,  id: 0),
+            CpuDevice<CpuQueue>(parent: logInfo, memoryType: .discreet, id: 1),
+            CpuDevice<CpuQueue>(parent: logInfo, memoryType: .discreet, id: 2),
         ]
         
         // select device 0 queue 0 by default

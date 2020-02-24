@@ -74,11 +74,28 @@ public extension PlatformService {
                   copyIfNotDense: Bool = true)
         -> MutableElementBuffer<T.Element, T.Shape> where T: TensorView
     {
-        // check if we need to copy
-        if (copyIfNotDense && tensor.count != tensor.shape.spanCount) ||
-            (!tensor.shared && !tensor.isUniquelyReference())
-        {
-
+        // check if we need to expand a write to a repeated shape
+        // this can happen when writing through a subscript to a repeated shape
+        if copyIfNotDense && !tensor.isContiguous {
+            diagnostic("\(realizeString) \(name)(\(tensor.elementBuffer.id)) " +
+                "expanding from: \(T.Element.self)" +
+                "[\(tensor.shape.spanCount)] " +
+                "to: \(T.Element.self)[\(tensor.count)]",
+                categories: [.dataCopy, .dataRealize])
+            
+            // replace device buffer with expanded
+            tensor.elementBuffer = duplicate(tensor.elementBuffer,
+                                             using: currentQueueId)
+            
+        } else if !tensor.shared && !tensor.isUniquelyReference() {
+            // the reference is not unique so a copy of the array must be made
+            diagnostic("\(mutationString) \(name)(\(tensor.elementBuffer.id))" +
+                " \(T.Element.self)[\(tensor.count)]",
+                categories: [.dataCopy, .dataMutation])
+            
+            // replace device buffer with expanded
+            tensor.elementBuffer = duplicate(tensor.elementBuffer,
+                                             using: currentQueueId)
         }
         
         // get the write buffer
@@ -134,7 +151,9 @@ public extension PlatformService {
         -> (T, MutableElementBuffer<T.Element, T.Shape>) where T: TensorView
     {
         var result = other.createDense(with: shape.dense, name: name)
-        return (result, write(&result))
+        let resultBuffer = write(&result)
+        assert(result.isUniquelyReference())
+        return (result, resultBuffer)
     }
 
     //--------------------------------------------------------------------------

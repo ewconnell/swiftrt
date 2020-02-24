@@ -29,20 +29,20 @@ public struct CpuDevice<Queue>: ServiceDevice
     where Queue: CpuQueueProtocol
 {
     // properties
-    public let addressing: MemoryAddressing
     public let id: Int
     public let logInfo: LogInfo
+    public let memoryType: MemoryType
     public let name: String
     public let queues: [Queue]
 
     @inlinable
-    public init(parent logInfo: LogInfo, addressing: MemoryAddressing, id: Int)
+    public init(parent logInfo: LogInfo, memoryType: MemoryType, id: Int)
     {
         let deviceName = "cpu:\(id)"
         self.id = id
         self.name = deviceName
         self.logInfo = logInfo.child(name)
-        self.addressing = addressing
+        self.memoryType = memoryType
         
         let queues = [Queue(id: 0, parent: self.logInfo,
                             deviceId: id, deviceName: name)]
@@ -56,7 +56,7 @@ public struct CpuDevice<Queue>: ServiceDevice
         let buffer = UnsafeMutableRawBufferPointer.allocate(
             byteCount: byteCount, alignment: MemoryLayout<Double>.alignment)
 
-        return DeviceMemory(buffer: buffer, addressing: addressing,
+        return DeviceMemory(buffer: buffer, memoryType: memoryType,
                             { buffer.deallocate() })
     }
 }
