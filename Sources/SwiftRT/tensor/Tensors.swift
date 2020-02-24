@@ -322,7 +322,7 @@ public extension MatrixView {
     var array: [[Element]] {
         var result = [[Element]]()
         for row in 0..<extents[0] {
-            result.append([Element](self[row..|1, ...].elementBuffer()))
+            result.append([Element](self[row, ...].elementBuffer()))
         }
         return result
     }

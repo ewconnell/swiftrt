@@ -45,6 +45,10 @@ public class CudaService: PlatformService {
         self.queueStack = []
         self.queueStack = [ensureValidId(1, 0)]
     }
+    
+    deinit {
+        deviceBuffers.values.forEach { $0.deallocate() }
+    }
 }
 
 //==============================================================================

@@ -46,4 +46,8 @@ public class TestCpuService: PlatformService {
         self.queueStack = []
         self.queueStack = [ensureValidId(0, 0)]
     }
+    
+    deinit {
+        deviceBuffers.values.forEach { $0.deallocate() }
+    }
 }

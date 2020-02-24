@@ -110,6 +110,7 @@ class test_BinaryFunctions: XCTestCase {
     // test_add
     func test_add() {
         let m1 = Matrix(3, 2, with: 0..<6)
+        print(m1.array)
         let m2 = Matrix(3, 2, with: 0..<6)
         let result = m1 + m2
         XCTAssert(result == [0, 2, 4, 6, 8, 10])

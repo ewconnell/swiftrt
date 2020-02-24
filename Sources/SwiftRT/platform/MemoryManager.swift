@@ -332,7 +332,10 @@ public extension MemoryManagement where Self: PlatformService {
                        at offset: Int, count: Int, using queueId: QueueId)
         -> UnsafeBufferPointer<Element>
     {
-        fatalError()
+        let buffer = migrate(ref, of: type, readOnly: true, using: queueId)
+        return UnsafeBufferPointer(
+            start: buffer.baseAddress!.advanced(by: offset),
+            count: count)
     }
     
     //--------------------------------------------------------------------------
@@ -344,8 +347,10 @@ public extension MemoryManagement where Self: PlatformService {
     {
         // record the mutating queueId
         deviceBuffers[ref.id]!.lastMutatingQueue = queueId
-        let memory = migrate(ref, of: type, readOnly: false, using: queueId)
-        return memory.buffer.bindMemory(to: Element.self)
+        let buffer = migrate(ref, of: type, readOnly: false, using: queueId)
+        return UnsafeMutableBufferPointer(
+            start: buffer.baseAddress!.advanced(by: offset),
+            count: count)
     }
     
     //--------------------------------------------------------------------------
@@ -354,7 +359,7 @@ public extension MemoryManagement where Self: PlatformService {
     /// the device associated with `queue` and returns a pointer to the data
     func migrate<Element>(_ ref: BufferRef, of type: Element.Type,
                           readOnly: Bool, using queueId: QueueId)
-        -> DeviceMemory
+        -> UnsafeMutableBufferPointer<Element>
     {
         // get a reference to the device buffer
         let device = queueId.device
@@ -382,7 +387,7 @@ public extension MemoryManagement where Self: PlatformService {
         
         // update collection
         deviceBuffers[ref.id]!.replicas[device] = deviceMemory
-        return deviceMemory
+        return deviceMemory.buffer.bindMemory(to: Element.self)
     }
     
     //--------------------------------------------------------------------------
