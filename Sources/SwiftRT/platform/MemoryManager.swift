@@ -344,8 +344,8 @@ public extension MemoryManagement where Self: PlatformService {
     {
         // record the mutating queueId
         deviceBuffers[ref.id]!.lastMutatingQueue = queueId
-        
-        fatalError()
+        let memory = migrate(ref, of: type, readOnly: false, using: queueId)
+        return memory.buffer.bindMemory(to: Element.self)
     }
     
     //--------------------------------------------------------------------------
@@ -353,7 +353,7 @@ public extension MemoryManagement where Self: PlatformService {
     /// Migrates the master version of the data from wherever it is to
     /// the device associated with `queue` and returns a pointer to the data
     func migrate<Element>(_ ref: BufferRef, of type: Element.Type,
-                          readOnly: Bool, using queueId: QueueId) throws
+                          readOnly: Bool, using queueId: QueueId)
         -> DeviceMemory
     {
         // get a reference to the device buffer
