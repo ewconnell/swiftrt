@@ -39,8 +39,8 @@ public protocol TensorView: Logging {
     static var diagnosticName: String { get }
     /// the shape of the view used for indexing
     var shape: Shape { get }
-    /// class reference to the underlying byte buffer
-    var elementBuffer: BufferRef { get set }
+    /// class reference to the underlying storage buffer
+    var bufferRef: BufferRef { get set }
     /// the linear element offset where the view begins
     var offset: Int { get }
     /// `true` if the view will be shared by by multiple writers
@@ -48,7 +48,7 @@ public protocol TensorView: Logging {
     
     //--------------------------------------------------------------------------
     /// fully specified used for creating tensors
-    init(shape: Shape, elementBuffer: BufferRef, offset: Int, shared: Bool)
+    init(shape: Shape, bufferRef: BufferRef, offset: Int, shared: Bool)
 
     //--------------------------------------------------------------------------
     /// creates a new dense tensor of the same type with the specified extents
@@ -64,10 +64,10 @@ public protocol TensorView: Logging {
 //==============================================================================
 //
 public extension TensorView {
-    /// `elementBuffer`
+    /// `bufferRef`
     /// - Returns: an element buffer that can be used to iterate the shape
     @inlinable
-    func elementBuffer() -> ElementBuffer<Element, Shape> {
+    func bufferRef() -> ElementBuffer<Element, Shape> {
         Platform.service.read(self)
     }
 
@@ -103,7 +103,7 @@ public extension TensorView {
     /// - Returns: the first element in the tensor
     @inlinable
     var first: Element {
-        let elements = elementBuffer()
+        let elements = bufferRef()
         return elements[elements.startIndex]
     }
 
@@ -140,7 +140,7 @@ public extension TensorView {
     var extents: Shape.Array { shape.extents }
     /// a 1D array of tensor elements
     @inlinable
-    var flatArray: [Element] { [Element](elementBuffer()) }
+    var flatArray: [Element] { [Element](bufferRef()) }
     /// `true` if the values are contiguosly arranged in memory
     @inlinable
     var isContiguous: Bool { shape.isContiguous }
@@ -149,7 +149,7 @@ public extension TensorView {
     var items: Int { shape.items }
     /// the name of the view, which can optionally be set to aid in debugging
     @inlinable
-    var name: String { elementBuffer.name }
+    var name: String { bufferRef.name }
     /// the number of dimensions in the view
     @inlinable
     var rank: Int { shape.rank }
@@ -163,7 +163,7 @@ public extension TensorView {
     @inlinable
     func repeated(to extents: Shape.Array) -> Self {
         return Self(shape: shape.repeated(to: extents),
-                    elementBuffer: elementBuffer,
+                    bufferRef: bufferRef,
                     offset: offset, shared: shared)
     }
     ///
@@ -172,10 +172,10 @@ public extension TensorView {
         repeated(to: Shape.Array(extents))
     }
     /// isUniquelyReference
-    /// `true` if this view is the only one holding a reference to elementBuffer
+    /// `true` if this view is the only one holding a reference to bufferRef
     @inlinable
     mutating func isUniquelyReference() -> Bool {
-        isKnownUniquelyReferenced(&elementBuffer)
+        isKnownUniquelyReferenced(&bufferRef)
     }
 }
 
@@ -236,7 +236,7 @@ public extension TensorView {
     
     //--------------------------------------------------------------------------
     /// createView
-    /// Returns a view of the elementBuffer relative to this view
+    /// Returns a view of the bufferRef relative to this view
     @usableFromInline
     internal func createView(at index: Shape.Array,
                              with extents: Shape.Array,
@@ -250,7 +250,7 @@ public extension TensorView {
         // the subview offset is the current plus the offset of index
         let subViewOffset = offset + shape.linearIndex(of: index)
         return Self(shape: Shape(extents: extents, strides: strides),
-                    elementBuffer: elementBuffer,
+                    bufferRef: bufferRef,
                     offset: subViewOffset, shared: shared)
     }
     
@@ -263,7 +263,7 @@ public extension TensorView {
     func transposed(with permutations: Shape.Tuple? = nil) -> Self {
         guard self.rank > 1 else { return self }
         let shape = self.shape.transposed(with: Shape.Array(permutations))
-        return Self(shape: shape, elementBuffer: elementBuffer,
+        return Self(shape: shape, bufferRef: bufferRef,
                     offset: offset, shared: shared)
     }
 }
@@ -280,7 +280,7 @@ public extension TensorView where Element: Codable {
         try container.encode(name, forKey: .name)
         try container.encode(extents, forKey: .extents)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
-        try elementBuffer().forEach {
+        try bufferRef().forEach {
             try dataContainer.encode($0)
         }
     }
@@ -308,7 +308,7 @@ public extension TensorView where Element: Equatable {
     /// compares the flat elements of self with a Swift array of elements
     @inlinable
     static func == (lhs: Self, rhs: [Element]) -> Bool {
-        for (lhsElement, rhsElement) in zip(lhs.elementBuffer(), rhs) {
+        for (lhsElement, rhsElement) in zip(lhs.bufferRef(), rhs) {
             if lhsElement != rhsElement { return false }
         }
         return true
@@ -321,7 +321,7 @@ public extension TensorView where Element: Equatable & AnyConvertable {
     static func == <R>(lhs: Self, rhs: R) -> Bool
         where R: Collection, R.Element: AnyConvertable
     {
-        for (lhsElement, rhsElement) in zip(lhs.elementBuffer(), rhs) {
+        for (lhsElement, rhsElement) in zip(lhs.bufferRef(), rhs) {
             if lhsElement != Element(any: rhsElement) { return false }
         }
         return true

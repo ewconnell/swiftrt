@@ -435,7 +435,7 @@ public extension TensorView where Element: Equatable {
         guard lhs.extents == rhs.extents else { return false }
 
         // if lhs is an alias for rhs, then they match
-        if lhs.elementBuffer === rhs.elementBuffer &&
+        if lhs.bufferRef === rhs.bufferRef &&
             lhs.offset == rhs.offset { return true }
 
         // compare elements

@@ -41,7 +41,7 @@ public struct CpuQueue: CpuQueueProtocol, Logging {
         self.creatorThread = Thread.current
         self.defaultQueueEventOptions = QueueEventOptions()
 
-        diagnostic("\(createString) queue \(deviceName)_\(name)",
+        diagnostic("\(createString) \(Self.self): \(deviceName)_\(name)",
             categories: .queueAlloc)
     }
 

@@ -46,7 +46,7 @@ public extension TensorView {
     @inlinable
     init() {
         self.init(shape: Shape(extents: Shape.zeros),
-                  elementBuffer: BufferRef(-1),
+                  bufferRef: BufferRef(-1),
                   offset: 0, shared: false)
     }
 
@@ -81,7 +81,7 @@ public extension TensorView {
     @inlinable
     init<T>(flattening other: T) where T: TensorView, T.Element == Element {
         self.init(shape: Shape(flattening: other.shape),
-                  elementBuffer: other.elementBuffer,
+                  bufferRef: other.bufferRef,
                   offset: other.offset, shared: other.shared)
     }
 
@@ -113,7 +113,7 @@ public extension TensorView {
     @inlinable
     init<T>(indenting other: T) where T: TensorView, T.Element == Element {
         self.init(shape: Shape(indenting: other.shape),
-                  elementBuffer: other.elementBuffer,
+                  bufferRef: other.bufferRef,
                   offset: other.offset, shared: other.shared)
     }
         
@@ -122,7 +122,7 @@ public extension TensorView {
     @inlinable
     init<T>(padding other: T) where T: TensorView, T.Element == Element {
         self.init(shape: Shape(padding: other.shape),
-                  elementBuffer: other.elementBuffer,
+                  bufferRef: other.bufferRef,
                   offset: other.offset, shared: other.shared)
     }
     
@@ -134,7 +134,7 @@ public extension TensorView {
         where T: TensorView, T.Element == Element
     {
         self.init(shape: Shape(expanding: other.shape, alongAxes: axes),
-                  elementBuffer: other.elementBuffer,
+                  bufferRef: other.bufferRef,
                   offset: other.offset, shared: other.shared)
     }
     
@@ -166,7 +166,7 @@ public extension TensorView {
         where T: TensorView, T.Element == Element
     {
         self.init(shape: Shape(squeezing: other.shape, alongAxes: axes),
-                  elementBuffer: other.elementBuffer,
+                  bufferRef: other.bufferRef,
                   offset: other.offset, shared: other.shared)
     }
     
@@ -307,7 +307,7 @@ public extension TensorView {
         let label = name ?? Self.diagnosticName
         let ref = Platform.service
             .createBuffer(of: Element.self, count: shape.count, name: label)
-        return Self(shape: shape, elementBuffer: ref, offset: 0, shared: false)
+        return Self(shape: shape, bufferRef: ref, offset: 0, shared: false)
     }
     
     @inlinable
@@ -318,7 +318,7 @@ public extension TensorView {
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
         let ref = Platform.service.createReference(to: buffer, name: label)
-        return Self(shape: shape, elementBuffer: ref, offset: 0, shared: false)
+        return Self(shape: shape, bufferRef: ref, offset: 0, shared: false)
     }
     
     @inlinable
@@ -329,7 +329,7 @@ public extension TensorView {
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
         let ref = Platform.service.createMutableReference(to: buffer, name: label)
-        return Self(shape: shape, elementBuffer: ref, offset: 0, shared: false)
+        return Self(shape: shape, bufferRef: ref, offset: 0, shared: false)
     }
     
     @inlinable
@@ -355,7 +355,7 @@ public extension TensorView {
                 categories: .dataAlloc)
             #endif
 
-            return Self(shape: shape, elementBuffer: bufferRef,
+            return Self(shape: shape, bufferRef: bufferRef,
                         offset: 0, shared: false)
         }()
         

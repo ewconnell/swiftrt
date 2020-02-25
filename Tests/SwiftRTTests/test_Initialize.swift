@@ -185,8 +185,6 @@ class test_Initialize: XCTestCase {
     //--------------------------------------------------------------------------
     // test_concatMatrixCols
     func test_concatMatrixCols() {
-        Platform.log.level = .diagnostic
-//        Platform.log.categories = [.dataCopy, .dataMutation]
         let t1 = Matrix(2, 3, with: 1...6)
         let t2 = Matrix(2, 3, with: 7...12)
         let c3 = Matrix(concatenating: t1, t2, alongAxis: 1)
