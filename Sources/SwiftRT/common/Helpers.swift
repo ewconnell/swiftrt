@@ -47,31 +47,26 @@ extension String {
 }
 
 //==============================================================================
-// almostEquals
-@inlinable
-public func almostEquals<T: AnyNumeric>(_ a: T, _ b: T,
-                                        tolerance: Double = 0.00001) -> Bool {
-    abs(a.asDouble - b.asDouble) < tolerance
-}
-
-//==============================================================================
 // AtomicCounter
 public final class AtomicCounter {
     // properties
-    var counter: Int
-    let mutex = Mutex()
+    @usableFromInline var counter: Int
+    @usableFromInline let mutex = Mutex()
     
+    @inlinable
     public var value: Int {
         get { mutex.sync { counter } }
         set { mutex.sync { counter = newValue } }
     }
     
     // initializers
+    @inlinable
     public init(value: Int = 0) {
         counter = value
     }
     
     // functions
+    @inlinable
     public func increment() -> Int {
         return mutex.sync {
             counter += 1
