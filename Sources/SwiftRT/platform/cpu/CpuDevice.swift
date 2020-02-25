@@ -41,7 +41,7 @@ public struct CpuDevice<Queue>: ServiceDevice
         let deviceName = "cpu:\(id)"
         self.id = id
         self.name = deviceName
-        self.logInfo = logInfo.child(name)
+        self.logInfo = logInfo.flat(name)
         self.memoryType = memoryType
         
         let queues = [Queue(id: 0, parent: self.logInfo,

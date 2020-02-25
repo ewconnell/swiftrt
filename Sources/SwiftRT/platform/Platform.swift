@@ -25,6 +25,8 @@ import Glibc
 /// Platform
 /// Manages the scope for the current devices, log, and error handlers
 public final class Platform {
+    /// the time that the platform was first accessed
+    @usableFromInline static var startTime = Date()
     /// the log output object
     @usableFromInline static var logWriter: Log = Log()
     /// the current compute platform for the thread

@@ -34,15 +34,15 @@ public struct CpuQueue: CpuQueueProtocol, Logging {
                 deviceId: Int, deviceName: String)
     {
         self.id = id
-        self.name = "q:\(id)"
-        self.logInfo = logInfo.child(name)
+        self.name = "q\(id)"
+        self.logInfo = logInfo.flat(name)
         self.deviceId = deviceId
         self.deviceName = deviceName
         self.creatorThread = Thread.current
         self.defaultQueueEventOptions = QueueEventOptions()
 
-        diagnostic("\(createString) DeviceQueue " +
-            "\(deviceName)_\(name)", categories: .queueAlloc)
+        diagnostic("\(createString) queue \(deviceName)_\(name)",
+            categories: .queueAlloc)
     }
 
     

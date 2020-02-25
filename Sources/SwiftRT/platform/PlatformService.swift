@@ -19,7 +19,7 @@ import Foundation
 /// PlatformService
 /// a compute service represents a category of installed devices on the
 /// platform, such as (cpu, cuda, tpu, ...)
-public protocol PlatformService: PlatformAPI, Logger {
+public protocol PlatformService: PlatformAPI {
     // types
     associatedtype Device: ServiceDevice
 
@@ -77,10 +77,9 @@ public extension PlatformService {
     {
         // check if we need to expand a write to a repeated shape
         // this can happen when writing through a subscript to a repeated shape
-        if copyIfNotDense && !tensor.isContiguous {
-            diagnostic("\(realizeString) \(name)(\(tensor.elementBuffer.id)) " +
-                "expanding from: \(T.Element.self) [\(tensor.spanCount)] " +
-                "to: \(T.Element.self)[\(tensor.count)]",
+        if copyIfNotDense && tensor.spanCount < tensor.count {
+            diagnostic("\(realizeString)" +
+                "\(tensor.name)(\(tensor.elementBuffer.id)) \(T.Element.self)[\(tensor.count)]",
                 categories: [.dataCopy, .dataRealize])
             
             // replace device buffer with expanded

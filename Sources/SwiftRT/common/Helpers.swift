@@ -34,14 +34,14 @@ extension Int {
 // String(timeInterval:
 extension String {
     @inlinable
-    public init(timeInterval: TimeInterval) {
+    public init(timeInterval: TimeInterval, precision: Int = 2) {
         let milliseconds = Int(timeInterval
-            .truncatingRemainder(dividingBy: 1.0) * 1000)
+            .truncatingRemainder(dividingBy: 1.0) * pow(10.0, Double(precision)))
         let interval = Int(timeInterval)
         let seconds = interval % 60
         let minutes = (interval / 60) % 60
         let hours = (interval / 3600)
-        self = String(format: "%0.2d:%0.2d:%0.2d.%0.3d",
+        self = String(format: "%0.2d:%0.2d:%0.2d.%0.2d",
                       hours, minutes, seconds, milliseconds)
     }
 }

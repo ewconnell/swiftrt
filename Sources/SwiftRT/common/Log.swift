@@ -260,12 +260,11 @@ public extension LogWriter {
             
             // create fixed width string for level column
             let messageStr = message()
-            let levelStr = String(describing: level).padding(
-                toLength: LogLevel.maxStringWidth, withPad: " ", startingAt: 0)
-            
+            let messageTime = Date().timeIntervalSince(Platform.startTime)
+            let levelStr = String(timeInterval: messageTime)
             let indent = String(repeating: " ",
                                 count: nestingLevel * self._tabSize)
-            var outputStr = levelStr + ": " + indent + messageStr
+            var outputStr = levelStr + " " + indent + messageStr
             
             // add trailing fill if desired
             if !trailing.isEmpty {

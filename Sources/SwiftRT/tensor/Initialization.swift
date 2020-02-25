@@ -344,10 +344,18 @@ public extension TensorView {
         // create the tensor
         var tensor: Self = {
             // create the buffer
-            let bufferId = Platform.service
+            let bufferRef = Platform.service
                 .createBuffer(of: Element.self, count: shape.count, name: label)
             
-            return Self(shape: shape, elementBuffer: bufferId,
+            // report
+            #if DEBUG
+            Platform.service.diagnostic(
+                "\(createString) \(label)(\(bufferRef.id)) " +
+                "\(Element.self)[\(shape.count)]",
+                categories: .dataAlloc)
+            #endif
+
+            return Self(shape: shape, elementBuffer: bufferRef,
                         offset: 0, shared: false)
         }()
         
