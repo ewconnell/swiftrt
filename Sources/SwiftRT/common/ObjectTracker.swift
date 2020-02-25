@@ -32,10 +32,17 @@ public final class ObjectTracker {
 	//--------------------------------------------------------------------------
 	// types
 	public struct ItemInfo {
-        var isStatic: Bool
-        let namePath: String?
-		let supplementalInfo: String?
-        let typeName: String
+        public var isStatic: Bool
+        public let namePath: String?
+		public let supplementalInfo: String?
+        public let typeName: String
+        public init(isStatic: Bool, namePath: String?,
+                    supplementalInfo: String?, typeName: String) {
+            self.isStatic = isStatic
+            self.namePath = namePath
+            self.supplementalInfo = supplementalInfo
+            self.typeName = typeName
+        }
 	}
 
     // singleton
@@ -46,7 +53,7 @@ public final class ObjectTracker {
 	/// global shared instance
 	public static let global = ObjectTracker()
     /// thread access queue
-	private let queue = DispatchQueue(label: "ObjectTracker.queue")
+	public let queue = DispatchQueue(label: "ObjectTracker.queue")
     /// counter to generate object ids
 	public let counter = AtomicCounter()
     /// init registration tracking id to break on
@@ -54,7 +61,7 @@ public final class ObjectTracker {
     /// deinit break id
 	public var debuggerRemoveBreakId = -1
     // the list of currently registered objects
-	public private(set) var activeObjects = [Int: ItemInfo]()
+	public var activeObjects = [Int: ItemInfo]()
     /// true if there are currently unreleased non static objects
 	public var hasUnreleasedObjects: Bool {
         return activeObjects.first { !$0.value.isStatic } != nil
@@ -71,6 +78,7 @@ public final class ObjectTracker {
 
 	//--------------------------------------------------------------------------
 	// getActiveObjectReport
+    @inlinable
 	public func getActiveObjectReport(includeStatics: Bool = false) -> String {
 		var result = "\n"
 		var activeCount = 0
@@ -90,7 +98,8 @@ public final class ObjectTracker {
 
     //--------------------------------------------------------------------------
 	// getObjectDescription
-	private func getObjectDescription(trackingId: Int, info: ItemInfo) -> String {
+    @usableFromInline
+    func getObjectDescription(trackingId: Int, info: ItemInfo) -> String {
         return "[\(info.typeName)(\(trackingId))" +
             (info.supplementalInfo == nil ? "]":" \(info.supplementalInfo!)]") +
             (info.namePath == nil ? "" : " path: \(info.namePath!)")
@@ -98,6 +107,7 @@ public final class ObjectTracker {
 
 	//--------------------------------------------------------------------------
 	// register(object:
+    @inlinable
     public func register(_ object: ObjectTracking,
                          namePath: String? = nil,
                          supplementalInfo: @autoclosure () -> String? = nil,
@@ -115,7 +125,8 @@ public final class ObjectTracker {
 
     //--------------------------------------------------------------------------
     // register
-    private func register(trackingId: Int, info: ItemInfo) {
+    @usableFromInline
+    func register(trackingId: Int, info: ItemInfo) {
         queue.sync {
             if trackingId == debuggerRegisterBreakId {
                 print("ObjectTracker debug break for id(\(trackingId))")
@@ -127,6 +138,7 @@ public final class ObjectTracker {
 
 	//--------------------------------------------------------------------------
 	// remove
+    @inlinable
 	public func remove(trackingId: Int) {
 		#if DEBUG
         _ = queue.sync {
