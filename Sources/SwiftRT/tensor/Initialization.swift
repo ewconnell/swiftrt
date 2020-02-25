@@ -237,7 +237,8 @@ public extension TensorView {
     @differentiable(where Self: DifferentiableTensorView)
     init(repeating value: Element, to extents: Shape.Array, name: String? = nil)
     {
-        let shape = Shape(extents: extents, strides: Shape.zeros)
+        let shape = Shape(extents: extents, strides: Shape.zeros,
+                          isSequential: true)
         self = Self.create([value], shape, name)
     }
 
@@ -270,7 +271,8 @@ public extension TensorView {
     @inlinable
     func createDense(with extents: Shape.Array, name: String? = nil) -> Self {
         let newShape = isContiguous ?
-            Shape(extents: extents, strides: self.shape.strides) :
+            Shape(extents: extents, strides: shape.strides,
+                  isSequential: shape.isSequential) :
             Shape(extents: extents)
         return createDense(with: newShape, name: name)
     }
@@ -297,7 +299,8 @@ public extension TensorView {
     /// helper to create a rank extended value
     @inlinable
     func createSingleElement(name: String? = nil) -> Self {
-        Self.create(Shape(extents: Shape.ones, strides: Shape.ones), name)
+        Self.create(Shape(extents: Shape.ones, strides: Shape.ones,
+                          isSequential: true), name)
     }
     
     //==========================================================================

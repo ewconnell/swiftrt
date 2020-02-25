@@ -247,9 +247,12 @@ public extension TensorView {
         assert(shape.contains(index: index, extents: extents))
         
         // the subview offset is the current plus the offset of index
+        // TODO: revisit fast check for `isSequential`
         let subViewOffset = offset + shape.linearIndex(of: index)
-        return Self(shape: Shape(extents: extents, strides: strides),
-                    bufferRef: bufferRef,
+        let viewShape = Shape(extents: shape.extents, strides: shape.strides,
+                              isSequential: shape.rank == 1)
+        
+        return Self(shape: viewShape, bufferRef: bufferRef,
                     offset: subViewOffset, shared: shared)
     }
     

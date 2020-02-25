@@ -21,6 +21,9 @@ class test_Initialize: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_copy", test_copy),
+        ("test_copyOnWrite", test_copyOnWrite),
+        ("test_columnMajorDataView", test_columnMajorDataView),
         ("test_indenting", test_indenting),
         ("test_padding", test_padding),
         ("test_perfCreateTensorArray", test_perfCreateTensorArray),
@@ -34,6 +37,47 @@ class test_Initialize: XCTestCase {
         ("test_repeatColVector", test_repeatColVector),
     ]
     
+    //--------------------------------------------------------------------------
+    // test_copy
+    // tests copying from source to destination view
+    func test_copy() {
+        let v1 = IndexVector(with: 1...3)
+        var v2 = IndexVector(with: repeatElement(0, count: 3))
+        SwiftRT.copy(from: v1, to: &v2)
+        XCTAssert(v1 == [1, 2, 3])
+    }
+    
+    //--------------------------------------------------------------------------
+    // test_copyOnWrite
+    // NOTE: uses the default queue
+    func test_copyOnWrite() {
+        Platform.log.level = .diagnostic
+        let m1 = Matrix(3, 2).filledWithIndex()
+        XCTAssert(m1[1, 1] == 3)
+        
+        // copy view sharing the same tensor array
+        var m2 = m1
+        XCTAssert(m2[1, 1] == 3)
+        
+        // mutate m2
+        m2[1, 1] = 7
+        // m1's data should be unchanged
+        XCTAssert(m1[1, 1] == 3)
+        XCTAssert(m2[1, 1] == 7)
+    }
+    
+    //--------------------------------------------------------------------------
+    // test_columnMajorDataView
+    // NOTE: uses the default queue
+    //   0, 1,
+    //   2, 3,
+    //   4, 5
+    func test_columnMajorDataView() {
+        let cmMatrix = IndexMatrix(3, 2, with: [0, 2, 4, 1, 3, 5],
+                                   layout: .columnMajor)
+        XCTAssert(cmMatrix == 0..<6)
+    }
+
     //--------------------------------------------------------------------------
     // test_indenting
     func test_indenting() {

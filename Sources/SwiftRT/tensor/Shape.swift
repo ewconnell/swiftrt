@@ -36,10 +36,12 @@ public protocol ShapeProtocol: Codable, Equatable, Collection {
     // properties
     /// the dense number of elements in the shape
     var count: Int { get }
-    /// The strided number of elements spanned by the shape
-    var spanCount: Int { get }
     /// The extent of the shape in each dimension
     var extents: Array { get }
+    /// `true` if indexing is row sequential for performance
+    var isSequential: Bool { get }
+    /// The strided number of elements spanned by the shape
+    var spanCount: Int { get }
     /// The distance to the next element for each dimension
     var strides: Array { get }
         
@@ -47,7 +49,8 @@ public protocol ShapeProtocol: Codable, Equatable, Collection {
     /// Fully specified initializer
     /// - Parameter extents: extent of the shape in each dimension
     /// - Parameter strides: the distance to the next element in each dimension
-    init(extents: Array, strides: Array?)
+    /// - Parameter isSequential: `true` if elements are row sequential
+    init(extents: Array, strides: Array?, isSequential: Bool)
     /// Expanding initializer
     /// - Parameter expanding: the lower order shape to expand
     /// - Parameter axes: the set of axes to be expanded
@@ -136,7 +139,7 @@ extension ShapeProtocol where Index == ShapeIndex<Array> {
         // advance the sequence position
         next.sequenceIndex += 1
         
-        if isContiguous {
+        if isSequential {
             next.stridedPosition[lastDim] += strides[lastDim]
 
         } else {
@@ -174,8 +177,9 @@ public extension ShapeProtocol {
     typealias Tuple = Self.Array.Storage
 
     @inlinable
-    init(extents: Tuple, strides: Tuple? = nil) {
-        self.init(extents: Array(extents), strides: Array(strides))
+    init(extents: Tuple) {
+        self.init(extents: Array(extents), strides: Array(nil),
+                  isSequential: true)
     }
     
     //--------------------------------------------------------------------------
@@ -222,7 +226,9 @@ public extension ShapeProtocol {
     //--------------------------------------------------------------------------
     // init(extents:
     @inlinable
-    init(extents: Array) { self.init(extents: extents, strides: nil) }
+    init(extents: Array) {
+        self.init(extents: extents, strides: nil, isSequential: true)
+    }
 
     //--------------------------------------------------------------------------
     // init(expanding:
@@ -255,7 +261,8 @@ public extension ShapeProtocol {
                 otherAxis += 1
             }
         }
-        self.init(extents: newExtents, strides: newStrides)
+        self.init(extents: newExtents, strides: newStrides,
+                  isSequential: other.isSequential)
     }
 
     //--------------------------------------------------------------------------
@@ -276,7 +283,9 @@ public extension ShapeProtocol {
         for i in 0..<start {
             newStrides[i] = other.strides[0]
         }
-        self.init(extents: newExtents, strides: newStrides)
+        
+        self.init(extents: newExtents, strides: newStrides,
+                  isSequential: other.isSequential)
     }
     
     //--------------------------------------------------------------------------
@@ -293,7 +302,8 @@ public extension ShapeProtocol {
             newExtents[i] = other.extents[i]
             newStrides[i] = other.strides[i]
         }
-        self.init(extents: newExtents, strides: newStrides)
+        self.init(extents: newExtents, strides: newStrides,
+                  isSequential: other.isSequential)
     }
     
     //--------------------------------------------------------------------------
@@ -320,7 +330,8 @@ public extension ShapeProtocol {
             newStrides[axis] = other.strides[otherAxis]
             axis += 1
         }
-        self.init(extents: newExtents, strides: newStrides)
+        self.init(extents: newExtents, strides: newStrides,
+                  isSequential: other.isSequential)
     }
     
     //--------------------------------------------------------------------------
@@ -393,7 +404,8 @@ public extension ShapeProtocol {
     @inlinable
     func contains(index: Array, extents: Array) -> Bool {
         linearIndex(of: index) +
-            Self(extents: extents, strides: strides).spanCount <= spanCount
+            Self(extents: extents, strides: self.strides,
+                 isSequential: self.isSequential).spanCount <= spanCount
     }
 
     //--------------------------------------------------------------------------
@@ -407,7 +419,7 @@ public extension ShapeProtocol {
         cmExtent.swapAt(rank-1, rank-2)
         var cmStrides = Self.denseStrides(cmExtent)
         cmStrides.swapAt(rank-1, rank-2)
-        return Self(extents: extents, strides: cmStrides)
+        return Self(extents: extents, strides: cmStrides, isSequential: false)
     }
     
     //--------------------------------------------------------------------------
@@ -430,7 +442,8 @@ public extension ShapeProtocol {
         for i in 0..<rank where repeatedExtents[i] == extents[i] {
             repeatedStrides[i] = strides[i]
         }
-        return Self(extents: repeatedExtents, strides: repeatedStrides)
+        return Self(extents: repeatedExtents, strides: repeatedStrides,
+                    isSequential: false)
     }
 
     //--------------------------------------------------------------------------
@@ -461,7 +474,9 @@ public extension ShapeProtocol {
             newExtents.swapAt(r1, r2)
             newStrides.swapAt(r1, r2)
         }
-        return Self(extents: newExtents, strides: newStrides)
+        
+        return Self(extents: newExtents, strides: newStrides,
+                    isSequential: false)
     }
 
     //--------------------------------------------------------------------------
@@ -485,16 +500,18 @@ public struct Shape1: ShapeProtocol {
 
     // properties
     public let count: Int
-    public let spanCount: Int
     public let extents: Array
+    public let isSequential: Bool
+    public let spanCount: Int
     public let strides: Array
     @inlinable public var endIndex: Index { count }
 
     @inlinable
-    public init(extents: Array, strides: Array? = nil) {
-        self.extents = extents
-        self.strides = strides ?? Self.denseStrides(extents)
+    public init(extents: Array, strides: Array? = nil, isSequential: Bool) {
         self.count = extents[0]
+        self.extents = extents
+        self.isSequential = isSequential
+        self.strides = strides ?? Self.denseStrides(extents)
         self.spanCount = Self.computeSpanCount(self.extents, self.strides)
     }
 
@@ -525,15 +542,17 @@ public struct Shape2: ShapeProtocol {
 
     // properties
     public let count: Int
-    public let spanCount: Int
     public let extents: Array
+    public let isSequential: Bool
+    public let spanCount: Int
     public let strides: Array
     
     @inlinable
-    public init(extents: Array, strides: Array? = nil) {
-        self.extents = extents
-        self.strides = strides ?? Self.denseStrides(extents)
+    public init(extents: Array, strides: Array? = nil, isSequential: Bool) {
         self.count = extents.reduce(1, *)
+        self.extents = extents
+        self.isSequential = isSequential
+        self.strides = strides ?? Self.denseStrides(extents)
         self.spanCount = Self.computeSpanCount(self.extents, self.strides)
     }
 
@@ -562,16 +581,18 @@ public struct Shape3: ShapeProtocol {
 
     // properties
     public let count: Int
-    public let spanCount: Int
     public let extents: Array
+    public let isSequential: Bool
+    public let spanCount: Int
     public let strides: Array
 
     @inlinable
-    public init(extents: Array, strides: Array? = nil) {
+    public init(extents: Array, strides: Array? = nil, isSequential: Bool) {
+        self.count = extents.reduce(1, *)
         self.extents = extents
+        self.isSequential = isSequential
         self.strides = strides ?? Self.denseStrides(extents)
-        count = extents.reduce(1, *)
-        spanCount = Self.computeSpanCount(self.extents, self.strides)
+        self.spanCount = Self.computeSpanCount(self.extents, self.strides)
     }
     
     //--------------------------------------------------------------------------
@@ -603,15 +624,17 @@ public struct Shape4: ShapeProtocol {
     // properties
     public let count: Int
     public let spanCount: Int
+    public let isSequential: Bool
     public let extents: Array
     public let strides: Array
     
     @inlinable
-    public init(extents: Array, strides: Array? = nil) {
+    public init(extents: Array, strides: Array? = nil, isSequential: Bool) {
+        self.count = extents.reduce(1, *)
         self.extents = extents
+        self.isSequential = isSequential
         self.strides = strides ?? Self.denseStrides(extents)
-        count = extents.reduce(1, *)
-        spanCount = Self.computeSpanCount(self.extents, self.strides)
+        self.spanCount = Self.computeSpanCount(self.extents, self.strides)
     }
     
     //--------------------------------------------------------------------------
@@ -643,16 +666,18 @@ public struct Shape5: ShapeProtocol {
 
     // properties
     public let count: Int
-    public let spanCount: Int
     public let extents: Array
+    public let isSequential: Bool
+    public let spanCount: Int
     public let strides: Array
     
     @inlinable
-    public init(extents: Array, strides: Array? = nil) {
+    public init(extents: Array, strides: Array? = nil, isSequential: Bool) {
+        self.count = extents.reduce(1, *)
         self.extents = extents
+        self.isSequential = isSequential
         self.strides = strides ?? Self.denseStrides(extents)
-        count = extents.reduce(1, *)
-        spanCount = Self.computeSpanCount(self.extents, self.strides)
+        self.spanCount = Self.computeSpanCount(self.extents, self.strides)
     }
     
     //--------------------------------------------------------------------------
