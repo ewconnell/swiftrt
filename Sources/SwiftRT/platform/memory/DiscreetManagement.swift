@@ -93,6 +93,7 @@ public protocol DiscreetMemoryManagement: MemoryManagement {
 public extension DiscreetMemoryManagement where Self: PlatformService {
     //--------------------------------------------------------------------------
     // bufferName
+    @inlinable
     func bufferName(_ ref: BufferRef) -> String {
         assert(deviceBuffers[ref.id] != nil, "Invalid BufferRef")
         return deviceBuffers[ref.id]!.name
@@ -100,6 +101,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
     
     //--------------------------------------------------------------------------
     // createBuffer
+    @inlinable
     func createBuffer<Element>(of type: Element.Type, count: Int, name: String)
         -> BufferRef
     {
@@ -112,6 +114,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
     
     //--------------------------------------------------------------------------
     // createBuffer
+    @inlinable
     func createBuffer<Shape, Stream>(block shape: Shape, bufferedBlocks: Int,
                                      stream: Stream) -> (BufferRef, Int)
         where Shape : ShapeProtocol, Stream : BufferStream
@@ -121,6 +124,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
     
     //--------------------------------------------------------------------------
     // cachedBuffer
+    @inlinable
     func cachedBuffer<Element>(for element: Element) -> BufferRef
     {
         fatalError()
@@ -129,6 +133,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
     //--------------------------------------------------------------------------
     // createReference
     // create the DeviceBuffer record and add it to the dictionary
+    @inlinable
     func createReference<Element>(to buffer: UnsafeBufferPointer<Element>,
                                   name: String) -> BufferRef
     {
@@ -151,6 +156,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
     //--------------------------------------------------------------------------
     // createMutableReference
     // create the DeviceBuffer record and add it to the dictionary
+    @inlinable
     func createMutableReference<Element>(
         to buffer: UnsafeMutableBufferPointer<Element>,
         name: String) -> BufferRef
@@ -170,18 +176,21 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
     
     //--------------------------------------------------------------------------
     // duplicate
+    @inlinable
     func duplicate(_ ref: BufferRef, using queue: QueueId) -> BufferRef {
         fatalError()
     }
     
     //--------------------------------------------------------------------------
     // release
+    @inlinable
     func release(_ ref: BufferRef) {
         deviceBuffers[ref.id]!.deallocate()
     }
     
     //--------------------------------------------------------------------------
     // read
+    @inlinable
     func read<Element>(_ ref: BufferRef, of type: Element.Type,
                        at offset: Int, count: Int, using queueId: QueueId)
         -> UnsafeBufferPointer<Element>
@@ -195,6 +204,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
     
     //--------------------------------------------------------------------------
     // readWrite
+    @inlinable
     func readWrite<Element>(_ ref: BufferRef, of type: Element.Type,
                             at offset: Int, count: Int, willOverwrite: Bool,
                             using queueId: QueueId)
@@ -213,6 +223,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
     /// migrate
     /// Migrates the master version of the data from wherever it is to
     /// the device associated with `queue` and returns a pointer to the data
+    @inlinable
     func migrate<Element>(_ ref: BufferRef, of type: Element.Type,
                           readOnly: Bool, using queueId: QueueId)
         -> UnsafeMutableBufferPointer<Element>

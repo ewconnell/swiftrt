@@ -143,6 +143,7 @@ extension StaticArray: Codable where Element: Codable {
     enum CodingKeys: String, CodingKey { case data }
     
     /// encodes the contents of the array
+    @inlinable
     public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         try forEach {
@@ -152,6 +153,7 @@ extension StaticArray: Codable where Element: Codable {
     
     // TODO: do a perf test to see if the ManagedBuffer class is faster
     // than using ContiguousArray
+    @inlinable
     public init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
         let rank = MemoryLayout<Storage>.size / MemoryLayout<Element>.size

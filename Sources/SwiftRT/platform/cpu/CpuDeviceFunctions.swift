@@ -20,6 +20,7 @@ import Real
 // DeviceQueue default implementations
 // TODO: investigate use of SIMD for cpu_mapOps
 public extension DeviceFunctions where Self: DeviceQueue {
+    @inlinable
     func cpu_abs<T, R>(_ x: T, _ result: inout R) where
         T: Collection, T.Element: Real,
         R: MutableCollection, R.Element == T.Element
@@ -27,6 +28,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(x, &result) { Swift.abs($0) }
     }
     
+    @inlinable
     func cpu_add<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element: AdditiveArithmetic,
         R: MutableCollection, R.Element == T.Element
@@ -34,6 +36,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result, +)
     }
     
+    @inlinable
     func cpu_and<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element == Bool,
         R: MutableCollection, R.Element == Bool
@@ -41,6 +44,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result) { $0 && $1 }
     }
     
+    @inlinable
     func cpu_cast<T, R>(from buffer: T, to result: inout R) where
         T: Collection, T.Element: AnyConvertable,
         R: MutableCollection, R.Element: AnyConvertable
@@ -48,6 +52,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(buffer, &result) { R.Element(any: $0) }
     }
 
+    @inlinable
     func cpu_copy<T, R>(from x: T, to result: inout R) where
         T: Collection,
         R: MutableCollection, R.Element == T.Element
@@ -55,11 +60,13 @@ public extension DeviceFunctions where Self: DeviceQueue {
         zip(result.indices, x).forEach { result[$0] = $1 }
     }
     
+    @inlinable
     func cpu_delay(atLeast interval: TimeInterval) {
         assert(Thread.current === creatorThread, _messageQueueThreadViolation)
         Thread.sleep(forTimeInterval: interval)
     }
 
+    @inlinable
     func cpu_div<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element: AlgebraicField,
         R: MutableCollection, R.Element == T.Element
@@ -67,6 +74,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result, /)
     }
 
+    @inlinable
     func cpu_elementsAlmostEqual<T, R>(_ lhs: T, _ rhs: T,
                                        _ tolerance: T.Element,
                                        _ result: inout R) where
@@ -76,6 +84,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result) { Swift.abs($0 - $1) <= tolerance }
     }
 
+    @inlinable
     func cpu_equal<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element: Equatable,
         R: MutableCollection, R.Element == Bool
@@ -83,6 +92,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result, ==)
     }
 
+    @inlinable
     func cpu_exp<T, R>(_ x: T, _ result: inout R) where
         T: Collection, T.Element: Real,
         R: MutableCollection, R.Element == T.Element
@@ -90,12 +100,14 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(x, &result) { .exp($0) }
     }
 
+    @inlinable
     func cpu_fill<Element, R>(_ result: inout R, with element: Element) where
         R: MutableCollection, R.Element == Element
     {
         cpu_inPlaceOp(&result) { _ in element }
     }
 
+    @inlinable
     func cpu_fill<T, R>(_ result: inout R, with range: T) where
         T: StridedRangeExpression & Collection,
         R: MutableCollection, R.Element == T.Element
@@ -103,6 +115,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(range, &result) { $0 }
     }
 
+    @inlinable
     func cpu_greater<T, R>(_ lhs: T, _ rhs: T, _ result: inout R)
         where T: Collection, T.Element: Comparable,
         R: MutableCollection, R.Element == Bool
@@ -110,6 +123,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result, >)
     }
 
+    @inlinable
     func cpu_greaterOrEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element: Comparable,
         R: MutableCollection, R.Element == Bool
@@ -117,6 +131,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result, >=)
     }
 
+    @inlinable
     func cpu_less<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element: Comparable,
         R: MutableCollection, R.Element == Bool
@@ -124,6 +139,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result, <)
     }
 
+    @inlinable
     func cpu_lessOrEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element: Comparable,
         R: MutableCollection, R.Element == Bool
@@ -131,6 +147,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result, <=)
     }
 
+    @inlinable
     func cpu_log<T, R>(_ x: T, _ result: inout R) where
         T: Collection, T.Element: Real,
         R: MutableCollection, R.Element == T.Element
@@ -138,6 +155,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(x, &result) { .log($0) }
     }
 
+    @inlinable
     func cpu_max<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element: Comparable,
         R: MutableCollection, R.Element == T.Element
@@ -145,6 +163,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result) { $0 >= $1 ? $0 : $1 }
     }
 
+    @inlinable
     func cpu_min<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element: Comparable,
         R: MutableCollection, R.Element == T.Element
@@ -152,6 +171,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result) { $0 <= $1 ? $0 : $1 }
     }
 
+    @inlinable
     func cpu_mul<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element: Numeric,
         R: MutableCollection, R.Element == T.Element
@@ -159,6 +179,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result, *)
     }
 
+    @inlinable
     func cpu_neg<T, R>(_ x: T, _ result: inout R) where
         T: Collection, T.Element: SignedNumeric,
         R: MutableCollection, R.Element == T.Element
@@ -166,6 +187,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(x, &result, -)
     }
 
+    @inlinable
     func cpu_notEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element: Equatable,
         R: MutableCollection, R.Element == Bool
@@ -173,6 +195,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result, !=)
     }
 
+    @inlinable
     func cpu_or<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element == Bool,
         R: MutableCollection, R.Element == Bool
@@ -180,6 +203,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result) { $0 || $1 }
     }
 
+    @inlinable
     func cpu_pow<T, R>(_ x: T, _ y: T, _ result: inout R) where
         T: Collection, T.Element: Real,
         R: MutableCollection, R.Element == T.Element
@@ -187,6 +211,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(x, y, &result) { .pow($0, $1) }
     }
 
+    @inlinable
     func cpu_replace<T, C, R>(_ x: T, _ y: T, _ condition: C,
                               _ result: inout R) where
         T: Collection,
@@ -196,6 +221,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(condition, y, x, &result) { $0 ? $1 : $2 }
     }
 
+    @inlinable
     func cpu_sign<T, R>(_ x: T, _ result: inout R) where
         T: Collection, T.Element: Real,
         R: MutableCollection, R.Element == T.Element
@@ -203,6 +229,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(x, &result) { $0 < 0 ? -1 : 1 }
     }
 
+    @inlinable
     func cpu_subtract<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: Collection, T.Element: AdditiveArithmetic,
         R: MutableCollection, R.Element == T.Element
@@ -210,6 +237,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(lhs, rhs, &result, -)
     }
 
+    @inlinable
     func cpu_sqrt<T, R>(_ x: T, _ result: inout R) where
         T: Collection, T.Element: Real,
         R: MutableCollection, R.Element == T.Element
@@ -217,6 +245,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(x, &result) { .sqrt($0) }
     }
 
+    @inlinable
     func cpu_squared<T, R>(_ x: T, _ result: inout R) where
         T: Collection, T.Element: Numeric,
         R: MutableCollection, R.Element == T.Element
@@ -224,6 +253,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(x, &result) { $0 * $0 }
     }
 
+    @inlinable
     func cpu_reduce<T, R>(_ x: T,
                           _ result: inout R,
                           _ opId: ReductionOp,
@@ -255,7 +285,6 @@ public extension DeviceFunctions where Self: DeviceQueue {
 public extension DeviceFunctions where Self: DeviceQueue {
     /// vjpMinMax
     @inlinable
-    
     func cpu_vjpMinMax<T, R>(
         _ x: T, _ y: T, _ scale: T,
         _ op: @escaping (T.Element, T.Element) -> Bool,

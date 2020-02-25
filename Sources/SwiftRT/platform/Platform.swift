@@ -241,6 +241,8 @@ public enum MemoryType {
 public struct QueueId {
     public let device: Int
     public let queue: Int
+    
+    @inlinable
     public init(_ device: Int, _ queue: Int) {
         self.device = device
         self.queue = queue
@@ -249,6 +251,7 @@ public struct QueueId {
 
 //==============================================================================
 // assert messages
+@usableFromInline
 let _messageQueueThreadViolation =
 "a queue can only be accessed by the thread that created it"
 

@@ -23,6 +23,7 @@ import Complex
 //    RealType: Differentiable,
 //    RealType.TangentVector == RealType
 //{
+//    @inlinable
 //    @derivative(of: init(_:_:))
 //    static func _vjpInit(real: RealType, imaginary: RealType) ->
 //        (value: Complex, pullback: (Complex) -> (RealType, RealType))

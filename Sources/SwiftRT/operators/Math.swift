@@ -304,6 +304,7 @@ public extension TensorView where Element: Numeric {
 
 /// Numeric extension for scalar types
 public extension Numeric {
+    @inlinable
     func squared() -> Self { self * self }
 }
 

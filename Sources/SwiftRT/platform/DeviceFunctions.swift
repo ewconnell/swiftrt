@@ -208,6 +208,7 @@ public protocol DeviceFunctions {
 // DeviceQueue default cpu delegating implementations
 public extension DeviceFunctions where Self: DeviceQueue {
     /// abs
+    @inlinable
     func abs<T, R>(_ x: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -216,6 +217,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// add
+    @inlinable
     func add<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: AdditiveArithmetic,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -224,6 +226,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// and
+    @inlinable
     func and<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element == Bool,
         R: MutableShapedBuffer, R.Element == Bool
@@ -232,6 +235,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// cast
+    @inlinable
     func cast<T, R>(from buffer: T, to result: inout R) where
         T: ShapedBuffer, T.Element: AnyConvertable,
         R: MutableShapedBuffer, R.Element: AnyConvertable
@@ -240,6 +244,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// copy
+    @inlinable
     func copy<T, R>(from x: T, to result: inout R) where
         T: ShapedBuffer,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -248,12 +253,14 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
     
     /// delay
+    @inlinable
     func delay(_ interval: TimeInterval)
     {
         cpu_delay(atLeast: interval)
     }
 
     /// div
+    @inlinable
     func div<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: AlgebraicField,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -262,6 +269,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// elementsAlmostEqual
+    @inlinable
     func elementsAlmostEqual<T, R>(_ lhs: T, _ rhs: T,
                                    _ tolerance: T.Element,
                                    _ result: inout R) where
@@ -272,6 +280,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// equal
+    @inlinable
     func equal<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Equatable,
         R: MutableShapedBuffer, R.Element == Bool
@@ -280,6 +289,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// exp
+    @inlinable
     func exp<T, R>(_ x: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -288,6 +298,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// fill(result:with element:
+    @inlinable
     func fill<Element, R>(_ result: inout R, with element: Element) where
         R: MutableShapedBuffer, R.Element == Element
     {
@@ -295,6 +306,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// fill(result:with range:
+    @inlinable
     func fill<T, R>(_ result: inout R, with range: T) where
         T: StridedRangeExpression & Collection,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -303,6 +315,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// greater
+    @inlinable
     func greater<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Comparable,
         R: MutableShapedBuffer, R.Element == Bool
@@ -311,6 +324,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// greaterOrEqual
+    @inlinable
     func greaterOrEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Comparable,
         R: MutableShapedBuffer, R.Element == Bool
@@ -319,6 +333,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// less
+    @inlinable
     func less<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Comparable,
         R: MutableShapedBuffer, R.Element == Bool
@@ -327,6 +342,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// lessOrEqual
+    @inlinable
     func lessOrEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Comparable,
         R: MutableShapedBuffer, R.Element == Bool
@@ -335,6 +351,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// log
+    @inlinable
     func log<T, R>(_ x: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -343,6 +360,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// Computes the element-wise maximum of two tensors.
+    @inlinable
     func max<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Comparable,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -351,6 +369,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// Computes the element-wise minimum of two tensors.
+    @inlinable
     func min<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Comparable,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -359,6 +378,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// mul
+    @inlinable
     func mul<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Numeric,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -368,6 +388,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
 
     /// neg
     /// returns the element-wise negation of `x`
+    @inlinable
     func neg<T, R>(_ x: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: SignedNumeric,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -376,6 +397,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// notEqual
+    @inlinable
     func notEqual<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Equatable,
         R: MutableShapedBuffer, R.Element == Bool
@@ -384,6 +406,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// or
+    @inlinable
     func or<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element == Bool,
         R: MutableShapedBuffer, R.Element == Bool
@@ -392,6 +415,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// pow
+    @inlinable
     func pow<T, R>(_ x: T, _ y: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -400,6 +424,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// replace
+    @inlinable
     func replace<T, C, R>(_ x: T, _ y: T, _ condition: C,
                           _ result: inout R) where
         T: ShapedBuffer,
@@ -410,6 +435,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// sign
+    @inlinable
     func sign<T, R>(_ x: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -418,6 +444,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// subtract
+    @inlinable
     func subtract<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: AdditiveArithmetic,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -426,6 +453,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// sqrt
+    @inlinable
     func sqrt<T, R>(_ x: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -434,6 +462,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     }
 
     /// squared
+    @inlinable
     func squared<T, R>(_ x: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Numeric,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -449,6 +478,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
     /// - Parameter opNext: the operation to perform on pairs of elements
     /// - Parameter opFinal: the operation to perform on the final result
     /// - Precondition: Each value in `axes` must be in the range `-rank..<rank`.
+    @inlinable
     func reduce<T, R>(_ x: T,
                    _ result: inout R,
                    _ opId: ReductionOp,
@@ -465,6 +495,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
 // DeviceQueue default derivative implementations
 public extension DeviceFunctions where Self: DeviceQueue {
     /// vjpMinMax
+    @inlinable
     func vjpMinMax<T, R>(
         _ x: T, _ y: T, _ scale: T,
         _ op: @escaping (T.Element, T.Element) -> Bool,

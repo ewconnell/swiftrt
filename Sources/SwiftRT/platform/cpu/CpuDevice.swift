@@ -51,6 +51,7 @@ public struct CpuDevice<Queue>: ServiceDevice
 
     //--------------------------------------
     // allocate
+    @inlinable
     public func allocate(byteCount: Int, heapIndex: Int) -> DeviceMemory {
         // allocate a host memory buffer
         let buffer = UnsafeMutableRawBufferPointer.allocate(

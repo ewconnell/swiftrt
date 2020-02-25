@@ -161,6 +161,7 @@ public class BufferRef: Equatable {
     public var name: String { Platform.service.bufferName(self) }
 
     // Equatable conformance
+    @inlinable
     public static func == (lhs: BufferRef, rhs: BufferRef) -> Bool {
         lhs.id == rhs.id
     }

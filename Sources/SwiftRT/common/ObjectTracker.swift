@@ -36,6 +36,8 @@ public final class ObjectTracker {
         public let namePath: String?
 		public let supplementalInfo: String?
         public let typeName: String
+        
+        @inlinable
         public init(isStatic: Bool, namePath: String?,
                     supplementalInfo: String?, typeName: String) {
             self.isStatic = isStatic

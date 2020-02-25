@@ -61,6 +61,7 @@ public struct CudaDevice: ServiceDevice {
     public let name: String
     public var queues: [CudaQueue]
 
+    @inlinable
     public init(parent parentLogInfo: LogInfo, id: Int) {
         self.id = id
         self.name = "gpu:\(id)"
@@ -78,6 +79,7 @@ public struct CudaDevice: ServiceDevice {
         }
     }
 
+    @inlinable
     public func allocate(byteCount: Int, heapIndex: Int) -> DeviceMemory {
         // TODO
         let buffer = UnsafeMutableRawBufferPointer(start: nil, count: byteCount)
@@ -119,18 +121,22 @@ public struct CudaQueue: DeviceQueue, DeviceFunctions {
 
     //--------------------------------------------------------------------------
     // protocol functions
+    @inlinable
     public func createEvent(options: QueueEventOptions) -> QueueEvent {
         fatalError()
     }
     
+    @inlinable
     public func record(event: QueueEvent) -> QueueEvent {
         fatalError()
     }
     
+    @inlinable
     public func wait(for event: QueueEvent) {
         fatalError()
     }
     
+    @inlinable
     public func waitUntilQueueIsComplete() {
         fatalError()
     }
