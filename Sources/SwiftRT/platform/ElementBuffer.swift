@@ -96,8 +96,12 @@ public struct MutableElementBuffer<Element, Shape>: MutableShapedBuffer
 
     @inlinable
     public subscript(index: Index) -> Element {
-        get { bufferPointer[shape[index]] }
-        set { bufferPointer[shape[index]] = newValue }
+        get {
+            bufferPointer[shape[index]]
+        }
+        set {
+            bufferPointer[shape[index]] = newValue
+        }
     }
 }
 

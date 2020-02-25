@@ -362,11 +362,14 @@ public extension TensorView {
                         offset: 0, shared: false)
         }()
         
-        // copy the collection into the tensor buffer
+        // copy the elements into the tensor buffer bypassing indexing
         assert(tensor.isUniquelyReference())
-        var buffer = Platform.service.write(&tensor, willOverwrite: true)
-        zip(buffer.indices, elements).forEach { buffer[$0] = $1 }
-        
+        let buffer = Platform.service.write(&tensor, willOverwrite: true)
+        assert(buffer.count == elements.count)
+
+        for (i, element) in zip(0..<buffer.count, elements) {
+            buffer.bufferPointer[i] = element
+        }
         return tensor
     }
 }
