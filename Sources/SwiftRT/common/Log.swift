@@ -372,6 +372,7 @@ public enum LogColor: String {
     case boldWhite   = "\u{1b}[1;37m"
 }
 
+@inlinable
 public func setText(_ text: String, color: LogColor) -> String {
     #if os(Linux)
     return color.rawValue + text + LogColor.reset.rawValue
