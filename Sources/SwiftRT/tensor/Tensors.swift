@@ -337,8 +337,8 @@ public extension MatrixView {
                  extents: Shape.ones, strides: Shape.ones).element
         }
         set {
-            var single = view(at: makePositive(index: (r, c)),
-                              extents: Shape.ones, strides: Shape.ones)
+            var single = sharedView(at: makePositive(index: (r, c)),
+                                    extents: Shape.ones, strides: Shape.ones)
             single.element = newValue
         }
     }

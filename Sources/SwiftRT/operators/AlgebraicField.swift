@@ -32,10 +32,10 @@ public extension PlatformService {
     func add<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AdditiveArithmetic
     {
-        let (lhs, rhs) = implicitlyMatchExtents(lhs, rhs)
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-        var (result, resultBuffer) = createResult(like: lhs)
-        currentQueue.add(read(lhs), read(rhs), &resultBuffer)
+        let (left, right) = implicitlyMatchExtents(lhs, rhs)
+        assert(left.extents == right.extents, _messageTensorExtentsMismatch)
+        var (result, resultBuffer) = createResult(like: left)
+        currentQueue.add(read(left), read(right), &resultBuffer)
         return result
     }
     
@@ -112,10 +112,10 @@ public extension PlatformService {
     func subtract<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AdditiveArithmetic
     {
-        let (lhs, rhs) = implicitlyMatchExtents(lhs, rhs)
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-        var (result, resultBuffer) = createResult(like: lhs)
-        currentQueue.subtract(read(lhs), read(rhs), &resultBuffer)
+        let (left, right) = implicitlyMatchExtents(lhs, rhs)
+        assert(left.extents == right.extents, _messageTensorExtentsMismatch)
+        var (result, resultBuffer) = createResult(like: left)
+        currentQueue.subtract(read(left), read(right), &resultBuffer)
         return result
     }
     
@@ -188,10 +188,10 @@ public extension PlatformService {
     func mul<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: Numeric
     {
-        let (lhs, rhs) = implicitlyMatchExtents(lhs, rhs)
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-        var (result, resultBuffer) = createResult(like: lhs)
-        currentQueue.mul(read(lhs), read(rhs), &resultBuffer)
+        let (left, right) = implicitlyMatchExtents(lhs, rhs)
+        assert(left.extents == right.extents, _messageTensorExtentsMismatch)
+        var (result, resultBuffer) = createResult(like: left)
+        currentQueue.mul(read(left), read(right), &resultBuffer)
         return result
     }
     
@@ -271,10 +271,10 @@ public extension PlatformService {
     func div<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AlgebraicField
     {
-        let (lhs, rhs) = implicitlyMatchExtents(lhs, rhs)
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
-        var (result, resultBuffer) = createResult(like: lhs)
-        currentQueue.div(read(lhs), read(rhs), &resultBuffer)
+        let (left, right) = implicitlyMatchExtents(lhs, rhs)
+        assert(left.extents == right.extents, _messageTensorExtentsMismatch)
+        var (result, resultBuffer) = createResult(like: left)
+        currentQueue.div(read(left), read(right), &resultBuffer)
         return result
     }
     

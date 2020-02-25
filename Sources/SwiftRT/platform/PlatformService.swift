@@ -92,7 +92,7 @@ public extension PlatformService {
             // the reference is not unique so a copy of the array must be made
             diagnostic("\(mutationString) " +
                 "\(tensor.name)(\(tensor.bufferRef.id)) " +
-                " \(T.Element.self)[\(tensor.count)]",
+                "\(T.Element.self)[\(tensor.count)]",
                 categories: [.dataCopy, .dataMutation])
             
             // replace device buffer with expanded

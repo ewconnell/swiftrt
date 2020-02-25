@@ -163,13 +163,17 @@ class test_Subscripting: XCTestCase {
         let v = Vector(with: 0..<10)
 
         // simple range selection
-        let ones = Vector(repeating: 1, like: v)
-        let g = pullback(at: v[1..<3], in: { exp($0) })(ones)
-        XCTAssert(g == [])
+        let range = v[1..<3]
+        let ones = Vector(repeating: 1, like: range)
+        let g = pullback(at: range, in: { exp($0) })(ones)
+        XCTAssert(g == [2.7182817, 7.389056])
 
         // test expression gradient
-        let g2 = pullback(at: v[2...] - v[1..<-1], in: { exp($0) })(ones)
-        XCTAssert(g2 == [])
+        let range2 = v[2...] - v[1..<-1]
+        let ones2 = Vector(repeating: 1, like: range2)
+        let g2 = pullback(at: range2, in: { exp($0) })(ones2)
+        XCTAssert(g2 == [2.7182817, 2.7182817, 2.7182817, 2.7182817,
+                         2.7182817, 2.7182817, 2.7182817, 2.7182817])
     }
 
     //==========================================================================
@@ -213,6 +217,7 @@ class test_Subscripting: XCTestCase {
     //--------------------------------------------------------------------------
     // test_VectorWriteRange
     func test_VectorWriteRange() {
+        Platform.log.level = .diagnostic
         var v1 = Vector(with: 0...6)
         let sevens = Vector(with: repeatElement(7, count: 3))
         v1[2...4] = sevens
@@ -221,6 +226,7 @@ class test_Subscripting: XCTestCase {
         let v2 = Vector(with: 1...6)
         let ones = Vector(repeating: 1, like: v2)
         let g = pullback(at: v2, in: { exp($0) })(ones)
-        XCTAssert(g == [])
+        XCTAssert(g == [2.7182817, 7.389056, 20.085537,
+                        54.59815, 148.41316, 403.4288])
     }
 }

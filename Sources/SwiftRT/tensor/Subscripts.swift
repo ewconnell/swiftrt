@@ -25,9 +25,9 @@ public extension TensorView where Self: VectorView {
                  extents: Shape.ones, strides: Shape.ones).element
         }
         set {
-            var subview = view(at: makePositive(index: (index)),
-                               extents: Shape.ones, strides: Shape.ones)
-            subview.element = newValue
+            var view = sharedView(at: makePositive(index: (index)),
+                                  extents: Shape.ones, strides: Shape.ones)
+            view.element = newValue
         }
     }
     
@@ -170,8 +170,8 @@ public extension TensorView {
         }
         set {
             let (extents, strides) = getExtents(lower, upper, steps)
-            var subview = view(at: lower, extents: extents, strides: strides)
-            Platform.service.copy(from: newValue, to: &subview)
+            var view = sharedView(at: lower, extents: extents, strides: strides)
+            Platform.service.copy(from: newValue, to: &view)
         }
     }
 }
