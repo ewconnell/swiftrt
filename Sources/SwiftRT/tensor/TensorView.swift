@@ -78,8 +78,7 @@ public extension TensorView {
     mutating func mutableElementBuffer(willOverwrite: Bool = true)
         -> MutableElementBuffer<Element, Shape>
     {
-        Platform.service.write(&self, willOverwrite: willOverwrite,
-                               copyIfNotDense: true)
+        Platform.service.write(&self, willOverwrite: willOverwrite)
     }
 }
 

@@ -361,8 +361,7 @@ public extension TensorView {
         
         // copy the collection into the tensor buffer
         assert(tensor.isUniquelyReference())
-        var buffer = Platform.service.write(&tensor, willOverwrite: true,
-                                            copyIfNotDense: false)
+        var buffer = Platform.service.write(&tensor, willOverwrite: true)
         zip(buffer.indices, elements).forEach { buffer[$0] = $1 }
         
         return tensor

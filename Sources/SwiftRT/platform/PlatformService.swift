@@ -66,30 +66,13 @@ public extension PlatformService {
     /// gains synchronized read write access to the tensor `bufferRef`
     /// - Parameter tensor: the tensor to read
     /// - Parameter willOverwrite: `true` if all elements will be written
-    /// - Parameter copyIfNotDense: `true` copies the tensor if it does not
-    /// have dense strides or is repeated.
     /// - Returns: an `ElementBuffer` that can be used to iterate the shape
     @inlinable
-    func write<T>(_ tensor: inout T,
-                  willOverwrite: Bool = true,
-                  copyIfNotDense: Bool = true)
+    func write<T>(_ tensor: inout T, willOverwrite: Bool = true)
         -> MutableElementBuffer<T.Element, T.Shape> where T: TensorView
     {
-        // check if we need to expand a write to a repeated shape
-        // this can happen when writing through a subscript to a repeated shape
-        if copyIfNotDense && tensor.spanCount < tensor.count {
-            diagnostic("\(realizeString) " +
-                "\(tensor.name)(\(tensor.bufferRef.id)) " +
-                "storage: \(T.Element.self)[\(tensor.spanCount)] " +
-                "-> storage: \(T.Element.self)[\(tensor.count)]",
-                categories: [.dataCopy, .dataRealize])
-            
-            // replace device buffer with expanded
-            tensor.bufferRef = duplicate(tensor.bufferRef,
-                                             using: currentQueueId)
-            
-        } else if !tensor.shared && !tensor.isUniquelyReference() {
-            // the reference is not unique so a copy of the array must be made
+        // check for copy on write
+        if !tensor.shared && !tensor.isUniquelyReference() {
             diagnostic("\(mutationString) " +
                 "\(tensor.name)(\(tensor.bufferRef.id)) " +
                 "\(T.Element.self)[\(tensor.count)]",

@@ -35,7 +35,7 @@ public protocol PlatformAPI: MemoryManagement, Logger {
 
     /// `write`
     /// prepares write access of a tensor before queuing an operation
-    func write<T>(_ tensor: inout T, willOverwrite: Bool, copyIfNotDense: Bool)
+    func write<T>(_ tensor: inout T, willOverwrite: Bool)
         -> MutableElementBuffer<T.Element, T.Shape> where T: TensorView
 
     //--------------------------------------------------------------------------
@@ -243,16 +243,6 @@ public protocol PlatformAPI: MemoryManagement, Logger {
 
     func _vjpSum<T>(_ x: T, alongAxes: Set<Int>?)
         -> (value: T, pullback: (T) -> T) where T: DifferentiableTensorView
-}
-
-//==============================================================================
-// PlatformAPI extensions
-public extension PlatformAPI {
-    func write<T>(_ tensor: inout T, willOverwrite: Bool)
-        -> MutableElementBuffer<T.Element, T.Shape> where T: TensorView
-    {
-        write(&tensor, willOverwrite: willOverwrite, copyIfNotDense: true)
-    }
 }
 
 //==============================================================================

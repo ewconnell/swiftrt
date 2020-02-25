@@ -337,6 +337,7 @@ public extension MatrixView {
                  extents: Shape.ones, strides: Shape.ones).element
         }
         set {
+            expandSelfIfRepeated()
             var single = sharedView(at: makePositive(index: (r, c)),
                                     extents: Shape.ones, strides: Shape.ones)
             single.element = newValue

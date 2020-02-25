@@ -25,6 +25,7 @@ public extension TensorView where Self: VectorView {
                  extents: Shape.ones, strides: Shape.ones).element
         }
         set {
+            expandSelfIfRepeated()
             var view = sharedView(at: makePositive(index: (index)),
                                   extents: Shape.ones, strides: Shape.ones)
             view.element = newValue
@@ -85,6 +86,30 @@ public extension TensorView {
 
 //==============================================================================
 public extension TensorView {
+    //--------------------------------------------------------------------------
+    /// makeDense(view:
+    /// if the view is already dense, then noop. If the view is repeated,
+    /// then the view virtual elements are realized and the view is converted
+    /// to dense.
+    // Note: This is not part of mutableView, because there are cases
+    // where we want to interact with a repeated view, such as in reductions
+    @inlinable
+    mutating func expandSelfIfRepeated() {
+        guard spanCount < count else { return }
+
+        // report
+        diagnostic("\(expandingString) " +
+            "\(name)(\(bufferRef.id)) " +
+            "storage: \(Element.self)[\(spanCount)] " +
+            "expanded to: \(Element.self)[\(count)]",
+            categories: [.dataCopy, .dataExpanding])
+
+        // create storage for all elements
+        var dense = createDense()
+        copy(from: self, to: &dense)
+        self = dense
+    }
+
     //--------------------------------------------------------------------------
     /// getExtents(from:to:
     /// computes the extents and strides from the specified bounds and steps
@@ -169,6 +194,7 @@ public extension TensorView {
             return view(at: lower, extents: extents, strides: strides)
         }
         set {
+            expandSelfIfRepeated()
             let (extents, strides) = getExtents(lower, upper, steps)
             var view = sharedView(at: lower, extents: extents, strides: strides)
             Platform.service.copy(from: newValue, to: &view)

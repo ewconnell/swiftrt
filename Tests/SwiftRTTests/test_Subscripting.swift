@@ -53,7 +53,8 @@ class test_Subscripting: XCTestCase {
         
         // writing to the repeated tensor causes the repeated data
         // to be fully realized now using 6 storage Elements
-        repeated[..., 1] = Matrix(2, 1, with: [41, 42])
+        let m1 = Matrix(2, 1, with: [41, 42])
+        repeated[..., 1] = m1
         XCTAssert(repeated.array == [[1, 41, 1], [1, 42, 1]])
 
         var m2 = Matrix(repeating: 2.0, to: (2,2))
