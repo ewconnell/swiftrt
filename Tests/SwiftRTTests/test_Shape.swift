@@ -30,14 +30,20 @@ class test_Shape: XCTestCase {
     // test_ShapeCollection
     func test_ShapeCollection() {
         // repeating
-        XCTAssert(Shape1(extents: (3), strides: (0)) == [0, 0, 0])
-        XCTAssert(Shape2(extents: (2, 3), strides: (0, 1)) == [0, 1, 2, 0, 1, 2])
-        XCTAssert(Shape2(extents: (2, 3), strides: (1, 0)) == [0, 0, 0, 1, 1, 1])
+        XCTAssert(Shape1(extents: (3), strides: (0),
+                         isSequential: true) == [0, 0, 0])
+        XCTAssert(Shape2(extents: (2, 3), strides: (0, 1),
+                         isSequential: false) == [0, 1, 2, 0, 1, 2])
+        XCTAssert(Shape2(extents: (2, 3), strides: (1, 0),
+                         isSequential: false) == [0, 0, 0, 1, 1, 1])
 
         // strided
-        XCTAssert(Shape1(extents: (5), strides: (3)) == [0, 3, 6, 9, 12])
-        XCTAssert(Shape1(extents: (5), strides: (3)) == [0, 3, 6, 9, 12])
-        XCTAssert(Shape2(extents: (2, 3), strides: (6, 2)) == [0, 2, 4, 6, 8, 10])
+        XCTAssert(Shape1(extents: (5), strides: (3),
+                         isSequential: true) == [0, 3, 6, 9, 12])
+        XCTAssert(Shape1(extents: (5), strides: (3),
+                         isSequential: true) == [0, 3, 6, 9, 12])
+        XCTAssert(Shape2(extents: (2, 3), strides: (6, 2),
+                         isSequential: true) == [0, 2, 4, 6, 8, 10])
 
         // dense
         XCTAssert(Shape2(extents: (2, 3)) == [0, 1, 2, 3, 4, 5])
@@ -47,22 +53,23 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_transposed
     func test_transposed() {
-        let volume = Volume(2,3,4).filledWithIndex().transposed(with: (2,1,0))
-        XCTAssert(volume.array == [[[ 0.0, 12.0],
-                                    [ 4.0, 16.0],
-                                    [ 8.0, 20.0]],
-                                   
-                                   [[ 1.0, 13.0],
-                                    [ 5.0, 17.0],
-                                    [ 9.0, 21.0]],
-                                   
-                                   [[ 2.0, 14.0],
-                                    [ 6.0, 18.0],
-                                    [10.0, 22.0]],
-                                   
-                                   [[ 3.0, 15.0],
-                                    [ 7.0, 19.0],
-                                    [11.0, 23.0]]])
+        let volume = Volume(2,3,4).filledWithIndex()
+        let transVolume = volume.transposed(with: (2,1,0))
+        XCTAssert(transVolume.array == [[[ 0.0, 12.0],
+                                         [ 4.0, 16.0],
+                                         [ 8.0, 20.0]],
+                                        
+                                        [[ 1.0, 13.0],
+                                         [ 5.0, 17.0],
+                                         [ 9.0, 21.0]],
+                                        
+                                        [[ 2.0, 14.0],
+                                         [ 6.0, 18.0],
+                                         [10.0, 22.0]],
+                                        
+                                        [[ 3.0, 15.0],
+                                         [ 7.0, 19.0],
+                                         [11.0, 23.0]]])
     }
     
     //--------------------------------------------------------------------------

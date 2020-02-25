@@ -181,7 +181,13 @@ public extension ShapeProtocol {
         self.init(extents: Array(extents), strides: Array(nil),
                   isSequential: true)
     }
-    
+
+    @inlinable
+    init(extents: Tuple, strides: Tuple, isSequential: Bool) {
+        self.init(extents: Array(extents), strides: Array(strides),
+                  isSequential: isSequential)
+    }
+
     //--------------------------------------------------------------------------
     // computed properties
     /// array

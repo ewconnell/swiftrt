@@ -109,7 +109,7 @@ public extension VectorView {
     //--------------------------------------------------------------------------
     // Swift array of elements
     @inlinable
-    var array: [Element] { [Element](bufferRef()) }
+    var array: [Element] { [Element](elementBuffer()) }
 }
 
 //==============================================================================
@@ -322,7 +322,7 @@ public extension MatrixView {
     var array: [[Element]] {
         var result = [[Element]]()
         for row in 0..<extents[0] {
-            result.append([Element](self[row, ...].bufferRef()))
+            result.append([Element](self[row, ...].elementBuffer()))
         }
         return result
     }
@@ -567,8 +567,7 @@ public extension VolumeView {
         for di in 0..<extents[0] {
             var depth = [[Element]]()
             for ri in 0..<extents[1] {
-                let elements = self[di..|1, ri..|1, ...].bufferRef()
-                depth.append([Element](elements))
+                depth.append([Element](self[di, ri, ...].elementBuffer()))
             }
             result.append(depth)
         }

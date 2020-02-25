@@ -64,10 +64,10 @@ public protocol TensorView: Logging {
 //==============================================================================
 //
 public extension TensorView {
-    /// `bufferRef`
+    /// `elementBuffer`
     /// - Returns: an element buffer that can be used to iterate the shape
     @inlinable
-    func bufferRef() -> ElementBuffer<Element, Shape> {
+    func elementBuffer() -> ElementBuffer<Element, Shape> {
         Platform.service.read(self)
     }
 
@@ -102,7 +102,7 @@ public extension TensorView {
     /// - Returns: the first element in the tensor
     @inlinable
     var first: Element {
-        let elements = bufferRef()
+        let elements = elementBuffer()
         return elements[elements.startIndex]
     }
 
@@ -139,7 +139,7 @@ public extension TensorView {
     var extents: Shape.Array { shape.extents }
     /// a 1D array of tensor elements
     @inlinable
-    var flatArray: [Element] { [Element](bufferRef()) }
+    var flatArray: [Element] { [Element](elementBuffer()) }
     /// `true` if the values are contiguosly arranged in memory
     @inlinable
     var isContiguous: Bool { shape.isContiguous }
@@ -249,7 +249,7 @@ public extension TensorView {
         // the subview offset is the current plus the offset of index
         // TODO: revisit fast check for `isSequential`
         let subViewOffset = offset + shape.linearIndex(of: index)
-        let viewShape = Shape(extents: shape.extents, strides: shape.strides,
+        let viewShape = Shape(extents: extents, strides: strides,
                               isSequential: shape.rank == 1)
         
         return Self(shape: viewShape, bufferRef: bufferRef,
@@ -282,7 +282,7 @@ public extension TensorView where Element: Codable {
         try container.encode(name, forKey: .name)
         try container.encode(extents, forKey: .extents)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
-        try bufferRef().forEach {
+        try elementBuffer().forEach {
             try dataContainer.encode($0)
         }
     }
@@ -310,7 +310,7 @@ public extension TensorView where Element: Equatable {
     /// compares the flat elements of self with a Swift array of elements
     @inlinable
     static func == (lhs: Self, rhs: [Element]) -> Bool {
-        for (lhsElement, rhsElement) in zip(lhs.bufferRef(), rhs) {
+        for (lhsElement, rhsElement) in zip(lhs.elementBuffer(), rhs) {
             if lhsElement != rhsElement { return false }
         }
         return true
@@ -323,7 +323,7 @@ public extension TensorView where Element: Equatable & AnyConvertable {
     static func == <R>(lhs: Self, rhs: R) -> Bool
         where R: Collection, R.Element: AnyConvertable
     {
-        for (lhsElement, rhsElement) in zip(lhs.bufferRef(), rhs) {
+        for (lhsElement, rhsElement) in zip(lhs.elementBuffer(), rhs) {
             if lhsElement != Element(any: rhsElement) { return false }
         }
         return true
