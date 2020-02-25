@@ -36,12 +36,14 @@ public extension PlatformService {
         let joinedShape = tensors[0].shape
             .joined(with: tensors[1...].map { $0.shape }, alongAxis: axis)
 
-        var (result, resultBuffer) = createResult(like: tensors[0],
-                                                  with: joinedShape,
-                                                  name: name)
+        var result = tensors[0].createDense(with: joinedShape, name: name)
 
-        currentQueue.concat(tensors.map {read($0)},
-                            along: axis, &resultBuffer)
+        var index = T.Shape.zeros
+        for tensor in tensors {
+            var view = result.sharedView(at: index, extents: tensor.extents)
+            copy(from: tensor, to: &view)
+            index[axis] += tensor.extents[axis]
+        }
         return result
     }
 }

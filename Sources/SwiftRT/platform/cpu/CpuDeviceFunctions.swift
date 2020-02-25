@@ -48,25 +48,11 @@ public extension DeviceFunctions where Self: DeviceQueue {
         cpu_mapOp(buffer, &result) { R.Element(any: $0) }
     }
 
-    func cpu_concat<T, R>(_ buffers: [T], along axis: Int, _ result: inout R)
-        where
-        T: Collection,
-        R: MutableCollection, R.Element == T.Element
-    {
-        //        var index = T.Shape.zeros
-        // rewrite
-        fatalError()
-        //        for buffer in buffers {
-        //            var view = result.mutableView(at: index, extents: tensor.extents)
-        //            tensor.map(into: &view) { $0 }
-        //            index[axis] += tensor.extents[axis]
-        //        }
-    }
-
     func cpu_copy<T, R>(from x: T, to result: inout R) where
         T: Collection,
         R: MutableCollection, R.Element == T.Element
     {
+        zip(result.indices, x).forEach { result[$0] = $1 }
     }
     
     func cpu_delay(atLeast interval: TimeInterval) {

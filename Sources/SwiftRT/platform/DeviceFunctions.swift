@@ -48,11 +48,6 @@ public protocol DeviceFunctions {
         T: ShapedBuffer, T.Element: AnyConvertable,
         R: MutableShapedBuffer, R.Element: AnyConvertable
 
-    /// concat
-    func concat<T, R>(_ buffers: [T], along axis: Int, _ result: inout R) where
-        T: ShapedBuffer,
-        R: MutableShapedBuffer, R.Element == T.Element
-
     /// copy
     func copy<T, R>(from x: T, to result: inout R) where
         T: ShapedBuffer,
@@ -242,14 +237,6 @@ public extension DeviceFunctions where Self: DeviceQueue {
         R: MutableShapedBuffer, R.Element: AnyConvertable
     {
         cpu_cast(from: buffer, to: &result)
-    }
-
-    /// concat
-    func concat<T, R>(_ buffers: [T], along axis: Int, _ result: inout R) where
-        T: ShapedBuffer,
-        R: MutableShapedBuffer, R.Element == T.Element
-    {
-        cpu_concat(buffers, along: axis, &result)
     }
 
     /// copy
