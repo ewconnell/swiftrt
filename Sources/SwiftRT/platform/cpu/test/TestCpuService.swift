@@ -46,8 +46,4 @@ public class TestCpuService: PlatformService, DiscreetMemoryManagement {
         self.queueStack = []
         self.queueStack = [ensureValidId(0, 0)]
     }
-    
-    deinit {
-        deviceBuffers.values.forEach { $0.deallocate() }
-    }
 }

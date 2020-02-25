@@ -243,26 +243,24 @@ public extension DeviceFunctions where Self: DeviceQueue {
                           _ opId: ReductionOp,
                           _ opNext: @escaping (T.Element, T.Element) -> T.Element,
                           _ opFinal: ReduceOpFinal<R>?) where
-        T: ShapedBuffer,
+        T: ShapedBuffer, T.Shape == R.Shape,
         R: MutableShapedBuffer, R.Element == T.Element
     {
-        fatalError()
-//        assert(result.isContiguous, "Result storage must be contiguous")
-//
-//        // created a repeated view of the initial results to match `x`
-//        var repeated = T(shape: result.shape.repeated(to: x.extents),
-//                         elementBuffer: result.elementBuffer,
-//                         offset: result.offset,
-//                         isMutable: true)
-//
-//        // get the elements collection and do the reduction
-//        var repeatedElements = repeated.mutableElements(using: self)
-//        reductionOp(x.elements, &repeatedElements, opNext)
-//
-//        if let op = opFinal {
-//            var elements = result.mutableElements(using: self)
-//            inPlaceOp(&elements, op)
-//        }
+        // created a repeated shape for the initial results to match `x`
+        let repeatedShape = result.shape.repeated(to: x.shape.extents)
+        
+        // create a new elements collection to iterate using the `result`
+        // buffer and the new repeated shape.
+        let pointer = UnsafeMutableBufferPointer(start: result.bufferPointer,
+                                                 count: repeatedShape.spanCount)
+        var repeatedBuffer = MutableElementBuffer(repeatedShape, pointer)
+
+        // do the reductions
+        cpu_reductionOp(x, &repeatedBuffer, opNext)
+
+        if let op = opFinal {
+            cpu_inPlaceOp(&result, op)
+        }
     }
 }
 

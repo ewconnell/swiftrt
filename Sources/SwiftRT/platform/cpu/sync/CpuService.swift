@@ -43,48 +43,4 @@ public class CpuService: PlatformService, CpuMemoryManagement {
         self.queueStack = []
         self.queueStack = [ensureValidId(0, 0)]
     }
-    
-    deinit {
-        deviceBuffers.values.forEach { $0.deallocate() }
-    }
-
-    public func bufferName(_ ref: BufferRef) -> String {
-        fatalError()
-    }
-    
-    public func createBuffer<Element>(of type: Element.Type, count: Int, name: String) -> BufferRef {
-        fatalError()
-    }
-    
-    public func createBuffer<Shape, Stream>(block shape: Shape, bufferedBlocks: Int, stream: Stream) -> (BufferRef, Int) where Shape : ShapeProtocol, Stream : BufferStream {
-        fatalError()
-    }
-    
-    public func cachedBuffer<Element>(for element: Element) -> BufferRef {
-        fatalError()
-    }
-    
-    public func createReference<Element>(to buffer: UnsafeBufferPointer<Element>, name: String) -> BufferRef {
-        fatalError()
-    }
-    
-    public func createMutableReference<Element>(to buffer: UnsafeMutableBufferPointer<Element>, name: String) -> BufferRef {
-        fatalError()
-    }
-    
-    public func duplicate(_ other: BufferRef, using queue: QueueId) -> BufferRef {
-        fatalError()
-    }
-    
-    public func release(_ ref: BufferRef) {
-        fatalError()
-    }
-    
-    public func read<Element>(_ ref: BufferRef, of type: Element.Type, at offset: Int, count: Int, using queueId: QueueId) -> UnsafeBufferPointer<Element> {
-        fatalError()
-    }
-    
-    public func readWrite<Element>(_ ref: BufferRef, of type: Element.Type, at offset: Int, count: Int, willOverwrite: Bool, using queueId: QueueId) -> UnsafeMutableBufferPointer<Element> {
-        fatalError()
-    }
 }

@@ -92,10 +92,10 @@ public protocol MemoryManagement: class {
     /// `duplicate(other:queue:`
     /// makes a duplicate of the specified device buffer. Used to support
     /// copy-on-write semantics
-    /// - Parameter other: the id of the other device buffer to duplicate
+    /// - Parameter ref: the id of the other device buffer to duplicate
     /// - Parameter queue: specifies the device/queue for synchronization.
     /// - Returns: a reference to the device buffer
-    func duplicate(_ other: BufferRef, using queue: QueueId) -> BufferRef
+    func duplicate(_ ref: BufferRef, using queue: QueueId) -> BufferRef
 
     /// `release(buffer:`
     /// Releases a buffer created by calling `createBuffer`
@@ -148,9 +148,14 @@ public class BufferRef: Equatable {
     /// used to identify the `DeviceBuffer` instance
     public let id: Int
 
-    /// initializer
+    // initializer
     @inlinable public init(_ id: Int) { self.id = id }
 
+    // release the associated buffer
+    deinit {
+        Platform.service.release(self)
+    }
+    
     /// a buffer name used in diagnostic messages
     @inlinable
     public var name: String { Platform.service.bufferName(self) }

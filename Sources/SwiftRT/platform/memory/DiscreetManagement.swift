@@ -170,7 +170,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
     
     //--------------------------------------------------------------------------
     // duplicate
-    func duplicate(_ other: BufferRef, using queue: QueueId) -> BufferRef {
+    func duplicate(_ ref: BufferRef, using queue: QueueId) -> BufferRef {
         fatalError()
     }
     
