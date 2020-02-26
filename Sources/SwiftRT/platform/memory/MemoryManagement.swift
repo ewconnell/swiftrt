@@ -15,6 +15,8 @@
 //
 import Foundation
 
+//==============================================================================
+/// CpuBuffer
 public class NewCpuBuffer: ElementBuffer {
     /// host memory buffer pointer
     public let rawBuffer: UnsafeMutableRawBufferPointer
@@ -84,8 +86,8 @@ public class NewCpuBuffer: ElementBuffer {
     
     //--------------------------------------------------------------------------
     // read
-    public func read<E>(type: E.Type, at offset: Int, count: Int)
-        -> UnsafeBufferPointer<E>
+    public func read<E>(type: E.Type, at offset: Int, count: Int,
+                        using queue: inout DeviceQueue) -> UnsafeBufferPointer<E>
     {
         let elements = rawBuffer.bindMemory(to: E.self)
         return UnsafeBufferPointer(
@@ -96,7 +98,7 @@ public class NewCpuBuffer: ElementBuffer {
     //--------------------------------------------------------------------------
     // readWrite
     public func readWrite<E>(type: E.Type, at offset: Int, count: Int,
-                             willOverwrite: Bool)
+                             willOverwrite: Bool, using queue: inout DeviceQueue)
         -> UnsafeMutableBufferPointer<E>
     {
         let elements = rawBuffer.bindMemory(to: E.self)
@@ -106,15 +108,46 @@ public class NewCpuBuffer: ElementBuffer {
     }
 }
 
+//==============================================================================
+/// ElementBuffer protocol
 public protocol ElementBuffer: class {
-    func read<E>(type: E.Type, at offset: Int, count: Int)
-        -> UnsafeBufferPointer<E>
+    /// the number of `Element`s in the buffer
+    var count: Int { get }
+    /// `true` if the buffer is read only
+    var isReadOnly: Bool { get }
+    /// `true` if this buffer is a reference to an application managed buffer
+    var isReference: Bool { get }
+    /// the buffer name used in diagnostic messages
+    var name: String { get }
+
+    /// `read(type:offset:count:queue:`
+    /// - Parameter type: the element type of the buffer
+    /// - Parameter offset: the offset in element sized units from
+    /// the beginning of the buffer to read
+    /// - Parameter count: the number of elements to be accessed
+    /// - Parameter queue: queue for device placement and synchronization
+    /// - Returns: a buffer pointer to the elements. Elements will be valid
+    /// when the queue reaches this point
+    func read<E>(type: E.Type, at offset: Int, count: Int,
+                 using queue: inout DeviceQueue) -> UnsafeBufferPointer<E>
     
+    /// `readWrite(type:offset:count:willOverwrite:queue:
+    /// - Parameter type: the element type of the buffer
+    /// - Parameter offset: the offset in element sized units from
+    /// the beginning of the buffer to read
+    /// - Parameter count: the number of elements to be accessed
+    /// - Parameter queue: queue for device placement and synchronization
+    /// - Parameter willOverwrite: `true` if the caller guarantees all
+    /// buffer elements will be overwritten
+    /// - Returns: a mutable buffer pointer to the elements.
+    /// Elements will be valid when the queue reaches this point
     func readWrite<E>(type: E.Type, at offset: Int, count: Int,
-                      willOverwrite: Bool)
+                      willOverwrite: Bool, using queue: inout DeviceQueue)
         -> UnsafeMutableBufferPointer<E>
 }
 
+//==============================================================================
+/// MemoryManagement
 public protocol NewMemoryManagement: class {
     /// `createBuffer(type:count:name:
     /// creates a lazily allocated buffer to be used in tensor operations.
@@ -175,6 +208,8 @@ public protocol NewMemoryManagement: class {
                                    name: String) -> ElementBuffer
 }
 
+//==============================================================================
+/// MemoryManagement
 public class NewCpuMemoryManagement: NewMemoryManagement {
     public func createBuffer<E>(of type: E.Type, count: Int, name: String)
         -> ElementBuffer

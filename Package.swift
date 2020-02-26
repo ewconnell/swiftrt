@@ -30,12 +30,8 @@ var targets: [PackageDescription.Target] = []
 if enableCuda {
     //---------------------------------------
     // build kernels library
-    if #available(macOS 10.13, *) {
         //        runMakefile(target: ".build/debug/SwiftRTCudaKernels",
         //                    workingDir: "Sources/SwiftRT/device/cuda/kernels")
-    } else {
-        print("OS version error. blerg...")
-    }
     
     //---------------------------------------
     // add Cuda system module
@@ -94,7 +90,7 @@ targets.append(
 
 let package = Package(
     name: "SwiftRT",
-    platforms: [.macOS(.v10_15)],
+    platforms: [.macOS(.v10_13)],
     products: products,
     dependencies: [
         .package(url: "https://github.com/apple/swift-numerics",
