@@ -39,10 +39,17 @@ public extension PlatformService {
         let queueId = currentQueueId
         return devices[queueId.device].queues[queueId.queue]
     }
+
     /// the currently active queue that platform service functions will use
     /// - Returns: the current device queue
     @inlinable
     var currentQueueId: QueueId { queueStack.last! }
+
+    /// using default queue
+    @inlinable
+    func duplicate(_ ref: BufferRef) -> BufferRef {
+        duplicate(ref, using: currentQueueId)
+    }
 
     //--------------------------------------------------------------------------
     /// read(tensor:
@@ -79,7 +86,7 @@ public extension PlatformService {
                 categories: [.dataCopy, .dataMutation])
             
             // replace device buffer with expanded
-            tensor.bufferRef = duplicate(tensor.bufferRef,using: currentQueueId)
+            tensor.bufferRef = duplicate(tensor.bufferRef)
         }
         
         // get the write buffer

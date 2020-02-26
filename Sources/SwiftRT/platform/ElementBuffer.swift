@@ -22,7 +22,7 @@ public protocol ShapedBuffer: Collection {
     associatedtype Element
     associatedtype Shape: ShapeProtocol
 
-    var bufferPointer: UnsafePointer<Element> { get }
+    var pointer: UnsafeBufferPointer<Element> { get }
     var shape: Shape { get }
 }
 
@@ -32,8 +32,7 @@ public struct ElementBuffer<Element, Shape>: ShapedBuffer
     where Shape: ShapeProtocol
 {
     public typealias Index = Shape.Index
-    public let bufferPointer: UnsafePointer<Element>
-    public var count: Int { shape.count }
+    public let pointer: UnsafeBufferPointer<Element>
     public let shape: Shape
 
     @inlinable public var endIndex: Index { shape.endIndex }
@@ -42,9 +41,9 @@ public struct ElementBuffer<Element, Shape>: ShapedBuffer
     //-----------------------------------
     // initializers
     @inlinable
-    public init(_ shape: Shape, _ buffer: UnsafeBufferPointer<Element>) {
-        self.shape = buffer.count > 0 ? shape : Shape(extents: Shape.zeros)
-        self.bufferPointer = UnsafePointer(buffer.baseAddress!)
+    public init(_ shape: Shape, _ pointer: UnsafeBufferPointer<Element>) {
+        self.shape = pointer.count > 0 ? shape : Shape(extents: Shape.zeros)
+        self.pointer = pointer
     }
     
     //-----------------------------------
@@ -54,7 +53,7 @@ public struct ElementBuffer<Element, Shape>: ShapedBuffer
 
     @inlinable
     public subscript(index: Index) -> Element {
-        bufferPointer[shape[index]]
+        pointer[shape[index]]
     }
 }
 
@@ -64,7 +63,7 @@ public protocol MutableShapedBuffer: MutableCollection {
     associatedtype Element
     associatedtype Shape: ShapeProtocol
 
-    var bufferPointer: UnsafeMutablePointer<Element> { get }
+    var pointer: UnsafeMutableBufferPointer<Element> { get }
     var shape: Shape { get }
 }
 
@@ -74,8 +73,7 @@ public struct MutableElementBuffer<Element, Shape>: MutableShapedBuffer
     where Shape: ShapeProtocol
 {
     public typealias Index = Shape.Index
-    public let bufferPointer: UnsafeMutablePointer<Element>
-    public var count: Int { shape.count }
+    public let pointer: UnsafeMutableBufferPointer<Element>
     public let shape: Shape
     
     @inlinable public var endIndex: Index { shape.endIndex }
@@ -84,9 +82,9 @@ public struct MutableElementBuffer<Element, Shape>: MutableShapedBuffer
     //-----------------------------------
     // initializers
     @inlinable
-    public init(_ shape: Shape, _ buffer: UnsafeMutableBufferPointer<Element>) {
-        self.shape = buffer.count > 0 ? shape : Shape(extents: Shape.zeros)
-        self.bufferPointer = UnsafeMutablePointer(buffer.baseAddress!)
+    public init(_ shape: Shape, _ pointer: UnsafeMutableBufferPointer<Element>){
+        self.shape = pointer.count > 0 ? shape : Shape(extents: Shape.zeros)
+        self.pointer = pointer
     }
     
     //-----------------------------------
@@ -97,10 +95,10 @@ public struct MutableElementBuffer<Element, Shape>: MutableShapedBuffer
     @inlinable
     public subscript(index: Index) -> Element {
         get {
-            bufferPointer[shape[index]]
+            pointer[shape[index]]
         }
         set {
-            bufferPointer[shape[index]] = newValue
+            pointer[shape[index]] = newValue
         }
     }
 }

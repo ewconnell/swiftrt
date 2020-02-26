@@ -365,10 +365,10 @@ public extension TensorView {
         // copy the elements into the tensor buffer bypassing indexing
         assert(tensor.isUniquelyReference())
         let buffer = Platform.service.write(&tensor, willOverwrite: true)
-        assert(buffer.count == elements.count)
+        assert(shape.spanCount == elements.count)
 
-        for (i, element) in zip(0..<buffer.count, elements) {
-            buffer.bufferPointer[i] = element
+        for (i, element) in zip(0..<buffer.pointer.count, elements) {
+            buffer.pointer[i] = element
         }
         return tensor
     }

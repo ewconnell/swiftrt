@@ -229,8 +229,19 @@ public extension TensorView {
     mutating func sharedView(at index: Shape.Array, extents: Shape.Array,
                              strides: Shape.Array? = nil) -> Self
     {
-        createView(at: index, with: extents,
-                   and: strides ?? self.strides, shared: true)
+        // copy the parent view if it is not uniquely held before
+        // creating a shared view of it
+        if !isUniquelyReference() {
+            diagnostic("\(mutationString) " +
+                "\(name)(\(bufferRef.id)) " +
+                "\(Element.self)[\(count)]",
+                categories: [.dataCopy, .dataMutation])
+
+            self.bufferRef = Platform.service.duplicate(bufferRef)
+        }
+        
+        return createView(at: index, with: extents,
+                          and: strides ?? self.strides, shared: true)
     }
     
     //--------------------------------------------------------------------------
@@ -255,7 +266,7 @@ public extension TensorView {
         return Self(shape: viewShape, bufferRef: bufferRef,
                     offset: subViewOffset, shared: shared)
     }
-    
+
     //--------------------------------------------------------------------------
     /// transposed
     /// transposes indexing axes of the tensor

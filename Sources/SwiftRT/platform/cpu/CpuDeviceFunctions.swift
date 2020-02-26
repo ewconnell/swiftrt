@@ -267,9 +267,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         
         // create a new elements collection to iterate using the `result`
         // buffer and the new repeated shape.
-        let pointer = UnsafeMutableBufferPointer(start: result.bufferPointer,
-                                                 count: repeatedShape.spanCount)
-        var repeatedBuffer = MutableElementBuffer(repeatedShape, pointer)
+        var repeatedBuffer = MutableElementBuffer(repeatedShape, result.pointer)
 
         // do the reductions
         cpu_reductionOp(x, &repeatedBuffer, opNext)
