@@ -21,11 +21,32 @@ class test_Shape: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_SequentialViews", test_SequentialViews),
         ("test_ShapeCollection", test_ShapeCollection),
         ("test_transposed", test_transposed),
         ("test_perfShape2", test_perfShape2),
     ]
 
+    //--------------------------------------------------------------------------
+    // test_SequentialViews
+    func test_SequentialViews() {
+        // vector views are always sequential
+        let v = Vector(with: 0..<6)
+        let subv = v[1...2]
+        XCTAssert(subv.shape.isSequential)
+        
+        // a batch of rows are sequential
+        let m = Matrix(4, 5)
+        let mrows = m[1...2, ...]
+        XCTAssert(mrows.shape.isSequential)
+
+        // a batch of columns are not sequential
+        let m1 = Matrix(4, 5)
+        let mcols = m1[..., 1...2]
+        XCTAssert(!mcols.shape.isSequential)
+
+    }
+    
     //--------------------------------------------------------------------------
     // test_ShapeCollection
     func test_ShapeCollection() {

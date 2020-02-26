@@ -514,9 +514,10 @@ public struct Shape1: ShapeProtocol {
 
     @inlinable
     public init(extents: Array, strides: Array? = nil, isSequential: Bool) {
+        assert(isSequential, "vectors are always sequential")
         self.count = extents[0]
         self.extents = extents
-        self.isSequential = isSequential
+        self.isSequential = true
         self.strides = strides ?? Self.denseStrides(extents)
         self.spanCount = Self.computeSpanCount(self.extents, self.strides)
     }

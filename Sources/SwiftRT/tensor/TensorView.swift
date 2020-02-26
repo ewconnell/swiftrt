@@ -257,11 +257,22 @@ public extension TensorView {
         assert(index.count == shape.rank && extents.count == shape.rank)
         assert(shape.contains(index: index, extents: extents))
         
+        // determine if subview is sequential
+        var isSequential = shape.isSequential
+        
+        // if the parent is sequential and higher rank than a vector
+        // then the view is only sequential if extents beyond the first match
+        if isSequential && shape.rank > 1 {
+            for i in 1..<shape.rank where shape.extents[i] != extents[i] {
+                isSequential = false
+                break
+            }
+        }
+        
         // the subview offset is the current plus the offset of index
-        // TODO: revisit fast check for `isSequential`
         let subViewOffset = offset + shape.linearIndex(of: index)
         let viewShape = Shape(extents: extents, strides: strides,
-                              isSequential: shape.rank == 1)
+                              isSequential: isSequential)
         
         return Self(shape: viewShape, bufferRef: bufferRef,
                     offset: subViewOffset, shared: shared)
