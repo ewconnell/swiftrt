@@ -267,7 +267,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         
         // create a new elements collection to iterate using the `result`
         // buffer and the new repeated shape.
-        var repeatedBuffer = MutableElementBuffer(repeatedShape, result.pointer)
+        var repeatedBuffer = MutableBufferElements(repeatedShape, result.pointer)
 
         // do the reductions
         cpu_reductionOp(x, &repeatedBuffer, opNext)

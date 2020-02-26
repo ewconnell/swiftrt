@@ -44,7 +44,6 @@ class test_Shape: XCTestCase {
         let m1 = Matrix(4, 5)
         let mcols = m1[..., 1...2]
         XCTAssert(!mcols.shape.isSequential)
-
     }
     
     //--------------------------------------------------------------------------

@@ -30,13 +30,13 @@ public protocol PlatformAPI: MemoryManagement, Logger {
     //--------------------------------------------------------------------------
     /// `read`
     /// prepares read access of a tensor before queuing an operation
-    func read<T>(_ tensor: T) -> ElementBuffer<T.Element, T.Shape>
+    func read<T>(_ tensor: T) -> BufferElements<T.Element, T.Shape>
         where T: TensorView
 
     /// `write`
     /// prepares write access of a tensor before queuing an operation
     func write<T>(_ tensor: inout T, willOverwrite: Bool)
-        -> MutableElementBuffer<T.Element, T.Shape> where T: TensorView
+        -> MutableBufferElements<T.Element, T.Shape> where T: TensorView
 
     func duplicate(_ ref: BufferRef) -> BufferRef
 

@@ -67,16 +67,16 @@ public extension TensorView {
     /// `elementBuffer`
     /// - Returns: an element buffer that can be used to iterate the shape
     @inlinable
-    func elementBuffer() -> ElementBuffer<Element, Shape> {
+    func elementBuffer() -> BufferElements<Element, Shape> {
         Platform.service.read(self)
     }
 
-    /// `mutableElementBuffer`
+    /// `mutableBufferElements`
     /// - Parameter willOverwrite: `true` if all elements will be written
     /// - Returns: an element buffer that can be used to iterate the shape
     @inlinable
-    mutating func mutableElementBuffer(willOverwrite: Bool = true)
-        -> MutableElementBuffer<Element, Shape>
+    mutating func mutableBufferElements(willOverwrite: Bool = true)
+        -> MutableBufferElements<Element, Shape>
     {
         Platform.service.write(&self, willOverwrite: willOverwrite)
     }
@@ -120,7 +120,7 @@ public extension TensorView {
         set {
             assert(shape.isScalar, "the `element` property expects " +
                 "the tensor to have a single Element")
-            var elements = mutableElementBuffer()
+            var elements = mutableBufferElements()
             elements[elements.startIndex] = newValue
         }
     }
@@ -319,7 +319,7 @@ public extension TensorView where Element: Codable {
         self = Self.create(Self.Shape(extents: extents), name)
 
         assert(self.count == dataContainer.count)
-        var mutableElements = mutableElementBuffer()
+        var mutableElements = mutableBufferElements()
         for i in mutableElements.indices {
             mutableElements[i] = try dataContainer.decode(Element.self)
         }

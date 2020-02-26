@@ -27,8 +27,8 @@ public protocol ShapedBuffer: Collection {
 }
 
 //==============================================================================
-/// ElementBuffer
-public struct ElementBuffer<Element, Shape>: ShapedBuffer
+/// BufferElements
+public struct BufferElements<Element, Shape>: ShapedBuffer
     where Shape: ShapeProtocol
 {
     public typealias Index = Shape.Index
@@ -68,8 +68,8 @@ public protocol MutableShapedBuffer: MutableCollection {
 }
 
 //==============================================================================
-/// MutableElementBuffer
-public struct MutableElementBuffer<Element, Shape>: MutableShapedBuffer
+/// MutableBufferElements
+public struct MutableBufferElements<Element, Shape>: MutableShapedBuffer
     where Shape: ShapeProtocol
 {
     public typealias Index = Shape.Index

@@ -55,9 +55,9 @@ public extension PlatformService {
     /// read(tensor:
     /// gains synchronized read only access to the tensor `bufferRef`
     /// - Parameter tensor: the tensor to read
-    /// - Returns: an `ElementBuffer` that can be used to iterate the shape
+    /// - Returns: an `BufferElements` that can be used to iterate the shape
     @inlinable
-    func read<T>(_ tensor: T) -> ElementBuffer<T.Element, T.Shape>
+    func read<T>(_ tensor: T) -> BufferElements<T.Element, T.Shape>
         where T: TensorView
     {
         let buffer = read(tensor.bufferRef, of: T.Element.self,
@@ -65,7 +65,7 @@ public extension PlatformService {
                           count: tensor.spanCount,
                           using: currentQueueId)
         
-        return ElementBuffer(tensor.shape, buffer)
+        return BufferElements(tensor.shape, buffer)
     }
 
     //--------------------------------------------------------------------------
@@ -73,10 +73,10 @@ public extension PlatformService {
     /// gains synchronized read write access to the tensor `bufferRef`
     /// - Parameter tensor: the tensor to read
     /// - Parameter willOverwrite: `true` if all elements will be written
-    /// - Returns: an `ElementBuffer` that can be used to iterate the shape
+    /// - Returns: an `BufferElements` that can be used to iterate the shape
     @inlinable
     func write<T>(_ tensor: inout T, willOverwrite: Bool = true)
-        -> MutableElementBuffer<T.Element, T.Shape> where T: TensorView
+        -> MutableBufferElements<T.Element, T.Shape> where T: TensorView
     {
         // check for copy on write
         if !tensor.shared && !tensor.isUniquelyReference() {
@@ -98,7 +98,7 @@ public extension PlatformService {
                                using: currentQueueId)
         
         // return a mutable shaped buffer iterator
-        return MutableElementBuffer(tensor.shape, buffer)
+        return MutableBufferElements(tensor.shape, buffer)
     }
 
     //--------------------------------------------------------------------------
@@ -108,11 +108,11 @@ public extension PlatformService {
     /// - Parameter other: a tensor to use as a template
     /// - Parameter shape: the shape of the tensor to create
     /// - Parameter name: an optional name for the new tensor
-    /// - Returns: a tensor and an associated `MutableElementBuffer`
+    /// - Returns: a tensor and an associated `MutableBufferElements`
     /// that can be used to iterate the shape
     @inlinable
     func createResult<T>(like other: T, with shape: T.Shape, name: String? = nil)
-        -> (T, MutableElementBuffer<T.Element, T.Shape>) where T: TensorView
+        -> (T, MutableBufferElements<T.Element, T.Shape>) where T: TensorView
     {
         var result = other.createDense(with: shape.dense, name: name)
         let resultBuffer = write(&result)
@@ -126,11 +126,11 @@ public extension PlatformService {
     /// `bufferRef`
     /// - Parameter other: a tensor to use as a template
     /// - Parameter name: an optional name for the new tensor
-    /// - Returns: a tensor and an associated `MutableElementBuffer`
+    /// - Returns: a tensor and an associated `MutableBufferElements`
     /// that can be used to iterate the shape
     @inlinable
     func createResult<T>(like other: T, name: String? = nil)
-        -> (T, MutableElementBuffer<T.Element, T.Shape>) where T: TensorView
+        -> (T, MutableBufferElements<T.Element, T.Shape>) where T: TensorView
     {
         createResult(like: other, with: other.shape, name: name)
     }
