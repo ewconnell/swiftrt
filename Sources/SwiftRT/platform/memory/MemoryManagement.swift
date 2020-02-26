@@ -15,10 +15,201 @@
 //
 import Foundation
 
+public class NewCpuBuffer: ElementBuffer {
+    /// host memory buffer pointer
+    public let rawBuffer: UnsafeMutableRawBufferPointer
+    /// the number of `Element`s in the buffer
+    public let count: Int
+    /// `true` if the buffer is not mutable, such as in the case of a readOnly
+    /// reference buffer.
+    public let isReadOnly: Bool
+    /// `true` if
+    public let isReference: Bool
+    /// the buffer name used in diagnostic messages
+    public let name: String
+    
+    //--------------------------------------------------------------------------
+    // init(type:count:name:
+    public init<E>(type: E.Type, count: Int, name: String) {
+        let byteCount = count * MemoryLayout<E>.size
+        self.rawBuffer = UnsafeMutableRawBufferPointer.allocate(
+            byteCount: byteCount, alignment: MemoryLayout<E>.alignment)
+        self.count = count
+        self.isReadOnly = false
+        self.isReference = false
+        self.name = name
+    }
+    
+    //--------------------------------------------------------------------------
+    // init(buffer:name:
+    public init<E>(referenceTo buffer: UnsafeBufferPointer<E>, name: String) {
+        let roBuffer = UnsafeRawBufferPointer(buffer)
+        let pointer = UnsafeMutableRawPointer(mutating: roBuffer.baseAddress!)
+        self.rawBuffer = UnsafeMutableRawBufferPointer(start: pointer,
+                                                       count: roBuffer.count)
+        self.count = buffer.count
+        self.isReadOnly = true
+        self.isReference = true
+        self.name = name
+    }
+    
+    //--------------------------------------------------------------------------
+    // init(buffer:name:
+    public init<E>(referenceTo buffer: UnsafeMutableBufferPointer<E>,
+                   name: String)
+    {
+        self.rawBuffer = UnsafeMutableRawBufferPointer(buffer)
+        self.count = buffer.count
+        self.isReadOnly = false
+        self.isReference = true
+        self.name = name
+    }
+    
+    //--------------------------------------------------------------------------
+    // deinit
+    deinit {
+        if !isReference {
+            rawBuffer.deallocate()
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    // duplicate
+    public func duplicate<E>(type: E.Type) -> NewCpuBuffer {
+        let source = UnsafeRawBufferPointer(rawBuffer)
+        let newBuffer = NewCpuBuffer(type: E.self, count: count, name: name)
+        newBuffer.rawBuffer.copyMemory(from: source)
+        return newBuffer
+    }
+    
+    //--------------------------------------------------------------------------
+    // read
+    public func read<E>(type: E.Type, at offset: Int, count: Int)
+        -> UnsafeBufferPointer<E>
+    {
+        let elements = rawBuffer.bindMemory(to: E.self)
+        return UnsafeBufferPointer(
+            start: elements.baseAddress!.advanced(by: offset),
+            count: count)
+    }
+    
+    //--------------------------------------------------------------------------
+    // readWrite
+    public func readWrite<E>(type: E.Type, at offset: Int, count: Int,
+                             willOverwrite: Bool)
+        -> UnsafeMutableBufferPointer<E>
+    {
+        let elements = rawBuffer.bindMemory(to: E.self)
+        return UnsafeMutableBufferPointer(
+            start: elements.baseAddress!.advanced(by: offset),
+            count: count)
+    }
+}
+
+public protocol ElementBuffer: class {
+    func read<E>(type: E.Type, at offset: Int, count: Int)
+        -> UnsafeBufferPointer<E>
+    
+    func readWrite<E>(type: E.Type, at offset: Int, count: Int,
+                      willOverwrite: Bool)
+        -> UnsafeMutableBufferPointer<E>
+}
+
+public protocol NewMemoryManagement: class {
+    /// `createBuffer(type:count:name:
+    /// creates a lazily allocated buffer to be used in tensor operations.
+    /// - Parameter type: the element type of the buffer
+    /// - Parameter count: size of the buffer in `Element` units
+    /// - Parameter name: name used in diagnostic messages
+    /// - Returns: an element buffer
+    func createBuffer<E>(of type: E.Type, count: Int, name: String)
+        -> ElementBuffer
+    
+    /// `createBuffer(blockSize:bufferedBlocks:sequence:`
+    /// creates a streaming device buffer to be used in tensor operations.
+    /// - Parameter type: the element type of the buffer
+    /// - Parameter shape: the shape of the blocks read or written to
+    /// the sequence in a given transaction. This might be the number
+    /// of elements in a view.
+    /// - Parameter bufferedBlocks: the size of the device buffer
+    /// to reserve in block units
+    /// - Parameter stream: the I/O object for read/write operations
+    /// - Returns: a buffer id and the size of the stream in block units.
+    /// An endless sequence will return infinity for the block count.
+    func createBuffer<E, Shape, Stream>(
+        of type: E.Type, block shape: Shape,
+        bufferedBlocks: Int, stream: Stream) -> (ElementBuffer, Int)
+        where Shape: ShapeProtocol, Stream: BufferStream
+    
+    /// `cachedBuffer(element:`
+    /// returns a device buffer initialized with the specified `Element`
+    /// value. User expressions use a lot of constant scalar values
+    /// which are repeated. For example: `let m = matrix + 1`. These
+    /// expressions are frequently iterated thousands of times. This function
+    /// will maintain a cache of constant values, which are likely to
+    /// already be present on a discreet accelerator device,
+    /// saving a lot of time.
+    /// - Parameter element: the element value to cache
+    /// - Returns: an element buffer that contains the element value.
+    /// A buffer is created if it does not already exist.
+    func cachedBuffer<E>(for element: E) -> ElementBuffer
+    
+    /// `createReference(buffer:`
+    /// creates a device buffer whose data is associated with
+    /// the specified buffer pointer. No memory is allocated, so the
+    /// buffer must point to valid data space managed by the application.
+    /// This can be used to access things like hardware buffers or
+    /// memory mapped files, network buffers, database results, without
+    /// requiring an additional copy operation.
+    /// - Parameter buffer: a buffer pointer to the data
+    /// - Parameter name: name used in diagnostic messages
+    /// - Returns: a reference to the device buffer
+    func createReference<E>(to buffer: UnsafeBufferPointer<E>,
+                            name: String) -> ElementBuffer
+    
+    /// `createMutableReference(buffer:`
+    /// - Parameter buffer: a mutable buffer pointer to the data
+    /// - Parameter name: name used in diagnostic messages
+    /// - Returns: a reference to the device buffer
+    func createMutableReference<E>(to buffer: UnsafeMutableBufferPointer<E>,
+                                   name: String) -> ElementBuffer
+}
+
+public class NewCpuMemoryManagement: NewMemoryManagement {
+    public func createBuffer<E>(of type: E.Type, count: Int, name: String)
+        -> ElementBuffer
+    {
+        NewCpuBuffer(type: E.self, count: count, name: name)
+    }
+    
+    public func createBuffer<E, Shape, Stream>(
+        of type: E.Type, block shape: Shape,
+        bufferedBlocks: Int, stream: Stream) -> (ElementBuffer, Int)
+        where Shape: ShapeProtocol, Stream: BufferStream
+    {
+        fatalError()
+    }
+    
+    public func cachedBuffer<E>(for element: E) -> ElementBuffer {
+        fatalError()
+    }
+    
+    public func createReference<E>(to buffer: UnsafeBufferPointer<E>,
+                                   name: String) -> ElementBuffer
+    {
+        NewCpuBuffer(referenceTo: buffer, name: name)
+    }
+    
+    public func createMutableReference<E>(
+        to buffer: UnsafeMutableBufferPointer<E>, name: String) -> ElementBuffer
+    {
+        NewCpuBuffer(referenceTo: buffer, name: name)
+    }
+}
+
 //==============================================================================
 /// MemoryManagement
 public protocol MemoryManagement: class {
-
     /// generates a unique buffer reference
     var nextBufferRef: BufferRef { get }
     
@@ -38,7 +229,7 @@ public protocol MemoryManagement: class {
     /// - Returns: a reference to the device buffer
     func createBuffer<Element>(of type: Element.Type, count: Int,
                                name: String) -> BufferRef
-
+    
     /// `createBuffer(blockSize:bufferedBlocks:sequence:`
     /// creates a streaming device buffer to be used in tensor operations.
     /// - Parameter shape: the shape of the blocks read or written to
@@ -53,7 +244,7 @@ public protocol MemoryManagement: class {
                                      bufferedBlocks: Int,
                                      stream: Stream) -> (BufferRef, Int)
         where Shape: ShapeProtocol, Stream: BufferStream
-
+    
     /// `cachedBuffer(element:`
     /// returns a device buffer initialized with the specified `Element`
     /// value. User expressions use a lot of constant scalar values
@@ -66,7 +257,7 @@ public protocol MemoryManagement: class {
     /// - Returns: a device buffer reference that contains the element value.
     /// A BufferRef is created if it does not already exist.
     func cachedBuffer<Element>(for element: Element) -> BufferRef
-
+    
     /// `createReference(buffer:`
     /// creates a device buffer whose data is associated with
     /// the specified buffer pointer. No memory is allocated, so the
@@ -80,7 +271,7 @@ public protocol MemoryManagement: class {
     func createReference<Element>(
         to buffer: UnsafeBufferPointer<Element>,
         name: String) -> BufferRef
-
+    
     /// `createMutableReference(buffer:`
     /// - Parameter buffer: a mutable buffer pointer to the data
     /// - Parameter name: name used in diagnostic messages
@@ -88,7 +279,7 @@ public protocol MemoryManagement: class {
     func createMutableReference<Element>(
         to buffer: UnsafeMutableBufferPointer<Element>,
         name: String) -> BufferRef
-
+    
     /// `duplicate(other:queue:`
     /// makes a duplicate of the specified device buffer. Used to support
     /// copy-on-write semantics
@@ -96,12 +287,12 @@ public protocol MemoryManagement: class {
     /// - Parameter queue: specifies the device/queue for synchronization.
     /// - Returns: a reference to the device buffer
     func duplicate(_ ref: BufferRef, using queue: QueueId) -> BufferRef
-
+    
     /// `release(buffer:`
     /// Releases a buffer created by calling `createBuffer`
     /// - Parameter buffer: the device buffer to release
     func release(_ ref: BufferRef)
-
+    
     /// `read(ref:type:offset:queue:`
     /// - Parameter ref: reference to the device buffer to read
     /// - Parameter type: the element type of the buffer
@@ -114,7 +305,7 @@ public protocol MemoryManagement: class {
     func read<Element>(_ ref: BufferRef, of type: Element.Type,
                        at offset: Int, count: Int,
                        using queueId: QueueId) -> UnsafeBufferPointer<Element>
-
+    
     /// `readWrite(ref:type:offset:queue:willOverwrite:`
     /// - Parameter ref: eference to the device buffer to readWrite
     /// - Parameter type: the element type of the buffer
@@ -147,10 +338,10 @@ public extension MemoryManagement {
 public class BufferRef: Equatable {
     /// used to identify the `DeviceBuffer` instance
     public let id: Int
-
+    
     // initializer
     @inlinable public init(_ id: Int) { self.id = id }
-
+    
     // release the associated buffer
     deinit {
         Platform.service.release(self)
@@ -159,7 +350,7 @@ public class BufferRef: Equatable {
     /// a buffer name used in diagnostic messages
     @inlinable
     public var name: String { Platform.service.bufferName(self) }
-
+    
     // Equatable conformance
     @inlinable
     public static func == (lhs: BufferRef, rhs: BufferRef) -> Bool {
@@ -173,6 +364,6 @@ public class BufferRef: Equatable {
 public protocol BufferStream {
     /// `true` if the stream can be written to
     var isMutable: Bool { get }
-
+    
 }
 
