@@ -74,7 +74,7 @@ public class NewCpuBuffer: ElementBuffer {
             rawBuffer.deallocate()
         }
     }
-    
+
     //--------------------------------------------------------------------------
     // duplicate
     public func duplicate<E>(type: E.Type) -> NewCpuBuffer {
