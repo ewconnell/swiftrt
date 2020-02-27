@@ -86,11 +86,11 @@ public extension PlatformService {
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
-//    @differentiable(where Self: DifferentiableTensorView)
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func abs(_ x: Self) -> Self { Platform.service.abs(x) }
     
-//    @differentiable(where Self: DifferentiableTensorView)
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func abs() -> Self { abs(self) }
 }
@@ -139,11 +139,11 @@ public extension PlatformService {
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
-//    @differentiable(where Self: DifferentiableTensorView)
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func exp(_ x: Self) -> Self { Platform.service.exp(x) }
-
-//    @differentiable(where Self: DifferentiableTensorView)
+    
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func exp() -> Self { exp(self) }
 }
@@ -191,11 +191,11 @@ public extension PlatformService {
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
-//    @differentiable(where Self: DifferentiableTensorView)
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func log(_ x: Self) -> Self { Platform.service.log(x) }
-
-//    @differentiable(where Self: DifferentiableTensorView)
+    
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func log() -> Self { log(self) }
 }
@@ -241,11 +241,11 @@ public extension PlatformService {
 // Tensor extension
 public extension TensorView where Element: SignedNumeric {
     // make glboal function visible for extension implementations
-//    @differentiable(where Self: DifferentiableTensorView)
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     static prefix func - (x: Self) -> Self { Platform.service.neg(x) }
-
-//    @differentiable(where Self: DifferentiableTensorView)
+    
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func neg() -> Self { -self }
 }
@@ -280,7 +280,7 @@ public extension PlatformService {
         currentQueue.squared(read(x), &resultBuffer)
         return result
     }
-
+    
     @inlinable
     @derivative(of: squared)
     func _vjpSquared<T>(_ x: T) -> (value: T, pullback: (T) -> (T))
@@ -289,15 +289,15 @@ public extension PlatformService {
         (squared(x), { v in v * (x + x) })
     }
 }
-    
+
 // Tensor extension
 public extension TensorView where Element: Numeric {
     // make glboal function visible for extension implementations
-//    @differentiable(where Self: DifferentiableTensorView)
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func squared(_ x: Self) -> Self { Platform.service.squared(x) }
-
-//    @differentiable(where Self: DifferentiableTensorView)
+    
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func squared() -> Self { squared(self) }
 }
@@ -347,14 +347,14 @@ public extension PlatformService {
         where T: DifferentiableTensorView, T.Element: Real
     {
         fatalError()
-//        let value = pow(x, y)
-//        return (value, { v in
-//            let safeX = x.replacing(with: 1, where: x .<= 0)
-//            let lhsGrad = v * y * pow(x, y - 1)
-//            let rhsGrad = value * v * log(safeX)
-//            return (T(repeating: lhsGrad.sum().element, like: x),
-//                    T(repeating: rhsGrad.sum().element, like: y))
-//        })
+        //        let value = pow(x, y)
+        //        return (value, { v in
+        //            let safeX = x.replacing(with: 1, where: x .<= 0)
+        //            let lhsGrad = v * y * pow(x, y - 1)
+        //            let rhsGrad = value * v * log(safeX)
+        //            return (T(repeating: lhsGrad.sum().element, like: x),
+        //                    T(repeating: rhsGrad.sum().element, like: y))
+        //        })
     }
 }
 
@@ -363,22 +363,22 @@ infix operator ** : MultiplicationPrecedence
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
-//    @differentiable(where Self: DifferentiableTensorView)
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func pow(_ x: Self, _ y: Self) -> Self { Platform.service.pow(x, y) }
-
-//    @differentiable(where Self: DifferentiableTensorView)
+    
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     static func **(_ x: Self, _ y: Self) -> Self { Platform.service.pow(x, y) }
-
-//    @differentiable(where Self: DifferentiableTensorView)
+    
     @inlinable
+//    @differentiable(where Self: DifferentiableTensorView)
     static func **(_ x: Self, _ y: Element) -> Self {
         y == 2 ? x.squared() : x ** Self(repeating: y, like: x)
     }
-
-//    @differentiable(where Self: DifferentiableTensorView)
+    
     @inlinable
+//    @differentiable(where Self: DifferentiableTensorView)
     static func **(_ x: Element, _ y: Self) -> Self {
         Self(repeating: x, like: y) ** y
     }
@@ -428,11 +428,11 @@ public extension PlatformService {
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
-//    @differentiable(where Self: DifferentiableTensorView)
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sqrt(_ x: Self) -> Self { Platform.service.sqrt(x) }
-
-//    @differentiable(where Self: DifferentiableTensorView)
+    
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sqrt() -> Self { sqrt(self) }
 }
@@ -467,7 +467,7 @@ public extension PlatformService {
         currentQueue.sign(read(x), &resultBuffer)
         return result
     }
-
+    
     @inlinable
     @derivative(of: sign)
     func _vjpSign<T>(_ x: T) -> (value: T, pullback: (T) -> T)
@@ -480,11 +480,11 @@ public extension PlatformService {
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
-//    @differentiable(where Self: DifferentiableTensorView)
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sign(_ x: Self) -> Self { Platform.service.sign(x) }
     
-//    @differentiable(where Self: DifferentiableTensorView)
+    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sign() -> Self { sign(self) }
 }

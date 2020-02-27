@@ -138,13 +138,13 @@ public extension PlatformService {
 }
 
 public extension TensorView where Element: Numeric {
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sum(alongAxes axes: Set<Int>? = nil) -> Self {
         Platform.service.sum(self, alongAxes: axes)
     }
 
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sum(alongAxes axes: Int...) -> Self { sum(alongAxes: Set(axes)) }
 }
@@ -192,13 +192,13 @@ public extension PlatformService {
 }
 
 public extension TensorView where Element: AlgebraicField {
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func mean(alongAxes axes: Set<Int>? = nil) -> Self {
         Platform.service.mean(self, alongAxes: axes)
     }
 
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func mean(alongAxes axes: Int...) -> Self { mean(alongAxes: Set(axes)) }
 }
@@ -238,13 +238,13 @@ public extension PlatformService {
 }
 
 public extension TensorView where Element: Numeric {
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func prod(alongAxes axes: Set<Int>? = nil) -> Self {
         Platform.service.prod(self, alongAxes: axes)
     }
 
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func prod(alongAxes axes: Int...) -> Self { prod(alongAxes: Set(axes)) }
 }
@@ -287,13 +287,13 @@ public extension PlatformService {
 }
 
 public extension TensorView where Element: Numeric {
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func prodNonZeros(alongAxes axes: Set<Int>? = nil) -> Self {
         Platform.service.prodNonZeros(self, alongAxes: axes)
     }
 
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func prodNonZeros(alongAxes axes: Int...) -> Self {
         prodNonZeros(alongAxes: Set(axes))
@@ -316,7 +316,7 @@ public func min<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
 
 public extension PlatformService {
     @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
+@differentiable(where T: DifferentiableTensorView)
     func min<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Comparable
     {
@@ -342,13 +342,13 @@ public extension PlatformService {
 public extension TensorView where
     Element: Numeric & Comparable & AnyElement
 {
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func min(alongAxes axes: Set<Int>? = nil) -> Self {
         Platform.service.min(self, alongAxes: axes)
     }
 
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func min(alongAxes axes: Int...) -> Self { min(alongAxes: Set(axes)) }
 }
@@ -368,7 +368,7 @@ public func max<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
 
 public extension PlatformService {
     @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
+@differentiable(where T: DifferentiableTensorView)
     func max<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Comparable
     {
@@ -394,13 +394,13 @@ public extension PlatformService {
 public extension TensorView where
     Element: Numeric & Comparable & AnyElement
 {
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func max(alongAxes axes: Set<Int>? = nil) -> Self {
         Platform.service.max(self, alongAxes: axes)
     }
 
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func max(alongAxes axes: Int...) -> Self { max(alongAxes: Set(axes)) }
 }
@@ -443,13 +443,13 @@ public extension PlatformService {
 
 public extension TensorView where Element: SignedNumeric & Comparable
 {
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func absmax(alongAxes axes: Set<Int>? = nil) -> Self {
         Platform.service.absmax(self, alongAxes: axes)
     }
 
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func absmax(alongAxes axes: Int...) -> Self {
         absmax(alongAxes: Set(axes))
@@ -471,7 +471,7 @@ public func abssum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
 
 public extension PlatformService {
     @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
+@differentiable(where T: DifferentiableTensorView)
     func abssum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: SignedNumeric & Comparable
     {
@@ -494,13 +494,13 @@ public extension PlatformService {
 }
 
 public extension TensorView where Element: SignedNumeric & Comparable {
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func abssum(alongAxes axes: Set<Int>? = nil) -> Self {
         Platform.service.abssum(self, alongAxes: axes)
     }
 
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func abssum(alongAxes axes: Int...) -> Self { abssum(alongAxes: Set(axes)) }
 }
@@ -541,13 +541,13 @@ public extension PlatformService {
 }
 
 public extension TensorView where Element: Real {
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sqrtSumSquares(alongAxes axes: Set<Int>? = nil) -> Self {
         Platform.service.sqrtSumSquares(self, alongAxes: axes)
     }
 
-//    @differentiable(where Self: DifferentiableTensorView)
+@differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sqrtSumSquares(alongAxes axes: Int...) -> Self {
         sqrtSumSquares(alongAxes: Set(axes))

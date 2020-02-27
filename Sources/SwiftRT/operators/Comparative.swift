@@ -69,14 +69,14 @@ public extension PlatformService {
         currentQueue.and(read(lhs), read(rhs), &resultBuffer)
         return result
     }
-
+    
     @inlinable
     func and<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
         where T: TensorView, T.Element == Bool
     {
         and(lhs, T(repeating: rhs, like: lhs))
     }
-
+    
     @inlinable
     func and<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
         where T: TensorView, T.Element == Bool
@@ -194,7 +194,7 @@ public func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
 
 public extension PlatformService {
     @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
+    @differentiable(where T: DifferentiableTensorView)
     func max<T>(_ lhs: T, _ rhs: T) -> T where
         T: TensorView, T.Element: Comparable
     {
@@ -203,17 +203,17 @@ public extension PlatformService {
         currentQueue.max(read(lhs), read(rhs), &resultBuffer)
         return result
     }
-
+    
     @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
+    @differentiable(where T: DifferentiableTensorView)
     func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
         T: TensorView, T.Element: Comparable
     {
         max(lhs, T(repeating: rhs, like: lhs))
     }
-
+    
     @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
+    @differentiable(where T: DifferentiableTensorView)
     func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
         T: TensorView, T.Element: Comparable
     {
@@ -221,64 +221,66 @@ public extension PlatformService {
     }
 }
 
-//public extension TensorView {
-//    @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
-//    func max<T>(_ lhs: T, _ rhs: T) -> T where
-//        T: TensorView, T.Element: Comparable { max(lhs, rhs) }
-//
-//    @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
-//    func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
-//        T: TensorView, T.Element: Comparable { max(lhs, rhs) }
-//
-//    @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
-//    func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
-//        T: TensorView, T.Element: Comparable { max(lhs, rhs) }
-//}
+// These are added to disambiguate from Swift max when writing
+// a TensorView extension
+public extension TensorView {
+    @inlinable
+    @differentiable(where T: DifferentiableTensorView)
+    func max<T>(_ lhs: T, _ rhs: T) -> T where
+        T: TensorView, T.Element: Comparable { Platform.service.max(lhs, rhs) }
+    
+    @inlinable
+    @differentiable(where T: DifferentiableTensorView)
+    func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
+        T: TensorView, T.Element: Comparable { Platform.service.max(lhs, rhs) }
+    
+    @inlinable
+    @differentiable(where T: DifferentiableTensorView)
+    func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
+        T: TensorView, T.Element: Comparable { Platform.service.max(lhs, rhs) }
+}
 
 //--------------------------------------
-//// derivative functions
-//public extension PlatformService {
-//    @inlinable
-//    @derivative(of: max)
-//    public func _vjpMax<T>(_ lhs: T, _ rhs: T)
-//        -> (value: T, pullback: (T) -> (T, T))
-//        where T: DifferentiableTensorView, T.Element: Comparable
-//    {
-//        return (value: max(lhs, rhs), {
-//            _vjpMinMax(lhs, rhs, v: $0, op: >=)
-//        })
-//    }
-//
-//    @inlinable
-//    @derivative(of: max)
-//    public func _vjpMax<T>(_ lhs: T, _ rhs: T.Element) ->
-//        (value: T, pullback: (T) -> (T, T.Element))
-//        where T: DifferentiableTensorView, T.Element: Comparable
-//    {
-//        let rhs = T(repeating: rhs, like: lhs)
-//        return (value: max(lhs, rhs), {
-//            let (lhsGrad, rhsGrad) = _vjpMinMax(lhs, rhs, v: $0, op: >=)
-//            return (lhsGrad, rhsGrad.sum().element)
-//        })
-//    }
-//
-//    @inlinable
-//    @derivative(of: max)
-//    public func _vjpMax<T>(_ lhs: T.Element, _ rhs: T) ->
-//        (value: T, pullback: (T) -> (T.Element, T))
-//        where T: DifferentiableTensorView, T.Element: Comparable
-//    {
-//        let lhs = T(repeating: lhs, like: rhs)
-//        return (value: max(lhs, rhs), {
-//            let (lhsGrad, rhsGrad) = _vjpMinMax(lhs, rhs, v: $0, op: >=)
-//            return (lhsGrad.sum().element, rhsGrad)
-//        })
-//    }
-//}
-//
+// derivative functions
+extension PlatformService {
+    @inlinable
+    @derivative(of: max)
+    public func _vjpMax<T>(_ lhs: T, _ rhs: T)
+        -> (value: T, pullback: (T) -> (T, T))
+        where T: DifferentiableTensorView, T.Element: Comparable
+    {
+        return (value: max(lhs, rhs), {
+            self._vjpMinMax(lhs, rhs, $0, >=)
+        })
+    }
+    
+    @inlinable
+    @derivative(of: max)
+    public func _vjpMax<T>(_ lhs: T, _ rhs: T.Element) ->
+        (value: T, pullback: (T) -> (T, T.Element))
+        where T: DifferentiableTensorView, T.Element: Comparable
+    {
+        let rhs = T(repeating: rhs, like: lhs)
+        return (value: max(lhs, rhs), {
+            let (lhsGrad, rhsGrad) = self._vjpMinMax(lhs, rhs, $0, >=)
+            return (lhsGrad, rhsGrad.sum().element)
+        })
+    }
+    
+    @inlinable
+    @derivative(of: max)
+    public func _vjpMax<T>(_ lhs: T.Element, _ rhs: T) ->
+        (value: T, pullback: (T) -> (T.Element, T))
+        where T: DifferentiableTensorView, T.Element: Comparable
+    {
+        let lhs = T(repeating: lhs, like: rhs)
+        return (value: max(lhs, rhs), {
+            let (lhsGrad, rhsGrad) = self._vjpMinMax(lhs, rhs, $0, >=)
+            return (lhsGrad.sum().element, rhsGrad)
+        })
+    }
+}
+
 //==============================================================================
 /// min
 /// Computes the element-wise minimum of two tensors
@@ -311,7 +313,7 @@ public func min<T>(_ lhs: T.Element, _ rhs: T) -> T
 
 public extension PlatformService {
     @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
+    @differentiable(where T: DifferentiableTensorView)
     func min<T>(_ lhs: T, _ rhs: T) -> T where
         T: TensorView, T.Element: Comparable
     {
@@ -320,17 +322,17 @@ public extension PlatformService {
         currentQueue.min(read(lhs), read(rhs), &resultBuffer)
         return result
     }
-
+    
     @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
+    @differentiable(where T: DifferentiableTensorView)
     func min<T>(_ lhs: T, _ rhs: T.Element) -> T
         where T: TensorView, T.Element: Comparable
     {
         min(lhs, T(repeating: rhs, like: lhs))
     }
-
+    
     @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
+    @differentiable(where T: DifferentiableTensorView)
     func min<T>(_ lhs: T.Element, _ rhs: T) -> T
         where T: TensorView, T.Element: Comparable
     {
@@ -338,64 +340,64 @@ public extension PlatformService {
     }
 }
 
-//public extension TensorView {
-//    @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
-//    func min<T>(_ lhs: T, _ rhs: T) -> T where
-//        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
-//
-//    @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
-//    func min<T>(_ lhs: T, _ rhs: T.Element) -> T where
-//        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
-//
-//    @inlinable
-//    @differentiable(where T: DifferentiableTensorView)
-//    func min<T>(_ lhs: T.Element, _ rhs: T) -> T where
-//        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
-//}
+public extension TensorView {
+    @inlinable
+    @differentiable(where T: DifferentiableTensorView)
+    func min<T>(_ lhs: T, _ rhs: T) -> T where
+        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
 
-////--------------------------------------
-//// derivative functions
-//public extension PlatformService {
-//    @inlinable
-//    @derivative(of: min)
-//    public func _vjpMin<T>(_ lhs: T, _ rhs: T)
-//        -> (value: T, pullback: (T) -> (T, T))
-//        where T: DifferentiableTensorView, T.Element: Comparable
-//    {
-//        return (value: min(lhs, rhs), {
-//            _vjpMinMax(lhs, rhs, v: $0, op: <=)
-//        })
-//    }
-//
-//    @inlinable
-//    @derivative(of: min)
-//    public func _vjpMin<T>(_ lhs: T, _ rhs: T.Element) ->
-//        (value: T, pullback: (T) -> (T, T.Element))
-//        where T: DifferentiableTensorView, T.Element: Comparable
-//    {
-//        let rhs = T(repeating: rhs, like: lhs)
-//        return (value: min(lhs, rhs), {
-//            let (lhsGrad, rhsGrad) = _vjpMinMax(lhs, rhs, v: $0, op: <=)
-//            return (lhsGrad, rhsGrad.sum().element)
-//        })
-//    }
-//
-//    @inlinable
-//    @derivative(of: min)
-//    public func _vjpMin<T>(_ lhs: T.Element, _ rhs: T) ->
-//        (value: T, pullback: (T) -> (T.Element, T))
-//        where T: DifferentiableTensorView, T.Element: Comparable
-//    {
-//        let lhs = T(repeating: lhs, like: rhs)
-//        return (value: min(lhs, rhs), {
-//            let (lhsGrad, rhsGrad) = _vjpMinMax(lhs, rhs, v: $0, op: <=)
-//            return (lhsGrad.sum().element, rhsGrad)
-//        })
-//    }
-//}
-//
+    @inlinable
+    @differentiable(where T: DifferentiableTensorView)
+    func min<T>(_ lhs: T, _ rhs: T.Element) -> T where
+        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
+
+    @inlinable
+    @differentiable(where T: DifferentiableTensorView)
+    func min<T>(_ lhs: T.Element, _ rhs: T) -> T where
+        T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
+}
+
+//--------------------------------------
+// derivative functions
+public extension PlatformService {
+    @inlinable
+    @derivative(of: min)
+    func _vjpMin<T>(_ lhs: T, _ rhs: T)
+        -> (value: T, pullback: (T) -> (T, T))
+        where T: DifferentiableTensorView, T.Element: Comparable
+    {
+        return (value: min(lhs, rhs), {
+            self._vjpMinMax(lhs, rhs, $0, <=)
+        })
+    }
+
+    @inlinable
+    @derivative(of: min)
+    func _vjpMin<T>(_ lhs: T, _ rhs: T.Element) ->
+        (value: T, pullback: (T) -> (T, T.Element))
+        where T: DifferentiableTensorView, T.Element: Comparable
+    {
+        let rhs = T(repeating: rhs, like: lhs)
+        return (value: min(lhs, rhs), {
+            let (lhsGrad, rhsGrad) = self._vjpMinMax(lhs, rhs, $0, <=)
+            return (lhsGrad, rhsGrad.sum().element)
+        })
+    }
+
+    @inlinable
+    @derivative(of: min)
+    func _vjpMin<T>(_ lhs: T.Element, _ rhs: T) ->
+        (value: T, pullback: (T) -> (T.Element, T))
+        where T: DifferentiableTensorView, T.Element: Comparable
+    {
+        let lhs = T(repeating: lhs, like: rhs)
+        return (value: min(lhs, rhs), {
+            let (lhsGrad, rhsGrad) = self._vjpMinMax(lhs, rhs, $0, <=)
+            return (lhsGrad.sum().element, rhsGrad)
+        })
+    }
+}
+
 //==============================================================================
 /// equal
 /// Performs element-wise equality comparison and returns a
@@ -425,7 +427,7 @@ infix operator .== : ComparisonPrecedence
 public extension TensorView where Element: Equatable {
     @inlinable
     static func .== (_ lhs: Self, _ rhs: Self) -> BoolView { equal(lhs, rhs) }
-
+    
     /// - Parameter lhs: left hand tensor
     /// - Parameter rhs: right hand tensor
     /// - Returns: `true` if the tensors are equal
@@ -433,10 +435,10 @@ public extension TensorView where Element: Equatable {
     static func == (lhs: Self, rhs: Self) -> Bool {
         // the extents must match or they are not equal
         guard lhs.extents == rhs.extents else { return false }
-
+        
         // if lhs is an alias for rhs, then they match
         if lhs.buffer === rhs.buffer && lhs.offset == rhs.offset { return true }
-
+        
         // compare elements
         return (lhs .== rhs).all().element
     }
@@ -634,14 +636,14 @@ public extension PlatformService {
         currentQueue.lessOrEqual(read(lhs), read(rhs), &resultBuffer)
         return result
     }
-
+    
     @inlinable
     func lessOrEqual<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
         where T: TensorView, T.Element: Comparable
     {
         lessOrEqual(lhs, T(repeating: rhs, like: lhs))
     }
-
+    
     @inlinable
     func lessOrEqual<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
         where T: TensorView, T.Element: Comparable
@@ -657,12 +659,12 @@ public extension TensorView where Element: Comparable {
     static func .<=(_ lhs: Self, _ rhs: Self) -> BoolView {
         lessOrEqual(lhs, rhs)
     }
-
+    
     @inlinable
     static func .<=(_ lhs: Self, _ rhs: Element) -> BoolView {
         lessOrEqual(lhs, rhs)
     }
-
+    
     @inlinable
     static func .<=(_ lhs: Element, _ rhs: Self) -> BoolView {
         lessOrEqual(lhs, rhs)
