@@ -35,6 +35,11 @@ public class CpuBuffer: ElementBuffer {
         self.isReadOnly = false
         self.isReference = false
         self.name = name
+        
+        #if DEBUG
+        Platform.service.diagnostic("\(createString) \(name)(\(id)) " +
+            "\(E.self)[\(count)]", categories: .dataAlloc)
+        #endif
     }
     
     //--------------------------------------------------------------------------
@@ -48,6 +53,12 @@ public class CpuBuffer: ElementBuffer {
         self.isReadOnly = true
         self.isReference = true
         self.name = name
+        
+        #if DEBUG
+        Platform.service.diagnostic(
+            "\(createString) Reference \(name)(\(id)) " +
+            "\(E.self)[\(buffer.count)]", categories: .dataAlloc)
+        #endif
     }
     
     //--------------------------------------------------------------------------
@@ -60,6 +71,12 @@ public class CpuBuffer: ElementBuffer {
         self.isReadOnly = false
         self.isReference = true
         self.name = name
+        
+        #if DEBUG
+        Platform.service.diagnostic(
+            "\(createString) Reference \(name)(\(id)) " +
+            "\(E.self)[\(buffer.count)]", categories: .dataAlloc)
+        #endif
     }
     
     //--------------------------------------------------------------------------
@@ -67,6 +84,10 @@ public class CpuBuffer: ElementBuffer {
     deinit {
         if !isReference {
             rawBuffer.deallocate()
+            #if DEBUG
+            Platform.service.diagnostic("\(releaseString) \(name)(\(id)) ",
+                categories: .dataAlloc)
+            #endif
         }
     }
     

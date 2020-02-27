@@ -342,14 +342,6 @@ public extension TensorView {
             // create the buffer
             let ref = Platform.service
                 .createBuffer(of: Element.self, count: shape.count, name: label)
-            
-            // report
-            #if DEBUG
-            Platform.service.diagnostic(
-                "\(createString) \(label)(\(ref.id)) " +
-                "\(Element.self)[\(shape.count)]",
-                categories: .dataAlloc)
-            #endif
 
             return Self(shape: shape, bufferRef: ref, offset: 0, shared: false)
         }()

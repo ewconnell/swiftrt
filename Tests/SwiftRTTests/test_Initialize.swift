@@ -51,7 +51,7 @@ class test_Initialize: XCTestCase {
     // test_copyOnWrite
     // NOTE: uses the default queue
     func test_copyOnWrite() {
-        Platform.log.level = .diagnostic
+//        Platform.log.level = .diagnostic
         let m1 = Matrix(3, 2).filledWithIndex()
         XCTAssert(m1[1, 1] == 3)
         

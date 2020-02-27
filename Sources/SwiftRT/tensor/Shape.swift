@@ -448,8 +448,10 @@ public extension ShapeProtocol {
         for i in 0..<rank where repeatedExtents[i] == extents[i] {
             repeatedStrides[i] = strides[i]
         }
+        
+        // it is sequential only for vectors
         return Self(extents: repeatedExtents, strides: repeatedStrides,
-                    isSequential: false)
+                    isSequential: rank == 1)
     }
 
     //--------------------------------------------------------------------------

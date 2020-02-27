@@ -218,7 +218,7 @@ class test_Subscripting: XCTestCase {
     //--------------------------------------------------------------------------
     // test_VectorWriteRange
     func test_VectorWriteRange() {
-        Platform.log.level = .diagnostic
+//        Platform.log.level = .diagnostic
         var v1 = Vector(with: 0...6)
         let sevens = Vector(with: repeatElement(7, count: 3))
         v1[2...4] = sevens
