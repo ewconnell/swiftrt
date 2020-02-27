@@ -15,7 +15,7 @@
 //
 
 import Foundation
-import Real
+import Numerics
 
 //==============================================================================
 /// DeviceFunctions

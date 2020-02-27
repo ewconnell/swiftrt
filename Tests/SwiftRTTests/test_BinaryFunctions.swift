@@ -16,7 +16,7 @@
 import XCTest
 import Foundation
 import SwiftRT
-import Complex
+import Numerics
 
 class test_BinaryFunctions: XCTestCase {
     //==========================================================================

@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 // https://medium.com/intuitionmachine/should-deep-learning-use-complex-numbers-edbd3aac3fb8
-import Complex
+import Numerics
 
 //==============================================================================
 // swift build -Xswiftc -Xllvm -Xswiftc -enable-experimental-cross-file-derivative-registration
