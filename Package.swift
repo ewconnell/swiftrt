@@ -90,7 +90,7 @@ targets.append(
 
 let package = Package(
     name: "SwiftRT",
-    platforms: [.macOS(.v10_13)],
+//    platforms: [.macOS(.v10_13)],
     products: products,
     dependencies: [
         .package(url: "https://github.com/apple/swift-numerics",
