@@ -357,9 +357,7 @@ public extension TensorView where Self: DifferentiableTensorView {
                          name: String?) ->
         (value: Self, pullback: (Self) -> (Element))
     {
-        // TODO: fix AD crashing bug
-        fatalError()
-//        (Self(repeating: value, to: extents), { $0.sum().element })
+        (Self(repeating: value, to: extents), { $0.sum().element })
     }
 }
 

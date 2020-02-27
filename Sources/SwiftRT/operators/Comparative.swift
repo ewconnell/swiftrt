@@ -169,27 +169,48 @@ public extension TensorView where Element == Bool {
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
 @inlinable
-//@differentiable(where T: DifferentiableTensorView)
+@differentiable(where T: DifferentiableTensorView)
 public func max<T>(_ lhs: T, _ rhs: T) -> T where
     T: TensorView, T.Element: Comparable
 {
     Platform.service.max(lhs, rhs)
 }
 
+//--------------------------------------
 @inlinable
-//@differentiable(where T: DifferentiableTensorView)
+@differentiable(where T: DifferentiableTensorView)
 public func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
     T: TensorView, T.Element: Comparable
 {
     max(lhs, T(repeating: rhs, like: lhs))
 }
 
+
 @inlinable
-//@differentiable(where T: DifferentiableTensorView)
+@derivative(of: max)
+public func _vjpMax<T>(_ lhs: T, _ rhs: T.Element) ->
+    (value: T, pullback: (T) -> (T, T.Element))
+    where T: DifferentiableTensorView, T.Element: Comparable
+{
+    Platform.service._vjpMax(lhs, rhs)
+}
+
+//--------------------------------------
+@inlinable
+@differentiable(where T: DifferentiableTensorView)
 public func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
     T: TensorView, T.Element: Comparable
 {
     max(T(repeating: lhs, like: rhs), rhs)
+}
+
+@inlinable
+@derivative(of: max)
+public func _vjpMax<T>(_ lhs: T.Element, _ rhs: T) ->
+    (value: T, pullback: (T) -> (T.Element, T))
+    where T: DifferentiableTensorView, T.Element: Comparable
+{
+    Platform.service._vjpMax(lhs, rhs)
 }
 
 public extension PlatformService {
@@ -288,15 +309,16 @@ extension PlatformService {
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
 @inlinable
-//@differentiable(where T: DifferentiableTensorView)
+@differentiable(where T: DifferentiableTensorView)
 public func min<T>(_ lhs: T, _ rhs: T) -> T where
     T: TensorView, T.Element: Comparable
 {
     Platform.service.min(lhs, rhs)
 }
 
+//--------------------------------------
 @inlinable
-//@differentiable(where T: DifferentiableTensorView)
+@differentiable(where T: DifferentiableTensorView)
 public func min<T>(_ lhs: T, _ rhs: T.Element) -> T
     where T: TensorView, T.Element: Comparable
 {
@@ -304,13 +326,33 @@ public func min<T>(_ lhs: T, _ rhs: T.Element) -> T
 }
 
 @inlinable
-//@differentiable(where T: DifferentiableTensorView)
+@derivative(of: min)
+func _vjpMin<T>(_ lhs: T, _ rhs: T.Element) ->
+    (value: T, pullback: (T) -> (T, T.Element))
+    where T: DifferentiableTensorView, T.Element: Comparable
+{
+    Platform.service._vjpMin(lhs, rhs)
+}
+
+//--------------------------------------
+@inlinable
+@differentiable(where T: DifferentiableTensorView)
 public func min<T>(_ lhs: T.Element, _ rhs: T) -> T
     where T: TensorView, T.Element: Comparable
 {
     min(T(repeating: lhs, like: rhs), rhs)
 }
 
+@inlinable
+@derivative(of: min)
+func _vjpMin<T>(_ lhs: T.Element, _ rhs: T) ->
+    (value: T, pullback: (T) -> (T.Element, T))
+    where T: DifferentiableTensorView, T.Element: Comparable
+{
+    Platform.service._vjpMin(lhs, rhs)
+}
+
+//--------------------------------------
 public extension PlatformService {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
