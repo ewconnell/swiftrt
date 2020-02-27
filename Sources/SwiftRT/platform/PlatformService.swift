@@ -54,11 +54,7 @@ public extension PlatformService {
     func read<T>(_ tensor: T) -> BufferElements<T.Element, T.Shape>
         where T: TensorView
     {
-        let buffer = tensor.read(at: tensor.offset,
-                                 count: tensor.spanCount,
-                                 using: currentQueue)
-        
-        return BufferElements(tensor.shape, buffer)
+        BufferElements(tensor.shape, tensor.read(using: currentQueue))
     }
 
     //--------------------------------------------------------------------------
@@ -71,21 +67,8 @@ public extension PlatformService {
     func write<T>(_ tensor: inout T, willOverwrite: Bool = true)
         -> MutableBufferElements<T.Element, T.Shape> where T: TensorView
     {
-        // check for copy on write
-        if !tensor.shared && !tensor.isUniquelyReference() {
-            diagnostic("\(mutationString) " +
-                "\(tensor.name)(\(tensor.id)) " +
-                "\(T.Element.self)[\(tensor.count)]",
-                categories: [.dataCopy, .dataMutation])
-            
-            // replace device buffer with expanded
-            tensor.bufferRef = tensor.bufferRef.duplicate()
-        }
-        
         // get the write buffer
-        let buffer = tensor.readWrite(at: tensor.offset,
-                                      count: tensor.spanCount,
-                                      willOverwrite: willOverwrite,
+        let buffer = tensor.readWrite(willOverwrite: willOverwrite,
                                       using: currentQueue)
         
         // return a mutable shaped buffer iterator

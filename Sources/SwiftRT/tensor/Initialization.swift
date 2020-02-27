@@ -68,9 +68,11 @@ public extension TensorView {
     //--------------------------------------------------------------------------
     // flattening
     @inlinable
-    init<T>(flattening other: T) where T: TensorView, T.Element == Element {
+    init<T>(flattening other: T) where
+        T: TensorView, T.Buffer == Buffer
+    {
         self.init(shape: Shape(flattening: other.shape),
-                  bufferRef: other.bufferRef,
+                  buffer: other.buffer,
                   offset: other.offset,
                   shared: other.shared)
     }
@@ -90,7 +92,7 @@ public extension TensorView {
     static func _vjpInit<T>(flattening other: T) ->
         (value: Self, pullback: (Self) -> T.TangentVector) where
         Self: DifferentiableTensorView,
-        T: DifferentiableTensorView, T.Element == Element
+        T: DifferentiableTensorView, T.Buffer == Buffer
     {
         let value = Self(flattening: other)
         let rank = Shape.zeros.count
@@ -101,18 +103,22 @@ public extension TensorView {
     //--------------------------------------------------------------------------
     // init(indenting:
     @inlinable
-    init<T>(indenting other: T) where T: TensorView, T.Element == Element {
+    init<T>(indenting other: T) where
+        T: TensorView, T.Buffer == Buffer
+    {
         self.init(shape: Shape(indenting: other.shape),
-                  bufferRef: other.bufferRef,
+                  buffer: other.buffer,
                   offset: other.offset, shared: other.shared)
     }
         
     //--------------------------------------------------------------------------
     // init(padding:
     @inlinable
-    init<T>(padding other: T) where T: TensorView, T.Element == Element {
+    init<T>(padding other: T) where
+        T: TensorView, T.Buffer == Buffer
+    {
         self.init(shape: Shape(padding: other.shape),
-                  bufferRef: other.bufferRef,
+                  buffer: other.buffer,
                   offset: other.offset,
                   shared: other.shared)
     }
@@ -122,10 +128,10 @@ public extension TensorView {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView, T: DifferentiableTensorView)
     init<T>(expanding other: T, alongAxes axes: Set<Int>? = nil)
-        where T: TensorView, T.Element == Element
+        where T: TensorView, T.Buffer == Buffer
     {
         self.init(shape: Shape(expanding: other.shape, alongAxes: axes),
-                  bufferRef: other.bufferRef,
+                  buffer: other.buffer,
                   offset: other.offset,
                   shared: other.shared)
     }
@@ -133,7 +139,7 @@ public extension TensorView {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView, T: DifferentiableTensorView)
     init<T>(expanding other: T, alongAxes axes: Int...)
-        where T: TensorView, T.Element == Element {
+        where T: TensorView, T.Buffer == Buffer {
             self.init(expanding: other, alongAxes: Set(axes))
     }
 
@@ -144,7 +150,7 @@ public extension TensorView {
     static func _vjpInit<T>(expanding other: T, alongAxes axes: Set<Int>?) ->
         (value: Self, pullback: (Self) -> T.TangentVector) where
         Self: DifferentiableTensorView,
-        T: DifferentiableTensorView, T.Element == Element
+        T: DifferentiableTensorView, T.Buffer == Buffer
     {
         let value = Self(expanding: other, alongAxes: axes)
         return (value, { T(squeezing: $0, alongAxes: axes) })
@@ -155,10 +161,10 @@ public extension TensorView {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView, T: DifferentiableTensorView)
     init<T>(squeezing other: T, alongAxes axes: Set<Int>? = nil)
-        where T: TensorView, T.Element == Element
+        where T: TensorView, T.Buffer == Buffer
     {
         self.init(shape: Shape(squeezing: other.shape, alongAxes: axes),
-                  bufferRef: other.bufferRef,
+                  buffer: other.buffer,
                   offset: other.offset,
                   shared: other.shared)
     }
@@ -166,7 +172,7 @@ public extension TensorView {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView, T: DifferentiableTensorView)
     init<T>(squeezing other: T, alongAxes axes: Int...)
-        where T: TensorView, T.Element == Element {
+        where T: TensorView, T.Buffer == Buffer {
         self.init(squeezing: other, alongAxes: Set(axes))
     }
 
@@ -177,7 +183,7 @@ public extension TensorView {
     static func _vjpInit<T>(squeezing other: T, alongAxes axes: Set<Int>?) ->
         (value: Self, pullback: (Self) -> T.TangentVector)
         where Self: DifferentiableTensorView,
-        T: DifferentiableTensorView, T.Element == Element
+        T: DifferentiableTensorView, T.Buffer == Buffer
     {
         let value = Self(squeezing: other, alongAxes: axes)
         return (value, { T(expanding: $0, alongAxes: axes) })
@@ -187,14 +193,14 @@ public extension TensorView {
     // stacking
     @inlinable
     init<T>(stacking others: T..., alongAxis axis: Int = 0)
-        where T: TensorView, T.Element == Element
+        where T: TensorView, T.Buffer == Buffer
     {
         self.init(stacking: others, alongAxis: axis)
     }
     
     @inlinable
     init<T>(stacking others: [T], alongAxis axis: Int = 0)
-        where T: TensorView, T.Element == Element
+        where T: TensorView, T.Buffer == Buffer
     {
         // verify that tensors are the correct rank and same shape
         let rank = Shape.zeros.count
@@ -301,9 +307,8 @@ public extension TensorView {
     @inlinable
     static func create(_ shape: Shape, _ name: String?) -> Self {
         let label = name ?? Self.diagnosticName
-        let ref = Platform.service
-            .createBuffer(of: Element.self, count: shape.count, name: label)
-        return Self(shape: shape, bufferRef: ref, offset: 0, shared: false)
+        let buffer = Buffer(count: shape.count, name: label)
+        return Self(shape: shape, buffer: buffer, offset: 0, shared: false)
     }
     
     @inlinable
@@ -313,8 +318,8 @@ public extension TensorView {
                "shape count does not match buffer count")
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
-        let ref = Platform.service.createReference(to: buffer, name: label)
-        return Self(shape: shape, bufferRef: ref, offset: 0, shared: false)
+        let reference = Buffer(referenceTo: buffer, name: label)
+        return Self(shape: shape, buffer: reference, offset: 0, shared: false)
     }
     
     @inlinable
@@ -324,8 +329,8 @@ public extension TensorView {
                "shape count does not match buffer count")
         // create tensor data reference to buffer
         let label = name ?? Self.diagnosticName
-        let ref = Platform.service.createMutableReference(to: buffer, name: label)
-        return Self(shape: shape, bufferRef: ref, offset: 0, shared: false)
+        let reference = Buffer(referenceTo: buffer, name: label)
+        return Self(shape: shape, buffer: reference, offset: 0, shared: false)
     }
     
     @inlinable
@@ -336,25 +341,10 @@ public extension TensorView {
         // it can be less if the elements are being repeated
         assert(elements.count <= shape.count, _messageElementCountMismatch)
         let label = name ?? Self.diagnosticName
-        
+
         // create the tensor
-        var tensor: Self = {
-            // create the buffer
-            let ref = Platform.service
-                .createBuffer(of: Element.self, count: shape.count, name: label)
-
-            return Self(shape: shape, bufferRef: ref, offset: 0, shared: false)
-        }()
-        
-        // copy the elements into the tensor buffer bypassing indexing
-        assert(tensor.isUniquelyReference())
-        let buffer = Platform.service.write(&tensor, willOverwrite: true)
-        assert(shape.spanCount == elements.count)
-
-        for (i, element) in zip(0..<buffer.pointer.count, elements) {
-            buffer.pointer[i] = element
-        }
-        return tensor
+        let buffer = Buffer(elements: elements, name: label)
+        return Self(shape: shape, buffer: buffer, offset: 0, shared: false)
     }
 }
 

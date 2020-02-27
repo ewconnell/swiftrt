@@ -16,12 +16,113 @@
 import Foundation
 
 //==============================================================================
+/// MultiDeviceBuffer
+/// Used internally to manage the state of a collection of device buffers
+public final class MultiDeviceBuffer<Element>: ElementBuffer {
+    public var id: Int
+    public var isReference: Bool
+    
+    /// the number of elements in the buffer
+    public let count: Int
+    /// a dictionary of device memory replicas allocated on each device
+    /// - Parameter key: the device index
+    /// - Returns: the associated device memory object
+    public var memory: [Int : DeviceMemory]
+    
+    /// `true` if the buffer is not mutable, such as in the case of a readOnly
+    /// reference buffer.
+    public let isReadOnly: Bool
+    
+    /// the `id` of the last queue that obtained write access
+    public var lastMutatingQueue: QueueId
+    
+    /// the buffer name used in diagnostic messages
+    public let name: String
+    
+    /// the index of the device holding the master version
+    public var masterDevice: Int
+    
+    /// the masterVersion is incremented each time write access is taken.
+    /// All device buffers will stay in sync with this version, copying as
+    /// necessary.
+    public var masterVersion: Int
+    
+    //--------------------------------------------------------------------------
+    // init(type:count:name:
+    @inlinable
+    public init(count: Int, name: String) {
+        self.count = count
+        self.memory = [Int : DeviceMemory]()
+        self.id = Platform.nextBufferId
+        self.isReference = false
+        self.isReadOnly = false
+        self.lastMutatingQueue = QueueId(0, 0)
+        self.masterDevice = 0
+        self.masterVersion = 0
+        self.name = name
+    }
+    
+    //--------------------------------------------------------------------------
+    /// `deallocate`
+    /// releases device memory associated with this buffer descriptor
+    /// - Parameter device: the device to release memory from. `nil` will
+    /// release all associated device memory for this buffer.
+    @inlinable
+    public func deallocate(device: Int? = nil) {
+        if let device = device {
+            memory[device]!.deallocate()
+        } else {
+            memory.values.forEach { $0.deallocate() }
+        }
+    }
+
+    @inlinable
+    public init(referenceTo buffer: UnsafeBufferPointer<Element>, name: String) {
+        fatalError()
+    }
+    
+    @inlinable
+    public init(referenceTo buffer: UnsafeMutableBufferPointer<Element>, name: String) {
+        fatalError()
+    }
+    
+    @inlinable
+    public init<C>(elements: C, name: String) where C : Collection, C.Element == Element {
+        fatalError()
+    }
+    
+    @inlinable
+    public init<Shape, Stream>(block shape: Shape, bufferedBlocks: Int, stream: Stream) where Shape : ShapeProtocol, Stream : BufferStream {
+        fatalError()
+    }
+    
+    @inlinable
+    public init(for element: Element) {
+        fatalError()
+    }
+    
+    @inlinable
+    public func duplicate() -> Self {
+        fatalError()
+    }
+    
+    @inlinable
+    public func read(at offset: Int, count: Int, using queue: DeviceQueue) -> UnsafeBufferPointer<Element> {
+        fatalError()
+    }
+    
+    @inlinable
+    public func readWrite(at offset: Int, count: Int, willOverwrite: Bool, using queue: DeviceQueue) -> UnsafeMutableBufferPointer<Element> {
+        fatalError()
+    }
+}
+
+//==============================================================================
 /// CudaService
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public class CudaService: PlatformService, DiscreetMemoryManagement {
+public class CudaService: PlatformService {
     // properties
-    public var deviceBuffers: [Int : MultiDeviceBuffer]
     public let devices: [CudaDevice]
     public let logInfo: LogInfo
     public let name: String
@@ -30,7 +131,6 @@ public class CudaService: PlatformService, DiscreetMemoryManagement {
     //--------------------------------------------------------------------------
     @inlinable
     public init() {
-        self.deviceBuffers = [Int : MultiDeviceBuffer]()
         self.name = "CudaService"
         self.logInfo = LogInfo(logWriter: Platform.log,
                                logLevel: .error,
@@ -45,20 +145,6 @@ public class CudaService: PlatformService, DiscreetMemoryManagement {
         self.queueStack = []
         self.queueStack = [ensureValidId(1, 0)]
     }
-    
-    deinit {
-        deviceBuffers.values.forEach { $0.deallocate() }
-    }
-    
-    public func createBuffer<E, Shape, Stream>(
-        of type: E.Type, block shape: Shape,
-        bufferedBlocks: Int, stream: Stream) -> (BufferRef, Int)
-        where Shape : ShapeProtocol, Stream : BufferStream
-    {
-        fatalError()
-    }
-    
-
 }
 
 //==============================================================================

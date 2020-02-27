@@ -37,7 +37,7 @@ public final class Platform {
     @usableFromInline static var bufferIdCounter: Int = 0
 
     // maybe thread local
-    public static var service: PlatformAPI = CpuService()
+    public static var service = PlatformServiceType()
     
     //--------------------------------------------------------------------------
     /// the Platform log writing object

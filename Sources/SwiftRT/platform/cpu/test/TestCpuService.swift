@@ -19,9 +19,8 @@
 /// This is used only for testing. It is an asynchronous cpu version
 /// that reports having discreet memory instead of unified to exercise
 /// memory management unit tests
-public class TestCpuService: PlatformService, DiscreetMemoryManagement {
+public class TestCpuService: PlatformService {
     // properties
-    public var deviceBuffers: [Int : MultiDeviceBuffer]
     public let devices: [CpuDevice<CpuQueue>]
     public let logInfo: LogInfo
     public let name: String
@@ -30,7 +29,6 @@ public class TestCpuService: PlatformService, DiscreetMemoryManagement {
     //--------------------------------------------------------------------------
     @inlinable
     public init() {
-        self.deviceBuffers = [Int : MultiDeviceBuffer]()
         self.name = "TestCpuService"
         self.logInfo = LogInfo(logWriter: Platform.log,
                                logLevel: .error,

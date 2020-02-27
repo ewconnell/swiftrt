@@ -18,9 +18,8 @@
 /// CpuService
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public class CpuService: PlatformService, CpuMemoryManagement {
+public class CpuService: PlatformService {
     // properties
-    public var deviceBuffers: [Int : CpuBuffer]
     public let devices: [CpuDevice<CpuQueue>]
     public let logInfo: LogInfo
     public let name: String
@@ -29,7 +28,6 @@ public class CpuService: PlatformService, CpuMemoryManagement {
     //--------------------------------------------------------------------------
     @inlinable
     public init() {
-        self.deviceBuffers = [Int : CpuBuffer]()
         self.name = "CpuService"
         self.logInfo = LogInfo(logWriter: Platform.log,
                                logLevel: .error,
@@ -44,3 +42,137 @@ public class CpuService: PlatformService, CpuMemoryManagement {
         self.queueStack = [ensureValidId(0, 0)]
     }
 }
+
+//==============================================================================
+/// CpuBuffer
+/// Used to manage a host memory buffer
+public final class CpuBuffer<Element>: ElementBuffer {
+    public let buffer: UnsafeMutableBufferPointer<Element>
+    public let id: Int
+    public let isReadOnly: Bool
+    public let isReference: Bool
+    public let name: String
+    
+    //--------------------------------------------------------------------------
+    // init(count:name:
+    @inlinable
+    public init(count: Int, name: String) {
+        self.buffer = UnsafeMutableBufferPointer.allocate(capacity: count)
+        self.id = Platform.nextBufferId
+        self.isReadOnly = false
+        self.isReference = false
+        self.name = name
+        
+        #if DEBUG
+        diagnostic("\(createString) \(name)(\(id)) " +
+            "\(Element.self)[\(count)]", categories: .dataAlloc)
+        #endif
+    }
+    
+    //--------------------------------------------------------------------------
+    // init(elements:name:
+    @inlinable
+    public convenience init<C>(elements: C, name: String)
+        where C: Collection, C.Element == Element
+    {
+        self.init(count: elements.count, name: name)
+        _ = buffer.initialize(from: elements)
+    }
+    
+    //--------------------------------------------------------------------------
+    // init(buffer:name:
+    @inlinable
+    public init(referenceTo buffer: UnsafeBufferPointer<Element>, name: String) {
+        self.buffer = UnsafeMutableBufferPointer(mutating: buffer)
+        self.id = Platform.nextBufferId
+        self.isReadOnly = true
+        self.isReference = true
+        self.name = name
+        
+        #if DEBUG
+        diagnostic("\(createString) Reference \(name)(\(id)) " +
+            "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
+        #endif
+    }
+    
+    //--------------------------------------------------------------------------
+    // init(buffer:name:
+    @inlinable
+    public init(referenceTo buffer: UnsafeMutableBufferPointer<Element>,
+                name: String)
+    {
+        self.buffer = buffer
+        self.id = Platform.nextBufferId
+        self.isReadOnly = false
+        self.isReference = true
+        self.name = name
+        
+        #if DEBUG
+        diagnostic("\(createString) Reference \(name)(\(id)) " +
+            "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
+        #endif
+    }
+    
+    //--------------------------------------------------------------------------
+    // streaming
+    @inlinable
+    public init<Shape, Stream>(block shape: Shape, bufferedBlocks: Int,
+                               stream: Stream)
+        where Shape : ShapeProtocol, Stream : BufferStream
+    {
+        fatalError()
+    }
+    
+    //--------------------------------------------------------------------------
+    // single element
+    @inlinable
+    public init(for element: Element)
+    {
+        fatalError()
+    }
+    
+    //--------------------------------------------------------------------------
+    // deinit
+    @inlinable
+    deinit {
+        if !isReference {
+            buffer.deallocate()
+            #if DEBUG
+            diagnostic("\(releaseString) \(name)(\(id)) ",
+                categories: .dataAlloc)
+            #endif
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    // duplicate
+    @inlinable
+    public func duplicate() -> CpuBuffer {
+        let roBuffer = UnsafeRawBufferPointer(buffer)
+        let newBuffer = CpuBuffer(count: roBuffer.count, name: name)
+        _ = newBuffer.buffer.initialize(from: buffer)
+        return newBuffer
+    }
+    
+    //--------------------------------------------------------------------------
+    // read
+    @inlinable
+    public func read(at offset: Int, count: Int, using queue: DeviceQueue)
+        -> UnsafeBufferPointer<Element>
+    {
+        let start = buffer.baseAddress!.advanced(by: offset)
+        return UnsafeBufferPointer(start: start, count: count)
+    }
+    
+    //--------------------------------------------------------------------------
+    // readWrite
+    @inlinable
+    public func readWrite(at offset: Int, count: Int, willOverwrite: Bool,
+                          using queue: DeviceQueue)
+        -> UnsafeMutableBufferPointer<Element>
+    {
+        let start = buffer.baseAddress!.advanced(by: offset)
+        return UnsafeMutableBufferPointer(start: start, count: count)
+    }
+}
+

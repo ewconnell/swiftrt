@@ -109,7 +109,7 @@ public extension VectorView {
     //--------------------------------------------------------------------------
     // Swift array of elements
     @inlinable
-    var array: [Element] { [Element](elementBuffer()) }
+    var array: [Element] { [Element](bufferElements()) }
 }
 
 //==============================================================================
@@ -118,16 +118,16 @@ public struct VectorType<Element>: VectorView {
     // properties
     public static var diagnosticName: String { "Vector" }
     public let shape: Shape1
-    public var bufferRef: BufferRef
+    public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
     
     @inlinable
-    public init(shape: Shape1, bufferRef: BufferRef,
+    public init(shape: Shape1, buffer: TensorBuffer<Element>,
                 offset: Int, shared: Bool)
     {
         self.shape = shape
-        self.bufferRef = bufferRef
+        self.buffer = buffer
         self.offset = offset
         self.shared = shared
     }
@@ -298,8 +298,7 @@ public extension MatrixView {
     @inlinable
     var t: Self {
         Self.init(shape: shape.transposed(),
-                  bufferRef: bufferRef,
-                  offset: offset, shared: shared)
+                  buffer: buffer, offset: offset, shared: shared)
     }
     
     //--------------------------------------------------------------------------
@@ -322,7 +321,7 @@ public extension MatrixView {
     var array: [[Element]] {
         var result = [[Element]]()
         for row in 0..<extents[0] {
-            result.append([Element](self[row, ...].elementBuffer()))
+            result.append([Element](self[row, ...].bufferElements()))
         }
         return result
     }
@@ -388,16 +387,16 @@ public struct MatrixType<Element>: MatrixView {
     // properties
     public static var diagnosticName: String { "Matrix" }
     public let shape: Shape2
-    public var bufferRef: BufferRef
+    public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
 
     @inlinable
-    public init(shape: Shape2, bufferRef: BufferRef,
+    public init(shape: Shape2, buffer: TensorBuffer<Element>,
                 offset: Int, shared: Bool)
     {
         self.shape = shape
-        self.bufferRef = bufferRef
+        self.buffer = buffer
         self.offset = offset
         self.shared = shared
     }
@@ -567,7 +566,7 @@ public extension VolumeView {
         for di in 0..<extents[0] {
             var depth = [[Element]]()
             for ri in 0..<extents[1] {
-                depth.append([Element](self[di, ri, ...].elementBuffer()))
+                depth.append([Element](self[di, ri, ...].bufferElements()))
             }
             result.append(depth)
         }
@@ -661,16 +660,16 @@ public struct VolumeType<Element>: VolumeView {
     // properties
     public static var diagnosticName: String { "Volume" }
     public let shape: Shape3
-    public var bufferRef: BufferRef
+    public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
 
     @inlinable
-    public init(shape: Shape3, bufferRef: BufferRef,
+    public init(shape: Shape3, buffer: TensorBuffer<Element>,
                 offset: Int, shared: Bool)
     {
         self.shape = shape
-        self.bufferRef = bufferRef
+        self.buffer = buffer
         self.offset = offset
         self.shared = shared
     }

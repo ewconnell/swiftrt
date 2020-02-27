@@ -24,14 +24,17 @@ import Foundation
 public protocol TensorView: Logging {
     /// the type of element stored by the tensor
     associatedtype Element
+    /// tye type of element storage buffer
+    associatedtype Buffer: ElementBuffer
+        where Buffer.Element == Element
     /// tensor shape
     associatedtype Shape: ShapeProtocol
     /// A concrete type used in generics to pass Boolean values
-    associatedtype BoolView: TensorView where
-        BoolView.Element == Bool, BoolView.Shape == Shape
+    associatedtype BoolView: TensorView
+        where BoolView.Element == Bool, BoolView.Shape == Shape
     /// A concrete type used in generics to return index results
-    associatedtype IndexView: TensorView where
-        IndexView.Element == IndexType, IndexView.Shape == Shape
+    associatedtype IndexView: TensorView
+        where IndexView.Element == IndexType, IndexView.Shape == Shape
 
     //--------------------------------------------------------------------------
     // properties
@@ -40,7 +43,7 @@ public protocol TensorView: Logging {
     /// the shape of the view used for indexing
     var shape: Shape { get }
     /// class reference to the underlying platform element buffer
-    var bufferRef: BufferRef { get set }
+    var buffer: Buffer { get set }
     /// the linear element offset where the view begins
     var offset: Int { get }
     /// `true` if the view will be shared by by multiple writers
@@ -48,7 +51,7 @@ public protocol TensorView: Logging {
     
     //--------------------------------------------------------------------------
     /// fully specified used for creating tensors
-    init(shape: Shape, bufferRef: BufferRef, offset: Int, shared: Bool)
+    init(shape: Shape, buffer: Buffer, offset: Int, shared: Bool)
 
     //--------------------------------------------------------------------------
     /// creates a new dense tensor of the same type with the specified extents
@@ -62,35 +65,13 @@ public protocol TensorView: Logging {
 }
 
 //==============================================================================
-/// BufferRef
-// this wraps the platform buffer object because the function
-// `isKnownUniquelyReferenced` only works on concrete classes not
-// class protocol types
-public class BufferRef {
-    /// the id of the buffer for diagnostics
-    @inlinable public var id: Int { elementBuffer.id }
-    @inlinable public var name: String { elementBuffer.name }
-
-    public let elementBuffer: ElementBuffer
-    
-    @inlinable
-    public init(_ elementBuffer: ElementBuffer) {
-        self.elementBuffer = elementBuffer
-    }
-    
-    @inlinable
-    public func duplicate() -> BufferRef {
-        BufferRef(elementBuffer.duplicate())
-    }
-}
-
-//==============================================================================
 //
 public extension TensorView {
-    /// `elementBuffer`
-    /// - Returns: an element buffer that can be used to iterate the shape
+    /// `bufferElements`
+    /// - Returns: a buffer collection that can be used to iterate the shape
     @inlinable
-    func elementBuffer() -> BufferElements<Element, Shape> {
+    func bufferElements() -> BufferElements<Element, Shape> {
+        // read the elements buffer using the current queue
         Platform.service.read(self)
     }
 
@@ -103,23 +84,32 @@ public extension TensorView {
     {
         Platform.service.write(&self, willOverwrite: willOverwrite)
     }
-    
-    @inlinable
-    func read(at offset: Int, count: Int,
-              using queue: DeviceQueue) -> UnsafeBufferPointer<Element>
+
+    //--------------------------------------------------------------------------
+    /// `read(queue:`
+    @inlinable @inline(__always)
+    func read(using queue: DeviceQueue) -> UnsafeBufferPointer<Element>
     {
-        bufferRef.elementBuffer.read(type: Element.self, at: offset,
-                                     count: count, using: queue)
+        buffer.read(at: self.offset, count: self.spanCount, using: queue)
     }
     
+    //--------------------------------------------------------------------------
+    /// `readWrite(willOverwrite:queue:`
     @inlinable
-    func readWrite(at offset: Int, count: Int,
-                      willOverwrite: Bool, using queue: DeviceQueue)
+    mutating func readWrite(willOverwrite: Bool, using queue: DeviceQueue)
         -> UnsafeMutableBufferPointer<Element>
     {
-        bufferRef.elementBuffer.readWrite(
-            type: Element.self, at: offset, count: count,
-            willOverwrite: willOverwrite, using: queue)
+        // check for copy on write
+        if !shared && !isUniquelyReference() {
+            diagnostic("\(mutationString) " +
+                "\(name)(\(id)) \(Element.self)[\(count)]",
+                categories: [.dataCopy, .dataMutation])
+            
+            buffer = buffer.duplicate()
+        }
+
+        return buffer.readWrite(at: self.offset, count: self.spanCount,
+                                willOverwrite: willOverwrite, using: queue)
     }
 }
 
@@ -143,7 +133,7 @@ public extension TensorView {
     /// - Returns: the first element in the tensor
     @inlinable
     var first: Element {
-        let elements = elementBuffer()
+        let elements = bufferElements()
         return elements[elements.startIndex]
     }
 
@@ -172,53 +162,71 @@ public extension TensorView {
 public extension TensorView {
     //--------------------------------------------------------------------------
     /// the number of elements in the collection
-    @inlinable
+    @_transparent
+    @inlinable @inline(__always)
     var count: Int { shape.count }
+
     /// the extents of the view
-    @inlinable
+    @_transparent
+    @inlinable @inline(__always)
     @_semantics("autodiff.nonvarying")
     var extents: Shape.Array { shape.extents }
+
     /// a 1D array of tensor elements
     @inlinable
-    var flatArray: [Element] { [Element](elementBuffer()) }
+    var flatArray: [Element] { [Element](bufferElements()) }
+
     /// the unique buffer id for diagnostics
-    @inlinable
-    var id: Int { bufferRef.id }
+    @_transparent
+    @inlinable @inline(__always)
+    var id: Int { buffer.id }
+
     /// `true` if the values are contiguosly arranged in memory
-    @inlinable
+    @_transparent
+    @inlinable @inline(__always)
     var isContiguous: Bool { shape.isContiguous }
+
     /// the number of items in the tensor, which is equal to `extents[0]`
-    @inlinable
+    @_transparent
+    @inlinable @inline(__always)
     var items: Int { shape.items }
+
     /// the name of the view, which can optionally be set to aid in debugging
-    @inlinable
-    var name: String { bufferRef.name }
+    @_transparent
+    @inlinable @inline(__always)
+    var name: String { buffer.name }
+
     /// the number of dimensions in the view
-    @inlinable
+    @_transparent
+    @inlinable @inline(__always)
     var rank: Int { shape.rank }
+
     /// the strided element span of this view
-    @inlinable
+    @_transparent
+    @inlinable @inline(__always)
     var spanCount: Int { shape.spanCount }
+
     /// the strides of the tensor elements
-    @inlinable
+    @_transparent
+    @inlinable @inline(__always)
     var strides: Shape.Array { shape.strides }
-    /// repeated(to extents:
+
+    /// repeated(extents:
     @inlinable
     func repeated(to extents: Shape.Array) -> Self {
         return Self(shape: shape.repeated(to: extents),
-                    bufferRef: bufferRef,
-                    offset: offset, shared: shared)
+                    buffer: buffer, offset: offset, shared: shared)
     }
     ///
-    @inlinable
+    @inlinable @inline(__always)
     func repeated(to extents: Shape.Tuple) -> Self {
         repeated(to: Shape.Array(extents))
     }
     /// isUniquelyReference
     /// `true` if this view is the only one holding a reference to bufferRef
-    @inlinable
+    @inlinable @inline(__always)
     mutating func isUniquelyReference() -> Bool {
-        isKnownUniquelyReferenced(&bufferRef)
+        isKnownUniquelyReferenced(&buffer)
     }
 }
 
@@ -277,11 +285,10 @@ public extension TensorView {
         // creating a shared view of it
         if !isUniquelyReference() {
             diagnostic("\(mutationString) " +
-                "\(name)(\(bufferRef.id)) " +
-                "\(Element.self)[\(shape.count)]",
+                "\(name)(\(id)) \(Element.self)[\(count)]",
                 categories: [.dataCopy, .dataMutation])
 
-            bufferRef = bufferRef.duplicate()
+            buffer = buffer.duplicate()
         }
         
         return createView(at: index, with: extents,
@@ -318,7 +325,7 @@ public extension TensorView {
         let viewShape = Shape(extents: extents, strides: strides,
                               isSequential: isSequential)
         
-        return Self(shape: viewShape, bufferRef: bufferRef,
+        return Self(shape: viewShape, buffer: buffer,
                     offset: subViewOffset, shared: shared)
     }
 
@@ -331,7 +338,7 @@ public extension TensorView {
     func transposed(with permutations: Shape.Tuple? = nil) -> Self {
         guard self.rank > 1 else { return self }
         let shape = self.shape.transposed(with: Shape.Array(permutations))
-        return Self(shape: shape, bufferRef: bufferRef,
+        return Self(shape: shape, buffer: buffer,
                     offset: offset, shared: shared)
     }
 }
@@ -348,7 +355,7 @@ public extension TensorView where Element: Codable {
         try container.encode(name, forKey: .name)
         try container.encode(extents, forKey: .extents)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
-        try elementBuffer().forEach {
+        try bufferElements().forEach {
             try dataContainer.encode($0)
         }
     }
@@ -376,7 +383,7 @@ public extension TensorView where Element: Equatable {
     /// compares the flat elements of self with a Swift array of elements
     @inlinable
     static func == (lhs: Self, rhs: [Element]) -> Bool {
-        for (lhsElement, rhsElement) in zip(lhs.elementBuffer(), rhs) {
+        for (lhsElement, rhsElement) in zip(lhs.bufferElements(), rhs) {
             if lhsElement != rhsElement { return false }
         }
         return true
@@ -389,7 +396,7 @@ public extension TensorView where Element: Equatable & AnyConvertable {
     static func == <R>(lhs: Self, rhs: R) -> Bool
         where R: Collection, R.Element: AnyConvertable
     {
-        for (lhsElement, rhsElement) in zip(lhs.elementBuffer(), rhs) {
+        for (lhsElement, rhsElement) in zip(lhs.bufferElements(), rhs) {
             if lhsElement != Element(any: rhsElement) { return false }
         }
         return true

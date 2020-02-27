@@ -20,7 +20,7 @@ import Numerics
 // PlatformAPI
 // This is the platform user application interface
 //
-public protocol PlatformAPI: MemoryManagement, Logger {
+public protocol PlatformAPI: class, Logger {
     // queue managment
     func useCpu()
     func use(device: Int, queue: Int)

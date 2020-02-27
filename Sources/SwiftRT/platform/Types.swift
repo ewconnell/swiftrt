@@ -15,6 +15,32 @@
 import Numerics
 
 //==============================================================================
+// Platform types
+// #if Cuda
+// #else
+
+public typealias TensorBuffer<Element> = CpuBuffer<Element>
+public typealias PlatformServiceType = CpuService
+
+//==============================================================================
+// Default Tensor types
+public typealias IndexType = Int32
+public typealias Vector = VectorType<Float>
+public typealias BoolVector = VectorType<Bool>
+public typealias IndexVector = VectorType<IndexType>
+public typealias ComplexVector = VectorType<Complex<Float>>
+
+public typealias Matrix = MatrixType<Float>
+public typealias BoolMatrix = MatrixType<Bool>
+public typealias IndexMatrix = MatrixType<IndexType>
+public typealias ComplexMatrix = MatrixType<Complex<Float>>
+
+public typealias Volume = VolumeType<Float>
+public typealias BoolVolume = VolumeType<Bool>
+public typealias IndexVolume = VolumeType<IndexType>
+public typealias ComplexVolume = VolumeType<Complex<Float>>
+
+//==============================================================================
 /// DifferentiableTensorView
 ///
 /// Marker protocol for `TensorView` that conform to `Differentiable`.
@@ -53,21 +79,3 @@ extension Complex: AnyElement {
         self.init(0)
     }
 }
-
-//==============================================================================
-// Default Tensor types
-public typealias IndexType = Int32
-public typealias Vector = VectorType<Float>
-public typealias BoolVector = VectorType<Bool>
-public typealias IndexVector = VectorType<IndexType>
-public typealias ComplexVector = VectorType<Complex<Float>>
-
-public typealias Matrix = MatrixType<Float>
-public typealias BoolMatrix = MatrixType<Bool>
-public typealias IndexMatrix = MatrixType<IndexType>
-public typealias ComplexMatrix = MatrixType<Complex<Float>>
-
-public typealias Volume = VolumeType<Float>
-public typealias BoolVolume = VolumeType<Bool>
-public typealias IndexVolume = VolumeType<IndexType>
-public typealias ComplexVolume = VolumeType<Complex<Float>>

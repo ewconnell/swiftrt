@@ -99,8 +99,7 @@ public extension TensorView {
 
         // report
         diagnostic("\(expandingString) " +
-            "\(name)(\(bufferRef.id)) " +
-            "storage: \(Element.self)[\(spanCount)] " +
+            "\(name)(\(id)) storage: \(Element.self)[\(spanCount)] " +
             "expanded to: \(Element.self)[\(count)]",
             categories: [.dataCopy, .dataExpanding])
 
