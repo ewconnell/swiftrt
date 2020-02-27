@@ -18,33 +18,90 @@ import Foundation
 //==============================================================================
 /// CpuBuffer
 /// Used to manage a host memory buffer
-public struct CpuBuffer {
-    /// host memory buffer pointer
-    public let buffer: UnsafeMutableRawBufferPointer
-    /// function to free the memory
-    public let deallocate: () -> Void
-    /// `true` if the buffer is not mutable, such as in the case of a readOnly
-    /// reference buffer.
+public class CpuBuffer: ElementBuffer {
+    public let rawBuffer: UnsafeMutableRawBufferPointer
+    public let id: Int
     public let isReadOnly: Bool
-    /// the buffer name used in diagnostic messages
+    public let isReference: Bool
     public let name: String
-    /// helper to return `Element` sized count
-    @inlinable
-    public func count<Element>(of type: Element.Type) -> Int {
-        buffer.count * MemoryLayout<Element>.size
+    
+    //--------------------------------------------------------------------------
+    // init(type:count:name:
+    public init<E>(type: E.Type, count: Int, name: String) {
+        let byteCount = count * MemoryLayout<E>.size
+        self.rawBuffer = UnsafeMutableRawBufferPointer.allocate(
+            byteCount: byteCount, alignment: MemoryLayout<E>.alignment)
+        self.id = Platform.nextBufferId
+        self.isReadOnly = false
+        self.isReference = false
+        self.name = name
     }
     
     //--------------------------------------------------------------------------
-    /// initializer
-    @inlinable
-    public init(_ buffer: UnsafeMutableRawBufferPointer,
-                _ name: String, isReadOnly: Bool = false,
-                _ deallocate: @escaping () -> Void)
-    {
-        self.buffer = buffer
-        self.isReadOnly = isReadOnly
+    // init(buffer:name:
+    public init<E>(referenceTo buffer: UnsafeBufferPointer<E>, name: String) {
+        let roBuffer = UnsafeRawBufferPointer(buffer)
+        let pointer = UnsafeMutableRawPointer(mutating: roBuffer.baseAddress!)
+        self.rawBuffer = UnsafeMutableRawBufferPointer(start: pointer,
+                                                       count: roBuffer.count)
+        self.id = Platform.nextBufferId
+        self.isReadOnly = true
+        self.isReference = true
         self.name = name
-        self.deallocate = deallocate
+    }
+    
+    //--------------------------------------------------------------------------
+    // init(buffer:name:
+    public init<E>(referenceTo buffer: UnsafeMutableBufferPointer<E>,
+                   name: String)
+    {
+        self.rawBuffer = UnsafeMutableRawBufferPointer(buffer)
+        self.id = Platform.nextBufferId
+        self.isReadOnly = false
+        self.isReference = true
+        self.name = name
+    }
+    
+    //--------------------------------------------------------------------------
+    // deinit
+    deinit {
+        if !isReference {
+            rawBuffer.deallocate()
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    // duplicate
+    public func duplicate() -> ElementBuffer {
+        let source = UnsafeRawBufferPointer(rawBuffer)
+        let newBuffer = CpuBuffer(type: UInt8.self,
+                                  count: rawBuffer.count,
+                                  name: name)
+        newBuffer.rawBuffer.copyMemory(from: source)
+        return newBuffer
+    }
+    
+    //--------------------------------------------------------------------------
+    // read
+    public func read<E>(type: E.Type, at offset: Int, count: Int,
+                        using queue: DeviceQueue) -> UnsafeBufferPointer<E>
+    {
+        let elements = rawBuffer.bindMemory(to: E.self)
+        return UnsafeBufferPointer(
+            start: elements.baseAddress!.advanced(by: offset),
+            count: count)
+    }
+    
+    //--------------------------------------------------------------------------
+    // readWrite
+    public func readWrite<E>(type: E.Type, at offset: Int, count: Int,
+                             willOverwrite: Bool, using queue: DeviceQueue)
+        -> UnsafeMutableBufferPointer<E>
+    {
+        let elements = rawBuffer.bindMemory(to: E.self)
+        return UnsafeMutableBufferPointer(
+            start: elements.baseAddress!.advanced(by: offset),
+            count: count)
     }
 }
 
@@ -52,132 +109,38 @@ public struct CpuBuffer {
 /// CpuMemoryManagement
 /// Compute services that manage asynchronous discreet devices
 /// conform to this protocol
-public protocol CpuMemoryManagement: MemoryManagement {
-    /// a dictionary of device buffer entries indexed by the device
-    /// number, and keyed by the id returned from `createBuffer`.
-    /// By convention device 0 will always be a unified memory device with
-    /// the application.
-    var deviceBuffers: [Int : CpuBuffer] { get set }
-}
+public protocol CpuMemoryManagement: MemoryManagement { }
 
-public extension CpuMemoryManagement where Self: PlatformService {
-    //--------------------------------------------------------------------------
-    // bufferName
-    @inlinable
-    func bufferName(_ ref: BufferRef) -> String {
-        deviceBuffers[ref.id]!.name
-    }
-    
-    //--------------------------------------------------------------------------
-    // createBuffer
-    @inlinable
-    func createBuffer<Element>(of type: Element.Type, count: Int,
-                               name: String) -> BufferRef
+public extension CpuMemoryManagement where Self: PlatformService
+{
+    func createBuffer<E>(of type: E.Type, count: Int, name: String)
+        -> BufferRef
     {
-        let ref = self.nextBufferRef
-        let byteCount = count * MemoryLayout<Element>.size
-        let buffer = UnsafeMutableRawBufferPointer.allocate(
-            byteCount: byteCount, alignment: MemoryLayout<Double>.alignment)
-        deviceBuffers[ref.id] = CpuBuffer(buffer, name, { buffer.deallocate() })
-        return ref
+        BufferRef(CpuBuffer(type: E.self, count: count, name: name))
     }
     
-    //--------------------------------------------------------------------------
-    // createBuffer
-    @inlinable
-    func createBuffer<Shape, Stream>(block shape: Shape, bufferedBlocks: Int,
-                                     stream: Stream) -> (BufferRef, Int)
-        where Shape : ShapeProtocol, Stream : BufferStream
+    func createBuffer<E, Shape, Stream>(
+        of type: E.Type, block shape: Shape,
+        bufferedBlocks: Int, stream: Stream) -> (BufferRef, Int)
+        where Shape: ShapeProtocol, Stream: BufferStream
     {
         fatalError()
     }
     
-    //--------------------------------------------------------------------------
-    // cachedBuffer
-    @inlinable
-    func cachedBuffer<Element>(for element: Element) -> BufferRef {
+    func cachedBuffer<E>(for element: E) -> BufferRef {
         fatalError()
     }
     
-    //--------------------------------------------------------------------------
-    // createReference
-    @inlinable
-    func createReference<Element>(to buffer: UnsafeBufferPointer<Element>,
-                                  name: String) -> BufferRef
+    func createReference<E>(to buffer: UnsafeBufferPointer<E>,
+                            name: String) -> BufferRef
     {
-        // get a reference id
-        let ref = self.nextBufferRef
-        
-        // create a device buffer entry for the id
-        let roBuffer = UnsafeRawBufferPointer(buffer)
-        let pointer = UnsafeMutableRawPointer(mutating: roBuffer.baseAddress!)
-        let rawBuffer = UnsafeMutableRawBufferPointer(start: pointer,
-                                                      count: roBuffer.count)
-        deviceBuffers[ref.id] = CpuBuffer(rawBuffer, name, isReadOnly: true, {})
-        return ref
+        BufferRef(CpuBuffer(referenceTo: buffer, name: name))
     }
     
-    //--------------------------------------------------------------------------
-    // createMutableReference
-    @inlinable
-    func createMutableReference<Element>(
-        to buffer: UnsafeMutableBufferPointer<Element>,
-        name: String) -> BufferRef
+    func createMutableReference<E>(to buffer: UnsafeMutableBufferPointer<E>,
+                                   name: String) -> BufferRef
     {
-        // get a reference id
-        let ref = self.nextBufferRef
-        
-        // create a device buffer entry for the id
-        let rawBuffer = UnsafeMutableRawBufferPointer(buffer)
-        deviceBuffers[ref.id] = CpuBuffer(rawBuffer, name, {})
-        return ref
-    }
-    
-    //--------------------------------------------------------------------------
-    // duplicate
-    @inlinable
-    func duplicate(_ ref: BufferRef, using queue: QueueId) -> BufferRef {
-        let source = deviceBuffers[ref.id]!
-        let sourceBuffer = UnsafeRawBufferPointer(source.buffer)
-        let newRef = createBuffer(of: UInt8.self, count: sourceBuffer.count,
-                                  name: source.name)
-        deviceBuffers[newRef.id]!.buffer.copyMemory(from: sourceBuffer)
-        return newRef
-    }
-    
-    //--------------------------------------------------------------------------
-    // release
-    @inlinable
-    func release(_ ref: BufferRef) {
-        deviceBuffers[ref.id]!.buffer.deallocate()
-        deviceBuffers.removeValue(forKey: ref.id)
-    }
-    
-    //--------------------------------------------------------------------------
-    // read
-    @inlinable
-    func read<Element>(_ ref: BufferRef, of type: Element.Type, at offset: Int,
-                       count: Int, using queueId: QueueId)
-        -> UnsafeBufferPointer<Element>
-    {
-        let pointer = deviceBuffers[ref.id]!.buffer.bindMemory(to: Element.self)
-        return UnsafeBufferPointer(
-            start: pointer.baseAddress!.advanced(by: offset),
-            count: count)
-    }
-    
-    //--------------------------------------------------------------------------
-    // readWrite
-    @inlinable
-    func readWrite<Element>(_ ref: BufferRef, of type: Element.Type,
-                            at offset: Int, count: Int, willOverwrite: Bool,
-                            using queueId: QueueId)
-        -> UnsafeMutableBufferPointer<Element>
-    {
-        let pointer = deviceBuffers[ref.id]!.buffer.bindMemory(to: Element.self)
-        return UnsafeMutableBufferPointer(
-            start: pointer.baseAddress!.advanced(by: offset),
-            count: count)
+        BufferRef(CpuBuffer(referenceTo: buffer, name: name))
     }
 }
 

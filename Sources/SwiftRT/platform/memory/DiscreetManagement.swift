@@ -18,51 +18,56 @@ import Foundation
 //==============================================================================
 /// MultiDeviceBuffer
 /// Used internally to manage the state of a collection of device buffers
-public struct MultiDeviceBuffer {
+public class MultiDeviceBuffer: ElementBuffer {
+    public var id: Int
+    public var isReference: Bool
+    
     /// the number of bytes in the buffer
     public let byteCount: Int
     /// a dictionary of device memory replicas allocated on each device
     /// - Parameter key: the device index
     /// - Returns: the associated device memory object
     public var memory: [Int : DeviceMemory]
-    
+
     /// `true` if the buffer is not mutable, such as in the case of a readOnly
     /// reference buffer.
     public let isReadOnly: Bool
-    
+
     /// the `id` of the last queue that obtained write access
     public var lastMutatingQueue: QueueId
-    
+
     /// the buffer name used in diagnostic messages
     public let name: String
-    
+
     /// the index of the device holding the master version
     public var masterDevice: Int
-    
+
     /// the masterVersion is incremented each time write access is taken.
     /// All device buffers will stay in sync with this version, copying as
     /// necessary.
     public var masterVersion: Int
-    
+
     /// helper to return `Element` sized count
     @inlinable
     public func count<Element>(of type: Element.Type) -> Int {
         byteCount * MemoryLayout<Element>.size
     }
-    
+
     //--------------------------------------------------------------------------
-    /// initializer
+    // init(type:count:name:
     @inlinable
-    public init(byteCount: Int, name: String, isReadOnly: Bool = false) {
-        self.byteCount = byteCount
+    public init<E>(type: E.Type, count: Int, name: String) {
+        self.byteCount = count * MemoryLayout<E>.size
         self.memory = [Int : DeviceMemory]()
-        self.isReadOnly = isReadOnly
+        self.id = Platform.nextBufferId
+        self.isReference = false
+        self.isReadOnly = false
         self.lastMutatingQueue = QueueId(0, 0)
         self.masterDevice = 0
         self.masterVersion = 0
         self.name = name
     }
-    
+
     //--------------------------------------------------------------------------
     /// `deallocate`
     /// releases device memory associated with this buffer descriptor
@@ -75,6 +80,24 @@ public struct MultiDeviceBuffer {
         } else {
             memory.values.forEach { $0.deallocate() }
         }
+    }
+    
+    
+    public func duplicate() -> ElementBuffer {
+        fatalError()
+    }
+    
+    public func read<E>(type: E.Type, at offset: Int, count: Int,
+                        using queue: DeviceQueue) -> UnsafeBufferPointer<E>
+    {
+        fatalError()
+    }
+    
+    public func readWrite<E>(type: E.Type, at offset: Int, count: Int,
+                             willOverwrite: Bool, using queue: DeviceQueue)
+        -> UnsafeMutableBufferPointer<E>
+    {
+        fatalError()
     }
 }
 
@@ -92,36 +115,27 @@ public protocol DiscreetMemoryManagement: MemoryManagement {
 
 public extension DiscreetMemoryManagement where Self: PlatformService {
     //--------------------------------------------------------------------------
-    // bufferName
-    @inlinable
-    func bufferName(_ ref: BufferRef) -> String {
-        assert(deviceBuffers[ref.id] != nil, "Invalid BufferRef")
-        return deviceBuffers[ref.id]!.name
-    }
-    
-    //--------------------------------------------------------------------------
     // createBuffer
     @inlinable
     func createBuffer<Element>(of type: Element.Type, count: Int, name: String)
         -> BufferRef
     {
-        let ref = self.nextBufferRef
-        let byteCount = count * MemoryLayout<Element>.size
-        deviceBuffers[ref.id] = MultiDeviceBuffer(byteCount: byteCount,
-                                                  name: name)
-        return ref
+        let buffer = MultiDeviceBuffer(type: type, count: count, name: name)
+        deviceBuffers[buffer.id] = buffer
+        return BufferRef(buffer)
     }
-    
+
     //--------------------------------------------------------------------------
     // createBuffer
     @inlinable
-    func createBuffer<Shape, Stream>(block shape: Shape, bufferedBlocks: Int,
-                                     stream: Stream) -> (BufferRef, Int)
+    func createBuffer<E, Shape, Stream>(
+        of type: E.Type, block shape: Shape,
+        bufferedBlocks: Int, stream: Stream) -> (BufferRef, Int)
         where Shape : ShapeProtocol, Stream : BufferStream
     {
         fatalError()
     }
-    
+
     //--------------------------------------------------------------------------
     // cachedBuffer
     @inlinable
@@ -129,7 +143,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
     {
         fatalError()
     }
-    
+
     //--------------------------------------------------------------------------
     // createReference
     // create the DeviceBuffer record and add it to the dictionary
@@ -137,22 +151,9 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
     func createReference<Element>(to buffer: UnsafeBufferPointer<Element>,
                                   name: String) -> BufferRef
     {
-        // get a reference id
-        let ref = self.nextBufferRef
-        
-        // create a device buffer entry for the id
-        let roBuffer = UnsafeRawBufferPointer(buffer)
-        let pointer = UnsafeMutableRawPointer(mutating: roBuffer.baseAddress!)
-        let rawBuffer = UnsafeMutableRawBufferPointer(start: pointer,
-                                                      count: roBuffer.count)
-        var deviceBuffer = MultiDeviceBuffer(byteCount: rawBuffer.count,
-                                             name: name, isReadOnly: true)
-        deviceBuffer.memory[0] = DeviceMemory(buffer: rawBuffer,
-                                              memoryType: .unified, { })
-        deviceBuffers[ref.id] = deviceBuffer
-        return ref
+        fatalError()
     }
-    
+
     //--------------------------------------------------------------------------
     // createMutableReference
     // create the DeviceBuffer record and add it to the dictionary
@@ -161,33 +162,23 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
         to buffer: UnsafeMutableBufferPointer<Element>,
         name: String) -> BufferRef
     {
-        // get a reference id
-        let ref = self.nextBufferRef
-        
-        // create a device buffer entry for the id
-        let rawBuffer = UnsafeMutableRawBufferPointer(buffer)
-        var deviceBuffer = MultiDeviceBuffer(byteCount: rawBuffer.count,
-                                             name: name, isReadOnly: false)
-        deviceBuffer.memory[0] = DeviceMemory(buffer: rawBuffer,
-                                              memoryType: .unified, { })
-        deviceBuffers[ref.id] = deviceBuffer
-        return ref
+        fatalError()
     }
-    
+
     //--------------------------------------------------------------------------
     // duplicate
     @inlinable
     func duplicate(_ ref: BufferRef, using queue: QueueId) -> BufferRef {
         fatalError()
     }
-    
+
     //--------------------------------------------------------------------------
     // release
     @inlinable
     func release(_ ref: BufferRef) {
         deviceBuffers[ref.id]!.deallocate()
     }
-    
+
     //--------------------------------------------------------------------------
     // read
     @inlinable
@@ -201,7 +192,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
             start: buffer.baseAddress!.advanced(by: offset),
             count: count)
     }
-    
+
     //--------------------------------------------------------------------------
     // readWrite
     @inlinable
@@ -218,7 +209,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
             start: buffer.baseAddress!.advanced(by: offset),
             count: count)
     }
-    
+
     //--------------------------------------------------------------------------
     /// migrate
     /// Migrates the master version of the data from wherever it is to
@@ -231,7 +222,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
         // get a reference to the device buffer
         let device = queueId.device
         var deviceMemory = getDeviceMemory(ref, of: type, for: device)
-        
+
         //        // compare with master and copy if needed
         //        if let master = buffer.masterDevice,
         //            replica.version != buffer.masterVersion {
@@ -243,7 +234,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
         //                try copyCrossDevice(to: replica, from: master, using: queue)
         //            }
         //        }
-        
+
         // set version
         if !readOnly {
             deviceBuffers[ref.id]!.masterDevice = device
@@ -251,10 +242,10 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
         }
         deviceMemory.version = deviceBuffers[ref.id]!.masterVersion
         deviceBuffers[ref.id]!.memory[device] = deviceMemory
-        
+
         return deviceMemory.buffer.bindMemory(to: Element.self)
     }
-    
+
     //--------------------------------------------------------------------------
     // getDeviceMemory(_:ref:type:device:
     // returns the device memory buffer associated with the specified
@@ -265,7 +256,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
     {
         // get a reference to the device buffer
         let buffer = deviceBuffers[ref.id]!
-        
+
         // if the memory exists then return it
         if let deviceMemory = buffer.memory[device] {
             return deviceMemory
@@ -273,7 +264,7 @@ public extension DiscreetMemoryManagement where Self: PlatformService {
             // allocate the memory on the target device
             let deviceMemory = devices[device]
                 .allocate(byteCount: buffer.byteCount, heapIndex: 0)
-            
+
             diagnostic("\(allocString) \(name)(\(ref.id)) " +
                 "device array on \(devices[device].name) \(Element.self)" +
                 "[\(buffer.count(of: Element.self))]",

@@ -38,8 +38,6 @@ public protocol PlatformAPI: MemoryManagement, Logger {
     func write<T>(_ tensor: inout T, willOverwrite: Bool)
         -> MutableBufferElements<T.Element, T.Shape> where T: TensorView
 
-    func duplicate(_ ref: BufferRef) -> BufferRef
-
     //--------------------------------------------------------------------------
     /// abs
     func abs<T>(_ x: T) -> T

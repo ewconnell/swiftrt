@@ -39,7 +39,7 @@ public protocol TensorView: Logging {
     static var diagnosticName: String { get }
     /// the shape of the view used for indexing
     var shape: Shape { get }
-    /// class reference to the underlying storage buffer
+    /// class reference to the underlying platform element buffer
     var bufferRef: BufferRef { get set }
     /// the linear element offset where the view begins
     var offset: Int { get }
@@ -62,6 +62,29 @@ public protocol TensorView: Logging {
 }
 
 //==============================================================================
+/// BufferRef
+// this wraps the platform buffer object because the function
+// `isKnownUniquelyReferenced` only works on concrete classes not
+// class protocol types
+public class BufferRef {
+    /// the id of the buffer for diagnostics
+    @inlinable public var id: Int { elementBuffer.id }
+    @inlinable public var name: String { elementBuffer.name }
+
+    public let elementBuffer: ElementBuffer
+    
+    @inlinable
+    public init(_ elementBuffer: ElementBuffer) {
+        self.elementBuffer = elementBuffer
+    }
+    
+    @inlinable
+    public func duplicate() -> BufferRef {
+        BufferRef(elementBuffer.duplicate())
+    }
+}
+
+//==============================================================================
 //
 public extension TensorView {
     /// `elementBuffer`
@@ -79,6 +102,24 @@ public extension TensorView {
         -> MutableBufferElements<Element, Shape>
     {
         Platform.service.write(&self, willOverwrite: willOverwrite)
+    }
+    
+    @inlinable
+    func read(at offset: Int, count: Int,
+              using queue: DeviceQueue) -> UnsafeBufferPointer<Element>
+    {
+        bufferRef.elementBuffer.read(type: Element.self, at: offset,
+                                     count: count, using: queue)
+    }
+    
+    @inlinable
+    func readWrite(at offset: Int, count: Int,
+                      willOverwrite: Bool, using queue: DeviceQueue)
+        -> UnsafeMutableBufferPointer<Element>
+    {
+        bufferRef.elementBuffer.readWrite(
+            type: Element.self, at: offset, count: count,
+            willOverwrite: willOverwrite, using: queue)
     }
 }
 
@@ -140,6 +181,9 @@ public extension TensorView {
     /// a 1D array of tensor elements
     @inlinable
     var flatArray: [Element] { [Element](elementBuffer()) }
+    /// the unique buffer id for diagnostics
+    @inlinable
+    var id: Int { bufferRef.id }
     /// `true` if the values are contiguosly arranged in memory
     @inlinable
     var isContiguous: Bool { shape.isContiguous }
@@ -234,10 +278,10 @@ public extension TensorView {
         if !isUniquelyReference() {
             diagnostic("\(mutationString) " +
                 "\(name)(\(bufferRef.id)) " +
-                "\(Element.self)[\(count)]",
+                "\(Element.self)[\(shape.count)]",
                 categories: [.dataCopy, .dataMutation])
 
-            self.bufferRef = Platform.service.duplicate(bufferRef)
+            bufferRef = bufferRef.duplicate()
         }
         
         return createView(at: index, with: extents,

@@ -45,12 +45,6 @@ public extension PlatformService {
     @inlinable
     var currentQueueId: QueueId { queueStack.last! }
 
-    /// using default queue
-    @inlinable
-    func duplicate(_ ref: BufferRef) -> BufferRef {
-        duplicate(ref, using: currentQueueId)
-    }
-
     //--------------------------------------------------------------------------
     /// read(tensor:
     /// gains synchronized read only access to the tensor `bufferRef`
@@ -60,10 +54,9 @@ public extension PlatformService {
     func read<T>(_ tensor: T) -> BufferElements<T.Element, T.Shape>
         where T: TensorView
     {
-        let buffer = read(tensor.bufferRef, of: T.Element.self,
-                          at: tensor.offset,
-                          count: tensor.spanCount,
-                          using: currentQueueId)
+        let buffer = tensor.read(at: tensor.offset,
+                                 count: tensor.spanCount,
+                                 using: currentQueue)
         
         return BufferElements(tensor.shape, buffer)
     }
@@ -81,21 +74,19 @@ public extension PlatformService {
         // check for copy on write
         if !tensor.shared && !tensor.isUniquelyReference() {
             diagnostic("\(mutationString) " +
-                "\(tensor.name)(\(tensor.bufferRef.id)) " +
+                "\(tensor.name)(\(tensor.id)) " +
                 "\(T.Element.self)[\(tensor.count)]",
                 categories: [.dataCopy, .dataMutation])
             
             // replace device buffer with expanded
-            tensor.bufferRef = duplicate(tensor.bufferRef)
+            tensor.bufferRef = tensor.bufferRef.duplicate()
         }
         
         // get the write buffer
-        let buffer = readWrite(tensor.bufferRef,
-                               of: T.Element.self,
-                               at: tensor.offset,
-                               count: tensor.spanCount,
-                               willOverwrite: willOverwrite,
-                               using: currentQueueId)
+        let buffer = tensor.readWrite(at: tensor.offset,
+                                      count: tensor.spanCount,
+                                      willOverwrite: willOverwrite,
+                                      using: currentQueue)
         
         // return a mutable shaped buffer iterator
         return MutableBufferElements(tensor.shape, buffer)

@@ -50,10 +50,10 @@ public final class Platform {
         queueEventCounter += 1
         return queueEventCounter
     }
-    /// nextBufferRef
-    @inlinable public static var nextBufferRef: BufferRef {
-        Self.bufferIdCounter += 1
-        return BufferRef(Self.bufferIdCounter)
+    /// nextBufferId
+    @inlinable public static var nextBufferId: Int {
+        bufferIdCounter += 1
+        return bufferIdCounter
     }
 
     //--------------------------------------------------------------------------

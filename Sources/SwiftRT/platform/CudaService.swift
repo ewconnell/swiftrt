@@ -49,6 +49,16 @@ public class CudaService: PlatformService, DiscreetMemoryManagement {
     deinit {
         deviceBuffers.values.forEach { $0.deallocate() }
     }
+    
+    public func createBuffer<E, Shape, Stream>(
+        of type: E.Type, block shape: Shape,
+        bufferedBlocks: Int, stream: Stream) -> (BufferRef, Int)
+        where Shape : ShapeProtocol, Stream : BufferStream
+    {
+        fatalError()
+    }
+    
+
 }
 
 //==============================================================================

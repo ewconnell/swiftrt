@@ -40,17 +40,6 @@ public extension TensorView where Element: AnyConvertable {
 //
 public extension TensorView {
     //--------------------------------------------------------------------------
-    /// empty
-    /// creates an empty tensor that can be used where a return
-    /// value is needed in an error condition.
-    @inlinable
-    init() {
-        self.init(shape: Shape(extents: Shape.zeros),
-                  bufferRef: BufferRef(-1),
-                  offset: 0, shared: false)
-    }
-
-    //--------------------------------------------------------------------------
     /// creates a tensor of the same type and shape as `self` with `Element`
     /// equal to `Bool`
     @inlinable
@@ -82,7 +71,8 @@ public extension TensorView {
     init<T>(flattening other: T) where T: TensorView, T.Element == Element {
         self.init(shape: Shape(flattening: other.shape),
                   bufferRef: other.bufferRef,
-                  offset: other.offset, shared: other.shared)
+                  offset: other.offset,
+                  shared: other.shared)
     }
 
     // noop flattening case
@@ -123,7 +113,8 @@ public extension TensorView {
     init<T>(padding other: T) where T: TensorView, T.Element == Element {
         self.init(shape: Shape(padding: other.shape),
                   bufferRef: other.bufferRef,
-                  offset: other.offset, shared: other.shared)
+                  offset: other.offset,
+                  shared: other.shared)
     }
     
     //--------------------------------------------------------------------------
@@ -135,7 +126,8 @@ public extension TensorView {
     {
         self.init(shape: Shape(expanding: other.shape, alongAxes: axes),
                   bufferRef: other.bufferRef,
-                  offset: other.offset, shared: other.shared)
+                  offset: other.offset,
+                  shared: other.shared)
     }
     
     @inlinable
@@ -167,7 +159,8 @@ public extension TensorView {
     {
         self.init(shape: Shape(squeezing: other.shape, alongAxes: axes),
                   bufferRef: other.bufferRef,
-                  offset: other.offset, shared: other.shared)
+                  offset: other.offset,
+                  shared: other.shared)
     }
     
     @inlinable
@@ -347,19 +340,18 @@ public extension TensorView {
         // create the tensor
         var tensor: Self = {
             // create the buffer
-            let bufferRef = Platform.service
+            let ref = Platform.service
                 .createBuffer(of: Element.self, count: shape.count, name: label)
             
             // report
             #if DEBUG
             Platform.service.diagnostic(
-                "\(createString) \(label)(\(bufferRef.id)) " +
+                "\(createString) \(label)(\(ref.id)) " +
                 "\(Element.self)[\(shape.count)]",
                 categories: .dataAlloc)
             #endif
 
-            return Self(shape: shape, bufferRef: bufferRef,
-                        offset: 0, shared: false)
+            return Self(shape: shape, bufferRef: ref, offset: 0, shared: false)
         }()
         
         // copy the elements into the tensor buffer bypassing indexing

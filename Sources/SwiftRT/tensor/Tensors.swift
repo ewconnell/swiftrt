@@ -74,24 +74,24 @@ public extension VectorView {
     }
     
     //--------------------------------------------------------------------------
-    /// with reference to read only buffer
+    /// with reference to read only bufferRef
     /// useful for memory mapped databases, or hardware device buffers
     @inlinable
-    init(referenceTo buffer: UnsafeBufferPointer<Element>, name: String? = nil)
+    init(referenceTo bufferRef: UnsafeBufferPointer<Element>, name: String? = nil)
     {
-        let shape = Shape(extents: (buffer.count))
-        self = Self.create(referenceTo: buffer, shape, name)
+        let shape = Shape(extents: (bufferRef.count))
+        self = Self.create(referenceTo: bufferRef, shape, name)
     }
     
     //--------------------------------------------------------------------------
-    /// with reference to read write buffer
+    /// with reference to read write bufferRef
     /// useful for memory mapped databases, or hardware device buffers
     @inlinable
-    init(referenceTo buffer: UnsafeMutableBufferPointer<Element>,
+    init(referenceTo bufferRef: UnsafeMutableBufferPointer<Element>,
          name: String? = nil)
     {
-        let shape = Shape(extents: (buffer.count))
-        self = Self.create(referenceTo: buffer, shape, name)
+        let shape = Shape(extents: (bufferRef.count))
+        self = Self.create(referenceTo: bufferRef, shape, name)
     }
 
     //--------------------------------------------------------------------------
@@ -256,29 +256,29 @@ public extension MatrixView {
     }
 
     //--------------------------------------------------------------------------
-    /// with reference to read only buffer
+    /// with reference to read only bufferRef
     /// useful for memory mapped databases, or hardware device buffers
     @inlinable
     init(_ rows: Int, _ cols: Int,
-         referenceTo buffer: UnsafeBufferPointer<Element>,
+         referenceTo bufferRef: UnsafeBufferPointer<Element>,
          layout: MatrixLayout = .rowMajor,
          name: String? = nil)
     {
         let shape = Self.matrixShape((rows, cols), layout)
-        self = Self.create(referenceTo: buffer, shape, name)
+        self = Self.create(referenceTo: bufferRef, shape, name)
     }
 
     //--------------------------------------------------------------------------
-    /// with reference to read write buffer
+    /// with reference to read write bufferRef
     /// useful for memory mapped databases, or hardware device buffers
     @inlinable
     init(_ rows: Int, _ cols: Int,
-         referenceTo buffer: UnsafeMutableBufferPointer<Element>,
+         referenceTo bufferRef: UnsafeMutableBufferPointer<Element>,
          layout: MatrixLayout = .rowMajor,
          name: String? = nil)
     {
         let shape = Self.matrixShape((rows, cols), layout)
-        self = Self.create(referenceTo: buffer, shape, name)
+        self = Self.create(referenceTo: bufferRef, shape, name)
     }
     
     //--------------------------------------------------------------------------
@@ -521,27 +521,27 @@ public extension VolumeView {
     }
     
     //--------------------------------------------------------------------------
-    /// with reference to read only buffer
+    /// with reference to read only bufferRef
     /// useful for memory mapped databases, or hardware device buffers
     @inlinable
     init(_ deps: Int, _ rows: Int, _ cols: Int,
-         referenceTo buffer: UnsafeBufferPointer<Element>,
+         referenceTo bufferRef: UnsafeBufferPointer<Element>,
          name: String? = nil)
     {
         let shape = Shape(extents: (deps, rows, cols))
-        self = Self.create(referenceTo: buffer, shape, name)
+        self = Self.create(referenceTo: bufferRef, shape, name)
     }
     
     //--------------------------------------------------------------------------
-    /// with reference to read write buffer
+    /// with reference to read write bufferRef
     /// useful for memory mapped databases, or hardware device buffers
     @inlinable
     init(_ deps: Int, _ rows: Int, _ cols: Int,
-         referenceTo buffer: UnsafeMutableBufferPointer<Element>,
+         referenceTo bufferRef: UnsafeMutableBufferPointer<Element>,
          name: String? = nil)
     {
         let shape = Shape(extents: (deps, rows, cols))
-        self = Self.create(referenceTo: buffer, shape, name)
+        self = Self.create(referenceTo: bufferRef, shape, name)
     }
     
     //--------------------------------------------------------------------------
