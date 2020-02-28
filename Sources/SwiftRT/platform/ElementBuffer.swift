@@ -151,7 +151,7 @@ public struct BufferElements<Element, Shape>: ShapedBuffer
     
     //-----------------------------------
     // Collection
-    @inlinable @inline(__always)
+    @inlinable
     public func index(after i: Index) -> Index { shape.index(after: i) }
 
     @inlinable
@@ -192,7 +192,7 @@ public struct MutableBufferElements<Element, Shape>: MutableShapedBuffer
     
     //-----------------------------------
     // Collection
-    @inlinable @inline(__always)
+    @inlinable
     public func index(after i: Index) -> Index { shape.index(after: i) }
 
     @inlinable

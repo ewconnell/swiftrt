@@ -87,7 +87,7 @@ public extension TensorView {
 
     //--------------------------------------------------------------------------
     /// `read(queue:`
-    @inlinable @inline(__always)
+    @inlinable
     func read(using queue: DeviceQueue) -> UnsafeBufferPointer<Element>
     {
         buffer.read(at: self.offset, count: self.spanCount, using: queue)
@@ -163,12 +163,12 @@ public extension TensorView {
     //--------------------------------------------------------------------------
     /// the number of elements in the collection
     @_transparent
-    @inlinable @inline(__always)
+    @inlinable
     var count: Int { shape.count }
 
     /// the extents of the view
     @_transparent
-    @inlinable @inline(__always)
+    @inlinable
     @_semantics("autodiff.nonvarying")
     var extents: Shape.Array { shape.extents }
 
@@ -178,37 +178,37 @@ public extension TensorView {
 
     /// the unique buffer id for diagnostics
     @_transparent
-    @inlinable @inline(__always)
+    @inlinable
     var id: Int { buffer.id }
 
     /// `true` if the values are contiguosly arranged in memory
     @_transparent
-    @inlinable @inline(__always)
+    @inlinable
     var isContiguous: Bool { shape.isContiguous }
 
     /// the number of items in the tensor, which is equal to `extents[0]`
     @_transparent
-    @inlinable @inline(__always)
+    @inlinable
     var items: Int { shape.items }
 
     /// the name of the view, which can optionally be set to aid in debugging
     @_transparent
-    @inlinable @inline(__always)
+    @inlinable
     var name: String { buffer.name }
 
     /// the number of dimensions in the view
     @_transparent
-    @inlinable @inline(__always)
+    @inlinable
     var rank: Int { shape.rank }
 
     /// the strided element span of this view
     @_transparent
-    @inlinable @inline(__always)
+    @inlinable
     var spanCount: Int { shape.spanCount }
 
     /// the strides of the tensor elements
     @_transparent
-    @inlinable @inline(__always)
+    @inlinable
     var strides: Shape.Array { shape.strides }
 
     /// repeated(extents:
@@ -218,13 +218,13 @@ public extension TensorView {
                     buffer: buffer, offset: offset, shared: shared)
     }
     ///
-    @inlinable @inline(__always)
+    @inlinable
     func repeated(to extents: Shape.Tuple) -> Self {
         repeated(to: Shape.Array(extents))
     }
     /// isUniquelyReference
     /// `true` if this view is the only one holding a reference to bufferRef
-    @inlinable @inline(__always)
+    @inlinable
     mutating func isUniquelyReference() -> Bool {
         isKnownUniquelyReferenced(&buffer)
     }

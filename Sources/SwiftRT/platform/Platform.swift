@@ -50,6 +50,7 @@ public final class Platform {
         queueEventCounter += 1
         return queueEventCounter
     }
+    
     /// nextBufferId
     @inlinable public static var nextBufferId: Int {
         bufferIdCounter += 1

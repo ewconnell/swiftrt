@@ -127,7 +127,7 @@ extension ShapeProtocol where Index == ShapeIndex<Array> {
 
     //--------------------------------------------------------------------------
     // returns the data buffer index corresponding to the sequence index
-    @inlinable @inline(__always)
+    @inlinable
     public subscript(index: Index) -> Int { index.stridedIndex }
 
     //--------------------------------------------------------------------------
@@ -520,7 +520,7 @@ public struct Shape1: ShapeProtocol {
         self.count = extents[0]
         self.extents = extents
         self.isSequential = true
-        self.strides = strides ?? Self.denseStrides(extents)
+        self.strides = strides ?? Self.ones
         self.spanCount = Self.computeSpanCount(self.extents, self.strides)
     }
 
@@ -533,8 +533,11 @@ public struct Shape1: ShapeProtocol {
 
     //-----------------------------------
     // Collection
-    @inlinable public func index(after i: Index) -> Index { i + 1 }
-    @inlinable public subscript(index: Index) -> Int { index * strides[0] }
+    @inlinable
+    public func index(after i: Index) -> Index { i + 1 }
+    
+    @inlinable
+    public subscript(index: Index) -> Int { index * strides[0] }
 }
 
 //==============================================================================
