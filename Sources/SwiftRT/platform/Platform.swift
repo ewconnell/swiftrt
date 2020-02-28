@@ -24,7 +24,7 @@ import Glibc
 //==============================================================================
 /// Platform
 /// Manages the scope for the current devices, log, and error handlers
-public final class Platform {
+public struct Platform {
     /// the time that the platform was first accessed
     @usableFromInline static var startTime = Date()
     /// the log output object
@@ -56,36 +56,36 @@ public final class Platform {
         bufferIdCounter += 1
         return bufferIdCounter
     }
-
-    //--------------------------------------------------------------------------
-    /// returns the thread local instance of the queues stack
-    @usableFromInline
-    static var threadLocal: Platform {
-        // try to get an existing state
-        if let state = pthread_getspecific(key) {
-            return Unmanaged.fromOpaque(state).takeUnretainedValue()
-        } else {
-            // create and return new state
-            let state = Platform()
-            pthread_setspecific(key, Unmanaged.passRetained(state).toOpaque())
-            return state
-        }
-    }
-    
-    //--------------------------------------------------------------------------
-    /// thread data key
-    @usableFromInline
-    static let key: pthread_key_t = {
-        var key = pthread_key_t()
-        pthread_key_create(&key) {
-            #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
-            let _: AnyObject = Unmanaged.fromOpaque($0).takeRetainedValue()
-            #else
-            let _: AnyObject = Unmanaged.fromOpaque($0!).takeRetainedValue()
-            #endif
-        }
-        return key
-    }()
+//
+//    //--------------------------------------------------------------------------
+//    /// returns the thread local instance of the queues stack
+//    @usableFromInline
+//    static var threadLocal: Platform {
+//        // try to get an existing state
+//        if let state = pthread_getspecific(key) {
+//            return Unmanaged.fromOpaque(state).takeUnretainedValue()
+//        } else {
+//            // create and return new state
+//            let state = Platform()
+//            pthread_setspecific(key, Unmanaged.passRetained(state).toOpaque())
+//            return state
+//        }
+//    }
+//
+//    //--------------------------------------------------------------------------
+//    /// thread data key
+//    @usableFromInline
+//    static let key: pthread_key_t = {
+//        var key = pthread_key_t()
+//        pthread_key_create(&key) {
+//            #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+//            let _: AnyObject = Unmanaged.fromOpaque($0).takeRetainedValue()
+//            #else
+//            let _: AnyObject = Unmanaged.fromOpaque($0!).takeRetainedValue()
+//            #endif
+//        }
+//        return key
+//    }()
 }
 
 //==============================================================================

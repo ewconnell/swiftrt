@@ -19,7 +19,7 @@ import Foundation
 /// PlatformService
 /// a compute service represents a category of installed devices on the
 /// platform, such as (cpu, cuda, tpu, ...)
-public protocol PlatformService: PlatformAPI {
+public protocol PlatformService: class {
     // types
     associatedtype Device: ServiceDevice
 
@@ -149,8 +149,7 @@ public extension PlatformService {
     /// - Parameter queue: the queue on the device to use
     /// - Parameter body: a closure where the device queue will be used
     @inlinable
-    func using<R>(device: Int,
-                                  queue: Int = 0, _ body: () -> R) -> R {
+    func using<R>(device: Int, queue: Int = 0, _ body: () -> R) -> R {
         // push the selection onto the queue stack
         queueStack.append(ensureValidId(device, queue))
         defer { _ = queueStack.popLast() }
@@ -176,3 +175,42 @@ public extension PlatformService {
         return QueueId(device, queue)
     }
 }
+
+//==============================================================================
+/// NanPropagation
+public enum NanPropagation: Int, Codable {
+    case propagate, noPropagate
+}
+
+//==============================================================================
+/// ReductionOp
+public enum ReductionOp: Int, Codable {
+    case add
+    case mean
+    case mul
+    case min
+    case max
+    case amax
+    case asum
+    case sqrtSumSquares
+    case mulNonZeros
+    case compare
+}
+
+public typealias ReduceOpFinal<R: MutableShapedBuffer> = (R.Element) -> R.Element
+
+//==============================================================================
+// parameter matching helper
+@inlinable
+public func implicitlyMatchExtents<T>(_ lhs: T, _ rhs: T) -> (T, T)
+    where T: TensorView
+{
+    if lhs.count == rhs.count {
+        return (lhs, rhs)
+    } else if lhs.count > rhs.count {
+        return (lhs, rhs.repeated(to: lhs.extents))
+    } else {
+        return (lhs.repeated(to: rhs.extents), rhs)
+    }
+}
+
