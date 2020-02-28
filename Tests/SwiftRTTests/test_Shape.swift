@@ -96,26 +96,24 @@ class test_Shape: XCTestCase {
     // test_perfShape2
     func test_perfShape2() {
         #if !DEBUG
-        using(Platform.synchronousCpu) {
-            var shape = Shape2(extents: Shape2.zeros)
-            let index = ShapeArray((1, 1))
-            var i = 0
-            self.measure {
-                for _ in 0..<100000 {
-                    let a = Shape2(extents: (3, 4))
-                    let b = a.columnMajor
-                    let ds = a == b ? b.dense : a.dense
-                    let c = Shape2(extents:
-                        Shape2.makePositive(dims: Shape2.Array((1, -1))))
-                    let r = Shape2(extents: Shape2.ones).repeated(to: a.extents)
-                    let j = a.joined(with: [ds, c, r], alongAxis: 1)
-                    let t = j.transposed()
-                    shape = t
-                    i = shape.linearIndex(of: index)
-                }
+        var shape = Shape2(extents: Shape2.zeros)
+        let index = Shape2.Array((1, 1))
+        var i = 0
+        self.measure {
+            for _ in 0..<100000 {
+                let a = Shape2(extents: (3, 4))
+                let b = a.columnMajor
+                let ds = a == b ? b.dense : a.dense
+                let c = Shape2(extents:
+                    Shape2.makePositive(dims: Shape2.Array((1, -1))))
+                let r = Shape2(extents: Shape2.ones).repeated(to: a.extents)
+                let j = a.joined(with: [ds, c, r], alongAxis: 1)
+                let t = j.transposed()
+                shape = t
+                i = shape.linearIndex(of: index)
             }
-            XCTAssert(shape.extents == Shape2.Array((13, 3)) && i > 0)
         }
+        XCTAssert(shape.extents == Shape2.Array((13, 3)) && i > 0)
         #endif
     }
 }

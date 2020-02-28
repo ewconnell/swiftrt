@@ -31,7 +31,6 @@ class test_IterateView: XCTestCase {
         ("test_perfVector", test_perfVector),
         ("test_perfMatrix", test_perfMatrix),
         ("test_perfVolume", test_perfVolume),
-        ("test_perfIndexCopy", test_perfIndexCopy),
         ("test_repeatingValue", test_repeatingElement),
         ("test_repeatingRow", test_repeatingRow),
         ("test_repeatingCol", test_repeatingCol),
@@ -117,16 +116,20 @@ class test_IterateView: XCTestCase {
     // test_perfVector
     func test_perfVector() {
         #if !DEBUG
-        using(Platform.synchronousCpu) {
-            let count = 1024 * 1024
-            let vector = IndexVector(with: 0..<count)
-            //            print(matrix.formatted((2,0)))
-            let values = vector.elements
-            
-            self.measure {
-                for _ in values {}
+        let count = 65535
+        let vector = Vector(with: 0..<count)
+        let elements = vector.bufferElements()
+        var value: Float = 0
+        
+        self.measure {
+            for _ in 0..<16 {
+                value = 0
+                for element in elements {
+                    value += element
+                }
             }
         }
+        XCTAssert(value > 0)
         #endif
     }
     
@@ -134,17 +137,22 @@ class test_IterateView: XCTestCase {
     // test_perfMatrix
     func test_perfMatrix() {
         #if !DEBUG
-        using(Platform.synchronousCpu) {
-            let rows = 1024
-            let cols = 1024
-            
-            let matrix = Matrix(rows, cols, with: 0..<(rows * cols))
-            let values = matrix.elements
-            
-            self.measure {
-                for _ in values {}
+        let rows = 1024
+        let cols = 64
+        
+        let matrix = Matrix(rows, cols, with: 0..<(rows * cols))
+        let elements = matrix.bufferElements()
+        var value: Float = 0
+        
+        self.measure {
+            for _ in 0..<16 {
+                value = 0
+                for element in elements {
+                    value += element
+                }
             }
         }
+        XCTAssert(value > 0)
         #endif
     }
     
@@ -152,38 +160,27 @@ class test_IterateView: XCTestCase {
     // test_perfVolume
     func test_perfVolume() {
         #if !DEBUG
-        using(Platform.synchronousCpu) {
-            let depths = 4
-            let rows = 512
-            let cols = 512
-            
-            let matrix = IndexVolume(depths, rows, cols,
-                                     with: 0..<(depths * rows * cols))
-            let values = matrix.elements
-            
-            self.measure {
-                for _ in values {}
-            }
-        }
-        #endif
-    }
-    
-    //==========================================================================
-    // test_perfIndexCopy
-    func test_perfIndexCopy() {
-        #if !DEBUG
-        using(Platform.synchronousCpu) {
-            var m = Matrix(1024, 1024).startIndex
-            
-            self.measure {
-                for _ in 0..<1000000 {
-                    m = m.increment()
-                    //                m = m.advanced(by: 1)
+        let depths = 16
+        let rows = 64
+        let cols = 64
+        
+        let volume = IndexVolume(depths, rows, cols,
+                                 with: 0..<(depths * rows * cols))
+        let elements = volume.bufferElements()
+        var value: Int32 = 0
+        
+        self.measure {
+            for _ in 0..<16 {
+                value = 0
+                for element in elements {
+                    value += element
                 }
             }
         }
+        XCTAssert(value > 0)
         #endif
     }
+    
     //==========================================================================
     // test_repeatingElement
     func test_repeatingElement() {

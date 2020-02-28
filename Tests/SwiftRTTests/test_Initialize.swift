@@ -26,7 +26,6 @@ class test_Initialize: XCTestCase {
         ("test_columnMajorDataView", test_columnMajorDataView),
         ("test_indenting", test_indenting),
         ("test_padding", test_padding),
-        ("test_perfCreateTensorArray", test_perfCreateTensorArray),
         ("test_perfCreateMatrix", test_perfCreateMatrix),
         ("test_perfReadOnlyAccess", test_perfReadOnlyAccess),
         ("test_perfReadWriteAccess", test_perfReadWriteAccess),
@@ -52,7 +51,7 @@ class test_Initialize: XCTestCase {
     // NOTE: uses the default queue
     func test_copyOnWrite() {
 //        Platform.log.level = .diagnostic
-        let m1 = Matrix(3, 2).filledWithIndex()
+        let m1 = Matrix(3, 2, with: 0..<6)
         XCTAssert(m1[1, 1] == 3)
         
         // copy view sharing the same tensor array
@@ -95,38 +94,18 @@ class test_Initialize: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_perfCreateTensorArray
-    func test_perfCreateTensorArray() {
-        #if !DEBUG
-        using(Platform.synchronousCpu) {
-            let iterations = 10000
-            var count = 0
-            measure {
-                for i in 1...iterations {
-                    let array = TensorArray<Float>(count: i, name: "")
-                    count = array.count
-                }
-            }
-            XCTAssert(count == iterations)
-        }
-        #endif
-    }
-    
-    //--------------------------------------------------------------------------
     // test_perfCreateMatrix
     func test_perfCreateMatrix() {
         #if !DEBUG
-        using(Platform.synchronousCpu) {
-            let iterations = 10000
-            var count = 0
-            measure {
-                for i in 1...iterations {
-                    let matrix = Matrix(1, i)
-                    count = matrix.count
-                }
+        let iterations = 10000
+        var count = 0
+        measure {
+            for i in 1...iterations {
+                let matrix = Matrix(1, i)
+                count = matrix.count
             }
-            XCTAssert(count == iterations)
         }
+        XCTAssert(count == iterations)
         #endif
     }
     
@@ -134,22 +113,16 @@ class test_Initialize: XCTestCase {
     // test_perfReadOnlyAccess
     func test_perfReadOnlyAccess() {
         #if !DEBUG
-        using(Platform.synchronousCpu) {
-            let iterations = 100000
-            var value: Float = 0
-            let matrix = Matrix(2, 2, with: 1...4)
-            
-            measure {
-                do {
-                    for _ in 1...iterations {
-                        value = try matrix.readOnly()[0]
-                    }
-                } catch {
-                    XCTFail()
-                }
+        let iterations = 100000
+        var value: Float = 0
+        let matrix = Matrix(2, 2, with: 1...4)
+        
+        measure {
+            for _ in 1...iterations {
+                value += matrix.first
             }
-            XCTAssert(value == 1)
         }
+        XCTAssert(value == Float(iterations))
         #endif
     }
     
@@ -157,22 +130,16 @@ class test_Initialize: XCTestCase {
     // test_perfReadWriteAccess
     func test_perfReadWriteAccess() {
         #if !DEBUG
-        using(Platform.synchronousCpu) {
-            let iterations = 100000
-            let value: Float = 1
-            var matrix = Matrix(2, 2, with: 1...4)
-            
-            measure {
-                do {
-                    for _ in 1...iterations {
-                        try matrix.readWrite()[0] = value
-                    }
-                    XCTAssert(try matrix.readWrite()[0] == value)
-                } catch {
-                    XCTFail()
-                }
+        let iterations = 100000
+        let value: Float = 1
+        var matrix = Matrix(2, 2, with: 1...4)
+        
+        measure {
+            for _ in 1...iterations {
+                matrix[0, 0] += value
             }
         }
+        XCTAssert(matrix[0, 0] == Float(iterations))
         #endif
     }
 

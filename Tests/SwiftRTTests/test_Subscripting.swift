@@ -21,6 +21,8 @@ class test_Subscripting: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_perfVectorAdd", test_perfVectorAdd),
+        ("test_perfVectorAddRange", test_perfVectorAddRange),
         ("test_negativeIndexRelativeRange", test_negativeIndexRelativeRange),
         ("test_WriteToRepeated", test_WriteToRepeated),
         ("test_AssignDataToVolumeItem", test_AssignDataToVolumeItem),
@@ -33,6 +35,42 @@ class test_Subscripting: XCTestCase {
         ("test_MatrixRange", test_MatrixRange),
     ]
 
+    //==========================================================================
+    // test_perfVectorAdd
+    func test_perfVectorAdd() {
+        #if !DEBUG
+        let v1 = Vector(with: 1...20)
+        let v2 = Vector(with: 1...20)
+        var count: Float = 0
+        
+        measure {
+            for _ in 0..<1000 {
+                let r = v1 + v2
+                count += r.first
+            }
+        }
+        XCTAssert(count > 0)
+        #endif
+    }
+    
+    //==========================================================================
+    // test_perfVectorAddRange
+    func test_perfVectorAddRange() {
+        #if !DEBUG
+        let v1 = Vector(with: 1...20)
+        let v2 = Vector(with: 1...20)
+        var count: Float = 0
+        
+        measure {
+            for _ in 0..<1000 {
+                let r = v1[1...] + v2[1...]
+                count += r.first
+            }
+        }
+        XCTAssert(count > 0)
+        #endif
+    }
+    
     //==========================================================================
     // test_negativeIndexRelativeRange
     func test_negativeIndexRelativeRange() {
