@@ -132,9 +132,9 @@ public extension TensorView {
     /// first
     /// - Returns: the first element in the tensor
     @inlinable
+    @_semantics("autodiff.nonvarying")
     var first: Element {
-        let elements = bufferElements()
-        return elements[elements.startIndex]
+        buffer.read(at: 0, count: 1, using: Platform.applicationQueue)[0]
     }
 
     /// element
@@ -146,13 +146,14 @@ public extension TensorView {
         get {
             assert(shape.isScalar, "the `element` property expects " +
                 "the tensor to have a single Element. Use `first` for sets")
-            return first
+            return buffer.read(at: 0, count: 1,
+                               using: Platform.applicationQueue)[0]
         }
         set {
             assert(shape.isScalar, "the `element` property expects " +
                 "the tensor to have a single Element")
-            var elements = mutableBufferElements()
-            elements[elements.startIndex] = newValue
+            buffer.readWrite(at: 0, count: 1, willOverwrite: true,
+                             using: Platform.applicationQueue)[0] = newValue
         }
     }
 }

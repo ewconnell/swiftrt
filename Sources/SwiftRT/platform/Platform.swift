@@ -56,6 +56,10 @@ public struct Platform {
         bufferIdCounter += 1
         return bufferIdCounter
     }
+    
+    @inlinable public static var applicationQueue: PlatformServiceType.Device.Queue {
+        service.devices[0].queues[0]
+    }
 //
 //    //--------------------------------------------------------------------------
 //    /// returns the thread local instance of the queues stack
