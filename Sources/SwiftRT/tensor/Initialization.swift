@@ -108,7 +108,8 @@ public extension TensorView {
     {
         self.init(shape: Shape(indenting: other.shape),
                   buffer: other.buffer,
-                  offset: other.offset, shared: other.shared)
+                  offset: other.offset,
+                  shared: other.shared)
     }
         
     //--------------------------------------------------------------------------
