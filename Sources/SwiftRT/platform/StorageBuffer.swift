@@ -17,8 +17,8 @@
 import Foundation
 
 //==============================================================================
-/// ElementBuffer protocol
-public protocol ElementBuffer: class, Logging {
+/// StorageBuffer protocol
+public protocol StorageBuffer: class, Logging {
     associatedtype Element
     
     /// the id of the buffer for diagnostics
@@ -36,7 +36,11 @@ public protocol ElementBuffer: class, Logging {
     /// - Parameter name: name used in diagnostic messages
     init(count: Int, name: String)
     
-    /// `init(count:name:
+    /// `init(copying other:`
+    /// copy constructor
+    init(copying other: Self)
+    
+    /// `init(elements:name:`
     /// creates a lazily allocated element buffer
     /// - Parameter elements: a collection of initial buffer elements
     /// - Parameter name: name used in diagnostic messages
@@ -72,7 +76,7 @@ public protocol ElementBuffer: class, Logging {
     init<Shape, Stream>(block shape: Shape, bufferedBlocks: Int, stream: Stream)
         where Shape: ShapeProtocol, Stream: BufferStream
     
-    /// `init(element:`
+    /// `init(element:name:
     /// initializes an element buffer for the specified `Element` value.
     /// User expressions use a lot of constant scalar values
     /// which are repeated. For example: `let m = matrix + 1`. These
@@ -80,11 +84,16 @@ public protocol ElementBuffer: class, Logging {
     /// can access a cache of constant value buffers, which are likely to
     /// already be present on a discreet accelerator device.
     /// - Parameter element: the element value
-    init(for element: Element)
+    init(for element: Element, name: String)
     
-    /// `duplicate`
-    /// - Returns:a copy of self
-    func duplicate() -> Self
+    /// `read(offset:count:
+    /// gets a buffer pointer blocking the calling thread until synchronized
+    /// - Parameter offset: the offset in element sized units from
+    /// the beginning of the buffer to read
+    /// - Parameter count: the number of elements to be accessed
+    /// - Returns: a buffer pointer to the elements. Elements will be valid
+    /// when the queue reaches this point
+    func read(at offset: Int, count: Int) -> UnsafeBufferPointer<Element>
     
     /// `read(offset:count:queue:`
     /// - Parameter offset: the offset in element sized units from
@@ -96,6 +105,17 @@ public protocol ElementBuffer: class, Logging {
     func read(at offset: Int, count: Int, using queue: DeviceQueue)
         -> UnsafeBufferPointer<Element>
     
+    /// `readWrite(type:offset:count:willOverwrite:
+    /// - Parameter offset: the offset in element sized units from
+    /// the beginning of the buffer to read
+    /// - Parameter count: the number of elements to be accessed
+    /// - Parameter willOverwrite: `true` if the caller guarantees all
+    /// buffer elements will be overwritten
+    /// - Returns: a mutable buffer pointer to the elements.
+    /// Elements will be valid when the queue reaches this point
+    func readWrite(at offset: Int, count: Int, willOverwrite: Bool)
+        -> UnsafeMutableBufferPointer<Element>
+
     /// `readWrite(type:offset:count:willOverwrite:queue:
     /// - Parameter offset: the offset in element sized units from
     /// the beginning of the buffer to read

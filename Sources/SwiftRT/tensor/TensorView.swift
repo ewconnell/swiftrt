@@ -25,7 +25,7 @@ public protocol TensorView: Logging {
     /// the type of element stored by the tensor
     associatedtype Element
     /// tye type of element storage buffer
-    associatedtype Buffer: ElementBuffer
+    associatedtype Buffer: StorageBuffer
         where Buffer.Element == Element
     /// tensor shape
     associatedtype Shape: ShapeProtocol
@@ -105,7 +105,7 @@ public extension TensorView {
                 "\(name)(\(id)) \(Element.self)[\(count)]",
                 categories: [.dataCopy, .dataMutation])
             
-            buffer = buffer.duplicate()
+            buffer = Buffer(copying: buffer)
         }
 
         return buffer.readWrite(at: self.offset, count: self.spanCount,
@@ -134,7 +134,7 @@ public extension TensorView {
     @inlinable
     @_semantics("autodiff.nonvarying")
     var first: Element {
-        buffer.read(at: offset, count: 1, using: Platform.applicationQueue)[0]
+        buffer.read(at: offset, count: 1)[0]
     }
 
     /// element
@@ -146,14 +146,13 @@ public extension TensorView {
         get {
             assert(shape.isScalar, "the `element` property expects " +
                 "the tensor to have a single Element. Use `first` for sets")
-            return buffer.read(at: offset, count: 1,
-                               using: Platform.applicationQueue)[0]
+            return buffer.read(at: offset, count: 1)[0]
         }
         set {
             assert(shape.isScalar, "the `element` property expects " +
                 "the tensor to have a single Element")
-            buffer.readWrite(at: offset, count: 1, willOverwrite: true,
-                             using: Platform.applicationQueue)[0] = newValue
+            buffer.readWrite(at: offset, count: 1,
+                             willOverwrite: true)[0] = newValue
         }
     }
 }
@@ -289,7 +288,7 @@ public extension TensorView {
                 "\(name)(\(id)) \(Element.self)[\(count)]",
                 categories: [.dataCopy, .dataMutation])
 
-            buffer = buffer.duplicate()
+            buffer = Buffer(copying: buffer)
         }
         
         return createView(at: index, with: extents,

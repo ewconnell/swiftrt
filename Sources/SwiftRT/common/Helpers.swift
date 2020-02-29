@@ -18,6 +18,62 @@ import Foundation
 public typealias CStringPointer = UnsafePointer<CChar>
 
 //==============================================================================
+/// elapsedTime
+/// used to measure and log a set of `body` iterations
+@discardableResult
+public func elapsedTime(logLabel: String? = nil, iterations: Int = 10,
+                        warmUps: Int = 2, precision: Int = 6,
+                        _ body: () -> Void) -> TimeInterval
+{
+    // warm ups are to factor out module or data load times
+    if let label = logLabel, warmUps > 0 {
+        var warmUpTimings = [TimeInterval]()
+        for _ in 0..<warmUps {
+            let start = Date()
+            body()
+            let elapsed = Date().timeIntervalSince(start)
+            warmUpTimings.append(elapsed)
+        }
+
+        let warmUpAverage = warmUpTimings.reduce(0, +) /
+            Double(warmUpTimings.count)
+        
+        logTimings("\(label) average start up", warmUpTimings,
+                   warmUpAverage, precision)
+    }
+    
+    // collect the timings and take the average
+    var timings = [TimeInterval]()
+    for _ in 0..<iterations {
+        let start = Date()
+        body()
+        let elapsed = Date().timeIntervalSince(start)
+        timings.append(elapsed)
+    }
+    let average = timings.reduce(0, +) / Double(timings.count)
+
+    // log results if requested
+    if let label = logLabel {
+        logTimings("\(label) average iteration", timings, average, precision)
+    }
+    return average
+}
+
+func logTimings(_ label: String, _ timings: [TimeInterval],
+                _ average: TimeInterval, _ precision: Int)
+{
+    let avgStr = String(timeInterval: average, precision: precision)
+    Platform.log.write(level: .status, message:
+        "\(label) time: \(avgStr)")
+    for i in 0..<timings.count {
+        let timeStr = String(format: "%.\(precision)f", timings[i])
+        Platform.log.write(level: .status,
+                           message: "Run: \(i) time: \(timeStr)")
+    }
+    Platform.log.write(level: .status, message: "")
+}
+
+//==============================================================================
 // Memory sizes
 extension Int {
     @inlinable
@@ -35,14 +91,14 @@ extension Int {
 extension String {
     @inlinable
     public init(timeInterval: TimeInterval, precision: Int = 2) {
-        let milliseconds = Int(timeInterval
-            .truncatingRemainder(dividingBy: 1.0) * pow(10.0, Double(precision)))
+        let remainder = timeInterval.truncatingRemainder(dividingBy: 1.0)
         let interval = Int(timeInterval)
         let seconds = interval % 60
         let minutes = (interval / 60) % 60
         let hours = (interval / 3600)
-        self = String(format: "%0.2d:%0.2d:%0.2d.%0.2d",
-                      hours, minutes, seconds, milliseconds)
+        let remStr = String(format: "%.\(precision)f", remainder).dropFirst(2)
+        self = String(format: "%0.2d:%0.2d:%0.2d.\(remStr)",
+                      hours, minutes, seconds)
     }
 }
 

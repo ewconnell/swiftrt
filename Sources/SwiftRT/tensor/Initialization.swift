@@ -239,7 +239,7 @@ public extension TensorView {
     {
         let shape = Shape(extents: extents, strides: Shape.zeros,
                           isSequential: true)
-        self = Self.create([value], shape, name)
+        self = Self.create(for: value, shape, name)
     }
 
     @inlinable
@@ -335,6 +335,13 @@ public extension TensorView {
     }
     
     @inlinable
+    static func create(for element: Element, _ shape: Shape, _ name: String?) -> Self
+    {
+        let buffer = Buffer(for: element, name: name ?? Self.diagnosticName)
+        return Self(shape: shape, buffer: buffer, offset: 0, shared: false)
+    }
+
+    @inlinable
     static func create<C>(_ elements: C, _ shape: Shape,
                           _ name: String?) -> Self where
         C: Collection, C.Element == Element
@@ -354,7 +361,8 @@ public extension TensorView {
 public extension TensorView where Self: DifferentiableTensorView {
     @inlinable
     @derivative(of: init(repeating:to:name:))
-    static func _vjpInit(repeating value: Element, to extents: Shape.Array,
+    static func _vjpInit(repeating value: Element,
+                         to extents: Shape.Array,
                          name: String?) ->
         (value: Self, pullback: (Self) -> (Element))
     {

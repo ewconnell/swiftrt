@@ -27,6 +27,14 @@ public func add<T>(_ lhs: T, _ rhs: T) -> T
     Platform.service.add(lhs, rhs)
 }
 
+@inlinable
+@derivative(of: add)
+func _vjpAdd<T>(lhs: T, rhs: T) ->
+    (value: T, pullback: (T) ->(T, T)) where T: DifferentiableTensorView
+{
+    Platform.service._vjpAdd(lhs, rhs)
+}
+
 public extension PlatformService {
     @inlinable
     func add<T>(_ lhs: T, _ rhs: T) -> T
@@ -39,9 +47,9 @@ public extension PlatformService {
         return result
     }
     
-    @derivative(of: add)
     @inlinable
-    func _vjpAdd<T>(lhs: T, rhs: T) -> (value: T, pullback: (T) ->(T, T))
+    @derivative(of: add)
+    func _vjpAdd<T>(_ lhs: T, _ rhs: T) -> (value: T, pullback: (T) ->(T, T))
         where T: DifferentiableTensorView
     {
         (lhs + rhs, { v in (v, v) })
@@ -50,47 +58,24 @@ public extension PlatformService {
 
 public extension TensorView where Element: AdditiveArithmetic {
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func + (lhs: Self, rhs: Self) -> Self { add(lhs, rhs) }
 
     @inlinable
-    static func += (lhs: inout Self, rhs: Element) { lhs = lhs + rhs }
+    static func += (lhs: inout Self, rhs: Element) {
+        lhs = add(lhs, Self(repeating: rhs, like: lhs))
+    }
 
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func +(lhs: Self, rhs: Element) -> Self {
-        lhs + Self(repeating: rhs, like: lhs)
+        add(lhs, Self(repeating: rhs, to: lhs.extents))
     }
 
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func +(lhs: Element, rhs: Self) -> Self {
-        Self(repeating: lhs, like: rhs) + rhs
-    }
-}
-
-//--------------------------------------
-// derivative functions
-public extension TensorView where Self: DifferentiableTensorView {
-    @derivative(of: +)
-    @inlinable
-    static func _vjpAdd(lhs: Self, rhs: Self) ->
-        (value: Self, pullback: (Self) -> (Self, Self))
-    {
-        Platform.service._vjpAdd(lhs: lhs, rhs: rhs)
-    }
-    
-    @derivative(of: +)
-    @inlinable
-    static func _vjpAdd(lhs: Self, rhs: Element) ->
-        (value: Self, pullback: (Self) -> (Self, Element))
-    {
-        (lhs + rhs, { v in (v, v.sum().element) })
-    }
-    
-    @derivative(of: +)
-    @inlinable
-    static func _vjpAdd(lhs: Element, rhs: Self) ->
-        (value: Self, pullback: (Self) -> (Element, Self))
-    {
-        (lhs + rhs, { v in (v.sum().element, v) })
+        add(Self(repeating: lhs, to: rhs.extents), rhs)
     }
 }
 
@@ -107,6 +92,14 @@ public func subtract<T>(_ lhs: T, _ rhs: T) -> T
     Platform.service.subtract(lhs, rhs)
 }
 
+@derivative(of: subtract)
+@inlinable
+public func _vjpSubtract<T>(lhs: T, rhs: T) ->
+    (value: T, pullback: (T) ->(T, T)) where T: DifferentiableTensorView
+{
+    Platform.service._vjpSubtract(lhs, rhs)
+}
+
 public extension PlatformService {
     @inlinable
     func subtract<T>(_ lhs: T, _ rhs: T) -> T
@@ -118,55 +111,37 @@ public extension PlatformService {
         currentQueue.subtract(read(left), read(right), &resultBuffer)
         return result
     }
-    
-    
-    @derivative(of: subtract)
+        
     @inlinable
-    func _vjpSubtract<T>(lhs: T, rhs: T) ->
+    @derivative(of: subtract)
+    func _vjpSubtract<T>(_ lhs: T, _ rhs: T) ->
         (value: T, pullback: (T) ->(T, T))
         where T: DifferentiableTensorView
     {
-        (lhs - rhs, { v in (v, v) })
+        (lhs - rhs, { v in (v, T.zero - v) })
     }
 }
 
 public extension TensorView where Element: AdditiveArithmetic {
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func - (lhs: Self, rhs: Self) -> Self { subtract(lhs, rhs) }
 
     @inlinable
-    static func -= (lhs: inout Self, rhs: Element) { lhs = lhs - rhs }
+    static func -= (lhs: inout Self, rhs: Element) {
+        lhs = subtract(lhs, Self(repeating: rhs, like: lhs))
+    }
     
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func - (lhs: Self, rhs: Element) -> Self {
-        lhs - Self(repeating: rhs, like: lhs)
+        subtract(lhs, Self(repeating: rhs, to: lhs.extents))
     }
 
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func - (lhs: Element, rhs: Self) -> Self {
-        Self(repeating: lhs, like: rhs) - rhs
-    }
-}
-
-//--------------------------------------
-// derivative functions
-public extension TensorView
-    where Self: DifferentiableTensorView, Element: SignedNumeric
-{
-    @derivative(of: -)
-    @inlinable
-    static func vjpSubtract(lhs: Self, rhs: Self) ->
-        (value: Self, pullback: (Self) -> (Self, Self))
-    {
-        return (lhs - rhs, { v in (v, -v) })
-    }
-    
-    @derivative(of: -)
-    @inlinable
-    static func vjpSubtract(lhs: Self, rhs: Element) ->
-        (value: Self, pullback: (Self) -> (Self, Element))
-    {
-        return (lhs - rhs, { v in (v, -v.sum().element) })
+        subtract(Self(repeating: lhs, to: rhs.extents), rhs)
     }
 }
 
@@ -183,6 +158,14 @@ public func mul<T>(_ lhs: T, _ rhs: T) -> T
     Platform.service.mul(lhs, rhs)
 }
 
+@inlinable
+@derivative(of: mul)
+func _vjpMultiply<T>(_ lhs: T, _ rhs: T) ->
+    (value: T, pullback: (T) -> (T, T)) where T: DifferentiableTensorView
+{
+    Platform.service._vjpMultiply(lhs, rhs)
+}
+
 public extension PlatformService {
     @inlinable
     func mul<T>(_ lhs: T, _ rhs: T) -> T
@@ -195,8 +178,8 @@ public extension PlatformService {
         return result
     }
     
-    @derivative(of: mul)
     @inlinable
+    @derivative(of: mul)
     func _vjpMultiply<T>(_ lhs: T, _ rhs: T) ->
         (value: T, pullback: (T) -> (T, T)) where T: DifferentiableTensorView
     {
@@ -206,50 +189,29 @@ public extension PlatformService {
 
 public extension TensorView where Element: Numeric {
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func * (lhs: Self, rhs: Self) -> Self { mul(lhs, rhs) }
     
     @inlinable
-    static func *= (lhs: inout Self, rhs: Element) { lhs = lhs * rhs }
+    static func *= (lhs: inout Self, rhs: Element) {
+        lhs = mul(lhs, Self(repeating: rhs, to: lhs.extents))
+    }
 
     @inlinable
-    static func *= (lhs: inout Self, rhs: Self) { lhs = lhs * rhs }
+    static func *= (lhs: inout Self, rhs: Self) {
+        lhs = lhs * rhs
+    }
     
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func * (lhs: Self, rhs: Element) -> Self {
-        lhs * Self(repeating: rhs, like: lhs)
+        mul(lhs, Self(repeating: rhs, to: lhs.extents))
     }
 
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func * (lhs: Element, rhs: Self) -> Self {
-        Self(repeating: lhs, like: rhs) * rhs
-    }
-}
-
-//--------------------------------------
-// derivative functions
-public extension TensorView where Self: DifferentiableTensorView {
-    @derivative(of: *)
-    @inlinable
-    static func _vjpMultiply(lhs: Self, rhs: Self) ->
-        (value: Self, pullback: (Self) -> (Self, Self))
-    {
-        Platform.service._vjpMultiply(lhs, rhs)
-    }
-    
-    @derivative(of: *)
-    @inlinable
-    static func _vjpMultiply(lhs: Self, rhs: Element) ->
-        (value: Self, pullback: (Self) -> (Self, Element))
-    {
-        (lhs * rhs, { v in (v * rhs, (v * lhs).sum().element) })
-    }
-    
-    @derivative(of: *)
-    @inlinable
-    static func _vjpMultiply(lhs: Element, rhs: Self) ->
-        (value: Self, pullback: (Self) -> (Element, Self))
-    {
-        (lhs * rhs, { v in ((v * rhs).sum().element, v * lhs) })
+        mul(Self(repeating: lhs, to: rhs.extents), rhs)
     }
 }
 
@@ -266,6 +228,15 @@ public func div<T>(_ lhs: T, _ rhs: T) -> T
     Platform.service.div(lhs, rhs)
 }
 
+@inlinable
+@derivative(of: div)
+func _vjpDivide<T>(_ lhs: T, _ rhs: T) ->
+    (value: T, pullback: (T) -> (T, T)) where
+    T: DifferentiableTensorView, T.Element: AlgebraicField
+{
+    Platform.service._vjpDivide(lhs, rhs)
+}
+
 public extension PlatformService {
     @inlinable
     func div<T>(_ lhs: T, _ rhs: T) -> T
@@ -278,11 +249,11 @@ public extension PlatformService {
         return result
     }
     
-    @derivative(of: div)
     @inlinable
+    @derivative(of: div)
     func _vjpDivide<T>(_ lhs: T, _ rhs: T) ->
         (value: T, pullback: (T) -> (T, T)) where
-        T: DifferentiableTensorView, T.Element: AlgebraicField & SignedNumeric
+        T: DifferentiableTensorView, T.Element: AlgebraicField
     {
         (lhs / rhs, { v in (v / rhs, -lhs / rhs.squared() * v) })
     }
@@ -290,56 +261,26 @@ public extension PlatformService {
 
 public extension TensorView where Element: AlgebraicField {
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func / (lhs: Self, rhs: Self) -> Self { div(lhs, rhs) }
 
     @inlinable
-    static func /= (lhs: inout Self, rhs: Element) { lhs = lhs / rhs }
+    static func /= (lhs: inout Self, rhs: Element) {
+        lhs = div(lhs, Self(repeating: rhs, to: lhs.extents))
+    }
 
     @inlinable
     static func /= (lhs: inout Self, rhs: Self) { lhs = lhs / rhs }
 
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func / (lhs: Self, rhs: Element) -> Self {
-        lhs / Self(repeating: rhs, like: lhs)
+        div(lhs, Self(repeating: rhs, to: lhs.extents))
     }
 
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func / (lhs: Element, rhs: Self) -> Self {
-        Self(repeating: lhs, like: rhs) / rhs
-    }
-}
-
-//--------------------------------------
-// derivative functions
-public extension TensorView where
-    Self: DifferentiableTensorView,
-    Element: AlgebraicField & SignedNumeric
-{
-    @derivative(of: /)
-    @inlinable
-    static func _vjpDivide(lhs: Self, rhs: Self) ->
-        (value: Self, pullback: (Self) -> (Self, Self))
-    {
-        Platform.service._vjpDivide(lhs, rhs)
-    }
-    
-    @derivative(of: /)
-    @inlinable
-    static func _vjpDivide(lhs: Self, rhs: Element) ->
-        (value: Self, pullback: (Self) -> (Self, Element))
-    {
-        (lhs / rhs, { v in
-            (v / rhs, (-lhs / rhs.squared() * v).sum().element)
-        })
-    }
-    
-    @derivative(of: /)
-    @inlinable
-    static func _vjpDivide(lhs: Element, rhs: Self) ->
-        (value: Self, pullback: (Self) -> (Element, Self))
-    {
-        (lhs / rhs, { v in
-            ((v / rhs).sum().element, -lhs / rhs.squared() * v)
-        })
+        div(Self(repeating: lhs, to: rhs.extents), rhs)
     }
 }
