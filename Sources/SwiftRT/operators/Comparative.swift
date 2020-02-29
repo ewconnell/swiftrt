@@ -176,41 +176,29 @@ public func max<T>(_ lhs: T, _ rhs: T) -> T where
     Platform.service.max(lhs, rhs)
 }
 
-//--------------------------------------
+@inlinable
+@derivative(of: max)
+func _vjpMax<T>(_ lhs: T, _ rhs: T)
+    -> (value: T, pullback: (T) -> (T, T))
+    where T: DifferentiableTensorView, T.Element: Comparable
+{
+    Platform.service._vjpMax(lhs, rhs)
+}
+
 @inlinable
 @differentiable(where T: DifferentiableTensorView)
 public func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
     T: TensorView, T.Element: Comparable
 {
-    max(lhs, T(repeating: rhs, like: lhs))
+    max(lhs, T(repeating: rhs, to: lhs.extents))
 }
 
-
-@inlinable
-@derivative(of: max)
-public func _vjpMax<T>(_ lhs: T, _ rhs: T.Element) ->
-    (value: T, pullback: (T) -> (T, T.Element))
-    where T: DifferentiableTensorView, T.Element: Comparable
-{
-    Platform.service._vjpMax(lhs, rhs)
-}
-
-//--------------------------------------
 @inlinable
 @differentiable(where T: DifferentiableTensorView)
 public func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
     T: TensorView, T.Element: Comparable
 {
-    max(T(repeating: lhs, like: rhs), rhs)
-}
-
-@inlinable
-@derivative(of: max)
-public func _vjpMax<T>(_ lhs: T.Element, _ rhs: T) ->
-    (value: T, pullback: (T) -> (T.Element, T))
-    where T: DifferentiableTensorView, T.Element: Comparable
-{
-    Platform.service._vjpMax(lhs, rhs)
+    max(T(repeating: lhs, to: rhs.extents), rhs)
 }
 
 public extension PlatformService {
@@ -226,11 +214,22 @@ public extension PlatformService {
     }
     
     @inlinable
+    @derivative(of: max)
+    func _vjpMax<T>(_ lhs: T, _ rhs: T)
+        -> (value: T, pullback: (T) -> (T, T))
+        where T: DifferentiableTensorView, T.Element: Comparable
+    {
+        return (value: max(lhs, rhs), {
+            self._vjpMinMax(lhs, rhs, $0, >=)
+        })
+    }
+
+    @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
         T: TensorView, T.Element: Comparable
     {
-        max(lhs, T(repeating: rhs, like: lhs))
+        max(lhs, T(repeating: rhs, to: lhs.extents))
     }
     
     @inlinable
@@ -238,7 +237,7 @@ public extension PlatformService {
     func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
         T: TensorView, T.Element: Comparable
     {
-        max(T(repeating: lhs, like: rhs), rhs)
+        max(T(repeating: lhs, to: rhs.extents), rhs)
     }
 }
 
@@ -261,47 +260,6 @@ public extension TensorView {
         T: TensorView, T.Element: Comparable { Platform.service.max(lhs, rhs) }
 }
 
-//--------------------------------------
-// derivative functions
-extension PlatformService {
-    @inlinable
-    @derivative(of: max)
-    public func _vjpMax<T>(_ lhs: T, _ rhs: T)
-        -> (value: T, pullback: (T) -> (T, T))
-        where T: DifferentiableTensorView, T.Element: Comparable
-    {
-        return (value: max(lhs, rhs), {
-            self._vjpMinMax(lhs, rhs, $0, >=)
-        })
-    }
-    
-    @inlinable
-    @derivative(of: max)
-    public func _vjpMax<T>(_ lhs: T, _ rhs: T.Element) ->
-        (value: T, pullback: (T) -> (T, T.Element))
-        where T: DifferentiableTensorView, T.Element: Comparable
-    {
-        let rhs = T(repeating: rhs, like: lhs)
-        return (value: max(lhs, rhs), {
-            let (lhsGrad, rhsGrad) = self._vjpMinMax(lhs, rhs, $0, >=)
-            return (lhsGrad, rhsGrad.sum().element)
-        })
-    }
-    
-    @inlinable
-    @derivative(of: max)
-    public func _vjpMax<T>(_ lhs: T.Element, _ rhs: T) ->
-        (value: T, pullback: (T) -> (T.Element, T))
-        where T: DifferentiableTensorView, T.Element: Comparable
-    {
-        let lhs = T(repeating: lhs, like: rhs)
-        return (value: max(lhs, rhs), {
-            let (lhsGrad, rhsGrad) = self._vjpMinMax(lhs, rhs, $0, >=)
-            return (lhsGrad.sum().element, rhsGrad)
-        })
-    }
-}
-
 //==============================================================================
 /// min
 /// Computes the element-wise minimum of two tensors
@@ -316,40 +274,29 @@ public func min<T>(_ lhs: T, _ rhs: T) -> T where
     Platform.service.min(lhs, rhs)
 }
 
-//--------------------------------------
+@inlinable
+@derivative(of: min)
+func _vjpMin<T>(_ lhs: T, _ rhs: T)
+    -> (value: T, pullback: (T) -> (T, T))
+    where T: DifferentiableTensorView, T.Element: Comparable
+{
+    Platform.service._vjpMin(lhs, rhs)
+}
+
 @inlinable
 @differentiable(where T: DifferentiableTensorView)
 public func min<T>(_ lhs: T, _ rhs: T.Element) -> T
     where T: TensorView, T.Element: Comparable
 {
-    min(lhs, T(repeating: rhs, like: lhs))
+    min(lhs, T(repeating: rhs, to: lhs.extents))
 }
 
-@inlinable
-@derivative(of: min)
-func _vjpMin<T>(_ lhs: T, _ rhs: T.Element) ->
-    (value: T, pullback: (T) -> (T, T.Element))
-    where T: DifferentiableTensorView, T.Element: Comparable
-{
-    Platform.service._vjpMin(lhs, rhs)
-}
-
-//--------------------------------------
 @inlinable
 @differentiable(where T: DifferentiableTensorView)
 public func min<T>(_ lhs: T.Element, _ rhs: T) -> T
     where T: TensorView, T.Element: Comparable
 {
-    min(T(repeating: lhs, like: rhs), rhs)
-}
-
-@inlinable
-@derivative(of: min)
-func _vjpMin<T>(_ lhs: T.Element, _ rhs: T) ->
-    (value: T, pullback: (T) -> (T.Element, T))
-    where T: DifferentiableTensorView, T.Element: Comparable
-{
-    Platform.service._vjpMin(lhs, rhs)
+    min(T(repeating: lhs, to: rhs.extents), rhs)
 }
 
 //--------------------------------------
@@ -366,11 +313,22 @@ public extension PlatformService {
     }
     
     @inlinable
+    @derivative(of: min)
+    func _vjpMin<T>(_ lhs: T, _ rhs: T)
+        -> (value: T, pullback: (T) -> (T, T))
+        where T: DifferentiableTensorView, T.Element: Comparable
+    {
+        return (value: min(lhs, rhs), {
+            self._vjpMinMax(lhs, rhs, $0, <=)
+        })
+    }
+
+    @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func min<T>(_ lhs: T, _ rhs: T.Element) -> T
         where T: TensorView, T.Element: Comparable
     {
-        min(lhs, T(repeating: rhs, like: lhs))
+        min(lhs, T(repeating: rhs, to: lhs.extents))
     }
     
     @inlinable
@@ -378,7 +336,7 @@ public extension PlatformService {
     func min<T>(_ lhs: T.Element, _ rhs: T) -> T
         where T: TensorView, T.Element: Comparable
     {
-        min(T(repeating: lhs, like: rhs), rhs)
+        min(T(repeating: lhs, to: rhs.extents), rhs)
     }
 }
 
@@ -397,47 +355,6 @@ public extension TensorView {
     @differentiable(where T: DifferentiableTensorView)
     func min<T>(_ lhs: T.Element, _ rhs: T) -> T where
         T: TensorView, T.Element: Comparable { Platform.service.min(lhs, rhs) }
-}
-
-//--------------------------------------
-// derivative functions
-public extension PlatformService {
-    @inlinable
-    @derivative(of: min)
-    func _vjpMin<T>(_ lhs: T, _ rhs: T)
-        -> (value: T, pullback: (T) -> (T, T))
-        where T: DifferentiableTensorView, T.Element: Comparable
-    {
-        return (value: min(lhs, rhs), {
-            self._vjpMinMax(lhs, rhs, $0, <=)
-        })
-    }
-
-    @inlinable
-    @derivative(of: min)
-    func _vjpMin<T>(_ lhs: T, _ rhs: T.Element) ->
-        (value: T, pullback: (T) -> (T, T.Element))
-        where T: DifferentiableTensorView, T.Element: Comparable
-    {
-        let rhs = T(repeating: rhs, like: lhs)
-        return (value: min(lhs, rhs), {
-            let (lhsGrad, rhsGrad) = self._vjpMinMax(lhs, rhs, $0, <=)
-            return (lhsGrad, rhsGrad.sum().element)
-        })
-    }
-
-    @inlinable
-    @derivative(of: min)
-    func _vjpMin<T>(_ lhs: T.Element, _ rhs: T) ->
-        (value: T, pullback: (T) -> (T.Element, T))
-        where T: DifferentiableTensorView, T.Element: Comparable
-    {
-        let lhs = T(repeating: lhs, like: rhs)
-        return (value: min(lhs, rhs), {
-            let (lhsGrad, rhsGrad) = self._vjpMinMax(lhs, rhs, $0, <=)
-            return (lhsGrad.sum().element, rhsGrad)
-        })
-    }
 }
 
 //==============================================================================
