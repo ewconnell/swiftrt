@@ -38,9 +38,8 @@ public struct CpuDevice<Queue>: ServiceDevice
     @inlinable
     public init(parent logInfo: LogInfo, memoryType: MemoryType, id: Int)
     {
-        let deviceName = "cpu:\(id)"
         self.id = id
-        self.name = deviceName
+        self.name = "cpu:\(id)"
         self.logInfo = logInfo.flat(name)
         self.memoryType = memoryType
         
