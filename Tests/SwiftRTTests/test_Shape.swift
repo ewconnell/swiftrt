@@ -86,6 +86,25 @@ class test_Shape: XCTestCase {
         #endif
     }
 
+    func test_perfSIMD5() {
+        #if !DEBUG
+        let extents = SIMD5(arrayLiteral: 1, 2, 3, 4, 5)
+        let strides = SIMD5(arrayLiteral: 120, 60, 20, 5, 1)
+        let pos = SIMD5(arrayLiteral: 0, 1, 2, 3, 4)
+        var total = 0
+        measure {
+            for _ in 0..<simdPerfIterations {
+                let span = ((extents &- 1) &* strides).wrappedSum() + 1
+                let count = extents.indices.reduce(1) { $0 * extents[$1] }
+                let linear = (pos &* strides).wrappedSum()
+                total += span + count + linear
+            }
+        }
+        print(total)
+        XCTAssert(total > 0)
+        #endif
+    }
+    
     func test_perfArray2() {
         #if !DEBUG
         let extents = StaticArray<Int, (Int, Int)>((2, 3))
@@ -129,6 +148,25 @@ class test_Shape: XCTestCase {
         let extents = StaticArray<Int, (Int, Int, Int, Int)>((1, 2, 3, 4))
         let strides = StaticArray<Int, (Int, Int, Int, Int)>((24, 12, 3, 1))
         let pos = StaticArray<Int, (Int, Int, Int, Int)>((0, 1, 2, 3))
+        var total = 0
+        measure {
+            for _ in 0..<simdPerfIterations {
+                let span = (zip(extents, strides).reduce(0) { $0 + ($1.0 - 1) * $1.1 }) + 1
+                let count = extents.reduce(1, *)
+                let linear = zip(pos, strides).reduce(0) { $0 + $1.0 * $1.1 }
+                total += span + count + linear
+            }
+        }
+        print(total)
+        XCTAssert(total > 0)
+        #endif
+    }
+    
+    func test_perfArray5() {
+        #if !DEBUG
+        let extents = StaticArray<Int, (Int, Int, Int, Int, Int)>((1, 2, 3, 4, 5))
+        let strides = StaticArray<Int, (Int, Int, Int, Int, Int)>((120, 60, 20, 5, 1))
+        let pos = StaticArray<Int, (Int, Int, Int, Int, Int)>((0, 1, 2, 3, 4))
         var total = 0
         measure {
             for _ in 0..<simdPerfIterations {
