@@ -24,9 +24,126 @@ class test_Shape: XCTestCase {
         ("test_SequentialViews", test_SequentialViews),
         ("test_ShapeCollection", test_ShapeCollection),
         ("test_transposed", test_transposed),
-        ("test_perfShape2", test_perfShape2),
+//        ("test_perfShape2", test_perfShape2),
     ]
 
+    //--------------------------------------------------------------------------
+    // test_SequentialViews
+    let simdPerfIterations = 10000000
+    
+    func test_perfSIMD2() {
+        #if !DEBUG
+        let extents = SIMD2(arrayLiteral: 2, 3)
+        let strides = SIMD2(arrayLiteral: 3, 1)
+        let pos = SIMD2(arrayLiteral: 1, 2)
+        var total = 0
+        measure {
+            for _ in 0..<simdPerfIterations {
+                let span = ((extents &- 1) &* strides).wrappedSum() + 1
+                let count = extents.indices.reduce(1) { $0 * extents[$1] }
+                let linear = (pos &* strides).wrappedSum()
+                total += span + count + linear
+            }
+        }
+        XCTAssert(total > 0)
+        #endif
+    }
+
+    func test_perfSIMD3() {
+        #if !DEBUG
+        let extents = SIMD3(arrayLiteral: 2, 3, 4)
+        let strides = SIMD3(arrayLiteral: 12, 3, 1)
+        let pos = SIMD3(arrayLiteral: 1, 2, 3)
+        var total = 0
+        measure {
+            for _ in 0..<simdPerfIterations {
+                let span = ((extents &- 1) &* strides).wrappedSum() + 1
+                let count = extents.indices.reduce(1) { $0 * extents[$1] }
+                let linear = (pos &* strides).wrappedSum()
+                total += span + count + linear
+            }
+        }
+        print(total)
+        XCTAssert(total > 0)
+        #endif
+    }
+    
+    func test_perfSIMD4() {
+        #if !DEBUG
+        let extents = SIMD4(arrayLiteral: 1, 2, 3, 4)
+        let strides = SIMD4(arrayLiteral: 24, 12, 3, 1)
+        let pos = SIMD4(arrayLiteral: 0, 1, 2, 3)
+        var total = 0
+        measure {
+            for _ in 0..<simdPerfIterations {
+                let span = ((extents &- 1) &* strides).wrappedSum() + 1
+                let count = extents.indices.reduce(1) { $0 * extents[$1] }
+                let linear = (pos &* strides).wrappedSum()
+                total += span + count + linear
+            }
+        }
+        print(total)
+        XCTAssert(total > 0)
+        #endif
+    }
+
+    func test_perfArray2() {
+        #if !DEBUG
+        let extents = StaticArray<Int, (Int, Int)>((2, 3))
+        let strides = StaticArray<Int, (Int, Int)>((3, 1))
+        let pos = StaticArray<Int, (Int, Int)>((1, 2))
+        var total = 0
+        measure {
+            for _ in 0..<simdPerfIterations {
+                let span = (zip(extents, strides).reduce(0) { $0 + ($1.0 - 1) * $1.1 }) + 1
+                let count = extents.reduce(1, *)
+                let linear = zip(pos, strides).reduce(0) { $0 + $1.0 * $1.1 }
+                total += span + count + linear
+            }
+        }
+        print(total)
+        XCTAssert(total > 0)
+        #endif
+    }
+
+    func test_perfArray3() {
+        #if !DEBUG
+        let extents = StaticArray<Int, (Int, Int, Int)>((2, 3, 4))
+        let strides = StaticArray<Int, (Int, Int, Int)>((12, 3, 1))
+        let pos = StaticArray<Int, (Int, Int, Int)>((1, 2, 3))
+        var total = 0
+        measure {
+            for _ in 0..<simdPerfIterations {
+                let span = (zip(extents, strides).reduce(0) { $0 + ($1.0 - 1) * $1.1 }) + 1
+                let count = extents.reduce(1, *)
+                let linear = zip(pos, strides).reduce(0) { $0 + $1.0 * $1.1 }
+                total += span + count + linear
+            }
+        }
+        print(total)
+        XCTAssert(total > 0)
+        #endif
+    }
+    
+    func test_perfArray4() {
+        #if !DEBUG
+        let extents = StaticArray<Int, (Int, Int, Int, Int)>((1, 2, 3, 4))
+        let strides = StaticArray<Int, (Int, Int, Int, Int)>((24, 12, 3, 1))
+        let pos = StaticArray<Int, (Int, Int, Int, Int)>((0, 1, 2, 3))
+        var total = 0
+        measure {
+            for _ in 0..<simdPerfIterations {
+                let span = (zip(extents, strides).reduce(0) { $0 + ($1.0 - 1) * $1.1 }) + 1
+                let count = extents.reduce(1, *)
+                let linear = zip(pos, strides).reduce(0) { $0 + $1.0 * $1.1 }
+                total += span + count + linear
+            }
+        }
+        print(total)
+        XCTAssert(total > 0)
+        #endif
+    }
+    
     //--------------------------------------------------------------------------
     // test_SequentialViews
     func test_SequentialViews() {
@@ -92,28 +209,28 @@ class test_Shape: XCTestCase {
                                          [11.0, 23.0]]])
     }
     
-    //--------------------------------------------------------------------------
-    // test_perfShape2
-    func test_perfShape2() {
-        #if !DEBUG
-        var shape = Shape2(extents: Shape2.zeros)
-        let index = Shape2.Array((1, 1))
-        var i = 0
-        self.measure {
-            for _ in 0..<100000 {
-                let a = Shape2(extents: (3, 4))
-                let b = a.columnMajor
-                let ds = a == b ? b.dense : a.dense
-                let c = Shape2(extents:
-                    Shape2.makePositive(dims: Shape2.Array((1, -1))))
-                let r = Shape2(extents: Shape2.ones).repeated(to: a.extents)
-                let j = a.joined(with: [ds, c, r], alongAxis: 1)
-                let t = j.transposed()
-                shape = t
-                i = shape.linearIndex(of: index)
-            }
-        }
-        XCTAssert(shape.extents == Shape2.Array((13, 3)) && i > 0)
-        #endif
-    }
+//    //--------------------------------------------------------------------------
+//    // test_perfShape2
+//    func test_perfShape2() {
+//        #if !DEBUG
+//        var shape = Shape2(extents: Shape2.zeros)
+//        let index = Shape2.Array((1, 1))
+//        var i = 0
+//        self.measure {
+//            for _ in 0..<100000 {
+//                let a = Shape2(extents: (3, 4))
+//                let b = a.columnMajor
+//                let ds = a == b ? b.dense : a.dense
+//                let c = Shape2(extents:
+//                    Shape2.makePositive(dims: Shape2.Array((1, -1))))
+//                let r = Shape2(extents: Shape2.ones).repeated(to: a.extents)
+//                let j = a.joined(with: [ds, c, r], alongAxis: 1)
+//                let t = j.transposed()
+//                shape = t
+//                i = shape.linearIndex(of: index)
+//            }
+//        }
+//        XCTAssert(shape.extents == Shape2.Array((13, 3)) && i > 0)
+//        #endif
+//    }
 }
