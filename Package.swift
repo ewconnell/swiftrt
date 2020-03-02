@@ -13,12 +13,13 @@ import Darwin.C
 //------------------------------------------------------------------------------
 // test for enabled components
 func isEnabled(_ id: String) -> Bool { getenv(id) != nil }
+
 let enableCuda = isEnabled("SWIFTRT_ENABLE_CUDA")
 
 //---------------------------------------
 // the base products, dependencies, and targets
 var products: [PackageDescription.Product] = [
-    .library(name: "SwiftRT", type: .dynamic, targets: ["SwiftRT"]),
+    .library(name: "SwiftRT", targets: ["SwiftRT"]),
     // .library(name: "SwiftRT", type: .static, targets: ["SwiftRT"])
 ]
 var dependencies: [Target.Dependency] = ["Numerics"]
@@ -38,18 +39,10 @@ if enableCuda {
     products.append(.library(name: "CCuda", targets: ["CCuda"]))
     dependencies.append("CCuda")
     targets.append(
-        .systemLibrary(name: "CCuda",
-                       path: "Modules/Cuda",
-                       pkgConfig: "cuda"))
-
-    //---------------------------------------
-    // add CudaService
-    products.append(.library(name: "CudaService",
-                             targets: ["CudaService"]))
+        .systemLibrary(name: "CCuda", path: "Modules/Cuda", pkgConfig: "cuda"))
     
-    targets.append(.target(name: "CudaService",
-                           dependencies: ["SwiftRT", "CCuda"],
-                           exclude: ["Kernels"]))
+} else {
+    exclusions.append("platform/cuda")
 }
 
 //------------------------------------------------------------------------------
@@ -85,8 +78,7 @@ targets.append(
             exclude: exclusions))
 
 targets.append(
-    .testTarget(name: "SwiftRTTests",
-                dependencies: ["SwiftRT"]))
+    .testTarget(name: "SwiftRTTests", dependencies: ["SwiftRT"]))
 
 let package = Package(
     name: "SwiftRT",

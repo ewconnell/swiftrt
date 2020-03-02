@@ -16,11 +16,13 @@ import Numerics
 
 //==============================================================================
 // Platform types
-// #if Cuda
-// #else
-
-public typealias TensorBuffer<Element> = CpuBuffer<Element>
+#if canImport(CCuda)
+public typealias PlatformServiceType = CudaService
+public typealias TensorBuffer<Element> = DiscreetDeviceBuffer<Element>
+#else
 public typealias PlatformServiceType = CpuService
+public typealias TensorBuffer<Element> = CpuBuffer<Element>
+#endif
 
 //==============================================================================
 // Default Tensor types
@@ -48,8 +50,8 @@ public typealias ComplexVolume = VolumeType<Complex<Float>>
 /// While this protoocl is not strictly necessary, it is used to reduce the
 /// number of generic requirements when writing `@differentiable` attributes on
 /// generic differentiable `TensorView` functions.
-public protocol DifferentiableTensorView: TensorView & Differentiable where
-Self == TangentVector, Element: DifferentiableElement {}
+public protocol DifferentiableTensorView: TensorView & Differentiable
+    where Self == TangentVector, Element: DifferentiableElement {}
 
 //==============================================================================
 /// DifferentiableElement
@@ -71,11 +73,4 @@ extension Complex: DifferentiableElement {
 public extension Numeric {
     @inlinable
     static var one: Self { 1 }
-}
-
-extension Complex: AnyElement {
-    @inlinable
-    public init() {
-        self.init(0)
-    }
 }
