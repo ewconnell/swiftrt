@@ -11,16 +11,20 @@ import Darwin.C
 #endif
 
 //------------------------------------------------------------------------------
-// test for enabled components
-func isEnabled(_ id: String) -> Bool { getenv(id) != nil }
+// determine platform build type
+let validPlatforms = Set(arrayLiteral: "cpu", "cuda")
+let environment = ProcessInfo.processInfo.environment
+let platform = (environment["SWIFTRT_PLATFORM"] ?? "cpu").lowercased()
+if !validPlatforms.contains(platform) {
+    fatalError("valid SWIFTRT_PLATFORM types: \(validPlatforms)")
+}
 
-let enableCuda = isEnabled("SWIFTRT_ENABLE_CUDA")
+let buildCuda = platform == "cuda"
 
 //---------------------------------------
 // the base products, dependencies, and targets
 var products: [PackageDescription.Product] = [
-    .library(name: "SwiftRT", targets: ["SwiftRT"]),
-    // .library(name: "SwiftRT", type: .static, targets: ["SwiftRT"])
+    .library(name: "SwiftRT", targets: ["SwiftRT"])
 ]
 var dependencies: [Target.Dependency] = ["Numerics"]
 var exclusions: [String] = []
@@ -28,12 +32,17 @@ var targets: [PackageDescription.Target] = []
 
 //==============================================================================
 // include the Cuda service module
-if enableCuda {
+let currentDir = FileManager().currentDirectoryPath
+let kernelsDir = "\(currentDir)/Sources/SwiftRT/platform/cuda/kernels"
+let kernelsLibName = "SwiftRTCudaKernels"
+
     //---------------------------------------
     // build kernels library
-        //        runMakefile(target: ".build/debug/SwiftRTCudaKernels",
-        //                    workingDir: "Sources/SwiftRT/device/cuda/kernels")
-    
+    if #available(OSX 10.13, *) {
+        runCMake(args: ["--version"], workingDir: kernelsDir)
+    }
+
+if buildCuda {
     //---------------------------------------
     // add Cuda system module
     products.append(.library(name: "CCuda", targets: ["CCuda"]))
@@ -46,22 +55,20 @@ if enableCuda {
 }
 
 //------------------------------------------------------------------------------
-@available(macOS 10.13, *)
-func runMakefile(target: String, workingDir: String) {
-    let fileManager = FileManager()
+@available(OSX 10.13, *)
+func runCMake(args: [String], workingDir: String) {
     let task = Process()
-    task.currentDirectoryURL = URL(fileURLWithPath:
-        "\(fileManager.currentDirectoryPath)/\(workingDir)", isDirectory: true)
-    task.executableURL = URL(fileURLWithPath: "/usr/bin/make")
+    task.currentDirectoryURL = URL(fileURLWithPath: workingDir, isDirectory: true)
+    task.executableURL = URL(fileURLWithPath: "/usr/local/bin/cmake")
+    task.arguments = args
     
-    task.arguments = ["TARGET=\"\(target)\""]
     do {
         let outputPipe = Pipe()
         task.standardOutput = outputPipe
         try task.run()
         let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
         task.waitUntilExit()
-        if task.terminationStatus != 0 {
+        if task.terminationStatus == 0 {
             let output = String(decoding: outputData, as: UTF8.self)
             print(output)
         }
@@ -73,16 +80,14 @@ func runMakefile(target: String, workingDir: String) {
 //==============================================================================
 // package specification
 targets.append(
-    .target(name: "SwiftRT",
-            dependencies: dependencies,
-            exclude: exclusions))
+    .target(name: "SwiftRT", dependencies: dependencies, exclude: exclusions))
 
 targets.append(
     .testTarget(name: "SwiftRTTests", dependencies: ["SwiftRT"]))
 
 let package = Package(
     name: "SwiftRT",
-//    platforms: [.macOS(.v10_13)],
+    platforms: [.macOS(.v10_13)],
     products: products,
     dependencies: [
         .package(url: "https://github.com/apple/swift-numerics",

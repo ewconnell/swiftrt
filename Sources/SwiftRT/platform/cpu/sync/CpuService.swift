@@ -28,18 +28,16 @@ public class CpuService: PlatformService {
     //--------------------------------------------------------------------------
     @inlinable
     public init() {
-        self.name = "CpuService"
-        self.logInfo = LogInfo(logWriter: Platform.log,
-                               logLevel: .error,
-                               namePath: self.name,
-                               nestingLevel: 0)
-        self.devices = [
+        name = "CpuService"
+        logInfo = LogInfo(logWriter: Platform.log, logLevel: .error,
+                          namePath: name, nestingLevel: 0)
+        devices = [
             CpuDevice<CpuQueue>(parent: logInfo, memoryType: .unified, id: 0)
         ]
         
         // select device 0 queue 0 by default
-        self.queueStack = []
-        self.queueStack = [ensureValidId(0, 0)]
+        queueStack = []
+        queueStack = [ensureValidId(0, 0)]
     }
 }
 
