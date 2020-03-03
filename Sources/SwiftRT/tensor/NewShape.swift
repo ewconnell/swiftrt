@@ -129,6 +129,7 @@ public protocol NewShapeProtocol: Codable, Equatable {
 
 public extension NewShapeProtocol {
     //--------------------------------------------------------------------------
+    /// the static rank of the shape
     @inlinable
     @_transparent
     static var rank: Int { Bounds.rank }
