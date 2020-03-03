@@ -38,8 +38,16 @@ public protocol ShapeBounds: SIMD {
 extension ShapeBounds {
     @inlinable
     @_transparent
-    var count: Int { Self.rank }
+    static var count: Int { Self.rank }
 
+    @inlinable
+    @_transparent
+    mutating func swapAt(_ a: Int, _ b: Int) {
+        let tmp = self[a]
+        self[a] = self[b]
+        self[b] = tmp
+    }
+    
     @inlinable
     @_transparent
     public init?(_ data: Tuple?) {
@@ -89,7 +97,9 @@ extension SIMD2: ShapeBounds {
 
 //==============================================================================
 /// ShapeProtocol
-public protocol NewShapeProtocol: Codable, Equatable, Collection {
+public protocol NewShapeProtocol: Codable, Equatable, Collection
+    where Element == Int
+{
     // types
     associatedtype Bounds: ShapeBounds where Bounds.Scalar == Int
 
@@ -134,6 +144,34 @@ public extension NewShapeProtocol {
     @_transparent
     static var rank: Int { Bounds.rank }
     
+    @inlinable
+    @_transparent
+    static var zeros: Bounds { Bounds.zero }
+
+    @inlinable
+    @_transparent
+    static var ones: Bounds { Bounds.one }
+
+    //--------------------------------------------------------------------------
+    // computed properties
+    /// array
+    @inlinable var array: [Int] { [Int](self) }
+    /// `true` if the shape has zero elements
+    @inlinable
+    var isEmpty: Bool { count == 0 }
+    /// `true` if the shape has one element
+    @inlinable
+    var isScalar: Bool { count == 1 }
+    /// the index of the last dimension
+    @inlinable
+    var lastDimension: Int { Self.rank - 1 }
+    /// the number of items in extent 0
+    @inlinable
+    var items: Int { bounds[0] }
+    /// returns a dense version of self
+    @inlinable
+    var dense: Self { isSequential ? self : Self(bounds: bounds) }
+
     //--------------------------------------------------------------------------
     // computeSpanCount
     // A sub view may cover a wider range of parent element indexes
@@ -266,6 +304,120 @@ public extension NewShapeProtocol {
         self.init(bounds: newBounds, strides: newStrides,
                   isSequential: other.isSequential)
     }
+    
+    //--------------------------------------------------------------------------
+    /// joined
+    /// - Parameter others: array of data shapes to join
+    /// - Parameter axis: the joining axis
+    /// - Returns: returns a new shape that is the join with the others
+    @inlinable
+    func joined(with others: [Self], alongAxis axis: Int) -> Self {
+        var newBounds = bounds
+        newBounds[axis] += others.reduce(into: 0) { $0 += $1.bounds[axis] }
+        return Self(bounds: newBounds)
+    }
+    
+    //--------------------------------------------------------------------------
+    /// makePositive(bounds:
+    /// The user can specify indices from `-rank..<rank`.
+    /// Negative numbers reference dimensions from the end of `bounds`
+    /// This ensures they are resolved to positive values.
+    @inlinable
+    static func makePositive(bounds: Bounds) -> Bounds {
+        var positive = bounds
+        for i in 0..<Bounds.count where positive[i] < 0 {
+            positive[i] += Bounds.count
+        }
+        return positive
+    }
+
+    //--------------------------------------------------------------------------
+    /// contains
+    @inlinable
+    func contains(index: Index) -> Bool {
+        self[index] <= spanCount
+    }
+    
+    @inlinable
+    func contains(other: Self) -> Bool {
+        other.spanCount <= spanCount
+    }
+    
+    @inlinable
+    func contains(index: Index, bounds: Bounds) -> Bool {
+        self[index] + Self.computeSpanCount(bounds, strides) <= spanCount
+    }
+
+    //--------------------------------------------------------------------------
+    /// columnMajor
+    @inlinable
+    var columnMajor: Self {
+        // return self if already column major
+        guard strides[Self.rank-1] < strides[Self.rank-2] else { return self }
+        // compute column major strides for the last 2 dimensions
+        var cmBounds = bounds
+        cmBounds.swapAt(Self.rank-1, Self.rank-2)
+        var cmStrides = cmBounds.denseStrides
+        cmStrides.swapAt(Self.rank-1, Self.rank-2)
+        return Self(bounds: bounds, strides: cmStrides, isSequential: false)
+    }
+    
+    //--------------------------------------------------------------------------
+    /// repeated(repeatedBounds:
+    @inlinable
+    func repeated(to repeatedBounds: Bounds) -> Self {
+        // make sure the extents are compatible
+        assert({
+            for i in 0..<Self.rank {
+                if bounds[i] != 1 && bounds[i] != repeatedBounds[i] {
+                    return false
+                }
+            }
+            return true
+        }(), "repeated tensor extents must be either 1" +
+            " or match the repeated tensor extents")
+
+        // compute strides, setting stride to 0 for repeated dimensions
+        var repeatedStrides = Bounds.zero
+        for i in 0..<Self.rank where repeatedBounds[i] == bounds[i] {
+            repeatedStrides[i] = strides[i]
+        }
+        
+        // it is sequential only for vectors
+        return Self(bounds: repeatedBounds, strides: repeatedStrides,
+                    isSequential: Self.rank == 1)
+    }
+
+    //--------------------------------------------------------------------------
+    /// transposed(with permutations:
+    /// Returns a new data shape where the extents and strides are permuted
+    /// - Parameter permutations: the indice order mapping. `count` must
+    ///   equal `rank`
+    /// - Returns: transposed/permuted shape
+    /// - Precondition: Each value in `permutations` must be in the range
+    ///   `-rank..<rank`
+    @inlinable
+    func transposed(with permutations: Bounds? = nil) -> Self {
+        guard Self.rank > 1 else { return self }
+        var newBounds = bounds
+        var newStrides = strides
+
+        // determine the new extents and strides
+        if let perm = permutations {
+            let mapping = Self.makePositive(bounds: perm)
+            for index in 0..<Self.rank {
+                newBounds[index] = bounds[mapping[index]]
+                newStrides[index] = strides[mapping[index]]
+            }
+        } else {
+            // simple swap of last two dimensions
+            newBounds.swapAt(Self.rank-1, Self.rank-2)
+            newStrides.swapAt(Self.rank-1, Self.rank-2)
+        }
+        
+        return Self(bounds: newBounds, strides: newStrides, isSequential: false)
+    }
+
 }
 
 //==============================================================================
@@ -284,6 +436,8 @@ extension NewShapeProtocol where Index == Int {
     public subscript(index: Index) -> Int { index * strides[0] }
 }
 
+//------------------------------------------------------------------------------
+
 extension NewShapeProtocol where Index == NewShapeIndex<Bounds> {
     @inlinable
     public var startIndex: Index { Index(Bounds.zero, sequenceIndex: 0) }
@@ -291,10 +445,36 @@ extension NewShapeProtocol where Index == NewShapeIndex<Bounds> {
     @inlinable
     public var endIndex: Index { Index(Bounds.zero, sequenceIndex: count) }
     
+    // returns the strided linear index corresponding
+    // to the n-dimensional logical position
     @inlinable
     public subscript(index: Index) -> Int {
-        // returns the strided linear index corresponding to the logical index
         (index.position &* strides).wrappedSum()
+    }
+    
+    // recursively compute the next logical position
+    @inlinable
+    public func index(after i: Index) -> Index {
+        var position = i.position
+
+        func advance(_ dim: Int) {
+            // move to the next logical position
+            position[dim] += 1
+            // if we reach the end of the dimension and the `dim`
+            // is greater than zero, then advance the larger dim
+            if position[dim] == bounds[dim] && dim > 0 {
+                // reset the logical position to the start
+                position[dim] = 0
+                // advance the lower dimension
+                advance(dim - 1)
+            }
+        }
+        
+        // recursively advance through the dimensions
+        let lastDim = Bounds.rank - 1
+        advance(lastDim)
+        
+        return Index(position, sequenceIndex: i.sequenceIndex + 1)
     }
 }
 
@@ -303,9 +483,10 @@ extension NewShapeProtocol where Index == NewShapeIndex<Bounds> {
 public struct NewShapeIndex<Bounds>: Comparable
     where Bounds: ShapeBounds
 {
-    /// the cumulative logical position along each axis
+    //------------------------------------
+    /// the logical position along each axis
     public var position: Bounds
-    /// linear sequence index
+    /// linear sequence position
     public var sequenceIndex: Int
 
     //------------------------------------
@@ -357,49 +538,10 @@ public struct NewShape2: NewShapeProtocol {
     // init(flattening:
     @inlinable
     public init<S>(flattening other: S) where S: NewShapeProtocol {
-        assert(other.isSequential, "Cannot flatten non sequential data")
-        assert(S.rank >= 2, "cannot flatten bounds of lower rank")
+        assert(other.isSequential, "cannot flatten non sequential data")
+        assert(S.rank >= Self.rank, "cannot flatten bounds of lower rank")
         let flattened = Bounds((other.bounds[0], other.count / other.bounds[0]))
         self.init(bounds: flattened, isSequential: true)
     }
-    
-    
-    @inlinable
-    public func index(after i: Index) -> Index {
-        var position = i.position
-        position[1] += 1
-        if position[1] == bounds[1] {
-            position[1] = 0
-            position[0] += 1
-        }
-        return Index(position, sequenceIndex: i.sequenceIndex + 1)
-    }
 }
 
-
-
-
-
-
-public protocol FredProtocol {
-    associatedtype Shape: NewShapeProtocol
-    
-    var shape: Shape { get }
-    
-    func doSomething(_ shape: Shape.Tuple)
-}
-
-public struct Fred: FredProtocol {
-    public func doSomething(_ shape: Shape.Tuple) {
-        let a = shape
-        let b = shape
-        print(a == b)
-    }
-    
-    public func foo(dims: (rows: Int, cols: Int)) {
-        doSomething(dims)
-        
-        shape.forEach { print($0) }
-    }
-    public let shape: NewShape2
-}

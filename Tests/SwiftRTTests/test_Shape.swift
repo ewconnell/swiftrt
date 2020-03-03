@@ -27,6 +27,56 @@ class test_Shape: XCTestCase {
     ]
 
     //--------------------------------------------------------------------------
+    // test_perfShape2
+    func test_perfShape2() {
+//        #if !DEBUG
+        var shape = Shape2(extents: Shape2.zeros)
+        let index = Shape2.Array((1, 1))
+        var i = 0
+        self.measure {
+            for _ in 0..<1000000 {
+                let a = Shape2(extents: (3, 4))
+                let b = a.columnMajor
+                let ds = a == b ? b.dense : a.dense
+                let c = Shape2(extents:
+                    Shape2.makePositive(dims: Shape2.Array((1, -1))))
+                let r = Shape2(extents: Shape2.ones).repeated(to: a.extents)
+                let j = a.joined(with: [ds, c, r], alongAxis: 1)
+                let t = j.transposed()
+                shape = t
+                i = shape.linearIndex(of: index)
+            }
+        }
+        XCTAssert(shape.extents == Shape2.Array((13, 3)) && i > 0)
+//        #endif
+    }
+    
+    //--------------------------------------------------------------------------
+    // test_perfShape2
+    func test_perfNewShape2() {
+        //        #if !DEBUG
+        var shape = NewShape2(bounds: NewShape2.zeros)
+        let index = NewShape2.Index(NewShape2.Bounds((1, 1)), sequenceIndex: 5)
+        var i = 0
+        self.measure {
+            for _ in 0..<1000000 {
+                let a = NewShape2(bounds: (3, 4))
+                let b = a.columnMajor
+                let ds = a == b ? b.dense : a.dense
+                let positive = NewShape2.makePositive(bounds: NewShape2.Bounds((1, -1)))
+                let c = NewShape2(bounds: positive)
+                let r = NewShape2(bounds: NewShape2.ones).repeated(to: a.bounds)
+                let j = a.joined(with: [ds, c, r], alongAxis: 1)
+                let t = j.transposed()
+                shape = t
+                i = shape[index]
+            }
+        }
+        XCTAssert(shape.bounds == NewShape2.Bounds((13, 3)) && i > 0)
+        //        #endif
+    }
+
+    //--------------------------------------------------------------------------
     // test_SequentialViews
     let simdPerfIterations = 10000000
     
