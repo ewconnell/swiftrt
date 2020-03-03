@@ -101,8 +101,6 @@ public protocol NewShapeProtocol: Codable, Equatable {
     var count: Int { get }
     /// `true` if indexing is row sequential for performance
     var isSequential: Bool { get }
-    /// the number of shape dimensions
-    static var rank: Int { get }
     /// The strided number of elements spanned by the shape
     var spanCount: Int { get }
     /// The distance to the next element for each dimension
