@@ -89,7 +89,7 @@ extension SIMD2: ShapeBounds {
 
 //==============================================================================
 /// ShapeProtocol
-public protocol NewShapeProtocol: Codable, Equatable {
+public protocol NewShapeProtocol: Codable, Equatable, Collection {
     // types
     associatedtype Bounds: ShapeBounds where Bounds.Scalar == Int
 
@@ -269,9 +269,73 @@ public extension NewShapeProtocol {
 }
 
 //==============================================================================
+// ShapeProtocol Collection extension
+extension NewShapeProtocol where Index == Int {
+    @inlinable
+    public var startIndex: Index { 0 }
+
+    @inlinable
+    public var endIndex: Index { count }
+    
+    @inlinable
+    public func index(after i: Index) -> Index { i + 1 }
+
+    @inlinable
+    public subscript(index: Index) -> Int { index * strides[0] }
+}
+
+extension NewShapeProtocol where Index == NewShapeIndex<Bounds> {
+    @inlinable
+    public var startIndex: Index { Index(Bounds.zero, sequenceIndex: 0) }
+
+    @inlinable
+    public var endIndex: Index { Index(Bounds.zero, sequenceIndex: count) }
+    
+    @inlinable
+    public subscript(index: Index) -> Int {
+        // returns the strided linear index corresponding to the logical index
+        (index.position &* strides).wrappedSum()
+    }
+}
+
+//==============================================================================
+/// ShapeIndex
+public struct NewShapeIndex<Bounds>: Comparable
+    where Bounds: ShapeBounds
+{
+    /// the cumulative logical position along each axis
+    public var position: Bounds
+    /// linear sequence index
+    public var sequenceIndex: Int
+
+    //------------------------------------
+    // initializers
+    @inlinable
+    public init(_ position: Bounds, sequenceIndex: Int) {
+        self.position = position
+        self.sequenceIndex = sequenceIndex
+    }
+
+    //------------------------------------
+    // Equatable
+    @inlinable
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.sequenceIndex == rhs.sequenceIndex
+    }
+    
+    //------------------------------------
+    // Comparable
+    @inlinable
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.sequenceIndex < rhs.sequenceIndex
+    }
+}
+
+//==============================================================================
 // Shape2
 public struct NewShape2: NewShapeProtocol {
     public typealias Bounds = SIMD2<Int>
+    public typealias Index = NewShapeIndex<Bounds>
     
     // properties
     public let count: Int
@@ -298,6 +362,18 @@ public struct NewShape2: NewShapeProtocol {
         let flattened = Bounds((other.bounds[0], other.count / other.bounds[0]))
         self.init(bounds: flattened, isSequential: true)
     }
+    
+    
+    @inlinable
+    public func index(after i: Index) -> Index {
+        var position = i.position
+        position[1] += 1
+        if position[1] == bounds[1] {
+            position[1] = 0
+            position[0] += 1
+        }
+        return Index(position, sequenceIndex: i.sequenceIndex + 1)
+    }
 }
 
 
@@ -322,6 +398,8 @@ public struct Fred: FredProtocol {
     
     public func foo(dims: (rows: Int, cols: Int)) {
         doSomething(dims)
+        
+        shape.forEach { print($0) }
     }
     public let shape: NewShape2
 }
