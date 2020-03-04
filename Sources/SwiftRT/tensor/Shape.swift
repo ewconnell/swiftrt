@@ -38,7 +38,7 @@ public protocol ShapeBounds: SIMD {
 extension ShapeBounds {
     @inlinable
     @_transparent
-    static var count: Int { Self.rank }
+    var count: Int { Self.rank }
 
     @inlinable
     @_transparent
@@ -81,7 +81,7 @@ extension ShapeBounds where Scalar: FixedWidthInteger {
     var startIndex: Int { 0 }
 
     @inlinable
-    var endIndex: Int { Self.count }
+    var endIndex: Int { self.count }
 
     @inlinable
     func index(after i: Int) -> Int { i + 1 }
@@ -408,8 +408,8 @@ public extension ShapeProtocol {
     @inlinable
     static func makePositive(bounds: Bounds) -> Bounds {
         var positive = bounds
-        for i in 0..<Bounds.count where positive[i] < 0 {
-            positive[i] += Bounds.count
+        for i in 0..<Bounds.rank where positive[i] < 0 {
+            positive[i] += Bounds.rank
         }
         return positive
     }

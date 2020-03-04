@@ -110,30 +110,7 @@ public extension TensorView {
     }
 
     //--------------------------------------------------------------------------
-    /// getExtents(from:to:
-    /// computes the bounds and strides from the specified bounds and steps
-    /// - Parameter lower: the lower bound of the subview
-    /// - Parameter upper: the upper bound of the subview
-    /// - Returns: the bounds to be used to create a subview
-    @inlinable
-    func getExtents(from lower: Shape.Bounds, to upper: Shape.Bounds)
-        -> Shape.Bounds
-    {
-        // bounds should be in the correct order by the time they reach here
-        assert({
-            for (l, u) in zip(lower, upper) { if l > u { return false } }
-            return true
-        }(), "lower must be less than or equal to upper")
-
-        var bounds = upper
-        zip(bounds.indices, zip(upper, lower)).forEach {
-            bounds[$0] = $1.0 - $1.1
-        }
-        return bounds
-    }
-
-    //--------------------------------------------------------------------------
-    /// getExtents(_:_:_
+    /// `getExtents(_:_:_`
     /// computes the bounds and strides from the specified bounds and steps
     /// - Parameter lower: the lower bound of the subview
     /// - Parameter upper: the upper bound of the subview
@@ -146,9 +123,18 @@ public extension TensorView {
                     _ steps: Shape.Bounds) ->
         (bounds: Shape.Bounds, strides: Shape.Bounds)
     {
+        // verify bounds
+        assert({
+            let bounds = upper &- lower
+            for i in 0..<bounds.count {
+                if bounds[i] <= 0 { return false }
+            }
+            return true
+        }(), "invalid bounds")
+
         // if all the steps are 1, then just reuse the parent strides
-        if steps.first(where: { $0 != 1 }) == nil {
-            return (getExtents(from: lower, to: upper), self.strides)
+        if steps == Shape.ones {
+            return (upper &- lower, self.strides)
 
         } else {
             // if one or more steps are not 1,
@@ -157,14 +143,11 @@ public extension TensorView {
             // y must be positive for this to work correctly
             func divceil(_ x: Int, _ y: Int) -> Int { (x - 1 + y) / y }
             
-            var subExtents = getExtents(from: lower, to: upper)
-            zip(subExtents.indices, zip(subExtents, steps)).forEach {
-                subExtents[$0] = divceil($1.0, Swift.abs($1.1))
+            var subExtents = upper &- lower
+            for i in 0..<Shape.Bounds.rank {
+                subExtents[i] = divceil(subExtents[i], Swift.abs(steps[i]))
             }
-            var subStrides = strides
-            zip(subStrides.indices, zip(strides, steps)).forEach {
-                subStrides[$0] = $1.0 * $1.1
-            }
+            let subStrides = strides &* steps
             return (subExtents, subStrides)
         }
     }
@@ -172,8 +155,8 @@ public extension TensorView {
     //--------------------------------------------------------------------------
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
-    subscript(lower: Shape.Tuple, upper: Shape.Tuple, steps: Shape.Tuple)
-        -> Self {
+    subscript(lower: Shape.Tuple, upper: Shape.Tuple, steps: Shape.Tuple) -> Self
+    {
         get { self[Shape.Bounds(lower), Shape.Bounds(upper), Shape.Bounds(steps)] }
         set {
             self[Shape.Bounds(lower), Shape.Bounds(upper),

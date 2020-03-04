@@ -239,7 +239,7 @@ public extension TensorView {
     @_semantics("autodiff.nonvarying")
     func makePositive(index: Shape.Tuple) -> Shape.Bounds {
         var result = Shape.Bounds(index)
-        for i in 0..<Shape.Bounds.count {
+        for i in 0..<Shape.Bounds.rank {
             if result[i] < 0 { result[i] += bounds[i] }
         }
         return result
