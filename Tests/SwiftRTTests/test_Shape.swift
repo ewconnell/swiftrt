@@ -26,77 +26,87 @@ class test_Shape: XCTestCase {
         ("test_transposed", test_transposed),
     ]
 
-    //--------------------------------------------------------------------------
-    // test_perfInitShape2
-    func test_perfInitShape2() {
-//        #if !DEBUG
-        var shape = Shape2(extents: Shape2.zeros)
-        let index = Shape2.Array((1, 1))
-        var i = 0
-        self.measure {
-            for _ in 0..<1000000 {
-                let a = Shape2(extents: (3, 4))
-                let b = a.columnMajor
-                let ds = a == b ? b.dense : a.dense
-                let c = Shape2(extents:
-                    Shape2.makePositive(dims: Shape2.Array((1, -1))))
-                let r = Shape2(extents: Shape2.ones).repeated(to: a.extents)
-                let j = a.joined(with: [ds, c, r], alongAxis: 1)
-                let t = j.transposed()
-                shape = t
-                i = shape.linearIndex(of: index)
-            }
-        }
-        XCTAssert(shape.extents == Shape2.Array((13, 3)) && i > 0)
-//        #endif
-    }
-    
-    //--------------------------------------------------------------------------
-    // test_perfInitNewShape2
-    func test_perfInitNewShape2() {
-        //        #if !DEBUG
-        var shape = NewShape2(bounds: NewShape2.zeros)
-        let index = NewShape2.Index(NewShape2.Bounds((1, 1)), sequenceIndex: 5)
-        var i = 0
-        self.measure {
-            for _ in 0..<1000000 {
-                let a = NewShape2(bounds: (3, 4))
-                let b = a.columnMajor
-                let ds = a == b ? b.dense : a.dense
-                let positive = NewShape2.makePositive(bounds: NewShape2.Bounds((1, -1)))
-                let c = NewShape2(bounds: positive)
-                let r = NewShape2(bounds: NewShape2.ones).repeated(to: a.bounds)
-                let j = a.joined(with: [ds, c, r], alongAxis: 1)
-                let t = j.transposed()
-                shape = t
-                i = shape[index]
-            }
-        }
-        XCTAssert(shape.bounds == NewShape2.Bounds((13, 3)) && i > 0)
-        //        #endif
-    }
+//    //--------------------------------------------------------------------------
+//    // test_perfIndexShape2
+//    func test_perfIndexShape1() {
+//        let shape = Shape1(extents: (1024 * 1024)).columnMajor
+//        var count = 0
+//        self.measure {
+//            for _ in 0..<10 {
+//                let array = shape.array
+//                count += array.first!
+//            }
+//        }
+//        XCTAssert(count == 0)
+//    }
+//
+//    func test_perfIndexShape2() {
+//        let shape = Shape2(extents: (1024, 1024)).columnMajor
+//        var count = 0
+//        self.measure {
+//            for _ in 0..<10 {
+//                let array = shape.array
+//                count += array.first!
+//            }
+//        }
+//        XCTAssert(count == 0)
+//    }
+//
+//    func test_perfIndexShape3() {
+//        let shape = Shape3(extents: (64, 128, 128)).columnMajor
+//        var count = 0
+//        self.measure {
+//            for _ in 0..<10 {
+//                let array = shape.array
+//                count += array.first!
+//            }
+//        }
+//        XCTAssert(count == 0)
+//    }
+//
+//    func test_perfIndexShape4() {
+//        let shape = Shape4(extents: (2, 32, 128, 128)).columnMajor
+//        var count = 0
+//        self.measure {
+//            for _ in 0..<10 {
+//                let array = shape.array
+//                count += array.first!
+//            }
+//        }
+//        XCTAssert(count == 0)
+//    }
+//
+//    func test_perfIndexShape5() {
+//        let shape = Shape5(extents: (2, 2, 16, 128, 128)).columnMajor
+//        var count = 0
+//        self.measure {
+//            for _ in 0..<10 {
+//                let array = shape.array
+//                count += array.first!
+//            }
+//        }
+//        XCTAssert(count == 0)
+//    }
 
     //--------------------------------------------------------------------------
     // test_perfIndexShape2
-    func test_perfIndexShape2() {
-        //        #if !DEBUG
-        let shape = Shape2(extents: (1024, 1024))
+    func test_perfIndexNewShape1() {
+        #if !DEBUG
+        let shape = NewShape1(bounds: (1024 * 1024)).columnMajor
         var count = 0
         self.measure {
             for _ in 0..<10 {
                 let array = shape.array
-                count += array.first!
+                count += array.last!
             }
         }
-        XCTAssert(count == 0)
-        //        #endif
+        XCTAssert(count > 0)
+        #endif
     }
-    
-    //--------------------------------------------------------------------------
-    // test_perfIndexShape2
+
     func test_perfIndexNewShape2() {
-        //        #if !DEBUG
-        let shape = NewShape2(bounds: (1024, 1024))
+        #if !DEBUG
+        let shape = NewShape2(bounds: (1024, 1024)).columnMajor
         var count = 0
         self.measure {
             for _ in 0..<10 {
@@ -105,14 +115,12 @@ class test_Shape: XCTestCase {
             }
         }
         XCTAssert(count > 0)
-        //        #endif
+        #endif
     }
 
-    //--------------------------------------------------------------------------
-    // test_perfIndexShape2
     func test_perfIndexNewShape3() {
-        //        #if !DEBUG
-        let shape = NewShape3(bounds: (64, 128, 128))
+        #if !DEBUG
+        let shape = NewShape3(bounds: (64, 128, 128)).columnMajor
         var count = 0
         self.measure {
             for _ in 0..<10 {
@@ -121,7 +129,35 @@ class test_Shape: XCTestCase {
             }
         }
         XCTAssert(count > 0)
-        //        #endif
+        #endif
+    }
+    
+    func test_perfIndexNewShape4() {
+        #if !DEBUG
+        let shape = NewShape4(bounds: (2, 32, 128, 128)).columnMajor
+        var count = 0
+        self.measure {
+            for _ in 0..<10 {
+                let array = shape.array
+                count += array.last!
+            }
+        }
+        XCTAssert(count > 0)
+        #endif
+    }
+    
+    func test_perfIndexNewShape5() {
+        #if !DEBUG
+        let shape = NewShape5(bounds: (2, 2, 16, 128, 128)).columnMajor
+        var count = 0
+        self.measure {
+            for _ in 0..<10 {
+                let array = shape.array
+                count += array.last!
+            }
+        }
+        XCTAssert(count > 0)
+        #endif
     }
 
     //--------------------------------------------------------------------------
@@ -342,5 +378,30 @@ class test_Shape: XCTestCase {
                                         [[ 3.0, 15.0],
                                          [ 7.0, 19.0],
                                          [11.0, 23.0]]])
+    }
+    
+    //--------------------------------------------------------------------------
+    // test_perfInitNewShape2
+    func test_perfInitNewShape2() {
+        #if !DEBUG
+        var shape = NewShape2(bounds: NewShape2.zeros)
+        let index = NewShape2.Index(NewShape2.Bounds((1, 1)), sequenceIndex: 5)
+        var i = 0
+        self.measure {
+            for _ in 0..<1000000 {
+                let a = NewShape2(bounds: (3, 4))
+                let b = a.columnMajor
+                let ds = a == b ? b.dense : a.dense
+                let positive = NewShape2.makePositive(bounds: NewShape2.Bounds((1, -1)))
+                let c = NewShape2(bounds: positive)
+                let r = NewShape2(bounds: NewShape2.ones).repeated(to: a.bounds)
+                let j = a.joined(with: [ds, c, r], alongAxis: 1)
+                let t = j.transposed()
+                shape = t
+                i = shape[index]
+            }
+        }
+        XCTAssert(shape.bounds == NewShape2.Bounds((13, 3)) && i > 0)
+        #endif
     }
 }
