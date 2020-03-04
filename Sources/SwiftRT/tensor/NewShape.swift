@@ -451,31 +451,6 @@ extension NewShapeProtocol where Index == NewShapeIndex<Bounds> {
     public subscript(index: Index) -> Int {
         (index.position &* strides).wrappedSum()
     }
-    
-    // recursively compute the next logical position
-    @inlinable
-    public func index(after i: Index) -> Index {
-        var position = i.position
-
-        func advance(_ dim: Int) {
-            // move to the next logical position
-            position[dim] += 1
-            // if we reach the end of the dimension and the `dim`
-            // is greater than zero, then advance the larger dim
-            if position[dim] == bounds[dim] && dim > 0 {
-                // reset the logical position to the start
-                position[dim] = 0
-                // advance the lower dimension
-                advance(dim - 1)
-            }
-        }
-        
-        // recursively advance through the dimensions
-        let lastDim = Bounds.rank - 1
-        advance(lastDim)
-        
-        return Index(position, sequenceIndex: i.sequenceIndex + 1)
-    }
 }
 
 //==============================================================================
@@ -542,6 +517,21 @@ public struct NewShape2: NewShapeProtocol {
         assert(S.rank >= Self.rank, "cannot flatten bounds of lower rank")
         let flattened = Bounds((other.bounds[0], other.count / other.bounds[0]))
         self.init(bounds: flattened, isSequential: true)
+    }
+    
+    //--------------------------------------------------------------------------
+    // index(i:
+    // Note: this does not get inlined unless part of the struct
+    @inlinable
+    public func index(after i: Index) -> Index {
+        var position = i.position
+        position[1] += 1
+        if position[1] == bounds[1] {
+            position[1] = 0
+            position[0] += 1
+        }
+        
+        return Index(position, sequenceIndex: i.sequenceIndex + 1)
     }
 }
 

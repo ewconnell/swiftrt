@@ -27,8 +27,8 @@ class test_Shape: XCTestCase {
     ]
 
     //--------------------------------------------------------------------------
-    // test_perfShape2
-    func test_perfShape2() {
+    // test_perfInitShape2
+    func test_perfInitShape2() {
 //        #if !DEBUG
         var shape = Shape2(extents: Shape2.zeros)
         let index = Shape2.Array((1, 1))
@@ -52,8 +52,8 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_perfShape2
-    func test_perfNewShape2() {
+    // test_perfInitNewShape2
+    func test_perfInitNewShape2() {
         //        #if !DEBUG
         var shape = NewShape2(bounds: NewShape2.zeros)
         let index = NewShape2.Index(NewShape2.Bounds((1, 1)), sequenceIndex: 5)
@@ -73,6 +73,54 @@ class test_Shape: XCTestCase {
             }
         }
         XCTAssert(shape.bounds == NewShape2.Bounds((13, 3)) && i > 0)
+        //        #endif
+    }
+
+    //--------------------------------------------------------------------------
+    // test_perfIndexShape2
+    func test_perfIndexShape2() {
+        //        #if !DEBUG
+        let shape = Shape2(extents: (1024, 1024))
+        var count = 0
+        self.measure {
+            for _ in 0..<10 {
+                let array = shape.array
+                count += array.first!
+            }
+        }
+        XCTAssert(count == 0)
+        //        #endif
+    }
+    
+    //--------------------------------------------------------------------------
+    // test_perfIndexShape2
+    func test_perfIndexNewShape2() {
+        //        #if !DEBUG
+        let shape = NewShape2(bounds: (1024, 1024))
+        var count = 0
+        self.measure {
+            for _ in 0..<10 {
+                let array = shape.array
+                count += array.last!
+            }
+        }
+        XCTAssert(count > 0)
+        //        #endif
+    }
+
+    //--------------------------------------------------------------------------
+    // test_perfIndexShape2
+    func test_perfIndexNewShape3() {
+        //        #if !DEBUG
+        let shape = NewShape3(bounds: (64, 128, 128))
+        var count = 0
+        self.measure {
+            for _ in 0..<10 {
+                let array = shape.array
+                count += array.last!
+            }
+        }
+        XCTAssert(count > 0)
         //        #endif
     }
 
