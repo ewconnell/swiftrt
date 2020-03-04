@@ -41,7 +41,7 @@ public extension PlatformService {
         where T: TensorView, T.Element: AdditiveArithmetic
     {
         let (left, right) = implicitlyMatchExtents(lhs, rhs)
-        assert(left.extents == right.extents, _messageTensorExtentsMismatch)
+        assert(left.bounds == right.bounds, _messageTensorExtentsMismatch)
         var (result, resultBuffer) = createResult(like: left)
         currentQueue.add(read(left), read(right), &resultBuffer)
         return result
@@ -69,13 +69,13 @@ public extension TensorView where Element: AdditiveArithmetic {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     static func +(lhs: Self, rhs: Element) -> Self {
-        add(lhs, Self(repeating: rhs, to: lhs.extents))
+        add(lhs, Self(repeating: rhs, to: lhs.bounds))
     }
 
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     static func +(lhs: Element, rhs: Self) -> Self {
-        add(Self(repeating: lhs, to: rhs.extents), rhs)
+        add(Self(repeating: lhs, to: rhs.bounds), rhs)
     }
 }
 
@@ -106,7 +106,7 @@ public extension PlatformService {
         where T: TensorView, T.Element: AdditiveArithmetic
     {
         let (left, right) = implicitlyMatchExtents(lhs, rhs)
-        assert(left.extents == right.extents, _messageTensorExtentsMismatch)
+        assert(left.bounds == right.bounds, _messageTensorExtentsMismatch)
         var (result, resultBuffer) = createResult(like: left)
         currentQueue.subtract(read(left), read(right), &resultBuffer)
         return result
@@ -135,13 +135,13 @@ public extension TensorView where Element: AdditiveArithmetic {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     static func - (lhs: Self, rhs: Element) -> Self {
-        subtract(lhs, Self(repeating: rhs, to: lhs.extents))
+        subtract(lhs, Self(repeating: rhs, to: lhs.bounds))
     }
 
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     static func - (lhs: Element, rhs: Self) -> Self {
-        subtract(Self(repeating: lhs, to: rhs.extents), rhs)
+        subtract(Self(repeating: lhs, to: rhs.bounds), rhs)
     }
 }
 
@@ -172,7 +172,7 @@ public extension PlatformService {
         where T: TensorView, T.Element: Numeric
     {
         let (left, right) = implicitlyMatchExtents(lhs, rhs)
-        assert(left.extents == right.extents, _messageTensorExtentsMismatch)
+        assert(left.bounds == right.bounds, _messageTensorExtentsMismatch)
         var (result, resultBuffer) = createResult(like: left)
         currentQueue.mul(read(left), read(right), &resultBuffer)
         return result
@@ -194,7 +194,7 @@ public extension TensorView where Element: Numeric {
     
     @inlinable
     static func *= (lhs: inout Self, rhs: Element) {
-        lhs = mul(lhs, Self(repeating: rhs, to: lhs.extents))
+        lhs = mul(lhs, Self(repeating: rhs, to: lhs.bounds))
     }
 
     @inlinable
@@ -205,13 +205,13 @@ public extension TensorView where Element: Numeric {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     static func * (lhs: Self, rhs: Element) -> Self {
-        mul(lhs, Self(repeating: rhs, to: lhs.extents))
+        mul(lhs, Self(repeating: rhs, to: lhs.bounds))
     }
 
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     static func * (lhs: Element, rhs: Self) -> Self {
-        mul(Self(repeating: lhs, to: rhs.extents), rhs)
+        mul(Self(repeating: lhs, to: rhs.bounds), rhs)
     }
 }
 
@@ -243,7 +243,7 @@ public extension PlatformService {
         where T: TensorView, T.Element: AlgebraicField
     {
         let (left, right) = implicitlyMatchExtents(lhs, rhs)
-        assert(left.extents == right.extents, _messageTensorExtentsMismatch)
+        assert(left.bounds == right.bounds, _messageTensorExtentsMismatch)
         var (result, resultBuffer) = createResult(like: left)
         currentQueue.div(read(left), read(right), &resultBuffer)
         return result
@@ -266,7 +266,7 @@ public extension TensorView where Element: AlgebraicField {
 
     @inlinable
     static func /= (lhs: inout Self, rhs: Element) {
-        lhs = div(lhs, Self(repeating: rhs, to: lhs.extents))
+        lhs = div(lhs, Self(repeating: rhs, to: lhs.bounds))
     }
 
     @inlinable
@@ -275,12 +275,12 @@ public extension TensorView where Element: AlgebraicField {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     static func / (lhs: Self, rhs: Element) -> Self {
-        div(lhs, Self(repeating: rhs, to: lhs.extents))
+        div(lhs, Self(repeating: rhs, to: lhs.bounds))
     }
 
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     static func / (lhs: Element, rhs: Self) -> Self {
-        div(Self(repeating: lhs, to: rhs.extents), rhs)
+        div(Self(repeating: lhs, to: rhs.bounds), rhs)
     }
 }

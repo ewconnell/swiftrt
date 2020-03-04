@@ -82,7 +82,7 @@ class test_IterateView: XCTestCase {
     // test_VectorSubView
     func test_VectorSubView() {
         let vector = IndexVector(with: 0..<10)
-        let view = vector.view(at: (2), extents: (3))
+        let view = vector.view(at: (2), bounds: (3))
         XCTAssert(view == [2, 3, 4])
     }
     
@@ -90,7 +90,7 @@ class test_IterateView: XCTestCase {
     // test_MatrixSubView
     func test_MatrixSubView() {
         let matrix = IndexMatrix(3, 4, with: 0..<12)
-        let view = matrix.view(at: (1, 1), extents: (2, 2))
+        let view = matrix.view(at: (1, 1), bounds: (2, 2))
         XCTAssert(view == [
             5, 6,
             9, 10
@@ -101,7 +101,7 @@ class test_IterateView: XCTestCase {
     // test_VolumeSubView
     func test_VolumeSubView() {
         let volume = IndexVolume(3, 3, 4, with: 0..<36)
-        let view = volume.view(at: (1, 1, 1), extents: (2, 2, 3))
+        let view = volume.view(at: (1, 1, 1), bounds: (2, 2, 3))
 
         XCTAssert(view == [
             17, 18, 19,
@@ -261,7 +261,7 @@ class test_IterateView: XCTestCase {
             1, 1, 1, 1,
         ])
         
-        let view = matrix.view(at: (1, 1), extents: (2, 3))
+        let view = matrix.view(at: (1, 1), bounds: (2, 3))
         XCTAssert(view == [
             0, 0, 0,
             1, 1, 1,

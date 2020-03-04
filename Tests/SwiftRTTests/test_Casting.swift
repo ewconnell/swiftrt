@@ -89,19 +89,19 @@ class test_Casting: XCTestCase {
         
         // volume to matrix
         let matrix = Matrix(flattening: volume)
-        XCTAssert(matrix.extents == [2, 12])
+        XCTAssert(matrix.bounds == [2, 12])
 
         // noop matrix to matrix
         let m2 = Matrix(flattening: matrix)
-        XCTAssert(m2.extents == [2, 12])
+        XCTAssert(m2.bounds == [2, 12])
 
         // volume to vector
         let v1 = Vector(flattening: volume)
-        XCTAssert(v1.extents == [24])
+        XCTAssert(v1.bounds == [24])
 
         // matrix to vector
         let v2 = Vector(flattening: matrix)
-        XCTAssert(v2.extents == [24])
+        XCTAssert(v2.bounds == [24])
         
         do {
             let ones = Matrix(repeating: 1, to: (2, 12))
@@ -116,18 +116,18 @@ class test_Casting: XCTestCase {
         let volume = Volume(2, 3, 4, with: 0..<24)
 
         let sumVolumeCols = volume.sum(alongAxes: 2)
-        XCTAssert(sumVolumeCols.extents == [2, 3, 1])
+        XCTAssert(sumVolumeCols.bounds == [2, 3, 1])
         let m0 = Matrix(squeezing: sumVolumeCols)
-        XCTAssert(m0.extents == [2, 3])
+        XCTAssert(m0.bounds == [2, 3])
         
         let sumVolumeRows = volume.sum(alongAxes: 1)
-        XCTAssert(sumVolumeRows.extents == [2, 1, 4])
+        XCTAssert(sumVolumeRows.bounds == [2, 1, 4])
         let m2 = Matrix(squeezing: sumVolumeRows, alongAxes: 1)
-        XCTAssert(m2.extents == [2, 4])
+        XCTAssert(m2.bounds == [2, 4])
         
         // test negative axes
         let m3 = Matrix(squeezing: sumVolumeRows, alongAxes: -2)
-        XCTAssert(m3.extents == [2, 4])
+        XCTAssert(m3.bounds == [2, 4])
         
         do {
             let ones = Matrix(repeating: 1, to: (2, 12))

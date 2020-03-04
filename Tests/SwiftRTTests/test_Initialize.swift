@@ -82,7 +82,7 @@ class test_Initialize: XCTestCase {
     func test_indenting() {
         let v = Vector(with: 0..<4)
         let m = Matrix(indenting: v)
-        XCTAssert(m.extents == [1, v.count])
+        XCTAssert(m.bounds == [1, v.count])
     }
     
     //--------------------------------------------------------------------------
@@ -90,7 +90,7 @@ class test_Initialize: XCTestCase {
     func test_padding() {
         let v = Vector(with: 0..<4)
         let m = Matrix(padding: v)
-        XCTAssert(m.extents == [v.count, 1])
+        XCTAssert(m.bounds == [v.count, 1])
     }
     
     //--------------------------------------------------------------------------
@@ -184,7 +184,7 @@ class test_Initialize: XCTestCase {
         let t1 = Matrix(2, 3, with: 1...6)
         let t2 = Matrix(2, 3, with: 7...12)
         let c3 = Matrix(concatenating: t1, t2)
-        XCTAssert(c3.extents == [4, 3])
+        XCTAssert(c3.bounds == [4, 3])
         XCTAssert(c3 == [
             1,  2,  3,
             4,  5,  6,
@@ -199,7 +199,7 @@ class test_Initialize: XCTestCase {
         let t1 = Matrix(2, 3, with: 1...6)
         let t2 = Matrix(2, 3, with: 7...12)
         let c3 = Matrix(concatenating: t1, t2, alongAxis: 1)
-        XCTAssert(c3.extents == [2, 6])
+        XCTAssert(c3.bounds == [2, 6])
         XCTAssert(c3 == [
             1,  2,  3, 7,  8,  9,
             4,  5,  6, 10, 11, 12,

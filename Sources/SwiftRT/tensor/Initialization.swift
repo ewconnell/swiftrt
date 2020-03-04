@@ -43,11 +43,11 @@ public extension TensorView {
     /// creates a tensor of the same type and shape as `self` with `Element`
     /// equal to `Bool`
     @inlinable
-    func createBoolTensor() -> BoolView { createBoolTensor(with: extents) }
+    func createBoolTensor() -> BoolView { createBoolTensor(with: bounds) }
     /// creates a tensor of the same shape as `self` with `Element`
     /// equal to `IndexType`
     @inlinable
-    func createIndexTensor() -> IndexView { createIndexTensor(with: extents) }
+    func createIndexTensor() -> IndexView { createIndexTensor(with: bounds) }
 
     //--------------------------------------------------------------------------
     /// concatenated tensors
@@ -95,8 +95,7 @@ public extension TensorView {
         T: DifferentiableTensorView, T.Buffer == Buffer
     {
         let value = Self(flattening: other)
-        let rank = Shape.zeros.count
-        let axes = Set([Int](rank..<other.rank))
+        let axes = Set([Int](Self.rank..<T.rank))
         return (value, { T(expanding: $0, alongAxes: axes) })
     }
     
@@ -204,27 +203,26 @@ public extension TensorView {
         where T: TensorView, T.Buffer == Buffer
     {
         // verify that tensors are the correct rank and same shape
-        let rank = Shape.zeros.count
-        assert(others.count > 0 && others[0].rank == rank - 1,
-               "stacked tensors must be of rank \(rank - 1)")
+        assert(others.count > 0 && T.rank == Self.rank - 1,
+               "stacked tensors must be of rank \(Self.rank - 1)")
         assert({
-            let extents = others[0].extents
+            let bounds = others[0].bounds
             for i in 1..<others.count {
-                if others[i].extents != extents { return false }
+                if others[i].bounds != bounds { return false }
             }
             return true
         }(), "stacked tensors must all be the same size")
         
-        // form stacked extents and create dense stacked result
+        // form stacked bounds and create dense stacked result
         let expanded = others.map { Self(expanding: $0, alongAxes: axis) }
-        var stackedExtents = expanded[0].extents
+        var stackedExtents = expanded[0].bounds
         stackedExtents[axis] = expanded.count
-        var stacked = Self.create(Shape(extents: stackedExtents), nil)
+        var stacked = Self.create(Shape(bounds: stackedExtents), nil)
         
         // copy others into place
         var index = Shape.zeros
         for tensor in expanded {
-            var view = stacked.sharedView(at: index, extents: tensor.extents)
+            var view = stacked.sharedView(at: index, bounds: tensor.bounds)
             Platform.service.copy(from: tensor, to: &view)
             index[axis] += 1
         }
@@ -235,18 +233,18 @@ public extension TensorView {
     /// repeating element
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
-    init(repeating value: Element, to extents: Shape.Array, name: String? = nil)
+    init(repeating value: Element, to bounds: Shape.Bounds, name: String? = nil)
     {
-        let shape = Shape(extents: extents, strides: Shape.zeros,
+        let shape = Shape(bounds: bounds, strides: Shape.zeros,
                           isSequential: true)
         self = Self.create(for: value, shape, name)
     }
 
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
-    init(repeating value: Element, to extents: Shape.Tuple, name: String? = nil)
+    init(repeating value: Element, to bounds: Shape.Tuple, name: String? = nil)
     {
-        self.init(repeating: value, to: Shape.Array(extents), name: name)
+        self.init(repeating: value, to: Shape.Bounds(bounds), name: name)
     }
     
     //--------------------------------------------------------------------------
@@ -256,7 +254,7 @@ public extension TensorView {
     init<U>(repeating value: Element, like other: U, name: String? = nil)
         where U: TensorView, Self.Shape == U.Shape
     {
-        self = Self(repeating: value, to: other.extents, name: name)
+        self = Self(repeating: value, to: other.bounds, name: name)
     }
     
     //--------------------------------------------------------------------------
@@ -267,14 +265,10 @@ public extension TensorView {
     }
     
     //--------------------------------------------------------------------------
-    /// createDense(extents:
+    /// createDense(bounds:
     @inlinable
-    func createDense(with extents: Shape.Array, name: String? = nil) -> Self {
-        let newShape = isContiguous ?
-            Shape(extents: extents, strides: shape.strides,
-                  isSequential: shape.isSequential) :
-            Shape(extents: extents)
-        return createDense(with: newShape, name: name)
+    func createDense(with bounds: Shape.Bounds, name: String? = nil) -> Self {
+        Self.create(Shape(bounds: bounds), name)
     }
     
     //--------------------------------------------------------------------------
@@ -284,12 +278,12 @@ public extension TensorView {
     
     //--------------------------------------------------------------------------
     /// reductionExtents
-    /// determines the extents of a reduction result along the specified axes
+    /// determines the bounds of a reduction result along the specified axes
     @inlinable
-    func reductionExtents(alongAxes axes: Set<Int>?) -> Shape.Array {
+    func reductionExtents(alongAxes axes: Set<Int>?) -> Shape.Bounds {
         guard let axes = axes else { return Shape.ones }
-        assert(axes.isSubset(of: 0..<rank), "axis is out of bounds")
-        var resultExtents = extents
+        assert(axes.isSubset(of: 0..<Self.rank), "axis is out of bounds")
+        var resultExtents = bounds
         axes.forEach { resultExtents[$0] = 1 }
         return resultExtents
     }
@@ -299,7 +293,7 @@ public extension TensorView {
     /// helper to create a rank extended value
     @inlinable
     func createSingleElement(name: String? = nil) -> Self {
-        Self.create(Shape(extents: Shape.ones, strides: Shape.ones,
+        Self.create(Shape(bounds: Shape.ones, strides: Shape.ones,
                           isSequential: true), name)
     }
     
@@ -362,11 +356,11 @@ public extension TensorView where Self: DifferentiableTensorView {
     @inlinable
     @derivative(of: init(repeating:to:name:))
     static func _vjpInit(repeating value: Element,
-                         to extents: Shape.Array,
+                         to bounds: Shape.Bounds,
                          name: String?) ->
         (value: Self, pullback: (Self) -> (Element))
     {
-        (Self(repeating: value, to: extents), { $0.sum().element })
+        (Self(repeating: value, to: bounds), { $0.sum().element })
     }
 }
 

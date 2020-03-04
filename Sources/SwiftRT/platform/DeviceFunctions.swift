@@ -22,7 +22,7 @@ import Numerics
 /// Device functions require input arguments to conform to `ShapedBuffer`
 /// and output arguments to conform to `MutableShapedBuffer`. They cannot
 /// simply be Collections, because accelerator device kernels will require
-/// the shaped extents and strides information to compute indices in parallel.
+/// the shaped bounds and strides information to compute indices in parallel.
 public protocol DeviceFunctions {
     /// the thread that created this queue. Used to detect accidental access
     var creatorThread: Thread { get }

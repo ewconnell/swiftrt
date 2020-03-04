@@ -189,7 +189,7 @@ class test_Reductions: XCTestCase {
     func test_sumVector() {
         let m = Vector(with: [0, 1, 2, 3])
         let result = m.sum()
-        XCTAssert(result.extents == [1])
+        XCTAssert(result.bounds == [1])
         XCTAssert(result.element == 6)
     }
 
@@ -205,20 +205,20 @@ class test_Reductions: XCTestCase {
         // sum all
         do {
             let result = m.sum()
-            XCTAssert(result.extents == [1, 1])
+            XCTAssert(result.bounds == [1, 1])
             XCTAssert(result.element == 15)
         }
 
         do {
             let result = m.sum(alongAxes: 0, 1)
-            XCTAssert(result.extents == [1, 1])
+            XCTAssert(result.bounds == [1, 1])
             XCTAssert(result.element == 15)
         }
         
         // sum cols
         do {
             let result = m.sum(alongAxes: 1)
-            XCTAssert(result.extents == [3, 1])
+            XCTAssert(result.bounds == [3, 1])
             XCTAssert(result == [
                 1,
                 5,
@@ -229,7 +229,7 @@ class test_Reductions: XCTestCase {
         // sum rows
         do {
             let result = m.sum(alongAxes: 0)
-            XCTAssert(result.extents == [1, 2])
+            XCTAssert(result.bounds == [1, 2])
             XCTAssert(result == [
                 6, 9
             ])
@@ -248,20 +248,20 @@ class test_Reductions: XCTestCase {
         // sum all
         do {
             let result = m.abssum()
-            XCTAssert(result.extents == [1, 1])
+            XCTAssert(result.bounds == [1, 1])
             XCTAssert(result.element == 15)
         }
 
         do {
             let result = m.abssum(alongAxes: 0, 1)
-            XCTAssert(result.extents == [1, 1])
+            XCTAssert(result.bounds == [1, 1])
             XCTAssert(result.element == 15)
         }
         
         // sum cols
         do {
             let result = m.abssum(alongAxes: 1)
-            XCTAssert(result.extents == [3, 1])
+            XCTAssert(result.bounds == [3, 1])
             XCTAssert(result == [
                 1,
                 5,
@@ -272,7 +272,7 @@ class test_Reductions: XCTestCase {
         // sum rows
         do {
             let result = m.abssum(alongAxes: 0)
-            XCTAssert(result.extents == [1, 2])
+            XCTAssert(result.bounds == [1, 2])
             XCTAssert(result == [
                 6, 9
             ])
@@ -359,27 +359,27 @@ class test_Reductions: XCTestCase {
         // mean all
         do {
             let result = m.mean()
-            XCTAssert(result.extents == [1, 1])
+            XCTAssert(result.bounds == [1, 1])
             XCTAssert(result.element == 15 / 6)
         }
         
         do {
             let result = m.mean(alongAxes: 0, 1)
-            XCTAssert(result.extents == [1, 1])
+            XCTAssert(result.bounds == [1, 1])
             XCTAssert(result.element == 15 / 6)
         }
         
         // mean cols
         do {
             let result = m.mean(alongAxes: 1)
-            XCTAssert(result.extents == [3, 1])
+            XCTAssert(result.bounds == [3, 1])
             XCTAssert(result == [0.5, 2.5, 4.5])
         }
         
         // mean rows
         do {
             let result = m.mean(alongAxes: 0)
-            XCTAssert(result.extents == [1, 2])
+            XCTAssert(result.bounds == [1, 2])
             XCTAssert(result == [2, 3])
         }
     }
@@ -397,14 +397,14 @@ class test_Reductions: XCTestCase {
         do {
             let chained = m.squared().sum().sqrt()
             let result = m.sqrtSumSquares()
-            XCTAssert(result.extents == [1, 1])
+            XCTAssert(result.bounds == [1, 1])
             XCTAssert(result.element == chained.element)
         }
 
         do {
             let chained = m.squared().sum(alongAxes: 0, 1).sqrt()
             let result = m.sqrtSumSquares()
-            XCTAssert(result.extents == [1, 1])
+            XCTAssert(result.bounds == [1, 1])
             XCTAssert(result.element == chained.element)
         }
         
@@ -412,7 +412,7 @@ class test_Reductions: XCTestCase {
         do {
             let chained = m.squared().sum(alongAxes: 1).sqrt()
             let result = m.sqrtSumSquares(alongAxes: 1)
-            XCTAssert(result.extents == [3, 1])
+            XCTAssert(result.bounds == [3, 1])
             XCTAssert(result == chained)
         }
 
@@ -420,7 +420,7 @@ class test_Reductions: XCTestCase {
         do {
             let chained = m.squared().sum(alongAxes: 0).sqrt()
             let result = m.sqrtSumSquares(alongAxes: 0)
-            XCTAssert(result.extents == [1, 2])
+            XCTAssert(result.bounds == [1, 2])
             XCTAssert(result == chained)
         }
     }
@@ -445,14 +445,14 @@ class test_Reductions: XCTestCase {
         do {
             let chained = m.squared().sum().sqrt()
             let result = m.sqrtSumSquares()
-            XCTAssert(result.extents == [1, 1, 1])
+            XCTAssert(result.bounds == [1, 1, 1])
             XCTAssert(result == chained)
         }
 
         do {
             let chained = m.squared().sum(alongAxes: 0, 1, 2).sqrt()
             let result = m.sqrtSumSquares()
-            XCTAssert(result.extents == [1, 1, 1])
+            XCTAssert(result.bounds == [1, 1, 1])
             XCTAssert(result == chained)
         }
         
@@ -460,7 +460,7 @@ class test_Reductions: XCTestCase {
         do {
             let chained = m.squared().sum(alongAxes: 0).sqrt()
             let result = m.sqrtSumSquares(alongAxes: 0)
-            XCTAssert(result.extents == [1, 3, 2])
+            XCTAssert(result.bounds == [1, 3, 2])
             XCTAssert(result == chained)
         }
 
@@ -468,7 +468,7 @@ class test_Reductions: XCTestCase {
         do {
             let chained = m.squared().sum(alongAxes: 1).sqrt()
             let result = m.sqrtSumSquares(alongAxes: 1)
-            XCTAssert(result.extents == [2, 1, 2])
+            XCTAssert(result.bounds == [2, 1, 2])
             XCTAssert(result == chained)
         }
 
@@ -476,7 +476,7 @@ class test_Reductions: XCTestCase {
         do {
             let chained = m.squared().sum(alongAxes: 2).sqrt()
             let result = m.sqrtSumSquares(alongAxes: 2)
-            XCTAssert(result.extents == [2, 3, 1])
+            XCTAssert(result.bounds == [2, 3, 1])
             XCTAssert(result == chained)
         }
     }

@@ -63,7 +63,7 @@ public extension PlatformService {
     func and<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element == Bool
     {
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
         var resultBuffer = write(&result)
         currentQueue.and(read(lhs), read(rhs), &resultBuffer)
@@ -127,7 +127,7 @@ public extension PlatformService {
     func or<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element == Bool
     {
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
         var resultBuffer = write(&result)
         currentQueue.or(read(lhs), read(rhs), &resultBuffer)
@@ -190,7 +190,7 @@ func _vjpMax<T>(_ lhs: T, _ rhs: T)
 public func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
     T: TensorView, T.Element: Comparable
 {
-    max(lhs, T(repeating: rhs, to: lhs.extents))
+    max(lhs, T(repeating: rhs, to: lhs.bounds))
 }
 
 @inlinable
@@ -198,7 +198,7 @@ public func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
 public func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
     T: TensorView, T.Element: Comparable
 {
-    max(T(repeating: lhs, to: rhs.extents), rhs)
+    max(T(repeating: lhs, to: rhs.bounds), rhs)
 }
 
 public extension PlatformService {
@@ -207,7 +207,7 @@ public extension PlatformService {
     func max<T>(_ lhs: T, _ rhs: T) -> T where
         T: TensorView, T.Element: Comparable
     {
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
         var (result, resultBuffer) = createResult(like: lhs)
         currentQueue.max(read(lhs), read(rhs), &resultBuffer)
         return result
@@ -229,7 +229,7 @@ public extension PlatformService {
     func max<T>(_ lhs: T, _ rhs: T.Element) -> T where
         T: TensorView, T.Element: Comparable
     {
-        max(lhs, T(repeating: rhs, to: lhs.extents))
+        max(lhs, T(repeating: rhs, to: lhs.bounds))
     }
     
     @inlinable
@@ -237,7 +237,7 @@ public extension PlatformService {
     func max<T>(_ lhs: T.Element, _ rhs: T) -> T where
         T: TensorView, T.Element: Comparable
     {
-        max(T(repeating: lhs, to: rhs.extents), rhs)
+        max(T(repeating: lhs, to: rhs.bounds), rhs)
     }
 }
 
@@ -288,7 +288,7 @@ func _vjpMin<T>(_ lhs: T, _ rhs: T)
 public func min<T>(_ lhs: T, _ rhs: T.Element) -> T
     where T: TensorView, T.Element: Comparable
 {
-    min(lhs, T(repeating: rhs, to: lhs.extents))
+    min(lhs, T(repeating: rhs, to: lhs.bounds))
 }
 
 @inlinable
@@ -296,7 +296,7 @@ public func min<T>(_ lhs: T, _ rhs: T.Element) -> T
 public func min<T>(_ lhs: T.Element, _ rhs: T) -> T
     where T: TensorView, T.Element: Comparable
 {
-    min(T(repeating: lhs, to: rhs.extents), rhs)
+    min(T(repeating: lhs, to: rhs.bounds), rhs)
 }
 
 //--------------------------------------
@@ -306,7 +306,7 @@ public extension PlatformService {
     func min<T>(_ lhs: T, _ rhs: T) -> T where
         T: TensorView, T.Element: Comparable
     {
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
         var (result, resultBuffer) = createResult(like: lhs)
         currentQueue.min(read(lhs), read(rhs), &resultBuffer)
         return result
@@ -328,7 +328,7 @@ public extension PlatformService {
     func min<T>(_ lhs: T, _ rhs: T.Element) -> T
         where T: TensorView, T.Element: Comparable
     {
-        min(lhs, T(repeating: rhs, to: lhs.extents))
+        min(lhs, T(repeating: rhs, to: lhs.bounds))
     }
     
     @inlinable
@@ -336,7 +336,7 @@ public extension PlatformService {
     func min<T>(_ lhs: T.Element, _ rhs: T) -> T
         where T: TensorView, T.Element: Comparable
     {
-        min(T(repeating: lhs, to: rhs.extents), rhs)
+        min(T(repeating: lhs, to: rhs.bounds), rhs)
     }
 }
 
@@ -373,7 +373,7 @@ public extension PlatformService {
     func equal<T>(_ lhs: T, _ rhs: T) -> T.BoolView
         where T: TensorView, T.Element: Equatable
     {
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
         var resultBuffer = write(&result)
         currentQueue.equal(read(lhs), read(rhs), &resultBuffer)
@@ -392,8 +392,8 @@ public extension TensorView where Element: Equatable {
     /// - Returns: `true` if the tensors are equal
     @inlinable
     static func == (lhs: Self, rhs: Self) -> Bool {
-        // the extents must match or they are not equal
-        guard lhs.extents == rhs.extents else { return false }
+        // the bounds must match or they are not equal
+        guard lhs.bounds == rhs.bounds else { return false }
         
         // if lhs is an alias for rhs, then they match
         if lhs.buffer === rhs.buffer && lhs.offset == rhs.offset { return true }
@@ -421,7 +421,7 @@ public extension PlatformService {
                                 tolerance: T.Element) -> T.BoolView
         where T: TensorView, T.Element: SignedNumeric & Comparable
     {
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
         var resultBuffer = write(&result)
         currentQueue.elementsAlmostEqual(read(lhs), read(rhs),
@@ -453,7 +453,7 @@ public extension PlatformService {
     func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView
         where T: TensorView, T.Element: Equatable
     {
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
         var resultBuffer = write(&result)
         currentQueue.notEqual(read(lhs), read(rhs), &resultBuffer)
@@ -483,7 +483,7 @@ public extension PlatformService {
     func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
     {
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
         var resultBuffer = write(&result)
         currentQueue.greater(read(lhs), read(rhs), &resultBuffer)
@@ -513,7 +513,7 @@ public extension PlatformService {
     func greaterOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
     {
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
         var resultBuffer = write(&result)
         currentQueue.greaterOrEqual(read(lhs), read(rhs), &resultBuffer)
@@ -545,7 +545,7 @@ public extension PlatformService {
     func less<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
     {
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
         var resultBuffer = write(&result)
         currentQueue.less(read(lhs), read(rhs), &resultBuffer)
@@ -589,7 +589,7 @@ public extension PlatformService {
     func lessOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
         T: TensorView, T.Element: Comparable
     {
-        assert(lhs.extents == rhs.extents, _messageTensorExtentsMismatch)
+        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
         var result = lhs.createBoolTensor()
         var resultBuffer = write(&result)
         currentQueue.lessOrEqual(read(lhs), read(rhs), &resultBuffer)

@@ -22,12 +22,12 @@ public extension TensorView where Self: VectorView {
     subscript(index: Int) -> Element {
         get {
             view(at: makePositive(index: (index)),
-                 extents: Shape.ones, strides: Shape.ones).element
+                 bounds: Shape.ones, strides: Shape.ones).element
         }
         set {
             expandSelfIfRepeated()
             var view = sharedView(at: makePositive(index: (index)),
-                                  extents: Shape.ones, strides: Shape.ones)
+                                  bounds: Shape.ones, strides: Shape.ones)
             view.element = newValue
         }
     }
@@ -38,11 +38,11 @@ public extension TensorView where Self: VectorView {
         where R: PartialRangeExpression, R.Bound == Int
         {
         get {
-            let r = range.relativeTo(0..<extents[0])
+            let r = range.relativeTo(0..<bounds[0])
             return self[(r.start), (r.end), (r.step)]
         }
         set {
-            let r = range.relativeTo(0..<extents[0])
+            let r = range.relativeTo(0..<bounds[0])
             self[(r.start), (r.end), (r.step)] = newValue
         }
     }
@@ -59,12 +59,12 @@ public extension TensorView {
         where R: PartialRangeExpression, R.Bound == Int {
         get {
             let (start, end, steps) =
-                getItemRange(range.relativeTo(0..<extents[0]))
+                getItemRange(range.relativeTo(0..<bounds[0]))
             return self[start, end, steps]
         }
         set {
             let (start, end, steps) =
-                getItemRange(range.relativeTo(0..<extents[0]))
+                getItemRange(range.relativeTo(0..<bounds[0]))
             self[start, end, steps] = newValue
         }
     }
@@ -72,10 +72,10 @@ public extension TensorView {
     @usableFromInline
     @_semantics("autodiff.nonvarying")
     internal func getItemRange(_ range: StridedRange<Int>) ->
-        (Shape.Array, Shape.Array, Shape.Array)
+        (Shape.Bounds, Shape.Bounds, Shape.Bounds)
     {
         var start = Shape.zeros
-        var end = self.extents
+        var end = self.bounds
         var steps = Shape.ones
         start[0] = range.start
         end[0] = range.end
@@ -111,13 +111,13 @@ public extension TensorView {
 
     //--------------------------------------------------------------------------
     /// getExtents(from:to:
-    /// computes the extents and strides from the specified bounds and steps
+    /// computes the bounds and strides from the specified bounds and steps
     /// - Parameter lower: the lower bound of the subview
     /// - Parameter upper: the upper bound of the subview
-    /// - Returns: the extents to be used to create a subview
+    /// - Returns: the bounds to be used to create a subview
     @inlinable
-    func getExtents(from lower: Shape.Array, to upper: Shape.Array)
-        -> Shape.Array
+    func getExtents(from lower: Shape.Bounds, to upper: Shape.Bounds)
+        -> Shape.Bounds
     {
         // bounds should be in the correct order by the time they reach here
         assert({
@@ -125,26 +125,26 @@ public extension TensorView {
             return true
         }(), "lower must be less than or equal to upper")
 
-        var extents = upper
-        zip(extents.indices, zip(upper, lower)).forEach {
-            extents[$0] = $1.0 - $1.1
+        var bounds = upper
+        zip(bounds.indices, zip(upper, lower)).forEach {
+            bounds[$0] = $1.0 - $1.1
         }
-        return extents
+        return bounds
     }
 
     //--------------------------------------------------------------------------
     /// getExtents(_:_:_
-    /// computes the extents and strides from the specified bounds and steps
+    /// computes the bounds and strides from the specified bounds and steps
     /// - Parameter lower: the lower bound of the subview
     /// - Parameter upper: the upper bound of the subview
     /// - Parameter steps: the step interval along each dimension. This
     ///                    value can be negative to perform reverse traversal
-    /// - Returns: the extents and strides to be used to create a subview
+    /// - Returns: the bounds and strides to be used to create a subview
     @inlinable
-    func getExtents(_ lower: Shape.Array,
-                    _ upper: Shape.Array,
-                    _ steps: Shape.Array) ->
-        (extents: Shape.Array, strides: Shape.Array)
+    func getExtents(_ lower: Shape.Bounds,
+                    _ upper: Shape.Bounds,
+                    _ steps: Shape.Bounds) ->
+        (bounds: Shape.Bounds, strides: Shape.Bounds)
     {
         // if all the steps are 1, then just reuse the parent strides
         if steps.first(where: { $0 != 1 }) == nil {
@@ -152,7 +152,7 @@ public extension TensorView {
 
         } else {
             // if one or more steps are not 1,
-            // then recompute the subview extents and strides
+            // then recompute the subview bounds and strides
 
             // y must be positive for this to work correctly
             func divceil(_ x: Int, _ y: Int) -> Int { (x - 1 + y) / y }
@@ -174,10 +174,10 @@ public extension TensorView {
     @differentiable(where Self: DifferentiableTensorView)
     subscript(lower: Shape.Tuple, upper: Shape.Tuple, steps: Shape.Tuple)
         -> Self {
-        get { self[Shape.Array(lower), Shape.Array(upper), Shape.Array(steps)] }
+        get { self[Shape.Bounds(lower), Shape.Bounds(upper), Shape.Bounds(steps)] }
         set {
-            self[Shape.Array(lower), Shape.Array(upper),
-                 Shape.Array(steps)] = newValue
+            self[Shape.Bounds(lower), Shape.Bounds(upper),
+                 Shape.Bounds(steps)] = newValue
         }
     }
     
@@ -185,17 +185,17 @@ public extension TensorView {
     // views will have the same shared state as the parent
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
-    subscript(lower: Shape.Array, upper: Shape.Array,
-              steps: Shape.Array) -> Self
+    subscript(lower: Shape.Bounds, upper: Shape.Bounds,
+              steps: Shape.Bounds) -> Self
     {
         get {
-            let (extents, strides) = getExtents(lower, upper, steps)
-            return view(at: lower, extents: extents, strides: strides)
+            let (bounds, strides) = getExtents(lower, upper, steps)
+            return view(at: lower, bounds: bounds, strides: strides)
         }
         set {
             expandSelfIfRepeated()
-            let (extents, strides) = getExtents(lower, upper, steps)
-            var view = sharedView(at: lower, extents: extents, strides: strides)
+            let (bounds, strides) = getExtents(lower, upper, steps)
+            var view = sharedView(at: lower, bounds: bounds, strides: strides)
             Platform.service.copy(from: newValue, to: &view)
         }
     }
@@ -207,7 +207,7 @@ extension TensorView where Self: DifferentiableTensorView {
     // https://github.com/apple/swift/blob/37b507b31c77ef969151f385cd1902dd44fb3b7f/stdlib/public/core/Array.swift#L2091
     @inlinable
     @derivative(of: subscript)
-    func _vjpSubscript(lower: Shape.Array, upper: Shape.Array, steps: Shape.Array)
+    func _vjpSubscript(lower: Shape.Bounds, upper: Shape.Bounds, steps: Shape.Bounds)
         -> (value: Self, pullback: (Self) -> Self)
     {
         return (self[lower, upper, steps], { v in

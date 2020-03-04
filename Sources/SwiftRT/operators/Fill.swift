@@ -40,9 +40,9 @@ public extension PlatformService {
 
         var index = T.Shape.zeros
         for tensor in tensors {
-            var view = result.sharedView(at: index, extents: tensor.extents)
+            var view = result.sharedView(at: index, bounds: tensor.bounds)
             copy(from: tensor, to: &view)
-            index[axis] += tensor.extents[axis]
+            index[axis] += tensor.bounds[axis]
         }
         return result
     }

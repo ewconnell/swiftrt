@@ -208,9 +208,9 @@ public func implicitlyMatchExtents<T>(_ lhs: T, _ rhs: T) -> (T, T)
     if lhs.count == rhs.count {
         return (lhs, rhs)
     } else if lhs.count > rhs.count {
-        return (lhs, rhs.repeated(to: lhs.extents))
+        return (lhs, rhs.repeated(to: lhs.bounds))
     } else {
-        return (lhs.repeated(to: rhs.extents), rhs)
+        return (lhs.repeated(to: rhs.bounds), rhs)
     }
 }
 

@@ -263,7 +263,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
         R: MutableShapedBuffer, R.Element == T.Element
     {
         // created a repeated shape for the initial results to match `x`
-        let repeatedShape = result.shape.repeated(to: x.shape.extents)
+        let repeatedShape = result.shape.repeated(to: x.shape.bounds)
         
         // create a new elements collection to iterate using the `result`
         // buffer and the new repeated shape.

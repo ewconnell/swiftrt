@@ -54,14 +54,14 @@ public protocol TensorView: Logging {
     init(shape: Shape, buffer: Buffer, offset: Int, shared: Bool)
 
     //--------------------------------------------------------------------------
-    /// creates a new dense tensor of the same type with the specified extents
-    func createDense(with extents: Shape.Array, name: String?) -> Self
+    /// creates a new dense tensor of the same type with the specified bounds
+    func createDense(with bounds: Shape.Bounds, name: String?) -> Self
     /// creates a new dense tensor where `Element` equals `Bool`
-    /// with the specified extents
-    func createBoolTensor(with extents: Shape.Array) -> BoolView
+    /// with the specified bounds
+    func createBoolTensor(with bounds: Shape.Bounds) -> BoolView
     /// creates a new dense tensor where `Element` equals `IndexType`
-    /// with the specified extents and initial values
-    func createIndexTensor(with extents: Shape.Array) -> IndexView
+    /// with the specified bounds and initial values
+    func createIndexTensor(with bounds: Shape.Bounds) -> IndexView
 }
 
 //==============================================================================
@@ -166,11 +166,11 @@ public extension TensorView {
     @inlinable
     var count: Int { shape.count }
 
-    /// the extents of the view
+    /// the bounds of the view
     @_transparent
     @inlinable
     @_semantics("autodiff.nonvarying")
-    var extents: Shape.Array { shape.extents }
+    var bounds: Shape.Bounds { shape.bounds }
 
     /// a 1D array of tensor elements
     @inlinable
@@ -181,12 +181,12 @@ public extension TensorView {
     @inlinable
     var id: Int { buffer.id }
 
-    /// `true` if the values are contiguosly arranged in memory
+    /// `true` if the elements are dense and layout is sequential
     @_transparent
     @inlinable
-    var isContiguous: Bool { shape.isContiguous }
+    var isSequential: Bool { shape.isSequential }
 
-    /// the number of items in the tensor, which is equal to `extents[0]`
+    /// the number of items in the tensor, which is equal to `bounds[0]`
     @_transparent
     @inlinable
     var items: Int { shape.items }
@@ -199,7 +199,7 @@ public extension TensorView {
     /// the number of dimensions in the view
     @_transparent
     @inlinable
-    var rank: Int { shape.rank }
+    static var rank: Int { Shape.rank }
 
     /// the strided element span of this view
     @_transparent
@@ -209,18 +209,18 @@ public extension TensorView {
     /// the strides of the tensor elements
     @_transparent
     @inlinable
-    var strides: Shape.Array { shape.strides }
+    var strides: Shape.Bounds { shape.strides }
 
-    /// repeated(extents:
+    /// repeated(bounds:
     @inlinable
-    func repeated(to extents: Shape.Array) -> Self {
-        return Self(shape: shape.repeated(to: extents),
+    func repeated(to bounds: Shape.Bounds) -> Self {
+        return Self(shape: shape.repeated(to: bounds),
                     buffer: buffer, offset: offset, shared: shared)
     }
     ///
     @inlinable
-    func repeated(to extents: Shape.Tuple) -> Self {
-        repeated(to: Shape.Array(extents))
+    func repeated(to bounds: Shape.Tuple) -> Self {
+        repeated(to: Shape.Bounds(bounds))
     }
     /// isUniquelyReference
     /// `true` if this view is the only one holding a reference to bufferRef
@@ -237,10 +237,10 @@ public extension TensorView {
     /// makePositive(index:
     @inlinable
     @_semantics("autodiff.nonvarying")
-    func makePositive(index: Shape.Tuple) -> Shape.Array {
-        var result = Shape.Array(index)
-        for i in 0..<result.count {
-            if result[i] < 0 { result[i] += extents[i] }
+    func makePositive(index: Shape.Tuple) -> Shape.Bounds {
+        var result = Shape.Bounds(index)
+        for i in 0..<Shape.Bounds.count {
+            if result[i] < 0 { result[i] += bounds[i] }
         }
         return result
     }
@@ -249,19 +249,19 @@ public extension TensorView {
     /// view
     /// Creates an immutable subview
     @inlinable
-    func view(at index: Shape.Tuple, extents: Shape.Tuple,
+    func view(at index: Shape.Tuple, bounds: Shape.Tuple,
               strides: Shape.Tuple? = nil) -> Self
     {
-        view(at: Shape.Array(index),
-             extents: Shape.Array(extents),
-             strides: Shape.Array(strides))
+        view(at: Shape.Bounds(index),
+             bounds: Shape.Bounds(bounds),
+             strides: Shape.Bounds(strides))
     }
     
     @inlinable
-    func view(at index: Shape.Array, extents: Shape.Array,
-              strides: Shape.Array? = nil) -> Self
+    func view(at index: Shape.Bounds, bounds: Shape.Bounds,
+              strides: Shape.Bounds? = nil) -> Self
     {
-        createView(at: index, with: extents,
+        createView(at: index, with: bounds,
                    and: strides ?? self.strides, shared: self.shared)
     }
     
@@ -269,17 +269,17 @@ public extension TensorView {
     /// sharedView
     /// Creates a a subview that can be shared by multiple writers
     @inlinable
-    mutating func sharedView(at index: Shape.Tuple, extents: Shape.Tuple,
+    mutating func sharedView(at index: Shape.Tuple, bounds: Shape.Tuple,
                              strides: Shape.Tuple? = nil) -> Self
     {
-        sharedView(at: Shape.Array(index),
-                   extents: Shape.Array(extents),
-                   strides: Shape.Array(strides))
+        sharedView(at: Shape.Bounds(index),
+                   bounds: Shape.Bounds(bounds),
+                   strides: Shape.Bounds(strides))
     }
     
     @inlinable
-    mutating func sharedView(at index: Shape.Array, extents: Shape.Array,
-                             strides: Shape.Array? = nil) -> Self
+    mutating func sharedView(at index: Shape.Bounds, bounds: Shape.Bounds,
+                             strides: Shape.Bounds? = nil) -> Self
     {
         // copy the parent view if it is not uniquely held before
         // creating a shared view of it
@@ -291,7 +291,7 @@ public extension TensorView {
             buffer = Buffer(copying: buffer)
         }
         
-        return createView(at: index, with: extents,
+        return createView(at: index, with: bounds,
                           and: strides ?? self.strides, shared: true)
     }
     
@@ -299,30 +299,29 @@ public extension TensorView {
     /// createView
     /// Returns a view of the bufferRef relative to this view
     @usableFromInline
-    internal func createView(at index: Shape.Array,
-                             with extents: Shape.Array,
-                             and strides: Shape.Array,
+    internal func createView(at position: Shape.Bounds,
+                             with bounds: Shape.Bounds,
+                             and strides: Shape.Bounds,
                              shared: Bool) -> Self
     {
         // validate
-        assert(index.count == shape.rank && extents.count == shape.rank)
-        assert(shape.contains(index: index, extents: extents))
+        assert(shape.contains(index: position, bounds: bounds))
         
         // determine if subview is sequential
         var isSequential = shape.isSequential
         
         // if the parent is sequential and higher rank than a vector
-        // then the view is only sequential if extents beyond the first match
-        if isSequential && shape.rank > 1 {
-            for i in 1..<shape.rank where shape.extents[i] != extents[i] {
+        // then the view is only sequential if bounds beyond the first match
+        if isSequential && Shape.rank > 1 {
+            for i in 1..<Shape.rank where shape.bounds[i] != bounds[i] {
                 isSequential = false
                 break
             }
         }
         
         // the subview offset is the current plus the offset of index
-        let subViewOffset = offset + shape.linearIndex(of: index)
-        let viewShape = Shape(extents: extents, strides: strides,
+        let subViewOffset = offset + shape.linearIndex(of: position)
+        let viewShape = Shape(bounds: bounds, strides: strides,
                               isSequential: isSequential)
         
         return Self(shape: viewShape, buffer: buffer,
@@ -336,8 +335,8 @@ public extension TensorView {
     /// last two dimensions are swapped.
     @inlinable
     func transposed(with permutations: Shape.Tuple? = nil) -> Self {
-        guard self.rank > 1 else { return self }
-        let shape = self.shape.transposed(with: Shape.Array(permutations))
+        guard Self.rank > 1 else { return self }
+        let shape = self.shape.transposed(with: Shape.Bounds(permutations))
         return Self(shape: shape, buffer: buffer,
                     offset: offset, shared: shared)
     }
@@ -345,7 +344,7 @@ public extension TensorView {
 
 //==============================================================================
 // Codable
-public enum TensorCodingKeys: String, CodingKey { case data, extents, name }
+public enum TensorCodingKeys: String, CodingKey { case data, bounds, name }
 
 public extension TensorView where Element: Codable {
     /// encodes the contents of the array
@@ -353,7 +352,7 @@ public extension TensorView where Element: Codable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: TensorCodingKeys.self)
         try container.encode(name, forKey: .name)
-        try container.encode(extents, forKey: .extents)
+        try container.encode(bounds, forKey: .bounds)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
         try bufferElements().forEach {
             try dataContainer.encode($0)
@@ -364,10 +363,10 @@ public extension TensorView where Element: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: TensorCodingKeys.self)
         let name = try container.decode(String.self, forKey: .name)
-        let extents = try container.decode(Shape.Array.self, forKey: .extents)
+        let bounds = try container.decode(Shape.Bounds.self, forKey: .bounds)
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
 
-        self = Self.create(Self.Shape(extents: extents), name)
+        self = Self.create(Self.Shape(bounds: bounds), name)
 
         assert(self.count == dataContainer.count)
         var mutableElements = mutableBufferElements()

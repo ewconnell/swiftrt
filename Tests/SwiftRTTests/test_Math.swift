@@ -47,7 +47,7 @@ class test_Math: XCTestCase {
         let t1 = Matrix(2, 3, with: 1...6)
         let t2 = Matrix(2, 3, with: 7...12)
         let c1 = t1.concat(t2)
-        XCTAssert(c1.extents == [4, 3])
+        XCTAssert(c1.bounds == [4, 3])
         XCTAssert(c1 == [
             1,  2,  3,
             4,  5,  6,
@@ -56,7 +56,7 @@ class test_Math: XCTestCase {
         ])
         
         let c2 = t1.concat(t2, alongAxis: 1)
-        XCTAssert(c2.extents == [2, 6])
+        XCTAssert(c2.bounds == [2, 6])
         XCTAssert(c2 == [
             1, 2, 3,  7,  8,  9,
             4, 5, 6, 10, 11, 12

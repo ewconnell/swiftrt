@@ -335,7 +335,7 @@ public extension PlatformService {
     func pow<T>(_ x: T, _ y: T) -> T
         where T: TensorView, T.Element: Real
     {
-        assert(x.extents == y.extents, _messageTensorExtentsMismatch)
+        assert(x.bounds == y.bounds, _messageTensorExtentsMismatch)
         var (result, resultBuffer) = createResult(like: x)
         currentQueue.squared(read(x), &resultBuffer)
         return result
