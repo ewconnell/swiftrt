@@ -750,7 +750,7 @@ public struct NewShape4: NewShapeProtocol {
         self.count = bounds.product()
         self.isSequential = isSequential
         self.strides = strides ?? bounds.denseStrides()
-        self.spanCount = Self.computeSpanCount(self.bounds, self.strides)
+        self.spanCount = ((self.bounds &- 1) &* self.strides).wrappedSum() + 1
     }
 
     //--------------------------------------------------------------------------
@@ -817,7 +817,7 @@ public struct NewShape5: NewShapeProtocol {
         self.count = bounds.product()
         self.isSequential = isSequential
         self.strides = strides ?? bounds.denseStrides()
-        self.spanCount = Self.computeSpanCount(self.bounds, self.strides)
+        self.spanCount = ((self.bounds &- 1) &* self.strides).wrappedSum() + 1
     }
 
     //--------------------------------------------------------------------------
