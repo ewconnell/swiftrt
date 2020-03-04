@@ -16,10 +16,41 @@
 import Foundation
 
 // https://github.com/apple/swift/blob/master/stdlib/public/core/SIMDVectorTypes.swift.gyb
-@frozen
-public struct SIMD5<Scalar>: SIMD where Scalar: SIMDScalar {
+
+// This isn't actually used to do SIMD operations, but merely as
+// a placeholder to satisfy Shape1 Bounds conformance
+@frozen public struct SIMD1<Scalar>: SIMD where Scalar: SIMDScalar {
+    public var _storage: Scalar.SIMD2Storage
+    public typealias MaskStorage = SIMD1<Scalar.SIMDMaskScalar>
+    
+    /// The number of scalars in the vector.
+    @_transparent
+    public var scalarCount: Int { 1 }
+    
+    /// Creates a vector with zero in all lanes.
+    @_transparent
+    public init() {
+        _storage = Scalar.SIMD2Storage()
+    }
+    
+    /// Accesses the scalar at the specified position.
+    public subscript(index: Int) -> Scalar {
+        @_transparent get {
+            assert(indices.contains(index))
+            return _storage[index]
+        }
+        @_transparent set {
+            assert(indices.contains(index))
+            _storage[index] = newValue
+        }
+    }
+
+}
+
+// to support 5D tensors
+@frozen public struct SIMD5<Scalar>: SIMD where Scalar: SIMDScalar {
     public var _storage: Scalar.SIMD8Storage
-    public typealias MaskStorage = SIMD3<Scalar.SIMDMaskScalar>
+    public typealias MaskStorage = SIMD5<Scalar.SIMDMaskScalar>
     
     /// The number of scalars in the vector.
     @_transparent

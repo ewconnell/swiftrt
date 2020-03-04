@@ -80,6 +80,20 @@ extension ShapeBounds where Scalar: FixedWidthInteger {
 
 //==============================================================================
 // ShapeBounds SIMD extensions
+extension SIMD1: ShapeBounds {
+    public typealias Tuple = (Scalar)
+
+    @inlinable
+    @_transparent
+    public static var rank: Int { 1 }
+
+    @inlinable
+    public init(_ data: Tuple) {
+        self.init()
+        self[0] = data
+    }
+}
+
 extension SIMD2: ShapeBounds {
     public typealias Tuple = (Scalar, Scalar)
 
@@ -92,6 +106,57 @@ extension SIMD2: ShapeBounds {
         self.init()
         self[0] = data.0
         self[1] = data.1
+    }
+}
+
+extension SIMD3: ShapeBounds {
+    public typealias Tuple = (Scalar, Scalar, Scalar)
+
+    @inlinable
+    @_transparent
+    public static var rank: Int { 3 }
+
+    @inlinable
+    public init(_ data: Tuple) {
+        self.init()
+        self[0] = data.0
+        self[1] = data.1
+        self[2] = data.2
+    }
+}
+
+extension SIMD4: ShapeBounds {
+    public typealias Tuple = (Scalar, Scalar, Scalar, Scalar)
+
+    @inlinable
+    @_transparent
+    public static var rank: Int { 4 }
+
+    @inlinable
+    public init(_ data: Tuple) {
+        self.init()
+        self[0] = data.0
+        self[1] = data.1
+        self[2] = data.2
+        self[3] = data.3
+    }
+}
+
+extension SIMD5: ShapeBounds {
+    public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar)
+
+    @inlinable
+    @_transparent
+    public static var rank: Int { 5 }
+
+    @inlinable
+    public init(_ data: Tuple) {
+        self.init()
+        self[0] = data.0
+        self[1] = data.1
+        self[2] = data.2
+        self[3] = data.3
+        self[4] = data.4
     }
 }
 
@@ -189,7 +254,7 @@ public extension NewShapeProtocol {
 
     @inlinable
     init(bounds: Tuple) {
-        self.init(bounds: Bounds(bounds), strides: nil, isSequential: true)
+        self.init(bounds: Bounds(bounds))
     }
 
     @inlinable
@@ -515,13 +580,16 @@ public struct NewShape2: NewShapeProtocol {
     public init<S>(flattening other: S) where S: NewShapeProtocol {
         assert(other.isSequential, "cannot flatten non sequential data")
         assert(S.rank >= Self.rank, "cannot flatten bounds of lower rank")
-        let flattened = Bounds((other.bounds[0], other.count / other.bounds[0]))
-        self.init(bounds: flattened, isSequential: true)
+        self.init(bounds: Bounds((
+            other.bounds[0],
+            other.count / other.bounds[0]
+        )))
     }
     
     //--------------------------------------------------------------------------
     // index(i:
-    // Note: this does not get inlined unless part of the struct
+    // Note: this does not get inlined unless part of the struct, and using
+    // a recursive algorithm is ~55x slower
     @inlinable
     public func index(after i: Index) -> Index {
         var position = i.position
@@ -531,6 +599,64 @@ public struct NewShape2: NewShapeProtocol {
             position[0] += 1
         }
         
+        return Index(position, sequenceIndex: i.sequenceIndex + 1)
+    }
+}
+
+//==============================================================================
+// Shape3
+public struct NewShape3: NewShapeProtocol {
+    public typealias Bounds = SIMD3<Int>
+    public typealias Index = NewShapeIndex<Bounds>
+    
+    // properties
+    public let count: Int
+    public let bounds: Bounds
+    public let isSequential: Bool
+    public let spanCount: Int
+    public let strides: Bounds
+
+    @inlinable
+    public init(bounds: Bounds, strides: Bounds? = nil, isSequential: Bool) {
+        self.bounds = bounds
+        self.count = bounds.product
+        self.isSequential = isSequential
+        self.strides = strides ?? bounds.denseStrides
+        self.spanCount = Self.computeSpanCount(self.bounds, self.strides)
+    }
+
+    //--------------------------------------------------------------------------
+    // init(flattening:
+    @inlinable
+    public init<S>(flattening other: S) where S: NewShapeProtocol {
+        assert(other.isSequential, "cannot flatten non sequential data")
+        assert(S.rank >= Self.rank, "cannot flatten bounds of lower rank")
+        
+        self.init(bounds: Bounds((
+            other.bounds[0],
+            other.bounds[1],
+            (2..<S.rank).reduce(into: 0) { $0 += other.bounds[$1] }
+        )))
+    }
+    
+    //--------------------------------------------------------------------------
+    // index(i:
+    // Note: this does not get inlined unless part of the struct, and using
+    // a recursive algorithm is ~55x slower
+    @inlinable
+    public func index(after i: Index) -> Index {
+        var position = i.position
+        position[2] += 1
+        if position[2] == bounds[2] {
+            position[2] = 0
+            position[1] += 1
+
+            if position[1] == bounds[1] {
+                position[1] = 0
+                position[0] += 1
+            }
+        }
+
         return Index(position, sequenceIndex: i.sequenceIndex + 1)
     }
 }
