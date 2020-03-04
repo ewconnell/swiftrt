@@ -202,6 +202,8 @@ public protocol NewShapeProtocol: Codable, Equatable, Collection
         where S: NewShapeProtocol
 }
 
+//==============================================================================
+/// ShapeProtocol extensions
 public extension NewShapeProtocol {
     //--------------------------------------------------------------------------
     /// the static rank of the shape
@@ -487,22 +489,6 @@ public extension NewShapeProtocol {
 
 //==============================================================================
 // ShapeProtocol Collection extension
-extension NewShapeProtocol where Index == Int {
-    @inlinable
-    public var startIndex: Index { 0 }
-
-    @inlinable
-    public var endIndex: Index { count }
-    
-    @inlinable
-    public func index(after i: Index) -> Index { i + 1 }
-
-    @inlinable
-    public subscript(index: Index) -> Int { index * strides[0] }
-}
-
-//------------------------------------------------------------------------------
-
 extension NewShapeProtocol where Index == NewShapeIndex<Bounds> {
     @inlinable
     public var startIndex: Index { Index(Bounds.zero, sequenceIndex: 0) }
@@ -553,6 +539,52 @@ public struct NewShapeIndex<Bounds>: Comparable
 }
 
 //==============================================================================
+// Shape1
+public struct NewShape1: NewShapeProtocol {
+    public typealias Bounds = SIMD1<Int>
+    public typealias Index = Int
+    
+    // properties
+    public let count: Int
+    public let bounds: Bounds
+    public let isSequential: Bool
+    public let spanCount: Int
+    public let strides: Bounds
+
+    @inlinable
+    public init(bounds: Bounds, strides: Bounds? = nil, isSequential: Bool) {
+        self.bounds = bounds
+        self.count = bounds.product
+        self.isSequential = isSequential
+        self.strides = strides ?? bounds.denseStrides
+        self.spanCount = Self.computeSpanCount(self.bounds, self.strides)
+    }
+
+    //--------------------------------------------------------------------------
+    // init(flattening:
+    @inlinable
+    public init<S>(flattening other: S) where S: NewShapeProtocol {
+        assert(other.isSequential, "cannot flatten non sequential data")
+        self.init(bounds: Bounds(other.count))
+    }
+    
+    //--------------------------------------------------------------------------
+    // index(i:
+    // Note: this does not get inlined unless part of the struct
+    @inlinable
+    public var startIndex: Index { 0 }
+
+    @inlinable
+    public var endIndex: Index { count }
+    
+    @inlinable
+    public func index(after i: Index) -> Index { i + 1 }
+
+    @inlinable
+    public subscript(index: Index) -> Int { index * strides[0] }
+}
+
+//==============================================================================
 // Shape2
 public struct NewShape2: NewShapeProtocol {
     public typealias Bounds = SIMD2<Int>
@@ -594,6 +626,7 @@ public struct NewShape2: NewShapeProtocol {
     public func index(after i: Index) -> Index {
         var position = i.position
         position[1] += 1
+        
         if position[1] == bounds[1] {
             position[1] = 0
             position[0] += 1
