@@ -489,6 +489,8 @@ public extension NewShapeProtocol {
 
 //==============================================================================
 // ShapeProtocol Collection extension
+// *** Note: These seem to get inlined correctly, so they don't need to be
+// on the struct
 extension NewShapeProtocol where Index == NewShapeIndex<Bounds> {
     @inlinable
     public var startIndex: Index { Index(Bounds.zero, sequenceIndex: 0) }
@@ -500,7 +502,8 @@ extension NewShapeProtocol where Index == NewShapeIndex<Bounds> {
     // to the n-dimensional logical position
     @inlinable
     public subscript(index: Index) -> Int {
-        (index.position &* strides).wrappedSum()
+        isSequential ? index.sequenceIndex :
+            (index.position &* strides).wrappedSum()
     }
 }
 
@@ -554,10 +557,16 @@ public struct NewShape1: NewShapeProtocol {
     @inlinable
     public init(bounds: Bounds, strides: Bounds? = nil, isSequential: Bool) {
         self.bounds = bounds
-        self.count = bounds.product()
+        self.count = bounds[0]
         self.isSequential = isSequential
-        self.strides = strides ?? bounds.denseStrides()
-        self.spanCount = Self.computeSpanCount(self.bounds, self.strides)
+
+        if let callerStrides = strides {
+            self.strides = callerStrides
+            self.spanCount = ((bounds[0] - 1) * callerStrides[0]) + 1
+        } else {
+            self.strides = Bounds.one
+            self.spanCount = self.count
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -580,6 +589,8 @@ public struct NewShape1: NewShapeProtocol {
     @inlinable
     public func index(after i: Index) -> Index { i + 1 }
 
+    // TODO: look into the use of Sequential Shapes to eliminate
+    // the stride multiplication
     @inlinable
     public subscript(index: Index) -> Int { index * strides[0] }
 }
@@ -599,11 +610,25 @@ public struct NewShape2: NewShapeProtocol {
 
     @inlinable
     public init(bounds: Bounds, strides: Bounds? = nil, isSequential: Bool) {
+        // ******** original **********
+//        self.bounds = bounds
+//        self.count = bounds.product()
+//        self.isSequential = isSequential
+//        self.strides = strides ?? bounds.denseStrides()
+//        self.spanCount = Self.computeSpanCount(self.bounds, self.strides)
+
+        // 95% Faster!!!
         self.bounds = bounds
-        self.count = bounds.product()
+        self.count = bounds[0] * bounds[1]
         self.isSequential = isSequential
-        self.strides = strides ?? bounds.denseStrides()
-        self.spanCount = Self.computeSpanCount(self.bounds, self.strides)
+
+        if let callerStrides = strides {
+            self.strides = callerStrides
+            self.spanCount = ((bounds &- 1) &* callerStrides).wrappedSum() + 1
+        } else {
+            self.strides = Bounds((bounds[1], 1))
+            self.spanCount = self.count
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -620,18 +645,20 @@ public struct NewShape2: NewShapeProtocol {
     
     //--------------------------------------------------------------------------
     // index(i:
-    // Note: this does not get inlined unless part of the struct, and using
-    // a recursive algorithm is ~55x slower
+    // Note: this does not get inlined unless part of the struct
     @inlinable
     public func index(after i: Index) -> Index {
         var position = i.position
-        position[1] += 1
-        
-        if position[1] == bounds[1] {
-            position[1] = 0
-            position[0] += 1
+
+        if !isSequential {
+            // a recursive algorithm was ~55x slower
+            position[1] += 1
+            
+            if position[1] == bounds[1] {
+                position[1] = 0
+                position[0] += 1
+            }
         }
-        
         return Index(position, sequenceIndex: i.sequenceIndex + 1)
     }
 }
@@ -652,10 +679,17 @@ public struct NewShape3: NewShapeProtocol {
     @inlinable
     public init(bounds: Bounds, strides: Bounds? = nil, isSequential: Bool) {
         self.bounds = bounds
-        self.count = bounds.product()
+        self.count = bounds[0] * bounds[1] * bounds[2]
         self.isSequential = isSequential
-        self.strides = strides ?? bounds.denseStrides()
-        self.spanCount = Self.computeSpanCount(self.bounds, self.strides)
+        
+        if let callerStrides = strides {
+            self.strides = callerStrides
+            self.spanCount = ((bounds &- 1) &* callerStrides).wrappedSum() + 1
+        } else {
+            self.strides = Bounds((bounds[1] * bounds[2], bounds[2], 1))
+            self.spanCount = self.count
+            assert(self.strides == bounds.denseStrides())
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -674,22 +708,25 @@ public struct NewShape3: NewShapeProtocol {
     
     //--------------------------------------------------------------------------
     // index(i:
-    // Note: this does not get inlined unless part of the struct, and using
-    // a recursive algorithm is ~55x slower
+    // Note: this does not get inlined unless part of the struct
     @inlinable
     public func index(after i: Index) -> Index {
         var position = i.position
-        position[2] += 1
-        if position[2] == bounds[2] {
-            position[2] = 0
-            position[1] += 1
-
-            if position[1] == bounds[1] {
-                position[1] = 0
-                position[0] += 1
+        
+        if !isSequential {
+            // a recursive algorithm was ~55x slower
+            position[2] += 1
+            if position[2] == bounds[2] {
+                position[2] = 0
+                position[1] += 1
+                
+                if position[1] == bounds[1] {
+                    position[1] = 0
+                    position[0] += 1
+                }
             }
         }
-
+        
         return Index(position, sequenceIndex: i.sequenceIndex + 1)
     }
 }
@@ -733,23 +770,26 @@ public struct NewShape4: NewShapeProtocol {
     
     //--------------------------------------------------------------------------
     // index(i:
-    // Note: this does not get inlined unless part of the struct, and using
-    // a recursive algorithm is ~55x slower
+    // Note: this does not get inlined unless part of the struct
     @inlinable
     public func index(after i: Index) -> Index {
         var position = i.position
-        position[3] += 1
-        if position[3] == bounds[3] {
-            position[3] = 0
-            position[2] += 1
-            
-            if position[2] == bounds[2] {
-                position[2] = 0
-                position[1] += 1
+        
+        if !isSequential {
+            // a recursive algorithm was ~55x slower
+            position[3] += 1
+            if position[3] == bounds[3] {
+                position[3] = 0
+                position[2] += 1
                 
-                if position[1] == bounds[1] {
-                    position[1] = 0
-                    position[0] += 1
+                if position[2] == bounds[2] {
+                    position[2] = 0
+                    position[1] += 1
+                    
+                    if position[1] == bounds[1] {
+                        position[1] = 0
+                        position[0] += 1
+                    }
                 }
             }
         }
@@ -803,28 +843,30 @@ public struct NewShape5: NewShapeProtocol {
     @inlinable
     public func index(after i: Index) -> Index {
         var position = i.position
-        position[4] += 1
         
-        if position[4] == bounds[4] {
-            position[4] = 0
-            position[3] += 1
-            
-            if position[3] == bounds[3] {
-                position[3] = 0
-                position[2] += 1
+        if !isSequential {
+            // a recursive algorithm was ~55x slower
+            position[4] += 1
+            if position[4] == bounds[4] {
+                position[4] = 0
+                position[3] += 1
                 
-                if position[2] == bounds[2] {
-                    position[2] = 0
-                    position[1] += 1
+                if position[3] == bounds[3] {
+                    position[3] = 0
+                    position[2] += 1
                     
-                    if position[1] == bounds[1] {
-                        position[1] = 0
-                        position[0] += 1
+                    if position[2] == bounds[2] {
+                        position[2] = 0
+                        position[1] += 1
+                        
+                        if position[1] == bounds[1] {
+                            position[1] = 0
+                            position[0] += 1
+                        }
                     }
                 }
             }
         }
-        
         return Index(position, sequenceIndex: i.sequenceIndex + 1)
     }
 }

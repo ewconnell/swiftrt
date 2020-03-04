@@ -92,7 +92,7 @@ class test_Shape: XCTestCase {
     // test_perfIndexShape2
     func test_perfIndexNewShape1() {
         #if !DEBUG
-        let shape = NewShape1(bounds: (1024 * 1024)).columnMajor
+        let shape = NewShape1(bounds: (1024 * 1024))
         var count = 0
         self.measure {
             for _ in 0..<10 {
@@ -106,7 +106,7 @@ class test_Shape: XCTestCase {
 
     func test_perfIndexNewShape2() {
         #if !DEBUG
-        let shape = NewShape2(bounds: (1024, 1024)).columnMajor
+        let shape = NewShape2(bounds: (1024, 1024))
         var count = 0
         self.measure {
             for _ in 0..<10 {
@@ -120,7 +120,7 @@ class test_Shape: XCTestCase {
 
     func test_perfIndexNewShape3() {
         #if !DEBUG
-        let shape = NewShape3(bounds: (64, 128, 128)).columnMajor
+        let shape = NewShape3(bounds: (64, 128, 128))
         var count = 0
         self.measure {
             for _ in 0..<10 {
@@ -134,7 +134,7 @@ class test_Shape: XCTestCase {
     
     func test_perfIndexNewShape4() {
         #if !DEBUG
-        let shape = NewShape4(bounds: (2, 32, 128, 128)).columnMajor
+        let shape = NewShape4(bounds: (2, 32, 128, 128))
         var count = 0
         self.measure {
             for _ in 0..<10 {
@@ -148,7 +148,7 @@ class test_Shape: XCTestCase {
     
     func test_perfIndexNewShape5() {
         #if !DEBUG
-        let shape = NewShape5(bounds: (2, 2, 16, 128, 128)).columnMajor
+        let shape = NewShape5(bounds: (2, 2, 16, 128, 128))
         var count = 0
         self.measure {
             for _ in 0..<10 {
