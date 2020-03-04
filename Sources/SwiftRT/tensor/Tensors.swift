@@ -173,14 +173,14 @@ public extension MatrixView {
     init(bounds: Shape.Bounds, layout: MatrixLayout = .rowMajor,
          name: String? = nil)
     {
-        self.init(bounds: bounds.storage, layout: layout, name: name)
+        self = Self.create(Self.matrixShape(bounds, layout), name)
     }
     
     @inlinable
     init(bounds: Shape.Tuple, layout: MatrixLayout = .rowMajor,
          name: String? = nil)
     {
-        self = Self.create(Self.matrixShape(bounds, layout), name)
+        self.init(bounds: Shape.Bounds(bounds), layout: layout, name: name)
     }
     
     @inlinable
@@ -305,6 +305,13 @@ public extension MatrixView {
     // utilities
     @inlinable
     static func matrixShape(_ bounds: Shape.Tuple,
+                            _ layout: MatrixLayout) -> Shape
+    {
+        matrixShape(Shape.Bounds(bounds), layout)
+    }
+
+    @inlinable
+    static func matrixShape(_ bounds: Shape.Bounds,
                             _ layout: MatrixLayout) -> Shape
     {
         let shape = Shape(bounds: bounds)
@@ -578,9 +585,9 @@ public extension VolumeView {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     subscript(d: Int, r: Int, c: Int) -> Element {
-        get { self[(d, r, c), (d + 1, r + 1, c + 1), Shape.ones.tuple].element }
+        get { self[(d, r, c), (d + 1, r + 1, c + 1), (1, 1, 1)].element }
         set {
-            var single = self[(d, r, c), (d + 1, r + 1, c + 1),Shape.ones.tuple]
+            var single = self[(d, r, c), (d + 1, r + 1, c + 1), (1, 1, 1)]
             single.element = newValue
         }
     }

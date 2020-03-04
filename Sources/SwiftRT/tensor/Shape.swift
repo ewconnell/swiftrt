@@ -76,6 +76,15 @@ extension ShapeBounds where Scalar: FixedWidthInteger {
     func product() -> Scalar {
         indices.reduce(into: 1) { $0 &*= self[$1] }
     }
+    
+    @inlinable
+    var startIndex: Int { 0 }
+
+    @inlinable
+    var endIndex: Int { Self.count }
+
+    @inlinable
+    func index(after i: Int) -> Int { i + 1 }
 }
 
 //==============================================================================
