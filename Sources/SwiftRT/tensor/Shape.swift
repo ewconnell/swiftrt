@@ -252,14 +252,14 @@ public extension ShapeProtocol {
     //--------------------------------------------------------------------------
     // init with tuples
     @inlinable
-    init(_ bounds: Bounds.Tuple) {
-        self.init(bounds: Bounds(bounds), strides: nil)
+    init(_ bounds: Bounds.Tuple, strides: Bounds.Tuple? = nil) {
+        self.init(bounds: Bounds(bounds), strides: Bounds(strides))
     }
 
     @inlinable
-    init?(_ bounds: Bounds.Tuple?) {
+    init?(_ bounds: Bounds.Tuple?, strides: Bounds.Tuple? = nil) {
         guard let bounds = bounds else { return nil }
-        self.init(bounds: Bounds(bounds), strides: nil)
+        self.init(bounds: Bounds(bounds), strides: Bounds(strides))
     }
 
     //--------------------------------------------------------------------------
