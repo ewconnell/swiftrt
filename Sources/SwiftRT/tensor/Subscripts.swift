@@ -21,13 +21,13 @@ public extension TensorView where Self: VectorView {
     @differentiable(where Self: DifferentiableTensorView)
     subscript(index: Int) -> Element {
         get {
-            view(at: makePositive(index: (index)),
-                 bounds: Shape.ones, strides: Shape.ones).element
+            view(from: makePositive(index: (index)),
+                 to: Bounds.one, with: Bounds.one).element
         }
         set {
             expandSelfIfRepeated()
-            var view = sharedView(at: makePositive(index: (index)),
-                                  bounds: Shape.ones, strides: Shape.ones)
+            var view = sharedView(from: makePositive(index: (index)),
+                                  to: Bounds.one, with: Bounds.one)
             view.element = newValue
         }
     }
@@ -72,11 +72,11 @@ public extension TensorView {
     @usableFromInline
     @_semantics("autodiff.nonvarying")
     internal func getItemRange(_ range: StridedRange<Int>) ->
-        (Shape.Bounds, Shape.Bounds, Shape.Bounds)
+        (Bounds, Bounds, Bounds)
     {
-        var start = Shape.zeros
+        var start = Bounds.zero
         var end = self.bounds
-        var steps = Shape.ones
+        var steps = Bounds.one
         start[0] = range.start
         end[0] = range.end
         steps[0] = range.step
@@ -110,57 +110,48 @@ public extension TensorView {
     }
 
     //--------------------------------------------------------------------------
-    /// `getExtents(_:_:_`
-    /// computes the bounds and strides from the specified bounds and steps
+    /// `getUpper(_:_:_`
+    /// computes the upper bound and strides from the specified bounds and steps
     /// - Parameter lower: the lower bound of the subview
     /// - Parameter upper: the upper bound of the subview
     /// - Parameter steps: the step interval along each dimension. This
     ///                    value can be negative to perform reverse traversal
     /// - Returns: the bounds and strides to be used to create a subview
     @inlinable
-    func getExtents(_ lower: Shape.Bounds,
-                    _ upper: Shape.Bounds,
-                    _ steps: Shape.Bounds) ->
-        (bounds: Shape.Bounds, strides: Shape.Bounds)
+    func getUpper(_ lower: Bounds, _ upper: Bounds, _ steps: Bounds) ->
+        (bounds: Bounds, strides: Bounds)
     {
         // verify bounds
-        assert({
-            let bounds = upper &- lower
-            for i in 0..<bounds.count {
-                if bounds[i] <= 0 { return false }
-            }
-            return true
-        }(), "invalid bounds")
+        let bounds = upper &- lower
+        assert(bounds.min() > 0, _messageInvalidBounds)
 
         // if all the steps are 1, then just reuse the parent strides
-        if steps == Shape.ones {
-            return (upper &- lower, self.strides)
+        if steps == Bounds.one {
+            return (upper, self.strides)
 
         } else {
             // if one or more steps are not 1,
             // then recompute the subview bounds and strides
 
-            // y must be positive for this to work correctly
-            func divceil(_ x: Int, _ y: Int) -> Int { (x - 1 + y) / y }
-            
-            var subExtents = upper &- lower
-            for i in 0..<Shape.Bounds.rank {
-                subExtents[i] = divceil(subExtents[i], Swift.abs(steps[i]))
-            }
-            let subStrides = strides &* steps
-            return (subExtents, subStrides)
+            // TODO: find out how to do SIMD abs(), doesn't seem to exist
+            var absSteps = steps
+            for i in 0..<Bounds.rank { absSteps[i] = Swift.abs(absSteps[i]) }
+
+            let viewUpper = ((bounds &- 1 &+ absSteps) / absSteps) &+ lower
+            let viewStrides = strides &* steps
+            return (viewUpper, viewStrides)
         }
     }
 
     //--------------------------------------------------------------------------
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
-    subscript(lower: Shape.Tuple, upper: Shape.Tuple, steps: Shape.Tuple) -> Self
+    subscript(lower: Bounds.Tuple, upper: Bounds.Tuple, steps: Bounds.Tuple) -> Self
     {
-        get { self[Shape.Bounds(lower), Shape.Bounds(upper), Shape.Bounds(steps)] }
+        get { self[Bounds(lower), Bounds(upper), Bounds(steps)] }
         set {
-            self[Shape.Bounds(lower), Shape.Bounds(upper),
-                 Shape.Bounds(steps)] = newValue
+            self[Bounds(lower), Bounds(upper),
+                 Bounds(steps)] = newValue
         }
     }
     
@@ -168,17 +159,16 @@ public extension TensorView {
     // views will have the same shared state as the parent
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
-    subscript(lower: Shape.Bounds, upper: Shape.Bounds,
-              steps: Shape.Bounds) -> Self
+    subscript(lower: Bounds, upper: Bounds, steps: Bounds) -> Self
     {
         get {
-            let (bounds, strides) = getExtents(lower, upper, steps)
-            return view(at: lower, bounds: bounds, strides: strides)
+            let (viewUpper, strides) = getUpper(lower, upper, steps)
+            return view(from: lower, to: viewUpper, with: strides)
         }
         set {
             expandSelfIfRepeated()
-            let (bounds, strides) = getExtents(lower, upper, steps)
-            var view = sharedView(at: lower, bounds: bounds, strides: strides)
+            let (viewUpper, strides) = getUpper(lower, upper, steps)
+            var view = sharedView(from: lower, to: viewUpper, with: strides)
             Platform.service.copy(from: newValue, to: &view)
         }
     }
@@ -190,7 +180,7 @@ extension TensorView where Self: DifferentiableTensorView {
     // https://github.com/apple/swift/blob/37b507b31c77ef969151f385cd1902dd44fb3b7f/stdlib/public/core/Array.swift#L2091
     @inlinable
     @derivative(of: subscript)
-    func _vjpSubscript(lower: Shape.Bounds, upper: Shape.Bounds, steps: Shape.Bounds)
+    func _vjpSubscript(lower: Bounds, upper: Bounds, steps: Bounds)
         -> (value: Self, pullback: (Self) -> Self)
     {
         return (self[lower, upper, steps], { v in

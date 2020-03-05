@@ -29,13 +29,16 @@ public protocol TensorView: Logging {
         where Buffer.Element == Element
     /// tensor shape
     associatedtype Shape: ShapeProtocol
+    /// alias used to simplify api parameters
+    typealias Bounds = Shape.Bounds
+
     /// A concrete type used in generics to pass Boolean values
     associatedtype BoolView: TensorView
         where BoolView.Element == Bool, BoolView.Shape == Shape
     /// A concrete type used in generics to return index results
     associatedtype IndexView: TensorView
         where IndexView.Element == IndexType, IndexView.Shape == Shape
-
+    
     //--------------------------------------------------------------------------
     // properties
     /// a label for the type used as a default name in diagnostics
@@ -55,13 +58,13 @@ public protocol TensorView: Logging {
 
     //--------------------------------------------------------------------------
     /// creates a new dense tensor of the same type with the specified bounds
-    func createDense(with bounds: Shape.Bounds, name: String?) -> Self
+    func createDense(with bounds: Bounds, name: String?) -> Self
     /// creates a new dense tensor where `Element` equals `Bool`
     /// with the specified bounds
-    func createBoolTensor(with bounds: Shape.Bounds) -> BoolView
+    func createBoolTensor(with bounds: Bounds) -> BoolView
     /// creates a new dense tensor where `Element` equals `IndexType`
     /// with the specified bounds and initial values
-    func createIndexTensor(with bounds: Shape.Bounds) -> IndexView
+    func createIndexTensor(with bounds: Bounds) -> IndexView
 }
 
 //==============================================================================
@@ -170,7 +173,7 @@ public extension TensorView {
     @_transparent
     @inlinable
     @_semantics("autodiff.nonvarying")
-    var bounds: Shape.Bounds { shape.bounds }
+    var bounds: Bounds { shape.bounds }
 
     /// a 1D array of tensor elements
     @inlinable
@@ -209,18 +212,18 @@ public extension TensorView {
     /// the strides of the tensor elements
     @_transparent
     @inlinable
-    var strides: Shape.Bounds { shape.strides }
+    var strides: Bounds { shape.strides }
 
     /// repeated(bounds:
     @inlinable
-    func repeated(to bounds: Shape.Bounds) -> Self {
+    func repeated(to bounds: Bounds) -> Self {
         return Self(shape: shape.repeated(to: bounds),
                     buffer: buffer, offset: offset, shared: shared)
     }
     ///
     @inlinable
-    func repeated(to bounds: Shape.Tuple) -> Self {
-        repeated(to: Shape.Bounds(bounds))
+    func repeated(to bounds: Bounds.Tuple) -> Self {
+        repeated(to: Bounds(bounds))
     }
     /// isUniquelyReference
     /// `true` if this view is the only one holding a reference to bufferRef
@@ -237,9 +240,9 @@ public extension TensorView {
     /// makePositive(index:
     @inlinable
     @_semantics("autodiff.nonvarying")
-    func makePositive(index: Shape.Tuple) -> Shape.Bounds {
-        var result = Shape.Bounds(index)
-        for i in 0..<Shape.Bounds.rank {
+    func makePositive(index: Bounds.Tuple) -> Bounds {
+        var result = Bounds(index)
+        for i in 0..<Bounds.rank {
             if result[i] < 0 { result[i] += bounds[i] }
         }
         return result
@@ -247,39 +250,35 @@ public extension TensorView {
     
     //--------------------------------------------------------------------------
     /// view
-    /// Creates an immutable subview
+    /// Creates subview
     @inlinable
-    func view(at index: Shape.Tuple, bounds: Shape.Tuple,
-              strides: Shape.Tuple? = nil) -> Self
+    func view(from lower: Bounds.Tuple, to upper: Bounds.Tuple,
+              with strides: Bounds.Tuple? = nil) -> Self
     {
-        view(at: Shape.Bounds(index),
-             bounds: Shape.Bounds(bounds),
-             strides: Shape.Bounds(strides))
+        view(from: Bounds(lower), to: Bounds(upper), with: Bounds(strides))
     }
     
     @inlinable
-    func view(at index: Shape.Bounds, bounds: Shape.Bounds,
-              strides: Shape.Bounds? = nil) -> Self
+    func view(from lower: Bounds, to upper: Bounds,
+              with strides: Bounds? = nil) -> Self
     {
-        createView(at: index, with: bounds,
-                   and: strides ?? self.strides, shared: self.shared)
+        createView(from: lower, to: upper,
+                   with: strides ?? self.strides, shared: self.shared)
     }
     
     //--------------------------------------------------------------------------
     /// sharedView
     /// Creates a a subview that can be shared by multiple writers
     @inlinable
-    mutating func sharedView(at index: Shape.Tuple, bounds: Shape.Tuple,
-                             strides: Shape.Tuple? = nil) -> Self
+    mutating func sharedView(from lower: Bounds.Tuple, to upper: Bounds.Tuple,
+                             with strides: Bounds.Tuple? = nil) -> Self
     {
-        sharedView(at: Shape.Bounds(index),
-                   bounds: Shape.Bounds(bounds),
-                   strides: Shape.Bounds(strides))
+        sharedView(from: Bounds(lower), to: Bounds(upper), with: Bounds(strides))
     }
     
     @inlinable
-    mutating func sharedView(at index: Shape.Bounds, bounds: Shape.Bounds,
-                             strides: Shape.Bounds? = nil) -> Self
+    mutating func sharedView(from lower: Bounds, to upper: Bounds,
+                             with strides: Bounds? = nil) -> Self
     {
         // copy the parent view if it is not uniquely held before
         // creating a shared view of it
@@ -291,41 +290,25 @@ public extension TensorView {
             buffer = Buffer(copying: buffer)
         }
         
-        return createView(at: index, with: bounds,
-                          and: strides ?? self.strides, shared: true)
+        return createView(from: lower, to: upper,
+                          with: strides ?? self.strides, shared: true)
     }
     
     //--------------------------------------------------------------------------
     /// createView
     /// Returns a view of the bufferRef relative to this view
     @usableFromInline
-    internal func createView(at position: Shape.Bounds,
-                             with bounds: Shape.Bounds,
-                             and strides: Shape.Bounds,
-                             shared: Bool) -> Self
+    internal func createView(from lower: Bounds, to upper: Bounds,
+                             with strides: Bounds, shared: Bool) -> Self
     {
         // validate
-        assert(shape.contains(position: position, bounds: bounds))
-        
-        // determine if subview is sequential
-        var isSequential = shape.isSequential
-        
-        // if the parent is sequential and higher rank than a vector
-        // then the view is only sequential if bounds beyond the first match
-        if isSequential && Shape.rank > 1 {
-            for i in 1..<Shape.rank where shape.bounds[i] != bounds[i] {
-                isSequential = false
-                break
-            }
-        }
-        
+        assert(shape.contains(lower) && shape.contains(upper &- 1))
+
         // the subview offset is the view offset plus the offset of the position
-        let subViewOffset = offset + shape.linearIndex(of: position)
-        let viewShape = Shape(bounds: bounds, strides: strides,
-                              isSequential: isSequential)
-        
+        let viewOffset = offset + shape.linearIndex(of: lower)
+        let viewShape = Shape(bounds: upper &- lower, strides: strides)
         return Self(shape: viewShape, buffer: buffer,
-                    offset: subViewOffset, shared: shared)
+                    offset: viewOffset, shared: shared)
     }
 
     //--------------------------------------------------------------------------
@@ -334,9 +317,9 @@ public extension TensorView {
     /// - Parameter with: and optional axes permutation order. If `nil` the
     /// last two dimensions are swapped.
     @inlinable
-    func transposed(with permutations: Shape.Tuple? = nil) -> Self {
+    func transposed(with permutations: Bounds.Tuple? = nil) -> Self {
         guard Self.rank > 1 else { return self }
-        let shape = self.shape.transposed(with: Shape.Bounds(permutations))
+        let shape = self.shape.transposed(with: Bounds(permutations))
         return Self(shape: shape, buffer: buffer,
                     offset: offset, shared: shared)
     }
@@ -363,7 +346,7 @@ public extension TensorView where Element: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: TensorCodingKeys.self)
         let name = try container.decode(String.self, forKey: .name)
-        let bounds = try container.decode(Shape.Bounds.self, forKey: .bounds)
+        let bounds = try container.decode(Bounds.self, forKey: .bounds)
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
 
         self = Self.create(Self.Shape(bounds: bounds), name)

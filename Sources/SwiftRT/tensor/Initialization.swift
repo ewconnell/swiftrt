@@ -220,7 +220,7 @@ public extension TensorView {
         var stacked = Self.create(Shape(bounds: stackedExtents), nil)
         
         // copy others into place
-        var index = Shape.zeros
+        var index = Bounds.zero
         for tensor in expanded {
             var view = stacked.sharedView(at: index, bounds: tensor.bounds)
             Platform.service.copy(from: tensor, to: &view)
@@ -233,18 +233,17 @@ public extension TensorView {
     /// repeating element
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
-    init(repeating value: Element, to bounds: Shape.Bounds, name: String? = nil)
+    init(repeating value: Element, to bounds: Bounds, name: String? = nil)
     {
-        let shape = Shape(bounds: bounds, strides: Shape.zeros,
-                          isSequential: false)
+        let shape = Shape(bounds: bounds, strides: Bounds.zero)
         self = Self.create(for: value, shape, name)
     }
 
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
-    init(repeating value: Element, to bounds: Shape.Tuple, name: String? = nil)
+    init(repeating value: Element, to bounds: Bounds.Tuple, name: String? = nil)
     {
-        self.init(repeating: value, to: Shape.Bounds(bounds), name: name)
+        self.init(repeating: value, to: Bounds(bounds), name: name)
     }
     
     //--------------------------------------------------------------------------
@@ -267,7 +266,7 @@ public extension TensorView {
     //--------------------------------------------------------------------------
     /// createDense(bounds:
     @inlinable
-    func createDense(with bounds: Shape.Bounds, name: String? = nil) -> Self {
+    func createDense(with bounds: Bounds, name: String? = nil) -> Self {
         Self.create(Shape(bounds: bounds), name)
     }
     
@@ -280,7 +279,7 @@ public extension TensorView {
     /// reductionExtents
     /// determines the bounds of a reduction result along the specified axes
     @inlinable
-    func reductionExtents(alongAxes axes: Set<Int>?) -> Shape.Bounds {
+    func reductionExtents(alongAxes axes: Set<Int>?) -> Bounds {
         guard let axes = axes else { return Shape.ones }
         assert(axes.isSubset(of: 0..<Self.rank), "axis is out of bounds")
         var resultExtents = bounds
@@ -356,7 +355,7 @@ public extension TensorView where Self: DifferentiableTensorView {
     @inlinable
     @derivative(of: init(repeating:to:name:))
     static func _vjpInit(repeating value: Element,
-                         to bounds: Shape.Bounds,
+                         to bounds: Bounds,
                          name: String?) ->
         (value: Self, pullback: (Self) -> (Element))
     {

@@ -41,7 +41,7 @@ public extension PlatformService {
     {
         let bounds = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: bounds)
-        copy(from: x.view(at: T.Shape.zeros, bounds: bounds), to: &result)
+        copy(from: x.view(at: T.Bounds.zero, bounds: bounds), to: &result)
 
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .compare, { $0 && $1 }, nil)
@@ -83,7 +83,7 @@ public extension PlatformService {
     {
         let bounds = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: bounds)
-        copy(from: x.view(at: T.Shape.zeros, bounds: bounds), to: &result)
+        copy(from: x.view(at: T.Bounds.zero, bounds: bounds), to: &result)
 
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .compare, { $0 || $1 }, nil)
@@ -322,7 +322,7 @@ public extension PlatformService {
     {
         let bounds = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: bounds)
-        copy(from: x.view(at: T.Shape.zeros, bounds: bounds), to: &result)
+        copy(from: x.view(at: T.Bounds.zero, bounds: bounds), to: &result)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .min,
                             { $0 <= $1 ? $0 : $1 }, nil)
@@ -374,7 +374,7 @@ public extension PlatformService {
     {
         let bounds = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: bounds)
-        copy(from: x.view(at: T.Shape.zeros, bounds: bounds), to: &result)
+        copy(from: x.view(at: T.Bounds.zero, bounds: bounds), to: &result)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .max,
                             { $0 > $1 ? $0 : $1 }, nil)
@@ -424,7 +424,7 @@ public extension PlatformService {
     {
         let bounds = x.reductionExtents(alongAxes: axes)
         var result = x.createDense(with: bounds)
-        copy(from: x.view(at: T.Shape.zeros, bounds: bounds), to: &result)
+        copy(from: x.view(at: T.Bounds.zero, bounds: bounds), to: &result)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .amax,
                             { Swift.max(Swift.abs($0), Swift.abs($1)) }, nil)

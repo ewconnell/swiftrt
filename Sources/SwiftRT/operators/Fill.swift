@@ -29,7 +29,7 @@ public func concat<T>(tensors: [T], alongAxis axis: Int = 0,
 public extension PlatformService {
     @inlinable
     func concat<T>(_ tensors: [T], alongAxis axis: Int = 0,
-                          _ name: String? = nil) -> T where T: TensorView
+                   _ name: String? = nil) -> T where T: TensorView
     {
         assert(tensors.count > 1)
         // compute joined shape and create result buffer
@@ -38,11 +38,12 @@ public extension PlatformService {
 
         var result = tensors[0].createDense(with: joinedShape, name: name)
 
-        var index = T.Shape.zeros
+        var lower = T.Bounds.zero
         for tensor in tensors {
-            var view = result.sharedView(at: index, bounds: tensor.bounds)
+            let upper = lower &+ tensor.bounds
+            var view = result.sharedView(from: lower, to: upper)
             copy(from: tensor, to: &view)
-            index[axis] += tensor.bounds[axis]
+            lower[axis] += tensor.bounds[axis]
         }
         return result
     }

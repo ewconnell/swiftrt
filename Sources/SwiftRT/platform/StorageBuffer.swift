@@ -165,7 +165,8 @@ public struct BufferElements<Element, Shape>: ShapedBuffer
     // initializers
     @inlinable
     public init(_ shape: Shape, _ pointer: UnsafeBufferPointer<Element>) {
-        self.shape = pointer.count > 0 ? shape : Shape(bounds: Shape.zeros)
+        assert(pointer.count > 0, "can't enumerate an empty shape")
+        self.shape = shape
         self.pointer = pointer
     }
     
@@ -206,7 +207,8 @@ public struct MutableBufferElements<Element, Shape>: MutableShapedBuffer
     // initializers
     @inlinable
     public init(_ shape: Shape, _ pointer: UnsafeMutableBufferPointer<Element>){
-        self.shape = pointer.count > 0 ? shape : Shape(bounds: Shape.zeros)
+        assert(pointer.count > 0, "can't enumerate an empty shape")
+        self.shape = shape
         self.pointer = pointer
     }
     
