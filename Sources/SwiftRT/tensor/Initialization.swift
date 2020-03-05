@@ -220,11 +220,12 @@ public extension TensorView {
         var stacked = Self.create(Shape(bounds: stackedExtents), nil)
         
         // copy others into place
-        var index = Bounds.zero
+        var lower = Bounds.zero
         for tensor in expanded {
-            var view = stacked.sharedView(at: index, bounds: tensor.bounds)
+            let upper = lower &+ tensor.bounds
+            var view = stacked.sharedView(from: lower, to: upper)
             Platform.service.copy(from: tensor, to: &view)
-            index[axis] += 1
+            lower[axis] += 1
         }
         self = stacked
     }
@@ -276,15 +277,15 @@ public extension TensorView {
     func createDense() -> Self { return createDense(with: shape) }
     
     //--------------------------------------------------------------------------
-    /// reductionExtents
-    /// determines the bounds of a reduction result along the specified axes
+    /// reductionBounds
+    /// returns the upper bounds for a reduction result along the specified axes
     @inlinable
-    func reductionExtents(alongAxes axes: Set<Int>?) -> Bounds {
-        guard let axes = axes else { return Shape.ones }
+    func reductionBounds(alongAxes axes: Set<Int>?) -> Bounds {
+        guard let axes = axes else { return Bounds.one }
         assert(axes.isSubset(of: 0..<Self.rank), "axis is out of bounds")
-        var resultExtents = bounds
-        axes.forEach { resultExtents[$0] = 1 }
-        return resultExtents
+        var result = bounds
+        axes.forEach { result[$0] = 1 }
+        return result
     }
 
     //--------------------------------------------------------------------------
@@ -292,8 +293,7 @@ public extension TensorView {
     /// helper to create a rank extended value
     @inlinable
     func createSingleElement(name: String? = nil) -> Self {
-        Self.create(Shape(bounds: Shape.ones, strides: Shape.ones,
-                          isSequential: true), name)
+        Self.create(Shape(bounds: Bounds.one, strides: Bounds.one), name)
     }
     
     //==========================================================================

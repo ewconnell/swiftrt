@@ -24,13 +24,13 @@ public extension VectorView {
     //--------------------------------------------------------------------------
     /// reserved space
     @inlinable
-    init(bounds: Shape.Bounds, name: String? = nil) {
+    init(bounds: Bounds, name: String? = nil) {
         self = Self.create(Shape(bounds: bounds), name)
     }
     
     @inlinable
-    init(bounds: Shape.Tuple, name: String? = nil) {
-        self.init(bounds: Shape.Bounds(bounds), name: name)
+    init(bounds: Bounds.Tuple, name: String? = nil) {
+        self.init(bounds: Bounds(bounds), name: name)
     }
     
     @inlinable
@@ -42,7 +42,7 @@ public extension VectorView {
     /// from single `Element`
     @inlinable
     init(element: Element, name: String? = nil) {
-        self = Self.create([element], Shape(bounds: (1)), name)
+        self = Self.create(for: element, Shape((1)), name)
     }
     
     //--------------------------------------------------------------------------
@@ -51,7 +51,7 @@ public extension VectorView {
     init<T>(with element: T, name: String? = nil) where
         T: AnyConvertable, Element: AnyConvertable
     {
-        self = Self.create([Element(any: element)], Shape(bounds: (1)), name)
+        self = Self.create(for: Element(any: element), Shape((1)), name)
     }
     
     //--------------------------------------------------------------------------
@@ -60,7 +60,7 @@ public extension VectorView {
     init<C>(elements: C, name: String? = nil) where
         C: Collection, C.Element == Element
     {
-        self = Self.create(elements, Shape(bounds: (elements.count)), name)
+        self = Self.create(elements, Shape((elements.count)), name)
     }
     
     //--------------------------------------------------------------------------
@@ -70,7 +70,7 @@ public extension VectorView {
         C: Collection, C.Element: AnyConvertable, Element: AnyConvertable
     {
         self = Self.create(elements.lazy.map { Element(any: $0) },
-                           Shape(bounds: (elements.count)), name)
+                           Shape((elements.count)), name)
     }
     
     //--------------------------------------------------------------------------
@@ -79,7 +79,7 @@ public extension VectorView {
     @inlinable
     init(referenceTo bufferRef: UnsafeBufferPointer<Element>, name: String? = nil)
     {
-        let shape = Shape(bounds: (bufferRef.count))
+        let shape = Shape((bufferRef.count))
         self = Self.create(referenceTo: bufferRef, shape, name)
     }
     
@@ -90,19 +90,19 @@ public extension VectorView {
     init(referenceTo bufferRef: UnsafeMutableBufferPointer<Element>,
          name: String? = nil)
     {
-        let shape = Shape(bounds: (bufferRef.count))
+        let shape = Shape((bufferRef.count))
         self = Self.create(referenceTo: bufferRef, shape, name)
     }
 
     //--------------------------------------------------------------------------
     // typed views
     @inlinable
-    func createBoolTensor(with bounds: Shape.Bounds) -> VectorType<Bool> {
+    func createBoolTensor(with bounds: Bounds) -> VectorType<Bool> {
         VectorType<Bool>(bounds: bounds)
     }
     
     @inlinable
-    func createIndexTensor(with bounds: Shape.Bounds) -> VectorType<IndexType> {
+    func createIndexTensor(with bounds: Bounds) -> VectorType<IndexType> {
         VectorType<IndexType>(bounds: bounds)
     }
     
@@ -170,17 +170,17 @@ public extension MatrixView {
     //--------------------------------------------------------------------------
     /// reserved space
     @inlinable
-    init(bounds: Shape.Bounds, layout: MatrixLayout = .rowMajor,
+    init(bounds: Bounds, layout: MatrixLayout = .rowMajor,
          name: String? = nil)
     {
         self = Self.create(Self.matrixShape(bounds, layout), name)
     }
     
     @inlinable
-    init(bounds: Shape.Tuple, layout: MatrixLayout = .rowMajor,
+    init(bounds: Bounds.Tuple, layout: MatrixLayout = .rowMajor,
          name: String? = nil)
     {
-        self.init(bounds: Shape.Bounds(bounds), layout: layout, name: name)
+        self.init(bounds: Bounds(bounds), layout: layout, name: name)
     }
     
     @inlinable
@@ -194,8 +194,8 @@ public extension MatrixView {
     /// from single `Element`
     @inlinable
     init(element: Element, name: String? = nil) {
-        let shape = Shape(bounds: Shape.ones)
-        self = Self.create([element], shape, name)
+        let shape = Shape(bounds: Bounds.one)
+        self = Self.create(for: element, shape, name)
     }
 
     //--------------------------------------------------------------------------
@@ -204,8 +204,8 @@ public extension MatrixView {
     init<T>(with element: T, name: String? = nil) where
         T: AnyConvertable, Element: AnyConvertable
     {
-        let shape = Shape(bounds: Shape.ones)
-        self = Self.create([Element(any: element)], shape, name)
+        let shape = Shape(bounds: Bounds.one)
+        self = Self.create(for: Element(any: element), shape, name)
     }
 
     //--------------------------------------------------------------------------
@@ -238,7 +238,7 @@ public extension MatrixView {
     /// from structred 2D `Element` collection
     @inlinable
     init<T>(elements: [[T]], name: String? = nil) where T == Element{
-        let shape = Shape(bounds: (elements.count, elements.first!.count))
+        let shape = Shape((elements.count, elements.first!.count))
         self = Self.create(elements.joined(), shape, name)
     }
     
@@ -248,7 +248,7 @@ public extension MatrixView {
     init<T>(with elements: [[T]], name: String? = nil)
         where T: AnyConvertable, Element: AnyConvertable
     {
-        let shape = Shape(bounds: (elements.count, elements.first!.count))
+        let shape = Shape((elements.count, elements.first!.count))
         let flatElements = elements.joined().lazy.map {
             Element(any: $0)
         }
@@ -284,12 +284,12 @@ public extension MatrixView {
     //--------------------------------------------------------------------------
     // typed views
     @inlinable
-    func createBoolTensor(with bounds: Shape.Bounds) -> MatrixType<Bool> {
+    func createBoolTensor(with bounds: Bounds) -> MatrixType<Bool> {
         MatrixType<Bool>(bounds: bounds)
     }
     
     @inlinable
-    func createIndexTensor(with bounds: Shape.Bounds) -> MatrixType<IndexType> {
+    func createIndexTensor(with bounds: Bounds) -> MatrixType<IndexType> {
         MatrixType<IndexType>(bounds: bounds)
     }
 
@@ -304,14 +304,14 @@ public extension MatrixView {
     //--------------------------------------------------------------------------
     // utilities
     @inlinable
-    static func matrixShape(_ bounds: Shape.Tuple,
+    static func matrixShape(_ bounds: Bounds.Tuple,
                             _ layout: MatrixLayout) -> Shape
     {
-        matrixShape(Shape.Bounds(bounds), layout)
+        matrixShape(Bounds(bounds), layout)
     }
 
     @inlinable
-    static func matrixShape(_ bounds: Shape.Bounds,
+    static func matrixShape(_ bounds: Bounds,
                             _ layout: MatrixLayout) -> Shape
     {
         let shape = Shape(bounds: bounds)
@@ -339,13 +339,14 @@ public extension MatrixView {
     @differentiable(where Self: DifferentiableTensorView)
     subscript(r: Int, c: Int) -> Element {
         get {
-            view(at: makePositive(index: (r, c)),
-                 bounds: Shape.ones, strides: Shape.ones).element
+            let lower = makePositive(index: (r, c))
+            return view(from: lower, to: lower &+ 1, with: Bounds.one).element
         }
         set {
             expandSelfIfRepeated()
-            var single = sharedView(at: makePositive(index: (r, c)),
-                                    bounds: Shape.ones, strides: Shape.ones)
+            let lower = makePositive(index: (r, c))
+            var single = sharedView(from: lower, to: lower &+ 1,
+                                    with: Bounds.one)
             single.element = newValue
         }
     }
@@ -444,13 +445,13 @@ public extension VolumeView {
     //--------------------------------------------------------------------------
     /// reserved space
     @inlinable
-    init(bounds: Shape.Bounds, name: String? = nil) {
+    init(bounds: Bounds, name: String? = nil) {
         self = Self.create(Shape(bounds: bounds), name)
     }
     
     @inlinable
-    init(bounds: Shape.Tuple, name: String? = nil) {
-        self.init(bounds: Shape.Bounds(bounds), name: name)
+    init(bounds: Bounds.Tuple, name: String? = nil) {
+        self.init(bounds: Bounds(bounds), name: name)
     }
 
     @inlinable
@@ -462,7 +463,7 @@ public extension VolumeView {
     /// from single `Element`
     @inlinable
     init(element: Element, name: String? = nil) {
-        let shape = Shape(bounds: Shape.ones)
+        let shape = Shape(bounds: Bounds.one)
         self = Self.create([element], shape, name)
     }
 
@@ -472,7 +473,7 @@ public extension VolumeView {
     init<T>(with element: T, name: String? = nil) where
         T: AnyConvertable, Element: AnyConvertable
     {
-        let shape = Shape(bounds: Shape.ones)
+        let shape = Shape(bounds: Bounds.one)
         self = Self.create([Element(any: element)], shape, name)
     }
     
@@ -483,7 +484,7 @@ public extension VolumeView {
             elements: C, name: String? = nil) where
         C: Collection, C.Element == Element
     {
-        let shape = Shape(bounds: (deps, rows, cols))
+        let shape = Shape((deps, rows, cols))
         assert(shape.count == elements.count, _messageElementCountMismatch)
         self = Self.create(elements, shape, name)
     }
@@ -495,7 +496,7 @@ public extension VolumeView {
             with elements: C, name: String? = nil) where
         C: Collection, C.Element: AnyConvertable, Element: AnyConvertable
     {
-        let shape = Shape(bounds: (deps, rows, cols))
+        let shape = Shape((deps, rows, cols))
         assert(shape.count == elements.count, _messageElementCountMismatch)
         self = Self.create(elements.lazy.map { Element(any: $0) }, shape, name)
     }
@@ -504,9 +505,9 @@ public extension VolumeView {
     /// from structred 3D `Element` collection
     @inlinable
     init<T>(elements: [[[T]]], name: String? = nil) where T == Element{
-        let shape = Shape(bounds: (elements.count,
-                                    elements.first!.count,
-                                    elements.first!.first!.count))
+        let shape = Shape((elements.count,
+                           elements.first!.count,
+                           elements.first!.first!.count))
         let flatElements = elements.joined().joined()
         self = Self.create(flatElements, shape, name)
     }
@@ -517,9 +518,9 @@ public extension VolumeView {
     init<T>(with elements: [[[T]]], name: String? = nil)
         where T: AnyConvertable, Element: AnyConvertable
     {
-        let shape = Shape(bounds: (elements.count,
-                                    elements.first!.count,
-                                    elements.first!.first!.count))
+        let shape = Shape((elements.count,
+                           elements.first!.count,
+                           elements.first!.first!.count))
         let flatElements = elements.joined().joined().lazy.map {
             Element(any: $0)
         }
@@ -534,7 +535,7 @@ public extension VolumeView {
          referenceTo bufferRef: UnsafeBufferPointer<Element>,
          name: String? = nil)
     {
-        let shape = Shape(bounds: (deps, rows, cols))
+        let shape = Shape((deps, rows, cols))
         self = Self.create(referenceTo: bufferRef, shape, name)
     }
     
@@ -546,19 +547,19 @@ public extension VolumeView {
          referenceTo bufferRef: UnsafeMutableBufferPointer<Element>,
          name: String? = nil)
     {
-        let shape = Shape(bounds: (deps, rows, cols))
+        let shape = Shape((deps, rows, cols))
         self = Self.create(referenceTo: bufferRef, shape, name)
     }
     
     //--------------------------------------------------------------------------
     // typed views
     @inlinable
-    func createBoolTensor(with bounds: Shape.Bounds) -> VolumeType<Bool> {
+    func createBoolTensor(with bounds: Bounds) -> VolumeType<Bool> {
         VolumeType<Bool>(bounds: bounds)
     }
     
     @inlinable
-    func createIndexTensor(with bounds: Shape.Bounds) -> VolumeType<IndexType> {
+    func createIndexTensor(with bounds: Bounds) -> VolumeType<IndexType> {
         VolumeType<IndexType>(bounds: bounds)
     }
 }

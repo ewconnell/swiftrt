@@ -39,9 +39,9 @@ public extension PlatformService {
     func all<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element == Bool
     {
-        let bounds = x.reductionExtents(alongAxes: axes)
+        let bounds = x.reductionBounds(alongAxes: axes)
         var result = x.createDense(with: bounds)
-        copy(from: x.view(at: T.Bounds.zero, bounds: bounds), to: &result)
+        copy(from: x.view(from: T.Bounds.zero, to: bounds), to: &result)
 
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .compare, { $0 && $1 }, nil)
@@ -81,9 +81,9 @@ public extension PlatformService {
     func any<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element == Bool
     {
-        let bounds = x.reductionExtents(alongAxes: axes)
+        let bounds = x.reductionBounds(alongAxes: axes)
         var result = x.createDense(with: bounds)
-        copy(from: x.view(at: T.Bounds.zero, bounds: bounds), to: &result)
+        copy(from: x.view(from: T.Bounds.zero, to: bounds), to: &result)
 
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .compare, { $0 || $1 }, nil)
@@ -120,7 +120,7 @@ public extension PlatformService {
     func sum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
     {
-        let bounds = x.reductionExtents(alongAxes: axes)
+        let bounds = x.reductionBounds(alongAxes: axes)
         var result = x.createDense(with: bounds).filled(with: T.Element.zero)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .add, +, nil)
@@ -172,7 +172,7 @@ public extension PlatformService {
             $0 * T.Element(exactly: x.bounds[$1])!
             }) ?? T.Element(exactly: x.count)!
 
-        let bounds = x.reductionExtents(alongAxes: axes)
+        let bounds = x.reductionBounds(alongAxes: axes)
         var result = x.createDense(with: bounds).filled(with: T.Element.zero)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .add, +, { $0 / divisor })
@@ -220,7 +220,7 @@ public extension PlatformService {
     func prod<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
     {
-        let bounds = x.reductionExtents(alongAxes: axes)
+        let bounds = x.reductionBounds(alongAxes: axes)
         var result = x.createDense(with: bounds).filled(with: T.Element.one)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .mul, { $0 * $1 }, nil)
@@ -266,7 +266,7 @@ public extension PlatformService {
     func prodNonZeros<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
     {
-        let bounds = x.reductionExtents(alongAxes: axes)
+        let bounds = x.reductionBounds(alongAxes: axes)
         var result = x.createDense(with: bounds).filled(with: T.Element.one)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .mulNonZeros,
@@ -320,9 +320,9 @@ public extension PlatformService {
     func min<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Comparable
     {
-        let bounds = x.reductionExtents(alongAxes: axes)
+        let bounds = x.reductionBounds(alongAxes: axes)
         var result = x.createDense(with: bounds)
-        copy(from: x.view(at: T.Bounds.zero, bounds: bounds), to: &result)
+        copy(from: x.view(from: T.Bounds.zero, to: bounds), to: &result)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .min,
                             { $0 <= $1 ? $0 : $1 }, nil)
@@ -372,9 +372,9 @@ public extension PlatformService {
     func max<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Comparable
     {
-        let bounds = x.reductionExtents(alongAxes: axes)
+        let bounds = x.reductionBounds(alongAxes: axes)
         var result = x.createDense(with: bounds)
-        copy(from: x.view(at: T.Bounds.zero, bounds: bounds), to: &result)
+        copy(from: x.view(from: T.Bounds.zero, to: bounds), to: &result)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .max,
                             { $0 > $1 ? $0 : $1 }, nil)
@@ -422,9 +422,9 @@ public extension PlatformService {
     func absmax<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: SignedNumeric & Comparable
     {
-        let bounds = x.reductionExtents(alongAxes: axes)
+        let bounds = x.reductionBounds(alongAxes: axes)
         var result = x.createDense(with: bounds)
-        copy(from: x.view(at: T.Bounds.zero, bounds: bounds), to: &result)
+        copy(from: x.view(from: T.Bounds.zero, to: bounds), to: &result)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .amax,
                             { Swift.max(Swift.abs($0), Swift.abs($1)) }, nil)
@@ -475,7 +475,7 @@ public extension PlatformService {
     func abssum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: SignedNumeric & Comparable
     {
-        let bounds = x.reductionExtents(alongAxes: axes)
+        let bounds = x.reductionBounds(alongAxes: axes)
         var result = x.createDense(with: bounds).filled(with: T.Element.zero)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .asum,
@@ -522,7 +522,7 @@ public extension PlatformService {
     func sqrtSumSquares<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Real
     {
-        let bounds = x.reductionExtents(alongAxes: axes)
+        let bounds = x.reductionBounds(alongAxes: axes)
         var result = x.createDense(with: bounds).filled(with: T.Element.zero)
         var resultBuffer = write(&result)
         currentQueue.reduce(read(x), &resultBuffer, .sqrtSumSquares,
