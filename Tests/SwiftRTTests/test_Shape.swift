@@ -244,7 +244,7 @@ class test_Shape: XCTestCase {
         var i = 0
         self.measure {
             for _ in 0..<1000000 {
-                let a = Shape2((3, 4))
+                let a = Shape2(bounds: Shape2.Bounds((3, 4)))
                 let b = a.columnMajor
                 let ds = a == b ? b.dense : a.dense
                 let positive = Shape2.makePositive(bounds: Shape2.Bounds((1, -1)))
