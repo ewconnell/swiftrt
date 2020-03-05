@@ -36,13 +36,13 @@ let currentDir = FileManager().currentDirectoryPath
 let kernelsDir = "\(currentDir)/Sources/SwiftRT/platform/cuda/kernels"
 let kernelsLibName = "SwiftRTCudaKernels"
 
+if buildCuda {
     //---------------------------------------
     // build kernels library
     if #available(OSX 10.13, *) {
         runCMake(args: ["--version"], workingDir: kernelsDir)
     }
 
-if buildCuda {
     //---------------------------------------
     // add Cuda system module
     products.append(.library(name: "CCuda", targets: ["CCuda"]))
