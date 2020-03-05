@@ -305,7 +305,7 @@ public extension TensorView {
                              shared: Bool) -> Self
     {
         // validate
-        assert(shape.contains(index: position, bounds: bounds))
+        assert(shape.contains(position: position, bounds: bounds))
         
         // determine if subview is sequential
         var isSequential = shape.isSequential
@@ -319,7 +319,7 @@ public extension TensorView {
             }
         }
         
-        // the subview offset is the current plus the offset of index
+        // the subview offset is the view offset plus the offset of the position
         let subViewOffset = offset + shape.linearIndex(of: position)
         let viewShape = Shape(bounds: bounds, strides: strides,
                               isSequential: isSequential)

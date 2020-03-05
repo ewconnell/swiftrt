@@ -236,7 +236,7 @@ public extension TensorView {
     init(repeating value: Element, to bounds: Shape.Bounds, name: String? = nil)
     {
         let shape = Shape(bounds: bounds, strides: Shape.zeros,
-                          isSequential: true)
+                          isSequential: false)
         self = Self.create(for: value, shape, name)
     }
 

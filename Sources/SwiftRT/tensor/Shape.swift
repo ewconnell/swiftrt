@@ -18,28 +18,19 @@ import Foundation
 //==============================================================================
 // ShapeBounds
 public protocol ShapeBounds: SIMD {
-    // a tuple parameter type is defined to guarantee the correct number
-    // of dimensions is passed by the user at compile time and eliminate
-    // the use of arrays in the api
-    // We do not simply use the SIMD storage type, because they are in
-    // size multiples that may not match the shape's rank.
-    associatedtype Tuple
-    
     /// the number of bounding dimensions
     static var rank: Int { get }
-    
-    // initialzers
-    init(_ data: Tuple)
-    init?(_ data: Tuple?)
 }
 
 //==============================================================================
 // ShapeBounds extensions
 extension ShapeBounds {
+    /// instance member access
     @inlinable
     @_transparent
     var count: Int { Self.rank }
 
+    /// helper
     @inlinable
     @_transparent
     mutating func swapAt(_ a: Int, _ b: Int) {
@@ -47,21 +38,14 @@ extension ShapeBounds {
         self[a] = self[b]
         self[b] = tmp
     }
-    
-    @inlinable
-    @_transparent
-    public init?(_ data: Tuple?) {
-        guard let data = data else { return nil }
-        self.init(data)
-    }
 }
 
 extension ShapeBounds where Scalar: FixedWidthInteger {
     //--------------------------------------------------------------------------
-    /// `denseStrides`
-    /// computes the dense row major strides for the bounds
+    /// `sequentialStrides`
+    /// computes the row major sequential strides
     @inlinable
-    func denseStrides() -> Self {
+    func sequentialStrides() -> Self {
         var strides = Self.one
         for i in stride(from: Self.rank - 1, through: 1, by: -1) {
             strides[i - 1] = self[i] * strides[i]
@@ -76,96 +60,73 @@ extension ShapeBounds where Scalar: FixedWidthInteger {
     func product() -> Scalar {
         indices.reduce(into: 1) { $0 &*= self[$1] }
     }
-    
-    @inlinable
-    var startIndex: Int { 0 }
-
-    @inlinable
-    var endIndex: Int { self.count }
-
-    @inlinable
-    func index(after i: Int) -> Int { i + 1 }
 }
 
 //==============================================================================
 // ShapeBounds SIMD extensions
 extension SIMD1: ShapeBounds {
-    public typealias Tuple = (Scalar)
-
-    @inlinable
-    @_transparent
+    @inlinable @_transparent
     public static var rank: Int { 1 }
 
     @inlinable
-    public init(_ data: Tuple) {
+    public init(_ s0: Scalar) {
         self.init()
-        self[0] = data
+        self[0] = s0
     }
 }
 
 extension SIMD2: ShapeBounds {
-    public typealias Tuple = (Scalar, Scalar)
-
-    @inlinable
-    @_transparent
+    @inlinable @_transparent
     public static var rank: Int { 2 }
 
     @inlinable
-    public init(_ data: Tuple) {
+    public init(_ s0: Scalar, _ s1: Scalar) {
         self.init()
-        self[0] = data.0
-        self[1] = data.1
+        self[0] = s0
+        self[1] = s1
     }
 }
 
 extension SIMD3: ShapeBounds {
-    public typealias Tuple = (Scalar, Scalar, Scalar)
-
-    @inlinable
-    @_transparent
+    @inlinable @_transparent
     public static var rank: Int { 3 }
 
     @inlinable
-    public init(_ data: Tuple) {
+    public init(_ s0: Scalar, _ s1: Scalar, _ s2: Scalar) {
         self.init()
-        self[0] = data.0
-        self[1] = data.1
-        self[2] = data.2
+        self[0] = s0
+        self[1] = s1
+        self[2] = s2
     }
 }
 
 extension SIMD4: ShapeBounds {
-    public typealias Tuple = (Scalar, Scalar, Scalar, Scalar)
-
-    @inlinable
-    @_transparent
+    @inlinable @_transparent
     public static var rank: Int { 4 }
 
     @inlinable
-    public init(_ data: Tuple) {
+    public init(_ s0: Scalar, _ s1: Scalar, _ s2: Scalar, _ s3: Scalar) {
         self.init()
-        self[0] = data.0
-        self[1] = data.1
-        self[2] = data.2
-        self[3] = data.3
+        self[0] = s0
+        self[1] = s1
+        self[2] = s2
+        self[3] = s3
     }
 }
 
 extension SIMD5: ShapeBounds {
-    public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar)
-
-    @inlinable
-    @_transparent
+    @inlinable @_transparent
     public static var rank: Int { 5 }
 
     @inlinable
-    public init(_ data: Tuple) {
+    public init(_ s0: Scalar, _ s1: Scalar, _ s2: Scalar, _ s3: Scalar,
+                _ s4: Scalar) {
         self.init()
-        self[0] = data.0
-        self[1] = data.1
-        self[2] = data.2
-        self[3] = data.3
-        self[4] = data.4
+        self[0] = s0
+        self[1] = s1
+        self[2] = s2
+        self[3] = s3
+        self[4] = s4
     }
 }
 
@@ -194,8 +155,7 @@ public protocol ShapeProtocol: Codable, Equatable, Collection
     /// Fully specified initializer
     /// - Parameter bounds: bounds of the shape in each dimension
     /// - Parameter strides: the distance to the next element in each dimension
-    /// - Parameter isSequential: `true` if elements are row sequential
-    init(bounds: Bounds, strides: Bounds?, isSequential: Bool)
+    init(bounds: Bounds, strides: Bounds?)
     /// Expanding initializer
     /// - Parameter expanding: the lower order shape to expand
     /// - Parameter axes: the set of axes to be expanded
@@ -248,6 +208,11 @@ public extension ShapeProtocol {
     @inlinable
     var dense: Self { isSequential ? self : Self(bounds: bounds) }
 
+    @inlinable
+    static func == (_ lhs: Self, _ rhs: [Int]) -> Bool {
+        lhs.array == rhs
+    }
+    
     //--------------------------------------------------------------------------
     // computeSpanCount
     // A sub view may cover a wider range of parent element indexes
@@ -265,25 +230,12 @@ public extension ShapeProtocol {
     func linearIndex(of position: Bounds) -> Int {
         (position &* strides).wrappedSum()
     }
-    
+
     //--------------------------------------------------------------------------
-    // tuple based parameter support
-    typealias Tuple = Bounds.Tuple
-
-    @inlinable
-    init(bounds: Tuple) {
-        self.init(bounds: Bounds(bounds))
-    }
-
-    @inlinable
-    init(bounds: Tuple, strides: Tuple, isSequential: Bool) {
-        self.init(bounds: Bounds(bounds), strides: Bounds(strides),
-                  isSequential: isSequential)
-    }
-
+    // init(bounds:
     @inlinable
     init(bounds: Bounds) {
-        self.init(bounds: bounds, strides: nil, isSequential: true)
+        self.init(bounds: bounds, strides: nil)
     }
     
     //--------------------------------------------------------------------------
@@ -302,29 +254,30 @@ public extension ShapeProtocol {
                "`other.rank` plus number of specified axes " +
             "must equal the `rank` of this shape")
 
-        var otherAxis = 0
-        for i in 0..<Self.rank {
+        var j = S.rank - 1
+        for i in (0..<Self.rank).reversed() {
             if axesSet.contains(i) {
                 // expanded axes are set to 1
                 newBounds[i] = 1
-                // strides beyond the other's strides are just 1
-                newStrides[i] = otherAxis >= S.rank ? 1 :
-                    other.strides[otherAxis]
+                // repeat stride of next dimension or pad with 1
+                if i == Self.rank - 1 {
+                    newStrides[i] = 1
+                } else {
+                    newStrides[i] = newBounds[i + 1] * newStrides[i + 1]
+                }
             } else {
-                newBounds[i] = other.bounds[otherAxis]
-                newStrides[i] = other.strides[otherAxis]
-                otherAxis += 1
+                newBounds[i] = other.bounds[j]
+                newStrides[i] = other.strides[j]
+                j -= 1
             }
         }
-        self.init(bounds: newBounds, strides: newStrides,
-                  isSequential: other.isSequential)
+        self.init(bounds: newBounds, strides: newStrides)
     }
     
     //--------------------------------------------------------------------------
     // init(indenting:
     @inlinable
-    init<S>(indenting other: S)
-        where S: ShapeProtocol
+    init<S>(indenting other: S) where S: ShapeProtocol
     {
         assert(S.rank < Self.rank, "can only indent lower ranked shapes")
 
@@ -340,8 +293,7 @@ public extension ShapeProtocol {
             newStrides[i] = other.strides[0]
         }
         
-        self.init(bounds: newBounds, strides: newStrides,
-                  isSequential: other.isSequential)
+        self.init(bounds: newBounds, strides: newStrides)
     }
     
     //--------------------------------------------------------------------------
@@ -357,8 +309,7 @@ public extension ShapeProtocol {
             newBounds[i] = other.bounds[i]
             newStrides[i] = other.strides[i]
         }
-        self.init(bounds: newBounds, strides: newStrides,
-                  isSequential: other.isSequential)
+        self.init(bounds: newBounds, strides: newStrides)
     }
     
     //--------------------------------------------------------------------------
@@ -384,8 +335,7 @@ public extension ShapeProtocol {
             newStrides[axis] = other.strides[otherAxis]
             axis += 1
         }
-        self.init(bounds: newBounds, strides: newStrides,
-                  isSequential: other.isSequential)
+        self.init(bounds: newBounds, strides: newStrides)
     }
     
     //--------------------------------------------------------------------------
@@ -415,21 +365,21 @@ public extension ShapeProtocol {
     }
 
     //--------------------------------------------------------------------------
-    /// contains
-    @inlinable
-    func contains(index: Index) -> Bool {
-        self[index] <= spanCount
-    }
-    
+//    /// contains
+//    @inlinable
+//    func contains(position: Bounds) -> Bool {
+//        linearIndex(of: position) <= spanCount
+//    }
+//
     @inlinable
     func contains(other: Self) -> Bool {
         other.spanCount <= spanCount
     }
     
     @inlinable
-    func contains(index: Bounds, bounds: Bounds) -> Bool {
-        let base = (index &* strides).wrappedSum()
-        let size = (bounds &* strides).wrappedSum()
+    func contains(position: Bounds, bounds: Bounds) -> Bool {
+        let base = linearIndex(of: position)
+        let size = Self.computeSpanCount(bounds, strides)
         return (base + size) <= spanCount
     }
 
@@ -442,9 +392,9 @@ public extension ShapeProtocol {
         // compute column major strides for the last 2 dimensions
         var cmBounds = bounds
         cmBounds.swapAt(Self.rank-1, Self.rank-2)
-        var cmStrides = cmBounds.denseStrides()
+        var cmStrides = cmBounds.sequentialStrides()
         cmStrides.swapAt(Self.rank-1, Self.rank-2)
-        return Self(bounds: bounds, strides: cmStrides, isSequential: false)
+        return Self(bounds: bounds, strides: cmStrides)
     }
     
     //--------------------------------------------------------------------------
@@ -469,8 +419,7 @@ public extension ShapeProtocol {
         }
         
         // it is sequential only for vectors
-        return Self(bounds: repeatedBounds, strides: repeatedStrides,
-                    isSequential: Self.rank == 1)
+        return Self(bounds: repeatedBounds, strides: repeatedStrides)
     }
 
     //--------------------------------------------------------------------------
@@ -500,7 +449,7 @@ public extension ShapeProtocol {
             newStrides.swapAt(Self.rank-1, Self.rank-2)
         }
         
-        return Self(bounds: newBounds, strides: newStrides, isSequential: false)
+        return Self(bounds: newBounds, strides: newStrides)
     }
 
 }
@@ -573,10 +522,9 @@ public struct Shape1: ShapeProtocol {
     public let strides: Bounds
 
     @inlinable
-    public init(bounds: Bounds, strides: Bounds? = nil, isSequential: Bool) {
+    public init(bounds: Bounds, strides: Bounds? = nil) {
         self.bounds = bounds
         self.count = bounds[0]
-        self.isSequential = isSequential
 
         if let callerStrides = strides {
             self.strides = callerStrides
@@ -585,6 +533,7 @@ public struct Shape1: ShapeProtocol {
             self.strides = Bounds.one
             self.spanCount = self.count
         }
+        self.isSequential = self.strides[0] == 1
     }
 
     //--------------------------------------------------------------------------
@@ -596,21 +545,16 @@ public struct Shape1: ShapeProtocol {
     }
     
     //--------------------------------------------------------------------------
-    // index(i:
-    // Note: this does not get inlined unless part of the struct
-    @inlinable
-    public var startIndex: Index { 0 }
+    // indexing
+    @inlinable public var startIndex: Index { 0 }
 
-    @inlinable
-    public var endIndex: Index { count }
+    @inlinable public var endIndex: Index { count }
     
-    @inlinable
-    public func index(after i: Index) -> Index { i + 1 }
+    @inlinable public func index(after i: Index) -> Index { i + 1 }
 
-    // TODO: look into the use of Sequential Shapes to eliminate
-    // the stride multiplication
-    @inlinable
-    public subscript(index: Index) -> Int { index * strides[0] }
+    // TODO: look into the idea of Sequential Shapes to eliminate
+    // unneeded stride multiplication, it costs 30% indexing overhead
+    @inlinable public subscript(index: Index) -> Int { index * strides[0] }
 }
 
 //==============================================================================
@@ -627,26 +571,28 @@ public struct Shape2: ShapeProtocol {
     public let strides: Bounds
 
     @inlinable
-    public init(bounds: Bounds, strides: Bounds? = nil, isSequential: Bool) {
+    public init(bounds: Bounds, strides: Bounds? = nil) {
         // ******** original **********
 //        self.bounds = bounds
 //        self.count = bounds.product()
 //        self.isSequential = isSequential
-//        self.strides = strides ?? bounds.denseStrides()
+//        self.strides = strides ?? bounds.sequentialStrides()
 //        self.spanCount = Self.computeSpanCount(self.bounds, self.strides)
 
         // 95% Faster!!!
         self.bounds = bounds
         self.count = bounds[0] * bounds[1]
-        self.isSequential = isSequential
+        let sequentialStrides = Bounds(bounds[1], 1)
+        assert(sequentialStrides == bounds.sequentialStrides())
 
         if let callerStrides = strides {
             self.strides = callerStrides
             self.spanCount = ((bounds &- 1) &* callerStrides).wrappedSum() + 1
         } else {
-            self.strides = Bounds((bounds[1], 1))
+            self.strides = sequentialStrides
             self.spanCount = self.count
         }
+        self.isSequential = self.strides == sequentialStrides
     }
 
     //--------------------------------------------------------------------------
@@ -655,10 +601,10 @@ public struct Shape2: ShapeProtocol {
     public init<S>(flattening other: S) where S: ShapeProtocol {
         assert(other.isSequential, "cannot flatten non sequential data")
         assert(S.rank >= Self.rank, "cannot flatten bounds of lower rank")
-        self.init(bounds: Bounds((
+        self.init(bounds: Bounds(
             other.bounds[0],
             other.count / other.bounds[0]
-        )))
+        ))
     }
     
     //--------------------------------------------------------------------------
@@ -695,19 +641,20 @@ public struct Shape3: ShapeProtocol {
     public let strides: Bounds
 
     @inlinable
-    public init(bounds: Bounds, strides: Bounds? = nil, isSequential: Bool) {
+    public init(bounds: Bounds, strides: Bounds? = nil) {
         self.bounds = bounds
         self.count = bounds[0] * bounds[1] * bounds[2]
-        self.isSequential = isSequential
-        
+        let sequentialStrides = Bounds(bounds[1] * bounds[2], bounds[2], 1)
+        assert(sequentialStrides == bounds.sequentialStrides())
+
         if let callerStrides = strides {
             self.strides = callerStrides
             self.spanCount = ((bounds &- 1) &* callerStrides).wrappedSum() + 1
         } else {
-            self.strides = Bounds((bounds[1] * bounds[2], bounds[2], 1))
+            self.strides = sequentialStrides
             self.spanCount = self.count
-            assert(self.strides == bounds.denseStrides())
         }
+        self.isSequential = self.strides == sequentialStrides
     }
 
     //--------------------------------------------------------------------------
@@ -717,11 +664,11 @@ public struct Shape3: ShapeProtocol {
         assert(other.isSequential, "cannot flatten non sequential data")
         assert(S.rank >= Self.rank, "cannot flatten bounds of lower rank")
         
-        self.init(bounds: Bounds((
+        self.init(bounds: Bounds(
             other.bounds[0],
             other.bounds[1],
             (2..<S.rank).reduce(into: 0) { $0 += other.bounds[$1] }
-        )))
+        ))
     }
     
     //--------------------------------------------------------------------------
@@ -763,12 +710,24 @@ public struct Shape4: ShapeProtocol {
     public let strides: Bounds
 
     @inlinable
-    public init(bounds: Bounds, strides: Bounds? = nil, isSequential: Bool) {
+    public init(bounds: Bounds, strides: Bounds? = nil) {
         self.bounds = bounds
-        self.count = bounds.product()
-        self.isSequential = isSequential
-        self.strides = strides ?? bounds.denseStrides()
-        self.spanCount = ((self.bounds &- 1) &* self.strides).wrappedSum() + 1
+        self.count = bounds[0] * bounds[1] * bounds[2] * bounds[3]
+        let sequentialStrides = Bounds(
+            bounds[1] * bounds[2] * bounds[3],
+            bounds[2] * bounds[3],
+            bounds[3],
+            1)
+        assert(sequentialStrides == bounds.sequentialStrides())
+
+        if let callerStrides = strides {
+            self.strides = callerStrides
+            self.spanCount = ((bounds &- 1) &* callerStrides).wrappedSum() + 1
+        } else {
+            self.strides = sequentialStrides
+            self.spanCount = self.count
+        }
+        self.isSequential = self.strides == sequentialStrides
     }
 
     //--------------------------------------------------------------------------
@@ -778,12 +737,12 @@ public struct Shape4: ShapeProtocol {
         assert(other.isSequential, "cannot flatten non sequential data")
         assert(S.rank >= Self.rank, "cannot flatten bounds of lower rank")
         
-        self.init(bounds: Bounds((
+        self.init(bounds: Bounds(
             other.bounds[0],
             other.bounds[1],
             other.bounds[2],
             (3..<S.rank).reduce(into: 0) { $0 += other.bounds[$1] }
-        )))
+        ))
     }
     
     //--------------------------------------------------------------------------
@@ -830,12 +789,27 @@ public struct Shape5: ShapeProtocol {
     public let strides: Bounds
 
     @inlinable
-    public init(bounds: Bounds, strides: Bounds? = nil, isSequential: Bool) {
+    public init(bounds: Bounds, strides: Bounds? = nil) {
         self.bounds = bounds
-        self.count = bounds.product()
-        self.isSequential = isSequential
-        self.strides = strides ?? bounds.denseStrides()
-        self.spanCount = ((self.bounds &- 1) &* self.strides).wrappedSum() + 1
+        // TODO: verify if unrolling is actually faster, or using partial
+        // results, or if the compiler figures it out and does the right thing
+        self.count = bounds[0] * bounds[1] * bounds[2] * bounds[3] * bounds[4]
+        let sequentialStrides = Bounds(
+            bounds[1] * bounds[2] * bounds[3] * bounds[4],
+            bounds[2] * bounds[3] * bounds[4],
+            bounds[3] * bounds[4],
+            bounds[4],
+            1)
+        assert(sequentialStrides == bounds.sequentialStrides())
+
+        if let callerStrides = strides {
+            self.strides = callerStrides
+            self.spanCount = ((bounds &- 1) &* callerStrides).wrappedSum() + 1
+        } else {
+            self.strides = sequentialStrides
+            self.spanCount = self.count
+        }
+        self.isSequential = self.strides == sequentialStrides
     }
 
     //--------------------------------------------------------------------------
@@ -845,13 +819,13 @@ public struct Shape5: ShapeProtocol {
         assert(other.isSequential, "cannot flatten non sequential data")
         assert(S.rank >= Self.rank, "cannot flatten bounds of lower rank")
         
-        self.init(bounds: Bounds((
+        self.init(bounds: Bounds(
             other.bounds[0],
             other.bounds[1],
             other.bounds[2],
             other.bounds[3],
             (4..<S.rank).reduce(into: 0) { $0 += other.bounds[$1] }
-        )))
+        ))
     }
     
     //--------------------------------------------------------------------------
