@@ -10,7 +10,7 @@ import Glibc
 import Darwin.C
 #endif
 
-//------------------------------------------------------------------------------
+//==============================================================================
 // determine platform build type
 let validPlatforms = Set(arrayLiteral: "cpu", "cuda")
 let environment = ProcessInfo.processInfo.environment
@@ -31,30 +31,11 @@ var exclusions: [String] = []
 var targets: [PackageDescription.Target] = []
 
 //==============================================================================
-// include the Cuda service module
+// Cuda service module
 let currentDir = FileManager().currentDirectoryPath
 let kernelsDir = "\(currentDir)/Sources/SwiftRT/platform/cuda/kernels"
 let kernelsLibName = "SwiftRTCudaKernels"
 
-if buildCuda {
-    //---------------------------------------
-    // build kernels library
-    if #available(OSX 10.13, *) {
-        runCMake(args: ["--version"], workingDir: kernelsDir)
-    }
-
-    //---------------------------------------
-    // add Cuda system module
-    products.append(.library(name: "CCuda", targets: ["CCuda"]))
-    dependencies.append("CCuda")
-    targets.append(
-        .systemLibrary(name: "CCuda", path: "Modules/Cuda", pkgConfig: "cuda"))
-    
-} else {
-    exclusions.append("platform/cuda")
-}
-
-//------------------------------------------------------------------------------
 @available(OSX 10.13, *)
 func runCMake(args: [String], workingDir: String) {
     let task = Process()
@@ -75,6 +56,24 @@ func runCMake(args: [String], workingDir: String) {
     } catch {
         print(error)
     }
+}
+
+if buildCuda {
+    //---------------------------------------
+    // build kernels library
+    if #available(OSX 10.13, *) {
+        runCMake(args: ["--version"], workingDir: kernelsDir)
+    }
+
+    //---------------------------------------
+    // add Cuda system module
+    products.append(.library(name: "CCuda", targets: ["CCuda"]))
+    dependencies.append("CCuda")
+    targets.append(
+        .systemLibrary(name: "CCuda", path: "Modules/Cuda", pkgConfig: "cuda"))
+    
+} else {
+    exclusions.append("platform/cuda")
 }
 
 //==============================================================================
