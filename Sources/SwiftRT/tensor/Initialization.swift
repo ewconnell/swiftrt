@@ -30,7 +30,7 @@ public extension TensorView where Element: AnyConvertable {
     /// to be cast
     @inlinable
     init<U>(_ other: U) where
-        U: TensorView, U.Element: AnyConvertable, Shape == U.Shape
+        U: TensorView, U.Element: AnyConvertable, U.Bounds == Self.Bounds
     {
         self = Platform.service.cast(other)
     }
@@ -252,7 +252,7 @@ public extension TensorView {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     init<U>(repeating value: Element, like other: U, name: String? = nil)
-        where U: TensorView, Self.Shape == U.Shape
+        where U: TensorView, Self.Bounds == U.Bounds
     {
         self = Self(repeating: value, to: other.bounds, name: name)
     }
@@ -260,7 +260,7 @@ public extension TensorView {
     //--------------------------------------------------------------------------
     /// createDense(shape:
     @inlinable
-    func createDense(with shape: Shape, name: String? = nil) -> Self {
+    func createDense(with shape: Shape<Bounds>, name: String? = nil) -> Self {
         Self.create(shape.dense, name)
     }
     
@@ -299,7 +299,7 @@ public extension TensorView {
     //==========================================================================
     // utility functions for creating shaped types
     @inlinable
-    static func create(_ shape: Shape, _ name: String?) -> Self {
+    static func create(_ shape: Shape<Bounds>, _ name: String?) -> Self {
         let label = name ?? Self.diagnosticName
         let buffer = Buffer(count: shape.count, name: label)
         return Self(shape: shape, buffer: buffer, offset: 0, shared: false)
@@ -307,7 +307,7 @@ public extension TensorView {
     
     @inlinable
     static func create(referenceTo buffer: UnsafeBufferPointer<Element>,
-                       _ shape: Shape, _ name: String?) -> Self {
+                       _ shape: Shape<Bounds>, _ name: String?) -> Self {
         assert(shape.count == buffer.count,
                "shape count does not match buffer count")
         // create tensor data reference to buffer
@@ -318,7 +318,7 @@ public extension TensorView {
     
     @inlinable
     static func create(referenceTo buffer: UnsafeMutableBufferPointer<Element>,
-                       _ shape: Shape, _ name: String?) -> Self {
+                       _ shape: Shape<Bounds>, _ name: String?) -> Self {
         assert(shape.count == buffer.count,
                "shape count does not match buffer count")
         // create tensor data reference to buffer
@@ -328,14 +328,15 @@ public extension TensorView {
     }
     
     @inlinable
-    static func create(for element: Element, _ shape: Shape, _ name: String?) -> Self
+    static func create(for element: Element, _ shape: Shape<Bounds>,
+                       _ name: String?) -> Self
     {
         let buffer = Buffer(for: element, name: name ?? Self.diagnosticName)
         return Self(shape: shape, buffer: buffer, offset: 0, shared: false)
     }
 
     @inlinable
-    static func create<C>(_ elements: C, _ shape: Shape,
+    static func create<C>(_ elements: C, _ shape: Shape<Bounds>,
                           _ name: String?) -> Self where
         C: Collection, C.Element == Element
     {

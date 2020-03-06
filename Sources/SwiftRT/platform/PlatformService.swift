@@ -51,7 +51,7 @@ public extension PlatformService {
     /// - Parameter tensor: the tensor to read
     /// - Returns: an `BufferElements` that can be used to iterate the shape
     @inlinable
-    func read<T>(_ tensor: T) -> BufferElements<T.Element, T.Shape>
+    func read<T>(_ tensor: T) -> BufferElements<T.Element, Shape<T.Bounds>>
         where T: TensorView
     {
         BufferElements(tensor.shape, tensor.read(using: currentQueue))
@@ -65,7 +65,7 @@ public extension PlatformService {
     /// - Returns: an `BufferElements` that can be used to iterate the shape
     @inlinable
     func write<T>(_ tensor: inout T, willOverwrite: Bool = true)
-        -> MutableBufferElements<T.Element, T.Shape> where T: TensorView
+        -> MutableBufferElements<T.Element, Shape<T.Bounds>> where T: TensorView
     {
         // get the write buffer
         let buffer = tensor.readWrite(willOverwrite: willOverwrite,
@@ -85,8 +85,8 @@ public extension PlatformService {
     /// - Returns: a tensor and an associated `MutableBufferElements`
     /// that can be used to iterate the shape
     @inlinable
-    func createResult<T>(like other: T, with shape: T.Shape, name: String? = nil)
-        -> (T, MutableBufferElements<T.Element, T.Shape>) where T: TensorView
+    func createResult<T>(like other: T, with shape: Shape<T.Bounds>, name: String? = nil)
+        -> (T, MutableBufferElements<T.Element, Shape<T.Bounds>>) where T: TensorView
     {
         var result = other.createDense(with: shape.dense, name: name)
         let resultBuffer = write(&result)
@@ -104,7 +104,7 @@ public extension PlatformService {
     /// that can be used to iterate the shape
     @inlinable
     func createResult<T>(like other: T, name: String? = nil)
-        -> (T, MutableBufferElements<T.Element, T.Shape>) where T: TensorView
+        -> (T, MutableBufferElements<T.Element, Shape<T.Bounds>>) where T: TensorView
     {
         createResult(like: other, with: other.shape, name: name)
     }
