@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 // VectorView protocol
-public protocol VectorView: TensorView where Bounds == SIMD1<Int> { }
+public protocol VectorView: TensorView where Bounds == Bounds1 { }
 
 // VectorView initialization extensions
 public extension VectorView {
@@ -117,14 +117,13 @@ public extension VectorView {
 public struct VectorType<Element>: VectorView {
     // properties
     public static var diagnosticName: String { "Vector" }
-    public let shape: Shape<SIMD1<Int>>
+    public let shape: Shape1
     public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
     
     @inlinable
-    public init(shape: Shape<SIMD1<Int>>,
-                buffer: TensorBuffer<Element>,
+    public init(shape: Shape1, buffer: TensorBuffer<Element>,
                 offset: Int, shared: Bool)
     {
         self.shape = shape
@@ -162,7 +161,7 @@ extension VectorType: AdditiveArithmetic where Element: Numeric {
 
 //==============================================================================
 // MatrixView protocol
-public protocol MatrixView: TensorView where Bounds == SIMD2<Int> { }
+public protocol MatrixView: TensorView where Bounds == Bounds2 { }
 
 public enum MatrixLayout { case rowMajor, columnMajor }
 
@@ -396,14 +395,13 @@ public extension MatrixView
 public struct MatrixType<Element>: MatrixView {
     // properties
     public static var diagnosticName: String { "Matrix" }
-    public let shape: Shape<SIMD2<Int>>
+    public let shape: Shape2
     public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
 
     @inlinable
-    public init(shape: Shape<SIMD2<Int>>,
-                buffer: TensorBuffer<Element>,
+    public init(shape: Shape2, buffer: TensorBuffer<Element>,
                 offset: Int, shared: Bool)
     {
         self.shape = shape
@@ -441,7 +439,7 @@ extension MatrixType: AdditiveArithmetic where Element: Numeric {
 
 //==============================================================================
 // VolumeView protocol
-public protocol VolumeView: TensorView where Bounds == SIMD3<Int> {}
+public protocol VolumeView: TensorView where Bounds == Bounds3 {}
 
 // VolumeView extensions
 public extension VolumeView
@@ -671,14 +669,13 @@ public extension VolumeView {
 public struct VolumeType<Element>: VolumeView {
     // properties
     public static var diagnosticName: String { "Volume" }
-    public let shape: Shape<SIMD3<Int>>
+    public let shape: Shape3
     public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
 
     @inlinable
-    public init(shape: Shape<SIMD3<Int>>,
-                buffer: TensorBuffer<Element>,
+    public init(shape: Shape3, buffer: TensorBuffer<Element>,
                 offset: Int, shared: Bool)
     {
         self.shape = shape

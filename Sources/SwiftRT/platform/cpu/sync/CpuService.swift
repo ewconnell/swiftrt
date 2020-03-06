@@ -136,9 +136,9 @@ public final class CpuBuffer<Element>: StorageBuffer {
     //--------------------------------------------------------------------------
     // streaming
     @inlinable
-    public init<Shape, Stream>(block shape: Shape, bufferedBlocks: Int,
-                               stream: Stream)
-        where Shape : ShapeProtocol, Stream : BufferStream
+    public init<B, Stream>(block shape: Shape<B>, bufferedBlocks: Int,
+                           stream: Stream)
+        where B : ShapeBounds, Stream : BufferStream
     {
         fatalError()
     }

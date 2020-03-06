@@ -115,15 +115,8 @@ public struct Shape<Bounds>: Codable, Equatable, Collection
     {
         assert(bounds.min() > 0, _messageInvalidBounds)
         self.bounds = bounds
-        
-        // count is the product of all bounds
-        self.count = bounds.indices.reduce(into: 1) { $0 &*= bounds[$1] }
-
-        // compute sequential strides
-        var sequentialStrides = Bounds.one
-        for i in stride(from: Bounds.rank - 1, through: 1, by: -1) {
-            sequentialStrides[i - 1] = bounds[i] * sequentialStrides[i]
-        }
+        self.count = bounds.elementCount()
+        let sequentialStrides = bounds.sequentialStrides()
         
         if let callerStrides = strides {
             self.strides = callerStrides
@@ -164,7 +157,8 @@ public struct Shape<Bounds>: Codable, Equatable, Collection
         if isSequential {
             return Index(i.position, i.sequenceIndex + 1)
         } else {
-            return Index(i.position.incremented(bounds), i.sequenceIndex + 1)
+            let position = i.position.increment(boundedBy: bounds)
+            return Index(position, i.sequenceIndex + 1)
         }
     }
 

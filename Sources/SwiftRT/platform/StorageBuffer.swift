@@ -73,8 +73,8 @@ public protocol StorageBuffer: class, Logging {
     /// - Parameter bufferedBlocks: the size of the device buffer
     /// to reserve in block units
     /// - Parameter stream: the I/O object for read/write operations
-    init<Shape, Stream>(block shape: Shape, bufferedBlocks: Int, stream: Stream)
-        where Shape: ShapeProtocol, Stream: BufferStream
+    init<B, Stream>(block shape: Shape<B>, bufferedBlocks: Int, stream: Stream)
+        where B: ShapeBounds, Stream: BufferStream
     
     /// `init(element:name:
     /// initializes an element buffer for the specified `Element` value.

@@ -71,7 +71,7 @@ public extension TensorView {
     /// `bufferElements`
     /// - Returns: a buffer collection that can be used to iterate the shape
     @inlinable
-    func bufferElements() -> BufferElements<Element, Shape<Bounds>> {
+    func bufferElements() -> BufferElements<Element, Bounds> {
         // read the elements buffer using the current queue
         Platform.service.read(self)
     }
@@ -81,7 +81,7 @@ public extension TensorView {
     /// - Returns: an element buffer that can be used to iterate the shape
     @inlinable
     mutating func mutableBufferElements(willOverwrite: Bool = true)
-        -> MutableBufferElements<Element, Shape<Bounds>>
+        -> MutableBufferElements<Element, Bounds>
     {
         Platform.service.write(&self, willOverwrite: willOverwrite)
     }

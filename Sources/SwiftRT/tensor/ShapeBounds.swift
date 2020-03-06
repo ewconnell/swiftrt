@@ -26,7 +26,12 @@ public protocol ShapeBounds: SIMD where Scalar == Int
     
     init(_ s: Tuple)
     
-    func incremented(_ bounds: Self) -> Self
+    // for shape initialization
+    func elementCount() -> Int
+    func sequentialStrides() -> Self
+    
+    // for shape indexing
+    func increment(boundedBy bounds: Self) -> Self
 }
 
 //==============================================================================
@@ -53,28 +58,28 @@ extension ShapeBounds {
 
 extension ShapeBounds where Scalar: FixedWidthInteger {
     //--------------------------------------------------------------------------
+    /// `elementCount`
+    /// the count of logical elements described by bounds
+    @inlinable
+    public func elementCount() -> Int {
+        indices.reduce(into: 1) { $0 &*= self[$1] }
+    }
+
+    //--------------------------------------------------------------------------
     /// `sequentialStrides`
     /// computes the row major sequential strides
     @inlinable
-    func sequentialStrides() -> Self {
+    public func sequentialStrides() -> Self {
         var strides = Self.one
         for i in stride(from: Self.rank - 1, through: 1, by: -1) {
             strides[i - 1] = self[i] * strides[i]
         }
         return strides
     }
-    
-    //--------------------------------------------------------------------------
-    /// `product`
-    /// computes the product of the bounds scalars values
-    @inlinable
-    func product() -> Scalar {
-        indices.reduce(into: 1) { $0 &*= self[$1] }
-    }
 }
 
 //==============================================================================
-// ShapeBounds SIMD extensions
+// SIMD1
 extension SIMD1: ShapeBounds where Scalar == Int {
     public typealias Tuple = (Scalar)
     
@@ -88,11 +93,23 @@ extension SIMD1: ShapeBounds where Scalar == Int {
     }
     
     @inlinable
-    public func incremented(_ bounds: Self) -> SIMD1<Int> {
+    public func elementCount() -> Int {
+        self[0]
+    }
+
+    @inlinable
+    public func sequentialStrides() -> Self {
+        Self((1))
+    }
+    
+    @inlinable
+    public func increment(boundedBy bounds: Self) -> Self {
         SIMD1((self[0] + 1))
     }
 }
 
+//==============================================================================
+// SIMD2
 extension SIMD2: ShapeBounds where Scalar == Int {
     public typealias Tuple = (Scalar, Scalar)
 
@@ -105,9 +122,19 @@ extension SIMD2: ShapeBounds where Scalar == Int {
         self[0] = s.0
         self[1] = s.1
     }
+    
+    @inlinable
+    public func elementCount() -> Int {
+        self[0] * self[1]
+    }
 
     @inlinable
-    public func incremented(_ bounds: SIMD2<Int>) -> SIMD2<Int> {
+    public func sequentialStrides() -> Self {
+        Self((self[1], 1))
+    }
+
+    @inlinable
+    public func increment(boundedBy bounds: Self) -> Self {
         var position = self
         
         // a recursive algorithm was ~55x slower
@@ -121,6 +148,8 @@ extension SIMD2: ShapeBounds where Scalar == Int {
     }
 }
 
+//==============================================================================
+// SIMD3
 extension SIMD3: ShapeBounds where Scalar == Int {
     public typealias Tuple = (Scalar, Scalar, Scalar)
 
@@ -136,7 +165,7 @@ extension SIMD3: ShapeBounds where Scalar == Int {
     }
     
     @inlinable
-    public func incremented(_ bounds: SIMD3<Int>) -> SIMD3<Int> {
+    public func increment(boundedBy bounds: Self) -> Self {
         var position = self
         // a recursive algorithm was ~55x slower
         position[2] += 1
@@ -153,6 +182,8 @@ extension SIMD3: ShapeBounds where Scalar == Int {
     }
 }
 
+//==============================================================================
+// SIMD4
 extension SIMD4: ShapeBounds where Scalar == Int {
     public typealias Tuple = (Scalar, Scalar, Scalar, Scalar)
 
@@ -169,7 +200,7 @@ extension SIMD4: ShapeBounds where Scalar == Int {
     }
     
     @inlinable
-    public func incremented(_ bounds: SIMD4<Int>) -> SIMD4<Int> {
+    public func increment(boundedBy bounds: Self) -> Self {
         var position = self
         // a recursive algorithm was ~55x slower
         position[3] += 1
@@ -191,6 +222,8 @@ extension SIMD4: ShapeBounds where Scalar == Int {
     }
 }
 
+//==============================================================================
+// SIMD5
 extension SIMD5: ShapeBounds where Scalar == Int {
     public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar)
 
@@ -208,7 +241,7 @@ extension SIMD5: ShapeBounds where Scalar == Int {
     }
 
     @inlinable
-    public func incremented(_ bounds: SIMD5<Int>) -> SIMD5<Int> {
+    public func increment(boundedBy bounds: Self) -> Self {
         var position = self
         // a recursive algorithm was ~55x slower
         position[4] += 1

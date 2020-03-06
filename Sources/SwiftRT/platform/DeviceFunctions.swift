@@ -187,7 +187,7 @@ public protocol DeviceFunctions {
                    _ opId: ReductionOp,
                    _ opNext: @escaping (T.Element, T.Element) -> T.Element,
                    _ opFinal: ReduceOpFinal<T>?) where
-        T: ShapedBuffer, T.Shape == R.Shape,
+        T: ShapedBuffer, T.Bounds == R.Bounds,
         R: MutableShapedBuffer, R.Element == T.Element
     
     //==========================================================================
@@ -484,7 +484,7 @@ public extension DeviceFunctions where Self: DeviceQueue {
                    _ opId: ReductionOp,
                    _ opNext: @escaping (T.Element, T.Element) -> T.Element,
                    _ opFinal: ReduceOpFinal<R>?) where
-        T: ShapedBuffer, T.Shape == R.Shape,
+        T: ShapedBuffer, T.Bounds == R.Bounds,
         R: MutableShapedBuffer, R.Element == T.Element
     {
         cpu_reduce(x, &result, opId, opNext, opFinal)
