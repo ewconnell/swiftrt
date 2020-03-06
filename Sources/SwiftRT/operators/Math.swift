@@ -358,30 +358,12 @@ public extension PlatformService {
     }
 }
 
-infix operator ** : MultiplicationPrecedence
-
 // Tensor extension
 public extension TensorView where Element: Real {
     // make glboal function visible for extension implementations
-    @differentiable(where Self: DifferentiableTensorView)
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     func pow(_ x: Self, _ y: Self) -> Self { Platform.service.pow(x, y) }
-    
-    @differentiable(where Self: DifferentiableTensorView)
-    @inlinable
-    static func **(_ x: Self, _ y: Self) -> Self { Platform.service.pow(x, y) }
-    
-    @inlinable
-//    @differentiable(where Self: DifferentiableTensorView)
-    static func **(_ x: Self, _ y: Element) -> Self {
-        y == 2 ? x.squared() : x ** Self(repeating: y, like: x)
-    }
-    
-    @inlinable
-//    @differentiable(where Self: DifferentiableTensorView)
-    static func **(_ x: Element, _ y: Self) -> Self {
-        Self(repeating: x, like: y) ** y
-    }
 }
 
 //==============================================================================

@@ -46,7 +46,23 @@ public extension PlatformService {
         currentQueue.add(read(left), read(right), &resultBuffer)
         return result
     }
-    
+
+    @inlinable
+    @differentiable(where T: DifferentiableTensorView)
+    func add<T>(_ lhs: T, _ rhs: T.Element) -> T
+        where T: TensorView, T.Element: AdditiveArithmetic
+    {
+        add(lhs, T(repeating: rhs, to: lhs.bounds))
+    }
+
+    @inlinable
+    @differentiable(where T: DifferentiableTensorView)
+    func add<T>(_ lhs: T.Element, _ rhs: T) -> T
+        where T: TensorView, T.Element: AdditiveArithmetic
+    {
+        add(T(repeating: lhs, to: rhs.bounds), rhs)
+    }
+
     @inlinable
     @derivative(of: add)
     func _vjpAdd<T>(_ lhs: T, _ rhs: T) -> (value: T, pullback: (T) ->(T, T))
@@ -58,24 +74,18 @@ public extension PlatformService {
 
 public extension TensorView where Element: AdditiveArithmetic {
     @inlinable
-    @differentiable(where Self: DifferentiableTensorView)
-    static func + (lhs: Self, rhs: Self) -> Self { add(lhs, rhs) }
-
-    @inlinable
-    static func += (lhs: inout Self, rhs: Element) {
-        lhs = add(lhs, Self(repeating: rhs, like: lhs))
+    static func + (lhs: Self, rhs: Self) -> Self {
+        Platform.service.add(lhs, rhs)
     }
 
     @inlinable
-    @differentiable(where Self: DifferentiableTensorView)
     static func +(lhs: Self, rhs: Element) -> Self {
-        add(lhs, Self(repeating: rhs, to: lhs.bounds))
+        Platform.service.add(lhs, rhs)
     }
 
     @inlinable
-    @differentiable(where Self: DifferentiableTensorView)
     static func +(lhs: Element, rhs: Self) -> Self {
-        add(Self(repeating: lhs, to: rhs.bounds), rhs)
+        Platform.service.add(lhs, rhs)
     }
 }
 
