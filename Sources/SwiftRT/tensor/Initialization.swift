@@ -222,8 +222,7 @@ public extension TensorView {
         // copy others into place
         var lower = Bounds.zero
         for tensor in expanded {
-            let upper = lower &+ tensor.bounds
-            var view = stacked.sharedView(from: lower, to: upper)
+            var view = stacked.sharedView(from: lower, bounds: tensor.bounds)
             Platform.service.copy(from: tensor, to: &view)
             lower[axis] += 1
         }

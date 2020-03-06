@@ -260,22 +260,37 @@ public extension TensorView {
     func view(from lower: Bounds, to upper: Bounds,
               with strides: Bounds? = nil) -> Self
     {
-        createView(from: lower, to: upper,
-                   with: strides ?? self.strides, shared: self.shared)
+        createView(from: lower, bounds: upper &- lower,
+                   with: strides, shared: self.shared)
+    }
+    
+    @inlinable
+    func view(from lower: Bounds, bounds: Bounds,
+              with strides: Bounds? = nil) -> Self
+    {
+        createView(from: lower, bounds: bounds,
+                   with: strides, shared: self.shared)
     }
     
     //--------------------------------------------------------------------------
     /// sharedView
-    /// Creates a a subview that can be shared by multiple writers
+    /// Creates a subview that can be shared by multiple writers
     @inlinable
     mutating func sharedView(from lower: Bounds.Tuple, to upper: Bounds.Tuple,
                              with strides: Bounds.Tuple? = nil) -> Self
     {
         sharedView(from: Bounds(lower), to: Bounds(upper), with: Bounds(strides))
     }
-    
+
     @inlinable
     mutating func sharedView(from lower: Bounds, to upper: Bounds,
+                             with strides: Bounds? = nil) -> Self
+    {
+        sharedView(from: lower, bounds: upper &- lower, with: strides)
+    }
+    
+    @inlinable
+    mutating func sharedView(from lower: Bounds, bounds: Bounds,
                              with strides: Bounds? = nil) -> Self
     {
         // copy the parent view if it is not uniquely held before
@@ -288,23 +303,26 @@ public extension TensorView {
             buffer = Buffer(copying: buffer)
         }
         
-        return createView(from: lower, to: upper,
-                          with: strides ?? self.strides, shared: true)
+        return createView(from: lower, bounds: bounds,
+                          with: strides, shared: true)
     }
     
     //--------------------------------------------------------------------------
     /// createView
     /// Returns a view of the bufferRef relative to this view
     @usableFromInline
-    internal func createView(from lower: Bounds, to upper: Bounds,
-                             with strides: Bounds, shared: Bool) -> Self
+    internal func createView(from lower: Bounds,
+                             bounds: Bounds,
+                             with strides: Bounds? = nil,
+                             shared: Bool) -> Self
     {
         // validate
-        assert(shape.contains(lower) && shape.contains(upper &- 1))
+        assert(shape.contains(lower) && shape.contains(lower &+ (bounds &- 1)))
 
         // the subview offset is the view offset plus the offset of the position
+        let viewStrides = strides ?? self.strides
         let viewOffset = offset + shape.linearIndex(of: lower)
-        let viewShape = Shape<Bounds>(bounds: upper &- lower, strides: strides)
+        let viewShape = Shape<Bounds>(bounds: bounds, strides: viewStrides)
         return Self(shape: viewShape, buffer: buffer,
                     offset: viewOffset, shared: shared)
     }

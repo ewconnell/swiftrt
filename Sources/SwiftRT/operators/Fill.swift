@@ -40,8 +40,7 @@ public extension PlatformService {
 
         var lower = T.Bounds.zero
         for tensor in tensors {
-            let upper = lower &+ tensor.bounds
-            var view = result.sharedView(from: lower, to: upper)
+            var view = result.sharedView(from: lower, bounds: tensor.bounds)
             copy(from: tensor, to: &view)
             lower[axis] += tensor.bounds[axis]
         }
