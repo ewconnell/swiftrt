@@ -31,7 +31,7 @@ public protocol ShapeBounds: SIMD where Scalar == Int
     func sequentialStrides() -> Self
     
     // for shape indexing
-    func increment(boundedBy bounds: Self) -> Self
+    mutating func increment(boundedBy bounds: Self)
 }
 
 //==============================================================================
@@ -103,8 +103,8 @@ extension SIMD1: ShapeBounds where Scalar == Int {
     }
     
     @inlinable
-    public func increment(boundedBy bounds: Self) -> Self {
-        SIMD1((self[0] + 1))
+    public mutating func increment(boundedBy bounds: Self) {
+        self[0] += 1
     }
 }
 
@@ -134,17 +134,14 @@ extension SIMD2: ShapeBounds where Scalar == Int {
     }
 
     @inlinable
-    public func increment(boundedBy bounds: Self) -> Self {
-        var position = self
-        
+    public mutating func increment(boundedBy bounds: Self) {
         // a recursive algorithm was ~55x slower
-        position[1] += 1
+        self[1] += 1
         
-        if position[1] == bounds[1] {
-            position[1] = 0
-            position[0] += 1
+        if self[1] == bounds[1] {
+            self[1] = 0
+            self[0] += 1
         }
-        return position
     }
 }
 
@@ -165,20 +162,18 @@ extension SIMD3: ShapeBounds where Scalar == Int {
     }
     
     @inlinable
-    public func increment(boundedBy bounds: Self) -> Self {
-        var position = self
+    public mutating func increment(boundedBy bounds: Self) {
         // a recursive algorithm was ~55x slower
-        position[2] += 1
-        if position[2] == bounds[2] {
-            position[2] = 0
-            position[1] += 1
+        self[2] += 1
+        if self[2] == bounds[2] {
+            self[2] = 0
+            self[1] += 1
             
-            if position[1] == bounds[1] {
-                position[1] = 0
-                position[0] += 1
+            if self[1] == bounds[1] {
+                self[1] = 0
+                self[0] += 1
             }
         }
-        return position
     }
 }
 
@@ -200,25 +195,23 @@ extension SIMD4: ShapeBounds where Scalar == Int {
     }
     
     @inlinable
-    public func increment(boundedBy bounds: Self) -> Self {
-        var position = self
+    public mutating func increment(boundedBy bounds: Self) {
         // a recursive algorithm was ~55x slower
-        position[3] += 1
-        if position[3] == bounds[3] {
-            position[3] = 0
-            position[2] += 1
+        self[3] += 1
+        if self[3] == bounds[3] {
+            self[3] = 0
+            self[2] += 1
             
-            if position[2] == bounds[2] {
-                position[2] = 0
-                position[1] += 1
+            if self[2] == bounds[2] {
+                self[2] = 0
+                self[1] += 1
                 
-                if position[1] == bounds[1] {
-                    position[1] = 0
-                    position[0] += 1
+                if self[1] == bounds[1] {
+                    self[1] = 0
+                    self[0] += 1
                 }
             }
         }
-        return position
     }
 }
 
@@ -241,30 +234,28 @@ extension SIMD5: ShapeBounds where Scalar == Int {
     }
 
     @inlinable
-    public func increment(boundedBy bounds: Self) -> Self {
-        var position = self
+    public mutating func increment(boundedBy bounds: Self) {
         // a recursive algorithm was ~55x slower
-        position[4] += 1
-        if position[4] == bounds[4] {
-            position[4] = 0
-            position[3] += 1
+        self[4] += 1
+        if self[4] == bounds[4] {
+            self[4] = 0
+            self[3] += 1
             
-            if position[3] == bounds[3] {
-                position[3] = 0
-                position[2] += 1
+            if self[3] == bounds[3] {
+                self[3] = 0
+                self[2] += 1
                 
-                if position[2] == bounds[2] {
-                    position[2] = 0
-                    position[1] += 1
+                if self[2] == bounds[2] {
+                    self[2] = 0
+                    self[1] += 1
                     
-                    if position[1] == bounds[1] {
-                        position[1] = 0
-                        position[0] += 1
+                    if self[1] == bounds[1] {
+                        self[1] = 0
+                        self[0] += 1
                     }
                 }
             }
         }
-        return position
     }
 }
 

@@ -199,18 +199,18 @@ class test_Shape: XCTestCase {
     // test_ShapeCollection
     func test_ShapeCollection() {
         // repeating
-        XCTAssert(Shape<SIMD1<Int>>((3), strides: (0)) == [0, 0, 0])
-        XCTAssert(Shape<SIMD2<Int>>((2, 3), strides: (0, 1)) == [0, 1, 2, 0, 1, 2])
-        XCTAssert(Shape<SIMD2<Int>>((2, 3), strides: (1, 0)) == [0, 0, 0, 1, 1, 1])
+        XCTAssert(Shape1((3), strides: (0)) == [0, 0, 0])
+        XCTAssert(Shape2((2, 3), strides: (0, 1)) == [0, 1, 2, 0, 1, 2])
+        XCTAssert(Shape2((2, 3), strides: (1, 0)) == [0, 0, 0, 1, 1, 1])
 
         // strided
-        XCTAssert(Shape<SIMD1<Int>>((5), strides: (3)) == [0, 3, 6, 9, 12])
-        XCTAssert(Shape<SIMD1<Int>>((5), strides: (3)) == [0, 3, 6, 9, 12])
-        XCTAssert(Shape<SIMD2<Int>>((2, 3), strides: (6, 2)) == [0, 2, 4, 6, 8, 10])
+        XCTAssert(Shape1((5), strides: (3)) == [0, 3, 6, 9, 12])
+        XCTAssert(Shape1((5), strides: (3)) == [0, 3, 6, 9, 12])
+        XCTAssert(Shape2((2, 3), strides: (6, 2)) == [0, 2, 4, 6, 8, 10])
 
         // dense
-        XCTAssert(Shape<SIMD2<Int>>((2, 3)) == [0, 1, 2, 3, 4, 5])
-        XCTAssert(Shape<SIMD3<Int>>((2, 3, 4)) == [Int](0..<24))
+        XCTAssert(Shape2((2, 3)) == [0, 1, 2, 3, 4, 5])
+        XCTAssert(Shape3((2, 3, 4)) == [Int](0..<24))
     }
 
     //--------------------------------------------------------------------------

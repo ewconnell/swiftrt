@@ -20,54 +20,9 @@ import Foundation
 @usableFromInline
 let _messageInvalidBounds = "bounding dimensions must be greater than 0"
 
-////==============================================================================
-///// ShapeProtocol
-//public protocol ShapeProtocol: Codable, Equatable, Collection
-//    where Element == Int
-//{
-//    associatedtype Bounds: ShapeBounds
-//
-//    //--------------------------------------------------------------------------
-//    // properties
-//    /// The bounds of the shape in each dimension
-//    var bounds: Bounds { get }
-//    /// the number of elements in the shape
-//    var count: Int { get }
-//    /// `true` if indexing is row sequential for performance
-//    var isSequential: Bool { get }
-//    /// the number of bounding dimensions
-//    static var rank: Int { get }
-//    /// The strided number of elements spanned by the shape
-//    var spanCount: Int { get }
-//    /// The distance to the next element for each dimension
-//    var strides: Bounds { get }
-//
-//    //--------------------------------------------------------------------------
-//    /// Fully specified initializer
-//    /// - Parameter bounds: bounds of the shape in each dimension
-//    /// - Parameter strides: the distance to the next element in each dimension
-//    init(bounds: Bounds, strides: Bounds?)
-//    /// Expanding initializer
-//    /// - Parameter expanding: the lower order shape to expand
-//    /// - Parameter axes: the set of axes to be expanded
-//    init<S>(expanding other: S, alongAxes axes: Set<Int>?)
-//        where S: ShapeProtocol
-//    /// Flattening initializer
-//    /// - Parameter flattening: the higher order shape to flatten
-//    init<S>(flattening other: S) where S: ShapeProtocol
-//    /// Squeezing initializer
-//    /// - Parameter squeezing: the higher order shape to squeeze
-//    /// - Parameter axes: the set of axes to be squeezed
-//    init<S>(squeezing other: S, alongAxes axes: Set<Int>?)
-//        where S: ShapeProtocol
-//    /// repeated(repeatedBounds:
-//    func repeated(to repeatedBounds: Bounds) -> Self
-//}
 //==============================================================================
 /// ShapeIndex
-public struct ShapeIndex<Bounds>: Comparable
-    where Bounds: ShapeBounds
-{
+public struct ShapeIndex<Bounds>: Comparable where Bounds: ShapeBounds {
     /// the logical position along each axis
     public var position: Bounds
     /// linear sequence position
@@ -98,11 +53,7 @@ public struct ShapeIndex<Bounds>: Comparable
 
 //==============================================================================
 // Shape
-public struct Shape<Bounds>: Codable, Equatable, Collection
-    where Bounds: ShapeBounds
-{
-    public typealias Element = Int
-    
+public struct Shape<Bounds: ShapeBounds> {
     // properties
     public let count: Int
     public let bounds: Bounds
@@ -128,9 +79,13 @@ public struct Shape<Bounds>: Codable, Equatable, Collection
             self.isSequential = true
         }
     }
+}
+
+//==============================================================================
+// Collection
+extension Shape: Collection {
+    public typealias Element = Int
     
-    //--------------------------------------------------------------------------
-    // Collection
     @inlinable
     public var startIndex: ShapeIndex<Bounds> {
         ShapeIndex<Bounds>(Bounds.zero, 0)
@@ -154,22 +109,31 @@ public struct Shape<Bounds>: Codable, Equatable, Collection
 
     @inlinable
     public func index(after i: ShapeIndex<Bounds>) -> ShapeIndex<Bounds> {
-        if isSequential {
-            return Index(i.position, i.sequenceIndex + 1)
-        } else {
-            let position = i.position.increment(boundedBy: bounds)
-            return Index(position, i.sequenceIndex + 1)
+        var next = i
+        next.sequenceIndex += 1
+        if !isSequential {
+            next.position.increment(boundedBy: bounds)
         }
+        return next
     }
+}
 
-    //--------------------------------------------------------------------------
-    /// the static rank of the shape
+//==============================================================================
+// Equatable
+extension Shape: Equatable {
     @inlinable
-    @_transparent
-    public static var rank: Int { Bounds.rank }
+    public static func == (_ lhs: Self, _ rhs: [Int]) -> Bool {
+        lhs.array == rhs
+    }
+}
 
-    //--------------------------------------------------------------------------
-    // computed properties
+//==============================================================================
+// Codable
+extension Shape: Codable {}
+
+//==============================================================================
+// primary functions
+extension Shape {
     /// array
     @inlinable
     public var array: [Int] { [Int](self) }
@@ -185,12 +149,11 @@ public struct Shape<Bounds>: Codable, Equatable, Collection
     /// returns a dense version of self
     @inlinable
     public var dense: Self { isSequential ? self : Self(bounds: bounds) }
-
+    /// the static rank of the shape
     @inlinable
-    public static func == (_ lhs: Self, _ rhs: [Int]) -> Bool {
-        lhs.array == rhs
-    }
-    
+    @_transparent
+    public static var rank: Int { Bounds.rank }
+
     //--------------------------------------------------------------------------
     // computeSpanCount
     // A sub view may cover a wider range of parent element indexes
