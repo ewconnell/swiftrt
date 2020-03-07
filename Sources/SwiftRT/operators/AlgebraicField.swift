@@ -74,16 +74,19 @@ public extension PlatformService {
 
 public extension TensorView where Element: AdditiveArithmetic {
     @inlinable
-    static func + (lhs: Self, rhs: Self) -> Self {
+    @differentiable(where Self: DifferentiableTensorView)
+    static func +(lhs: Self, rhs: Self) -> Self {
         Platform.service.add(lhs, rhs)
     }
 
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func +(lhs: Self, rhs: Element) -> Self {
         Platform.service.add(lhs, rhs)
     }
 
     @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
     static func +(lhs: Element, rhs: Self) -> Self {
         Platform.service.add(lhs, rhs)
     }
