@@ -32,38 +32,10 @@ var targets: [PackageDescription.Target] = []
 
 //==============================================================================
 // Cuda service module
-let currentDir = FileManager().currentDirectoryPath
-let kernelsDir = "\(currentDir)/Sources/SwiftRT/platform/cuda/kernels"
-let kernelsLibName = "SwiftRTCudaKernels"
-
-@available(OSX 10.13, *)
-func runCMake(args: [String], workingDir: String) {
-    let task = Process()
-    task.currentDirectoryURL = URL(fileURLWithPath: workingDir, isDirectory: true)
-    task.executableURL = URL(fileURLWithPath: "/usr/local/bin/cmake")
-    task.arguments = args
-    
-    do {
-        let outputPipe = Pipe()
-        task.standardOutput = outputPipe
-        try task.run()
-        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
-        task.waitUntilExit()
-        if task.terminationStatus == 0 {
-            let output = String(decoding: outputData, as: UTF8.self)
-            print(output)
-        }
-    } catch {
-        print(error)
-    }
-}
-
 if buildCuda {
-    //---------------------------------------
-    // build kernels library
-    if #available(OSX 10.13, *) {
-        runCMake(args: ["--version"], workingDir: kernelsDir)
-    }
+//    let currentDir = FileManager().currentDirectoryPath
+//    let kernelsDir = "\(currentDir)/Sources/SwiftRT/platform/cuda/kernels"
+//    let kernelsLibName = "SwiftRTCudaKernels"
 
     //---------------------------------------
     // add Cuda system module
@@ -71,6 +43,9 @@ if buildCuda {
     dependencies.append("CCuda")
     targets.append(
         .systemLibrary(name: "CCuda", path: "Modules/Cuda", pkgConfig: "cuda"))
+    
+    //---------------------------------------
+    // add SwiftRT Cuda kernels library built first via cmake
     
 } else {
     exclusions.append("platform/cuda")
@@ -86,7 +61,6 @@ targets.append(
 
 let package = Package(
     name: "SwiftRT",
-    platforms: [.macOS(.v10_13)],
     products: products,
     dependencies: [
         .package(url: "https://github.com/apple/swift-numerics",
