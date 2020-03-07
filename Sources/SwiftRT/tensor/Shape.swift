@@ -296,13 +296,20 @@ extension Shape {
     // init(flattening:
     @inlinable
     public init<B>(flattening other: Shape<B>) where B: ShapeBounds {
-        fatalError()
-        //        assert(other.isSequential, "cannot flatten non sequential data")
-        //        assert(S.rank >= Self.rank, "cannot flatten bounds of lower rank")
-        //        self.init(bounds: Bounds(
-        //            other.bounds[0],
-        //            other.count / other.bounds[0]
-        //        ))
+        assert(other.isSequential, "cannot flatten non sequential data")
+        assert(B.rank >= Self.rank, "cannot flatten bounds of lower rank")
+
+        // copy the leading dimensions
+        var bounds = Bounds.zero
+        for i in 0..<Self.rank {
+            bounds[i] = other.bounds[i]
+        }
+
+        // get product of the remaining dimensions
+        for j in Self.rank..<B.rank {
+            bounds[Self.rank-1] *= other.bounds[j]
+        }
+        self = Self(bounds: bounds)
     }
     
     //--------------------------------------------------------------------------
