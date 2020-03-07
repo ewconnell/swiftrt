@@ -80,6 +80,11 @@ public extension TensorView where Element: AdditiveArithmetic {
     }
 
     @inlinable
+    static func += (lhs: inout Self, rhs: Element) {
+        lhs = add(lhs, Self(repeating: rhs, to: lhs.bounds))
+    }
+
+    @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     static func +(lhs: Self, rhs: Element) -> Self {
         Platform.service.add(lhs, rhs)
