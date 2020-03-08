@@ -18,6 +18,7 @@ import Foundation
 //==============================================================================
 /// ShapeProtocol
 public protocol ShapeProtocol: Codable, Equatable, Collection
+    where Element == Int
 {
     associatedtype Bounds: ShapeBounds
     
@@ -46,119 +47,8 @@ public protocol ShapeProtocol: Codable, Equatable, Collection
 let _messageInvalidBounds = "bounding dimensions must be greater than 0"
 
 //==============================================================================
-/// ShapeIndex
-public struct ShapeIndex<Bounds>: Comparable where Bounds: ShapeBounds {
-    /// the logical position along each axis
-    public var position: Bounds
-    /// linear sequence position
-    public var sequenceIndex: Int
-
-    //------------------------------------
-    // initializers
-    @inlinable
-    public init(_ position: Bounds, _ sequenceIndex: Int) {
-        self.position = position
-        self.sequenceIndex = sequenceIndex
-    }
-
-    //------------------------------------
-    // Equatable
-    @inlinable
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.sequenceIndex == rhs.sequenceIndex
-    }
-    
-    //------------------------------------
-    // Comparable
-    @inlinable
-    public static func < (lhs: Self, rhs: Self) -> Bool {
-        lhs.sequenceIndex < rhs.sequenceIndex
-    }
-}
-
-//==============================================================================
-// Shape
-public struct Shape<Bounds: ShapeBounds>: ShapeProtocol {
-    // properties
-    public let count: Int
-    public let bounds: Bounds
-    public let isSequential: Bool
-    public let spanCount: Int
-    public let strides: Bounds
-    
-    @inlinable
-    public init(bounds: Bounds, strides: Bounds? = nil)
-    {
-        assert(bounds.min() > 0, _messageInvalidBounds)
-        self.bounds = bounds
-        self.count = bounds.elementCount()
-        let sequentialStrides = bounds.sequentialStrides()
-        
-        if let callerStrides = strides {
-            self.strides = callerStrides
-            self.spanCount = ((bounds &- 1) &* callerStrides).wrappedSum() + 1
-            self.isSequential = callerStrides == sequentialStrides
-        } else {
-            self.strides = sequentialStrides
-            self.spanCount = self.count
-            self.isSequential = true
-        }
-    }
-}
-
-//==============================================================================
-// Collection
-extension Shape: Collection {
-    public typealias Element = Int
-    
-    @inlinable
-    public var startIndex: ShapeIndex<Bounds> {
-        ShapeIndex<Bounds>(Bounds.zero, 0)
-    }
-
-    @inlinable
-    public var endIndex: ShapeIndex<Bounds> {
-        ShapeIndex<Bounds>(Bounds.zero, count)
-    }
-    
-    // returns the strided linear index corresponding
-    // to the n-dimensional logical position
-    @inlinable
-    public subscript(index: ShapeIndex<Bounds>) -> Int {
-        if isSequential {
-            return index.sequenceIndex
-        } else {
-            return (index.position &* strides).wrappedSum()
-        }
-    }
-
-    @inlinable
-    public func index(after i: ShapeIndex<Bounds>) -> ShapeIndex<Bounds> {
-        var next = i
-        next.sequenceIndex += 1
-        if !isSequential {
-            next.position.increment(boundedBy: bounds)
-        }
-        return next
-    }
-}
-
-//==============================================================================
-// Equatable
-extension Shape: Equatable {
-    @inlinable
-    public static func == (_ lhs: Self, _ rhs: [Int]) -> Bool {
-        lhs.array == rhs
-    }
-}
-
-//==============================================================================
-// Codable
-extension Shape: Codable {}
-
-//==============================================================================
-// primary functions
-extension Shape {
+// ShapeProtocol extensions
+extension ShapeProtocol {
     /// array
     @inlinable
     public var array: [Int] { [Int](self) }
@@ -180,16 +70,37 @@ extension Shape {
     public static var rank: Int { Bounds.rank }
 
     //--------------------------------------------------------------------------
-    // computeSpanCount
+    // getSpanCount
     // A sub view may cover a wider range of parent element indexes
     // than the number of dense elements defined by the bounds of the view
     // due to striding.
     // The span of the bounds is the linear index of the last index + 1
     @inlinable
-    public static func computeSpanCount(_ bounds: Bounds, _ strides: Bounds) -> Int {
+    public static func spanCount(for bounds: Bounds, with strides: Bounds)-> Int
+    {
         ((bounds &- 1) &* strides).wrappedSum() + 1
     }
 
+    //--------------------------------------------------------------------------
+    /// `elementCount`
+    /// the count of logical elements described by bounds
+    @inlinable
+    public static func elementCount(of bounds: Bounds) -> Int {
+        bounds.indices.reduce(into: 1) { $0 &*= bounds[$1] }
+    }
+
+    //--------------------------------------------------------------------------
+    /// `sequentialStrides(bounds:`
+    /// - Returns: the row major sequential strides for the given bounds
+    @inlinable
+    public static func sequentialStrides(for bounds: Bounds) -> Bounds {
+        var strides = Bounds.one
+        for i in stride(from: Self.rank - 1, through: 1, by: -1) {
+            strides[i - 1] = bounds[i] * strides[i]
+        }
+        return strides
+    }
+    
     //--------------------------------------------------------------------------
     // linearIndex
     @inlinable
@@ -442,6 +353,124 @@ extension Shape {
         }
         
         return Self(bounds: newBounds, strides: newStrides)
+    }
+}
+
+//==============================================================================
+// Collection
+extension ShapeProtocol
+{
+    @inlinable
+    public var startIndex: ShapeIndex<Bounds> {
+        ShapeIndex<Bounds>(Bounds.zero, 0)
+    }
+
+    @inlinable
+    public var endIndex: ShapeIndex<Bounds> {
+        ShapeIndex<Bounds>(Bounds.zero, count)
+    }
+    
+    // returns the strided linear index corresponding
+    // to the n-dimensional logical position
+    @inlinable
+    public subscript(index: ShapeIndex<Bounds>) -> Int {
+        if isSequential {
+            return index.sequenceIndex
+        } else {
+            return (index.position &* strides).wrappedSum()
+        }
+    }
+
+    @inlinable
+    public func index(after i: ShapeIndex<Bounds>) -> ShapeIndex<Bounds> {
+        var next = i
+        next.sequenceIndex += 1
+        if !isSequential {
+            next.position.increment(boundedBy: bounds)
+        }
+        return next
+    }
+}
+
+//==============================================================================
+// Equatable
+extension ShapeProtocol {
+    @inlinable
+    public static func == (_ lhs: Self, _ rhs: [Int]) -> Bool {
+        lhs.array == rhs
+    }
+}
+
+//==============================================================================
+/// ShapeIndex
+public struct ShapeIndex<Bounds>: Comparable where Bounds: ShapeBounds {
+    /// the logical position along each axis
+    public var position: Bounds
+    /// linear sequence position
+    public var sequenceIndex: Int
+
+    //------------------------------------
+    // initializers
+    @inlinable
+    public init(_ position: Bounds, _ sequenceIndex: Int) {
+        self.position = position
+        self.sequenceIndex = sequenceIndex
+    }
+
+    //------------------------------------
+    // Equatable
+    @inlinable
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.sequenceIndex == rhs.sequenceIndex
+    }
+    
+    //------------------------------------
+    // Comparable
+    @inlinable
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.sequenceIndex < rhs.sequenceIndex
+    }
+}
+
+//==============================================================================
+// Shape
+public struct Shape<Bounds: ShapeBounds>: ShapeProtocol
+{
+    public typealias Index = ShapeIndex<Bounds>
+    
+    // properties
+    public let count: Int
+    public let bounds: Bounds
+    public let isSequential: Bool
+    public let spanCount: Int
+    public let strides: Bounds
+    
+    @inlinable
+    public init(bounds: Bounds, strides: Bounds? = nil)
+    {
+        assert(bounds.min() > 0, _messageInvalidBounds)
+        self.bounds = bounds
+        
+        // compute element count
+        var elementCount = bounds[0]
+        for i in 1..<Bounds.rank { elementCount *= bounds[i] }
+        self.count = elementCount
+        
+        // get strides
+        var sequentialStrides = Bounds.one
+        for i in stride(from: Self.rank - 1, through: 1, by: -1) {
+            sequentialStrides[i - 1] = bounds[i] * sequentialStrides[i]
+        }
+
+        if let callerStrides = strides {
+            self.strides = callerStrides
+            self.spanCount =  ((bounds &- 1) &* callerStrides).wrappedSum() + 1
+            self.isSequential = callerStrides == sequentialStrides
+        } else {
+            self.strides = sequentialStrides
+            self.spanCount = self.count
+            self.isSequential = true
+        }
     }
 }
 
