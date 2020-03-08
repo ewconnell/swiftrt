@@ -35,7 +35,7 @@ public extension PlatformService {
     /// the currently active queue that platform service functions will use
     /// - Returns: the current device queue
     @inlinable
-    var currentQueue: Device.Queue {
+    var currentQueue: DeviceQueue {
         let queueId = currentQueueId
         return devices[queueId.device].queues[queueId.queue]
     }

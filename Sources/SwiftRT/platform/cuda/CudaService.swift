@@ -54,7 +54,7 @@ public struct CudaDevice: ServiceDevice {
     public let logInfo: LogInfo
     public let memoryType: MemoryType
     public let name: String
-    public var queues: [CudaQueue]
+    public var queues: [DeviceQueue]
 
     public init(parent parentLogInfo: LogInfo, id: Int) {
         self.id = id
@@ -87,15 +87,7 @@ public struct CudaDevice: ServiceDevice {
 
 //==============================================================================
 /// CudaQueue
-public struct CudaQueue: DeviceQueue {
-    // properties
-    public let creatorThread: Thread
-    public var defaultQueueEventOptions: QueueEventOptions
-    public let deviceId: Int
-    public let deviceName: String
-    public let id: Int
-    public let logInfo: LogInfo
-    public let name: String
+public final class CudaQueue: DeviceQueue {
     public let useGpu: Bool
     
     //--------------------------------------------------------------------------
@@ -105,38 +97,8 @@ public struct CudaQueue: DeviceQueue {
                 deviceId: Int, deviceName: String, useGpu: Bool)
     {
         self.useGpu = useGpu
-        self.id = id
-        self.name = "queue:\(id)"
-        self.logInfo = logInfo.flat(name)
-        self.deviceId = deviceId
-        self.deviceName = deviceName
-        self.creatorThread = Thread.current
-        self.defaultQueueEventOptions = QueueEventOptions()
-
-        diagnostic("\(createString) \(Self.self): \(deviceName)_\(name)",
-            categories: .queueAlloc)
-    }
-
-    public func createEvent(options: QueueEventOptions) -> QueueEvent {
-        fatalError()
-    }
-    
-    public func record(event: QueueEvent) -> QueueEvent {
-        fatalError()
-    }
-    
-    public func wait(for event: QueueEvent) {
-        fatalError()
-    }
-    
-    public func waitUntilQueueIsComplete() {
-        fatalError()
-    }
-    
-    public func copyAsync(from deviceMemory: DeviceMemory,
-                          to otherDeviceMemory: DeviceMemory)
-    {
-        fatalError()
+        super.init(id: id, parent: logInfo, deviceId: deviceId,
+                   deviceName: deviceName)
     }
 }
 

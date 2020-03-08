@@ -16,24 +16,21 @@
 import Foundation
 
 //==============================================================================
-/// CpuQueueProtocol
-public protocol CpuQueueProtocol: DeviceQueue {
-    init(id: Int,
-         parent logInfo: LogInfo,
-         deviceId: Int, deviceName: String)
-}
+/// CpuQueue
+/// a final version of the default device queue which executes functions
+/// synchronously on the cpu
+public final class CpuQueue: DeviceQueue { }
 
 //==============================================================================
 /// CpuDevice
-public struct CpuDevice<Queue>: ServiceDevice
-    where Queue: CpuQueueProtocol
+public struct CpuDevice: ServiceDevice
 {
     // properties
     public let id: Int
     public let logInfo: LogInfo
     public let memoryType: MemoryType
     public let name: String
-    public let queues: [Queue]
+    public let queues: [DeviceQueue]
 
     @inlinable
     public init(parent logInfo: LogInfo, memoryType: MemoryType, id: Int)
@@ -42,10 +39,10 @@ public struct CpuDevice<Queue>: ServiceDevice
         self.name = "cpu:\(id)"
         self.logInfo = logInfo.flat(name)
         self.memoryType = memoryType
-        
-        let queues = [Queue(id: 0, parent: self.logInfo,
-                            deviceId: id, deviceName: name)]
-        self.queues = queues
+        self.queues = [CpuQueue(id: 0,
+                                parent: self.logInfo,
+                                deviceId: id,
+                                deviceName: name)]
     }
 
     //--------------------------------------
@@ -60,4 +57,3 @@ public struct CpuDevice<Queue>: ServiceDevice
                             { buffer.deallocate() })
     }
 }
-

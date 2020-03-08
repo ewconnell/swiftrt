@@ -93,14 +93,12 @@ public struct Platform {
 /// a compute device represents a physical service device installed
 /// on the platform
 public protocol ServiceDevice: Logger {
-    associatedtype Queue: DeviceQueue
-
     /// the id of the device for example dev:0, dev:1, ...
     var id: Int { get }
     /// name used logging
     var name: String { get }
     /// a collection of device queues for scheduling work
-    var queues: [Queue] { get }
+    var queues: [DeviceQueue] { get }
     /// specifies the type of device memory for data transfer
     var memoryType: MemoryType { get }
 
@@ -136,43 +134,6 @@ public struct DeviceMemory {
         self.version = -1
         self.deallocate = deallocate
     }
-}
-
-//==============================================================================
-/// DeviceQueue
-/// A device queue is an asynchronous sequential list of commands to be
-/// executed on the associated device.
-public protocol DeviceQueue: Logger, DeviceFunctions {
-    /// the thread that created this queue. Used to detect accidental access
-    var creatorThread: Thread { get }
-    /// options to use when creating queue events
-    var defaultQueueEventOptions: QueueEventOptions { get }
-    /// the device id that this queue is associated with
-    var deviceId: Int { get }
-    /// the id of the device for example queue:0, queue:1, ...
-    var id: Int { get }
-    /// name used logging
-    var deviceName: String { get }
-    /// name used logging
-    var name: String { get }
-
-    //--------------------------------------------------------------------------
-    // synchronization functions
-    /// creates a QueueEvent
-    func createEvent(options: QueueEventOptions) -> QueueEvent
-    /// queues a queue event op. When executed the event is signaled
-    @discardableResult
-    func record(event: QueueEvent) -> QueueEvent
-    /// records an op on the queue that will perform a queue blocking wait
-    /// when it is processed
-    func wait(for event: QueueEvent)
-    /// blocks the calling thread until the queue queue has completed all work
-    func waitUntilQueueIsComplete()
-    
-    //--------------------------------------------------------------------------
-    /// asynchronously copies the contents of a device memeory buffer to another
-    func copyAsync(from deviceMemory: DeviceMemory,
-                   to otherDeviceMemory: DeviceMemory)
 }
 
 //==============================================================================

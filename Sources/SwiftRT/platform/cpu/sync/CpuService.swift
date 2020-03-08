@@ -20,7 +20,7 @@
 /// on the machine where the process is being run.
 public class CpuService: PlatformService {
     // properties
-    public let devices: [CpuDevice<CpuQueue>]
+    public let devices: [CpuDevice]
     public let logInfo: LogInfo
     public let name: String
     public var queueStack: [QueueId]
@@ -32,7 +32,7 @@ public class CpuService: PlatformService {
         logInfo = LogInfo(logWriter: Platform.log, logLevel: .error,
                           namePath: name, nestingLevel: 0)
         devices = [
-            CpuDevice<CpuQueue>(parent: logInfo, memoryType: .unified, id: 0)
+            CpuDevice(parent: logInfo, memoryType: .unified, id: 0)
         ]
         
         // select device 0 queue 0 by default

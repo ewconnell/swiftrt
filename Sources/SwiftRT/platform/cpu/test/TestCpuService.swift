@@ -21,7 +21,7 @@
 /// memory management unit tests
 public class TestCpuService: PlatformService {
     // properties
-    public let devices: [CpuDevice<CpuQueue>]
+    public let devices: [CpuDevice]
     public let logInfo: LogInfo
     public let name: String
     public var queueStack: [QueueId]
@@ -35,9 +35,9 @@ public class TestCpuService: PlatformService {
                                namePath: self.name,
                                nestingLevel: 0)
         self.devices = [
-            CpuDevice<CpuQueue>(parent: logInfo, memoryType: .unified,  id: 0),
-            CpuDevice<CpuQueue>(parent: logInfo, memoryType: .discreet, id: 1),
-            CpuDevice<CpuQueue>(parent: logInfo, memoryType: .discreet, id: 2),
+            CpuDevice(parent: logInfo, memoryType: .unified,  id: 0),
+            CpuDevice(parent: logInfo, memoryType: .discreet, id: 1),
+            CpuDevice(parent: logInfo, memoryType: .discreet, id: 2),
         ]
         
         // select device 0 queue 0 by default
