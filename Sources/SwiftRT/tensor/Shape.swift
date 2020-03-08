@@ -16,6 +16,31 @@
 import Foundation
 
 //==============================================================================
+/// ShapeProtocol
+public protocol ShapeProtocol: Codable, Equatable, Collection
+{
+    associatedtype Bounds: ShapeBounds
+    
+    // properties
+    /// the dense number of elements in the shape
+    var count: Int { get }
+    /// the bounds of the shape in each dimension
+    var bounds: Bounds { get }
+    /// `true` if indexing is row sequential for performance
+    var isSequential: Bool { get }
+    /// The strided number of elements spanned by the shape
+    var spanCount: Int { get }
+    /// The distance to the next element for each dimension
+    var strides: Bounds { get }
+        
+    /// init(extents:strides:
+    /// - Parameter bounds: bounds of the shape in each dimension
+    /// - Parameter strides: the distance to the next element in each dimension
+    /// A value of `nil` implies row major sequential element strides
+    init(bounds: Bounds, strides: Bounds?)
+}
+
+//==============================================================================
 // messages
 @usableFromInline
 let _messageInvalidBounds = "bounding dimensions must be greater than 0"
@@ -53,7 +78,7 @@ public struct ShapeIndex<Bounds>: Comparable where Bounds: ShapeBounds {
 
 //==============================================================================
 // Shape
-public struct Shape<Bounds: ShapeBounds> {
+public struct Shape<Bounds: ShapeBounds>: ShapeProtocol {
     // properties
     public let count: Int
     public let bounds: Bounds
