@@ -143,20 +143,20 @@ public protocol BufferStream {
 /// ShapedBuffer
 public protocol ShapedBuffer: Collection {
     associatedtype Element
-    associatedtype Bounds: ShapeBounds
+    associatedtype Shape: ShapeProtocol
 
     var pointer: UnsafeBufferPointer<Element> { get }
-    var shape: Shape<Bounds> { get }
+    var shape: Shape { get }
 }
 
 //==============================================================================
 /// BufferElements
-public struct BufferElements<Element, Bounds>: ShapedBuffer
-    where Bounds: ShapeBounds
+public struct BufferElements<Element, Shape>: ShapedBuffer
+    where Shape: ShapeProtocol
 {
-    public typealias Index = Shape<Bounds>.Index
+    public typealias Index = Shape.Index
     public let pointer: UnsafeBufferPointer<Element>
-    public let shape: Shape<Bounds>
+    public let shape: Shape
 
     @inlinable public var endIndex: Index { shape.endIndex }
     @inlinable public var startIndex: Index { shape.startIndex }
@@ -164,9 +164,7 @@ public struct BufferElements<Element, Bounds>: ShapedBuffer
     //-----------------------------------
     // initializers
     @inlinable
-    public init(_ shape: Shape<Bounds>,
-                _ pointer: UnsafeBufferPointer<Element>)
-    {
+    public init(_ shape: Shape, _ pointer: UnsafeBufferPointer<Element>) {
         assert(pointer.count > 0, "can't enumerate an empty shape")
         self.shape = shape
         self.pointer = pointer
@@ -187,20 +185,20 @@ public struct BufferElements<Element, Bounds>: ShapedBuffer
 /// MutableShapedBuffer
 public protocol MutableShapedBuffer: MutableCollection {
     associatedtype Element
-    associatedtype Bounds: ShapeBounds
+    associatedtype Shape: ShapeProtocol
 
     var pointer: UnsafeMutableBufferPointer<Element> { get }
-    var shape: Shape<Bounds> { get }
+    var shape: Shape { get }
 }
 
 //==============================================================================
 /// MutableBufferElements
-public struct MutableBufferElements<Element, Bounds>: MutableShapedBuffer
-    where Bounds: ShapeBounds
+public struct MutableBufferElements<Element, Shape>: MutableShapedBuffer
+    where Shape: ShapeProtocol
 {
-    public typealias Index = Shape<Bounds>.Index
+    public typealias Index = Shape.Index
     public let pointer: UnsafeMutableBufferPointer<Element>
-    public let shape: Shape<Bounds>
+    public let shape: Shape
     
     @inlinable public var endIndex: Index { shape.endIndex }
     @inlinable public var startIndex: Index { shape.startIndex }
@@ -208,8 +206,7 @@ public struct MutableBufferElements<Element, Bounds>: MutableShapedBuffer
     //-----------------------------------
     // initializers
     @inlinable
-    public init(_ shape: Shape<Bounds>,
-                _ pointer: UnsafeMutableBufferPointer<Element>)
+    public init(_ shape: Shape, _ pointer: UnsafeMutableBufferPointer<Element>)
     {
         assert(pointer.count > 0, "can't enumerate an empty shape")
         self.shape = shape

@@ -21,22 +21,22 @@ public protocol ShapeBounds: SIMD where Scalar == Int
 {
     /// a tuple type used for rank invariant bounds initialization
     associatedtype Tuple
+
     /// the number of bounding dimensions
     static var rank: Int { get }
-    
+
     init(_ s: Tuple)
     
-    // for shape initialization
-    func elementCount() -> Int
-    func sequentialStrides() -> Self
-    
-    // for shape indexing
+    // **** Adding this to the protocol causes about a 40% loss in
+    // indexing performance to both Shape indexing and to Normal SIMD
+    // operations.
+    // Extending the SIMD classes seems to be a really bad thing
     mutating func increment(boundedBy bounds: Self)
 }
 
 //==============================================================================
 // ShapeBounds extensions
-extension ShapeBounds {
+public extension ShapeBounds {
     /// instance member access
     @inlinable @_transparent
     var count: Int { Self.rank }
@@ -54,14 +54,17 @@ extension ShapeBounds {
         guard let s = s else { return nil }
         self.init(s)
     }
-}
+    
+    @inlinable
+    mutating func increment(boundedBy bounds: Self) {
+//        fatalError("increment(boundedBy: not implemented")
+    }
 
-extension ShapeBounds where Scalar: FixedWidthInteger {
     //--------------------------------------------------------------------------
     /// `elementCount`
     /// the count of logical elements described by bounds
     @inlinable
-    public func elementCount() -> Int {
+    func elementCount() -> Int {
         indices.reduce(into: 1) { $0 &*= self[$1] }
     }
 
@@ -69,7 +72,7 @@ extension ShapeBounds where Scalar: FixedWidthInteger {
     /// `sequentialStrides`
     /// computes the row major sequential strides
     @inlinable
-    public func sequentialStrides() -> Self {
+    func sequentialStrides() -> Self {
         var strides = Self.one
         for i in stride(from: Self.rank - 1, through: 1, by: -1) {
             strides[i - 1] = self[i] * strides[i]
@@ -118,11 +121,9 @@ extension SIMD2: ShapeBounds where Scalar == Int {
     
     @inlinable
     public init(_ s: Tuple) {
-        self.init()
-        self[0] = s.0
-        self[1] = s.1
+        self.init(s.0, s.1)
     }
-    
+
     @inlinable
     public func elementCount() -> Int {
         self[0] * self[1]
@@ -137,7 +138,7 @@ extension SIMD2: ShapeBounds where Scalar == Int {
     public mutating func increment(boundedBy bounds: Self) {
         // a recursive algorithm was ~55x slower
         self[1] += 1
-        
+
         if self[1] == bounds[1] {
             self[1] = 0
             self[0] += 1

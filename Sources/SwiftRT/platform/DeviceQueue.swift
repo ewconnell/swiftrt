@@ -356,7 +356,7 @@ public extension DeviceQueue {
                       _ opId: ReductionOp,
                       _ opNext: @escaping (T.Element, T.Element) -> T.Element,
                       _ opFinal: ReduceOpFinal<R>?) where
-        T: ShapedBuffer, T.Bounds == R.Bounds,
+        T: ShapedBuffer, T.Shape == R.Shape,
         R: MutableShapedBuffer, R.Element == T.Element
     {
         // created a repeated shape for the initial results to match `x`

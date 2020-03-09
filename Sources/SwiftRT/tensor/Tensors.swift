@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 // VectorView protocol
-public protocol VectorView: TensorView where Bounds == Bounds1 { }
+public protocol VectorView: TensorView where Shape == Shape1 { }
 
 // VectorView initialization extensions
 public extension VectorView {
@@ -29,7 +29,7 @@ public extension VectorView {
     }
     
     @inlinable
-    init(bounds: Bounds.Tuple, name: String? = nil) {
+    init(bounds: BoundsTuple, name: String? = nil) {
         self.init(bounds: Bounds(bounds), name: name)
     }
     
@@ -79,7 +79,7 @@ public extension VectorView {
     @inlinable
     init(referenceTo bufferRef: UnsafeBufferPointer<Element>, name: String? = nil)
     {
-        let shape = Shape<Bounds>((bufferRef.count))
+        let shape = Shape((bufferRef.count))
         self = Self.create(referenceTo: bufferRef, shape, name)
     }
     
@@ -90,7 +90,7 @@ public extension VectorView {
     init(referenceTo bufferRef: UnsafeMutableBufferPointer<Element>,
          name: String? = nil)
     {
-        let shape = Shape<Bounds>((bufferRef.count))
+        let shape = Shape((bufferRef.count))
         self = Self.create(referenceTo: bufferRef, shape, name)
     }
 
@@ -161,7 +161,7 @@ extension VectorType: AdditiveArithmetic where Element: Numeric {
 
 //==============================================================================
 // MatrixView protocol
-public protocol MatrixView: TensorView where Bounds == Bounds2 { }
+public protocol MatrixView: TensorView where Shape == Shape2 { }
 
 public enum MatrixLayout { case rowMajor, columnMajor }
 
@@ -177,7 +177,7 @@ public extension MatrixView {
     }
     
     @inlinable
-    init(bounds: Bounds.Tuple, layout: MatrixLayout = .rowMajor,
+    init(bounds: BoundsTuple, layout: MatrixLayout = .rowMajor,
          name: String? = nil)
     {
         self.init(bounds: Bounds(bounds), layout: layout, name: name)
@@ -204,7 +204,7 @@ public extension MatrixView {
     init<T>(with element: T, name: String? = nil) where
         T: AnyConvertable, Element: AnyConvertable
     {
-        let shape = Shape<Bounds>(bounds: Bounds.one)
+        let shape = Shape(bounds: Bounds.one)
         self = Self.create(for: Element(any: element), shape, name)
     }
 
@@ -238,7 +238,7 @@ public extension MatrixView {
     /// from structred 2D `Element` collection
     @inlinable
     init<T>(elements: [[T]], name: String? = nil) where T == Element{
-        let shape = Shape<Bounds>((elements.count, elements.first!.count))
+        let shape = Shape((elements.count, elements.first!.count))
         self = Self.create(elements.joined(), shape, name)
     }
     
@@ -248,7 +248,7 @@ public extension MatrixView {
     init<T>(with elements: [[T]], name: String? = nil)
         where T: AnyConvertable, Element: AnyConvertable
     {
-        let shape = Shape<Bounds>((elements.count, elements.first!.count))
+        let shape = Shape((elements.count, elements.first!.count))
         let flatElements = elements.joined().lazy.map {
             Element(any: $0)
         }
@@ -304,17 +304,17 @@ public extension MatrixView {
     //--------------------------------------------------------------------------
     // utilities
     @inlinable
-    static func matrixShape(_ bounds: Bounds.Tuple,
-                            _ layout: MatrixLayout) -> Shape<Bounds>
+    static func matrixShape(_ bounds: BoundsTuple, _ layout: MatrixLayout)
+        -> Shape
     {
         matrixShape(Bounds(bounds), layout)
     }
 
     @inlinable
-    static func matrixShape(_ bounds: Bounds,
-                            _ layout: MatrixLayout) -> Shape<Bounds>
+    static func matrixShape(_ bounds: Bounds, _ layout: MatrixLayout)
+        -> Shape
     {
-        let shape = Shape<Bounds>(bounds: bounds)
+        let shape = Shape(bounds: bounds)
         return layout == .rowMajor ? shape : shape.columnMajor
     }
 }
@@ -439,7 +439,7 @@ extension MatrixType: AdditiveArithmetic where Element: Numeric {
 
 //==============================================================================
 // VolumeView protocol
-public protocol VolumeView: TensorView where Bounds == Bounds3 {}
+public protocol VolumeView: TensorView where Shape == Shape3 {}
 
 // VolumeView extensions
 public extension VolumeView
@@ -452,7 +452,7 @@ public extension VolumeView
     }
     
     @inlinable
-    init(bounds: Bounds.Tuple, name: String? = nil) {
+    init(bounds: BoundsTuple, name: String? = nil) {
         self.init(bounds: Bounds(bounds), name: name)
     }
 
@@ -465,7 +465,7 @@ public extension VolumeView
     /// from single `Element`
     @inlinable
     init(element: Element, name: String? = nil) {
-        let shape = Shape<Bounds>(bounds: Bounds.one)
+        let shape = Shape(bounds: Bounds.one)
         self = Self.create([element], shape, name)
     }
 
@@ -486,7 +486,7 @@ public extension VolumeView
             elements: C, name: String? = nil) where
         C: Collection, C.Element == Element
     {
-        let shape = Shape<Bounds>((deps, rows, cols))
+        let shape = Shape((deps, rows, cols))
         assert(shape.count == elements.count, _messageElementCountMismatch)
         self = Self.create(elements, shape, name)
     }
@@ -498,7 +498,7 @@ public extension VolumeView
             with elements: C, name: String? = nil) where
         C: Collection, C.Element: AnyConvertable, Element: AnyConvertable
     {
-        let shape = Shape<Bounds>((deps, rows, cols))
+        let shape = Shape((deps, rows, cols))
         assert(shape.count == elements.count, _messageElementCountMismatch)
         self = Self.create(elements.lazy.map { Element(any: $0) }, shape, name)
     }
@@ -507,7 +507,7 @@ public extension VolumeView
     /// from structred 3D `Element` collection
     @inlinable
     init<T>(elements: [[[T]]], name: String? = nil) where T == Element{
-        let shape = Shape<Bounds>((elements.count,
+        let shape = Shape((elements.count,
                                    elements.first!.count,
                                    elements.first!.first!.count))
         let flatElements = elements.joined().joined()
@@ -520,7 +520,7 @@ public extension VolumeView
     init<T>(with elements: [[[T]]], name: String? = nil)
         where T: AnyConvertable, Element: AnyConvertable
     {
-        let shape = Shape<Bounds>((elements.count,
+        let shape = Shape((elements.count,
                                    elements.first!.count,
                                    elements.first!.first!.count))
         let flatElements = elements.joined().joined().lazy.map {
@@ -537,7 +537,7 @@ public extension VolumeView
          referenceTo bufferRef: UnsafeBufferPointer<Element>,
          name: String? = nil)
     {
-        let shape = Shape<Bounds>((deps, rows, cols))
+        let shape = Shape((deps, rows, cols))
         self = Self.create(referenceTo: bufferRef, shape, name)
     }
     
@@ -549,7 +549,7 @@ public extension VolumeView
          referenceTo bufferRef: UnsafeMutableBufferPointer<Element>,
          name: String? = nil)
     {
-        let shape = Shape<Bounds>((deps, rows, cols))
+        let shape = Shape((deps, rows, cols))
         self = Self.create(referenceTo: bufferRef, shape, name)
     }
     

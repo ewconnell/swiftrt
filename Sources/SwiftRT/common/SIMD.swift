@@ -61,6 +61,16 @@ import Foundation
     public init() {
         _storage = Scalar.SIMD8Storage()
     }
+
+    @_transparent
+    public init(_ v0: Scalar, _ v1: Scalar, _ v2: Scalar, _ v3: Scalar, _ v4: Scalar) {
+        self.init()
+        self[0] = v0
+        self[1] = v1
+        self[2] = v2
+        self[3] = v3
+        self[4] = v4
+    }
     
     /// Accesses the scalar at the specified position.
     public subscript(index: Int) -> Scalar {

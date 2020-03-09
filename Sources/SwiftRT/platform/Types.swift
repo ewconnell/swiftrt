@@ -32,12 +32,6 @@ public typealias Bounds3 = SIMD3<Int>
 public typealias Bounds4 = SIMD4<Int>
 public typealias Bounds5 = SIMD5<Int>
 
-public typealias Shape1 = Shape<SIMD1<Int>>
-public typealias Shape2 = Shape<SIMD2<Int>>
-public typealias Shape3 = Shape<SIMD3<Int>>
-public typealias Shape4 = Shape<SIMD4<Int>>
-public typealias Shape5 = Shape<SIMD5<Int>>
-
 //==============================================================================
 // Default Tensor types
 public typealias IndexType = Int32
