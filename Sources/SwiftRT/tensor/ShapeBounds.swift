@@ -27,6 +27,8 @@ public protocol ShapeBounds: SIMD where Scalar == Int
     // operations.
     // Extending the SIMD classes seems to be a really bad thing
     mutating func increment(boundedBy bounds: Self)
+    
+    func sequentialStrides() -> Self
 }
 
 //==============================================================================
@@ -46,15 +48,30 @@ public extension ShapeBounds {
     
     @inlinable
     mutating func increment(boundedBy bounds: Self) {
-//        fatalError("increment(boundedBy: not implemented")
+        var dim = Self.rank - 1
+        while true {
+            self[dim] += 1
+            if self[dim] < bounds[dim] {
+                break
+            } else if dim > 0 {
+                self[dim] = 0
+                dim -= 1
+            } else {
+                break
+            }
+        }
     }
 
     //--------------------------------------------------------------------------
-    /// `elementCount`
-    /// the count of logical elements described by bounds
+    /// `reduce`
     @inlinable
-    func elementCount() -> Int {
-        indices.reduce(into: 1) { $0 &*= self[$1] }
+    func reduce(
+        into initialResult: Scalar,
+        _ updateAccumulatingResult: (inout Scalar, Scalar) -> ()) -> Scalar
+    {
+        indices.reduce(into: initialResult) {
+            updateAccumulatingResult(&$0, self[$1])
+        }
     }
 
     //--------------------------------------------------------------------------
