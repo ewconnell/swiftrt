@@ -147,7 +147,7 @@ class test_Initialize: XCTestCase {
     // test_repeatElement
     func test_repeatElement() {
         let value: Int32 = 42
-        let volume = IndexVolume(element: value).repeated(to: (2, 3, 10))
+        let volume = IndexVolume(element: value).repeated(to: 2, 3, 10)
         let expected = [Int32](repeating: value, count: volume.count)
         XCTAssert(volume == expected)
     }
@@ -155,7 +155,7 @@ class test_Initialize: XCTestCase {
     //--------------------------------------------------------------------------
     // test_repeatRowVector
     func test_repeatRowVector() {
-        let matrix = IndexMatrix(1, 5, with: 0...4).repeated(to: (5, 5))
+        let matrix = IndexMatrix(1, 5, with: 0...4).repeated(to: 5, 5)
         XCTAssert(matrix == [
             0, 1, 2, 3, 4,
             0, 1, 2, 3, 4,
@@ -168,7 +168,7 @@ class test_Initialize: XCTestCase {
     //--------------------------------------------------------------------------
     // test_repeatColVector
     func test_repeatColVector() {
-        let matrix = IndexMatrix(5, 1, with: 0...4).repeated(to: (5, 5))
+        let matrix = IndexMatrix(5, 1, with: 0...4).repeated(to: 5, 5)
         XCTAssert(matrix == [
             0, 0, 0, 0, 0,
             1, 1, 1, 1, 1,

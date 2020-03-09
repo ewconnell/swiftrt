@@ -21,12 +21,12 @@ public extension TensorView where Self: VectorView {
     @differentiable(where Self: DifferentiableTensorView)
     subscript(index: Int) -> Element {
         get {
-            view(from: makePositive(index: (index)),
+            view(from: makePositive(index: Bounds(index)),
                  to: Bounds.one, with: Bounds.one).element
         }
         set {
             expandSelfIfRepeated()
-            var view = sharedView(from: makePositive(index: (index)),
+            var view = sharedView(from: makePositive(index: Bounds(index)),
                                   to: Bounds.one, with: Bounds.one)
             view.element = newValue
         }
@@ -39,11 +39,11 @@ public extension TensorView where Self: VectorView {
         {
         get {
             let r = range.relativeTo(0..<bounds[0])
-            return self[(r.start), (r.end), (r.step)]
+            return self[Bounds(r.start), Bounds(r.end), Bounds(r.step)]
         }
         set {
             let r = range.relativeTo(0..<bounds[0])
-            self[(r.start), (r.end), (r.step)] = newValue
+            self[Bounds(r.start), Bounds(r.end), Bounds(r.step)] = newValue
         }
     }
 }
@@ -140,18 +140,6 @@ public extension TensorView {
             let viewUpper = ((bounds &- 1 &+ absSteps) / absSteps) &+ lower
             let viewStrides = strides &* steps
             return (viewUpper, viewStrides)
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    @inlinable
-    @differentiable(where Self: DifferentiableTensorView)
-    subscript(lower: Bounds.Tuple, upper: Bounds.Tuple, steps: Bounds.Tuple) -> Self
-    {
-        get { self[Bounds(lower), Bounds(upper), Bounds(steps)] }
-        set {
-            self[Bounds(lower), Bounds(upper),
-                 Bounds(steps)] = newValue
         }
     }
     

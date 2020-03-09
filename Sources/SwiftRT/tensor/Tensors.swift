@@ -29,20 +29,15 @@ public extension VectorView {
     }
     
     @inlinable
-    init(bounds: BoundsTuple, name: String? = nil) {
-        self.init(bounds: Bounds(bounds), name: name)
-    }
-    
-    @inlinable
     init(count: Int, name: String? = nil) {
-        self.init(bounds: count, name: name)
+        self.init(bounds: Bounds(count), name: name)
     }
     
     //--------------------------------------------------------------------------
     /// from single `Element`
     @inlinable
     init(element: Element, name: String? = nil) {
-        self = Self.create(for: element, Shape((1)), name)
+        self = Self.create(for: element, Shape(Bounds(1)), name)
     }
     
     //--------------------------------------------------------------------------
@@ -51,16 +46,25 @@ public extension VectorView {
     init<T>(with element: T, name: String? = nil) where
         T: AnyConvertable, Element: AnyConvertable
     {
-        self = Self.create(for: Element(any: element), Shape((1)), name)
+        self = Self.create(for: Element(any: element), Shape(Bounds(1)), name)
     }
     
+    //--------------------------------------------------------------------------
+    /// repeating element
+    @inlinable
+    init(repeating value: Element, to bounds: Int, name: String? = nil)
+    {
+        let shape = Shape(Bounds(bounds), strides: Bounds.zero)
+        self = Self.create(for: value, shape, name)
+    }
+
     //--------------------------------------------------------------------------
     /// from flat `Element` collection
     @inlinable
     init<C>(elements: C, name: String? = nil) where
         C: Collection, C.Element == Element
     {
-        self = Self.create(elements, Shape((elements.count)), name)
+        self = Self.create(elements, Shape(Bounds(elements.count)), name)
     }
     
     //--------------------------------------------------------------------------
@@ -70,7 +74,7 @@ public extension VectorView {
         C: Collection, C.Element: AnyConvertable, Element: AnyConvertable
     {
         self = Self.create(elements.lazy.map { Element(any: $0) },
-                           Shape((elements.count)), name)
+                           Shape(Bounds(elements.count)), name)
     }
     
     //--------------------------------------------------------------------------
@@ -79,7 +83,7 @@ public extension VectorView {
     @inlinable
     init(referenceTo bufferRef: UnsafeBufferPointer<Element>, name: String? = nil)
     {
-        let shape = Shape((bufferRef.count))
+        let shape = Shape(Bounds(bufferRef.count))
         self = Self.create(referenceTo: bufferRef, shape, name)
     }
     
@@ -90,8 +94,16 @@ public extension VectorView {
     init(referenceTo bufferRef: UnsafeMutableBufferPointer<Element>,
          name: String? = nil)
     {
-        let shape = Shape((bufferRef.count))
+        let shape = Shape(Bounds(bufferRef.count))
         self = Self.create(referenceTo: bufferRef, shape, name)
+    }
+
+    //--------------------------------------------------------------------------
+    /// repeated(bounds:
+    @inlinable
+    func repeated(to bounds: Int) -> Self {
+        Self(shape: shape.repeated(to: Bounds(bounds)),
+             buffer: buffer, offset: offset, shared: shared)
     }
 
     //--------------------------------------------------------------------------
@@ -177,17 +189,10 @@ public extension MatrixView {
     }
     
     @inlinable
-    init(bounds: BoundsTuple, layout: MatrixLayout = .rowMajor,
-         name: String? = nil)
-    {
-        self.init(bounds: Bounds(bounds), layout: layout, name: name)
-    }
-    
-    @inlinable
     init(_ rows: Int, _ cols: Int, layout: MatrixLayout = .rowMajor,
          name: String? = nil)
     {
-        self.init(bounds: (rows, cols), layout: layout, name: name)
+        self.init(bounds: Bounds(rows, cols), layout: layout, name: name)
     }
 
     //--------------------------------------------------------------------------
@@ -209,6 +214,16 @@ public extension MatrixView {
     }
 
     //--------------------------------------------------------------------------
+    /// repeating element
+    @inlinable
+    init(repeating value: Element, to rows: Int, _ cols: Int,
+         name: String? = nil)
+    {
+        let shape = Shape(Bounds(rows, cols), strides: Bounds.zero)
+        self = Self.create(for: value, shape, name)
+    }
+
+    //--------------------------------------------------------------------------
     /// from flat `Element` collection
     @inlinable
     init<C>(_ rows: Int , _ cols: Int, elements: C,
@@ -216,7 +231,7 @@ public extension MatrixView {
             name: String? = nil) where
         C: Collection, C.Element == Element
     {
-        let shape = Self.matrixShape((rows, cols), layout)
+        let shape = Self.matrixShape(Bounds(rows, cols), layout)
         assert(shape.count == elements.count, _messageElementCountMismatch)
         self = Self.create(elements, shape, name)
     }
@@ -229,7 +244,7 @@ public extension MatrixView {
             name: String? = nil) where
         C: Collection, C.Element: AnyConvertable, Element: AnyConvertable
     {
-        let shape = Self.matrixShape((rows, cols), layout)
+        let shape = Self.matrixShape(Bounds(rows, cols), layout)
         assert(shape.count == elements.count, _messageElementCountMismatch)
         self = Self.create(elements.lazy.map { Element(any: $0) }, shape, name)
     }
@@ -238,7 +253,7 @@ public extension MatrixView {
     /// from structred 2D `Element` collection
     @inlinable
     init<T>(elements: [[T]], name: String? = nil) where T == Element{
-        let shape = Shape((elements.count, elements.first!.count))
+        let shape = Shape(Bounds(elements.count, elements.first!.count))
         self = Self.create(elements.joined(), shape, name)
     }
     
@@ -248,7 +263,7 @@ public extension MatrixView {
     init<T>(with elements: [[T]], name: String? = nil)
         where T: AnyConvertable, Element: AnyConvertable
     {
-        let shape = Shape((elements.count, elements.first!.count))
+        let shape = Shape(Bounds(elements.count, elements.first!.count))
         let flatElements = elements.joined().lazy.map {
             Element(any: $0)
         }
@@ -264,7 +279,7 @@ public extension MatrixView {
          layout: MatrixLayout = .rowMajor,
          name: String? = nil)
     {
-        let shape = Self.matrixShape((rows, cols), layout)
+        let shape = Self.matrixShape(Bounds(rows, cols), layout)
         self = Self.create(referenceTo: bufferRef, shape, name)
     }
 
@@ -277,10 +292,18 @@ public extension MatrixView {
          layout: MatrixLayout = .rowMajor,
          name: String? = nil)
     {
-        let shape = Self.matrixShape((rows, cols), layout)
+        let shape = Self.matrixShape(Bounds(rows, cols), layout)
         self = Self.create(referenceTo: bufferRef, shape, name)
     }
     
+    //--------------------------------------------------------------------------
+    /// repeated(rows:cols:
+    @inlinable
+    func repeated(to rows: Int, _ cols: Int) -> Self {
+        Self(shape: shape.repeated(to: Bounds(rows, cols)),
+             buffer: buffer, offset: offset, shared: shared)
+    }
+
     //--------------------------------------------------------------------------
     // typed views
     @inlinable
@@ -303,13 +326,6 @@ public extension MatrixView {
     
     //--------------------------------------------------------------------------
     // utilities
-    @inlinable
-    static func matrixShape(_ bounds: BoundsTuple, _ layout: MatrixLayout)
-        -> Shape
-    {
-        matrixShape(Bounds(bounds), layout)
-    }
-
     @inlinable
     static func matrixShape(_ bounds: Bounds, _ layout: MatrixLayout)
         -> Shape
@@ -340,12 +356,12 @@ public extension MatrixView
     @differentiable(where Self: DifferentiableTensorView)
     subscript(r: Int, c: Int) -> Element {
         get {
-            let lower = makePositive(index: (r, c))
+            let lower = makePositive(index: Bounds(r, c))
             return view(from: lower, to: lower &+ 1, with: Bounds.one).element
         }
         set {
             expandSelfIfRepeated()
-            let lower = makePositive(index: (r, c))
+            let lower = makePositive(index: Bounds(r, c))
             var single = sharedView(from: lower, to: lower &+ 1,
                                     with: Bounds.one)
             single.element = newValue
@@ -363,13 +379,15 @@ public extension MatrixView
         get {
             let r = rows.relativeTo(0..<bounds[0])
             let c = cols.relativeTo(0..<bounds[1])
-            return self[(r.start, c.start), (r.end, c.end), (r.step, c.step)]
+            return self[Bounds(r.start, c.start), Bounds(r.end, c.end),
+                        Bounds(r.step, c.step)]
         }
         
         set {
             let r = rows.relativeTo(0..<bounds[0])
             let c = cols.relativeTo(0..<bounds[1])
-            self[(r.start, c.start), (r.end, c.end), (r.step, c.step)] = newValue
+            self[Bounds(r.start, c.start), Bounds(r.end, c.end),
+                 Bounds(r.step, c.step)] = newValue
         }
     }
     
@@ -452,13 +470,8 @@ public extension VolumeView
     }
     
     @inlinable
-    init(bounds: BoundsTuple, name: String? = nil) {
-        self.init(bounds: Bounds(bounds), name: name)
-    }
-
-    @inlinable
     init(_ deps: Int, _ rows: Int, _ cols: Int, name: String? = nil) {
-        self.init(bounds: (deps, rows, cols), name: name)
+        self.init(bounds: Bounds(deps, rows, cols), name: name)
     }
     
     //--------------------------------------------------------------------------
@@ -480,13 +493,23 @@ public extension VolumeView
     }
     
     //--------------------------------------------------------------------------
+    /// repeating element
+    @inlinable
+    init(repeating value: Element, to deps: Int, _ rows: Int, _ cols: Int,
+         name: String? = nil)
+    {
+        let shape = Shape(Bounds(deps, rows, cols), strides: Bounds.zero)
+        self = Self.create(for: value, shape, name)
+    }
+
+    //--------------------------------------------------------------------------
     /// from flat `Element` collection
     @inlinable
     init<C>(_ deps: Int, _ rows: Int, _ cols: Int,
             elements: C, name: String? = nil) where
         C: Collection, C.Element == Element
     {
-        let shape = Shape((deps, rows, cols))
+        let shape = Shape(Bounds(deps, rows, cols))
         assert(shape.count == elements.count, _messageElementCountMismatch)
         self = Self.create(elements, shape, name)
     }
@@ -498,7 +521,7 @@ public extension VolumeView
             with elements: C, name: String? = nil) where
         C: Collection, C.Element: AnyConvertable, Element: AnyConvertable
     {
-        let shape = Shape((deps, rows, cols))
+        let shape = Shape(Bounds(deps, rows, cols))
         assert(shape.count == elements.count, _messageElementCountMismatch)
         self = Self.create(elements.lazy.map { Element(any: $0) }, shape, name)
     }
@@ -507,9 +530,9 @@ public extension VolumeView
     /// from structred 3D `Element` collection
     @inlinable
     init<T>(elements: [[[T]]], name: String? = nil) where T == Element{
-        let shape = Shape((elements.count,
-                                   elements.first!.count,
-                                   elements.first!.first!.count))
+        let shape = Shape(Bounds(elements.count,
+                                 elements.first!.count,
+                                 elements.first!.first!.count))
         let flatElements = elements.joined().joined()
         self = Self.create(flatElements, shape, name)
     }
@@ -520,9 +543,9 @@ public extension VolumeView
     init<T>(with elements: [[[T]]], name: String? = nil)
         where T: AnyConvertable, Element: AnyConvertable
     {
-        let shape = Shape((elements.count,
-                                   elements.first!.count,
-                                   elements.first!.first!.count))
+        let shape = Shape(Bounds(elements.count,
+                                 elements.first!.count,
+                                 elements.first!.first!.count))
         let flatElements = elements.joined().joined().lazy.map {
             Element(any: $0)
         }
@@ -537,7 +560,7 @@ public extension VolumeView
          referenceTo bufferRef: UnsafeBufferPointer<Element>,
          name: String? = nil)
     {
-        let shape = Shape((deps, rows, cols))
+        let shape = Shape(Bounds(deps, rows, cols))
         self = Self.create(referenceTo: bufferRef, shape, name)
     }
     
@@ -549,10 +572,18 @@ public extension VolumeView
          referenceTo bufferRef: UnsafeMutableBufferPointer<Element>,
          name: String? = nil)
     {
-        let shape = Shape((deps, rows, cols))
+        let shape = Shape(Bounds(deps, rows, cols))
         self = Self.create(referenceTo: bufferRef, shape, name)
     }
     
+    //--------------------------------------------------------------------------
+    /// repeated(rows:cols:
+    @inlinable
+    func repeated(to deps: Int, _ rows: Int, _ cols: Int) -> Self {
+        Self(shape: shape.repeated(to: Bounds(deps, rows, cols)),
+             buffer: buffer, offset: offset, shared: shared)
+    }
+
     //--------------------------------------------------------------------------
     // typed views
     @inlinable
@@ -588,9 +619,16 @@ public extension VolumeView {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     subscript(d: Int, r: Int, c: Int) -> Element {
-        get { self[(d, r, c), (d + 1, r + 1, c + 1), (1, 1, 1)].element }
+        get {
+            self[Bounds(d, r, c),
+                 Bounds(d + 1, r + 1, c + 1),
+                 Bounds(1, 1, 1)].element
+        }
+        
         set {
-            var single = self[(d, r, c), (d + 1, r + 1, c + 1), (1, 1, 1)]
+            var single = self[Bounds(d, r, c),
+                              Bounds(d + 1, r + 1, c + 1),
+                              Bounds(1, 1, 1)]
             single.element = newValue
         }
     }
@@ -606,18 +644,18 @@ public extension VolumeView {
             let d = deps.relativeTo(0..<bounds[0])
             let r = rows.relativeTo(0..<bounds[1])
             let c = cols.relativeTo(0..<bounds[2])
-            return self[(d.start, r.start, c.start),
-                        (d.end, r.end, c.end),
-                        (d.step, r.step, c.step)]
+            return self[Bounds(d.start, r.start, c.start),
+                        Bounds(d.end, r.end, c.end),
+                        Bounds(d.step, r.step, c.step)]
         }
         
         set {
             let d = deps.relativeTo(0..<bounds[0])
             let r = rows.relativeTo(0..<bounds[1])
             let c = cols.relativeTo(0..<bounds[2])
-            self[(d.start, r.start, c.start),
-                 (d.end, r.end, c.end),
-                 (d.step, r.step, c.step)] = newValue
+            self[Bounds(d.start, r.start, c.start),
+                 Bounds(d.end, r.end, c.end),
+                 Bounds(d.step, r.step, c.step)] = newValue
         }
     }
     

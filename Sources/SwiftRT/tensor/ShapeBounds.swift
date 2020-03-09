@@ -19,13 +19,8 @@ import Foundation
 // ShapeBounds
 public protocol ShapeBounds: SIMD where Scalar == Int
 {
-    /// a tuple type used for rank invariant bounds initialization
-    associatedtype Tuple
-
     /// the number of bounding dimensions
     static var rank: Int { get }
-
-    init(_ s: Tuple)
     
     // **** Adding this to the protocol causes about a 40% loss in
     // indexing performance to both Shape indexing and to Normal SIMD
@@ -47,12 +42,6 @@ public extension ShapeBounds {
         let tmp = self[a]
         self[a] = self[b]
         self[b] = tmp
-    }
-    
-    @inlinable @_transparent
-    init?(_ s: Tuple?) {
-        guard let s = s else { return nil }
-        self.init(s)
     }
     
     @inlinable
@@ -84,16 +73,8 @@ public extension ShapeBounds {
 //==============================================================================
 // SIMD1
 extension SIMD1: ShapeBounds where Scalar == Int {
-    public typealias Tuple = (Scalar)
-    
     @inlinable @_transparent
     public static var rank: Int { 1 }
-
-    @inlinable
-    public init(_ s: Tuple) {
-        self.init()
-        self[0] = s
-    }
     
     @inlinable
     public func elementCount() -> Int {
@@ -102,7 +83,7 @@ extension SIMD1: ShapeBounds where Scalar == Int {
 
     @inlinable
     public func sequentialStrides() -> Self {
-        Self((1))
+        Self(1)
     }
     
     @inlinable
@@ -114,16 +95,9 @@ extension SIMD1: ShapeBounds where Scalar == Int {
 //==============================================================================
 // SIMD2
 extension SIMD2: ShapeBounds where Scalar == Int {
-    public typealias Tuple = (Scalar, Scalar)
-
     @inlinable @_transparent
     public static var rank: Int { 2 }
     
-    @inlinable
-    public init(_ s: Tuple) {
-        self.init(s.0, s.1)
-    }
-
     @inlinable
     public func elementCount() -> Int {
         self[0] * self[1]
@@ -131,7 +105,7 @@ extension SIMD2: ShapeBounds where Scalar == Int {
 
     @inlinable
     public func sequentialStrides() -> Self {
-        Self((self[1], 1))
+        Self(self[1], 1)
     }
 
     @inlinable
@@ -149,18 +123,8 @@ extension SIMD2: ShapeBounds where Scalar == Int {
 //==============================================================================
 // SIMD3
 extension SIMD3: ShapeBounds where Scalar == Int {
-    public typealias Tuple = (Scalar, Scalar, Scalar)
-
     @inlinable @_transparent
     public static var rank: Int { 3 }
-
-    @inlinable
-    public init(_ s: Tuple) {
-        self.init()
-        self[0] = s.0
-        self[1] = s.1
-        self[2] = s.2
-    }
     
     @inlinable
     public mutating func increment(boundedBy bounds: Self) {
@@ -181,20 +145,9 @@ extension SIMD3: ShapeBounds where Scalar == Int {
 //==============================================================================
 // SIMD4
 extension SIMD4: ShapeBounds where Scalar == Int {
-    public typealias Tuple = (Scalar, Scalar, Scalar, Scalar)
-
     @inlinable @_transparent
     public static var rank: Int { 4 }
 
-    @inlinable
-    public init(_ s: Tuple) {
-        self.init()
-        self[0] = s.0
-        self[1] = s.1
-        self[2] = s.2
-        self[3] = s.3
-    }
-    
     @inlinable
     public mutating func increment(boundedBy bounds: Self) {
         // a recursive algorithm was ~55x slower
@@ -219,20 +172,8 @@ extension SIMD4: ShapeBounds where Scalar == Int {
 //==============================================================================
 // SIMD5
 extension SIMD5: ShapeBounds where Scalar == Int {
-    public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar)
-
     @inlinable @_transparent
     public static var rank: Int { 5 }
-
-    @inlinable
-    public init(_ s: Tuple) {
-        self.init()
-        self[0] = s.0
-        self[1] = s.1
-        self[2] = s.2
-        self[3] = s.3
-        self[4] = s.4
-    }
 
     @inlinable
     public mutating func increment(boundedBy bounds: Self) {

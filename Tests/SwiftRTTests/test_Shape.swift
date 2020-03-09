@@ -30,7 +30,7 @@ class test_Shape: XCTestCase {
     // test_perfIndexShape1
     func test_perfIndexShape1() {
         #if !DEBUG
-        let shape = Shape1((1024 * 1024))
+        let shape = Shape1(Bounds1(1024 * 1024))
         var count = 0
         self.measure {
             for _ in 0..<10 {
@@ -44,7 +44,7 @@ class test_Shape: XCTestCase {
 
     func test_perfIndexShape2() {
         #if !DEBUG
-        let shape = Shape2((1024, 1024))
+        let shape = Shape2(Bounds2(1024, 1024))
         var count = 0
         self.measure {
             for _ in 0..<10 {
@@ -58,7 +58,7 @@ class test_Shape: XCTestCase {
 
     func test_perfIndexShape3() {
         #if !DEBUG
-        let shape = Shape3((64, 128, 128))
+        let shape = Shape3(Bounds3(64, 128, 128))
         var count = 0
         self.measure {
             for _ in 0..<10 {
@@ -72,7 +72,7 @@ class test_Shape: XCTestCase {
     
     func test_perfIndexShape4() {
         #if !DEBUG
-        let shape = Shape4((2, 32, 128, 128))
+        let shape = Shape4(Bounds4(2, 32, 128, 128))
         var count = 0
         self.measure {
             for _ in 0..<10 {
@@ -86,7 +86,7 @@ class test_Shape: XCTestCase {
     
     func test_perfIndexShape5() {
         #if !DEBUG
-        let shape = Shape5((2, 2, 16, 128, 128))
+        let shape = Shape5(Bounds5(2, 2, 16, 128, 128))
         var count = 0
         self.measure {
             for _ in 0..<10 {
@@ -199,25 +199,25 @@ class test_Shape: XCTestCase {
     // test_ShapeCollection
     func test_ShapeCollection() {
         // repeating
-        XCTAssert(Shape1((3), strides: (0)) == [0, 0, 0])
-        XCTAssert(Shape2((2, 3), strides: (0, 1)) == [0, 1, 2, 0, 1, 2])
-        XCTAssert(Shape2((2, 3), strides: (1, 0)) == [0, 0, 0, 1, 1, 1])
+        XCTAssert(Shape1(Bounds1(3), strides: Bounds1(0)) == [0, 0, 0])
+        XCTAssert(Shape2(Bounds2(2, 3), strides: Bounds2(0, 1)) == [0, 1, 2, 0, 1, 2])
+        XCTAssert(Shape2(Bounds2(2, 3), strides: Bounds2(1, 0)) == [0, 0, 0, 1, 1, 1])
 
         // strided
-        XCTAssert(Shape1((5), strides: (3)) == [0, 3, 6, 9, 12])
-        XCTAssert(Shape1((5), strides: (3)) == [0, 3, 6, 9, 12])
-        XCTAssert(Shape2((2, 3), strides: (6, 2)) == [0, 2, 4, 6, 8, 10])
+        XCTAssert(Shape1(Bounds1(5), strides: Bounds1(3)) == [0, 3, 6, 9, 12])
+        XCTAssert(Shape1(Bounds1(5), strides: Bounds1(3)) == [0, 3, 6, 9, 12])
+        XCTAssert(Shape2(Bounds2(2, 3), strides: Bounds2(6, 2)) == [0, 2, 4, 6, 8, 10])
 
         // dense
-        XCTAssert(Shape2((2, 3)) == [0, 1, 2, 3, 4, 5])
-        XCTAssert(Shape3((2, 3, 4)) == [Int](0..<24))
+        XCTAssert(Shape2(Bounds2(2, 3)) == [0, 1, 2, 3, 4, 5])
+        XCTAssert(Shape3(Bounds3(2, 3, 4)) == [Int](0..<24))
     }
 
     //--------------------------------------------------------------------------
     // test_transposed
     func test_transposed() {
         let volume = Volume(2,3,4).filledWithIndex()
-        let transVolume = volume.transposed(with: (2,1,0))
+        let transVolume = volume.transposed(with: Bounds3(2,1,0))
         XCTAssert(transVolume.array == [[[ 0.0, 12.0],
                                          [ 4.0, 16.0],
                                          [ 8.0, 20.0]],
@@ -239,7 +239,7 @@ class test_Shape: XCTestCase {
     // test_perfInitShape2
     func test_perfInitShape2() {
         #if !DEBUG
-        var shape = Shape2((1, 1))
+        var shape = Shape2(Bounds2(1, 1))
         let index = Shape2.Index(Bounds2.one, 5)
         var i = 0
         self.measure {

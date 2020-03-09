@@ -82,7 +82,7 @@ class test_IterateView: XCTestCase {
     // test_VectorSubView
     func test_VectorSubView() {
         let vector = IndexVector(with: 0..<10)
-        let view = vector.view(from: (2), to: (5))
+        let view = vector[2..<5]
         XCTAssert(view == [2, 3, 4])
     }
     
@@ -90,7 +90,7 @@ class test_IterateView: XCTestCase {
     // test_MatrixSubView
     func test_MatrixSubView() {
         let matrix = IndexMatrix(3, 4, with: 0..<12)
-        let view = matrix.view(from: (1, 1), to: (3, 3))
+        let view = matrix[1..., 1..<3]
         XCTAssert(view == [
             5, 6,
             9, 10
@@ -101,7 +101,7 @@ class test_IterateView: XCTestCase {
     // test_VolumeSubView
     func test_VolumeSubView() {
         let volume = IndexVolume(3, 3, 4, with: 0..<36)
-        let view = volume.view(from: (1, 1, 1), to: (3, 3, 4))
+        let view = volume[1..., 1..., 1...]
 
         XCTAssert(view == [
             17, 18, 19,
@@ -184,7 +184,7 @@ class test_IterateView: XCTestCase {
     //==========================================================================
     // test_repeatingElement
     func test_repeatingElement() {
-        let matrix = IndexMatrix(with: 42).repeated(to: (2, 3))
+        let matrix = IndexMatrix(with: 42).repeated(to: 2, 3)
         XCTAssert(matrix == [
             42, 42, 42,
             42, 42, 42,
@@ -194,7 +194,7 @@ class test_IterateView: XCTestCase {
     //==========================================================================
     // test_repeatingRow
     func test_repeatingRow() {
-        let matrix = IndexMatrix(1, 3, with: 0...2).repeated(to: (2, 3))
+        let matrix = IndexMatrix(1, 3, with: 0...2).repeated(to: 2, 3)
         XCTAssert(matrix == [
             0, 1, 2,
             0, 1, 2,
@@ -204,7 +204,7 @@ class test_IterateView: XCTestCase {
     //==========================================================================
     // test_repeatingCol
     func test_repeatingCol() {
-        let matrix = IndexMatrix(3, 1, with: 0...2).repeated(to: (3, 2))
+        let matrix = IndexMatrix(3, 1, with: 0...2).repeated(to: 3, 2)
         XCTAssert(matrix == [
             0, 0,
             1, 1,
@@ -215,7 +215,7 @@ class test_IterateView: XCTestCase {
     //==========================================================================
     // test_repeatingColInVolume
     func test_repeatingColInVolume() {
-        let v = IndexVolume(1, 3, 1, with: [1, 0, 1]).repeated(to: (2, 3, 4))
+        let v = IndexVolume(1, 3, 1, with: [1, 0, 1]).repeated(to: 2, 3, 4)
         XCTAssert(v == [
             1, 1, 1, 1,
             0, 0, 0, 0,
@@ -238,7 +238,7 @@ class test_IterateView: XCTestCase {
                     [1, 0, 1, 0],
                 ],
             ]
-        ).repeated(to: (2, 3, 4))
+        ).repeated(to: 2, 3, 4)
 
         XCTAssert(v == [
             1, 0, 1, 0,
@@ -254,14 +254,14 @@ class test_IterateView: XCTestCase {
     //==========================================================================
     // test_repeatingMatrixSubView
     func test_repeatingMatrixSubView() {
-        let matrix = IndexMatrix(3, 1, with: [1, 0, 1]).repeated(to: (3, 4))
+        let matrix = IndexMatrix(3, 1, with: [1, 0, 1]).repeated(to: 3, 4)
         XCTAssert(matrix == [
             1, 1, 1, 1,
             0, 0, 0, 0,
             1, 1, 1, 1,
         ])
         
-        let view = matrix.view(from: (1, 1), to: (3, 4))
+        let view = matrix[1..<3, 1..<4]
         XCTAssert(view == [
             0, 0, 0,
             1, 1, 1,

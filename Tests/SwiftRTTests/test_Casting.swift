@@ -104,7 +104,7 @@ class test_Casting: XCTestCase {
         XCTAssert(v2.bounds == [24])
         
         do {
-            let ones = Matrix(repeating: 1, to: (2, 12))
+            let ones = Matrix(repeating: 1, to: 2, 12)
             let g = pullback(at: volume, in: { Matrix(flattening: $0) })(ones)
             XCTAssert(g == [Float](repeating: 1, count: 24))
         }
@@ -130,7 +130,7 @@ class test_Casting: XCTestCase {
         XCTAssert(m3.bounds == [2, 4])
         
         do {
-            let ones = Matrix(repeating: 1, to: (2, 12))
+            let ones = Matrix(repeating: 1, to: 2, 12)
             let g = pullback(at: sumVolumeRows,
                              in: { Matrix(squeezing: $0, alongAxes: 1) })(ones)
             XCTAssert(g == [Float](repeating: 1, count: 24))

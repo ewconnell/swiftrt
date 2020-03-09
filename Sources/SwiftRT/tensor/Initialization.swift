@@ -235,15 +235,8 @@ public extension TensorView {
     @differentiable(where Self: DifferentiableTensorView)
     init(repeating value: Element, to bounds: Bounds, name: String? = nil)
     {
-        let shape = Shape(bounds: bounds, strides: Bounds.zero)
+        let shape = Shape(bounds, strides: Bounds.zero)
         self = Self.create(for: value, shape, name)
-    }
-
-    @inlinable
-    @differentiable(where Self: DifferentiableTensorView)
-    init(repeating value: Element, to bounds: BoundsTuple, name: String? = nil)
-    {
-        self.init(repeating: value, to: Bounds(bounds), name: name)
     }
     
     //--------------------------------------------------------------------------
@@ -292,7 +285,7 @@ public extension TensorView {
     /// helper to create a rank extended value
     @inlinable
     func createSingleElement(name: String? = nil) -> Self {
-        Self.create(Shape(bounds: Bounds.one, strides: Bounds.one), name)
+        Self.create(Shape(Bounds.one, strides: Bounds.one), name)
     }
     
     //==========================================================================

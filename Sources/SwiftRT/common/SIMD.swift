@@ -33,6 +33,12 @@ import Foundation
         _storage = Scalar.SIMD2Storage()
     }
     
+    @_transparent
+    public init(_ v0: Scalar) {
+        self.init()
+        self[0] = v0
+    }
+    
     /// Accesses the scalar at the specified position.
     public subscript(index: Int) -> Scalar {
         @_transparent get {

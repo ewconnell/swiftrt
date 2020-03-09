@@ -30,8 +30,6 @@ public protocol TensorView: Logging {
     /// tensor shape
     associatedtype Shape: ShapeProtocol
     typealias Bounds = Shape.Bounds
-    typealias BoundsTuple = Shape.Bounds.Tuple
-    
     /// A concrete type used in generics to pass Boolean values
     associatedtype BoolView: TensorView
         where BoolView.Element == Bool, BoolView.Shape == Shape
@@ -220,11 +218,7 @@ public extension TensorView {
         Self(shape: shape.repeated(to: bounds),
              buffer: buffer, offset: offset, shared: shared)
     }
-    ///
-    @inlinable
-    func repeated(to bounds: BoundsTuple) -> Self {
-        repeated(to: Bounds(bounds))
-    }
+
     /// isUniquelyReference
     /// `true` if this view is the only one holding a reference to bufferRef
     @inlinable
@@ -240,8 +234,8 @@ public extension TensorView {
     /// makePositive(index:
     @inlinable
     @_semantics("autodiff.nonvarying")
-    func makePositive(index: BoundsTuple) -> Bounds {
-        var result = Bounds(index)
+    func makePositive(index: Bounds) -> Bounds {
+        var result = index
         for i in 0..<Bounds.rank {
             if result[i] < 0 { result[i] += bounds[i] }
         }
@@ -251,13 +245,6 @@ public extension TensorView {
     //--------------------------------------------------------------------------
     /// view
     /// Creates subview
-    @inlinable
-    func view(from lower: BoundsTuple, to upper: BoundsTuple,
-              with strides: BoundsTuple? = nil) -> Self
-    {
-        view(from: Bounds(lower), to: Bounds(upper), with: Bounds(strides))
-    }
-    
     @inlinable
     func view(from lower: Bounds, to upper: Bounds,
               with strides: Bounds? = nil) -> Self
@@ -277,13 +264,6 @@ public extension TensorView {
     //--------------------------------------------------------------------------
     /// sharedView
     /// Creates a subview that can be shared by multiple writers
-    @inlinable
-    mutating func sharedView(from lower: BoundsTuple, to upper: BoundsTuple,
-                             with strides: BoundsTuple? = nil) -> Self
-    {
-        sharedView(from: Bounds(lower), to: Bounds(upper), with: Bounds(strides))
-    }
-
     @inlinable
     mutating func sharedView(from lower: Bounds, to upper: Bounds,
                              with strides: Bounds? = nil) -> Self
@@ -324,7 +304,7 @@ public extension TensorView {
         // the subview offset is the view offset plus the offset of the position
         let viewStrides = strides ?? self.strides
         let viewOffset = offset + shape.linearIndex(of: lower)
-        let viewShape = Shape(bounds: bounds, strides: viewStrides)
+        let viewShape = Shape(bounds, strides: viewStrides)
         return Self(shape: viewShape, buffer: buffer,
                     offset: viewOffset, shared: shared)
     }
@@ -335,9 +315,9 @@ public extension TensorView {
     /// - Parameter with: and optional axes permutation order. If `nil` the
     /// last two dimensions are swapped.
     @inlinable
-    func transposed(with permutations: BoundsTuple? = nil) -> Self {
+    func transposed(with permutations: Bounds? = nil) -> Self {
         guard Self.rank > 1 else { return self }
-        let shape = self.shape.transposed(with: Bounds(permutations))
+        let shape = self.shape.transposed(with: permutations)
         return Self(shape: shape, buffer: buffer,
                     offset: offset, shared: shared)
     }

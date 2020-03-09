@@ -87,7 +87,7 @@ class test_Subscripting: XCTestCase {
     // test_WriteToRepeated
     func test_WriteToRepeated() {
         // create a repeated value which only uses a single Element of storage
-        var repeated = Matrix(repeating: 1, to: (2, 3))
+        var repeated = Matrix(repeating: 1, to: 2, 3)
         
         // writing to the repeated tensor causes the repeated data
         // to be fully realized now using 6 storage Elements
@@ -95,7 +95,7 @@ class test_Subscripting: XCTestCase {
         repeated[..., 1] = m1
         XCTAssert(repeated.array == [[1, 41, 1], [1, 42, 1]])
 
-        var m2 = Matrix(repeating: 2.0, to: (2,2))
+        var m2 = Matrix(repeating: 2.0, to: 2,2)
         m2[1, 0] = 30.0
         XCTAssert(m2 == [2, 2, 30, 2])
         m2[0] = Matrix(1,2, with: [3.0, 4.0])
@@ -110,22 +110,22 @@ class test_Subscripting: XCTestCase {
         var volume = Volume(2, 3, 4, with: 0..<24)
         
         // assign a volume depth to item 0
-        volume[0] = Volume(repeating: 3, to: (1, 3, 4))
+        volume[0] = Volume(repeating: 3, to: 1, 3, 4)
         XCTAssert(volume.array == [
             [[3,3,3,3], [3,3,3,3], [3,3,3,3]],
             [[12,13,14,15], [16,17,18,19], [20,21,22,23]],
         ])
 
         // assign via type expansion to item 1
-        volume[1] = Volume(expanding: Matrix(repeating: 7, to: (3, 4)))
+        volume[1] = Volume(expanding: Matrix(repeating: 7, to: 3, 4))
         XCTAssert(volume.array == [
             [[3,3,3,3], [3,3,3,3], [3,3,3,3]],
             [[7,7,7,7], [7,7,7,7], [7,7,7,7]],
         ])
         
         do {
-            let ones = Volume(repeating: 1, to: (1, 3, 4))
-            let g = pullback(at: Matrix(repeating: 7, to: (3, 4)),
+            let ones = Volume(repeating: 1, to: 1, 3, 4)
+            let g = pullback(at: Matrix(repeating: 7, to: 3, 4),
                              in: { Volume(expanding: $0) })(ones)
             XCTAssert(g == [Float](repeating: 1, count: 24))
         }
@@ -137,14 +137,14 @@ class test_Subscripting: XCTestCase {
         var volume = Volume(2, 3, 4, with: 0..<24)
         
         // assign a volume depth to item 0
-        volume[0..<1] = Volume(repeating: 3, to: (1, 3, 4))
+        volume[0..<1] = Volume(repeating: 3, to: 1, 3, 4)
         XCTAssert(volume.array == [
             [[3,3,3,3], [3,3,3,3], [3,3,3,3]],
             [[12,13,14,15], [16,17,18,19], [20,21,22,23]],
         ])
         
         // assign via type expansion to item 1
-        volume[1...1] = Volume(expanding: Matrix(repeating: 7, to: (3, 4)))
+        volume[1...1] = Volume(expanding: Matrix(repeating: 7, to: 3, 4))
         XCTAssert(volume.array == [
             [[3,3,3,3], [3,3,3,3], [3,3,3,3]],
             [[7,7,7,7], [7,7,7,7], [7,7,7,7]],

@@ -38,7 +38,7 @@ public protocol ShapeProtocol: Codable, Equatable, Collection
     /// - Parameter bounds: bounds of the shape in each dimension
     /// - Parameter strides: the distance to the next element in each dimension
     /// A value of `nil` implies row major sequential element strides
-    init(bounds: Bounds, strides: Bounds?)
+    init(_ bounds: Bounds, strides: Bounds?)
 }
 
 //==============================================================================
@@ -112,22 +112,9 @@ extension ShapeProtocol {
     // init(bounds:
     @inlinable
     public init(bounds: Bounds) {
-        self.init(bounds: bounds, strides: nil)
+        self.init(bounds, strides: nil)
     }
     
-    //--------------------------------------------------------------------------
-    // init with tuples
-    @inlinable
-    public init(_ bounds: Bounds.Tuple, strides: Bounds.Tuple? = nil) {
-        self.init(bounds: Bounds(bounds), strides: Bounds(strides))
-    }
-
-    @inlinable
-    public init?(_ bounds: Bounds.Tuple?, strides: Bounds.Tuple? = nil) {
-        guard let bounds = bounds else { return nil }
-        self.init(bounds: Bounds(bounds), strides: Bounds(strides))
-    }
-
     //--------------------------------------------------------------------------
     // init(expanding:
     @inlinable
@@ -161,7 +148,7 @@ extension ShapeProtocol {
                 j -= 1
             }
         }
-        self.init(bounds: newBounds, strides: newStrides)
+        self.init(newBounds, strides: newStrides)
     }
     
     //--------------------------------------------------------------------------
@@ -182,7 +169,7 @@ extension ShapeProtocol {
             newStrides[i] = other.strides[0]
         }
         
-        self.init(bounds: newBounds, strides: newStrides)
+        self.init(newBounds, strides: newStrides)
     }
     
     //--------------------------------------------------------------------------
@@ -198,7 +185,7 @@ extension ShapeProtocol {
             newBounds[i] = other.bounds[i]
             newStrides[i] = other.strides[i]
         }
-        self.init(bounds: newBounds, strides: newStrides)
+        self.init(newBounds, strides: newStrides)
     }
     
     //--------------------------------------------------------------------------
@@ -224,7 +211,7 @@ extension ShapeProtocol {
             newStrides[axis] = other.strides[otherAxis]
             axis += 1
         }
-        self.init(bounds: newBounds, strides: newStrides)
+        self.init(newBounds, strides: newStrides)
     }
     
     //--------------------------------------------------------------------------
@@ -296,7 +283,7 @@ extension ShapeProtocol {
         cmBounds.swapAt(Self.rank-1, Self.rank-2)
         var cmStrides = cmBounds.sequentialStrides()
         cmStrides.swapAt(Self.rank-1, Self.rank-2)
-        return Self(bounds: bounds, strides: cmStrides)
+        return Self(bounds, strides: cmStrides)
     }
     
     //--------------------------------------------------------------------------
@@ -321,7 +308,7 @@ extension ShapeProtocol {
         }
         
         // it is sequential only for vectors
-        return Self(bounds: repeatedBounds, strides: repeatedStrides)
+        return Self(repeatedBounds, strides: repeatedStrides)
     }
 
     //--------------------------------------------------------------------------
@@ -351,7 +338,7 @@ extension ShapeProtocol {
             newStrides.swapAt(Self.rank-1, Self.rank-2)
         }
         
-        return Self(bounds: newBounds, strides: newStrides)
+        return Self(newBounds, strides: newStrides)
     }
 }
 
@@ -445,8 +432,7 @@ public struct Shape<Bounds: ShapeBounds>: ShapeProtocol
     public let strides: Bounds
     
     @inlinable
-    public init(bounds: Bounds, strides: Bounds? = nil)
-    {
+    public init(_ bounds: Bounds, strides: Bounds? = nil) {
         assert(bounds.min() > 0, _messageInvalidBounds)
         self.bounds = bounds
         
@@ -486,7 +472,7 @@ public struct Shape1: ShapeProtocol {
     public let strides: SIMD1<Int>
     
     @inlinable
-    public init(bounds: SIMD1<Int>, strides: SIMD1<Int>? = nil) {
+    public init(_ bounds: SIMD1<Int>, strides: SIMD1<Int>? = nil) {
         assert(bounds.min() > 0, _messageInvalidBounds)
         self.bounds = bounds
         self.count = bounds[0]
@@ -514,7 +500,7 @@ public struct Shape2: ShapeProtocol {
     public let strides: SIMD2<Int>
     
     @inlinable
-    public init(bounds: SIMD2<Int>, strides: SIMD2<Int>? = nil) {
+    public init(_ bounds: SIMD2<Int>, strides: SIMD2<Int>? = nil) {
         assert(bounds.min() > 0, _messageInvalidBounds)
         self.bounds = bounds
         self.count = bounds[0] * bounds[1]
@@ -545,7 +531,7 @@ public struct Shape3: ShapeProtocol {
     public let strides: SIMD3<Int>
     
     @inlinable
-    public init(bounds: SIMD3<Int>, strides: SIMD3<Int>? = nil) {
+    public init(_ bounds: SIMD3<Int>, strides: SIMD3<Int>? = nil) {
         assert(bounds.min() > 0, _messageInvalidBounds)
         self.bounds = bounds
         self.count = bounds[0] * bounds[1] * bounds[2]
@@ -576,7 +562,7 @@ public struct Shape4: ShapeProtocol {
     public let strides: SIMD4<Int>
     
     @inlinable
-    public init(bounds: SIMD4<Int>, strides: SIMD4<Int>? = nil) {
+    public init(_ bounds: SIMD4<Int>, strides: SIMD4<Int>? = nil) {
         assert(bounds.min() > 0, _messageInvalidBounds)
         self.bounds = bounds
         
@@ -616,7 +602,7 @@ public struct Shape5: ShapeProtocol {
     public let strides: SIMD5<Int>
     
     @inlinable
-    public init(bounds: SIMD5<Int>, strides: SIMD5<Int>? = nil) {
+    public init(_ bounds: SIMD5<Int>, strides: SIMD5<Int>? = nil) {
         assert(bounds.min() > 0, _messageInvalidBounds)
         self.bounds = bounds
         
