@@ -23,7 +23,7 @@ import Numerics
 @inlinable
 public func cast<T, U>(_ other: U) -> T where
     T: TensorView, T.Element: AnyConvertable,
-    U: TensorView, U.Element: AnyConvertable, U.Shape == T.Shape
+    U: TensorView, U.Element: AnyConvertable, U.Bounds == T.Bounds
 {
     Platform.service.cast(other)
 }
@@ -33,7 +33,7 @@ public extension PlatformService {
     @inlinable
     func cast<T, U>(_ other: U) -> T where
         T: TensorView, T.Element: AnyConvertable,
-        U: TensorView, U.Element: AnyConvertable, U.Shape == T.Shape
+        U: TensorView, U.Element: AnyConvertable, U.Bounds == T.Bounds
     {
         var result = T.create(other.shape.dense, nil)
         var resultBuffer = write(&result)

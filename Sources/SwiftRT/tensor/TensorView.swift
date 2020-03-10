@@ -22,27 +22,25 @@ import Foundation
 /// conform to this protocol
 ///
 public protocol TensorView: Logging {
+    /// tensor shape
+    associatedtype Bounds: ShapeBounds
     /// tye type of element storage buffer
-    associatedtype Buffer: StorageBuffer
-        where Buffer.Element == Element
+    associatedtype Buffer: StorageBuffer where Buffer.Element == Element
     /// the type of element stored by the tensor
     associatedtype Element
-    /// tensor shape
-    associatedtype Shape: ShapeProtocol
-    typealias Bounds = Shape.Bounds
     /// A concrete type used in generics to pass Boolean values
     associatedtype BoolView: TensorView
-        where BoolView.Element == Bool, BoolView.Shape == Shape
+        where BoolView.Element == Bool, BoolView.Bounds == Bounds
     /// A concrete type used in generics to return index results
     associatedtype IndexView: TensorView
-        where IndexView.Element == IndexType, IndexView.Shape == Shape
+        where IndexView.Element == IndexType, IndexView.Bounds == Bounds
     
     //--------------------------------------------------------------------------
     // properties
     /// a label for the type used as a default name in diagnostics
     static var diagnosticName: String { get }
     /// the shape of the view used for indexing
-    var shape: Shape { get }
+    var shape: Shape<Bounds> { get }
     /// class reference to the underlying platform element buffer
     var buffer: Buffer { get set }
     /// the linear element offset where the view begins
@@ -52,7 +50,7 @@ public protocol TensorView: Logging {
     
     //--------------------------------------------------------------------------
     /// fully specified used for creating tensors
-    init(shape: Shape, buffer: Buffer, offset: Int, shared: Bool)
+    init(shape: Shape<Bounds>, buffer: Buffer, offset: Int, shared: Bool)
 
     //--------------------------------------------------------------------------
     /// creates a new dense tensor of the same type with the specified bounds
@@ -71,7 +69,7 @@ public extension TensorView {
     /// `bufferElements`
     /// - Returns: a buffer collection that can be used to iterate the shape
     @inlinable
-    func bufferElements() -> BufferElements<Element, Shape> {
+    func bufferElements() -> BufferElements<Element, Bounds> {
         // read the elements buffer using the current queue
         Platform.service.read(self)
     }
@@ -81,7 +79,7 @@ public extension TensorView {
     /// - Returns: an element buffer that can be used to iterate the shape
     @inlinable
     mutating func mutableBufferElements(willOverwrite: Bool = true)
-        -> MutableBufferElements<Element, Shape>
+        -> MutableBufferElements<Element, Bounds>
     {
         Platform.service.write(&self, willOverwrite: willOverwrite)
     }

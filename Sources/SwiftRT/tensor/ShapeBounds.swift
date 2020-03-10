@@ -17,17 +17,21 @@ import Foundation
 
 //==============================================================================
 // ShapeBounds
-public protocol ShapeBounds: SIMD where Scalar == Int
-{
+public protocol ShapeBounds: SIMD where Scalar == Int {
     /// the number of bounding dimensions
     static var rank: Int { get }
-    
+
+    /// - Returns: the number of elements described by the bounded space,
+    /// which is the product of the dimensions
+    func elementCount() -> Int
+
     // **** Adding this to the protocol causes about a 40% loss in
     // indexing performance to both Shape indexing and to Normal SIMD
     // operations.
     // Extending the SIMD classes seems to be a really bad thing
     mutating func increment(boundedBy bounds: Self)
     
+    /// - Returns: row major sequential srtides for the bounds
     func sequentialStrides() -> Self
 }
 
@@ -46,6 +50,7 @@ public extension ShapeBounds {
         self[b] = tmp
     }
     
+    // generic n-dimensional position increment function
     @inlinable
     mutating func increment(boundedBy bounds: Self) {
         var dim = Self.rank - 1
@@ -74,6 +79,11 @@ public extension ShapeBounds {
         }
     }
 
+    @inlinable
+    func elementCount() -> Int {
+        self.reduce(into: 1, *=)
+    }
+    
     //--------------------------------------------------------------------------
     /// `sequentialStrides`
     /// computes the row major sequential strides
