@@ -151,7 +151,7 @@ class test_Subscripting: XCTestCase {
         ])
         
         // assign a row
-        volume[1, 1, ...] = Volume(expanding: Vector(with: 0..<4), alongAxes: 0, 1)
+        volume[1, 1, ...] = Volume(expanding: Vector(0..<4), alongAxes: 0, 1)
         XCTAssert(volume.array == [
             [[3,3,3,3], [3,3,3,3], [3,3,3,3]],
             [[7,7,7,7], [0, 1, 2, 3], [7,7,7,7]],
@@ -161,7 +161,7 @@ class test_Subscripting: XCTestCase {
     //==========================================================================
     // test_VectorRange
     func test_VectorRange() {
-        let vector = IndexVector(with: 0..<10)
+        let vector = IndexVector(0..<10)
         
         // from index 1 through the end
         XCTAssert(vector[1...] == 1...9)
@@ -199,7 +199,7 @@ class test_Subscripting: XCTestCase {
     //==========================================================================
     // test_VectorRangeGradient
     func test_VectorRangeGradient() {
-        let v = Vector(with: 0..<10)
+        let v = Vector(0..<10)
 
         // simple range selection
         let range = v[1..<3]
@@ -218,7 +218,7 @@ class test_Subscripting: XCTestCase {
     //==========================================================================
     // test_VectorSteppedRange
     func test_VectorSteppedRange() {
-        let vector = IndexVector(with: 0...9)
+        let vector = IndexVector(0...9)
         XCTAssert(vector[1..<2..2] == [1])
         XCTAssert(vector[1..<4..2] == [1, 3])
         XCTAssert(vector[..<4..2] == [0, 2])
@@ -257,12 +257,12 @@ class test_Subscripting: XCTestCase {
     // test_VectorWriteRange
     func test_VectorWriteRange() {
 //        Platform.log.level = .diagnostic
-        var v1 = Vector(with: 0...6)
-        let sevens = Vector(with: repeatElement(7, count: 3))
+        var v1 = Vector(0...6)
+        let sevens = Vector(repeatElement(7, count: 3))
         v1[2...4] = sevens
         XCTAssert(v1 == [0, 1, 7, 7, 7, 5, 6])
         
-        let v2 = Vector(with: 1...6)
+        let v2 = Vector(1...6)
         let ones = Vector(repeating: 1, like: v2)
         let g = pullback(at: v2, in: { exp($0) })(ones)
         XCTAssert(g == [2.7182817, 7.389056, 20.085537,

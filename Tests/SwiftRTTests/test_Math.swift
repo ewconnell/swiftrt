@@ -33,7 +33,7 @@ class test_Math: XCTestCase {
     //--------------------------------------------------------------------------
     // test_abs
     func test_abs() {
-        let v = Vector(with: [-1, 2, -3, 4])
+        let v = Vector([-1, 2, -3, 4])
         XCTAssert(abs(v) == [1, 2, 3, 4])
 
         let ones = Vector(repeating: 1, like: v)
@@ -72,10 +72,10 @@ class test_Math: XCTestCase {
         let expected: [Float] = range.map { Foundation.exp(Float($0)) }
         XCTAssert(values == expected)
         
-        let v = Vector(with: 1...3)
+        let v = Vector(1...3)
         let ones = Vector(repeating: 1, like: v)
         let g = pullback(at: v, in: { exp($0) })(ones)
-        let e = Vector(with: [2.7182817,  7.389056, 20.085537])
+        let e = Vector([2.7182817,  7.389056, 20.085537])
         XCTAssert(elementsAlmostEqual(g, e, tolerance: 0.0001).all().element)
     }
 
@@ -88,10 +88,10 @@ class test_Math: XCTestCase {
         let expected: [Float] = range.map { Foundation.log(Float($0)) }
         XCTAssert(values == expected)
         
-        let v = Vector(with: [1, -2, 3])
+        let v = Vector([1, -2, 3])
         let ones = Vector(repeating: 1, like: v)
         let g = pullback(at: v, in: { log($0) })(ones)
-        let e = Vector(with: [1.0, -0.5, 0.33333334])
+        let e = Vector([1.0, -0.5, 0.33333334])
         XCTAssert(elementsAlmostEqual(g, e, tolerance: 0.0001).all().element)
     }
     
@@ -117,7 +117,7 @@ class test_Math: XCTestCase {
     //--------------------------------------------------------------------------
     // test_sign
     func test_sign() {
-        let v = Vector(with: [-1, 2, -3, 4])
+        let v = Vector([-1, 2, -3, 4])
         XCTAssert(sign(v) == [-1, 1, -1, 1])
         
         let ones = Vector(repeating: 1, like: v)

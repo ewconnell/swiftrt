@@ -33,8 +33,8 @@ class test_Comparative: XCTestCase {
     //--------------------------------------------------------------------------
     // test_elementsAlmostEqual
     func test_elementWiseAndOr() {
-        let v0 = BoolVector(with: [true, false, true, false, true])
-        let v1 = BoolVector(with: [false, true, false, true, true])
+        let v0 = BoolVector([true, false, true, false, true])
+        let v1 = BoolVector([false, true, false, true, true])
         XCTAssert((v0 .&& v1) == [false, false, false, false, true])
         XCTAssert((v0 .|| v1) == [true, true, true, true, true])
     }

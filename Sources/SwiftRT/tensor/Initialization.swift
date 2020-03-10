@@ -23,14 +23,23 @@ public let _messageNewTensorsShouldBeDense = "new tensors should be dense"
 
 //==============================================================================
 // casting for convertable types
-public extension TensorView where Element: AnyConvertable {
+public extension TensorView {
     //--------------------------------------------------------------------------
     /// casting
     /// - Parameter other: a tensor of the same shape whose elements are
     /// to be cast
     @inlinable
     init<U>(_ other: U) where
-        U: TensorView, U.Element: AnyConvertable, U.Bounds == Self.Bounds
+        Self.Element: BinaryFloatingPoint,
+        U: TensorView, U.Element: BinaryInteger, U.Bounds == Bounds
+    {
+        self = Platform.service.cast(other)
+    }
+
+    @inlinable
+    init<U>(_ other: U) where
+        Self.Element: BinaryInteger,
+        U: TensorView, U.Element: BinaryFloatingPoint, U.Bounds == Bounds
     {
         self = Platform.service.cast(other)
     }

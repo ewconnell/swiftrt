@@ -22,18 +22,41 @@ import Numerics
 /// - Returns: result
 @inlinable
 public func cast<T, U>(_ other: U) -> T where
-    T: TensorView, T.Element: AnyConvertable,
-    U: TensorView, U.Element: AnyConvertable, U.Bounds == T.Bounds
+    T: TensorView, T.Element: BinaryFloatingPoint,
+    U: TensorView, U.Element: BinaryInteger, U.Bounds == T.Bounds
+{
+    Platform.service.cast(other)
+}
+
+@inlinable
+public func cast<T, U>(_ other: U) -> T where
+    T: TensorView, T.Element: BinaryInteger,
+    U: TensorView, U.Element: BinaryFloatingPoint, U.Bounds == T.Bounds
 {
     Platform.service.cast(other)
 }
 
 // Platform extension
 public extension PlatformService {
+    /// cast(other:
+    /// casts from one the other element type to this tensors element type
+    // Integer -> FloatingPoint
     @inlinable
     func cast<T, U>(_ other: U) -> T where
-        T: TensorView, T.Element: AnyConvertable,
-        U: TensorView, U.Element: AnyConvertable, U.Bounds == T.Bounds
+        T: TensorView, T.Element: BinaryFloatingPoint,
+        U: TensorView, U.Element: BinaryInteger, U.Bounds == T.Bounds
+    {
+        var result = T.create(other.shape.dense, nil)
+        var resultBuffer = write(&result)
+        currentQueue.cast(from: read(other), to: &resultBuffer)
+        return result
+    }
+
+    // FloatingPoint -> Integer
+    @inlinable
+    func cast<T, U>(_ other: U) -> T where
+        T: TensorView, T.Element: BinaryInteger,
+        U: TensorView, U.Element: BinaryFloatingPoint, U.Bounds == T.Bounds
     {
         var result = T.create(other.shape.dense, nil)
         var resultBuffer = write(&result)

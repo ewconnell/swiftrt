@@ -42,7 +42,7 @@ class test_IterateView: XCTestCase {
     //==========================================================================
     // test_ArrayProperty
     func test_ArrayProperty() {
-        let vector = Vector(with: 0..<6)
+        let vector = Vector(0..<6)
         XCTAssert(vector.array == [0, 1, 2, 3, 4, 5])
 
         let matrix = Matrix(2, 3, with: 0..<6)
@@ -58,7 +58,7 @@ class test_IterateView: XCTestCase {
     func test_Vector() {
         let count: Int32 = 10
         let expected = [Int32](0..<count)
-        let vector = IndexVector(elements: expected)
+        let vector = IndexVector(expected)
         XCTAssert(vector == expected)
     }
     
@@ -81,7 +81,7 @@ class test_IterateView: XCTestCase {
     //==========================================================================
     // test_VectorSubView
     func test_VectorSubView() {
-        let vector = IndexVector(with: 0..<10)
+        let vector = IndexVector(0..<10)
         let view = vector[2..<5]
         XCTAssert(view == [2, 3, 4])
     }
@@ -184,7 +184,7 @@ class test_IterateView: XCTestCase {
     //==========================================================================
     // test_repeatingElement
     func test_repeatingElement() {
-        let matrix = IndexMatrix(with: 42).repeated(to: 2, 3)
+        let matrix = IndexMatrix(element: 42).repeated(to: 2, 3)
         XCTAssert(matrix == [
             42, 42, 42,
             42, 42, 42,
@@ -230,15 +230,13 @@ class test_IterateView: XCTestCase {
     //==========================================================================
     // test_repeatingMatrix
     func test_repeatingMatrix() {
-        let v = IndexVolume(with:
+        let v = IndexVolume([
             [
-                [
-                    [1, 0, 1, 0],
-                    [0, 1, 0, 1],
-                    [1, 0, 1, 0],
-                ],
+                [1, 0, 1, 0],
+                [0, 1, 0, 1],
+                [1, 0, 1, 0],
             ]
-        ).repeated(to: 2, 3, 4)
+        ]).repeated(to: 2, 3, 4)
 
         XCTAssert(v == [
             1, 0, 1, 0,

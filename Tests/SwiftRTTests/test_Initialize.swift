@@ -40,8 +40,8 @@ class test_Initialize: XCTestCase {
     // test_copy
     // tests copying from source to destination view
     func test_copy() {
-        let v1 = IndexVector(with: 1...3)
-        var v2 = IndexVector(with: repeatElement(0, count: 3))
+        let v1 = IndexVector(1...3)
+        var v2 = IndexVector(repeatElement(0, count: 3))
         SwiftRT.copy(from: v1, to: &v2)
         XCTAssert(v1 == [1, 2, 3])
     }
@@ -80,7 +80,7 @@ class test_Initialize: XCTestCase {
     //--------------------------------------------------------------------------
     // test_indenting
     func test_indenting() {
-        let v = Vector(with: 0..<4)
+        let v = Vector(0..<4)
         let m = Matrix(indenting: v)
         XCTAssert(m.bounds == [1, v.count])
     }
@@ -88,7 +88,7 @@ class test_Initialize: XCTestCase {
     //--------------------------------------------------------------------------
     // test_padding
     func test_padding() {
-        let v = Vector(with: 0..<4)
+        let v = Vector(0..<4)
         let m = Matrix(padding: v)
         XCTAssert(m.bounds == [v.count, 1])
     }

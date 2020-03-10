@@ -34,7 +34,7 @@ class test_Codable: XCTestCase {
         do {
             let jsonEncoder = JSONEncoder()
             let expected: [Float] = [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2]
-            let vector = Vector(elements: expected)
+            let vector = Vector(expected)
             let jsonData = try jsonEncoder.encode(vector)
 //            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
 //            print(jsonVectorString)
@@ -53,7 +53,7 @@ class test_Codable: XCTestCase {
         do {
             let jsonEncoder = JSONEncoder()
             let expected = (0..<10).map { Float($0) }
-            let matrix = Matrix(2, 5, elements: expected)
+            let matrix = Matrix(2, 5, with: expected)
             let jsonData = try jsonEncoder.encode(matrix)
 //            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
 //            print(jsonVectorString)
@@ -74,7 +74,7 @@ class test_Codable: XCTestCase {
             typealias Image = MatrixType<Pixel>
             let jsonEncoder = JSONEncoder()
             let pixels = [Pixel(0, 0.5, 1), Pixel(0.25, 0.5, 0.75)]
-            let image = Image(1, 2, elements: pixels, name: "pixels")
+            let image = Image(1, 2, with: pixels, name: "pixels")
             let jsonData = try jsonEncoder.encode(image)
 //            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
 //            print(jsonVectorString)
@@ -95,7 +95,7 @@ class test_Codable: XCTestCase {
             typealias Image = MatrixType<Pixel>
             let jsonEncoder = JSONEncoder()
             let pixels = [Pixel(0, 0.25, 0.5, 1), Pixel(0.25, 0.5, 0.75, 1)]
-            let image = Image(1, 2, elements: pixels, name: "pixels")
+            let image = Image(1, 2, with: pixels, name: "pixels")
             let jsonData = try jsonEncoder.encode(image)
 //            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
 //            print(jsonVectorString)

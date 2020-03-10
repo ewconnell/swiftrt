@@ -180,7 +180,7 @@ class test_Shape: XCTestCase {
     // test_SequentialViews
     func test_SequentialViews() {
         // vector views are always sequential
-        let v = Vector(with: 0..<6)
+        let v = Vector(0..<6)
         let subv = v[1...2]
         XCTAssert(subv.shape.isSequential)
         

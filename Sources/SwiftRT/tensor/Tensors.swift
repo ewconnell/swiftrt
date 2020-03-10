@@ -36,17 +36,8 @@ public extension VectorView {
     //--------------------------------------------------------------------------
     /// from single `Element`
     @inlinable
-    init(element: Element, name: String? = nil) {
+    init(_ element: Element, name: String? = nil) {
         self = Self.create(for: element, Shape(Bounds(1)), name)
-    }
-    
-    //--------------------------------------------------------------------------
-    /// from single `AnyConvertable`
-    @inlinable
-    init<T>(with element: T, name: String? = nil) where
-        T: AnyConvertable, Element: AnyConvertable
-    {
-        self = Self.create(for: Element(any: element), Shape(Bounds(1)), name)
     }
     
     //--------------------------------------------------------------------------
@@ -61,22 +52,23 @@ public extension VectorView {
     //--------------------------------------------------------------------------
     /// from flat `Element` collection
     @inlinable
-    init<C>(elements: C, name: String? = nil) where
+    init<C>(_ elements: C, name: String? = nil) where
         C: Collection, C.Element == Element
     {
         self = Self.create(elements, Shape(Bounds(elements.count)), name)
     }
     
     //--------------------------------------------------------------------------
-    /// from flat `AnyConvertable` collection
+    /// from flat collection casting Int -> Float
     @inlinable
-    init<C>(with elements: C, name: String? = nil) where
-        C: Collection, C.Element: AnyConvertable, Element: AnyConvertable
+    init<C>(_ elements: C, name: String? = nil) where
+        Self.Element: BinaryFloatingPoint,
+        C: Collection, C.Element: BinaryInteger
     {
-        self = Self.create(elements.lazy.map { Element(any: $0) },
+        self = Self.create(elements.lazy.map { Element($0) },
                            Shape(Bounds(elements.count)), name)
     }
-    
+
     //--------------------------------------------------------------------------
     /// with reference to read only bufferRef
     /// useful for memory mapped databases, or hardware device buffers
@@ -163,7 +155,7 @@ extension VectorType: Differentiable & DifferentiableTensorView
 extension VectorType: AdditiveArithmetic where Element: Numeric {
     @inlinable
     public static var zero: VectorType<Element> {
-        VectorType<Element>(element: Element.zero)
+        VectorType<Element>(Element.zero)
     }
 }
 
@@ -204,16 +196,6 @@ public extension MatrixView {
     }
 
     //--------------------------------------------------------------------------
-    /// from single `AnyConvertable`
-    @inlinable
-    init<T>(with element: T, name: String? = nil) where
-        T: AnyConvertable, Element: AnyConvertable
-    {
-        let shape = Shape(Bounds.one)
-        self = Self.create(for: Element(any: element), shape, name)
-    }
-
-    //--------------------------------------------------------------------------
     /// repeating element
     @inlinable
     init(repeating value: Element, to rows: Int, _ cols: Int,
@@ -226,7 +208,7 @@ public extension MatrixView {
     //--------------------------------------------------------------------------
     /// from flat `Element` collection
     @inlinable
-    init<C>(_ rows: Int , _ cols: Int, elements: C,
+    init<C>(_ rows: Int , _ cols: Int, with elements: C,
             layout: MatrixLayout = .rowMajor,
             name: String? = nil) where
         C: Collection, C.Element == Element
@@ -237,39 +219,26 @@ public extension MatrixView {
     }
 
     //--------------------------------------------------------------------------
-    /// from flat `AnyConvertable` collection
+    /// from flat collection casting Int -> Float
     @inlinable
     init<C>(_ rows: Int, _ cols: Int, with elements: C,
-            layout: MatrixLayout = .rowMajor,
-            name: String? = nil) where
-        C: Collection, C.Element: AnyConvertable, Element: AnyConvertable
+            layout: MatrixLayout = .rowMajor, name: String? = nil) where
+        C: Collection, C.Element: BinaryInteger,
+        Self.Element: BinaryFloatingPoint
     {
         let shape = Self.matrixShape(Bounds(rows, cols), layout)
         assert(shape.count == elements.count, _messageElementCountMismatch)
-        self = Self.create(elements.lazy.map { Element(any: $0) }, shape, name)
+        self = Self.create(elements.lazy.map { Element($0) }, shape, name)
     }
     
     //--------------------------------------------------------------------------
     /// from structred 2D `Element` collection
     @inlinable
-    init<T>(elements: [[T]], name: String? = nil) where T == Element{
+    init(_ elements: [[Element]], name: String? = nil) {
         let shape = Shape(Bounds(elements.count, elements.first!.count))
         self = Self.create(elements.joined(), shape, name)
     }
     
-    //--------------------------------------------------------------------------
-    /// from structred 2D `AnyConvertable` collection
-    @inlinable
-    init<T>(with elements: [[T]], name: String? = nil)
-        where T: AnyConvertable, Element: AnyConvertable
-    {
-        let shape = Shape(Bounds(elements.count, elements.first!.count))
-        let flatElements = elements.joined().lazy.map {
-            Element(any: $0)
-        }
-        self = Self.create(flatElements, shape, name)
-    }
-
     //--------------------------------------------------------------------------
     /// with reference to read only bufferRef
     /// useful for memory mapped databases, or hardware device buffers
@@ -483,16 +452,6 @@ public extension VolumeView
     }
 
     //--------------------------------------------------------------------------
-    /// from single `AnyConvertable`
-    @inlinable
-    init<T>(with element: T, name: String? = nil) where
-        T: AnyConvertable, Element: AnyConvertable
-    {
-        let shape = Shape(Bounds.one)
-        self = Self.create([Element(any: element)], shape, name)
-    }
-    
-    //--------------------------------------------------------------------------
     /// repeating element
     @inlinable
     init(repeating value: Element, to deps: Int, _ rows: Int, _ cols: Int,
@@ -506,7 +465,7 @@ public extension VolumeView
     /// from flat `Element` collection
     @inlinable
     init<C>(_ deps: Int, _ rows: Int, _ cols: Int,
-            elements: C, name: String? = nil) where
+            with elements: C, name: String? = nil) where
         C: Collection, C.Element == Element
     {
         let shape = Shape(Bounds(deps, rows, cols))
@@ -519,36 +478,22 @@ public extension VolumeView
     @inlinable
     init<C>(_ deps: Int, _ rows: Int, _ cols: Int,
             with elements: C, name: String? = nil) where
-        C: Collection, C.Element: AnyConvertable, Element: AnyConvertable
+        C: Collection, C.Element: BinaryInteger,
+        Self.Element: BinaryFloatingPoint
     {
         let shape = Shape(Bounds(deps, rows, cols))
         assert(shape.count == elements.count, _messageElementCountMismatch)
-        self = Self.create(elements.lazy.map { Element(any: $0) }, shape, name)
+        self = Self.create(elements.lazy.map { Element($0) }, shape, name)
     }
-    
+
     //--------------------------------------------------------------------------
     /// from structred 3D `Element` collection
     @inlinable
-    init<T>(elements: [[[T]]], name: String? = nil) where T == Element{
+    init(_ elements: [[[Element]]], name: String? = nil) {
         let shape = Shape(Bounds(elements.count,
                                  elements.first!.count,
                                  elements.first!.first!.count))
         let flatElements = elements.joined().joined()
-        self = Self.create(flatElements, shape, name)
-    }
-    
-    //--------------------------------------------------------------------------
-    /// from structred 3D `AnyConvertable` collection
-    @inlinable
-    init<T>(with elements: [[[T]]], name: String? = nil)
-        where T: AnyConvertable, Element: AnyConvertable
-    {
-        let shape = Shape(Bounds(elements.count,
-                                 elements.first!.count,
-                                 elements.first!.first!.count))
-        let flatElements = elements.joined().joined().lazy.map {
-            Element(any: $0)
-        }
         self = Self.create(flatElements, shape, name)
     }
     

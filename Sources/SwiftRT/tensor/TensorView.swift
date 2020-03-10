@@ -366,31 +366,28 @@ public extension TensorView where Element: Equatable {
         }
         return true
     }
-}
 
-public extension TensorView where Element: Equatable & AnyConvertable {
     /// compares the flat elements of self with a Swift collection of elements
     @inlinable
-    static func == <R>(lhs: Self, rhs: R) -> Bool
-        where R: Collection, R.Element: AnyConvertable
+    static func == <R>(lhs: Self, rhs: R) -> Bool where
+        Self.Element: BinaryFloatingPoint,
+        R: Collection, R.Element: BinaryInteger
     {
         for (lhsElement, rhsElement) in zip(lhs.bufferElements(), rhs) {
-            if lhsElement != Element(any: rhsElement) { return false }
+            if lhsElement != Element(rhsElement) { return false }
         }
         return true
     }
 
     /// compares the flat elements of self with a Swift collection of elements
     @inlinable
-    static func == <T>(lhs: Self, rhs: T) -> Bool where T: AnyConvertable
+    static func == <R>(lhs: Self, rhs: R) -> Bool where
+        Self.Element: BinaryInteger,
+        R: Collection, R.Element: BinaryInteger
     {
-        lhs.element == Element(any: rhs)
-    }
-
-    /// compares the flat elements of self with a Swift collection of elements
-    @inlinable
-    static func == <T>(lhs: T, rhs: Self) -> Bool where T: AnyConvertable
-    {
-        Element(any: lhs) == rhs.element
+        for (lhsElement, rhsElement) in zip(lhs.bufferElements(), rhs) {
+            if lhsElement != Element(rhsElement) { return false }
+        }
+        return true
     }
 }

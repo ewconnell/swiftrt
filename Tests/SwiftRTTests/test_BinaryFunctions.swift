@@ -47,8 +47,8 @@ class test_BinaryFunctions: XCTestCase {
     // test_addSubMulDivComplex
     func test_addSubMulDivComplex() {
         let data: [Complex<Float>] = [1, 2, 3, 4]
-        let cm1 = ComplexMatrix(2, 2, elements: data)
-        let cm2 = ComplexMatrix(2, 2, elements: data)
+        let cm1 = ComplexMatrix(2, 2, with: data)
+        let cm2 = ComplexMatrix(2, 2, with: data)
         let ones = ComplexMatrix(repeating: 1, like: cm1)
 
         // add a scalar
@@ -96,11 +96,11 @@ class test_BinaryFunctions: XCTestCase {
         do {
             let (g1, g2) = pullback(at: cm1, cm2, in: { $0 / $1 })(ones)
             let data = [1, 0.5, 0.333333343, 0.25].map { Complex<Float>($0) }
-            let g1Expected = ComplexMatrix(2, 2, elements: data)
+            let g1Expected = ComplexMatrix(2, 2, with: data)
             let g1sumdiff = sum(g1 - g1Expected).element
             XCTAssert(abs(g1sumdiff.real) <= 1e-6 && g1sumdiff.imaginary == 0)
             
-            let g2Expected = -ComplexMatrix(2, 2, elements: data)
+            let g2Expected = -ComplexMatrix(2, 2, with: data)
             let g2sumdiff = sum(g2 - g2Expected).element
             XCTAssert(abs(g2sumdiff.real) <= 1e-6 && g2sumdiff.imaginary == 0)
         }

@@ -40,7 +40,7 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_sumVolumeAlongAxes
     func test_sumVolumeAlongAxes() {
-        let v = IndexVolume(with: [
+        let v = IndexVolume([
             [
                 [10,   2],
                 [ 3,   4],
@@ -88,7 +88,7 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_maxVolumeAlongAxes
     func test_maxVolumeAlongAxes() {
-        let v = IndexVolume(with: [
+        let v = IndexVolume([
             [
                 [10,   2],
                 [ 3,   4],
@@ -138,7 +138,7 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_minVolumeAlongAxes
     func test_minVolumeAlongAxes() {
-        let v = IndexVolume(with: [
+        let v = IndexVolume([
             [
                 [10,   2],
                 [ 3,   4],
@@ -187,7 +187,7 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_sumVector
     func test_sumVector() {
-        let m = Vector(with: [0, 1, 2, 3])
+        let m = Vector([0, 1, 2, 3])
         let result = m.sum()
         XCTAssert(result.bounds == [1])
         XCTAssert(result.element == 6)
@@ -282,38 +282,36 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_allVector
     func test_allVector() {
-        let m0 = BoolVector(elements: [true, true, true])
+        let m0 = BoolVector([true, true, true])
         XCTAssert(m0.all().element == true)
         
-        let m1 = BoolVector(elements: [true, false, true])
+        let m1 = BoolVector([true, false, true])
         XCTAssert(m1.all().element == false)
         
-        let m2 = BoolVector(elements: [false, false, false])
+        let m2 = BoolVector([false, false, false])
         XCTAssert(m2.all().element == false)
     }
     
     //--------------------------------------------------------------------------
     // test_anyVector
     func test_anyVector() {
-        let m0 = BoolVector(elements: [true, true, true])
+        let m0 = BoolVector([true, true, true])
         XCTAssert(m0.any().element == true)
         
-        let m1 = BoolVector(elements: [false, false, true])
+        let m1 = BoolVector([false, false, true])
         XCTAssert(m1.any().element == true)
         
-        let m2 = BoolVector(elements: [false, false, false])
+        let m2 = BoolVector([false, false, false])
         XCTAssert(m2.any().element == false)
     }
     
     //--------------------------------------------------------------------------
     // test_maxMatrix
     func test_maxMatrix() {
-        let m = Matrix(with:
-            [
-                [-1, 3, -6],
-                [1, -3,  6],
-            ]
-        )
+        let m = Matrix([
+            [-1, 3, -6],
+            [1, -3,  6],
+        ])
         XCTAssert(m.max(alongAxes: 0) == [1, 3, 6])
         XCTAssert(m.max(alongAxes: 1) == [3, 6])
         XCTAssert(m.max().element == 6)
@@ -322,12 +320,10 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_minMatrix
     func test_minMatrix() {
-        let m = Matrix(with:
-            [
-                [-1,  3, -6],
-                [ 1, -3,  6],
-            ]
-        )
+        let m = Matrix([
+            [-1,  3, -6],
+            [ 1, -3,  6],
+        ])
         XCTAssert(m.min(alongAxes: 0) == [-1, -3, -6])
         XCTAssert(m.min(alongAxes: 1) == [-6, -3])
         XCTAssert(m.min().element == -6)
@@ -336,12 +332,10 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_absmaxMatrix
     func test_absmaxMatrix() {
-        let m = Matrix(with:
-            [
-                [-1,  3, -6],
-                [ 1, -3,  6],
-            ]
-        )
+        let m = Matrix([
+            [-1,  3, -6],
+            [ 1, -3,  6],
+        ])
         XCTAssert(m.absmax(alongAxes: 0) == [1, 3, 6])
         XCTAssert(m.absmax(alongAxes: 1) == [6, 6])
         XCTAssert(m.absmax().element == 6)
@@ -387,7 +381,7 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_sqrtSumSquaresMatrix
     func test_sqrtSumSquaresMatrix() {
-        let m = Matrix(with: [
+        let m = Matrix([
             [0, 1],
             [2, 3],
             [4, 5]
@@ -428,7 +422,7 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_sqrtSumSquaresVolume
     func test_sqrtSumSquaresVolume() {
-        let m = Volume(with: [
+        let m = Volume([
             [
                 [ 0,  1],
                 [ 2,  3],

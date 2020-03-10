@@ -141,14 +141,24 @@ public extension DeviceQueue {
         mapOp(lhs, rhs, &result) { $0 && $1 }
     }
     
+    // FloatingPoint -> Integer
     @inlinable
     func cast<T, R>(from buffer: T, to result: inout R) where
-        T: ShapedBuffer, T.Element: AnyConvertable,
-        R: MutableShapedBuffer, R.Element: AnyConvertable
+        T: ShapedBuffer, T.Element: BinaryFloatingPoint,
+        R: MutableShapedBuffer, R.Element: BinaryInteger
     {
-        mapOp(buffer, &result) { R.Element(any: $0) }
+        mapOp(buffer, &result) { R.Element($0) }
     }
     
+    // Integer -> FloatingPoint
+    @inlinable
+    func cast<T, R>(from buffer: T, to result: inout R) where
+        T: ShapedBuffer, T.Element: BinaryInteger,
+        R: MutableShapedBuffer, R.Element: BinaryFloatingPoint
+    {
+        mapOp(buffer, &result) { R.Element($0) }
+    }
+
     @inlinable
     func copy<T, R>(from x: T, to result: inout R) where
         T: ShapedBuffer,
