@@ -143,7 +143,7 @@ public final class ObjectTracker {
     @inlinable
 	public func remove(trackingId: Int) {
 		#if DEBUG
-        _ = queue.sync {
+        queue.sync {
             if trackingId == debuggerRemoveBreakId {
                 print("ObjectTracker debug break remove for id(\(trackingId))")
                 raise(SIGINT)
