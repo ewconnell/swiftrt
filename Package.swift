@@ -46,8 +46,7 @@ if buildCuda {
     
     //---------------------------------------
     // add SwiftRT Cuda kernels library built first via cmake
-    
-    exclusions.append("platform/cuda/kernels")
+
 } else {
     exclusions.append("platform/cuda")
 }

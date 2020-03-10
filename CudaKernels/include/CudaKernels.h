@@ -1,9 +1,20 @@
 //******************************************************************************
-//  Created by Edward Connell on 10/17/16.
-//  Copyright © 2016 Connell Research. All rights reserved.
+// Copyright 2020 Google LLC
 //
-#ifndef cudaKernels_h
-#define cudaKernels_h
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+#ifndef CudaKernels_h
+#define CudaKernels_h
 
 #include <driver_types.h>
 #include <cuda_fp16.h>
@@ -167,4 +178,4 @@ cudaError_t cudaFillXavier(const cudaShape_t shape, void *data,
 }
 #endif
 
-#endif /* cudaKernels_h */
+#endif /* CudaKernels_h */

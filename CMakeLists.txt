@@ -1,34 +1,101 @@
-cmake_minimum_required(VERSION 3.5)
-project(SwiftRTCudaKernels)
+cmake_minimum_required(VERSION 3.15)
+project(swiftrt)
 
 #####################
 # output directories
 string(TOLOWER "${CMAKE_BUILD_TYPE}" SWIFT_BUILD_TYPE)
 set(TARGET_DIR ${CMAKE_SOURCE_DIR}/.build/${SWIFT_BUILD_TYPE})
 set(PLUGINS_DIR ${TARGET_DIR}/PlugIns)
-find_package(CUDA QUIET REQUIRED)
 
 #####################
-# CudaKernels lib
+# Cuda
+find_package(CUDA QUIET REQUIRED)
+set(CUDA_KERNELS_DIR ${PROJECT_SOURCE_DIR}/CudaKernels)
+set(CUDA_KERNELS_NAME SwiftRTCudaKernels)
+
+#####################
+# C module map directory for Swift import
+set(MODULES_DIR ${PROJECT_SOURCE_DIR}/modules)
+
+file(GLOB_RECURSE MODULES_HEADERS
+        ${MODULES_DIR}/*.h
+        ${MODULES_DIR}/*.modulemap)
+
+#####################
+# swift
+#   set SWIFT_HOME in /etc/environment for CLion to pick up
+# and logout/login to make visible after setting
+IF(DEFINED ENV{SWIFT_HOME})
+    set(SWIFT_HOME $ENV{SWIFT_HOME})
+ELSE()
+    set(SWIFT_HOME /usr/local/swift)
+ENDIF()
+set(SWIFT ${SWIFT_HOME}/usr/bin/swift)
+set(SWIFTC ${SWIFT_HOME}/usr/bin/swiftc)
+
+# configuration specific swift flags
+set(SWIFT_CONFIG_FLAGS
+        #        -Xswiftc -warnings-as-errors
+        -Xswiftc -j12
+        -Xswiftc -I/usr/local/include
+        -Xswiftc -L/usr/local/lib
+        -Xswiftc -I${CUDA_KERNELS_DIR}
+        -Xswiftc -I${MODULES_DIR}/Cuda
+        -Xswiftc -I${TARGET_DIR}
+        -Xswiftc -L${TARGET_DIR}
+        -Xlinker -l${CUDA_KERNELS_NAME}
+        -Xswiftc -I${CUDA_INCLUDE_DIRS}
+        -Xlinker -L${CUDA_TOOLKIT_ROOT_DIR}/lib64
+        )
+
+#####################
+# CudaKernels static library
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
         -Wno-deprecated-gpu-targets
-#        -gencode arch=compute_52,code=sm_52
-        -gencode arch=compute_61,code=sm_61)
-#        --compiler-options -fPIC)
+        #        -gencode arch=compute_52,code=sm_52
+        -gencode arch=compute_61,code=sm_61
+        --compiler-options -fPIC)
 
-# for emulator debug -G -g -deviceemu
-# for cuda-memcheck  -Xcompiler -rdynamic -lineinfo -G
 if (${TARGET_DIR} MATCHES "debug")
-    # adding the debug flags seems to make the swift debugger crazy
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -DDEBUG)
 endif()
 
-# CudaKernels static library
-set(CUDA_KERNELS_NAME SwiftRTCudaKernels)
-file(GLOB_RECURSE CUDA_KERNELS_SOURCES *.cu *.c *.h)
+file(GLOB_RECURSE CUDA_KERNELS_SOURCES
+        ${CUDA_KERNELS_DIR}/*.cu
+        ${CUDA_KERNELS_DIR}/*.h)
+
 cuda_add_library(${CUDA_KERNELS_NAME} ${CUDA_KERNELS_SOURCES})
 
 set_target_properties(${CUDA_KERNELS_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${TARGET_DIR})
-
 add_custom_command(TARGET ${CUDA_KERNELS_NAME} PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory ${TARGET_DIR})
+
+#####################
+# SwiftRT modules
+set(SWIFTRT_NAME SwiftRT)
+file(GLOB_RECURSE SWIFTRT_SOURCES
+        ${PROJECT_SOURCE_DIR}/Sources/*.swift
+        ${PROJECT_SOURCE_DIR}/Sources/*.c
+        ${PROJECT_SOURCE_DIR}/Sources/*.h)
+
+set(SWIFTRT_FLAGS ${SWIFT_CONFIG_FLAGS})
+
+add_custom_target(${SWIFTRT_NAME}
+        COMMAND ${SWIFT} build -c ${SWIFT_BUILD_TYPE} ${SWIFTRT_FLAGS}
+        SOURCES ${SWIFTRT_SOURCES} ${MODULES_HEADERS})
+
+add_dependencies(${SWIFTRT_NAME} ${CUDA_KERNELS_NAME} ${CPP_UTILS_NAME})
+
+#####################
+# SwiftRTTests app
+set(SWIFTRT_TESTS_NAME SwiftRTTests)
+file(GLOB_RECURSE SWIFTRT_TEST_SOURCES
+        ${PROJECT_SOURCE_DIR}/Tests/${SWIFTRT_TESTS_NAME}/*.swift)
+
+#set(TEST_CASE -s ${SWIFTRT_TESTS_NAME}.TestSetup/test_mnistForward)
+
+add_custom_target(${SWIFTRT_TESTS_NAME}
+        COMMAND ${SWIFT} test ${TEST_CASE} ${SWIFTRT_FLAGS}
+        SOURCES ${SWIFTRT_TEST_SOURCES})
+
+add_dependencies(${SWIFTRT_TESTS_NAME} ${SWIFTRT_NAME} ${CUDA_KERNELS_NAME})

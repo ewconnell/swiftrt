@@ -22,7 +22,7 @@ public let _messageElementCountMismatch =
 public let _messageNewTensorsShouldBeDense = "new tensors should be dense"
 
 //==============================================================================
-// casting for convertable types
+// casting for convertible types
 public extension TensorView {
     //--------------------------------------------------------------------------
     /// casting
