@@ -1,5 +1,5 @@
 prefix=/usr/local/cuda
-libdir=${prefix}/lib
+libdir=${prefix}/lib64
 includedir=${prefix}/include
 
 Name: cuda

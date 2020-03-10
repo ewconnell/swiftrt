@@ -27,6 +27,7 @@ var products: [PackageDescription.Product] = [
     .library(name: "SwiftRT", targets: ["SwiftRT"])
 ]
 var dependencies: [Target.Dependency] = ["Numerics"]
+var testDependencies: [Target.Dependency] = ["SwiftRT"]
 var exclusions: [String] = []
 var targets: [PackageDescription.Target] = []
 
@@ -41,6 +42,8 @@ if buildCuda {
     // add Cuda system module
     products.append(.library(name: "CCuda", targets: ["CCuda"]))
     dependencies.append("CCuda")
+    testDependencies.append("CCuda")
+
     targets.append(
         .systemLibrary(name: "CCuda", path: "Modules/Cuda", pkgConfig: "cuda"))
     
@@ -57,7 +60,7 @@ targets.append(
     .target(name: "SwiftRT", dependencies: dependencies, exclude: exclusions))
 
 targets.append(
-    .testTarget(name: "SwiftRTTests", dependencies: ["SwiftRT"]))
+    .testTarget(name: "SwiftRTTests", dependencies: testDependencies))
 
 let package = Package(
     name: "SwiftRT",
