@@ -31,15 +31,15 @@ public enum PoolingMode: Int, Codable {
 }
 
 //==============================================================================
-public class ActivationInferring<T> where
-    T: TensorView, T.Element: FloatingPoint
+open class ActivationInferring<T> where
+    T: TensorView, T.Element: ScalarElement & FloatingPoint
 {
     public func infer(y: inout T, from x: T) throws
     { fatalError("Abstract") }
 }
 
-public final class ActivationTraining<T>: ActivationInferring<T> where
-    T: TensorView, T.Element: FloatingPoint
+open class ActivationTraining<T>: ActivationInferring<T> where
+    T: TensorView, T.Element: ScalarElement & FloatingPoint
 {
     public func gradient(y: T, yDiff: T, x: T, xDiff: inout T) throws
     { fatalError("Abstract") }
@@ -61,7 +61,7 @@ public extension DeviceQueue {
         mode: ActivationMode,
         nan: NanPropagation,
         reluCeiling: Double = 0) throws -> ActivationInferring<T>
-        where T: TensorView, T.Element: ScalarElement
+        where T: TensorView, T.Element: ScalarElement & FloatingPoint
     {
         fatalError("cpu not implemented")
     }

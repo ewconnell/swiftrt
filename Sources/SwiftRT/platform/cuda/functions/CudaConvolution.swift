@@ -17,43 +17,9 @@ import CCuda
 
 
 //==============================================================================
-// 
-public extension CudaQueue {
-    func createConvolutionInferring<T>(
-        x: T,
-        yShape: inout DataShape,
-        filter: T,
-        bias: T,
-        activation: ActivationMode,
-        strides: [Int],
-        padding: [Int],
-        dilations: [Int],
-        properties: ConvolutionProperties) throws -> ConvolutionInferring<T>
-        where T: TensorView, T.Element: AnyFloatingPoint
-    {
-        fatalError("cpu not implemented")
-    }
-    
-    func createConvolutionTraining<T>(
-        x: T,
-        yShape: inout DataShape,
-        filter: T,
-        bias: T,
-        activation: ActivationMode,
-        strides: [Int],
-        padding: [Int],
-        dilations: [Int],
-        properties: ConvolutionProperties) throws -> ConvolutionTraining<T>
-        where T: TensorView, T.Element: AnyFloatingPoint
-    {
-        fatalError("cpu not implemented")
-    }
-}
-
-//==============================================================================
 // CudaConvolution
 public struct CudaConvolution<T>: Logging where
-    T: TensorView, T.Element: AnyFloatingPoint
+    T: TensorView, T.Element: ScalarElement
 {
     // queues
     private let dataQueue: CudaQueue
@@ -70,23 +36,23 @@ public struct CudaConvolution<T>: Logging where
     // forward
     private var fwdAlgo: cudnnConvolutionFwdAlgo_t
     private var fwdWorkspaceSize = 0
-    private var fwdWorkspace: DeviceArray?
+    private var fwdWorkspace: DeviceMemory?
 
     // backward data
     private var bwdDataAlgo: cudnnConvolutionBwdDataAlgo_t
     private var bwdDataWorkspaceSize = 0
-    private var bwdDataWorkspace: DeviceArray?
+    private var bwdDataWorkspace: DeviceMemory?
 
     // backward filter
     private var bwdFilterAlgo: cudnnConvolutionBwdFilterAlgo_t
     private var bwdFilterWorkspaceSize = 0
-    private var bwdFilterWorkspace: DeviceArray?
+    private var bwdFilterWorkspace: DeviceMemory?
     private let logCategories: LogCategories = [.initialize]
     
     //--------------------------------------------------------------------------
     // initializer
     public init(x: T,
-                yShape: inout DataShape,
+                yShape: inout Shape<T.Bounds>,
                 filter: T,
                 bias: T,
                 activation: ActivationMode,
@@ -102,7 +68,7 @@ public struct CudaConvolution<T>: Logging where
         // TODO: change this when devices have fixed collections of queues
         // initialization can create workspaces on the devices
         // associated with the queues, so we hold on to them
-        let defaultQueue = DeviceContext.currentQueue as! CudaQueue
+        let defaultQueue = Platform.service.currentQueue as! CudaQueue
         self.dataQueue = defaultQueue
         self.filterBiasBackQueue = defaultQueue
         
@@ -126,11 +92,11 @@ public struct CudaConvolution<T>: Logging where
         //----------------------------------
         // create convolution descriptor
         let convolutionScalarType: ScalarType =
-            T.Element.scalarType == .real64F ? .real64F : .real32F
+            T.Element.type == .real64F ? .real64F : .real32F
 
         convolutionDescriptor = try ConvolutionDescriptor(
             scalarType: convolutionScalarType,
-            rank: x.rank - 2,
+            rank: T.rank - 2,
             padding: padding,
             strides: strides,
             dilations: dilations,
@@ -138,7 +104,7 @@ public struct CudaConvolution<T>: Logging where
 
         //----------------------------------
         // get the extents for the output
-        var yExtent = [Int32](repeating: 0, count: x.rank)
+        var yExtent = [Int32](repeating: 0, count: T.rank)
         try cudaCheck(status: cudnnGetConvolutionNdForwardOutputDim(
             convolutionDescriptor.desc,
             xTensorDescriptor.desc,
@@ -149,7 +115,7 @@ public struct CudaConvolution<T>: Logging where
         //----------------------------------
         // return the shape of the output y and create a tensorDescriptor
         // with the same scalarType for y as x
-        yShape = DataShape(extents: yExtent.map { Int($0) })
+        yShape = Shape<T.Bounds>(T.Bounds(yExtent.map { Int($0) }))
         yTensorDescriptor = try x.createTensorDescriptor(asShape: yShape)
 
         try selectForwardAlgorithm(x: x, properties: properties)
@@ -170,10 +136,10 @@ public struct CudaConvolution<T>: Logging where
             T.Element.onePointer,
             // x
             xTensorDescriptor.desc,
-            x.deviceReadOnly(using: dataQueue),
+            x.deviceRead(using: dataQueue),
             // filter weights
             filterDescriptor.desc,
-            filter.deviceReadOnly(using: dataQueue),
+            filter.deviceRead(using: dataQueue),
             // convDesc
             convolutionDescriptor.desc,
             // algo
@@ -186,10 +152,10 @@ public struct CudaConvolution<T>: Logging where
             T.Element.zeroPointer,
             // z used for activation (TODO: inplace on y?? find out what's right)
             yTensorDescriptor.desc,
-            y.deviceReadOnly(using: dataQueue),
+            y.deviceRead(using: dataQueue),
             // bias
             biasTensorDescriptor.desc,
-            bias.deviceReadOnly(using: dataQueue),
+            bias.deviceRead(using: dataQueue),
             // activation
             activationDescriptor.desc,
             // y
@@ -212,10 +178,10 @@ public struct CudaConvolution<T>: Logging where
             T.Element.onePointer,
             // filter
             filterDescriptor.desc,
-            filter.deviceReadOnly(using: dataQueue),
+            filter.deviceRead(using: dataQueue),
             // yDiff
             yTensorDescriptor.desc,
-            yDiff.deviceReadOnly(using: dataQueue),
+            yDiff.deviceRead(using: dataQueue),
             // conv
             convolutionDescriptor.desc,
             // algo
@@ -236,10 +202,10 @@ public struct CudaConvolution<T>: Logging where
             T.Element.onePointer,
             // x
             xTensorDescriptor.desc,
-            x.deviceReadOnly(using: dataQueue),
+            x.deviceRead(using: dataQueue),
             // yDiff
             yTensorDescriptor.desc,
-            yDiff.deviceReadOnly(using: dataQueue),
+            yDiff.deviceRead(using: dataQueue),
             // conv
             convolutionDescriptor.desc,
             // algo
@@ -260,7 +226,7 @@ public struct CudaConvolution<T>: Logging where
             T.Element.onePointer,
             // yDiff
             yTensorDescriptor.desc,
-            yDiff.deviceReadOnly(using: dataQueue),
+            yDiff.deviceRead(using: dataQueue),
             // beta
             T.Element.zeroPointer,
             //
@@ -349,9 +315,8 @@ public struct CudaConvolution<T>: Logging where
         
         // allocate workspace
         if fwdWorkspaceSize > 0 {
-            fwdWorkspace = try dataQueue.device
-                .createArray(byteCount: fwdWorkspaceSize,
-                             heapIndex: 0, zero: false)
+            fwdWorkspace = try dataQueue
+                .allocate(byteCount: fwdWorkspaceSize, heapIndex: 0)
         }
         
         // report selection
@@ -445,9 +410,8 @@ public struct CudaConvolution<T>: Logging where
         
         // allocate workspace
         if bwdDataWorkspaceSize > 0 {
-            bwdDataWorkspace =
-                try dataQueue.device.createArray(byteCount: bwdDataWorkspaceSize,
-                                                 heapIndex: 0, zero: false)
+            bwdDataWorkspace = try dataQueue
+                .allocate(byteCount: bwdDataWorkspaceSize, heapIndex: 0)
         }
 
         // report selection
@@ -540,9 +504,8 @@ public struct CudaConvolution<T>: Logging where
         
         // allocate workspace
         if bwdFilterWorkspaceSize > 0 {
-            bwdFilterWorkspace = try dataQueue.device
-                .createArray(byteCount: bwdFilterWorkspaceSize,
-                             heapIndex: 0, zero: false)
+            bwdFilterWorkspace = try dataQueue
+                .allocate(byteCount: bwdFilterWorkspaceSize, heapIndex: 0)
         }
 
         // report selection

@@ -208,3 +208,11 @@ public struct QueueId {
 let _messageQueueThreadViolation =
 "a queue can only be accessed by the thread that created it"
 
+//==============================================================================
+/// DeviceError
+public enum DeviceError : Error {
+    case initializeFailed
+    case queueError(idPath: [Int], message: String)
+    case timeout(idPath: [Int], message: String)
+}
+

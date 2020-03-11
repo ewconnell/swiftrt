@@ -16,26 +16,10 @@
 import CCuda
 
 //==============================================================================
-/// createActivation
-public extension CudaQueue {
-    func createActivation<T>(
-        x: T,
-        y: inout T,
-        mode: ActivationMode,
-        nan: NanPropagation,
-        reluCeiling: Double = 0) throws -> ActivationInferring<T>
-        where T: TensorView, T.Element: AnyFloatingPoint
-    {
-        return try CudaActivationInferring(x: x, y: &y, mode: mode,
-                                           nan: nan, reluCeiling: reluCeiling)
-    }
-}
-
-//==============================================================================
 /// CudaActivationInferring
 /// used to do activation inference
-public class CudaActivationInferring<T>: ActivationTraining<T>
-    where T: TensorView, T.Element: AnyFloatingPoint
+open class CudaActivationInferring<T>: ActivationTraining<T>
+    where T: TensorView, T.Element: ScalarElement & FloatingPoint
 {
     // properties
     public let activationDescriptor: ActivationDescriptor
@@ -70,7 +54,7 @@ public class CudaActivationInferring<T>: ActivationTraining<T>
     // infer
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnActivationForward
     public override func infer(y: inout T, from x: T) throws {
-        let deviceQueue = DeviceContext.currentQueue as! CudaQueue
+        let deviceQueue = Platform.service.currentQueue as! CudaQueue
         
         try cudaCheck(status: cudnnActivationForward(
             deviceQueue.cudnn.handle,
@@ -79,7 +63,7 @@ public class CudaActivationInferring<T>: ActivationTraining<T>
             T.Element.onePointer,
             // x
             xyTensorDescriptor.desc,
-            x.deviceReadOnly(using: deviceQueue),
+            x.deviceRead(using: deviceQueue),
             // beta
             T.Element.zeroPointer,
             // y
@@ -91,14 +75,14 @@ public class CudaActivationInferring<T>: ActivationTraining<T>
 //==============================================================================
 /// CudaActivationTraining
 /// used to do activation inference and training
-public class CudaActivationTraining<T>: CudaActivationInferring<T>
-    where T: TensorView, T.Element: AnyFloatingPoint
+public final class CudaActivationTraining<T>: CudaActivationInferring<T>
+    where T: TensorView, T.Element: ScalarElement & FloatingPoint
 {
     //--------------------------------------------------------------------------
     // gradient
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnActivationBackward
     public override func gradient(y: T, yDiff: T, x: T, xDiff: inout T) throws {
-        let deviceQueue = DeviceContext.currentQueue as! CudaQueue
+        let deviceQueue = Platform.service.currentQueue as! CudaQueue
         
         try cudaCheck(status: cudnnActivationBackward(
             deviceQueue.cudnn.handle,
@@ -107,13 +91,13 @@ public class CudaActivationTraining<T>: CudaActivationInferring<T>
             T.Element.onePointer,
             // y
             xyTensorDescriptor.desc,
-            y.deviceReadOnly(using: deviceQueue),
+            y.deviceRead(using: deviceQueue),
             // dy
             xyTensorDescriptor.desc,
-            yDiff.deviceReadOnly(using: deviceQueue),
+            yDiff.deviceRead(using: deviceQueue),
             // x
             xyTensorDescriptor.desc,
-            x.deviceReadOnly(using: deviceQueue),
+            x.deviceRead(using: deviceQueue),
             // beta
             T.Element.zeroPointer,
             // dx

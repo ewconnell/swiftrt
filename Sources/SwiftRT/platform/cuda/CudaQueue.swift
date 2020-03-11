@@ -55,5 +55,51 @@ public final class CudaQueue: DeviceQueue {
     public func selectDevice() throws {
         try cudaCheck(status: cudaSetDevice(Int32(self.deviceId)))
     }
+    
+//    //==========================================================================
+//    /// createActivation
+//    public func createActivation<T>(
+//        x: T,
+//        y: inout T,
+//        mode: ActivationMode,
+//        nan: NanPropagation,
+//        reluCeiling: Double = 0) throws -> ActivationInferring<T>
+//        where T: TensorView, T.Element: ScalarElement & FloatingPoint
+//    {
+////        return try CudaActivationInferring(x: x, y: &y, mode: mode,
+////                                           nan: nan, reluCeiling: reluCeiling)
+//    }
+//
+//    //==========================================================================
+//    /// createActivation
+//    public func createConvolutionInferring<T>(
+//        x: T,
+//        yShape: inout Shape<T.Bounds>,
+//        filter: T,
+//        bias: T,
+//        activation: ActivationMode,
+//        strides: [Int],
+//        padding: [Int],
+//        dilations: [Int],
+//        properties: ConvolutionProperties) throws -> ConvolutionInferring<T>
+//        where T: TensorView, T.Element: ScalarElement
+//    {
+//        fatalError("cpu not implemented")
+//    }
+//    
+//    public func createConvolutionTraining<T>(
+//        x: T,
+//        yShape: inout Shape<T.Bounds>,
+//        filter: T,
+//        bias: T,
+//        activation: ActivationMode,
+//        strides: [Int],
+//        padding: [Int],
+//        dilations: [Int],
+//        properties: ConvolutionProperties) throws -> ConvolutionTraining<T>
+//        where T: TensorView, T.Element: ScalarElement
+//    {
+//        fatalError("cpu not implemented")
+//    }
 }
 
