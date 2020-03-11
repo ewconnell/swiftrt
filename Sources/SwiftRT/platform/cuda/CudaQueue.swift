@@ -22,7 +22,7 @@ import CCuda
 public final class CudaQueue: DeviceQueue {
     public let useGpu: Bool
     
-    public let handle: cudaStream_t
+    public let stream: cudaStream_t
     public let cudnn: CudnnHandle
     public let cublas: CublasHandle
 
@@ -41,9 +41,9 @@ public final class CudaQueue: DeviceQueue {
         let flags = UInt32(cudaStreamNonBlocking)
         var cudaStream: cudaStream_t?
         try cudaCheck(status: cudaStreamCreateWithFlags(&cudaStream, flags))
-        handle = cudaStream!
-        cudnn = try CudnnHandle(deviceId: deviceId, using: handle)
-        cublas = try CublasHandle(deviceId: deviceId, using: handle)
+        stream = cudaStream!
+        cudnn = try CudnnHandle(deviceId: deviceId, using: stream)
+        cublas = try CublasHandle(deviceId: deviceId, using: stream)
 
         super.init(id: id, parent: logInfo, deviceId: deviceId,
                    deviceName: deviceName,
@@ -56,50 +56,50 @@ public final class CudaQueue: DeviceQueue {
         try cudaCheck(status: cudaSetDevice(Int32(self.deviceId)))
     }
     
-//    //==========================================================================
-//    /// createActivation
-//    public func createActivation<T>(
-//        x: T,
-//        y: inout T,
-//        mode: ActivationMode,
-//        nan: NanPropagation,
-//        reluCeiling: Double = 0) throws -> ActivationInferring<T>
-//        where T: TensorView, T.Element: ScalarElement & FloatingPoint
-//    {
-////        return try CudaActivationInferring(x: x, y: &y, mode: mode,
-////                                           nan: nan, reluCeiling: reluCeiling)
-//    }
-//
-//    //==========================================================================
-//    /// createActivation
-//    public func createConvolutionInferring<T>(
-//        x: T,
-//        yShape: inout Shape<T.Bounds>,
-//        filter: T,
-//        bias: T,
-//        activation: ActivationMode,
-//        strides: [Int],
-//        padding: [Int],
-//        dilations: [Int],
-//        properties: ConvolutionProperties) throws -> ConvolutionInferring<T>
-//        where T: TensorView, T.Element: ScalarElement
-//    {
-//        fatalError("cpu not implemented")
-//    }
-//    
-//    public func createConvolutionTraining<T>(
-//        x: T,
-//        yShape: inout Shape<T.Bounds>,
-//        filter: T,
-//        bias: T,
-//        activation: ActivationMode,
-//        strides: [Int],
-//        padding: [Int],
-//        dilations: [Int],
-//        properties: ConvolutionProperties) throws -> ConvolutionTraining<T>
-//        where T: TensorView, T.Element: ScalarElement
-//    {
-//        fatalError("cpu not implemented")
-//    }
+    //==========================================================================
+    /// createActivation
+    public override func createActivation<T>(
+        x: T,
+        y: inout T,
+        mode: ActivationMode,
+        nan: NanPropagation,
+        reluCeiling: Double = 0) throws -> ActivationInferring<T>
+        where T: TensorView, T.Element: ScalarElement & FloatingPoint
+    {
+        return try CudaActivationInferring(x: x, y: &y, mode: mode,
+                                           nan: nan, reluCeiling: reluCeiling)
+    }
+
+    //==========================================================================
+    /// createActivation
+    public override func createConvolutionInferring<T>(
+        x: T,
+        yShape: inout Shape<T.Bounds>,
+        filter: T,
+        bias: T,
+        activation: ActivationMode,
+        strides: [Int],
+        padding: [Int],
+        dilations: [Int],
+        properties: ConvolutionProperties) throws -> ConvolutionInferring<T>
+        where T: TensorView, T.Element: ScalarElement
+    {
+        fatalError("cpu not implemented")
+    }
+
+    public override func createConvolutionTraining<T>(
+        x: T,
+        yShape: inout Shape<T.Bounds>,
+        filter: T,
+        bias: T,
+        activation: ActivationMode,
+        strides: [Int],
+        padding: [Int],
+        dilations: [Int],
+        properties: ConvolutionProperties) throws -> ConvolutionTraining<T>
+        where T: TensorView, T.Element: ScalarElement
+    {
+        fatalError("cpu not implemented")
+    }
 }
 

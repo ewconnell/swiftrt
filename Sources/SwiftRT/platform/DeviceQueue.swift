@@ -52,7 +52,10 @@ open class DeviceQueue: Logging {
             categories: .queueAlloc)
     }
 
-    //--------------------------------------
+    //==========================================================================
+    // resource creation functions
+    //==========================================================================
+    
     // allocate
     @inlinable
     public func allocate(byteCount: Int, heapIndex: Int) throws -> DeviceMemory
@@ -127,12 +130,87 @@ open class DeviceQueue: Logging {
         let buffer = UnsafeRawBufferPointer(memory.buffer)
         other.buffer.copyMemory(from: buffer)
     }
-}
+    
+    //==========================================================================
+    // map operation helpers for cpu implementations
+    //==========================================================================
+    // inPlaceOp
+    @inlinable
+    func inPlaceOp<R>(_ r: inout R,_ op: @escaping (R.Element) -> R.Element)
+        where R: MutableShapedBuffer
+    {
+        r.indices.forEach { r[$0] = op(r[$0]) }
+    }
+    
+    // mapOp 1
+    @inlinable
+    func mapOp<T, R>(_ x: T, _ r: inout R,
+                     _ op: @escaping (T.Element) -> R.Element) where
+        T: Collection, R: MutableShapedBuffer
+    {
+        zip(r.indices, x).forEach { r[$0] = op($1) }
+    }
+    
+    // mapOp 1
+    @inlinable
+    func mapOp<T, R>(_ x: T, _ r: inout R,
+                     _ op: @escaping (T.Element) -> R.Element) where
+        T: ShapedBuffer, R: MutableShapedBuffer
+    {
+        zip(r.indices, x).forEach { r[$0] = op($1) }
+    }
+    
+    // mapOp 2
+    @inlinable
+    func mapOp<LHS, RHS, R>(
+        _ lhs: LHS, _ rhs: RHS, _ r: inout R,
+        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
+        LHS: ShapedBuffer, RHS: ShapedBuffer, R: MutableShapedBuffer
+    {
+        zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = op($1.0, $1.1) }
+    }
+    
+    // mapOp 3
+    @inlinable
+    func mapOp<T1, T2, T3, R>(
+        _ a: T1, _ b: T2, _ c: T3, _ r: inout R,
+        _ op: @escaping (T1.Element, T2.Element, T3.Element) -> R.Element) where
+        T1: ShapedBuffer, T2: ShapedBuffer, T3: ShapedBuffer, R: MutableShapedBuffer
+    {
+        zip(r.indices, zip(a, zip(b, c))).forEach { r[$0] = op($1.0, $1.1.0, $1.1.1) }
+    }
+    
+    // mapOp 3R2
+    /// generically combines three tensors
+    @inlinable
+    func mapOp<T1, T2, T3, R1, R2>(
+        _ a: T1, _ b: T2, _ c: T3, _ r1: inout R1,  _ r2: inout R2,
+        _ op: @escaping
+        (T1.Element, T2.Element, T3.Element) -> (R1.Element, R2.Element))
+        where
+        T1: ShapedBuffer, T2: ShapedBuffer, T3: ShapedBuffer,
+        R1: MutableShapedBuffer, R2: MutableShapedBuffer
+    {
+        zip(zip(r1.indices, r2.indices), zip(a, zip(b, c))).forEach {
+            let (r1v, r2v) = op($1.0, $1.1.0, $1.1.1)
+            r1[$0.0] = r1v
+            r2[$0.1] = r2v
+        }
+    }
+    
+    // reductionOp
+    @inlinable
+    func reductionOp<T, R>(
+        _ x: T, _ r: inout R,
+        _ op: @escaping (T.Element, T.Element) -> T.Element)
+        where T: ShapedBuffer, R: MutableShapedBuffer, R.Element == T.Element
+    {
+        zip(r.indices, x).forEach { r[$0] = op(r[$0], $1) }
+    }
 
-//==============================================================================
-// DeviceQueue default implementations
-// TODO: investigate use of SIMD for mapOps
-public extension DeviceQueue {
+    //==========================================================================
+    // basic math operations cpu implementation
+    //==========================================================================
     @inlinable
     func abs<T, R>(_ x: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Real,
@@ -399,11 +477,54 @@ public extension DeviceQueue {
             inPlaceOp(&result, op)
         }
     }
-}
 
-//==============================================================================
-// DeviceQueue default derivative implementations
-public extension DeviceQueue {
+    //==========================================================================
+    // Deep learning operators
+    //==========================================================================
+    public func createActivation<T>(
+        x: T,
+        y: inout T,
+        mode: ActivationMode,
+        nan: NanPropagation,
+        reluCeiling: Double = 0) throws -> ActivationInferring<T>
+        where T: TensorView, T.Element: ScalarElement & FloatingPoint
+    {
+        fatalError("cpu not implemented")
+    }
+
+    public func createConvolutionInferring<T>(
+        x: T,
+        yShape: inout Shape<T.Bounds>,
+        filter: T,
+        bias: T,
+        activation: ActivationMode,
+        strides: [Int],
+        padding: [Int],
+        dilations: [Int],
+        properties: ConvolutionProperties) throws -> ConvolutionInferring<T>
+        where T: TensorView, T.Element: ScalarElement
+    {
+        fatalError("cpu not implemented")
+    }
+    
+    public func createConvolutionTraining<T>(
+        x: T,
+        yShape: inout Shape<T.Bounds>,
+        filter: T,
+        bias: T,
+        activation: ActivationMode,
+        strides: [Int],
+        padding: [Int],
+        dilations: [Int],
+        properties: ConvolutionProperties) throws -> ConvolutionTraining<T>
+        where T: TensorView, T.Element: ScalarElement
+    {
+        fatalError("cpu not implemented")
+    }
+
+    //==========================================================================
+    // specialized derivative implementations
+    //==========================================================================
     /// vjpMinMax
     @inlinable
     func vjpMinMax<T, R>(
@@ -417,85 +538,5 @@ public extension DeviceQueue {
         mapOp(x, y, scale, &resultTrue, &resultFalse) {
             op($0, $1) ? ($2, T.Element.zero) : (T.Element.zero, $2)
         }
-    }
-}
-
-
-//==============================================================================
-// DeviceFunctions mapOps
-public extension DeviceQueue {
-    
-    // inPlaceOp
-    @inlinable
-    func inPlaceOp<R>(_ r: inout R,_ op: @escaping (R.Element) -> R.Element)
-        where R: MutableShapedBuffer
-    {
-        r.indices.forEach { r[$0] = op(r[$0]) }
-    }
-    
-    // mapOp 1
-    @inlinable
-    func mapOp<T, R>(_ x: T, _ r: inout R,
-                     _ op: @escaping (T.Element) -> R.Element) where
-        T: Collection, R: MutableShapedBuffer
-    {
-        zip(r.indices, x).forEach { r[$0] = op($1) }
-    }
-    
-    // mapOp 1
-    @inlinable
-    func mapOp<T, R>(_ x: T, _ r: inout R,
-                     _ op: @escaping (T.Element) -> R.Element) where
-        T: ShapedBuffer, R: MutableShapedBuffer
-    {
-        zip(r.indices, x).forEach { r[$0] = op($1) }
-    }
-    
-    // mapOp 2
-    @inlinable
-    func mapOp<LHS, RHS, R>(
-        _ lhs: LHS, _ rhs: RHS, _ r: inout R,
-        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
-        LHS: ShapedBuffer, RHS: ShapedBuffer, R: MutableShapedBuffer
-    {
-        zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = op($1.0, $1.1) }
-    }
-    
-    // mapOp 3
-    @inlinable
-    func mapOp<T1, T2, T3, R>(
-        _ a: T1, _ b: T2, _ c: T3, _ r: inout R,
-        _ op: @escaping (T1.Element, T2.Element, T3.Element) -> R.Element) where
-        T1: ShapedBuffer, T2: ShapedBuffer, T3: ShapedBuffer, R: MutableShapedBuffer
-    {
-        zip(r.indices, zip(a, zip(b, c))).forEach { r[$0] = op($1.0, $1.1.0, $1.1.1) }
-    }
-    
-    // mapOp 3R2
-    /// generically combines three tensors
-    @inlinable
-    func mapOp<T1, T2, T3, R1, R2>(
-        _ a: T1, _ b: T2, _ c: T3, _ r1: inout R1,  _ r2: inout R2,
-        _ op: @escaping
-        (T1.Element, T2.Element, T3.Element) -> (R1.Element, R2.Element))
-        where
-        T1: ShapedBuffer, T2: ShapedBuffer, T3: ShapedBuffer,
-        R1: MutableShapedBuffer, R2: MutableShapedBuffer
-    {
-        zip(zip(r1.indices, r2.indices), zip(a, zip(b, c))).forEach {
-            let (r1v, r2v) = op($1.0, $1.1.0, $1.1.1)
-            r1[$0.0] = r1v
-            r2[$0.1] = r2v
-        }
-    }
-    
-    // reductionOp
-    @inlinable
-    func reductionOp<T, R>(
-        _ x: T, _ r: inout R,
-        _ op: @escaping (T.Element, T.Element) -> T.Element)
-        where T: ShapedBuffer, R: MutableShapedBuffer, R.Element == T.Element
-    {
-        zip(r.indices, x).forEach { r[$0] = op(r[$0], $1) }
     }
 }

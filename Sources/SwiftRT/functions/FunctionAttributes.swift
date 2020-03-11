@@ -54,19 +54,6 @@ public enum ActivationMode: Int, Codable {
     case identity
 }
 
-public extension DeviceQueue {
-    func createActivation<T>(
-        x: T,
-        y: inout T,
-        mode: ActivationMode,
-        nan: NanPropagation,
-        reluCeiling: Double = 0) throws -> ActivationInferring<T>
-        where T: TensorView, T.Element: ScalarElement & FloatingPoint
-    {
-        fatalError("cpu not implemented")
-    }
-}
-
 //==============================================================================
 public enum TransposeOp: Int, Codable {
     case transpose
