@@ -68,8 +68,8 @@ public extension PlatformService {
         -> MutableBufferElements<T.Element, T.Bounds> where T: TensorView
     {
         // get the write buffer
-        let buffer = tensor.readWrite(willOverwrite: willOverwrite,
-                                      using: currentQueue)
+        let buffer = tensor.readWrite(using: currentQueue,
+                                      willOverwrite: willOverwrite)
         
         // return a mutable shaped buffer iterator
         return MutableBufferElements(tensor.shape, buffer)

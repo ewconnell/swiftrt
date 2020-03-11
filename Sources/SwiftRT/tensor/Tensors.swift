@@ -133,7 +133,7 @@ public struct VectorType<Element>: VectorView {
     {
         self.shape = shape
         self.buffer = buffer
-        self.format = rank1
+        self.format = .rank1
         self.offset = offset
         self.shared = shared
     }
@@ -396,7 +396,7 @@ public struct MatrixType<Element>: MatrixView {
     {
         self.shape = shape
         self.buffer = buffer
-        self.format = rank2
+        self.format = .rank2
         self.offset = offset
         self.shared = shared
     }
@@ -668,7 +668,7 @@ public struct VolumeType<Element>: VolumeView {
     {
         self.shape = shape
         self.buffer = buffer
-        self.format = rank3
+        self.format = .rank3
         self.offset = offset
         self.shared = shared
     }

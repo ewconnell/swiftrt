@@ -113,6 +113,54 @@ public struct CudaPooling<T> where
 }
 
 //==============================================================================
+// PoolingDescriptor
+public final class PoolingDescriptor : ObjectTracking {
+    // properties
+    public let trackingId: Int
+    public let desc: cudnnPoolingDescriptor_t
+
+    //--------------------------------------------------------------------------
+    // initializers
+    @inlinable
+    public init(mode: PoolingMode,
+                nan: NanPropagation,
+                filterSize: [Int],
+                padding: [Int],
+                strides: [Int]) throws
+    {
+        // validate
+        assert(
+            filterSize.count == padding.count &&
+            filterSize.count == strides.count,
+            "filterSize, padding, and strides must have equal counts")
+
+        // create the descriptor
+        var temp: cudnnPoolingDescriptor_t?
+        try cudaCheck(status: cudnnCreatePoolingDescriptor(&temp))
+        desc = temp!
+
+        // initialize
+        try cudaCheck(status: cudnnSetPoolingNdDescriptor(
+            desc, mode.cudnn, nan.cudnn,
+            Int32(filterSize.count),
+            filterSize.map { Int32($0) },
+            padding.map { Int32($0) },
+            strides.map { Int32($0) }))
+
+        trackingId = ObjectTracker.global.nextId
+        ObjectTracker.global.register(self)
+    }
+
+    //--------------------------------------------------------------------------
+    // cleanup
+    @inlinable
+    deinit {
+        try! cudaCheck(status: cudnnDestroyLRNDescriptor(desc))
+        ObjectTracker.global.remove(trackingId: trackingId)
+    }
+}
+
+//==============================================================================
 // PoolingMode
 extension cudnnPoolingMode_t : Hashable {}
 

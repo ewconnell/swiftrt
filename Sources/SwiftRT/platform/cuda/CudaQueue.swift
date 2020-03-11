@@ -42,9 +42,8 @@ public final class CudaQueue: DeviceQueue {
         var cudaStream: cudaStream_t?
         try cudaCheck(status: cudaStreamCreateWithFlags(&cudaStream, flags))
         handle = cudaStream!
-        cudnn = try CudnnHandle(deviceId: deviceId, using: handle, isStatic: true)
-        cublas = try CublasHandle(deviceId: deviceId, using: handle,
-                                  isStatic: true)
+        cudnn = try CudnnHandle(deviceId: deviceId, using: handle)
+        cublas = try CublasHandle(deviceId: deviceId, using: handle)
 
         super.init(id: id, parent: logInfo, deviceId: deviceId,
                    deviceName: deviceName,

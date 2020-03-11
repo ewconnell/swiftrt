@@ -21,7 +21,7 @@ import CCuda
 //    matches the same shape as inferring? Or just assert in inferring?
 
 public struct CudaSoftmax<T> where
-    T: TensorView, T.Element: AnyFloatingPoint
+    T: TensorView, T.Element: ScalarElement
 {
     // properties
     private var cudnnAlgorithm: cudnnSoftmaxAlgorithm_t
@@ -31,7 +31,7 @@ public struct CudaSoftmax<T> where
     //--------------------------------------------------------------------------
     // initializer
     public init(x: T,
-                yShape: inout DataShape,
+                yShape: inout Shape<T.Bounds>,
                 algorithm: SoftmaxAlgorithm,
                 mode: SoftmaxMode) throws
     {
@@ -49,7 +49,7 @@ public struct CudaSoftmax<T> where
     // inferring
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnSoftmaxForward
     public func inferring(y: inout T, from x: T) throws {
-        let deviceQueue = DeviceContext.currentQueue as! CudaQueue
+        let deviceQueue = Platform.service.currentQueue as! CudaQueue
         
         try cudaCheck(status: cudnnSoftmaxForward(
             deviceQueue.cudnn.handle,
@@ -59,7 +59,7 @@ public struct CudaSoftmax<T> where
             T.Element.onePointer,
             // x
             tensorDescriptor.desc,
-            x.deviceReadOnly(using: deviceQueue),
+            x.deviceRead(using: deviceQueue),
             // beta
             T.Element.zeroPointer,
             // y
@@ -71,8 +71,8 @@ public struct CudaSoftmax<T> where
     // gradient
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnSoftmaxBackward
     public func gradient(y: T, yDiff: T, x: T, xDiff: inout T) throws {
-        let deviceQueue = DeviceContext.currentQueue as! CudaQueue
-        
+        let deviceQueue = Platform.service.currentQueue as! CudaQueue
+
         // if there aren't any labels then do a normal backward
         try cudaCheck(status: cudnnSoftmaxBackward(
             deviceQueue.cudnn.handle,
@@ -82,10 +82,10 @@ public struct CudaSoftmax<T> where
             T.Element.onePointer,
             // y
             tensorDescriptor.desc,
-            y.deviceReadOnly(using: deviceQueue),
+            y.deviceRead(using: deviceQueue),
             // dy
             tensorDescriptor.desc,
-            yDiff.deviceReadOnly(using: deviceQueue),
+            yDiff.deviceRead(using: deviceQueue),
             // beta
             T.Element.zeroPointer,
             // dx

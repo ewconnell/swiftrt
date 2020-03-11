@@ -38,7 +38,7 @@ public final class ConvolutionTraining<T>: ConvolutionInferring<T> where
 public extension DeviceQueue {
     func createConvolutionInferring<T>(
         x: T,
-        yShape: inout DataShape,
+        yShape: inout Shape<T.Bounds>,
         filter: T,
         bias: T,
         activation: ActivationMode,
@@ -46,14 +46,14 @@ public extension DeviceQueue {
         padding: [Int],
         dilations: [Int],
         properties: ConvolutionProperties) throws -> ConvolutionInferring<T>
-        where T: TensorView, T.Element: AnyFloatingPoint
+        where T: TensorView, T.Element: ScalarElement
     {
         fatalError("cpu not implemented")
     }
     
     func createConvolutionTraining<T>(
         x: T,
-        yShape: inout DataShape,
+        yShape: inout Shape<T.Bounds>,
         filter: T,
         bias: T,
         activation: ActivationMode,
@@ -61,7 +61,7 @@ public extension DeviceQueue {
         padding: [Int],
         dilations: [Int],
         properties: ConvolutionProperties) throws -> ConvolutionTraining<T>
-        where T: TensorView, T.Element: AnyFloatingPoint
+        where T: TensorView, T.Element: ScalarElement
     {
         fatalError("cpu not implemented")
     }

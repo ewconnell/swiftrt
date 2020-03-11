@@ -88,17 +88,33 @@ public extension TensorView {
     }
 
     //--------------------------------------------------------------------------
-    /// `read(queue:`
+    /// `read(queue:
+    /// - Parameter queue: the device queue to use for synchronization
+    /// - Returns: the tensor's element buffer for reading
     @inlinable
-    func read(using queue: DeviceQueue) -> UnsafeBufferPointer<Element>
-    {
+    func read(using queue: DeviceQueue) -> UnsafeBufferPointer<Element> {
         buffer.read(at: self.offset, count: self.spanCount, using: queue)
     }
     
     //--------------------------------------------------------------------------
-    /// `readWrite(willOverwrite:queue:`
+    /// `deviceRead(queue:`
+    /// - Parameter queue: the device queue to use for synchronization
+    /// - Returns: a the tensor's raw element buffer pointer for reading
+    /// on device
     @inlinable
-    mutating func readWrite(willOverwrite: Bool, using queue: DeviceQueue)
+    func deviceRead(using queue: DeviceQueue) -> UnsafeRawPointer {
+        UnsafeRawPointer(read(using: queue).baseAddress!)
+    }
+    
+    //--------------------------------------------------------------------------
+    /// `readWrite(queue:willOverwrite:
+    /// - Parameter queue: the device queue to use for synchronization
+    /// - Parameter willOverwrite: `true` if the write operation overwrites
+    /// all elements of the buffer
+    /// - Returns: the tensor's element buffer for reading and writing
+    @inlinable
+    mutating func readWrite(using queue: DeviceQueue,
+                            willOverwrite: Bool = true)
         -> UnsafeMutableBufferPointer<Element>
     {
         // check for copy on write
@@ -112,6 +128,22 @@ public extension TensorView {
 
         return buffer.readWrite(at: self.offset, count: self.spanCount,
                                 willOverwrite: willOverwrite, using: queue)
+    }
+
+    //--------------------------------------------------------------------------
+    /// `deviceReadWrite(queue:willOverwrite:
+    /// - Parameter queue: the device queue to use for synchronization
+    /// - Parameter willOverwrite: `true` if the write operation overwrites
+    /// all elements of the buffer
+    /// - Returns: the tensor's raw element buffer pointer for
+    /// reading and writing on device
+    @inlinable
+    mutating func deviceReadWrite(using queue: DeviceQueue,
+                                  willOverwrite: Bool = true)
+        -> UnsafeMutableRawPointer
+    {
+        UnsafeMutableRawPointer(
+            readWrite(using: queue, willOverwrite: willOverwrite).baseAddress!)
     }
 }
 
@@ -150,6 +182,8 @@ public enum ScalarType: Int {
 
 public protocol ScalarElement {
     static var type: ScalarType { get }
+    static var zeroPointer: UnsafeRawPointer { get }
+    static var onePointer: UnsafeRawPointer { get }
 }
 
 //==============================================================================

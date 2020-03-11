@@ -123,6 +123,41 @@ public class CudaActivationTraining<T>: CudaActivationInferring<T>
 }
 
 //==============================================================================
+// ActivationDescriptor
+public final class ActivationDescriptor : ObjectTracking {
+    // properties
+    public let trackingId: Int
+    public let desc: cudnnActivationDescriptor_t
+
+    //--------------------------------------------------------------------------
+    // initializers
+    @inlinable
+    public init(mode: ActivationMode,
+                nan: NanPropagation,
+                reluCeiling: Double) throws
+    {
+        // create the descriptor
+        var temp: cudnnActivationDescriptor_t?
+        try cudaCheck(status: cudnnCreateActivationDescriptor(&temp))
+        desc = temp!
+
+        // initialize
+        try cudaCheck(status: cudnnSetActivationDescriptor(
+            desc, mode.cudnn, nan.cudnn, reluCeiling))
+        trackingId = ObjectTracker.global.nextId
+        ObjectTracker.global.register(self)
+    }
+
+    //--------------------------------------------------------------------------
+    // deinit
+    @inlinable
+    deinit {
+        try! cudaCheck(status: cudnnDestroyActivationDescriptor(desc))
+        ObjectTracker.global.remove(trackingId: trackingId)
+    }
+}
+
+//==============================================================================
 extension ActivationMode {
     public var cudnn: cudnnActivationMode_t {
         get {

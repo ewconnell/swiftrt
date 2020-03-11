@@ -61,7 +61,7 @@ public extension DeviceQueue {
         mode: ActivationMode,
         nan: NanPropagation,
         reluCeiling: Double = 0) throws -> ActivationInferring<T>
-        where T: TensorView, T.Element: AnyFloatingPoint
+        where T: TensorView, T.Element: ScalarElement
     {
         fatalError("cpu not implemented")
     }

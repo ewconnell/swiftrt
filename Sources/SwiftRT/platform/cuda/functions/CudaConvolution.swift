@@ -780,6 +780,51 @@ extension ConvolutionBwdFilterAlgorithm {
 }
 
 //==============================================================================
+// ConvolutionDescriptor
+public final class ConvolutionDescriptor : ObjectTracking {
+    // properties
+    public let trackingId: Int
+    public let desc: cudnnConvolutionDescriptor_t
+
+    //--------------------------------------------------------------------------
+    // initializers
+    @inlinable
+    public init(scalarType: ScalarType,
+                rank: Int,
+                padding: [Int],
+                strides: [Int],
+                dilations: [Int],
+                mode: ConvolutionMode) throws
+    {
+        // create the descriptor
+        var temp: cudnnConvolutionDescriptor_t?
+        try cudaCheck(status: cudnnCreateConvolutionDescriptor(&temp))
+        desc = temp!
+
+        // initialize
+        try cudaCheck(status: cudnnSetConvolutionNdDescriptor(
+            desc,
+            Int32(rank),
+            padding.map { Int32($0) },
+            strides.map { Int32($0) },
+            dilations.map { Int32($0) },
+            mode.cudnn,
+            scalarType.cudnn))
+
+        trackingId = ObjectTracker.global.nextId
+        ObjectTracker.global.register(self)
+    }
+
+    //--------------------------------------------------------------------------
+    // deinit
+    @inlinable
+    deinit {
+        try! cudaCheck(status: cudnnDestroyConvolutionDescriptor(desc))
+        ObjectTracker.global.remove(trackingId: trackingId)
+    }
+}
+
+//==============================================================================
 // ConvolutionMode
 extension ConvolutionMode {
     public var cudnn: cudnnConvolutionMode_t {
