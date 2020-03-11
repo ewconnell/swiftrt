@@ -29,13 +29,15 @@ open class DeviceQueue: Logging {
     public let deviceName: String
     public let id: Int
     public let logInfo: LogInfo
+    public let memoryType: MemoryType
     public let name: String
     
     //--------------------------------------------------------------------------
     // initializers
     @inlinable
     public init(id: Int, parent logInfo: LogInfo,
-                deviceId: Int, deviceName: String)
+                deviceId: Int, deviceName: String,
+                memoryType: MemoryType)
     {
         self.id = id
         self.name = "q\(id)"
@@ -44,11 +46,25 @@ open class DeviceQueue: Logging {
         self.deviceName = deviceName
         self.creatorThread = Thread.current
         self.defaultQueueEventOptions = QueueEventOptions()
+        self.memoryType = memoryType
         
         diagnostic("\(createString) \(Self.self): \(deviceName)_\(name)",
             categories: .queueAlloc)
     }
-    
+
+    //--------------------------------------
+    // allocate
+    @inlinable
+    public func allocate(byteCount: Int, heapIndex: Int) throws -> DeviceMemory
+    {
+        // allocate a host memory buffer
+        let buffer = UnsafeMutableRawBufferPointer.allocate(
+            byteCount: byteCount, alignment: MemoryLayout<Double>.alignment)
+
+        return DeviceMemory(buffer: buffer, memoryType: memoryType,
+                            { buffer.deallocate() })
+    }
+
     //--------------------------------------------------------------------------
     /// createEvent
     /// creates an event object used for queue synchronization

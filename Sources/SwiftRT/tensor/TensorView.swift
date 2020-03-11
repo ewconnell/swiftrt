@@ -43,11 +43,14 @@ public protocol TensorView: Logging {
     var shape: Shape<Bounds> { get }
     /// class reference to the underlying platform element buffer
     var buffer: Buffer { get set }
+    /// format describes how to interpret the meaning of each dimension
+    /// which is needed by backend drivers
+    var format: TensorFormat { get }
     /// the linear element offset where the view begins
     var offset: Int { get }
     /// `true` if the view will be shared by by multiple writers
     var shared: Bool { get }
-    
+
     //--------------------------------------------------------------------------
     /// fully specified used for creating tensors
     init(shape: Shape<Bounds>, buffer: Buffer, offset: Int, shared: Bool)
@@ -113,6 +116,26 @@ public extension TensorView {
 }
 
 //==============================================================================
+/// TensorFormat
+/// an enumeration describing how to interpret the meaning of each
+/// dimension in a tensor.
+///
+/// n: the number of items in the set
+/// d: the number of depths per item
+/// h: the number of rows per depth
+/// w: the number of columns in a row
+/// c: the number of channels per column
+// https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#tensor-descriptor
+public enum TensorFormat: Int, Codable {
+    // simple 0-3D layouts
+    case rank1, rank2, rank3
+    /// 4D layouts
+    case nchw, nhwc
+    /// 5D layouts
+    case ncdhw, ndhwc
+}
+
+//==============================================================================
 /// ScalarType
 /// Used primarily for serialization, C APIs, and Cuda kernels
 // TODO: maybe remove this after Cuda integration if not used
@@ -123,6 +146,10 @@ public enum ScalarType: Int {
     case real16F, real32F, real64F
     // non numeric
     case bool
+}
+
+public protocol ScalarElement {
+    static var type: ScalarType { get }
 }
 
 //==============================================================================

@@ -16,15 +16,8 @@
 import Foundation
 
 //==============================================================================
-/// CpuQueue
-/// a final version of the default device queue which executes functions
-/// synchronously on the cpu
-public final class CpuQueue: DeviceQueue { }
-
-//==============================================================================
 /// CpuDevice
-public struct CpuDevice: ServiceDevice
-{
+public struct CpuDevice: ServiceDevice {
     // properties
     public let id: Int
     public let logInfo: LogInfo
@@ -42,18 +35,14 @@ public struct CpuDevice: ServiceDevice
         self.queues = [CpuQueue(id: 0,
                                 parent: self.logInfo,
                                 deviceId: id,
-                                deviceName: name)]
-    }
-
-    //--------------------------------------
-    // allocate
-    @inlinable
-    public func allocate(byteCount: Int, heapIndex: Int) -> DeviceMemory {
-        // allocate a host memory buffer
-        let buffer = UnsafeMutableRawBufferPointer.allocate(
-            byteCount: byteCount, alignment: MemoryLayout<Double>.alignment)
-
-        return DeviceMemory(buffer: buffer, memoryType: memoryType,
-                            { buffer.deallocate() })
+                                deviceName: name,
+                                memoryType: memoryType)]
     }
 }
+
+//==============================================================================
+/// CpuQueue
+/// a final version of the default device queue which executes functions
+/// synchronously on the cpu
+public final class CpuQueue: DeviceQueue { }
+

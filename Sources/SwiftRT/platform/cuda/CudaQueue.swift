@@ -15,23 +15,46 @@
 //
 import Foundation
 import CCuda
-import CudaKernels
+//import CudaKernels
 
 //==============================================================================
 /// CudaQueue
 public final class CudaQueue: DeviceQueue {
     public let useGpu: Bool
     
+    public let handle: cudaStream_t
+    public let cudnn: CudnnHandle
+    public let cublas: CublasHandle
+
     //--------------------------------------------------------------------------
     // initializers
     @inlinable
     public init(id: Int, parent logInfo: LogInfo,
-                deviceId: Int, deviceName: String, useGpu: Bool)
+                deviceId: Int, deviceName: String, useGpu: Bool) throws
     {
         self.useGpu = useGpu
-        super.init(id: id, parent: logInfo, deviceId: deviceId,
-                   deviceName: deviceName)
+        
+        // select the specified device
+        try cudaCheck(status: cudaSetDevice(Int32(deviceId)))
+        
+        // create a queue associated with the device
+        let flags = UInt32(cudaStreamNonBlocking)
+        var cudaStream: cudaStream_t?
+        try cudaCheck(status: cudaStreamCreateWithFlags(&cudaStream, flags))
+        handle = cudaStream!
+        cudnn = try CudnnHandle(deviceId: deviceId, using: handle, isStatic: true)
+        cublas = try CublasHandle(deviceId: deviceId, using: handle,
+                                  isStatic: true)
 
+        super.init(id: id, parent: logInfo, deviceId: deviceId,
+                   deviceName: deviceName,
+                   memoryType: useGpu ? .discreet : .unified)
+    }
+    
+    //--------------------------------------------------------------------------
+    // select
+    public func selectDevice() throws {
+        try cudaCheck(status: cudaSetDevice(Int32(self.deviceId)))
     }
 }
 

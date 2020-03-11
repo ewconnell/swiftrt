@@ -25,6 +25,9 @@ public protocol ShapeBounds: SIMD where Scalar == Int {
     /// which is the product of the dimensions
     func elementCount() -> Int
 
+    /// conversion to IndexType to support drivers
+    var asDeviceIndex: [IndexType] { get }
+
     // **** Adding this to the protocol causes about a 40% loss in
     // indexing performance to both Shape indexing and to Normal SIMD
     // operations.
@@ -41,6 +44,14 @@ public extension ShapeBounds {
     /// instance member access
     @inlinable @_transparent
     var count: Int { Self.rank }
+    
+    /// conversion to IndexType array to support marshalling to drivers
+    @inlinable @_transparent
+    var asDeviceIndex: [IndexType] {
+        var index = [IndexType]()
+        indices.forEach { index.append(IndexType(self[$0])) }
+        return index
+    }
 
     /// helper
     @inlinable @_transparent
@@ -107,7 +118,7 @@ extension SIMD1: ShapeBounds where Scalar == Int {
     public func elementCount() -> Int {
         self[0]
     }
-
+    
     @inlinable
     public func sequentialStrides() -> Self {
         Self(1)

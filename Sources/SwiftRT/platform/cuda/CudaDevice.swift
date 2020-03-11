@@ -40,12 +40,17 @@ public struct CudaDevice: ServiceDevice {
             memoryType = .discreet
             numQueues = 3
         }
-
+        
         self.queues = []
-        for i in 0..<numQueues {
-            queues.append(CudaQueue(id: i, parent: logInfo,
-                                    deviceId: self.id, deviceName: name,
-                                    useGpu: !isCpuDevice))
+        do {
+            for i in 0..<numQueues {
+                try queues.append(CudaQueue(id: i, parent: logInfo,
+                                            deviceId: self.id,
+                                            deviceName: name,
+                                            useGpu: !isCpuDevice))
+            }
+        } catch {
+            writeLog("\(error)")
         }
     }
     

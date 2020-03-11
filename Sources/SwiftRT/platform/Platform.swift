@@ -101,15 +101,6 @@ public protocol ServiceDevice: Logger {
     var queues: [DeviceQueue] { get }
     /// specifies the type of device memory for data transfer
     var memoryType: MemoryType { get }
-
-    //-------------------------------------
-    /// `allocate(bytes:heapIndex:`
-    /// creates an array on this device
-    /// - Parameter byteCount: the number of bytes to allocate on the device
-    /// - Parameter heapIndex: the index of the heap to use
-    /// - Returns: a device memory object. It is the callers responsibility
-    /// to call deallocate when references drop to zero.
-    func allocate(byteCount: Int, heapIndex: Int) -> DeviceMemory
 }
 
 //==============================================================================

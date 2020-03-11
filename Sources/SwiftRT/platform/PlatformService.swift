@@ -215,3 +215,11 @@ public func implicitlyMatchExtents<T>(_ lhs: T, _ rhs: T) -> (T, T)
     }
 }
 
+//==============================================================================
+/// ServiceError
+/// platform service errors
+public enum ServiceError : Error {
+    case functionFailure(location: String, message: String)
+    case rangeError(String)
+}
+

@@ -33,19 +33,20 @@ var targets: [PackageDescription.Target] = []
 
 //==============================================================================
 // Cuda service module
-if buildCuda {
-//    let currentDir = FileManager().currentDirectoryPath
-//    let kernelsDir = "\(currentDir)/Sources/SwiftRT/platform/cuda/kernels"
-//    let kernelsLibName = "CudaKernels"
-
+//if buildCuda {
     //---------------------------------------
     // add Cuda system module
     products.append(.library(name: "CCuda", targets: ["CCuda"]))
     dependencies.append("CCuda")
     testDependencies.append("CCuda")
 
-    targets.append(.systemLibrary(name: "CCuda", path: "Modules/Cuda", 
+    #if os(Linux)
+    targets.append(.systemLibrary(name: "CCuda", path: "Modules/Cuda",
             pkgConfig: "cuda"))
+    #else
+    targets.append(.systemLibrary(name: "CCuda", path: "Modules/Cuda",
+            pkgConfig: "cuda_mac"))
+    #endif
     
     //---------------------------------------
     // add SwiftRT Cuda kernels library built first via cmake
@@ -55,9 +56,9 @@ if buildCuda {
 //
 //    targets.append(.systemLibrary(name: "CudaKernels", path: "Modules/CudaKernels"))
 
-} else {
-    exclusions.append("platform/cuda")
-}
+//} else {
+//    exclusions.append("platform/cuda")
+//}
 
 //==============================================================================
 // package specification
