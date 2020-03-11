@@ -14,6 +14,8 @@
 // limitations under the License.
 //
 import Foundation
+import CCuda
+import CudaKernels
 
 //==============================================================================
 /// CudaQueue
@@ -29,6 +31,7 @@ public final class CudaQueue: DeviceQueue {
         self.useGpu = useGpu
         super.init(id: id, parent: logInfo, deviceId: deviceId,
                    deviceName: deviceName)
+
     }
 }
 
