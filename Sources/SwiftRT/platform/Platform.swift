@@ -25,6 +25,9 @@ import Glibc
 /// Platform
 /// Manages the scope for the current devices, log, and error handlers
 public struct Platform {
+    /// specifies whether operators in the current scope are
+    /// evaluated for inferring or training
+    public static var evaluationStack = [EvaluationMode.inferring]
     /// the time that the platform was first accessed
     @usableFromInline static var startTime = Date()
     /// the log output object
@@ -56,6 +59,26 @@ public struct Platform {
         bufferIdCounter += 1
         return bufferIdCounter
     }
+    /// the currently active queue that platform service functions will use
+    /// - Returns: the current device queue
+    @inlinable
+    public static var currentQueue: DeviceQueue {
+        Platform.service.currentQueue
+    }
+
+    //--------------------------------------------------------------------------
+    /// a convenience property. `true` if the context is inferring
+    @inlinable
+    public static var isInferring: Bool {
+        Platform.evaluationStack.last! == .inferring
+    }
+
+    /// a convenience property. `true` if the context is training
+    @inlinable
+    public static var isTraining: Bool {
+        Platform.evaluationStack.last! == .training
+    }
+
 //
 //    //--------------------------------------------------------------------------
 //    /// returns the thread local instance of the queues stack
@@ -86,6 +109,29 @@ public struct Platform {
 //        }
 //        return key
 //    }()
+}
+
+//==============================================================================
+@inlinable
+public func whileInferring<R>(_ body: () throws -> R) rethrows -> R {
+    Platform.evaluationStack.append(.inferring)
+    defer { _ = Platform.evaluationStack.popLast() }
+    return try body()
+}
+
+@inlinable
+public func whileTraining<R>(_ body: () throws -> R) rethrows -> R {
+    Platform.evaluationStack.append(.training)
+    defer { _ = Platform.evaluationStack.popLast() }
+    return try body()
+}
+
+//==============================================================================
+public enum EvaluationMode {
+    /// operation is used to perform inference
+    case inferring
+    /// operation is used to perform training
+    case training
 }
 
 //==============================================================================

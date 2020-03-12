@@ -491,36 +491,36 @@ open class DeviceQueue: Logging {
     {
         fatalError("cpu not implemented")
     }
-
-    public func createConvolutionInferring<T>(
-        x: T,
-        yShape: inout Shape<T.Bounds>,
-        filter: T,
-        bias: T,
-        activation: ActivationMode,
-        strides: [Int],
-        padding: [Int],
-        dilations: [Int],
-        properties: ConvolutionProperties) throws -> ConvolutionInferring<T>
-        where T: TensorView, T.Element: ScalarElement
-    {
-        fatalError("cpu not implemented")
-    }
-    
-    public func createConvolutionTraining<T>(
-        x: T,
-        yShape: inout Shape<T.Bounds>,
-        filter: T,
-        bias: T,
-        activation: ActivationMode,
-        strides: [Int],
-        padding: [Int],
-        dilations: [Int],
-        properties: ConvolutionProperties) throws -> ConvolutionTraining<T>
-        where T: TensorView, T.Element: ScalarElement
-    {
-        fatalError("cpu not implemented")
-    }
+//
+//    public func createConvolutionInferring<T>(
+//        x: T,
+//        yShape: inout Shape<T.Bounds>,
+//        filter: T,
+//        bias: T,
+//        activation: ActivationMode,
+//        strides: [Int],
+//        padding: [Int],
+//        dilations: [Int],
+//        properties: ConvolutionProperties) throws -> ConvolutionInferring<T>
+//        where T: TensorView, T.Element: ScalarElement
+//    {
+//        fatalError("cpu not implemented")
+//    }
+//
+//    public func createConvolutionTraining<T>(
+//        x: T,
+//        yShape: inout Shape<T.Bounds>,
+//        filter: T,
+//        bias: T,
+//        activation: ActivationMode,
+//        strides: [Int],
+//        padding: [Int],
+//        dilations: [Int],
+//        properties: ConvolutionProperties) throws -> ConvolutionTraining<T>
+//        where T: TensorView, T.Element: ScalarElement
+//    {
+//        fatalError("cpu not implemented")
+//    }
 
     //==========================================================================
     // specialized derivative implementations

@@ -18,6 +18,7 @@ import XCTest
 #if !canImport(ObjectiveC)
 public func allTests() -> [XCTestCaseEntry] {
     return [
+        testCase(test_DeepFunctions.allTests),
         testCase(test_BinaryFunctions.allTests),
         testCase(test_Casting.allTests),
         testCase(test_Codable.allTests),

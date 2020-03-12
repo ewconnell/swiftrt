@@ -15,25 +15,46 @@
 //
 import Foundation
 
-//==============================================================================
-/// Convolution
-///
-public class ConvolutionInferring<T> where
-    T: TensorView, T.Element: FloatingPoint
-{
-    public func infer(y: inout T, from x: T, filter: T, bias: T) throws
-    { fatalError("Abstract") }
-}
-
-public final class ConvolutionTraining<T>: ConvolutionInferring<T> where
-    T: TensorView, T.Element: FloatingPoint
-{
-    public func gradient(y: T, yDiff: T,
-                         filter: T, filterDiff: inout T,
-                         bias: T, biasDiff: inout T,
-                         x: T, xDiff: inout T) throws
-    { fatalError("Abstract") }
-}
+////==============================================================================
+///// Convolution
+//public struct Convolution<T>: Layer
+//    where T: DifferentiableTensorView, T.Element: ScalarElement
+//{
+//    /// The convolution filter
+//    public var filter: T
+//    /// The bias vector
+//    public var bias: T
+//    /// The element-wise activation function.
+//    @noDerivative public let activation: ActivationMode
+//    /// The strides of the sliding window for spatial dimensions.
+//    @noDerivative public let strides: T.Bounds
+//    /// The padding algorithm for convolution.
+//    @noDerivative public let padding: Padding
+//    /// The dilation factor for spatial dimensions.
+//    @noDerivative public let dilation: T.Bounds
+//
+//    public init(
+//        for tensor: T,
+//        resultShape: inout Shape<T.Bounds>,
+//        filter: T,
+//        bias: T,
+//        activation: ActivationMode = .identity,
+//        strides: T.Bounds = T.Bounds.one,
+//        padding: Padding = .valid,
+//        dilation: T.Bounds = T.Bounds.one)
+//    {
+//        self.filter = filter
+//        self.bias = bias
+//        self.activation = activation
+//        self.strides = strides
+//        self.padding = padding
+//        self.dilation = dilation
+//    }
+//
+//    public func callAsFunction(_ input: T) -> T {
+//        fatalError()
+//    }
+//}
 
 //==============================================================================
 // ConvolutionProperties

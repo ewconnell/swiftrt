@@ -55,10 +55,18 @@ public enum ActivationMode: Int, Codable {
 }
 
 //==============================================================================
+///
 public enum TransposeOp: Int, Codable {
     case transpose
     case noTranspose
     case conjugateTranspose
+}
+
+//==============================================================================
+///
+public enum Padding: Int, Codable {
+    case valid
+    case same
 }
 
 //==============================================================================
