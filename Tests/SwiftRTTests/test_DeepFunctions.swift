@@ -27,5 +27,7 @@ class test_DeepFunctions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_Convolution
     func test_Convolution() {
+        let v = Vector([0, 1, 2])
+        let _ = Vector.atan(v)
     }
 }

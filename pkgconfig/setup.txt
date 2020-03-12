@@ -1,6 +1,13 @@
 In .bashrc
 	export SWIFTRT_PLATFORM=cuda
 
-cuda.pc
-copy into the "/usr/local/lib/pkgconfig" directory
+Either
+---------
+copy cuda.pc into the "/usr/local/lib/pkgconfig" directory
 The directory may not exist, so you might have to create it first
+
+Or
+---------
+# pkgconfig
+export PKG_CONFIG_PATH=${SWIFTRT_HOME}/pkgconfig\
+	${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}

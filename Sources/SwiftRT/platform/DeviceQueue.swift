@@ -220,6 +220,22 @@ open class DeviceQueue: Logging {
     }
     
     @inlinable
+    func acos<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .acos($0) }
+    }
+    
+    @inlinable
+    func acosh<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .acosh($0) }
+    }
+    
+    @inlinable
     func add<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: AdditiveArithmetic,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -233,6 +249,38 @@ open class DeviceQueue: Logging {
         R: MutableShapedBuffer, R.Element == Bool
     {
         mapOp(lhs, rhs, &result) { $0 && $1 }
+    }
+    
+    @inlinable
+    func asin<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .asin($0) }
+    }
+    
+    @inlinable
+    func asinh<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .asinh($0) }
+    }
+    
+    @inlinable
+    func atan<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .atan($0) }
+    }
+    
+    @inlinable
+    func atanh<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .atanh($0) }
     }
     
     // FloatingPoint -> Integer
@@ -259,6 +307,22 @@ open class DeviceQueue: Logging {
         R: MutableShapedBuffer, R.Element == T.Element
     {
         zip(result.indices, x).forEach { result[$0] = $1 }
+    }
+    
+    @inlinable
+    func cos<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .cos($0) }
+    }
+    
+    @inlinable
+    func cosh<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .cosh($0) }
     }
     
     @inlinable
@@ -299,6 +363,30 @@ open class DeviceQueue: Logging {
         R: MutableShapedBuffer, R.Element == T.Element
     {
         mapOp(x, &result) { .exp($0) }
+    }
+    
+    @inlinable
+    func exp2<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .exp2($0) }
+    }
+    
+    @inlinable
+    func exp10<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .exp10($0) }
+    }
+    
+    @inlinable
+    func expMinusOne<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .expMinusOne($0) }
     }
     
     @inlinable
@@ -354,6 +442,30 @@ open class DeviceQueue: Logging {
         R: MutableShapedBuffer, R.Element == T.Element
     {
         mapOp(x, &result) { .log($0) }
+    }
+    
+    @inlinable
+    func log<T, R>(onePlus x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .log(onePlus: $0) }
+    }
+    
+    @inlinable
+    func log2<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .log2($0) }
+    }
+    
+    @inlinable
+    func log10<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .log10($0) }
     }
     
     @inlinable
@@ -413,6 +525,14 @@ open class DeviceQueue: Logging {
     }
     
     @inlinable
+    func pow<T, R>(_ x: T, _ n: Int, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .pow($0, n) }
+    }
+    
+    @inlinable
     func replace<T, C, R>(_ x: T, _ y: T, _ condition: C,
                           _ result: inout R) where
         T: ShapedBuffer,
@@ -423,11 +543,35 @@ open class DeviceQueue: Logging {
     }
     
     @inlinable
+    func root<T, R>(_ x: T, _ n: Int, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .root($0, n) }
+    }
+    
+    @inlinable
     func sign<T, R>(_ x: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
     {
         mapOp(x, &result) { $0 < 0 ? -1 : 1 }
+    }
+    
+    @inlinable
+    func sin<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .sin($0) }
+    }
+    
+    @inlinable
+    func sinh<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .sinh($0) }
     }
     
     @inlinable
@@ -476,6 +620,22 @@ open class DeviceQueue: Logging {
         if let op = opFinal {
             inPlaceOp(&result, op)
         }
+    }
+
+    @inlinable
+    func tan<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .tan($0) }
+    }
+    
+    @inlinable
+    func tanh<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .tanh($0) }
     }
 
     //==========================================================================

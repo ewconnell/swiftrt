@@ -95,6 +95,13 @@ public extension TensorView where Element: AdditiveArithmetic {
     static func +(lhs: Element, rhs: Self) -> Self {
         Platform.service.add(lhs, rhs)
     }
+    
+    // VectorProtocol
+    @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
+    func adding(_ x: Element) -> Self {
+        self + x
+    }
 }
 
 //==============================================================================
@@ -160,6 +167,13 @@ public extension TensorView where Element: AdditiveArithmetic {
     @differentiable(where Self: DifferentiableTensorView)
     static func - (lhs: Element, rhs: Self) -> Self {
         subtract(Self(repeating: lhs, to: rhs.bounds), rhs)
+    }
+    
+    // VectorProtocol
+    @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
+    func subtracting(_ x: Element) -> Self {
+        self - x
     }
 }
 
@@ -230,6 +244,12 @@ public extension TensorView where Element: Numeric {
     @differentiable(where Self: DifferentiableTensorView)
     static func * (lhs: Element, rhs: Self) -> Self {
         mul(Self(repeating: lhs, to: rhs.bounds), rhs)
+    }
+    
+    @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
+    func scaled(by scalar: Element) -> Self {
+        self * scalar
     }
 }
 

@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 import Foundation
+import Numerics
 
 //==============================================================================
 // VectorView protocol
@@ -138,6 +139,10 @@ public struct VectorType<Element>: VectorView {
         self.shared = shared
     }
 }
+
+extension VectorType: VectorProtocol, PointwiseMultiplicative where Element: Numeric { }
+
+extension VectorType: ElementaryFunctions where Element: Real { }
 
 //==============================================================================
 // VectorType extensions
