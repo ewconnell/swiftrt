@@ -18,10 +18,8 @@ import Numerics
 
 //==============================================================================
 /// Convolution
-public struct Convolution<T>
-    where
-    T: DifferentiableTensorView, T.Element: Real,
-    T: RealFunctions & ElementaryFunctions
+public struct Convolution<T>: Layer where
+    T: DifferentiableTensorView, T.Element: ScalarElement & Real
 {
     /// The convolution filter
     public var filter: T
@@ -54,8 +52,9 @@ public struct Convolution<T>
         self.dilation = T.Bounds(dilation)
     }
 
+    @differentiable
     public func callAsFunction(_ input: T) -> T {
-        fatalError()
+        input
     }
 }
 
