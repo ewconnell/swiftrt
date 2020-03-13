@@ -163,9 +163,9 @@ class test_IterateView: XCTestCase {
         let depths = 16
         let rows = 64
         let cols = 64
+        let count = depths * rows * cols
         
-        let volume = IndexVolume(depths, rows, cols,
-                                 with: 0..<(depths * rows * cols))
+        let volume = IndexVolume(depths, rows, cols, with: 0..<count)
         let elements = volume.bufferElements()
         var value: Int32 = 0
         
