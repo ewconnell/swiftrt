@@ -18,45 +18,47 @@ import Numerics
 
 ////==============================================================================
 ///// Convolution
-//public struct Convolution<T>: Layer where
-//    T: DifferentiableTensorView & ElementaryFunctions,
-//    T.Element: ScalarElement & Real
-//{
-//    /// The convolution filter
-//    public var filter: T
-//    /// The bias vector
-//    public var bias: T
-//    /// The element-wise activation function.
-//    @noDerivative public let activation: ActivationMode
-//    /// The strides of the sliding window for spatial dimensions.
-//    @noDerivative public let strides: T.Bounds
-//    /// The padding algorithm for convolution.
-//    @noDerivative public let padding: Padding
-//    /// The dilation factor for spatial dimensions.
-//    @noDerivative public let dilation: T.Bounds
-//
-//    public init(
-//        for tensor: T,
-//        resultShape: inout Shape<T.Bounds>,
-//        filter: T,
-//        bias: T,
-//        activation: ActivationMode = .identity,
-//        strides: T.Bounds = T.Bounds.one,
-//        padding: Padding = .valid,
-//        dilation: T.Bounds = T.Bounds.one)
-//    {
-//        self.filter = filter
-//        self.bias = bias
-//        self.activation = activation
-//        self.strides = strides
-//        self.padding = padding
-//        self.dilation = dilation
-//    }
-//
-//    public func callAsFunction(_ input: T) -> T {
-//        fatalError()
-//    }
-//}
+public struct Convolution<T>: Layer where
+    T: DifferentiableTensorView,
+    T.Element: ScalarElement & Real
+{
+    /// The convolution filter
+    public var filter: T
+    /// The bias vector
+    public var bias: T
+    /// The element-wise activation function.
+    @noDerivative public let activation: ActivationMode
+    /// The strides of the sliding window for spatial dimensions.
+    @noDerivative public let strides: T.Bounds
+    /// The padding algorithm for convolution.
+    @noDerivative public let padding: Padding
+    /// The dilation factor for spatial dimensions.
+    @noDerivative public let dilation: T.Bounds
+
+    public init(
+        for tensor: T,
+        resultShape: inout Shape<T.Bounds>,
+        filter: T,
+        bias: T,
+        activation: ActivationMode = .identity,
+        strides: T.Bounds = T.Bounds.one,
+        padding: Padding = .valid,
+        dilation: T.Bounds = T.Bounds.one)
+    {
+        self.filter = filter
+        self.bias = bias
+        self.activation = activation
+        self.strides = strides
+        self.padding = padding
+        self.dilation = dilation
+    }
+
+    @differentiable
+    public func callAsFunction(_ input: T) -> T {
+        // TODO: Write actual implementation.
+        input
+    }
+}
 
 //==============================================================================
 // ConvolutionProperties

@@ -14,9 +14,11 @@
 // limitations under the License.
 //
 
-public protocol Module: EuclideanDifferentiable, KeyPathIterable
-    where TangentVector: VectorProtocol & ElementaryFunctions &
-                         PointwiseMultiplicative & KeyPathIterable {
+// Note: `Module` and `Layer` protocol definitions are adapted and simplified from:
+// https://github.com/tensorflow/swift-apis/blob/master/Sources/TensorFlow/Layer.swift
+
+public protocol Module: Differentiable, KeyPathIterable
+    where TangentVector: KeyPathIterable {
     /// The input type of the layer.
     associatedtype Input
     /// The output type of the layer.
