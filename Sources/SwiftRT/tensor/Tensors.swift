@@ -63,8 +63,8 @@ public extension VectorView {
     /// from flat collection casting Int -> Float
     @inlinable
     init<C>(_ elements: C, name: String? = nil) where
-        Self.Element: Numeric,
-        C: Collection, C.Element == Int
+        C: Collection, C.Element == Int,
+        Self.Element: Numeric
     {
         self = Self.create(elements.lazy.map { Element(exactly: $0)! },
                            Shape(Bounds(elements.count)), name)
