@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 /// CpuDevice
-public struct CpuDevice: ServiceDevice {
+public class CpuDevice: ServiceDevice {
     // properties
     public let id: Int
     public let logInfo: LogInfo

@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 /// CudaDevice
-public struct CudaDevice: ServiceDevice {
+public class CudaDevice: ServiceDevice {
     // properties
     public let id: Int
     public let logInfo: LogInfo

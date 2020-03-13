@@ -18,15 +18,15 @@ import CCuda
 
 //==============================================================================
 // CudaConvolution
-public struct CudaConvolution<T>: Logging where
-    T: TensorView, T.Element: ScalarElement
+public class CudaConvolution<T>: DeviceConvolution<T>, Logging
+    where T: DifferentiableTensorView, T.Element: ScalarElement
 {
     // queues
     private let dataQueue: CudaQueue
     private let filterBiasBackQueue: CudaQueue
 
     // descriptors
-    private let convolutionDescriptor: ConvolutionDescriptor
+    private let convolutionDescriptor: ConvolutionDescriptor<T.Bounds>
     private var activationDescriptor: ActivationDescriptor
     private let xTensorDescriptor: TensorDescriptor
     private let yTensorDescriptor: TensorDescriptor
@@ -51,17 +51,17 @@ public struct CudaConvolution<T>: Logging where
     
     //--------------------------------------------------------------------------
     // initializer
-    public init(x: T,
-                yShape: inout Shape<T.Bounds>,
-                filter: T,
-                bias: T,
-                activation: ActivationType,
-                strides: [Int],
-                padding: [Int],
-                dilations: [Int],
-                properties: ConvolutionProperties,
-                device: CudaDevice,
-                filterBiasBackQueueIndex: Int) throws
+    public override init(for x: T,
+                         yShape: inout Shape<T.Bounds>,
+                         filter: T,
+                         bias: T,
+                         activation: ActivationType,
+                         strides: T.Bounds,
+                         padding: Padding,
+                         dilations: T.Bounds,
+                         properties: ConvolutionProperties,
+                         device: ServiceDevice,
+                         filterBiasBackpropQueueIndex: Int) throws
     {
         //----------------------------------
         // queues
@@ -93,18 +93,20 @@ public struct CudaConvolution<T>: Logging where
         // create convolution descriptor
         let convolutionScalarType: ScalarType =
             T.Element.type == .real64F ? .real64F : .real32F
+        
+        let pad = (padding == .valid) ? T.Bounds.zero : (filter.bounds / 2)
 
         convolutionDescriptor = try ConvolutionDescriptor(
             scalarType: convolutionScalarType,
             rank: T.rank - 2,
-            padding: padding,
+            padding: pad,
             strides: strides,
             dilations: dilations,
             mode: properties.mode)
 
         //----------------------------------
         // get the extents for the output
-        var yExtent = [Int32](repeating: 0, count: T.rank)
+        var yExtent = T.Bounds.zero
         try cudaCheck(status: cudnnGetConvolutionNdForwardOutputDim(
             convolutionDescriptor.desc,
             xTensorDescriptor.desc,
@@ -117,7 +119,8 @@ public struct CudaConvolution<T>: Logging where
         // with the same scalarType for y as x
         yShape = Shape<T.Bounds>(T.Bounds(yExtent.map { Int($0) }))
         yTensorDescriptor = try x.createTensorDescriptor(asShape: yShape)
-
+        super.init()
+        
         try selectForwardAlgorithm(x: x, properties: properties)
        
         // TODO: get this from Context
@@ -127,9 +130,10 @@ public struct CudaConvolution<T>: Logging where
     }
     
     //--------------------------------------------------------------------------
-    // inferring
+    // infer
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnConvolutionBiasActivationForward
-    public func inferring(y: inout T, from x: T, filter: T, bias: T) throws {
+    public override func infer(y: inout T, from x: T, filter: T, bias: T) throws
+    {
         try cudaCheck(status: cudnnConvolutionBiasActivationForward(
             dataQueue.cudnn.handle,
             // alpha1
@@ -164,12 +168,12 @@ public struct CudaConvolution<T>: Logging where
     }
 
     //--------------------------------------------------------------------------
-    // gradient
+    // backPropagate
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnConvolutionBackwardData
-    public func gradient(y: T, yDiff: T,
-                         filter: T, filterDiff: inout T,
-                         bias: T, biasDiff: inout T,
-                         x: T, xDiff: inout T) throws
+    public override func backPropagate(y: T, yDiff: T,
+                                       filter: T, filterDiff: inout T,
+                                       bias: T, biasDiff: inout T,
+                                       x: T, xDiff: inout T) throws
     {
         // data
         try cudaCheck(status: cudnnConvolutionBackwardData(
@@ -236,8 +240,8 @@ public struct CudaConvolution<T>: Logging where
 
     //--------------------------------------------------------------------------
     // selectForwardAlgorithm
-    private mutating func selectForwardAlgorithm(
-        x: T, properties: ConvolutionProperties) throws
+    private func selectForwardAlgorithm(x: T, properties: ConvolutionProperties)
+        throws
     {
         switch properties.forwardAlgorithm {
         case .deterministic:
@@ -331,7 +335,7 @@ public struct CudaConvolution<T>: Logging where
 
     //--------------------------------------------------------------------------
     // selectBackwardAlgorithm
-    private mutating func selectBackwardAlgorithm(
+    private func selectBackwardAlgorithm(
         x: T, properties: ConvolutionProperties) throws
     {
         switch properties.backwardDataAlgorithm {
@@ -744,7 +748,9 @@ extension ConvolutionBwdFilterAlgorithm {
 
 //==============================================================================
 // ConvolutionDescriptor
-public final class ConvolutionDescriptor : ObjectTracking {
+public final class ConvolutionDescriptor<Bounds> : ObjectTracking
+    where Bounds: ShapeBounds
+{
     // properties
     public let trackingId: Int
     public let desc: cudnnConvolutionDescriptor_t
@@ -754,9 +760,9 @@ public final class ConvolutionDescriptor : ObjectTracking {
     @inlinable
     public init(scalarType: ScalarType,
                 rank: Int,
-                padding: [Int],
-                strides: [Int],
-                dilations: [Int],
+                padding: Bounds,
+                strides: Bounds,
+                dilations: Bounds,
                 mode: ConvolutionMode) throws
     {
         // create the descriptor
@@ -768,9 +774,9 @@ public final class ConvolutionDescriptor : ObjectTracking {
         try cudaCheck(status: cudnnSetConvolutionNdDescriptor(
             desc,
             Int32(rank),
-            padding.map { Int32($0) },
-            strides.map { Int32($0) },
-            dilations.map { Int32($0) },
+            padding.asDeviceIndex,
+            strides.asDeviceIndex,
+            dilations.asDeviceIndex,
             mode.cudnn,
             scalarType.cudnn))
 

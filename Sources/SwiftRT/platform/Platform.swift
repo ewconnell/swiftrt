@@ -138,7 +138,7 @@ public enum EvaluationMode {
 /// ServiceDevice
 /// a compute device represents a physical service device installed
 /// on the platform
-public protocol ServiceDevice: Logger {
+public protocol ServiceDevice: class, Logger {
     /// the id of the device for example dev:0, dev:1, ...
     var id: Int { get }
     /// name used logging

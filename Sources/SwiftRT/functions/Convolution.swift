@@ -34,15 +34,16 @@ public struct Convolution<T>: Layer where
     /// The dilation factor for spatial dimensions.
     @noDerivative public let dilation: T.Bounds
 
+    @inlinable
     public init(
         for tensor: T,
-        resultShape: inout Shape<T.Bounds>,
         filter: T,
         bias: T,
         activation: ActivationType = .identity,
         strides: T.Bounds.Tuple = T.Bounds.oneTuple,
         padding: Padding = .valid,
-        dilation: T.Bounds.Tuple = T.Bounds.oneTuple)
+        dilation: T.Bounds.Tuple = T.Bounds.oneTuple,
+        properties: ConvolutionProperties = ConvolutionProperties())
     {
         self.filter = filter
         self.bias = bias
@@ -52,6 +53,7 @@ public struct Convolution<T>: Layer where
         self.dilation = T.Bounds(dilation)
     }
 
+    @inlinable
     @differentiable
     public func callAsFunction(_ input: T) -> T {
         input
@@ -59,17 +61,96 @@ public struct Convolution<T>: Layer where
 }
 
 //==============================================================================
+/// DeviceConvolution
+/// an abstract base class used to manage device dependent
+/// convolution implementations
+public class DeviceConvolution<T>
+    where T: DifferentiableTensorView, T.Element: ScalarElement
+{
+    public init() {}
+    
+    /// init
+    /// initializes the device function `y = convolution(x)`
+    /// - Parameter x: the input tensor
+    /// - Parameter yShape: the shape of the output tensor
+    /// - Parameter filter: the convolution filter
+    /// - Parameter bias: the filter bias
+    /// - Parameter activation: the activation to be applied to the result
+    /// - Parameter strides: the filter window strides
+    /// - Parameter padding: the padding surrounding `x`
+    /// - Parameter dilations: the dilations for the filter
+    /// - Parameter properties: convolution customization properties
+    /// - Parameter device: the device where the convolution will execute
+    /// - Parameter filterBiasBackpropQueueIndex: the queue to use for filter
+    /// and bias backpropagation
+    public init(for x: T,
+                yShape: inout Shape<T.Bounds>,
+                filter: T,
+                bias: T,
+                activation: ActivationType,
+                strides: T.Bounds,
+                padding: Padding,
+                dilations: T.Bounds,
+                properties: ConvolutionProperties,
+                device: ServiceDevice,
+                filterBiasBackpropQueueIndex: Int) throws
+    {
+        fatalError("not implemented")
+    }
+
+    /// infer(y:x:filter:bias:
+    /// - Parameter y: the output tensor
+    /// - Parameter x: the input tensor
+    /// - Parameter filter: the convolution filter
+    /// - Parameter bias: the filter bias
+    public func infer(y: inout T, from x: T, filter: T, bias: T) throws
+    {
+        fatalError("not implemented")
+    }
+
+    /// infer(y:x:filter:bias:
+    /// - Parameter y: the output tensor
+    /// - Parameter yDiff: the output differential
+    /// - Parameter filter: the convolution filter
+    /// - Parameter filterDiff: the filter differential
+    /// - Parameter bias: the filter bias
+    /// - Parameter biasDiff: the filter bias differential
+    /// - Parameter x: the input tensor
+    /// - Parameter x: the input tensor differential
+    public func backPropagate(y: T, yDiff: T,
+                              filter: T, filterDiff: inout T,
+                              bias: T, biasDiff: inout T,
+                              x: T, xDiff: inout T) throws
+    {
+        fatalError("not implemented")
+    }
+}
+
+//==============================================================================
 // ConvolutionProperties
 public struct ConvolutionProperties: Codable {
-    var activationNan: NanPropagation = .noPropagate
-    var activationReluCeiling: Double = 0
-    var backwardDataAlgorithm: ConvolutionBwdDataAlgorithm = .fastest
-    var backwardDataWorkspaceLimit: Int = 10.MB
-    var backwardFilterAlgorithm: ConvolutionBwdFilterAlgorithm = .fastest
-    var backwardFilterWorkspaceLimit: Int = 10.MB
-    var forwardAlgorithm: ConvolutionFwdAlgorithm = .fastest
-    var forwardWorkspaceLimit: Int = 10.MB
-    var mode: ConvolutionMode = .crossCorrelation
+    public var activationNan: NanPropagation
+    public var activationReluCeiling: Double
+    public var backwardDataAlgorithm: ConvolutionBwdDataAlgorithm
+    public var backwardDataWorkspaceLimit: Int
+    public var backwardFilterAlgorithm: ConvolutionBwdFilterAlgorithm
+    public var backwardFilterWorkspaceLimit: Int
+    public var forwardAlgorithm: ConvolutionFwdAlgorithm
+    public var forwardWorkspaceLimit: Int
+    public var mode: ConvolutionMode
+    
+    @inlinable
+    public init() {
+        activationNan = .noPropagate
+        activationReluCeiling = 0
+        backwardDataAlgorithm = .fastest
+        backwardDataWorkspaceLimit = 10.MB
+        backwardFilterAlgorithm = .fastest
+        backwardFilterWorkspaceLimit = 10.MB
+        forwardAlgorithm = .fastest
+        forwardWorkspaceLimit = 10.MB
+        mode = .crossCorrelation
+    }
 }
 
 //==============================================================================

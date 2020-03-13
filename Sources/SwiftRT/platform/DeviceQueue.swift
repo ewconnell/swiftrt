@@ -697,46 +697,33 @@ open class DeviceQueue: Logging {
     //==========================================================================
     // Deep learning operators
     //==========================================================================
-    public func createActivation<T>(
-        x: T,
-        y: inout T,
-        mode: ActivationType,
-        nan: NanPropagation,
-        reluCeiling: Double = 0) throws -> ActivationInferring<T>
-        where T: TensorView, T.Element: ScalarElement & FloatingPoint
+//    public func createActivation<T>(
+//        x: T,
+//        y: inout T,
+//        mode: ActivationType,
+//        nan: NanPropagation,
+//        reluCeiling: Double = 0) throws -> ActivationInferring<T>
+//        where T: TensorView, T.Element: ScalarElement & FloatingPoint
+//    {
+//        fatalError("cpu not implemented")
+//    }
+
+    public func convolution<T>(
+        for x: T,
+        yShape: inout Shape<T.Bounds>,
+        filter: T,
+        bias: T,
+        activation: ActivationType,
+        strides: T.Bounds,
+        padding: Padding,
+        dilations: T.Bounds,
+        properties: ConvolutionProperties,
+        device: ServiceDevice,
+        filterBiasBackpropQueueIndex: Int) throws -> DeviceConvolution<T>
+        where T: DifferentiableTensorView, T.Element: ScalarElement & Real
     {
-        fatalError("cpu not implemented")
+        fatalError("cpu convolution not implemented")
     }
-//
-//    public func createConvolutionInferring<T>(
-//        x: T,
-//        yShape: inout Shape<T.Bounds>,
-//        filter: T,
-//        bias: T,
-//        activation: ActivationType,
-//        strides: [Int],
-//        padding: [Int],
-//        dilations: [Int],
-//        properties: ConvolutionProperties) throws -> ConvolutionInferring<T>
-//        where T: TensorView, T.Element: ScalarElement
-//    {
-//        fatalError("cpu not implemented")
-//    }
-//
-//    public func createConvolutionTraining<T>(
-//        x: T,
-//        yShape: inout Shape<T.Bounds>,
-//        filter: T,
-//        bias: T,
-//        activation: ActivationType,
-//        strides: [Int],
-//        padding: [Int],
-//        dilations: [Int],
-//        properties: ConvolutionProperties) throws -> ConvolutionTraining<T>
-//        where T: TensorView, T.Element: ScalarElement
-//    {
-//        fatalError("cpu not implemented")
-//    }
 
     //==========================================================================
     // specialized derivative implementations
