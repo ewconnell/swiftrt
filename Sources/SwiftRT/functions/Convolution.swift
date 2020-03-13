@@ -16,49 +16,49 @@
 import Foundation
 import Numerics
 
-////==============================================================================
-///// Convolution
-//public struct Convolution<T>: Layer
-//    where
-//    T: DifferentiableTensorView, T.Element: Real,
-//    T: RealFunctions & ElementaryFunctions
-//{
-//    /// The convolution filter
-//    public var filter: T
-//    /// The bias vector
-//    public var bias: T
-//    /// The element-wise activation function type
-//    @noDerivative public let activation: ActivationType
-//    /// The strides of the sliding window for spatial dimensions.
-//    @noDerivative public let strides: T.Bounds
-//    /// The padding algorithm for convolution.
-//    @noDerivative public let padding: Padding
-//    /// The dilation factor for spatial dimensions.
-//    @noDerivative public let dilation: T.Bounds
-//
-//    public init(
-//        for tensor: T,
-//        resultShape: inout Shape<T.Bounds>,
-//        filter: T,
-//        bias: T,
-//        activation: ActivationType = .identity,
-//        strides: T.Bounds = T.Bounds.one,
-//        padding: Padding = .valid,
-//        dilation: T.Bounds = T.Bounds.one)
-//    {
-//        self.filter = filter
-//        self.bias = bias
-//        self.activation = activation
-//        self.strides = strides
-//        self.padding = padding
-//        self.dilation = dilation
-//    }
-//
-//    public func callAsFunction(_ input: T) -> T {
-//        fatalError()
-//    }
-//}
-//
+//==============================================================================
+/// Convolution
+public struct Convolution<T>
+    where
+    T: DifferentiableTensorView, T.Element: Real,
+    T: RealFunctions & ElementaryFunctions
+{
+    /// The convolution filter
+    public var filter: T
+    /// The bias vector
+    public var bias: T
+    /// The element-wise activation function type
+    @noDerivative public let activation: ActivationType
+    /// The strides of the sliding window for spatial dimensions.
+    @noDerivative public let strides: T.Bounds
+    /// The padding algorithm for convolution.
+    @noDerivative public let padding: Padding
+    /// The dilation factor for spatial dimensions.
+    @noDerivative public let dilation: T.Bounds
+
+    public init(
+        for tensor: T,
+        resultShape: inout Shape<T.Bounds>,
+        filter: T,
+        bias: T,
+        activation: ActivationType = .identity,
+        strides: T.Bounds.Tuple = T.Bounds.oneTuple,
+        padding: Padding = .valid,
+        dilation: T.Bounds.Tuple = T.Bounds.oneTuple)
+    {
+        self.filter = filter
+        self.bias = bias
+        self.activation = activation
+        self.strides = T.Bounds(strides)
+        self.padding = padding
+        self.dilation = T.Bounds(dilation)
+    }
+
+    public func callAsFunction(_ input: T) -> T {
+        fatalError()
+    }
+}
+
 //==============================================================================
 // ConvolutionProperties
 public struct ConvolutionProperties: Codable {
