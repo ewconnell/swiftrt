@@ -29,8 +29,8 @@ public func add<T>(_ lhs: T, _ rhs: T) -> T
 
 @inlinable
 @derivative(of: add)
-func _vjpAdd<T>(lhs: T, rhs: T) ->
-    (value: T, pullback: (T) ->(T, T)) where T: DifferentiableTensorView
+func _vjpAdd<T>(lhs: T, rhs: T) -> (value: T, pullback: (T) ->(T, T))
+    where T: DifferentiableTensorView
 {
     Platform.service._vjpAdd(lhs, rhs)
 }

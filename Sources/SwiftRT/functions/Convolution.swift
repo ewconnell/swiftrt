@@ -14,11 +14,13 @@
 // limitations under the License.
 //
 import Foundation
+import Numerics
 
 ////==============================================================================
 ///// Convolution
-//public struct Convolution<T>: Layer
-//    where T: DifferentiableTensorView, T.Element: ScalarElement
+//public struct Convolution<T>: Layer where
+//    T: DifferentiableTensorView & ElementaryFunctions,
+//    T.Element: ScalarElement & Real
 //{
 //    /// The convolution filter
 //    public var filter: T
