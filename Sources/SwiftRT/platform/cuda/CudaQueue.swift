@@ -87,25 +87,13 @@ public final class CudaQueue: DeviceQueue {
         filterBiasBackpropQueueIndex: Int) throws -> DeviceConvolution<T>
         where T: DifferentiableTensorView, T.Element: ScalarElement & Real
     {
-        fatalError("cpu convolution not implemented")
+        try CudaConvolution(
+            for: x, yShape: &yShape,
+            filter: filter, bias: bias,
+            activation: activation,
+            strides: strides, padding: padding,
+            dilations: dilations, properties: properties,
+            device: device,
+            filterBiasBackpropQueueIndex: filterBiasBackpropQueueIndex)
     }
 }
-
-
-
-//public class ConvolutionInferring<T> where
-//    T: TensorView, T.Element: FloatingPoint
-//{
-//    public func infer(y: inout T, from x: T, filter: T, bias: T) throws
-//    { fatalError("Abstract") }
-//}
-//
-//public final class ConvolutionTraining<T>: ConvolutionInferring<T> where
-//    T: TensorView, T.Element: FloatingPoint
-//{
-//    public func gradient(y: T, yDiff: T,
-//                         filter: T, filterDiff: inout T,
-//                         bias: T, biasDiff: inout T,
-//                         x: T, xDiff: inout T) throws
-//    { fatalError("Abstract") }
-//}

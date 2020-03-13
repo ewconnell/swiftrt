@@ -106,7 +106,7 @@ public class CudaConvolution<T>: DeviceConvolution<T>, Logging
 
         //----------------------------------
         // get the extents for the output
-        var yExtent = T.Bounds.zero
+        var yExtent = [Int32](repeating: 0, count: T.rank)
         try cudaCheck(status: cudnnGetConvolutionNdForwardOutputDim(
             convolutionDescriptor.desc,
             xTensorDescriptor.desc,
