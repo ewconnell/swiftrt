@@ -77,6 +77,22 @@ extension Complex: DifferentiableElement {
 }
 
 //==============================================================================
+// swift build -Xswiftc -Xllvm -Xswiftc -enable-experimental-cross-file-derivative-registration
+// TODO uncomment when AD same file requirement is lifted
+//extension Complex where
+//    RealType: Differentiable,
+//    RealType.TangentVector == RealType
+//{
+//    @inlinable
+//    @derivative(of: init(_:_:))
+//    static func _vjpInit(real: RealType, imaginary: RealType) ->
+//        (value: Complex, pullback: (Complex) -> (RealType, RealType))
+//    {
+//        (Complex(real, imaginary), { ($0.real, $0.imaginary) })
+//    }
+//}
+
+//==============================================================================
 // type extensions
 public extension Numeric {
     @inlinable
