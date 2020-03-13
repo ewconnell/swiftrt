@@ -140,9 +140,10 @@ public struct VectorType<Element>: VectorView {
     }
 }
 
-extension VectorType: VectorProtocol, PointwiseMultiplicative where Element: Numeric { }
+extension VectorType: VectorProtocol, PointwiseMultiplicative
+where Element: AlgebraicField { }
 
-extension VectorType: ElementaryFunctions where Element: Real { }
+extension VectorType: ElementaryFunctions where Element: Numeric { }
 
 //==============================================================================
 // VectorType extensions
@@ -163,6 +164,11 @@ extension VectorType: AdditiveArithmetic where Element: Numeric {
     @inlinable
     public static var zero: VectorType<Element> {
         VectorType<Element>(Element.zero)
+    }
+
+    @inlinable
+    public static var one: VectorType<Element> {
+        VectorType<Element>(Element.one)
     }
 }
 
@@ -426,6 +432,11 @@ extension MatrixType: AdditiveArithmetic where Element: Numeric {
     @inlinable
     public static var zero: MatrixType<Element> {
         MatrixType<Element>(element: Element.zero)
+    }
+
+    @inlinable
+    public static var one: MatrixType<Element> {
+        MatrixType<Element>(element: Element.one)
     }
 }
 
@@ -698,6 +709,11 @@ extension VolumeType: AdditiveArithmetic where Element: Numeric {
     @inlinable
     public static var zero: VolumeType<Element> {
         VolumeType<Element>(element: Element.zero)
+    }
+
+    @inlinable
+    public static var one: VolumeType<Element> {
+        VolumeType<Element>(element: Element.one)
     }
 }
 

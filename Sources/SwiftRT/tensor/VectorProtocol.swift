@@ -17,24 +17,8 @@ import Foundation
 import Numerics
 
 //==============================================================================
-// PointwiseMultiplicative conformance
-extension TensorView where Element: Numeric {
-    public static var one: Self {
-        fatalError()
-    }
-    
-    public var reciprocal: Self {
-        fatalError()
-    }
-    
-    public static func .* (lhs: Self, rhs: Self) -> Self {
-        fatalError()
-    }
-}
-
-//==============================================================================
 // ElementaryFunctions conformance
-extension TensorView where Self: ElementaryFunctions, Element: Real {
+extension TensorView where Self: ElementaryFunctions, Element: Numeric {
     public static func expMinusOne(_ x: Self) -> Self {
         fatalError()
     }

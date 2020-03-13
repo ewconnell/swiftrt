@@ -251,6 +251,14 @@ public extension TensorView where Element: Numeric {
     func scaled(by scalar: Element) -> Self {
         self * scalar
     }
+
+    // TODO: this syntax is incorrect and is only here to conform to
+    // PointwiseMultiplicative and should be removed
+    @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
+    static func .* (lhs: Self, rhs: Self) -> Self {
+        lhs * rhs
+    }
 }
 
 //==============================================================================
@@ -320,5 +328,12 @@ public extension TensorView where Element: AlgebraicField {
     @differentiable(where Self: DifferentiableTensorView)
     static func / (lhs: Element, rhs: Self) -> Self {
         div(Self(repeating: lhs, to: rhs.bounds), rhs)
+    }
+    
+    // PointwiseMultiplicative
+    @inlinable
+    @differentiable(where Self: DifferentiableTensorView)
+    var reciprocal: Self {
+        1 / self
     }
 }
