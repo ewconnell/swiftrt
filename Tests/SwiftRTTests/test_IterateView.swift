@@ -117,7 +117,7 @@ class test_IterateView: XCTestCase {
     func test_perfVector() {
         #if !DEBUG
         let count = 65535
-        let vector = Vector(with: 0..<count)
+        let vector = Vector(0..<count)
         let elements = vector.bufferElements()
         var value: Float = 0
         

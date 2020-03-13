@@ -33,7 +33,7 @@ var targets: [PackageDescription.Target] = []
 
 //==============================================================================
 // Cuda service module
-//if buildCuda {
+if buildCuda {
     //---------------------------------------
     // add Cuda system module
     products.append(.library(name: "CCuda", targets: ["CCuda"]))
@@ -56,9 +56,9 @@ var targets: [PackageDescription.Target] = []
 //
 //    targets.append(.systemLibrary(name: "CudaKernels", path: "Modules/CudaKernels"))
 
-//} else {
-//    exclusions.append("platform/cuda")
-//}
+} else {
+    exclusions.append("platform/cuda")
+}
 
 //==============================================================================
 // package specification

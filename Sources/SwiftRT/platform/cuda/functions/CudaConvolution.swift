@@ -55,7 +55,7 @@ public struct CudaConvolution<T>: Logging where
                 yShape: inout Shape<T.Bounds>,
                 filter: T,
                 bias: T,
-                activation: ActivationMode,
+                activation: ActivationType,
                 strides: [Int],
                 padding: [Int],
                 dilations: [Int],

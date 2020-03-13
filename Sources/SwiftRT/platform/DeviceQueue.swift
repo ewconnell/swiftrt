@@ -700,7 +700,7 @@ open class DeviceQueue: Logging {
     public func createActivation<T>(
         x: T,
         y: inout T,
-        mode: ActivationMode,
+        mode: ActivationType,
         nan: NanPropagation,
         reluCeiling: Double = 0) throws -> ActivationInferring<T>
         where T: TensorView, T.Element: ScalarElement & FloatingPoint
@@ -713,7 +713,7 @@ open class DeviceQueue: Logging {
 //        yShape: inout Shape<T.Bounds>,
 //        filter: T,
 //        bias: T,
-//        activation: ActivationMode,
+//        activation: ActivationType,
 //        strides: [Int],
 //        padding: [Int],
 //        dilations: [Int],
@@ -728,7 +728,7 @@ open class DeviceQueue: Logging {
 //        yShape: inout Shape<T.Bounds>,
 //        filter: T,
 //        bias: T,
-//        activation: ActivationMode,
+//        activation: ActivationType,
 //        strides: [Int],
 //        padding: [Int],
 //        dilations: [Int],

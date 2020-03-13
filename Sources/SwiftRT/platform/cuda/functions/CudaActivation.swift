@@ -29,7 +29,7 @@ open class CudaActivationInferring<T>: ActivationTraining<T>
     // initializer
     public init(x: T,
                 y: inout T,
-                mode: ActivationMode,
+                mode: ActivationType,
                 nan: NanPropagation,
                 reluCeiling: Double = 0) throws
     {
@@ -116,7 +116,7 @@ public final class ActivationDescriptor : ObjectTracking {
     //--------------------------------------------------------------------------
     // initializers
     @inlinable
-    public init(mode: ActivationMode,
+    public init(mode: ActivationType,
                 nan: NanPropagation,
                 reluCeiling: Double) throws
     {
@@ -142,10 +142,10 @@ public final class ActivationDescriptor : ObjectTracking {
 }
 
 //==============================================================================
-extension ActivationMode {
+extension ActivationType {
     public var cudnn: cudnnActivationMode_t {
         get {
-            let modes: [ActivationMode: cudnnActivationMode_t] = [
+            let modes: [ActivationType: cudnnActivationMode_t] = [
                 .sigmoid: CUDNN_ACTIVATION_SIGMOID,
                 .relu: CUDNN_ACTIVATION_RELU,
                 .tanh: CUDNN_ACTIVATION_TANH,

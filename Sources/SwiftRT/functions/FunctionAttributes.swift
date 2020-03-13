@@ -45,7 +45,7 @@ open class ActivationTraining<T>: ActivationInferring<T> where
     { fatalError("Abstract") }
 }
 
-public enum ActivationMode: Int, Codable {
+public enum ActivationType: Int, Codable {
     case sigmoid
     case relu
     case tanh

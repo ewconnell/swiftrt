@@ -18,16 +18,17 @@ import Numerics
 
 ////==============================================================================
 ///// Convolution
-//public struct Convolution<T>: Layer where
-//    T: DifferentiableTensorView & ElementaryFunctions,
-//    T.Element: ScalarElement & Real
+//public struct Convolution<T>: Layer
+//    where
+//    T: DifferentiableTensorView, T.Element: Real,
+//    T: RealFunctions & ElementaryFunctions
 //{
 //    /// The convolution filter
 //    public var filter: T
 //    /// The bias vector
 //    public var bias: T
-//    /// The element-wise activation function.
-//    @noDerivative public let activation: ActivationMode
+//    /// The element-wise activation function type
+//    @noDerivative public let activation: ActivationType
 //    /// The strides of the sliding window for spatial dimensions.
 //    @noDerivative public let strides: T.Bounds
 //    /// The padding algorithm for convolution.
@@ -40,7 +41,7 @@ import Numerics
 //        resultShape: inout Shape<T.Bounds>,
 //        filter: T,
 //        bias: T,
-//        activation: ActivationMode = .identity,
+//        activation: ActivationType = .identity,
 //        strides: T.Bounds = T.Bounds.one,
 //        padding: Padding = .valid,
 //        dilation: T.Bounds = T.Bounds.one)
@@ -57,7 +58,7 @@ import Numerics
 //        fatalError()
 //    }
 //}
-
+//
 //==============================================================================
 // ConvolutionProperties
 public struct ConvolutionProperties: Codable {

@@ -39,8 +39,8 @@ class test_Subscripting: XCTestCase {
     // test_perfVectorAdd
     func test_perfVectorAdd() {
         #if !DEBUG
-        let v1 = Vector(with: 1...20)
-        let v2 = Vector(with: 1...20)
+        let v1 = Vector(1...20)
+        let v2 = Vector(1...20)
         var count: Float = 0
         
         measure {
@@ -57,8 +57,8 @@ class test_Subscripting: XCTestCase {
     // test_perfVectorAddRange
     func test_perfVectorAddRange() {
         #if !DEBUG
-        let v1 = Vector(with: 1...20)
-        let v2 = Vector(with: 1...20)
+        let v1 = Vector(1...20)
+        let v2 = Vector(1...20)
         var count: Float = 0
         
         measure {

@@ -63,10 +63,10 @@ public extension VectorView {
     /// from flat collection casting Int -> Float
     @inlinable
     init<C>(_ elements: C, name: String? = nil) where
-        Self.Element: BinaryFloatingPoint,
-        C: Collection, C.Element: BinaryInteger
+        Self.Element: Numeric,
+        C: Collection, C.Element == Int
     {
-        self = Self.create(elements.lazy.map { Element($0) },
+        self = Self.create(elements.lazy.map { Element(exactly: $0)! },
                            Shape(Bounds(elements.count)), name)
     }
 
@@ -236,12 +236,13 @@ public extension MatrixView {
     @inlinable
     init<C>(_ rows: Int, _ cols: Int, with elements: C,
             layout: MatrixLayout = .rowMajor, name: String? = nil) where
-        C: Collection, C.Element: BinaryInteger,
-        Self.Element: BinaryFloatingPoint
+        C: Collection, C.Element == Int,
+        Self.Element: Numeric
     {
         let shape = Self.matrixShape(Bounds(rows, cols), layout)
         assert(shape.count == elements.count, _messageElementCountMismatch)
-        self = Self.create(elements.lazy.map { Element($0) }, shape, name)
+        self = Self.create(elements.lazy.map { Element(exactly: $0)! },
+                           shape, name)
     }
     
     //--------------------------------------------------------------------------
@@ -494,16 +495,17 @@ public extension VolumeView
     }
     
     //--------------------------------------------------------------------------
-    /// from flat `AnyConvertable` collection
+    /// from flat integer collection
     @inlinable
     init<C>(_ deps: Int, _ rows: Int, _ cols: Int,
             with elements: C, name: String? = nil) where
-        C: Collection, C.Element: BinaryInteger,
-        Self.Element: BinaryFloatingPoint
+        C: Collection, C.Element == Int,
+        Self.Element: Numeric
     {
         let shape = Shape(Bounds(deps, rows, cols))
         assert(shape.count == elements.count, _messageElementCountMismatch)
-        self = Self.create(elements.lazy.map { Element($0) }, shape, name)
+        self = Self.create(elements.lazy.map { Element(exactly: $0)! },
+                           shape, name)
     }
 
     //--------------------------------------------------------------------------
