@@ -276,6 +276,14 @@ open class DeviceQueue: Logging {
     }
     
     @inlinable
+    func atan2<T, R>(y: T, x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(y, x, &result) { .atan2(y: $0, x: $1) }
+    }
+    
+    @inlinable
     func atanh<T, R>(_ x: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -356,6 +364,22 @@ open class DeviceQueue: Logging {
     {
         mapOp(lhs, rhs, &result, ==)
     }
+
+    @inlinable
+    func erf<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .erf($0) }
+    }
+    
+    @inlinable
+    func erfc<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .erfc($0) }
+    }
     
     @inlinable
     func exp<T, R>(_ x: T, _ result: inout R) where
@@ -405,6 +429,14 @@ open class DeviceQueue: Logging {
     }
     
     @inlinable
+    func gamma<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .gamma($0) }
+    }
+    
+    @inlinable
     func greater<T, R>(_ lhs: T, _ rhs: T, _ result: inout R)
         where T: ShapedBuffer, T.Element: Comparable,
         R: MutableShapedBuffer, R.Element == Bool
@@ -418,6 +450,14 @@ open class DeviceQueue: Logging {
         R: MutableShapedBuffer, R.Element == Bool
     {
         mapOp(lhs, rhs, &result, >=)
+    }
+    
+    @inlinable
+    func hypot<T, R>(_ x: T, _ y: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, y, &result) { .hypot($0, $1) }
     }
     
     @inlinable
@@ -466,6 +506,14 @@ open class DeviceQueue: Logging {
         R: MutableShapedBuffer, R.Element == T.Element
     {
         mapOp(x, &result) { .log10($0) }
+    }
+    
+    @inlinable
+    func logGamma<T, R>(_ x: T, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(x, &result) { .logGamma($0) }
     }
     
     @inlinable
@@ -556,6 +604,14 @@ open class DeviceQueue: Logging {
         R: MutableShapedBuffer, R.Element == T.Element
     {
         mapOp(x, &result) { $0 < 0 ? -1 : 1 }
+    }
+    
+    @inlinable
+    func signGamma<T>(_ x: T, _ result: inout FloatingPointSign) where
+        T: ShapedBuffer, T.Element: Real
+    {
+        // TODO: don't know what to do with this as set operation
+        fatalError("Not implemented")
     }
     
     @inlinable

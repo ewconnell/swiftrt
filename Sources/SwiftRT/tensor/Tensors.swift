@@ -143,7 +143,7 @@ public struct VectorType<Element>: VectorView {
 extension VectorType: VectorProtocol, PointwiseMultiplicative
 where Element: AlgebraicField { }
 
-extension VectorType: ElementaryFunctions where Element: Numeric { }
+extension VectorType: RealFunctions, ElementaryFunctions where Element: Real {}
 
 //==============================================================================
 // VectorType extensions

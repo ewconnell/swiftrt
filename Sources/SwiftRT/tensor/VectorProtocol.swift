@@ -18,7 +18,35 @@ import Numerics
 
 //==============================================================================
 // ElementaryFunctions conformance
-extension TensorView where Self: ElementaryFunctions, Element: Numeric {
+extension TensorView where Self: RealFunctions, Element: Real {
+    public static func atan2(y: Self, x: Self) -> Self {
+        fatalError()
+    }
+    
+    public static func erf(_ x: Self) -> Self {
+        fatalError()
+    }
+    
+    public static func erfc(_ x: Self) -> Self {
+        fatalError()
+    }
+    
+    public static func hypot(_ x: Self, _ y: Self) -> Self {
+        fatalError()
+    }
+    
+    public static func gamma(_ x: Self) -> Self {
+        fatalError()
+    }
+    
+    public static func logGamma(_ x: Self) -> Self {
+        fatalError()
+    }
+    
+    public static func signGamma(_ x: Self) -> FloatingPointSign {
+        fatalError()
+    }
+
     public static func expMinusOne(_ x: Self) -> Self {
         fatalError()
     }
