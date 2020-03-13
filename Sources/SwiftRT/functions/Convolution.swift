@@ -18,9 +18,10 @@ import Numerics
 
 //==============================================================================
 /// Convolution
-public struct Convolution<T>: Layer where
-    T: DifferentiableTensorView, T.Element: ScalarElement & Real
+public struct Convolution<T>: Layer
+    where T: DifferentiableTensorView, T.Element: ScalarElement & Real
 {
+    //--------------------------------------------------------------------------
     /// The convolution filter
     public var filter: T
     /// The bias vector
@@ -32,17 +33,23 @@ public struct Convolution<T>: Layer where
     /// The padding algorithm for convolution.
     @noDerivative public let padding: Padding
     /// The dilation factor for spatial dimensions.
-    @noDerivative public let dilation: T.Bounds
+    @noDerivative public let dilations: T.Bounds
 
+    //--------------------------------------------------------------------------
+    // working data
+    @noDerivative public let deviceConvolution: DeviceConvolution<T>
+
+    //--------------------------------------------------------------------------
+    // initializer
     @inlinable
     public init(
-        for tensor: T,
+        for x: T,
         filter: T,
         bias: T,
         activation: ActivationType = .identity,
         strides: T.Bounds.Tuple = T.Bounds.oneTuple,
         padding: Padding = .valid,
-        dilation: T.Bounds.Tuple = T.Bounds.oneTuple,
+        dilations: T.Bounds.Tuple = T.Bounds.oneTuple,
         properties: ConvolutionProperties = ConvolutionProperties())
     {
         self.filter = filter
@@ -50,7 +57,23 @@ public struct Convolution<T>: Layer where
         self.activation = activation
         self.strides = T.Bounds(strides)
         self.padding = padding
-        self.dilation = T.Bounds(dilation)
+        self.dilations = T.Bounds(dilations)
+        var yShape = Shape<T.Bounds>(T.Bounds.one)
+        
+        do {
+            self.deviceConvolution =
+                try Platform.service.currentQueue.convolution(
+                    for: x, yShape: &yShape,
+                    filter: filter, bias: bias,
+                    activation: activation, strides: self.strides,
+                    padding: padding, dilations: self.dilations,
+                    properties: properties,
+                    device: Platform.service.currentDevice,
+                    filterBiasBackpropQueueIndex: 2)
+        } catch {
+            Platform.service.writeLog("\(error)")
+            fatalError()
+        }
     }
 
     @inlinable
@@ -103,6 +126,7 @@ public class DeviceConvolution<T>
     /// - Parameter x: the input tensor
     /// - Parameter filter: the convolution filter
     /// - Parameter bias: the filter bias
+//    @differentiable
     public func infer(y: inout T, from x: T, filter: T, bias: T) throws
     {
         fatalError("not implemented")

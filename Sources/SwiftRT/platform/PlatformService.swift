@@ -32,6 +32,13 @@ public protocol PlatformService: class {
 }
 
 public extension PlatformService {
+    /// the currently active device that platform service functions will use
+    /// - Returns: the current device
+    @inlinable
+    var currentDevice: Device {
+        devices[currentQueueId.device]
+    }
+
     /// the currently active queue that platform service functions will use
     /// - Returns: the current device queue
     @inlinable
