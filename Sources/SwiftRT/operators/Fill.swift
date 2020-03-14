@@ -23,10 +23,10 @@ import Foundation
 public func concat<T>(tensors: [T], alongAxis axis: Int = 0,
                       name: String? = nil) -> T where T: TensorView
 {
-    Platform.service.concat(tensors, alongAxis: axis, name)
+    Context.platform.concat(tensors, alongAxis: axis, name)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func concat<T>(_ tensors: [T], alongAxis axis: Int = 0,
                    _ name: String? = nil) -> T where T: TensorView
@@ -53,7 +53,7 @@ public extension TensorView {
     func concat(_ others: Self..., alongAxis axis: Int = 0,
                 name: String? = nil) -> Self
     {
-        Platform.service.concat([self] + others, alongAxis: axis, name)
+        Context.platform.concat([self] + others, alongAxis: axis, name)
     }
 }
 
@@ -64,10 +64,10 @@ public extension TensorView {
 /// - Parameter to result: the tensor where the result will be written
 @inlinable
 public func copy<T>(from view: T, to result: inout T) where T: TensorView {
-    Platform.service.copy(from: view, to: &result)
+    Context.platform.copy(from: view, to: &result)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func copy<T>(from view: T, to result: inout T) where T: TensorView
     {
@@ -82,10 +82,10 @@ public extension PlatformService {
 /// - Parameter interval: the number of seconds to delay
 @inlinable
 public func delayQueue(atLeast interval: TimeInterval) {
-    Platform.service.delayQueue(atLeast: interval)
+    Context.platform.delayQueue(atLeast: interval)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func delayQueue(atLeast interval: TimeInterval) {
         currentQueue.delay(interval)
@@ -99,7 +99,7 @@ public extension PlatformService {
 public func fill<T>(_ result: inout T, with element: T.Element)
     where T: TensorView
 {
-    Platform.service.fill(&result, with: element)
+    Context.platform.fill(&result, with: element)
 }
 
 @inlinable
@@ -107,10 +107,10 @@ public func fill<T, R>(_ result: inout T, with range: R) where
     T: TensorView,
     R: StridedRangeExpression & Collection, R.Element == T.Element
 {
-    Platform.service.fill(&result, with: range)
+    Context.platform.fill(&result, with: range)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func fill<T>(_ result: inout T, with element: T.Element)
         where T: TensorView
@@ -159,7 +159,7 @@ public extension TensorView {
 /// fillWithIndex
 /// a convenience function to fill the tensor with index values from
 /// `0..<count`. If a different range is desired, use `fill(with range:`
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func fillWithIndex<T>(_ result: inout T)
         where T: TensorView, T.Element: RangeBound
@@ -188,10 +188,10 @@ public extension TensorView where Element: RangeBound {
 public func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T
     where T: TensorView
 {
-    Platform.service.replace(x, with: y, where: condition)
+    Context.platform.replace(x, with: y, where: condition)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func replace<T>(_ x: T, with y: T, where condition: T.BoolView) -> T
         where T: TensorView

@@ -19,7 +19,7 @@
 /// This is used only for testing. It is an asynchronous cpu version
 /// that reports having discreet memory instead of unified to exercise
 /// memory management unit tests
-public class TestCpuService: PlatformService {
+public class TestCpuService: Platform {
     // properties
     public let devices: [CpuDevice]
     public let logInfo: LogInfo
@@ -30,7 +30,7 @@ public class TestCpuService: PlatformService {
     @inlinable
     public init() {
         self.name = "TestCpuService"
-        self.logInfo = LogInfo(logWriter: Platform.log,
+        self.logInfo = LogInfo(logWriter: Context.log,
                                logLevel: .error,
                                namePath: self.name,
                                nestingLevel: 0)

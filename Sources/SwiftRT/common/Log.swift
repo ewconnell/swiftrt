@@ -172,8 +172,8 @@ public struct LogInfo {
 public protocol Logging : _Logging {}
 
 public extension Logging {
-    @inlinable var logWriter: Log { Platform.log }
-    @inlinable var logLevel: LogLevel { Platform.log.level }
+    @inlinable var logWriter: Log { Context.log }
+    @inlinable var logLevel: LogLevel { Context.log.level }
     @inlinable var logNamePath: String { "" }
     @inlinable var logNestingLevel: Int { 0 }
 }
@@ -260,7 +260,7 @@ public extension LogWriter {
             
             // create fixed width string for level column
             let messageStr = message()
-            let messageTime = Date().timeIntervalSince(Platform.startTime)
+            let messageTime = Date().timeIntervalSince(Context.startTime)
             let levelStr = String(timeInterval: messageTime)
             let indent = String(repeating: " ",
                                 count: nestingLevel * self._tabSize)

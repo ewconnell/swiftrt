@@ -31,10 +31,10 @@ public let _messageTensorExtentsMismatch = "tensor bounds mismatch"
 public func all<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element == Bool
 {
-    Platform.service.all(x, alongAxes: axes)
+    Context.platform.all(x, alongAxes: axes)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func all<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element == Bool
@@ -54,7 +54,7 @@ public extension PlatformService {
 public extension TensorView where Element == Bool {
     @inlinable
     func all(alongAxes axes: Set<Int>? = nil) -> Self {
-        Platform.service.all(self, alongAxes: axes)
+        Context.platform.all(self, alongAxes: axes)
     }
     
     @inlinable
@@ -73,10 +73,10 @@ public extension TensorView where Element == Bool {
 public func any<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element == Bool
 {
-    Platform.service.any(x, alongAxes: axes)
+    Context.platform.any(x, alongAxes: axes)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func any<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element == Bool
@@ -96,7 +96,7 @@ public extension PlatformService {
 public extension TensorView where Element == Bool {
     @inlinable
     func any(alongAxes axes: Set<Int>? = nil) -> Self {
-        Platform.service.any(self, alongAxes: axes)
+        Context.platform.any(self, alongAxes: axes)
     }
     
     @inlinable
@@ -112,10 +112,10 @@ public extension TensorView where Element == Bool {
 public func sum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: Numeric
 {
-    Platform.service.sum(x, alongAxes: axes)
+    Context.platform.sum(x, alongAxes: axes)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func sum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
@@ -141,7 +141,7 @@ public extension TensorView where Element: Numeric {
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sum(alongAxes axes: Set<Int>? = nil) -> Self {
-        Platform.service.sum(self, alongAxes: axes)
+        Context.platform.sum(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -159,10 +159,10 @@ public extension TensorView where Element: Numeric {
 public func mean<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: AlgebraicField
 {
-    Platform.service.mean(x, alongAxes: axes)
+    Context.platform.mean(x, alongAxes: axes)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func mean<T>(_ x: T, alongAxes axes: Set<Int>?) -> T
         where T: TensorView, T.Element: AlgebraicField
@@ -195,7 +195,7 @@ public extension TensorView where Element: AlgebraicField {
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func mean(alongAxes axes: Set<Int>? = nil) -> Self {
-        Platform.service.mean(self, alongAxes: axes)
+        Context.platform.mean(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -212,10 +212,10 @@ public extension TensorView where Element: AlgebraicField {
 public func prod<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: Numeric
 {
-    Platform.service.prod(x, alongAxes: axes)
+    Context.platform.prod(x, alongAxes: axes)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func prod<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
@@ -241,7 +241,7 @@ public extension TensorView where Element: Numeric {
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func prod(alongAxes axes: Set<Int>? = nil) -> Self {
-        Platform.service.prod(self, alongAxes: axes)
+        Context.platform.prod(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -258,10 +258,10 @@ public extension TensorView where Element: Numeric {
 public func prodNonZeros<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: Numeric
 {
-    Platform.service.prodNonZeros(x, alongAxes: axes)
+    Context.platform.prodNonZeros(x, alongAxes: axes)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func prodNonZeros<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Numeric
@@ -290,7 +290,7 @@ public extension TensorView where Element: Numeric {
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func prodNonZeros(alongAxes axes: Set<Int>? = nil) -> Self {
-        Platform.service.prodNonZeros(self, alongAxes: axes)
+        Context.platform.prodNonZeros(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -311,10 +311,10 @@ public extension TensorView where Element: Numeric {
 public func min<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: Comparable
 {
-    Platform.service.min(x, alongAxes: axes)
+    Context.platform.min(x, alongAxes: axes)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func min<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -344,7 +344,7 @@ public extension TensorView where Element: Comparable
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     func min(alongAxes axes: Set<Int>? = nil) -> Self {
-        Platform.service.min(self, alongAxes: axes)
+        Context.platform.min(self, alongAxes: axes)
     }
     
     @inlinable
@@ -362,10 +362,10 @@ public extension TensorView where Element: Comparable
 public func max<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: Comparable
 {
-    Platform.service.max(x, alongAxes: axes)
+    Context.platform.max(x, alongAxes: axes)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func max<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -395,7 +395,7 @@ public extension TensorView where Element: Comparable
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func max(alongAxes axes: Set<Int>? = nil) -> Self {
-        Platform.service.max(self, alongAxes: axes)
+        Context.platform.max(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -412,10 +412,10 @@ public extension TensorView where Element: Comparable
 public func absmax<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: SignedNumeric & Comparable
 {
-    Platform.service.absmax(x, alongAxes: axes)
+    Context.platform.absmax(x, alongAxes: axes)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func absmax<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: SignedNumeric & Comparable
@@ -444,7 +444,7 @@ public extension TensorView where Element: SignedNumeric & Comparable
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func absmax(alongAxes axes: Set<Int>? = nil) -> Self {
-        Platform.service.absmax(self, alongAxes: axes)
+        Context.platform.absmax(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -464,10 +464,10 @@ public extension TensorView where Element: SignedNumeric & Comparable
 public func abssum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: SignedNumeric & Comparable
 {
-    Platform.service.abssum(x, alongAxes: axes)
+    Context.platform.abssum(x, alongAxes: axes)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     @differentiable(where T: DifferentiableTensorView)
     func abssum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
@@ -495,7 +495,7 @@ public extension TensorView where Element: SignedNumeric & Comparable {
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func abssum(alongAxes axes: Set<Int>? = nil) -> Self {
-        Platform.service.abssum(self, alongAxes: axes)
+        Context.platform.abssum(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)
@@ -512,10 +512,10 @@ public extension TensorView where Element: SignedNumeric & Comparable {
 public func sqrtSumSquares<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
     where T: TensorView, T.Element: Real
 {
-    Platform.service.sqrtSumSquares(x, alongAxes: axes)
+    Context.platform.sqrtSumSquares(x, alongAxes: axes)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func sqrtSumSquares<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
         where T: TensorView, T.Element: Real
@@ -542,7 +542,7 @@ public extension TensorView where Element: Real {
     @differentiable(where Self: DifferentiableTensorView)
     @inlinable
     func sqrtSumSquares(alongAxes axes: Set<Int>? = nil) -> Self {
-        Platform.service.sqrtSumSquares(self, alongAxes: axes)
+        Context.platform.sqrtSumSquares(self, alongAxes: axes)
     }
     
     @differentiable(where Self: DifferentiableTensorView)

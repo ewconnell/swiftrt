@@ -31,7 +31,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
     public init(count: Int, name: String) {
         self.buffer = UnsafeMutableBufferPointer.allocate(capacity: count)
         self.element = buffer[0]
-        self.id = Platform.nextBufferId
+        self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = false
         self.name = name
@@ -76,7 +76,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
     public init(referenceTo buffer: UnsafeBufferPointer<Element>, name: String) {
         self.buffer = UnsafeMutableBufferPointer(mutating: buffer)
         self.element = buffer[0]
-        self.id = Platform.nextBufferId
+        self.id = Context.nextBufferId
         self.isReadOnly = true
         self.isReference = true
         self.name = name
@@ -95,7 +95,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
     {
         self.buffer = buffer
         self.element = buffer[0]
-        self.id = Platform.nextBufferId
+        self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = true
         self.name = name
@@ -122,7 +122,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
     public init(for element: Element, name: String)
     {
         self.element = element
-        self.id = Platform.nextBufferId
+        self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = true
         self.name = name

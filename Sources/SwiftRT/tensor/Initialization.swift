@@ -33,7 +33,7 @@ public extension TensorView {
         Self.Element: BinaryFloatingPoint,
         U: TensorView, U.Element: BinaryInteger, U.Bounds == Bounds
     {
-        self = Platform.service.cast(other)
+        self = Context.platform.cast(other)
     }
 
     @inlinable
@@ -41,7 +41,7 @@ public extension TensorView {
         Self.Element: BinaryInteger,
         U: TensorView, U.Element: BinaryFloatingPoint, U.Bounds == Bounds
     {
-        self = Platform.service.cast(other)
+        self = Context.platform.cast(other)
     }
 }
 
@@ -71,7 +71,7 @@ public extension TensorView {
     init(concatenating tensors: [Self], alongAxis axis: Int = 0,
          name: String? = nil)
     {
-        self = Platform.service.concat(tensors, alongAxis: axis, name)
+        self = Context.platform.concat(tensors, alongAxis: axis, name)
     }
     
     //--------------------------------------------------------------------------
@@ -232,7 +232,7 @@ public extension TensorView {
         var lower = Bounds.zero
         for tensor in expanded {
             var view = stacked.sharedView(from: lower, bounds: tensor.bounds)
-            Platform.service.copy(from: tensor, to: &view)
+            Context.platform.copy(from: tensor, to: &view)
             lower[axis] += 1
         }
         self = stacked

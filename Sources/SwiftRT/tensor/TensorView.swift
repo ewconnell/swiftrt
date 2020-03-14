@@ -81,7 +81,7 @@ public extension TensorView {
     @inlinable
     func bufferElements() -> BufferElements<Element, Bounds> {
         // read the elements buffer using the current queue
-        Platform.service.read(self)
+        Context.platform.read(self)
     }
 
     /// `mutableBufferElements`
@@ -91,7 +91,7 @@ public extension TensorView {
     mutating func mutableBufferElements(willOverwrite: Bool = true)
         -> MutableBufferElements<Element, Bounds>
     {
-        Platform.service.write(&self, willOverwrite: willOverwrite)
+        Context.platform.write(&self, willOverwrite: willOverwrite)
     }
 
     //--------------------------------------------------------------------------

@@ -68,7 +68,7 @@ public class CudaConvolution<T>: DeviceConvolution<T>, Logging
         // TODO: change this when devices have fixed collections of queues
         // initialization can create workspaces on the devices
         // associated with the queues, so we hold on to them
-        let defaultQueue = Platform.currentQueue as! CudaQueue
+        let defaultQueue = Context.currentQueue as! CudaQueue
         self.dataQueue = defaultQueue
         self.filterBiasBackQueue = defaultQueue
         
@@ -123,7 +123,7 @@ public class CudaConvolution<T>: DeviceConvolution<T>, Logging
         
         try selectForwardAlgorithm(x: x, properties: properties)
 
-        if Platform.isTraining {
+        if Context.isTraining {
             try selectBackwardAlgorithm(x: x, properties: properties)
         }
     }

@@ -17,10 +17,10 @@ import Numerics
 //==============================================================================
 // Platform types
 #if canImport(CCuda)
-public typealias PlatformServiceType = CudaService
+public typealias PlatformType = CudaService
 public typealias TensorBuffer<Element> = ReplicatedBuffer<Element>
 #else
-public typealias PlatformServiceType = CpuService
+public typealias PlatformType = CpuService
 public typealias TensorBuffer<Element> = CpuBuffer<Element>
 #endif
 

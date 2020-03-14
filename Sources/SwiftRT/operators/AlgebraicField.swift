@@ -24,7 +24,7 @@ import Numerics
 public func add<T>(_ lhs: T, _ rhs: T) -> T
     where T: TensorView, T.Element: AdditiveArithmetic
 {
-    Platform.service.add(lhs, rhs)
+    Context.platform.add(lhs, rhs)
 }
 
 @inlinable
@@ -32,10 +32,10 @@ public func add<T>(_ lhs: T, _ rhs: T) -> T
 func _vjpAdd<T>(lhs: T, rhs: T) -> (value: T, pullback: (T) ->(T, T))
     where T: DifferentiableTensorView
 {
-    Platform.service._vjpAdd(lhs, rhs)
+    Context.platform._vjpAdd(lhs, rhs)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func add<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AdditiveArithmetic
@@ -76,7 +76,7 @@ public extension TensorView where Element: AdditiveArithmetic {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     static func +(lhs: Self, rhs: Self) -> Self {
-        Platform.service.add(lhs, rhs)
+        Context.platform.add(lhs, rhs)
     }
 
     @inlinable
@@ -87,13 +87,13 @@ public extension TensorView where Element: AdditiveArithmetic {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     static func +(lhs: Self, rhs: Element) -> Self {
-        Platform.service.add(lhs, rhs)
+        Context.platform.add(lhs, rhs)
     }
 
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     static func +(lhs: Element, rhs: Self) -> Self {
-        Platform.service.add(lhs, rhs)
+        Context.platform.add(lhs, rhs)
     }
     
     // VectorProtocol
@@ -114,7 +114,7 @@ public extension TensorView where Element: AdditiveArithmetic {
 public func subtract<T>(_ lhs: T, _ rhs: T) -> T
     where T: TensorView, T.Element: AdditiveArithmetic
 {
-    Platform.service.subtract(lhs, rhs)
+    Context.platform.subtract(lhs, rhs)
 }
 
 @derivative(of: subtract)
@@ -122,10 +122,10 @@ public func subtract<T>(_ lhs: T, _ rhs: T) -> T
 public func _vjpSubtract<T>(lhs: T, rhs: T) ->
     (value: T, pullback: (T) ->(T, T)) where T: DifferentiableTensorView
 {
-    Platform.service._vjpSubtract(lhs, rhs)
+    Context.platform._vjpSubtract(lhs, rhs)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func subtract<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AdditiveArithmetic
@@ -187,7 +187,7 @@ public extension TensorView where Element: AdditiveArithmetic {
 public func mul<T>(_ lhs: T, _ rhs: T) -> T
     where T: TensorView, T.Element: Numeric
 {
-    Platform.service.mul(lhs, rhs)
+    Context.platform.mul(lhs, rhs)
 }
 
 @inlinable
@@ -195,10 +195,10 @@ public func mul<T>(_ lhs: T, _ rhs: T) -> T
 func _vjpMultiply<T>(_ lhs: T, _ rhs: T) ->
     (value: T, pullback: (T) -> (T, T)) where T: DifferentiableTensorView
 {
-    Platform.service._vjpMultiply(lhs, rhs)
+    Context.platform._vjpMultiply(lhs, rhs)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func mul<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: Numeric
@@ -271,7 +271,7 @@ public extension TensorView where Element: Numeric {
 public func div<T>(_ lhs: T, _ rhs: T) -> T
     where T: TensorView, T.Element: AlgebraicField
 {
-    Platform.service.div(lhs, rhs)
+    Context.platform.div(lhs, rhs)
 }
 
 @inlinable
@@ -280,10 +280,10 @@ func _vjpDivide<T>(_ lhs: T, _ rhs: T) ->
     (value: T, pullback: (T) -> (T, T)) where
     T: DifferentiableTensorView, T.Element: AlgebraicField
 {
-    Platform.service._vjpDivide(lhs, rhs)
+    Context.platform._vjpDivide(lhs, rhs)
 }
 
-public extension PlatformService {
+public extension Platform {
     @inlinable
     func div<T>(_ lhs: T, _ rhs: T) -> T
         where T: TensorView, T.Element: AlgebraicField

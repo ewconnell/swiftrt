@@ -18,7 +18,7 @@
 /// CpuService
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public class CpuService: PlatformService {
+public class CpuService: Platform {
     // properties
     public let devices: [CpuDevice]
     public let logInfo: LogInfo
@@ -29,7 +29,7 @@ public class CpuService: PlatformService {
     @inlinable
     public init() {
         name = "CpuService"
-        logInfo = LogInfo(logWriter: Platform.log, logLevel: .error,
+        logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
                           namePath: name, nestingLevel: 0)
         devices = [
             CpuDevice(parent: logInfo, memoryType: .unified, id: 0)

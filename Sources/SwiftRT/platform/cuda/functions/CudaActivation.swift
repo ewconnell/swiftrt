@@ -54,7 +54,7 @@ open class CudaActivationInferring<T>: ActivationTraining<T>
     // infer
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnActivationForward
     public override func infer(y: inout T, from x: T) throws {
-        let deviceQueue = Platform.currentQueue as! CudaQueue
+        let deviceQueue = Context.currentQueue as! CudaQueue
         
         try cudaCheck(status: cudnnActivationForward(
             deviceQueue.cudnn.handle,
@@ -82,7 +82,7 @@ public final class CudaActivationTraining<T>: CudaActivationInferring<T>
     // gradient
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnActivationBackward
     public override func gradient(y: T, yDiff: T, x: T, xDiff: inout T) throws {
-        let deviceQueue = Platform.currentQueue as! CudaQueue
+        let deviceQueue = Context.currentQueue as! CudaQueue
         
         try cudaCheck(status: cudnnActivationBackward(
             deviceQueue.cudnn.handle,

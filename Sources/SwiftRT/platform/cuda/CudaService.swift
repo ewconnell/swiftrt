@@ -20,7 +20,7 @@ import CCuda
 /// CudaService
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public class CudaService: PlatformService, Logger {
+public class CudaService: Platform, Logger {
     // properties
     public var devices: [CudaDevice]
     public let logInfo: LogInfo
@@ -31,7 +31,7 @@ public class CudaService: PlatformService, Logger {
     @inlinable
     public init() {
         name = "Cuda"
-        logInfo = LogInfo(logWriter: Platform.log, logLevel: .error,
+        logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
                           namePath: name, nestingLevel: 0)
         
         // add a device whose queue is synchronized with the application

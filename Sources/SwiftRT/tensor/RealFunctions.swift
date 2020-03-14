@@ -23,75 +23,75 @@ extension TensorView
     where Self: RealFunctions & ElementaryFunctions, Element: Real
 {
     public static func acos(_ x: Self) -> Self {
-        Platform.service.acos(x)
+        Context.platform.acos(x)
     }
     
     public static func acosh(_ x: Self) -> Self {
-        Platform.service.acosh(x)
+        Context.platform.acosh(x)
     }
 
     public static func asin(_ x: Self) -> Self {
-        Platform.service.acos(x)
+        Context.platform.acos(x)
     }
     
     public static func asinh(_ x: Self) -> Self {
-        Platform.service.asinh(x)
+        Context.platform.asinh(x)
     }
 
     public static func atan(_ x: Self) -> Self {
-        Platform.service.atan(x)
+        Context.platform.atan(x)
     }
     
     public static func atanh(_ x: Self) -> Self {
-        Platform.service.atanh(x)
+        Context.platform.atanh(x)
     }
 
     public static func atan2(y: Self, x: Self) -> Self {
-        Platform.service.atan2(y: y, x: x)
+        Context.platform.atan2(y: y, x: x)
     }
     
     public static func cos(_ x: Self) -> Self {
-        Platform.service.cos(x)
+        Context.platform.cos(x)
     }
     
     public static func cosh(_ x: Self) -> Self {
-        Platform.service.cosh(x)
+        Context.platform.cosh(x)
     }
 
     public static func erf(_ x: Self) -> Self {
-        Platform.service.erf(x)
+        Context.platform.erf(x)
     }
     
     public static func erfc(_ x: Self) -> Self {
-        Platform.service.erfc(x)
+        Context.platform.erfc(x)
     }
     
     public static func exp(_ x: Self) -> Self {
-        Platform.service.exp(x)
+        Context.platform.exp(x)
     }
     
     public static func exp2(_ x: Self) -> Self {
-        Platform.service.exp2(x)
+        Context.platform.exp2(x)
     }
     
     public static func exp10(_ x: Self) -> Self {
-        Platform.service.exp10(x)
+        Context.platform.exp10(x)
     }
 
     public static func expMinusOne(_ x: Self) -> Self {
-        Platform.service.expMinusOne(x)
+        Context.platform.expMinusOne(x)
     }
 
     public static func gamma(_ x: Self) -> Self {
-        Platform.service.gamma(x)
+        Context.platform.gamma(x)
     }
     
     public static func hypot(_ x: Self, _ y: Self) -> Self {
-        Platform.service.hypot(x, y)
+        Context.platform.hypot(x, y)
     }
     
     public static func logGamma(_ x: Self) -> Self {
-        Platform.service.logGamma(x)
+        Context.platform.logGamma(x)
     }
 
     public static func signGamma(_ x: Self) -> FloatingPointSign {
@@ -101,50 +101,50 @@ extension TensorView
     }
     
     public static func sin(_ x: Self) -> Self {
-        Platform.service.sin(x)
+        Context.platform.sin(x)
     }
     
     public static func sinh(_ x: Self) -> Self {
-        Platform.service.sinh(x)
+        Context.platform.sinh(x)
     }
 
     public static func sqrt(_ x: Self) -> Self {
-        Platform.service.sqrt(x)
+        Context.platform.sqrt(x)
     }
     
     public static func tan(_ x: Self) -> Self {
-        Platform.service.tan(x)
+        Context.platform.tan(x)
     }
     
     public static func tanh(_ x: Self) -> Self {
-        Platform.service.tanh(x)
+        Context.platform.tanh(x)
     }
     
     public static func log(_ x: Self) -> Self {
-        Platform.service.log(x)
+        Context.platform.log(x)
     }
     
     public static func log(onePlus x: Self) -> Self {
-        Platform.service.log(onePlus: x)
+        Context.platform.log(onePlus: x)
     }
     
     public static func log2(_ x: Self) -> Self {
-        Platform.service.log2(x)
+        Context.platform.log2(x)
     }
     
     public static func log10(_ x: Self) -> Self {
-        Platform.service.log10(x)
+        Context.platform.log10(x)
     }
     
     public static func pow(_ x: Self, _ y: Self) -> Self {
-        Platform.service.pow(x, y)
+        Context.platform.pow(x, y)
     }
     
     public static func pow(_ x: Self, _ n: Int) -> Self {
-        Platform.service.pow(x, n)
+        Context.platform.pow(x, n)
     }
     
     public static func root(_ x: Self, _ n: Int) -> Self {
-        Platform.service.root(x, n)
+        Context.platform.root(x, n)
     }
 }

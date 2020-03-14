@@ -49,7 +49,7 @@ public struct CudaSoftmax<T> where
     // inferring
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnSoftmaxForward
     public func inferring(y: inout T, from x: T) throws {
-        let deviceQueue = Platform.service.currentQueue as! CudaQueue
+        let deviceQueue = Context.service.currentQueue as! CudaQueue
         
         try cudaCheck(status: cudnnSoftmaxForward(
             deviceQueue.cudnn.handle,
@@ -71,7 +71,7 @@ public struct CudaSoftmax<T> where
     // gradient
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnSoftmaxBackward
     public func gradient(y: T, yDiff: T, x: T, xDiff: inout T) throws {
-        let deviceQueue = Platform.service.currentQueue as! CudaQueue
+        let deviceQueue = Context.service.currentQueue as! CudaQueue
 
         // if there aren't any labels then do a normal backward
         try cudaCheck(status: cudnnSoftmaxBackward(

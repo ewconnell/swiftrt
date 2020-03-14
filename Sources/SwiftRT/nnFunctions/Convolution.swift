@@ -63,19 +63,19 @@ public struct Convolution<T>: Layer
             // create the device op and save the output bounds
             var temp = T.Bounds.zero
             self.deviceOp =
-                try Platform.service.currentQueue.convolution(
+                try Context.platform.currentQueue.convolution(
                     for: x, yBounds: &temp,
                     filter: filter, bias: bias,
                     activation: activation, strides: self.strides,
                     padding: padding, dilations: self.dilations,
                     properties: properties,
-                    device: Platform.service.currentDevice,
+                    device: Context.platform.currentDevice,
                     filterBiasBackpropQueueIndex: 2)
 
             self.outputBounds = temp
             
         } catch {
-            Platform.service.writeLog("\(error)")
+            Context.platform.writeLog("\(error)")
             fatalError()
         }
     }

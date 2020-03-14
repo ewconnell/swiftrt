@@ -157,7 +157,7 @@ public extension TensorView {
             expandSelfIfRepeated()
             let (viewUpper, strides) = getUpper(lower, upper, steps)
             var view = sharedView(from: lower, to: viewUpper, with: strides)
-            Platform.service.copy(from: newValue, to: &view)
+            Context.platform.copy(from: newValue, to: &view)
         }
     }
 }
