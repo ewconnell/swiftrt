@@ -21,7 +21,6 @@ import Numerics
 public struct Convolution<T>: Layer
     where T: DifferentiableTensorView, T.Element: ScalarElement & Real
 {
-    //--------------------------------------------------------------------------
     /// The convolution filter
     public var filter: T
     /// The bias vector
@@ -36,12 +35,10 @@ public struct Convolution<T>: Layer
     @noDerivative public let dilations: T.Bounds
     /// The bounds of the output tensor
     @noDerivative public let outputBounds: T.Bounds
-
-    //--------------------------------------------------------------------------
-    // working data
+    /// device specific convolution operator
     @noDerivative public let deviceOp: DeviceConvolution<T>
 
-    //--------------------------------------------------------------------------
+    //-------------------------------------
     /// init
     /// creates and encapsulates a device specific convolution implementation
     @inlinable
@@ -83,19 +80,37 @@ public struct Convolution<T>: Layer
         }
     }
 
+    //--------------------------------------------------------------------------
     @inlinable
     @differentiable
     public func callAsFunction(_ input: T) -> T {
         input
-        
-//        var output = T(bounds: outputBounds)
-//        do {
-//            try deviceOp.infer(&output, from: input, with: filter, and: bias)
-//        } catch {
-//            Platform.service.writeLog("\(error)")
-//        }
-//        return output
+//        var y = T(bounds: outputBounds)
+//        infer(y: &y, from: input, filter: filter, bias: bias)
+//        return y
     }
+
+//    //--------------------------------------------------------------------------
+//    @inlinable
+//    @differentiable
+//    public func infer(y: inout T, from x: T, filter: T, bias: T) {
+//        fatalError()
+//    }
+//
+//    @inlinable
+//    @derivative(of: infer)
+//    public func _vjpInfer(y: inout T, from x: T, filter: T, bias: T)
+//        -> (value: Void, pullback: (inout T) -> (T, T, T))
+//    {
+//        // Note: you may want to defer the original computation until
+//        // returning the pullback to avoid mutating the value of `y`.
+//        defer { infer(y: &y, from: x, filter: filter, bias: bias) }
+//        return ((), { dy in
+//            // TODO: Implement.
+//            // Returns `(dx:dfilter:dbias:)`.
+//            fatalError()
+//        })
+//    }
 }
 
 //==============================================================================
@@ -136,18 +151,18 @@ public class DeviceConvolution<T>
         fatalError("not implemented")
     }
 
-    /// infer(y:x:filter:bias:
+    /// infer
     /// - Parameter y: the output tensor
     /// - Parameter x: the input tensor
     /// - Parameter filter: the convolution filter
     /// - Parameter bias: the filter bias
 //    @differentiable
-    public func infer(_ y: inout T, from x: T, with filter: T, and bias: T)
+    public func infer(y: inout T, from x: T, with filter: T, and bias: T)
         throws {
         fatalError("not implemented")
     }
 
-    /// infer(y:x:filter:bias:
+    /// backPropagate
     /// - Parameter y: the output tensor
     /// - Parameter yDiff: the output differential
     /// - Parameter filter: the convolution filter
