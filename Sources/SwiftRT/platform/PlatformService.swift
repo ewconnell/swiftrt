@@ -19,7 +19,7 @@ import Foundation
 /// PlatformService
 /// a compute service represents a category of installed devices on the
 /// platform, such as (cpu, cuda, tpu, ...)
-public protocol PlatformService: class {
+public protocol PlatformService: class, Logger {
     // types
     associatedtype Device: ServiceDevice
 
