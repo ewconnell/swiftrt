@@ -38,6 +38,9 @@ public struct Convolution<T>: Layer
     //--------------------------------------------------------------------------
     // working data
     @noDerivative public let deviceConvolution: DeviceConvolution<T>
+    // output
+    @usableFromInline
+    var output: T
 
     //--------------------------------------------------------------------------
     // initializer
@@ -58,18 +61,20 @@ public struct Convolution<T>: Layer
         self.strides = T.Bounds(strides)
         self.padding = padding
         self.dilations = T.Bounds(dilations)
-        var yShape = Shape<T.Bounds>(T.Bounds.one)
+        var yBounds = T.Bounds.zero
         
         do {
             self.deviceConvolution =
                 try Platform.service.currentQueue.convolution(
-                    for: x, yShape: &yShape,
+                    for: x, yBounds: &yBounds,
                     filter: filter, bias: bias,
                     activation: activation, strides: self.strides,
                     padding: padding, dilations: self.dilations,
                     properties: properties,
                     device: Platform.service.currentDevice,
                     filterBiasBackpropQueueIndex: 2)
+            
+            self.output = T(bounds: yBounds)
         } catch {
             Platform.service.writeLog("\(error)")
             fatalError()
@@ -95,7 +100,7 @@ public class DeviceConvolution<T>
     /// init
     /// initializes the device function `y = convolution(x)`
     /// - Parameter x: the input tensor
-    /// - Parameter yShape: the shape of the output tensor
+    /// - Parameter yBounds: the bounds of the output tensor `y`
     /// - Parameter filter: the convolution filter
     /// - Parameter bias: the filter bias
     /// - Parameter activation: the activation to be applied to the result
@@ -107,7 +112,7 @@ public class DeviceConvolution<T>
     /// - Parameter filterBiasBackpropQueueIndex: the queue to use for filter
     /// and bias backpropagation
     public init(for x: T,
-                yShape: inout Shape<T.Bounds>,
+                yBounds: inout T.Bounds,
                 filter: T,
                 bias: T,
                 activation: ActivationType,

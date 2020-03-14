@@ -710,7 +710,7 @@ open class DeviceQueue: Logging {
 
     public func convolution<T>(
         for x: T,
-        yShape: inout Shape<T.Bounds>,
+        yBounds: inout T.Bounds,
         filter: T,
         bias: T,
         activation: ActivationType,

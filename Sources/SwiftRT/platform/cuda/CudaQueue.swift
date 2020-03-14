@@ -75,7 +75,7 @@ public final class CudaQueue: DeviceQueue {
     // convolution
     public override func convolution<T>(
         for x: T,
-        yShape: inout Shape<T.Bounds>,
+        yBounds: inout T.Bounds,
         filter: T,
         bias: T,
         activation: ActivationType,
@@ -88,7 +88,7 @@ public final class CudaQueue: DeviceQueue {
         where T: DifferentiableTensorView, T.Element: ScalarElement & Real
     {
         try CudaConvolution(
-            for: x, yShape: &yShape,
+            for: x, yBounds: &yBounds,
             filter: filter, bias: bias,
             activation: activation,
             strides: strides, padding: padding,

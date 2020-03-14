@@ -69,6 +69,13 @@ public protocol TensorView: Logging {
 //==============================================================================
 //
 public extension TensorView {
+    /// init(bounds:
+    /// creates a dense tensor
+    @inlinable
+    init(bounds: Bounds, name: String? = nil) {
+        self = Self.create(Shape<Bounds>(bounds), name)
+    }
+    
     /// `bufferElements`
     /// - Returns: a buffer collection that can be used to iterate the shape
     @inlinable

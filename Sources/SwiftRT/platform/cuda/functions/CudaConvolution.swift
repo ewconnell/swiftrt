@@ -52,7 +52,7 @@ public class CudaConvolution<T>: DeviceConvolution<T>, Logging
     //--------------------------------------------------------------------------
     // initializer
     public override init(for x: T,
-                         yShape: inout Shape<T.Bounds>,
+                         yBounds: inout T.Bounds,
                          filter: T,
                          bias: T,
                          activation: ActivationType,
@@ -117,16 +117,15 @@ public class CudaConvolution<T>: DeviceConvolution<T>, Logging
         //----------------------------------
         // return the shape of the output y and create a tensorDescriptor
         // with the same scalarType for y as x
-        yShape = Shape<T.Bounds>(T.Bounds(yExtent.map { Int($0) }))
-        yTensorDescriptor = try x.createTensorDescriptor(asShape: yShape)
+        yBounds = T.Bounds(yExtent.map { Int($0) })
+        yTensorDescriptor = try x.createTensorDescriptor(asShape: Shape(yBounds))
         super.init()
         
         try selectForwardAlgorithm(x: x, properties: properties)
-       
-        // TODO: get this from Context
-        // if _Context.evaluationMode == .training {
-        try selectBackwardAlgorithm(x: x, properties: properties)
-        // }
+
+        if Platform.isTraining {
+            try selectBackwardAlgorithm(x: x, properties: properties)
+        }
     }
     
     //--------------------------------------------------------------------------
