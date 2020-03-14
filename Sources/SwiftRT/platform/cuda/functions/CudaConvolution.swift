@@ -131,7 +131,7 @@ public class CudaConvolution<T>: DeviceConvolution<T>, Logging
     //--------------------------------------------------------------------------
     // infer
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnConvolutionBiasActivationForward
-    public override func infer(y: inout T, from x: T,
+    public override func infer(_ y: inout T, from x: T,
                                with filter: T, and bias: T) throws
     {
         try cudaCheck(status: cudnnConvolutionBiasActivationForward(

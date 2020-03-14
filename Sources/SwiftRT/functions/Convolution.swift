@@ -34,6 +34,8 @@ public struct Convolution<T>: Layer
     @noDerivative public let padding: Padding
     /// The dilation factor for spatial dimensions.
     @noDerivative public let dilations: T.Bounds
+    /// The bounds of the output tensor
+    @noDerivative public let outputBounds: T.Bounds
 
     //--------------------------------------------------------------------------
     // working data
@@ -61,17 +63,20 @@ public struct Convolution<T>: Layer
         self.dilations = T.Bounds(dilations)
         
         do {
-            var yBounds = T.Bounds.zero
-
+            // create the device op and save the output bounds
+            var temp = T.Bounds.zero
             self.deviceOp =
                 try Platform.service.currentQueue.convolution(
-                    for: x, yBounds: &yBounds,
+                    for: x, yBounds: &temp,
                     filter: filter, bias: bias,
                     activation: activation, strides: self.strides,
                     padding: padding, dilations: self.dilations,
                     properties: properties,
                     device: Platform.service.currentDevice,
                     filterBiasBackpropQueueIndex: 2)
+
+            self.outputBounds = temp
+            
         } catch {
             Platform.service.writeLog("\(error)")
             fatalError()
@@ -82,7 +87,14 @@ public struct Convolution<T>: Layer
     @differentiable
     public func callAsFunction(_ input: T) -> T {
         input
-//        deviceOp.infer(y: &output, from: input, with: filter, and: bias)
+        
+//        var output = T(bounds: outputBounds)
+//        do {
+//            try deviceOp.infer(&output, from: input, with: filter, and: bias)
+//        } catch {
+//            Platform.service.writeLog("\(error)")
+//        }
+//        return output
     }
 }
 
@@ -130,8 +142,8 @@ public class DeviceConvolution<T>
     /// - Parameter filter: the convolution filter
     /// - Parameter bias: the filter bias
 //    @differentiable
-    public func infer(y: inout T, from x: T, with filter: T, and bias: T) throws
-    {
+    public func infer(_ y: inout T, from x: T, with filter: T, and bias: T)
+        throws {
         fatalError("not implemented")
     }
 
