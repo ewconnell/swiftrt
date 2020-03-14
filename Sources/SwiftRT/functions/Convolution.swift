@@ -37,13 +37,11 @@ public struct Convolution<T>: Layer
 
     //--------------------------------------------------------------------------
     // working data
-    @noDerivative public let deviceConvolution: DeviceConvolution<T>
-    // output
-    @usableFromInline
-    var output: T
+    @noDerivative public let deviceOp: DeviceConvolution<T>
 
     //--------------------------------------------------------------------------
-    // initializer
+    /// init
+    /// creates and encapsulates a device specific convolution implementation
     @inlinable
     public init(
         for x: T,
@@ -61,10 +59,11 @@ public struct Convolution<T>: Layer
         self.strides = T.Bounds(strides)
         self.padding = padding
         self.dilations = T.Bounds(dilations)
-        var yBounds = T.Bounds.zero
         
         do {
-            self.deviceConvolution =
+            var yBounds = T.Bounds.zero
+
+            self.deviceOp =
                 try Platform.service.currentQueue.convolution(
                     for: x, yBounds: &yBounds,
                     filter: filter, bias: bias,
@@ -73,8 +72,6 @@ public struct Convolution<T>: Layer
                     properties: properties,
                     device: Platform.service.currentDevice,
                     filterBiasBackpropQueueIndex: 2)
-            
-            self.output = T(bounds: yBounds)
         } catch {
             Platform.service.writeLog("\(error)")
             fatalError()
@@ -85,6 +82,7 @@ public struct Convolution<T>: Layer
     @differentiable
     public func callAsFunction(_ input: T) -> T {
         input
+//        deviceOp.infer(y: &output, from: input, with: filter, and: bias)
     }
 }
 
@@ -132,7 +130,7 @@ public class DeviceConvolution<T>
     /// - Parameter filter: the convolution filter
     /// - Parameter bias: the filter bias
 //    @differentiable
-    public func infer(y: inout T, from x: T, filter: T, bias: T) throws
+    public func infer(y: inout T, from x: T, with filter: T, and bias: T) throws
     {
         fatalError("not implemented")
     }
