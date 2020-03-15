@@ -16,23 +16,24 @@
 
 import Foundation
 
-////==============================================================================
-//// Random initializers
-//public extension TensorView where Element: Numeric
-//{
-//    /// Creates a tensor with the specified shape, randomly sampling scalar
-//    /// values from a uniform distribution between `lowerBound` and `upperBound`
-//    ///
-//    /// - Parameters:
-//    ///   - shape: The dimensions of the tensor.
-//    ///   - lowerBound: The lower bound of the distribution.
-//    ///   - upperBound: The upper bound of the distribution.
-//    ///   - seed: The seed value.
-//    init(randomUniform shape: Shape<Bounds>,
-//         lowerBound: Self,
-//         upperBound: Self,
-//         seed: Element = Context.randomSeed)
-//    {
-//    }
-//}
+//==============================================================================
+// Random initializers
+public extension TensorView where Element: Numeric
+{
+    /// Creates a tensor with the specified shape, randomly sampling scalar
+    /// values from a uniform distribution between `lowerBound` and `upperBound`
+    ///
+    /// - Parameters:
+    ///   - bounds: The dimensions of the tensor
+    ///   - lowerBound: The lower bound of the distribution
+    ///   - upperBound: The upper bound of the distribution
+    ///   - seed: The seed value
+    init(randomUniform bounds: Bounds,
+         lowerBound: Self,
+         upperBound: Self,
+         seed: RandomSeed = Context.randomSeed)
+    {
+        fatalError()
+    }
+}
 

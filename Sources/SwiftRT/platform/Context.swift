@@ -105,8 +105,8 @@ public struct Context {
     /// future stateless random TensorFlow op executions will result
     /// in non-deterministic results.
     @inlinable
-    public var randomSeed: RandomSeed {
-        mutating get {
+    public static var randomSeed: RandomSeed {
+        get {
             let seed = _randomSeed
             _randomSeed = (seed.0, seed.1 + 1)
             return seed
@@ -115,11 +115,11 @@ public struct Context {
     }
     
     @usableFromInline
-    var _randomSeed: RandomSeed = generateRandomSeed()
+    static var _randomSeed: RandomSeed = generateRandomSeed()
 
     /// The random number generator.
     @usableFromInline
-    var randomNumberGenerator = AnyRandomNumberGenerator(
+    static var randomNumberGenerator = AnyRandomNumberGenerator(
         PhiloxRandomNumberGenerator(uint64Seed: UInt64(time(nil))))
 
 //
