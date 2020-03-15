@@ -46,7 +46,7 @@ public extension TensorView {
 }
 
 //==============================================================================
-//
+// basic initializers
 public extension TensorView {
     //--------------------------------------------------------------------------
     /// creates a tensor of the same type and shape as `self` with `Element`
@@ -296,7 +296,7 @@ public extension TensorView {
     func createSingleElement(name: String? = nil) -> Self {
         Self.create(Shape(Bounds.one, strides: Bounds.one), name)
     }
-    
+
     //==========================================================================
     // utility functions for creating shaped types
     @inlinable
@@ -348,6 +348,30 @@ public extension TensorView {
         // create the tensor
         let buffer = Buffer(elements: elements, name: label)
         return Self(shape: shape, buffer: buffer, offset: 0, shared: false)
+    }
+}
+
+//==============================================================================
+// simple numeric helpers
+public extension TensorView where Element: Numeric {
+    @inlinable init(zeros bounds: Bounds) {
+        self.init(repeating: 0, to: bounds)
+    }
+
+    @inlinable init(ones bounds: Bounds) {
+        self.init(repeating: 1, to: bounds)
+    }
+
+    @inlinable init<U>(zerosLike other: U)
+        where U: TensorView, U.Bounds == Bounds
+    {
+        self.init(repeating: 0, to: other.bounds)
+    }
+
+    @inlinable init<U>(onesLike other: U)
+        where U: TensorView, U.Bounds == Bounds
+    {
+        self.init(repeating: 1, to: other.bounds)
     }
 }
 

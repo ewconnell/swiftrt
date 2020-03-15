@@ -85,7 +85,6 @@ public struct Context {
         Context.evaluationModeStack.last! == .training
     }
 
-    //==============================================================================
     @inlinable
     public static func whileInferring<R>(_ body: () throws -> R) rethrows -> R {
         Context.evaluationModeStack.append(.inferring)
@@ -99,6 +98,29 @@ public struct Context {
         defer { _ = Context.evaluationModeStack.popLast() }
         return try body()
     }
+
+    //--------------------------------------------------------------------------
+    /// randomSeed
+    /// - Note: Whenever obtained, the random seed is also updated so that
+    /// future stateless random TensorFlow op executions will result
+    /// in non-deterministic results.
+    @inlinable
+    public var randomSeed: RandomSeed {
+        mutating get {
+            let seed = _randomSeed
+            _randomSeed = (seed.0, seed.1 + 1)
+            return seed
+        }
+        set { _randomSeed = newValue }
+    }
+    
+    @usableFromInline
+    var _randomSeed: RandomSeed = generateRandomSeed()
+
+    /// The random number generator.
+    @usableFromInline
+    var randomNumberGenerator = AnyRandomNumberGenerator(
+        PhiloxRandomNumberGenerator(uint64Seed: UInt64(time(nil))))
 
 //
 //    //--------------------------------------------------------------------------

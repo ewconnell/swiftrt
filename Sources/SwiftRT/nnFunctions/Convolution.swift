@@ -38,7 +38,7 @@ public struct Convolution<T>: Layer
     /// device specific convolution operator
     @noDerivative public let deviceOp: DeviceConvolution<T>
 
-    //-------------------------------------
+    //--------------------------------------------------------------------------
     /// init
     /// creates and encapsulates a device specific convolution implementation
     @inlinable
@@ -80,6 +80,28 @@ public struct Convolution<T>: Layer
         }
     }
 
+//    //--------------------------------------------------------------------------
+//    /// - Parameters:
+//    ///   - filterShape: The 3-D shape of the filter, representing
+//    ///     (filter width, input channel count, output channel count).
+//    ///   - stride: The stride of the sliding window for the temporal dimension.
+//    ///   - padding: The padding algorithm for convolution.
+//    ///   - dilation: The dilation factor for the temporal dimension.
+//    ///   - activation: The element-wise activation function.
+//    ///   - filterInitializer: Initializer to use for the filter parameters.
+//    ///   - biasInitializer: Initializer to use for the bias parameters.
+//    init(
+//        filterShape: (Int, Int, Int),
+//        stride: Int = 1,
+//        padding: Padding = .valid,
+//        dilation: Int = 1,
+//        activation: ActivationType = .identity,
+//        filterInitializer: ParameterInitializer<Scalar> = glorotUniform(),
+//        biasInitializer: ParameterInitializer<Scalar> = zeros()
+//    ) {
+//
+//    }
+    
     //--------------------------------------------------------------------------
     @inlinable
     @differentiable
@@ -151,6 +173,33 @@ public class DeviceConvolution<T>
         fatalError("not implemented")
     }
 
+    /// init
+    /// initializes the device function `y = convolution(x)`
+    /// - Parameter x: the input tensor
+    /// - Parameter yBounds: the bounds of the output tensor `y`
+    /// - Parameter filterBounds: the bounds of the filter to create
+    /// - Parameter activation: the activation to be applied to the result
+    /// - Parameter strides: the filter window strides
+    /// - Parameter padding: the padding surrounding `x`
+    /// - Parameter dilations: the dilations for the filter
+    /// - Parameter properties: convolution customization properties
+    /// - Parameter device: the device where the convolution will execute
+    /// - Parameter filterBiasBackpropQueueIndex: the queue to use for filter
+    /// and bias backpropagation
+    public init(for x: T,
+                yBounds: inout T.Bounds,
+                filterBounds: T.Bounds,
+                activation: ActivationType,
+                strides: T.Bounds,
+                padding: Padding,
+                dilations: T.Bounds,
+                properties: ConvolutionProperties,
+                device: ServiceDevice,
+                filterBiasBackpropQueueIndex: Int) throws
+    {
+        fatalError("not implemented")
+    }
+    
     /// infer
     /// - Parameter y: the output tensor
     /// - Parameter x: the input tensor
