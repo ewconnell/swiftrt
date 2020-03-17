@@ -28,8 +28,7 @@ public typealias RandomSeed = (graph: Int32, op: Int32)
 /// Generates a new random seed
 /// - Parameter seed: an optional starting point for the generator
 @inlinable
-public func generateRandomSeed(using seed: RandomSeed? = nil) -> RandomSeed
-{
+public func generateRandomSeed(using seed: RandomSeed? = nil) -> RandomSeed {
     var strongSeed = UInt64(0)
     if let s = seed {
         let bytes = (s.graph.bytes() + s.op.bytes())[...]
