@@ -414,21 +414,6 @@ open class DeviceQueue: Logging {
     }
     
     @inlinable
-    func fill<Element, R>(_ result: inout R, with element: Element) where
-        R: MutableShapedBuffer, R.Element == Element
-    {
-        inPlaceOp(&result) { _ in element }
-    }
-    
-    @inlinable
-    func fill<T, R>(_ result: inout R, with range: T) where
-        T: StridedRangeExpression & Collection,
-        R: MutableShapedBuffer, R.Element == T.Element
-    {
-        mapOp(range, &result) { $0 }
-    }
-    
-    @inlinable
     func gamma<T, R>(_ x: T, _ result: inout R) where
         T: ShapedBuffer, T.Element: Real,
         R: MutableShapedBuffer, R.Element == T.Element
@@ -692,6 +677,79 @@ open class DeviceQueue: Logging {
         R: MutableShapedBuffer, R.Element == T.Element
     {
         mapOp(x, &result) { .tanh($0) }
+    }
+    
+    //==========================================================================
+    // fill functions
+    //==========================================================================
+    @inlinable
+    func fill<Element, R>(_ result: inout R, with element: Element) where
+        R: MutableShapedBuffer, R.Element == Element
+    {
+        inPlaceOp(&result) { _ in element }
+    }
+    
+    @inlinable
+    func fill<T, R>(_ result: inout R, with range: T) where
+        T: StridedRangeExpression & Collection,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        mapOp(range, &result) { $0 }
+    }
+
+    //-------------------------------------
+    @inlinable
+    func fill<R>(randomUniform result: inout R,
+                 _ lowerBound: R.Element,
+                 _ upperBound: R.Element,
+                 _ seed: UInt64)
+        where R: MutableShapedBuffer, R.Element: Numeric
+    {
+//        let scale = upperBound - lowerBound
+//        let generator =
+//        inPlaceOp(&result) { _ in
+//            T.Element(generator.next()) * scale + lowerBound
+//        }
+    }
+
+    //-------------------------------------
+    @inlinable
+    func fill<T, R>(randomNormal x: T, mean: T.Element,
+                    standardDeviation: T.Element,
+                    _ seed: UInt64, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
+    }
+    
+    @inlinable
+    func fill<T, R>(randomNormal x: T, mean: T, standardDeviation: T,
+                    _ seed: UInt64, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
+    }
+    
+    //-------------------------------------
+    @inlinable
+    func fill<T, R>(randomTruncatedNormal x: T,
+                    mean: T.Element, standardDeviation: T.Element,
+                    _ seed: UInt64, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
+    }
+    
+    @inlinable
+    func fill<T, R>(randomTruncatedNormal x: T, mean: T, standardDeviation: T,
+                    _ seed: UInt64, _ result: inout R) where
+        T: ShapedBuffer, T.Element: Real,
+        R: MutableShapedBuffer, R.Element == T.Element
+    {
+        
     }
 
     //==========================================================================

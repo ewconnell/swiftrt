@@ -93,6 +93,62 @@ public extension Platform {
 }
 
 //==============================================================================
+// initializer extensions
+public extension Platform {
+    @inlinable
+    func fill<T>(randomUniform x: inout T,
+                 lowerBound: T.Element,
+                 upperBound: T.Element,
+                 seed: UInt64)
+        where T: TensorView, T.Element: Numeric
+    {
+        var buffer = write(&x)
+        currentQueue.fill(randomUniform: &buffer, lowerBound, upperBound, seed)
+    }
+//
+//    //-------------------------------------
+//    @inlinable
+//    func fill<T, R>(randomNormal x: T, mean: T.Element,
+//                    standardDeviation: T.Element,
+//                    _ seed: UInt64, _ result: inout R) where
+//        T: ShapedBuffer, T.Element: Real,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//
+//    }
+//
+//    @inlinable
+//    func fill<T, R>(randomNormal x: T, mean: T, standardDeviation: T,
+//                    _ seed: UInt64, _ result: inout R) where
+//        T: ShapedBuffer, T.Element: Real,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//
+//    }
+//
+//    //-------------------------------------
+//    @inlinable
+//    func fill<T, R>(randomTruncatedNormal x: T,
+//                    mean: T.Element, standardDeviation: T.Element,
+//                    _ seed: UInt64, _ result: inout R) where
+//        T: ShapedBuffer, T.Element: Real,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//
+//    }
+//
+//    @inlinable
+//    func fill<T, R>(randomTruncatedNormal x: T, mean: T, standardDeviation: T,
+//                    _ seed: UInt64, _ result: inout R) where
+//        T: ShapedBuffer, T.Element: Real,
+//        R: MutableShapedBuffer, R.Element == T.Element
+//    {
+//
+//    }
+    
+}
+
+//==============================================================================
 /// fill<T>(result:value:
 /// fills the view with the specified value
 @inlinable
