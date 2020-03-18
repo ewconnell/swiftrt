@@ -18,6 +18,35 @@ import Foundation
 public typealias CStringPointer = UnsafePointer<CChar>
 
 //==============================================================================
+// clamping
+extension Comparable {
+    @inlinable
+    public func clamped(to range: ClosedRange<Self>) -> Self {
+        if (self > range.upperBound) {
+            return range.upperBound
+        } else if self < range.lowerBound {
+            return range.lowerBound
+        }
+        return self
+    }
+}
+
+//==============================================================================
+// composing
+public extension UInt64 {
+    @inlinable
+    init(msb: UInt32, lsb: UInt32) {
+        self = (UInt64(msb) << 32) | UInt64(lsb)
+    }
+
+    @inlinable
+    var split: (msb: UInt32, lsb: UInt32) {
+        let mask: UInt64 = 0x00000000FFFFFFFF
+        return (UInt32((self >> 32) & mask), UInt32(self & mask))
+    }
+}
+
+//==============================================================================
 // Memory sizes
 extension Int {
     @inlinable

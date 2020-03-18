@@ -18,7 +18,7 @@ import Numerics
 
 //==============================================================================
 // Random initializers
-public extension TensorView where Element: Numeric {
+public extension TensorView where Element: BinaryFloatingPoint {
     //--------------------------------------------------------------------------
     // `init(randomUniform`
     /// Creates a tensor with the specified shape, randomly sampling scalar
@@ -33,7 +33,7 @@ public extension TensorView where Element: Numeric {
     init(randomUniform bounds: Bounds,
          lowerBound: Element = 0,
          upperBound: Element = 1,
-         seed: UInt64 = Context.randomSeed,
+         seed: RandomSeed = Context.randomSeed,
          name: String? = nil)
     {
         self = Self.create(Shape(bounds), name)
@@ -48,16 +48,22 @@ public extension TensorView where Element: Numeric {
     /// scalar values from a normal distribution.
     ///
     /// - Parameters:
-    ///   - bounds: The dimensions of the tensor
-    ///   - mean: The mean of the distribution
-    ///   - standardDeviation: The standard deviation of the distribution
-    ///   - seed: The seed value
+    ///  - bounds: The dimensions of the tensor
+    ///  - mean: The mean of the distribution
+    ///  - standardDeviation: The standard deviation of the distribution
+    ///  - seed: The seed value
+    ///  - name: optional tensor name
     init(randomNormal bounds: Bounds,
          mean: Element = 0,
          standardDeviation: Element = 1,
-         seed: UInt64 = Context.randomSeed)
+         seed: RandomSeed = Context.randomSeed,
+         name: String? = nil)
     {
-        fatalError()
+        self = Self.create(Shape(bounds), name)
+        Context.platform.fill(randomNormal: &self,
+                              mean: mean,
+                              standardDeviation: standardDeviation,
+                              seed: seed)
     }
     
     //--------------------------------------------------------------------------
@@ -65,16 +71,22 @@ public extension TensorView where Element: Numeric {
     /// values from a truncated Normal distribution.
     ///
     /// - Parameters:
-    ///   - shape: The dimensions of the tensor.
-    ///   - mean: The mean of the distribution.
-    ///   - standardDeviation: The standard deviation of the distribution.
-    ///   - seed: The seed value.
+    ///  - shape: The dimensions of the tensor.
+    ///  - mean: The mean of the distribution.
+    ///  - standardDeviation: The standard deviation of the distribution.
+    ///  - seed: The seed value.
+    ///  - name: optional tensor name
     init(randomTruncatedNormal bounds: Bounds,
          mean: Element = 0,
          standardDeviation: Element = 1,
-         seed: UInt64 = Context.randomSeed)
+         seed: RandomSeed = Context.randomSeed,
+         name: String? = nil)
     {
-        fatalError()
+        self = Self.create(Shape(bounds), name)
+        Context.platform.fill(randomTruncatedNormal: &self,
+                              mean: mean,
+                              standardDeviation: standardDeviation,
+                              seed: seed)
     }
 }
 
@@ -94,7 +106,7 @@ public extension TensorView where Element == IndexType {
     ///   Each slice `[i, ...]`contains the drawn class labels with
     ///   range `[0, classCount)`.
     init<U>(randomCategorialLogits: U, sampleCount: Int,
-            seed: UInt64 = Context.randomSeed)
+            seed: RandomSeed = Context.randomSeed)
         where U: TensorView, U.Element: Numeric
     {
         fatalError()
@@ -146,7 +158,7 @@ public extension TensorView where Element: Real & BinaryFloatingPoint {
     /// - Parameters:
     ///   - bounds: The dimensions of the tensor.
     ///   - seed: The seed value.
-    init(glorotUniform bounds: Bounds, seed: UInt64 = Context.randomSeed) {
+    init(glorotUniform bounds: Bounds, seed: RandomSeed = Context.randomSeed) {
         let (fanIn, fanOut) = bounds.fans()
         let limit = Element.sqrt(6 / Element(fanIn + fanOut))
         self.init(randomUniform: bounds,
@@ -172,7 +184,7 @@ public extension TensorView where Element: Real & BinaryFloatingPoint {
     /// - Parameters:
     ///   - bounds: The dimensions of the tensor.
     ///   - seed: The seed value.
-    init(glorotNormal bounds: Bounds, seed: UInt64 = Context.randomSeed) {
+    init(glorotNormal bounds: Bounds, seed: RandomSeed = Context.randomSeed) {
         let (fanIn, fanOut) = bounds.fans()
         var standardDeviation = Element.sqrt(2 / Element(fanIn + fanOut))
         // Standard deviation of truncated standard normal between
@@ -201,7 +213,7 @@ public extension TensorView where Element: Real & BinaryFloatingPoint {
     /// - Parameters:
     ///   - bounds: The dimensions of the tensor.
     ///   - seed: The seed value.
-    init(heUniform bounds: Bounds, seed: UInt64 = Context.randomSeed) {
+    init(heUniform bounds: Bounds, seed: RandomSeed = Context.randomSeed) {
         let (fanIn, _) = bounds.fans()
         let limit = Element.sqrt(6 / Element(fanIn))
         self.init(randomUniform: bounds, lowerBound: -limit,
@@ -224,7 +236,7 @@ public extension TensorView where Element: Real & BinaryFloatingPoint {
     /// - Parameters:
     ///   - bounds: The dimensions of the tensor.
     ///   - seed: The seed value.
-    init(heNormal bounds: Bounds, seed: UInt64 = Context.randomSeed) {
+    init(heNormal bounds: Bounds, seed: RandomSeed = Context.randomSeed) {
         let (fanIn, _) = bounds.fans()
         var standardDeviation = Element.sqrt(2 / Element(fanIn))
         // Standard deviation of truncated standard normal between `-2` and `2` standard deviations.
@@ -250,7 +262,7 @@ public extension TensorView where Element: Real & BinaryFloatingPoint {
     /// - Parameters:
     ///   - bounds: The dimensions of the tensor.
     ///   - seed: The seed value.
-    init(leCunUniform bounds: Bounds, seed: UInt64 = Context.randomSeed) {
+    init(leCunUniform bounds: Bounds, seed: RandomSeed = Context.randomSeed) {
         let (fanIn, _) = bounds.fans()
         let limit = Element.sqrt(3 / Element(fanIn))
         self.init(randomUniform: bounds, lowerBound: -limit,
@@ -271,7 +283,7 @@ public extension TensorView where Element: Real & BinaryFloatingPoint {
     /// - Parameters:
     ///   - bounds: The dimensions of the tensor.
     ///   - seed: The seed value.
-    init(leCunNormal bounds: Bounds, seed: UInt64 = Context.randomSeed) {
+    init(leCunNormal bounds: Bounds, seed: RandomSeed = Context.randomSeed) {
         let (fanIn, _) = bounds.fans()
         var standardDeviation = Element.sqrt(1 / Element(fanIn))
         // Standard deviation of truncated standard normal between
@@ -283,48 +295,5 @@ public extension TensorView where Element: Real & BinaryFloatingPoint {
                   mean: 0, standardDeviation: standardDeviation,
                   seed: seed)
     }
-
-    //--------------------------------------------------------------------------
-    /// Creates an orthogonal matrix or tensor.
-    ///
-    /// If the shape of the tensor to initialize is two-dimensional,
-    /// it is initialized with an orthogonal matrix obtained from the
-    /// QR decomposition of a matrix of random numbers drawn from a normal
-    /// distribution. If the matrix has fewer rows than columns then the
-    /// output will have orthogonal rows. Otherwise, the output will have
-    /// orthogonal columns.
-    ///
-    /// If the shape of the tensor to initialize is more than two-dimensional,
-    /// a matrix of shape `[shape[0] * ... * shape[rank - 2], shape[rank - 1]]`
-    /// is initialized. The matrix is subsequently reshaped to give a
-    /// tensor of the desired shape.
-    ///
-    /// - Parameters:
-    ///   - bounds: The shape of the tensor.
-    ///   - gain: A multiplicative factor to apply to the orthogonal tensor.
-    ///   - seed: A tuple of two integers to seed the random number generator.
-    
-    // TODO
-//    init(orthogonal bounds: Bounds,
-//         gain: Element = 1,
-//         seed: UInt64 = Context.randomSeed)
-//    {
-//        let rowCount = bounds.indices.dropLast().reduce(1, *)
-//        let columnCount = bounds[Bounds.rank - 1]
-//        var flatShape: Bounds2
-//        if rowCount < columnCount {
-//            flatShape = Bounds2(columnCount, rowCount)
-//        } else {
-//            flatShape = Bounds2(rowCount, columnCount)
-//        }
-//        let normal = Matrix(randomNormal: flatShape, seed: seed)
-//        var (q, r) = normal.qrDecomposition(fullMatrices: false)
-//        let d = r.diagonalPart()
-//        q *= sign(d)
-//        if rowCount < columnCount {
-//            q = q.transposed()
-//        }
-//        self = q.reshaped(to: shape) * gain
-//    }
 }
 

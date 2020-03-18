@@ -99,53 +99,60 @@ public extension Platform {
     func fill<T>(randomUniform x: inout T,
                  lowerBound: T.Element,
                  upperBound: T.Element,
-                 seed: UInt64)
-        where T: TensorView, T.Element: Numeric
+                 seed: RandomSeed)
+        where T: TensorView, T.Element: BinaryFloatingPoint
     {
         var buffer = write(&x)
         currentQueue.fill(randomUniform: &buffer, lowerBound, upperBound, seed)
     }
-//
-//    //-------------------------------------
-//    @inlinable
-//    func fill<T, R>(randomNormal x: T, mean: T.Element,
-//                    standardDeviation: T.Element,
-//                    _ seed: UInt64, _ result: inout R) where
-//        T: ShapedBuffer, T.Element: Real,
-//        R: MutableShapedBuffer, R.Element == T.Element
-//    {
-//
-//    }
-//
-//    @inlinable
-//    func fill<T, R>(randomNormal x: T, mean: T, standardDeviation: T,
-//                    _ seed: UInt64, _ result: inout R) where
-//        T: ShapedBuffer, T.Element: Real,
-//        R: MutableShapedBuffer, R.Element == T.Element
-//    {
-//
-//    }
-//
-//    //-------------------------------------
-//    @inlinable
-//    func fill<T, R>(randomTruncatedNormal x: T,
-//                    mean: T.Element, standardDeviation: T.Element,
-//                    _ seed: UInt64, _ result: inout R) where
-//        T: ShapedBuffer, T.Element: Real,
-//        R: MutableShapedBuffer, R.Element == T.Element
-//    {
-//
-//    }
-//
-//    @inlinable
-//    func fill<T, R>(randomTruncatedNormal x: T, mean: T, standardDeviation: T,
-//                    _ seed: UInt64, _ result: inout R) where
-//        T: ShapedBuffer, T.Element: Real,
-//        R: MutableShapedBuffer, R.Element == T.Element
-//    {
-//
-//    }
+
     
+    //-------------------------------------
+    @inlinable
+    func fill<T>(randomNormal x: inout T,
+                 mean: T.Element,
+                 standardDeviation: T.Element,
+                 seed: RandomSeed)
+        where T: TensorView, T.Element: BinaryFloatingPoint
+    {
+        var buffer = write(&x)
+        currentQueue.fill(randomNormal: &buffer, mean, standardDeviation, seed)
+    }
+
+    @inlinable
+    func fill<T>(randomNormal x: inout T,
+                 mean: T,
+                 standardDeviation: T,
+                 seed: RandomSeed)
+        where T: TensorView, T.Element: BinaryFloatingPoint
+    {
+        var buffer = write(&x)
+        currentQueue.fill(randomNormal: &buffer, read(mean),
+                          read(standardDeviation), seed)
+    }
+
+    //-------------------------------------
+    @inlinable
+    func fill<T>(randomTruncatedNormal x: inout T,
+                    mean: T.Element, standardDeviation: T.Element,
+                    seed: RandomSeed)
+        where T: TensorView, T.Element: BinaryFloatingPoint
+    {
+        var buffer = write(&x)
+        currentQueue.fill(randomTruncatedNormal: &buffer, mean,
+                          standardDeviation, seed)
+    }
+
+    @inlinable
+    func fill<T>(randomTruncatedNormal x: inout T,
+                 mean: T, standardDeviation: T,
+                 seed: RandomSeed)
+        where T: TensorView, T.Element: BinaryFloatingPoint
+    {
+        var buffer = write(&x)
+        currentQueue.fill(randomTruncatedNormal: &buffer, read(mean),
+                          read(standardDeviation), seed)
+    }
 }
 
 //==============================================================================

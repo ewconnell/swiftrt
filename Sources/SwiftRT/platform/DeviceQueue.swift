@@ -134,6 +134,14 @@ open class DeviceQueue: Logging {
     //==========================================================================
     // map operation helpers for cpu implementations
     //==========================================================================
+    // generatorOp
+    @inlinable
+    func generatorOp<R>(_ r: inout R,_ op: @escaping () -> R.Element)
+        where R: MutableShapedBuffer
+    {
+        r.indices.forEach { r[$0] = op() }
+    }
+
     // inPlaceOp
     @inlinable
     func inPlaceOp<R>(_ r: inout R,_ op: @escaping (R.Element) -> R.Element)
@@ -680,13 +688,13 @@ open class DeviceQueue: Logging {
     }
     
     //==========================================================================
-    // fill functions
+    // fill with value functions
     //==========================================================================
     @inlinable
     func fill<Element, R>(_ result: inout R, with element: Element) where
         R: MutableShapedBuffer, R.Element == Element
     {
-        inPlaceOp(&result) { _ in element }
+        generatorOp(&result) { element }
     }
     
     @inlinable
@@ -697,59 +705,93 @@ open class DeviceQueue: Logging {
         mapOp(range, &result) { $0 }
     }
 
-    //-------------------------------------
+    //==========================================================================
+    // fill with random functions
+    // NOTE: **** These are just place holders
+    // TODO: rework all of random numbers from S4TF!!
+    //==========================================================================
     @inlinable
     func fill<R>(randomUniform result: inout R,
                  _ lowerBound: R.Element,
                  _ upperBound: R.Element,
-                 _ seed: UInt64)
-        where R: MutableShapedBuffer, R.Element: Numeric
+                 _ seed: RandomSeed)
+        where R: MutableShapedBuffer, R.Element: BinaryFloatingPoint
     {
-//        let scale = upperBound - lowerBound
-//        let generator =
-//        inPlaceOp(&result) { _ in
-//            T.Element(generator.next()) * scale + lowerBound
-//        }
+        let scale = Double(upperBound - lowerBound) / Double(UInt64.max)
+        var generator = Context.createRandomNumberGenerator(using: seed)
+        
+        generatorOp(&result) {
+            let a = Double(generator.next()) * scale
+            return R.Element(a) + lowerBound
+        }
     }
 
     //-------------------------------------
     @inlinable
-    func fill<T, R>(randomNormal x: T, mean: T.Element,
-                    standardDeviation: T.Element,
-                    _ seed: UInt64, _ result: inout R) where
-        T: ShapedBuffer, T.Element: Real,
-        R: MutableShapedBuffer, R.Element == T.Element
+    func fill<R>(randomNormal result: inout R,
+                 _ mean: R.Element, _ standardDeviation: R.Element,
+                 _ seed: RandomSeed)
+        where R: MutableShapedBuffer, R.Element: BinaryFloatingPoint
     {
+        let scale = Double(standardDeviation) / Double(UInt64.max)
+        var generator = Context.createRandomNumberGenerator(using: seed)
         
+        generatorOp(&result) {
+            let a = Double(generator.next()) * scale
+            return R.Element(a) + mean
+        }
     }
     
     @inlinable
-    func fill<T, R>(randomNormal x: T, mean: T, standardDeviation: T,
-                    _ seed: UInt64, _ result: inout R) where
-        T: ShapedBuffer, T.Element: Real,
+    func fill<T, R>(randomNormal result: inout R,
+                    _ mean: T, _ standardDeviation: T,
+                    _ seed: RandomSeed) where
+        T: ShapedBuffer, T.Element: BinaryFloatingPoint,
         R: MutableShapedBuffer, R.Element == T.Element
     {
+        assert(standardDeviation.count == 1 && mean.count == 1)
+        let scale = Double(standardDeviation.first!) / Double(UInt64.max)
+        var generator = Context.createRandomNumberGenerator(using: seed)
         
+        generatorOp(&result) {
+            let a = Double(generator.next()) * scale
+            return R.Element(a) + mean.first!
+        }
     }
     
     //-------------------------------------
     @inlinable
-    func fill<T, R>(randomTruncatedNormal x: T,
-                    mean: T.Element, standardDeviation: T.Element,
-                    _ seed: UInt64, _ result: inout R) where
-        T: ShapedBuffer, T.Element: Real,
-        R: MutableShapedBuffer, R.Element == T.Element
+    func fill<R>(randomTruncatedNormal result: inout R,
+                 _ mean: R.Element, _ standardDeviation: R.Element,
+                 _ seed: RandomSeed) where
+        R: MutableShapedBuffer, R.Element: BinaryFloatingPoint
     {
+        let std2x = standardDeviation * 2
+        let scale = Double(standardDeviation) / Double(UInt64.max)
+        var generator = Context.createRandomNumberGenerator(using: seed)
         
+        generatorOp(&result) {
+            let a = Double(generator.next()) * scale
+            return R.Element(a).clamped(to: -std2x...std2x) + mean
+        }
     }
     
     @inlinable
-    func fill<T, R>(randomTruncatedNormal x: T, mean: T, standardDeviation: T,
-                    _ seed: UInt64, _ result: inout R) where
-        T: ShapedBuffer, T.Element: Real,
+    func fill<T, R>(randomTruncatedNormal result: inout R,
+                    _ mean: T, _ standardDeviation: T,
+                    _ seed: RandomSeed) where
+        T: ShapedBuffer, T.Element: BinaryFloatingPoint,
         R: MutableShapedBuffer, R.Element == T.Element
     {
+        assert(standardDeviation.count == 1 && mean.count == 1)
+        let std2x = standardDeviation.first! * 2
+        let scale = Double(standardDeviation.first!) / Double(UInt64.max)
+        var generator = Context.createRandomNumberGenerator(using: seed)
         
+        generatorOp(&result) {
+            let a = Double(generator.next()) * scale
+            return R.Element(a).clamped(to: -std2x...std2x) + mean.first!
+        }
     }
 
     //==========================================================================

@@ -34,14 +34,14 @@ public protocol Platform: class, Logger {
 public extension Platform {
     /// the currently active device that platform functions will use
     /// - Returns: the current device
-    @inlinable
+    @inlinable @_transparent
     var currentDevice: Device {
         devices[currentQueueId.device]
     }
 
     /// the currently active queue that platform functions will use
     /// - Returns: the current device queue
-    @inlinable
+    @inlinable @_transparent
     var currentQueue: DeviceQueue {
         let queueId = currentQueueId
         return devices[queueId.device].queues[queueId.queue]
@@ -49,7 +49,7 @@ public extension Platform {
 
     /// the currently active queue that platform functions will use
     /// - Returns: the current device queue
-    @inlinable
+    @inlinable @_transparent
     var currentQueueId: QueueId { queueStack.last! }
 
     //--------------------------------------------------------------------------

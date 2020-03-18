@@ -22,12 +22,28 @@ class test_Random: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_randomUniform", test_randomUniform),
+        ("test_randomNormal", test_randomNormal),
+        ("test_randomTruncatedNormal", test_randomTruncatedNormal),
     ]
     
-    //==========================================================================
+    //--------------------------------------------------------------------------
     // test_randomUniform
     func test_randomUniform() {
         let v = Vector(randomUniform: Bounds1(10))
+        XCTAssert(v.count > 0)
+    }
+
+    //--------------------------------------------------------------------------
+    // test_randomNormal
+    func test_randomNormal() {
+        let v = Vector(randomNormal: Bounds1(100))
+        print(v.array)
+    }
+
+    //--------------------------------------------------------------------------
+    // test_randomTruncatedNormal
+    func test_randomTruncatedNormal() {
+        let v = Vector(randomTruncatedNormal: Bounds1(100))
         print(v.array)
     }
 }

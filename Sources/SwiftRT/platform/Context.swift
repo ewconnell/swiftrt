@@ -117,10 +117,16 @@ public struct Context {
     @usableFromInline
     static var _randomSeed: RandomSeed = generateRandomSeed()
 
-    /// The random number generator.
-    @usableFromInline
-    static var randomNumberGenerator = AnyRandomNumberGenerator(
-        PhiloxRandomNumberGenerator(uint64Seed: UInt64(time(nil))))
+    @inlinable
+    static func createRandomNumberGenerator(using seed: RandomSeed? = nil) ->
+        AnyRandomNumberGenerator
+    {
+        let randomSeed = seed ?? Context.randomSeed
+        let generatorSeed = UInt64(msb: UInt32(bitPattern: randomSeed.op),
+                                   lsb: UInt32(bitPattern: randomSeed.graph))
+        return AnyRandomNumberGenerator(
+            PhiloxRandomNumberGenerator(uint64Seed: generatorSeed))
+    }
 
 //
 //    //--------------------------------------------------------------------------
