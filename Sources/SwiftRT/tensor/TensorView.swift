@@ -193,6 +193,30 @@ public protocol ScalarElement {
     static var onePointer: UnsafeRawPointer { get }
 }
 
+extension Float: ScalarElement {
+    @inlinable public static var type: ScalarType { .real32F }
+
+    public static var zero: Self = 0
+    @inlinable public
+    static var zeroPointer: UnsafeRawPointer { UnsafeRawPointer(&zero) }
+
+    public static var one: Self = 1
+    @inlinable public
+    static var onePointer: UnsafeRawPointer { UnsafeRawPointer(&one) }
+}
+
+extension Double: ScalarElement {
+    @inlinable public static var type: ScalarType { .real64F }
+    
+    public static var zero: Self = 0
+    @inlinable public
+    static var zeroPointer: UnsafeRawPointer { UnsafeRawPointer(&zero) }
+
+    public static var one: Self = 1
+    @inlinable public
+    static var onePointer: UnsafeRawPointer { UnsafeRawPointer(&one) }
+}
+
 //==============================================================================
 // TensorView default implementation
 public extension TensorView {

@@ -29,21 +29,27 @@ class test_Random: XCTestCase {
     //--------------------------------------------------------------------------
     // test_randomUniform
     func test_randomUniform() {
-        let v = Vector(randomUniform: Bounds1(10))
+        let v = Vector(randomUniform: 10)
         XCTAssert(v.count > 0)
     }
 
     //--------------------------------------------------------------------------
     // test_randomNormal
     func test_randomNormal() {
-        let v = Vector(randomNormal: Bounds1(100))
+        let v = Vector(randomNormal: 100)
         print(v.array)
+
+        let someData = Vector(0..<100)
+        let dataMean = mean(someData)
+        let dataStd = dataMean //standardDeviation(someData)
+        let weights = Vector(randomNormal: 100, mean: dataMean, standardDeviation: dataStd)
+        print(weights)
     }
 
     //--------------------------------------------------------------------------
     // test_randomTruncatedNormal
     func test_randomTruncatedNormal() {
-        let v = Vector(randomTruncatedNormal: Bounds1(100))
+        let v = Vector(randomTruncatedNormal: 100)
         print(v.array)
     }
 }

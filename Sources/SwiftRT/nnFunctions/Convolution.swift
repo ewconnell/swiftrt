@@ -79,28 +79,6 @@ public struct Convolution<T>: Layer
             fatalError()
         }
     }
-
-//    //--------------------------------------------------------------------------
-//    /// - Parameters:
-//    ///   - filterShape: The 3-D shape of the filter, representing
-//    ///     (filter width, input channel count, output channel count).
-//    ///   - stride: The stride of the sliding window for the temporal dimension.
-//    ///   - padding: The padding algorithm for convolution.
-//    ///   - dilation: The dilation factor for the temporal dimension.
-//    ///   - activation: The element-wise activation function.
-//    ///   - filterInitializer: Initializer to use for the filter parameters.
-//    ///   - biasInitializer: Initializer to use for the bias parameters.
-//    init(
-//        filterShape: (Int, Int, Int),
-//        stride: Int = 1,
-//        padding: Padding = .valid,
-//        dilation: Int = 1,
-//        activation: ActivationType = .identity,
-//        filterInitializer: ParameterInitializer<Scalar> = glorotUniform(),
-//        biasInitializer: ParameterInitializer<Scalar> = zeros()
-//    ) {
-//
-//    }
     
     //--------------------------------------------------------------------------
     @inlinable

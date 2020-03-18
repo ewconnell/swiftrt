@@ -27,7 +27,12 @@ class test_DeepFunctions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_Convolution
     func test_Convolution() {
-        let v = Vector([0, 1, 2])
-        let _ = Vector.atan(v)
+        let data = Matrix(10, 10, with: 0..<100)
+        let filter = Matrix(glorotNormal: (3, 3))
+        let bias = Matrix(zerosLike: filter)
+        let convolution = Convolution(for: data, filter: filter, bias: bias)
+        
+        let result = convolution(data)
+        print(result.array)
     }
 }

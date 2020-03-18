@@ -43,6 +43,16 @@ public extension TensorView where Element: BinaryFloatingPoint {
                               seed: seed)
     }
 
+    // tuple signature
+    init(randomUniform bounds: Bounds.Tuple,
+         lowerBound: Element = 0, upperBound: Element = 1,
+         seed: RandomSeed = Context.randomSeed, name: String? = nil)
+    {
+        self.init(randomUniform: Bounds(bounds),
+                  lowerBound: lowerBound, upperBound: upperBound,
+                  seed: seed, name: name)
+    }
+    
     //--------------------------------------------------------------------------
     /// Creates a tensor with the specified shape, randomly sampling
     /// scalar values from a normal distribution.
@@ -64,6 +74,41 @@ public extension TensorView where Element: BinaryFloatingPoint {
                               mean: mean,
                               standardDeviation: standardDeviation,
                               seed: seed)
+    }
+
+    // tuple signature
+    init(randomNormal bounds: Bounds.Tuple,
+         mean: Element = 0, standardDeviation: Element = 1,
+         seed: RandomSeed = Context.randomSeed, name: String? = nil)
+    {
+        self.init(randomNormal: Bounds(bounds),
+                  mean: mean, standardDeviation: standardDeviation,
+                  seed: seed, name: name)
+    }
+
+    //------------------------------------
+    // tensor parameter version
+    init(randomNormal bounds: Bounds,
+         mean: Self,
+         standardDeviation: Self,
+         seed: RandomSeed = Context.randomSeed,
+         name: String? = nil)
+    {
+        self = Self.create(Shape(bounds), name)
+        Context.platform.fill(randomNormal: &self,
+                              mean: mean,
+                              standardDeviation: standardDeviation,
+                              seed: seed)
+    }
+
+    // tuple signature
+    init(randomNormal bounds: Bounds.Tuple, mean: Self,
+         standardDeviation: Self, seed: RandomSeed = Context.randomSeed,
+         name: String? = nil)
+    {
+        self.init(randomNormal: Bounds(bounds),
+                  mean: mean, standardDeviation: standardDeviation,
+                  seed: seed, name: name)
     }
     
     //--------------------------------------------------------------------------
@@ -87,6 +132,42 @@ public extension TensorView where Element: BinaryFloatingPoint {
                               mean: mean,
                               standardDeviation: standardDeviation,
                               seed: seed)
+    }
+
+    // tuple signature
+    init(randomTruncatedNormal bounds: Bounds.Tuple,
+         mean: Element = 0, standardDeviation: Element = 1,
+         seed: RandomSeed = Context.randomSeed, name: String? = nil)
+    {
+        self.init(randomTruncatedNormal: Bounds(bounds),
+                  mean: mean, standardDeviation: standardDeviation,
+                  seed: seed, name: name)
+    }
+    
+    //------------------------------------
+    // tensor parameter version
+    init(randomTruncatedNormal bounds: Bounds,
+         mean: Self,
+         standardDeviation: Self,
+         seed: RandomSeed = Context.randomSeed,
+         name: String? = nil)
+    {
+        self = Self.create(Shape(bounds), name)
+        Context.platform.fill(randomTruncatedNormal: &self,
+                              mean: mean,
+                              standardDeviation: standardDeviation,
+                              seed: seed)
+    }
+
+    // tuple signature
+    init(randomTruncatedNormal bounds: Bounds.Tuple,
+         mean: Self, standardDeviation: Self,
+         seed: RandomSeed = Context.randomSeed,
+         name: String? = nil)
+    {
+        self.init(randomTruncatedNormal: Bounds(bounds),
+                  mean: mean, standardDeviation: standardDeviation,
+                  seed: seed, name: name)
     }
 }
 
@@ -184,7 +265,8 @@ public extension TensorView where Element: Real & BinaryFloatingPoint {
     /// - Parameters:
     ///   - bounds: The dimensions of the tensor.
     ///   - seed: The seed value.
-    init(glorotNormal bounds: Bounds, seed: RandomSeed = Context.randomSeed) {
+    init(glorotNormal bounds: Bounds.Tuple, seed: RandomSeed = Context.randomSeed) {
+        let bounds = Bounds(bounds)
         let (fanIn, fanOut) = bounds.fans()
         var standardDeviation = Element.sqrt(2 / Element(fanIn + fanOut))
         // Standard deviation of truncated standard normal between
@@ -213,7 +295,8 @@ public extension TensorView where Element: Real & BinaryFloatingPoint {
     /// - Parameters:
     ///   - bounds: The dimensions of the tensor.
     ///   - seed: The seed value.
-    init(heUniform bounds: Bounds, seed: RandomSeed = Context.randomSeed) {
+    init(heUniform bounds: Bounds.Tuple, seed: RandomSeed = Context.randomSeed) {
+        let bounds = Bounds(bounds)
         let (fanIn, _) = bounds.fans()
         let limit = Element.sqrt(6 / Element(fanIn))
         self.init(randomUniform: bounds, lowerBound: -limit,
@@ -236,7 +319,8 @@ public extension TensorView where Element: Real & BinaryFloatingPoint {
     /// - Parameters:
     ///   - bounds: The dimensions of the tensor.
     ///   - seed: The seed value.
-    init(heNormal bounds: Bounds, seed: RandomSeed = Context.randomSeed) {
+    init(heNormal bounds: Bounds.Tuple, seed: RandomSeed = Context.randomSeed) {
+        let bounds = Bounds(bounds)
         let (fanIn, _) = bounds.fans()
         var standardDeviation = Element.sqrt(2 / Element(fanIn))
         // Standard deviation of truncated standard normal between `-2` and `2` standard deviations.
@@ -262,7 +346,8 @@ public extension TensorView where Element: Real & BinaryFloatingPoint {
     /// - Parameters:
     ///   - bounds: The dimensions of the tensor.
     ///   - seed: The seed value.
-    init(leCunUniform bounds: Bounds, seed: RandomSeed = Context.randomSeed) {
+    init(leCunUniform bounds: Bounds.Tuple, seed: RandomSeed = Context.randomSeed) {
+        let bounds = Bounds(bounds)
         let (fanIn, _) = bounds.fans()
         let limit = Element.sqrt(3 / Element(fanIn))
         self.init(randomUniform: bounds, lowerBound: -limit,
@@ -283,7 +368,8 @@ public extension TensorView where Element: Real & BinaryFloatingPoint {
     /// - Parameters:
     ///   - bounds: The dimensions of the tensor.
     ///   - seed: The seed value.
-    init(leCunNormal bounds: Bounds, seed: RandomSeed = Context.randomSeed) {
+    init(leCunNormal bounds: Bounds.Tuple, seed: RandomSeed = Context.randomSeed) {
+        let bounds = Bounds(bounds)
         let (fanIn, _) = bounds.fans()
         var standardDeviation = Element.sqrt(1 / Element(fanIn))
         // Standard deviation of truncated standard normal between
