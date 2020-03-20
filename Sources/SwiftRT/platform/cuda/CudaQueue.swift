@@ -77,7 +77,7 @@ public final class CudaQueue: DeviceQueue {
         for x: T,
         yBounds: inout T.Bounds,
         filter: T,
-        bias: T,
+        bias: Vector<T.Element>,
         activation: ActivationType,
         strides: T.Bounds,
         padding: Padding,

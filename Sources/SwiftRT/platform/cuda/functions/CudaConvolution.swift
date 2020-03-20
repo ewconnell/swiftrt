@@ -54,7 +54,7 @@ public class CudaConvolution<T>: DeviceConvolution<T>, Logging
     public override init(for x: T,
                          yBounds: inout T.Bounds,
                          filter: T,
-                         bias: T,
+                         bias: Vector<T.Element>,
                          activation: ActivationType,
                          strides: T.Bounds,
                          padding: Padding,
