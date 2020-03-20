@@ -102,13 +102,13 @@ public extension VectorView {
     //--------------------------------------------------------------------------
     // typed views
     @inlinable
-    func createBoolTensor(with bounds: Bounds) -> VectorType<Bool> {
-        VectorType<Bool>(bounds: bounds)
+    func createBoolTensor(with bounds: Bounds) -> Vector<Bool> {
+        Vector<Bool>(bounds: bounds)
     }
     
     @inlinable
-    func createIndexTensor(with bounds: Bounds) -> VectorType<IndexType> {
-        VectorType<IndexType>(bounds: bounds)
+    func createIndexTensor(with bounds: Bounds) -> Vector<IndexType> {
+        Vector<IndexType>(bounds: bounds)
     }
     
     //--------------------------------------------------------------------------
@@ -118,8 +118,8 @@ public extension VectorView {
 }
 
 //==============================================================================
-// VectorType
-public struct VectorType<Element>: VectorView {
+// Vector
+public struct Vector<Element>: VectorView {
     // properties
     public static var diagnosticName: String { "Vector" }
     public let shape: Shape<Bounds1>
@@ -140,35 +140,35 @@ public struct VectorType<Element>: VectorView {
     }
 }
 
-extension VectorType: VectorProtocol, PointwiseMultiplicative
+extension Vector: VectorProtocol, PointwiseMultiplicative
 where Element: AlgebraicField { }
 
-extension VectorType: RealFunctions, ElementaryFunctions where Element: Real {}
+extension Vector: RealFunctions, ElementaryFunctions where Element: Real {}
 
 //==============================================================================
-// VectorType extensions
-extension VectorType: Equatable where Element: Equatable { }
-extension VectorType: Codable where Element: Codable { }
+// Vector extensions
+extension Vector: Equatable where Element: Equatable { }
+extension Vector: Codable where Element: Codable { }
 
-extension VectorType: CustomStringConvertible {
+extension Vector: CustomStringConvertible {
     public var description: String { "\(self.array)" }
 }
 
-extension VectorType: Differentiable & DifferentiableTensorView
+extension Vector: Differentiable & DifferentiableTensorView
     where Element: DifferentiableElement
 {
-    public typealias TangentVector = VectorType
+    public typealias TangentVector = Vector
 }
 
-extension VectorType: AdditiveArithmetic where Element: Numeric {
+extension Vector: AdditiveArithmetic where Element: Numeric {
     @inlinable
-    public static var zero: VectorType<Element> {
-        VectorType<Element>(Element.zero)
+    public static var zero: Vector<Element> {
+        Vector<Element>(Element.zero)
     }
 
     @inlinable
-    public static var one: VectorType<Element> {
-        VectorType<Element>(Element.one)
+    public static var one: Vector<Element> {
+        Vector<Element>(Element.one)
     }
 }
 
@@ -290,13 +290,13 @@ public extension MatrixView {
     //--------------------------------------------------------------------------
     // typed views
     @inlinable
-    func createBoolTensor(with bounds: Bounds) -> MatrixType<Bool> {
-        MatrixType<Bool>(bounds: bounds)
+    func createBoolTensor(with bounds: Bounds) -> Matrix<Bool> {
+        Matrix<Bool>(bounds: bounds)
     }
     
     @inlinable
-    func createIndexTensor(with bounds: Bounds) -> MatrixType<IndexType> {
-        MatrixType<IndexType>(bounds: bounds)
+    func createIndexTensor(with bounds: Bounds) -> Matrix<IndexType> {
+        Matrix<IndexType>(bounds: bounds)
     }
 
     //--------------------------------------------------------------------------
@@ -392,8 +392,8 @@ public extension MatrixView
 }
 
 //==============================================================================
-// MatrixType
-public struct MatrixType<Element>: MatrixView {
+// Matrix
+public struct Matrix<Element>: MatrixView {
     // properties
     public static var diagnosticName: String { "Matrix" }
     public let shape: Shape<Bounds2>
@@ -415,29 +415,29 @@ public struct MatrixType<Element>: MatrixView {
 }
 
 //==============================================================================
-// MatrixType extensions
-extension MatrixType: Equatable where Element: Equatable { }
-extension MatrixType: Codable where Element: Codable { }
+// Matrix extensions
+extension Matrix: Equatable where Element: Equatable { }
+extension Matrix: Codable where Element: Codable { }
 
-extension MatrixType: CustomStringConvertible {
+extension Matrix: CustomStringConvertible {
     public var description: String { "\(self.array)" }
 }
 
-extension MatrixType: Differentiable & DifferentiableTensorView
+extension Matrix: Differentiable & DifferentiableTensorView
     where Element: DifferentiableElement
 {
-    public typealias TangentVector = MatrixType
+    public typealias TangentVector = Matrix
 }
 
-extension MatrixType: AdditiveArithmetic where Element: Numeric {
+extension Matrix: AdditiveArithmetic where Element: Numeric {
     @inlinable
-    public static var zero: MatrixType<Element> {
-        MatrixType<Element>(element: Element.zero)
+    public static var zero: Matrix<Element> {
+        Matrix<Element>(element: Element.zero)
     }
 
     @inlinable
-    public static var one: MatrixType<Element> {
-        MatrixType<Element>(element: Element.one)
+    public static var one: Matrix<Element> {
+        Matrix<Element>(element: Element.one)
     }
 }
 
@@ -554,13 +554,13 @@ public extension VolumeView
     //--------------------------------------------------------------------------
     // typed views
     @inlinable
-    func createBoolTensor(with bounds: Bounds) -> VolumeType<Bool> {
-        VolumeType<Bool>(bounds: bounds)
+    func createBoolTensor(with bounds: Bounds) -> Volume<Bool> {
+        Volume<Bool>(bounds: bounds)
     }
     
     @inlinable
-    func createIndexTensor(with bounds: Bounds) -> VolumeType<IndexType> {
-        VolumeType<IndexType>(bounds: bounds)
+    func createIndexTensor(with bounds: Bounds) -> Volume<IndexType> {
+        Volume<IndexType>(bounds: bounds)
     }
 }
 
@@ -670,8 +670,8 @@ public extension VolumeView {
 }
 
 //==============================================================================
-// VolumeType
-public struct VolumeType<Element>: VolumeView {
+// Volume
+public struct Volume<Element>: VolumeView {
     // properties
     public static var diagnosticName: String { "Volume" }
     public let shape: Shape<Bounds3>
@@ -693,29 +693,29 @@ public struct VolumeType<Element>: VolumeView {
 }
 
 //==============================================================================
-// VolumeType extensions
-extension VolumeType: Equatable where Element: Equatable { }
-extension VolumeType: Codable where Element: Codable { }
+// Volume extensions
+extension Volume: Equatable where Element: Equatable { }
+extension Volume: Codable where Element: Codable { }
 
-extension VolumeType: CustomStringConvertible {
+extension Volume: CustomStringConvertible {
     public var description: String { "\(self.array)" }
 }
 
-extension VolumeType: Differentiable & DifferentiableTensorView
+extension Volume: Differentiable & DifferentiableTensorView
     where Element: DifferentiableElement
 {
-    public typealias TangentVector = VolumeType
+    public typealias TangentVector = Volume
 }
 
-extension VolumeType: AdditiveArithmetic where Element: Numeric {
+extension Volume: AdditiveArithmetic where Element: Numeric {
     @inlinable
-    public static var zero: VolumeType<Element> {
-        VolumeType<Element>(element: Element.zero)
+    public static var zero: Volume<Element> {
+        Volume<Element>(element: Element.zero)
     }
 
     @inlinable
-    public static var one: VolumeType<Element> {
-        VolumeType<Element>(element: Element.one)
+    public static var one: Volume<Element> {
+        Volume<Element>(element: Element.one)
     }
 }
 

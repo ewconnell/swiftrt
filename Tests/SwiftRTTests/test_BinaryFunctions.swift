@@ -132,8 +132,8 @@ class test_BinaryFunctions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_addUInt8
     func test_addUInt8() {
-        let m1 = MatrixType<UInt8>(3, 2, with: 0..<6)
-        let m2 = MatrixType<UInt8>(3, 2, with: 0..<6)
+        let m1 = SwiftRT.Matrix<UInt8>(3, 2, with: 0..<6)
+        let m2 = SwiftRT.Matrix<UInt8>(3, 2, with: 0..<6)
         let result = m1 + m2
         XCTAssert(result == [0, 2, 4, 6, 8, 10])
     }

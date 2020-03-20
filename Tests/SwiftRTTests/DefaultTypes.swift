@@ -19,18 +19,17 @@ import Numerics
 
 //==============================================================================
 // Default Tensor types
-public typealias IndexType = Int32
-public typealias Vector = VectorType<Float>
-public typealias BoolVector = VectorType<Bool>
-public typealias IndexVector = VectorType<IndexType>
-public typealias ComplexVector = VectorType<Complex<Float>>
+public typealias Vector = SwiftRT.Vector<Float>
+public typealias BoolVector = SwiftRT.Vector<Bool>
+public typealias IndexVector = SwiftRT.Vector<IndexType>
+public typealias ComplexVector = SwiftRT.Vector<Complex<Float>>
 
-public typealias Matrix = MatrixType<Float>
-public typealias BoolMatrix = MatrixType<Bool>
-public typealias IndexMatrix = MatrixType<IndexType>
-public typealias ComplexMatrix = MatrixType<Complex<Float>>
+public typealias Matrix = SwiftRT.Matrix<Float>
+public typealias BoolMatrix = SwiftRT.Matrix<Bool>
+public typealias IndexMatrix = SwiftRT.Matrix<IndexType>
+public typealias ComplexMatrix = SwiftRT.Matrix<Complex<Float>>
 
-public typealias Volume = VolumeType<Float>
-public typealias BoolVolume = VolumeType<Bool>
-public typealias IndexVolume = VolumeType<IndexType>
-public typealias ComplexVolume = VolumeType<Complex<Float>>
+public typealias Volume = SwiftRT.Volume<Float>
+public typealias BoolVolume = SwiftRT.Volume<Bool>
+public typealias IndexVolume = SwiftRT.Volume<IndexType>
+public typealias ComplexVolume = SwiftRT.Volume<Complex<Float>>

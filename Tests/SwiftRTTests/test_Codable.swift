@@ -71,7 +71,7 @@ class test_Codable: XCTestCase {
     func test_RGBImage() {
         do {
             typealias Pixel = RGB<Float>
-            typealias Image = MatrixType<Pixel>
+            typealias Image = SwiftRT.Matrix<Pixel>
             let jsonEncoder = JSONEncoder()
             let pixels = [Pixel(0, 0.5, 1), Pixel(0.25, 0.5, 0.75)]
             let image = Image(1, 2, with: pixels, name: "pixels")
@@ -92,7 +92,7 @@ class test_Codable: XCTestCase {
     func test_RGBAImage() {
         do {
             typealias Pixel = RGBA<Float>
-            typealias Image = MatrixType<Pixel>
+            typealias Image = SwiftRT.Matrix<Pixel>
             let jsonEncoder = JSONEncoder()
             let pixels = [Pixel(0, 0.25, 0.5, 1), Pixel(0.25, 0.5, 0.75, 1)]
             let image = Image(1, 2, with: pixels, name: "pixels")

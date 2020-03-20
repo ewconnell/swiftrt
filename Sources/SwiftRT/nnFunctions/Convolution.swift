@@ -24,7 +24,7 @@ public struct Convolution<T>
     /// The convolution filter
     public var filter: T
     /// The bias vector
-    public var bias: VectorType<T.Element>
+    public var bias: Vector<T.Element>
     /// The element-wise activation function type
     @noDerivative public let activation: ActivationType
     /// The strides of the sliding window for spatial dimensions.
@@ -45,7 +45,7 @@ public struct Convolution<T>
     public init(
         for x: T,
         filter: T,
-        bias: VectorType<T.Element>,
+        bias: Vector<T.Element>,
         activation: ActivationType = .identity,
         strides: T.Bounds.Tuple = T.Bounds.oneTuple,
         padding: Padding = .valid,
@@ -107,7 +107,7 @@ public class DeviceConvolution<T>
     public init(for x: T,
                 yBounds: inout T.Bounds,
                 filter: T,
-                bias: VectorType<T.Element>,
+                bias: Vector<T.Element>,
                 activation: ActivationType,
                 strides: T.Bounds,
                 padding: Padding,
