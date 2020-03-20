@@ -16,6 +16,13 @@
 import Foundation
 
 //==============================================================================
+/// RetainedFunction
+public protocol RetainedFunction {
+    associatedtype Input: TensorView
+    associatedtype Output: TensorView
+}
+
+//==============================================================================
 // BatchNormalizeMode
 public enum BatchNormalizeMode: Int, Codable {
     case perActivation

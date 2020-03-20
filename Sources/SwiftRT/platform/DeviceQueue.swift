@@ -812,7 +812,7 @@ open class DeviceQueue: Logging {
         for x: T,
         yBounds: inout T.Bounds,
         filter: T,
-        bias: T,
+        bias: VectorType<T.Element>,
         activation: ActivationType,
         strides: T.Bounds,
         padding: Padding,

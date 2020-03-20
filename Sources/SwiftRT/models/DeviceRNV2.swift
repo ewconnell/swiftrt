@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+import Numerics
 
 // Original Paper:
 // "Deep Residual Learning for Image Recognition"
@@ -24,3 +25,8 @@
 // https://arxiv.org/abs/1812.01187
 
 // A convolution and batchnorm layer
+public struct DeviceRNV2_ConvBN<T>
+    where T: DifferentiableTensorView, T.Element: ScalarElement & Real
+{
+    
+}

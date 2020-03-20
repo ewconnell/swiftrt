@@ -18,13 +18,13 @@ import Numerics
 
 //==============================================================================
 /// Convolution
-public struct Convolution<T>: Layer
+public struct Convolution<T>
     where T: DifferentiableTensorView, T.Element: ScalarElement & Real
 {
     /// The convolution filter
     public var filter: T
     /// The bias vector
-    public var bias: T
+    public var bias: VectorType<T.Element>
     /// The element-wise activation function type
     @noDerivative public let activation: ActivationType
     /// The strides of the sliding window for spatial dimensions.
@@ -45,7 +45,7 @@ public struct Convolution<T>: Layer
     public init(
         for x: T,
         filter: T,
-        bias: T,
+        bias: VectorType<T.Element>,
         activation: ActivationType = .identity,
         strides: T.Bounds.Tuple = T.Bounds.oneTuple,
         padding: Padding = .valid,
@@ -79,38 +79,6 @@ public struct Convolution<T>: Layer
             fatalError()
         }
     }
-    
-    //--------------------------------------------------------------------------
-    @inlinable
-    @differentiable
-    public func callAsFunction(_ input: T) -> T {
-        input
-//        var y = T(bounds: outputBounds)
-//        infer(y: &y, from: input, filter: filter, bias: bias)
-//        return y
-    }
-
-//    //--------------------------------------------------------------------------
-//    @inlinable
-//    @differentiable
-//    public func infer(y: inout T, from x: T, filter: T, bias: T) {
-//        fatalError()
-//    }
-//
-//    @inlinable
-//    @derivative(of: infer)
-//    public func _vjpInfer(y: inout T, from x: T, filter: T, bias: T)
-//        -> (value: Void, pullback: (inout T) -> (T, T, T))
-//    {
-//        // Note: you may want to defer the original computation until
-//        // returning the pullback to avoid mutating the value of `y`.
-//        defer { infer(y: &y, from: x, filter: filter, bias: bias) }
-//        return ((), { dy in
-//            // TODO: Implement.
-//            // Returns `(dx:dfilter:dbias:)`.
-//            fatalError()
-//        })
-//    }
 }
 
 //==============================================================================
@@ -127,7 +95,7 @@ public class DeviceConvolution<T>
     /// - Parameter x: the input tensor
     /// - Parameter yBounds: the bounds of the output tensor `y`
     /// - Parameter filter: the convolution filter
-    /// - Parameter bias: the filter bias
+    /// - Parameter bias: the filter bias vector
     /// - Parameter activation: the activation to be applied to the result
     /// - Parameter strides: the filter window strides
     /// - Parameter padding: the padding surrounding `x`
@@ -139,7 +107,7 @@ public class DeviceConvolution<T>
     public init(for x: T,
                 yBounds: inout T.Bounds,
                 filter: T,
-                bias: T,
+                bias: VectorType<T.Element>,
                 activation: ActivationType,
                 strides: T.Bounds,
                 padding: Padding,
