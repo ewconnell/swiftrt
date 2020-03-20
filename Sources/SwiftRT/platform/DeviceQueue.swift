@@ -807,24 +807,23 @@ open class DeviceQueue: Logging {
 //    {
 //        fatalError("cpu not implemented")
 //    }
-
-    public func convolution<T>(
-        for x: T,
-        yBounds: inout T.Bounds,
-        filter: T,
-        bias: Vector<T.Element>,
+    #if canImport(CCuda)
+    public func convolution<T, F>(
         activation: ActivationType,
         strides: T.Bounds,
         padding: Padding,
         dilations: T.Bounds,
         properties: ConvolutionProperties,
         device: ServiceDevice,
-        filterBiasBackpropQueueIndex: Int) throws -> DeviceConvolution<T>
-        where T: DifferentiableTensorView, T.Element: ScalarElement & Real
+        filterBiasBackpropQueueIndex: Int) throws -> CudaConvolution<T, F>
+        where
+        T: DifferentiableTensorView, T.Element: ScalarElement,
+        F: TensorView, F.Bounds == T.Bounds, F.Element: ScalarElement
     {
         fatalError("cpu convolution not implemented")
     }
-
+    #endif
+    
     //==========================================================================
     // specialized derivative implementations
     //==========================================================================

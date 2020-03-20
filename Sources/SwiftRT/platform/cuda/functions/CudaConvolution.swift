@@ -18,20 +18,32 @@ import CCuda
 
 //==============================================================================
 // CudaConvolution
-public class CudaConvolution<T>: DeviceConvolution<T>, Logging
-    where T: DifferentiableTensorView, T.Element: ScalarElement
+//public class CudaConvolution<T>: DeviceConvolution<T>, Logging
+public class CudaConvolution<T, F>: Logging where
+    T: DifferentiableTensorView, T.Element: ScalarElement,
+    F: TensorView, F.Bounds == T.Bounds, F.Element: ScalarElement
 {
+    // properties
+    private let properties: ConvolutionProperties
+    private let padding: Padding
+    private let strides: T.Bounds
+    private let dilations: T.Bounds
+    private var inputBounds: T.Bounds
+    
+    // retained tensors
+    private var y: T!
+    
     // queues
     private let dataQueue: CudaQueue
     private let filterBiasBackQueue: CudaQueue
 
     // descriptors
-    private let convolutionDescriptor: ConvolutionDescriptor<T.Bounds>
-    private var activationDescriptor: ActivationDescriptor
-    private let xTensorDescriptor: TensorDescriptor
-    private let yTensorDescriptor: TensorDescriptor
-    private let filterDescriptor: FilterDescriptor
-    private let biasTensorDescriptor: TensorDescriptor
+    private let activationDescriptor: ActivationDescriptor
+    private var convolutionDescriptor: ConvolutionDescriptor<T.Bounds>!
+    private var xTensorDescriptor: TensorDescriptor!
+    private var yTensorDescriptor: TensorDescriptor!
+    private var filterDescriptor: FilterDescriptor!
+    private var biasTensorDescriptor: TensorDescriptor!
 
     // forward
     private var fwdAlgo: cudnnConvolutionFwdAlgo_t
@@ -51,18 +63,28 @@ public class CudaConvolution<T>: DeviceConvolution<T>, Logging
     
     //--------------------------------------------------------------------------
     // initializer
-    public override init(for x: T,
-                         yBounds: inout T.Bounds,
-                         filter: T,
-                         bias: Vector<T.Element>,
-                         activation: ActivationType,
-                         strides: T.Bounds,
-                         padding: Padding,
-                         dilations: T.Bounds,
-                         properties: ConvolutionProperties,
-                         device: ServiceDevice,
-                         filterBiasBackpropQueueIndex: Int) throws
+    public init(activation: ActivationType,
+                strides: T.Bounds,
+                padding: Padding,
+                dilations: T.Bounds,
+                properties: ConvolutionProperties,
+                device: ServiceDevice,
+                filterBiasBackpropQueueIndex: Int) throws
     {
+        //----------------------------------
+        // save properties
+        self.properties = properties
+        self.padding = padding
+        self.strides = strides
+        self.dilations = dilations
+        self.inputBounds = T.Bounds.zero
+        
+        // these values are just init place holders and will be set
+        // correctly during `setupForward`
+        self.fwdAlgo = CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_GEMM
+        self.bwdDataAlgo = CUDNN_CONVOLUTION_BWD_DATA_ALGO_0
+        self.bwdFilterAlgo = CUDNN_CONVOLUTION_BWD_FILTER_ALGO_0
+
         //----------------------------------
         // queues
         // TODO: change this when devices have fixed collections of queues
@@ -72,68 +94,23 @@ public class CudaConvolution<T>: DeviceConvolution<T>, Logging
         self.dataQueue = defaultQueue
         self.filterBiasBackQueue = defaultQueue
         
-        xTensorDescriptor = try x.createTensorDescriptor()
-        filterDescriptor = try FilterDescriptor(filter)
-        biasTensorDescriptor = try bias.createTensorDescriptor()
-
-        //----------------------------------
-        // set some initial values so we can use `self` during init
-        fwdAlgo = CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_GEMM
-        bwdDataAlgo = CUDNN_CONVOLUTION_BWD_DATA_ALGO_0
-        bwdFilterAlgo = CUDNN_CONVOLUTION_BWD_FILTER_ALGO_0
-
         //----------------------------------
         // create activation descriptor
-        activationDescriptor = try ActivationDescriptor(
+        self.activationDescriptor = try ActivationDescriptor(
             mode: activation,
             nan: properties.activationNan,
             reluCeiling: properties.activationReluCeiling)
-
-        //----------------------------------
-        // create convolution descriptor
-        let convolutionScalarType: ScalarType =
-            T.Element.type == .real64F ? .real64F : .real32F
-        
-        let pad = (padding == .valid) ? T.Bounds.zero : (filter.bounds / 2)
-
-        convolutionDescriptor = try ConvolutionDescriptor(
-            scalarType: convolutionScalarType,
-            rank: T.rank - 2,
-            padding: pad,
-            strides: strides,
-            dilations: dilations,
-            mode: properties.mode)
-
-        //----------------------------------
-        // get the extents for the output
-        var yExtent = [Int32](repeating: 0, count: T.rank)
-        try cudaCheck(status: cudnnGetConvolutionNdForwardOutputDim(
-            convolutionDescriptor.desc,
-            xTensorDescriptor.desc,
-            filterDescriptor.desc,
-            Int32(yExtent.count),
-            &yExtent))
-
-        //----------------------------------
-        // return the shape of the output y and create a tensorDescriptor
-        // with the same scalarType for y as x
-        yBounds = T.Bounds(yExtent.map { Int($0) })
-        yTensorDescriptor = try x.createTensorDescriptor(asShape: Shape(yBounds))
-        super.init()
-        
-        try selectForwardAlgorithm(x: x, properties: properties)
-
-        if Context.isTraining {
-            try selectBackwardAlgorithm(x: x, properties: properties)
-        }
     }
     
     //--------------------------------------------------------------------------
-    // infer
+    // forward
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnConvolutionBiasActivationForward
-    public override
-    func infer(y: inout T, from x: T, with filter: T, and bias: T) throws
-    {
+    public func forward(x: T, filter: F, bias: Vector<F.Element>) throws -> T {
+        // setup any time the input shape changes
+        if x.bounds != inputBounds {
+            try setupForward(x, filter, bias)
+        }
+        
         try cudaCheck(status: cudnnConvolutionBiasActivationForward(
             dataQueue.cudnn.handle,
             // alpha1
@@ -165,15 +142,18 @@ public class CudaConvolution<T>: DeviceConvolution<T>, Logging
             // y
             yTensorDescriptor.desc,
             y.deviceReadWrite(using: dataQueue)))
+        
+        return y
     }
 
     //--------------------------------------------------------------------------
-    // backPropagate
+    // backward
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnConvolutionBackwardData
-    public override func backPropagate(y: T, yDiff: T,
-                                       filter: T, filterDiff: inout T,
-                                       bias: T, biasDiff: inout T,
-                                       x: T, xDiff: inout T) throws
+    public func backward(y: T, yDiff: T,
+                         filter: F, filterDiff: inout F,
+                         bias: Vector<F.Element>,
+                         biasDiff: inout Vector<F.Element>,
+                         x: T, xDiff: inout T) throws
     {
         // data
         try cudaCheck(status: cudnnConvolutionBackwardData(
@@ -236,6 +216,51 @@ public class CudaConvolution<T>: DeviceConvolution<T>, Logging
             //
             biasTensorDescriptor.desc,
             biasDiff.deviceReadWrite(using: dataQueue)))
+    }
+    
+    //--------------------------------------------------------------------------
+    // setupForward
+    func setupForward(_ x: T, _ filter: F, _ bias: Vector<F.Element>) throws {
+        xTensorDescriptor = try x.createTensorDescriptor()
+        filterDescriptor = try FilterDescriptor(filter)
+        biasTensorDescriptor = try bias.createTensorDescriptor()
+
+        //----------------------------------
+        // create convolution descriptor
+        let convolutionScalarType: ScalarType =
+            T.Element.type == .real64F ? .real64F : .real32F
+        
+        let pad = (padding == .valid) ? T.Bounds.zero : (filter.bounds / 2)
+
+        convolutionDescriptor = try ConvolutionDescriptor(
+            scalarType: convolutionScalarType,
+            rank: T.rank - 2,
+            padding: pad,
+            strides: strides,
+            dilations: dilations,
+            mode: properties.mode)
+
+        //----------------------------------
+        // get the extents for the output
+        var yExtent = [Int32](repeating: 0, count: T.rank)
+        try cudaCheck(status: cudnnGetConvolutionNdForwardOutputDim(
+            convolutionDescriptor.desc,
+            xTensorDescriptor.desc,
+            filterDescriptor.desc,
+            Int32(yExtent.count),
+            &yExtent))
+
+        //----------------------------------
+        // return the shape of the output y and create a tensorDescriptor
+        // with the same scalarType for y as x
+        let yBounds = T.Bounds(yExtent.map { Int($0) })
+        yTensorDescriptor = try x.createTensorDescriptor(asShape: Shape(yBounds))
+        
+        try selectForwardAlgorithm(x: x, properties: properties)
+
+        if Context.isTraining {
+            try selectBackwardAlgorithm(x: x, properties: properties)
+        }
     }
 
     //--------------------------------------------------------------------------

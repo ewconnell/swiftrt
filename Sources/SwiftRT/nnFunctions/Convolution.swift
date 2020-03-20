@@ -16,15 +16,17 @@
 import Foundation
 import Numerics
 
+#if canImport(CCuda)
 //==============================================================================
 /// Convolution
-public struct Convolution<T>
-    where T: DifferentiableTensorView, T.Element: ScalarElement & Real
+public struct Convolution<T, F> where
+    T: DifferentiableTensorView, T.Element: ScalarElement,
+    F: TensorView, F.Bounds == T.Bounds, F.Element: ScalarElement
 {
     /// The convolution filter
-    public var filter: T
+    public var filter: F
     /// The bias vector
-    public var bias: Vector<T.Element>
+    public var bias: Vector<F.Element>
     /// The element-wise activation function type
     @noDerivative public let activation: ActivationType
     /// The strides of the sliding window for spatial dimensions.
@@ -33,19 +35,16 @@ public struct Convolution<T>
     @noDerivative public let padding: Padding
     /// The dilation factor for spatial dimensions.
     @noDerivative public let dilations: T.Bounds
-    /// The bounds of the output tensor
-    @noDerivative public let outputBounds: T.Bounds
     /// device specific convolution operator
-    @noDerivative public let deviceOp: DeviceConvolution<T>
+    @noDerivative public let deviceOp: CudaConvolution<T, F>
 
     //--------------------------------------------------------------------------
     /// init
     /// creates and encapsulates a device specific convolution implementation
     @inlinable
     public init(
-        for x: T,
-        filter: T,
-        bias: Vector<T.Element>,
+        filter: F,
+        bias: Vector<F.Element>,
         activation: ActivationType = .identity,
         strides: T.Bounds.Tuple = T.Bounds.oneTuple,
         padding: Padding = .valid,
@@ -61,119 +60,94 @@ public struct Convolution<T>
         
         do {
             // create the device op and save the output bounds
-            var temp = T.Bounds.zero
             self.deviceOp =
                 try Context.platform.currentQueue.convolution(
-                    for: x, yBounds: &temp,
-                    filter: filter, bias: bias,
-                    activation: activation, strides: self.strides,
-                    padding: padding, dilations: self.dilations,
+                    activation: activation,
+                    strides: self.strides,
+                    padding: padding,
+                    dilations: self.dilations,
                     properties: properties,
                     device: Context.platform.currentDevice,
                     filterBiasBackpropQueueIndex: 2)
-
-            self.outputBounds = temp
-            
         } catch {
             Context.platform.writeLog("\(error)")
             fatalError()
         }
     }
 }
+#endif
 
-//==============================================================================
-/// DeviceConvolution
-/// an abstract base class used to manage device dependent
-/// convolution implementations
-public class DeviceConvolution<T>
-    where T: DifferentiableTensorView, T.Element: ScalarElement
-{
-    public init() {}
-    
-    /// init
-    /// initializes the device function `y = convolution(x)`
-    /// - Parameter x: the input tensor
-    /// - Parameter yBounds: the bounds of the output tensor `y`
-    /// - Parameter filter: the convolution filter
-    /// - Parameter bias: the filter bias vector
-    /// - Parameter activation: the activation to be applied to the result
-    /// - Parameter strides: the filter window strides
-    /// - Parameter padding: the padding surrounding `x`
-    /// - Parameter dilations: the dilations for the filter
-    /// - Parameter properties: convolution customization properties
-    /// - Parameter device: the device where the convolution will execute
-    /// - Parameter filterBiasBackpropQueueIndex: the queue to use for filter
-    /// and bias backpropagation
-    public init(for x: T,
-                yBounds: inout T.Bounds,
-                filter: T,
-                bias: Vector<T.Element>,
-                activation: ActivationType,
-                strides: T.Bounds,
-                padding: Padding,
-                dilations: T.Bounds,
-                properties: ConvolutionProperties,
-                device: ServiceDevice,
-                filterBiasBackpropQueueIndex: Int) throws
-    {
-        fatalError("not implemented")
-    }
-
-    /// init
-    /// initializes the device function `y = convolution(x)`
-    /// - Parameter x: the input tensor
-    /// - Parameter yBounds: the bounds of the output tensor `y`
-    /// - Parameter filterBounds: the bounds of the filter to create
-    /// - Parameter activation: the activation to be applied to the result
-    /// - Parameter strides: the filter window strides
-    /// - Parameter padding: the padding surrounding `x`
-    /// - Parameter dilations: the dilations for the filter
-    /// - Parameter properties: convolution customization properties
-    /// - Parameter device: the device where the convolution will execute
-    /// - Parameter filterBiasBackpropQueueIndex: the queue to use for filter
-    /// and bias backpropagation
-    public init(for x: T,
-                yBounds: inout T.Bounds,
-                filterBounds: T.Bounds,
-                activation: ActivationType,
-                strides: T.Bounds,
-                padding: Padding,
-                dilations: T.Bounds,
-                properties: ConvolutionProperties,
-                device: ServiceDevice,
-                filterBiasBackpropQueueIndex: Int) throws
-    {
-        fatalError("not implemented")
-    }
-    
-    /// infer
-    /// - Parameter y: the output tensor
-    /// - Parameter x: the input tensor
-    /// - Parameter filter: the convolution filter
-    /// - Parameter bias: the filter bias
-//    @differentiable
-    public func infer(y: inout T, from x: T, with filter: T, and bias: T)
-        throws {
-        fatalError("not implemented")
-    }
-
-    /// backPropagate
-    /// - Parameter y: the output tensor
-    /// - Parameter yDiff: the output differential
-    /// - Parameter filter: the convolution filter
-    /// - Parameter filterDiff: the filter differential
-    /// - Parameter bias: the filter bias
-    /// - Parameter biasDiff: the filter bias differential
-    /// - Parameter x: the input tensor
-    /// - Parameter x: the input tensor differential
-    public func backPropagate(y: T, yDiff: T,
-                              filter: T, filterDiff: inout T,
-                              bias: T, biasDiff: inout T,
-                              x: T, xDiff: inout T) throws
-    {
-        fatalError("not implemented")
-    }
-}
+////==============================================================================
+///// DeviceConvolution
+///// an abstract base class used to manage device dependent
+///// convolution implementations
+///// - Parameter T: the input/output tensor type, which is expected to be
+///// of the form NWC, NHWC, or NDHWC
+///// Filter dimensions are defined as follows:
+///// [filter width, input channels, output channels]
+///// [filter width, filter width, input channels, output channels]
+///// [filter depth, filter width, filter width, input channels, output channels]
+//public class DeviceConvolution<T>
+//    where T: DifferentiableTensorView, T.Element: ScalarElement
+//{
+//    public init() {}
+//
+//    /// init
+//    /// initializes the device function `y = convolution(x)`
+//    /// - Parameter filter: the convolution filter
+//    /// - Parameter bias: the filter bias vector
+//    /// - Parameter activation: the activation to be applied to the result
+//    /// - Parameter strides: the filter window strides
+//    /// - Parameter padding: the padding surrounding `x`
+//    /// - Parameter dilations: the dilations for the filter
+//    /// - Parameter properties: convolution customization properties
+//    /// - Parameter device: the device where the convolution will execute
+//    /// - Parameter filterBiasBackpropQueueIndex: the queue to use for filter
+//    /// and bias backpropagation
+//    public init(activation: ActivationType,
+//                strides: T.Bounds,
+//                padding: Padding,
+//                dilations: T.Bounds,
+//                properties: ConvolutionProperties,
+//                device: ServiceDevice,
+//                filterBiasBackpropQueueIndex: Int) throws
+//    {
+//        fatalError("not implemented")
+//    }
+//
+//    /// infer
+//    /// - Parameter y: the output tensor
+//    /// - Parameter x: the input tensor
+//    /// - Parameter filter: the convolution filter
+//    /// - Parameter bias: the filter bias
+////    @differentiable
+//    public func infer<F>(from x: T, with filter: F, and bias: Vector<F.Element>)
+//        throws -> T
+//        where F: TensorView, F.Bounds == T.Bounds, F.Element == T.Element
+//    {
+//        fatalError("not implemented")
+//    }
+//
+//    /// backPropagate
+//    /// - Parameter y: the output tensor
+//    /// - Parameter yDiff: the output differential
+//    /// - Parameter filter: the convolution filter
+//    /// - Parameter filterDiff: the filter differential
+//    /// - Parameter bias: the filter bias
+//    /// - Parameter biasDiff: the filter bias differential
+//    /// - Parameter x: the input tensor
+//    /// - Parameter x: the input tensor differential
+//    public func backPropagate<F>(y: T, yDiff: T,
+//                                 filter: F,
+//                                 filterDiff: inout F,
+//                                 bias: Vector<F.Element>,
+//                                 biasDiff: inout Vector<F.Element>,
+//                                 x: T, xDiff: inout T) throws
+//        where F: TensorView, F.Bounds == T.Bounds, F.Element == T.Element
+//    {
+//        fatalError("not implemented")
+//    }
+//}
 
 //==============================================================================
 // ConvolutionProperties

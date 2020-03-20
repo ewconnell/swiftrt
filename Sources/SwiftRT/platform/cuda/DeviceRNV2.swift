@@ -26,7 +26,7 @@ import Numerics
 
 // A convolution and batchnorm layer
 public struct DeviceRNV2_ConvBN<T>
-    where T: DifferentiableTensorView, T.Element: ScalarElement & Real
+    where T: DifferentiableTensorView, T.Element: ScalarElement
 {
     
 }

@@ -73,26 +73,24 @@ public final class CudaQueue: DeviceQueue {
 
     //==========================================================================
     // convolution
-    public override func convolution<T>(
-        for x: T,
-        yBounds: inout T.Bounds,
-        filter: T,
-        bias: Vector<T.Element>,
+    public override func convolution<T, F>(
         activation: ActivationType,
         strides: T.Bounds,
         padding: Padding,
         dilations: T.Bounds,
         properties: ConvolutionProperties,
         device: ServiceDevice,
-        filterBiasBackpropQueueIndex: Int) throws -> DeviceConvolution<T>
-        where T: DifferentiableTensorView, T.Element: ScalarElement & Real
+        filterBiasBackpropQueueIndex: Int) throws -> CudaConvolution<T, F>
+        where
+        T: DifferentiableTensorView, T.Element: ScalarElement,
+        F: TensorView, F.Bounds == T.Bounds, F.Element: ScalarElement
     {
         try CudaConvolution(
-            for: x, yBounds: &yBounds,
-            filter: filter, bias: bias,
             activation: activation,
-            strides: strides, padding: padding,
-            dilations: dilations, properties: properties,
+            strides: strides,
+            padding: padding,
+            dilations: dilations,
+            properties: properties,
             device: device,
             filterBiasBackpropQueueIndex: filterBiasBackpropQueueIndex)
     }
