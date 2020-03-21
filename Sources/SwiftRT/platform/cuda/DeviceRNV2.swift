@@ -24,6 +24,7 @@ import Numerics
 // Tong He, Zhi Zhang, Hang Zhang, Zhongyue Zhang, Junyuan Xie, Mu Li
 // https://arxiv.org/abs/1812.01187
 
+//==============================================================================
 // A convolution and batchnorm layer
 public struct DRNV2_ConvBN<T, F> where
     T: DifferentiableTensorView,
@@ -76,3 +77,34 @@ public struct DRNV2_ConvBN<T, F> where
 //        return isLast ? convResult : relu(convResult)
     }
 }
+
+////==============================================================================
+//// The shortcut in a Residual Block
+//// Workaround optionals not being differentiable, can be simplified when
+//// it's the case
+//// Resnet-D trick: use average pooling instead of stride 2 conv for the shortcut
+//public struct Shortcut<T>
+//{
+//    public var projection: DRNV2_ConvBN<T, Float>
+//    public var avgPool: AvgPool2D<Float>
+//    @noDerivative public let needsProjection: Bool
+//    @noDerivative public let needsPool: Bool
+//
+//    public init(inFilters: Int, outFilters: Int, stride: Int) {
+//        avgPool = AvgPool2D<Float>(poolSize: (2, 2), strides: (stride, stride))
+//        needsPool = (stride != 1)
+//        needsProjection = (inFilters != outFilters)
+//        projection = ConvBNV2(
+//            inFilters:  needsProjection ? inFilters  : 1,
+//            outFilters: needsProjection ? outFilters : 1
+//        )
+//    }
+//
+////    @differentiable
+//    public func callAsFunction(_ input: Tensor<Float>) -> Tensor<Float> {
+//        var res = input
+//        if needsProjection { res = projection(res) }
+//        if needsPool       { res = avgPool(res)}
+//        return res
+//    }
+//}

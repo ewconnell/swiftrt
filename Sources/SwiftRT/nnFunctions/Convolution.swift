@@ -23,10 +23,11 @@ public struct Convolution<T, F> where
     F: TensorView, F.Bounds == T.Bounds,
     F.Element: ScalarElement & BinaryFloatingPoint
 {
+    public typealias BiasVector = Vector<F.Element>
     /// The convolution filter
     public var filter: F
     /// The bias vector
-    public var bias: Vector<F.Element>?
+    public var bias: BiasVector?
     /// The element-wise activation function type
     @noDerivative public let activation: ActivationType
     /// The strides of the sliding window for spatial dimensions.
@@ -53,7 +54,7 @@ public struct Convolution<T, F> where
     @inlinable
     public init(
         filter: F,
-        bias: Vector<F.Element>? = nil,
+        bias: BiasVector? = nil,
         activation: ActivationType = .identity,
         strides: T.Bounds = T.Bounds.one,
         padding: Padding = .valid,
@@ -105,10 +106,10 @@ public struct Convolution<T, F> where
         dilation: Int = 1,
         activation: ActivationType = .identity,
         filterInitializer: ParameterInitializer<F>,
-        biasInitializer: ParameterInitializer<Vector<F.Element>>? = nil
+        biasInitializer: ParameterInitializer<BiasVector>? = nil
     ) {
         let biasBounds = Bounds1(filterShape[F.rank - 1])
-        let bias: Vector<F.Element>? = biasInitializer == nil ? nil :
+        let bias: BiasVector? = biasInitializer == nil ? nil :
             biasInitializer!(biasBounds)
         
         self.init(filter: filterInitializer(filterShape),
