@@ -25,8 +25,54 @@ import Numerics
 // https://arxiv.org/abs/1812.01187
 
 // A convolution and batchnorm layer
-public struct DeviceRNV2_ConvBN<T>
-    where T: DifferentiableTensorView, T.Element: ScalarElement
+public struct DRNV2_ConvBN<T, F> where
+    T: DifferentiableTensorView,
+    T.Element: ScalarElement & BinaryFloatingPoint,
+    F: TensorView, F.Bounds == T.Bounds,
+    F.Element: ScalarElement & Real & BinaryFloatingPoint
 {
-    
+    public var conv: Convolution<T, F>
+    public var norm: BatchNorm<T>
+    public let isLast: Bool
+
+    public init(
+        inFilters: Int,
+        outFilters: Int,
+        kernelSize: Int = 1,
+        stride: Int = 1,
+        padding: Padding = .same,
+        isLast: Bool = false
+    ) {
+        // setup filter shape
+        var filterShape = T.Bounds(repeating: kernelSize)
+        filterShape[T.rank - 2] = inFilters
+        filterShape[T.rank - 1] = outFilters
+
+        // bias is not used
+        self.conv = Convolution(filterShape: filterShape,
+                                stride: stride,
+                                padding: padding,
+                                filterInitializer: glorotUniform())
+        self.isLast = isLast
+        if isLast {
+            //Initialize the last BatchNorm layer to scale zero
+            self.norm = BatchNorm(
+                 axis: -1,
+                 momentum: 0.9,
+                 offset: Vector<T.Element>(zeros: (outFilters)),
+                 scale: Vector<T.Element>(zeros: (outFilters)),
+                 epsilon: 1e-5,
+                 runningMean: Vector(T.Element.zero),
+                 runningVariance: Vector(T.Element.one))
+        } else {
+            self.norm = BatchNorm(featureCount: outFilters,
+                                  momentum: 0.9, epsilon: 1e-5)
+        }
+    }
+
+    public func callAsFunction(_ input: T) -> T {
+        input
+//        let convResult = input.sequenced(through: conv, norm)
+//        return isLast ? convResult : relu(convResult)
+    }
 }

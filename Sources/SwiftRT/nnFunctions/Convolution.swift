@@ -16,17 +16,17 @@
 import Foundation
 import Numerics
 
-#if canImport(CCuda)
 //==============================================================================
 /// Convolution
 public struct Convolution<T, F> where
     T: DifferentiableTensorView, T.Element: ScalarElement,
-    F: TensorView, F.Bounds == T.Bounds, F.Element: ScalarElement
+    F: TensorView, F.Bounds == T.Bounds,
+    F.Element: ScalarElement & BinaryFloatingPoint
 {
     /// The convolution filter
     public var filter: F
     /// The bias vector
-    public var bias: Vector<F.Element>
+    public var bias: Vector<F.Element>?
     /// The element-wise activation function type
     @noDerivative public let activation: ActivationType
     /// The strides of the sliding window for spatial dimensions.
@@ -39,24 +39,33 @@ public struct Convolution<T, F> where
     @noDerivative public let deviceOp: CudaConvolution<T, F>
 
     //--------------------------------------------------------------------------
-    /// init
-    /// creates and encapsulates a device specific convolution implementation
+    /// Creates a `Convolution` layer with the specified filter, bias,
+    /// activation function, stride, dilation and padding.
+    ///
+    /// - Parameters:
+    ///   - filter: The convolution filter of shape
+    ///     [filter width, input channel count, output channel count].
+    ///   - bias: The bias vector of shape [output channel count].
+    ///   - activation: The element-wise activation function.
+    ///   - strides: The stride of the sliding window for the temporal dimension.
+    ///   - padding: The padding algorithm for convolution.
+    ///   - dilation: The dilation factor for the temporal dimension.
     @inlinable
     public init(
         filter: F,
-        bias: Vector<F.Element>,
+        bias: Vector<F.Element>? = nil,
         activation: ActivationType = .identity,
-        strides: T.Bounds.Tuple = T.Bounds.oneTuple,
+        strides: T.Bounds = T.Bounds.one,
         padding: Padding = .valid,
-        dilations: T.Bounds.Tuple = T.Bounds.oneTuple,
+        dilations: T.Bounds = T.Bounds.one,
         properties: ConvolutionProperties = ConvolutionProperties())
     {
         self.filter = filter
         self.bias = bias
         self.activation = activation
-        self.strides = T.Bounds(strides)
+        self.strides = strides
         self.padding = padding
-        self.dilations = T.Bounds(dilations)
+        self.dilations = dilations
         
         do {
             // create the device op and save the output bounds
@@ -74,8 +83,42 @@ public struct Convolution<T, F> where
             fatalError()
         }
     }
+    
+    //--------------------------------------------------------------------------
+    /// Creates a `Convolution` layer with the specified filter shape,
+    /// stride, padding, dilation and element-wise activation function.
+    ///
+    /// - Parameters:
+    ///   - filterShape: The 3-D shape of the filter, representing
+    ///     (filter width, input channel count, output channel count).
+    ///   - stride: The stride of the sliding window for the temporal dimension.
+    ///   - padding: The padding algorithm for convolution.
+    ///   - dilation: The dilation factor for the temporal dimension.
+    ///   - activation: The element-wise activation function.
+    ///   - filterInitializer: Initializer to use for the filter parameters.
+    ///   - biasInitializer: Initializer to use for the bias parameters.
+    @inlinable
+    init(
+        filterShape: F.Bounds,
+        stride: Int = 1,
+        padding: Padding = .valid,
+        dilation: Int = 1,
+        activation: ActivationType = .identity,
+        filterInitializer: ParameterInitializer<F>,
+        biasInitializer: ParameterInitializer<Vector<F.Element>>? = nil
+    ) {
+        let biasBounds = Bounds1(filterShape[F.rank - 1])
+        let bias: Vector<F.Element>? = biasInitializer == nil ? nil :
+            biasInitializer!(biasBounds)
+        
+        self.init(filter: filterInitializer(filterShape),
+                  bias: bias,
+                  activation: activation,
+                  strides: T.Bounds(repeating: stride),
+                  padding: padding,
+                  dilations: T.Bounds(repeating: dilation))
+    }
 }
-#endif
 
 ////==============================================================================
 ///// DeviceConvolution

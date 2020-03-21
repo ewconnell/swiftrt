@@ -357,9 +357,17 @@ public extension TensorView where Element: Numeric {
     @inlinable init(zeros bounds: Bounds) {
         self.init(repeating: 0, to: bounds)
     }
+    
+    @inlinable init(zeros bounds: Bounds.Tuple) {
+        self.init(repeating: 0, to: Bounds(bounds))
+    }
 
     @inlinable init(ones bounds: Bounds) {
         self.init(repeating: 1, to: bounds)
+    }
+
+    @inlinable init(ones bounds: Bounds.Tuple) {
+        self.init(repeating: 1, to: Bounds(bounds))
     }
 
     @inlinable init<U>(zerosLike other: U)

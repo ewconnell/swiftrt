@@ -124,3 +124,11 @@ public extension Layer {
         return (out, pullback)
     }
 }
+
+/// A mutable, shareable, owning reference to a tensor.
+public final class Parameter<T> where T: TensorView {
+    public var value: T
+    public init(_ value: T) {
+        self.value = value
+    }
+}

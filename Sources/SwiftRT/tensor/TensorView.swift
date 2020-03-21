@@ -76,6 +76,13 @@ public extension TensorView {
         self = Self.create(Shape<Bounds>(bounds), name)
     }
     
+    /// from single `Element`
+    @inlinable
+    init(_ element: Element, name: String? = nil) {
+        let shape = Shape(Bounds.one)
+        self = Self.create(for: element, shape, name)
+    }
+
     /// `bufferElements`
     /// - Returns: a buffer collection that can be used to iterate the shape
     @inlinable

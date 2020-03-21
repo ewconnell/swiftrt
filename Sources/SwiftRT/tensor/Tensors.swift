@@ -35,13 +35,6 @@ public extension VectorView {
     }
     
     //--------------------------------------------------------------------------
-    /// from single `Element`
-    @inlinable
-    init(_ element: Element, name: String? = nil) {
-        self = Self.create(for: element, Shape(Bounds(1)), name)
-    }
-    
-    //--------------------------------------------------------------------------
     /// repeating element
     @inlinable
     init(repeating value: Element, to bounds: Int, name: String? = nil)
@@ -198,14 +191,6 @@ public extension MatrixView {
          name: String? = nil)
     {
         self.init(bounds: Bounds(rows, cols), layout: layout, name: name)
-    }
-
-    //--------------------------------------------------------------------------
-    /// from single `Element`
-    @inlinable
-    init(element: Element, name: String? = nil) {
-        let shape = Shape(Bounds.one)
-        self = Self.create(for: element, shape, name)
     }
 
     //--------------------------------------------------------------------------
@@ -432,12 +417,12 @@ extension Matrix: Differentiable & DifferentiableTensorView
 extension Matrix: AdditiveArithmetic where Element: Numeric {
     @inlinable
     public static var zero: Matrix<Element> {
-        Matrix<Element>(element: Element.zero)
+        Matrix<Element>(Element.zero)
     }
 
     @inlinable
     public static var one: Matrix<Element> {
-        Matrix<Element>(element: Element.one)
+        Matrix<Element>(Element.one)
     }
 }
 
@@ -462,14 +447,6 @@ public extension VolumeView
     @inlinable
     init(_ deps: Int, _ rows: Int, _ cols: Int, name: String? = nil) {
         self.init(bounds: Bounds(deps, rows, cols), name: name)
-    }
-    
-    //--------------------------------------------------------------------------
-    /// from single `Element`
-    @inlinable
-    init(element: Element, name: String? = nil) {
-        let shape = Shape(Bounds.one)
-        self = Self.create([element], shape, name)
     }
 
     //--------------------------------------------------------------------------
@@ -710,12 +687,12 @@ extension Volume: Differentiable & DifferentiableTensorView
 extension Volume: AdditiveArithmetic where Element: Numeric {
     @inlinable
     public static var zero: Volume<Element> {
-        Volume<Element>(element: Element.zero)
+        Volume<Element>(Element.zero)
     }
 
     @inlinable
     public static var one: Volume<Element> {
-        Volume<Element>(element: Element.one)
+        Volume<Element>(Element.one)
     }
 }
 
