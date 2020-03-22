@@ -23,7 +23,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
     public let id: Int
     public let isReadOnly: Bool
     public let isReference: Bool
-    public let name: String
+    public var name: String
     
     //--------------------------------------------------------------------------
     // init(count:name:

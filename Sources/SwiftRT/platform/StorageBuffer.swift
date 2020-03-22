@@ -28,12 +28,13 @@ public protocol StorageBuffer: class, Logging {
     /// `true` if this buffer is a reference to an application managed buffer
     var isReference: Bool { get }
     /// the buffer name used in diagnostic messages
-    var name: String { get }
+    var name: String { get set }
     
     /// `init(count:name:
     /// creates a lazily allocated element buffer
-    /// - Parameter count: size of the buffer in `Element` units
-    /// - Parameter name: name used in diagnostic messages
+    /// - Parameters:
+    ///  - count: size of the buffer in `Element` units
+    ///  - name: name used in diagnostic messages
     init(count: Int, name: String)
     
     /// `init(copying other:`
@@ -42,8 +43,9 @@ public protocol StorageBuffer: class, Logging {
     
     /// `init(elements:name:`
     /// creates a lazily allocated element buffer
-    /// - Parameter elements: a collection of initial buffer elements
-    /// - Parameter name: name used in diagnostic messages
+    /// - Parameters:
+    ///  - elements: a collection of initial buffer elements
+    ///  - name: name used in diagnostic messages
     init<C>(elements: C, name: String)
         where C: Collection, C.Element == Element
     
@@ -53,26 +55,29 @@ public protocol StorageBuffer: class, Logging {
     /// This can be used to access things like hardware buffers or
     /// memory mapped files, network buffers, database results, without
     /// requiring an additional copy operation.
-    /// - Parameter buffer: a buffer pointer to the data
-    /// - Parameter name: name used in diagnostic messages
+    /// - Parameters:
+    ///  - buffer: a buffer pointer to the data
+    ///  - name: name used in diagnostic messages
     init(referenceTo buffer: UnsafeBufferPointer<Element>, name: String)
     
     /// `init(buffer:`
     /// creates an element buffer whose data is managed by the application.
     /// No memory is allocated, so the buffer must point to valid data space.
-    /// - Parameter buffer: a mutable buffer pointer to application data
-    /// - Parameter name: name used in diagnostic messages
+    /// - Parameters:
+    ///  - buffer: a mutable buffer pointer to application data
+    ///  - name: name used in diagnostic messages
     init(referenceTo buffer: UnsafeMutableBufferPointer<Element>, name: String)
     
     /// `init(blockSize:bufferedBlocks:sequence:`
     /// initializes a streaming device buffer to be used with `stream`
-    /// - Parameter type: the element type of the buffer
-    /// - Parameter shape: the shape of the blocks read or written to
-    /// the sequence in a given transaction. This might be the number
-    /// of elements in a view.
-    /// - Parameter bufferedBlocks: the size of the device buffer
-    /// to reserve in block units
-    /// - Parameter stream: the I/O object for read/write operations
+    /// - Parameters:
+    ///  - type: the element type of the buffer
+    ///  - shape: the shape of the blocks read or written to
+    ///    the sequence in a given transaction. This might be the number
+    ///    of elements in a view.
+    ///  - bufferedBlocks: the size of the device buffer
+    ///    to reserve in block units
+    ///  - stream: the I/O object for read/write operations
     init<B, Stream>(block shape: Shape<B>, bufferedBlocks: Int, stream: Stream)
         where B: ShapeBounds, Stream: BufferStream
     
@@ -83,48 +88,54 @@ public protocol StorageBuffer: class, Logging {
     /// expressions are frequently iterated thousands of times. This initializer
     /// can access a cache of constant value buffers, which are likely to
     /// already be present on a discreet accelerator device.
-    /// - Parameter element: the element value
+    /// - Parameters:
+    ///  - element: the element value
+    ///  - name: name used in diagnostic messages
     init(for element: Element, name: String)
     
     /// `read(offset:count:
     /// gets a buffer pointer blocking the calling thread until synchronized
-    /// - Parameter offset: the offset in element sized units from
-    /// the beginning of the buffer to read
-    /// - Parameter count: the number of elements to be accessed
+    /// - Parameters:
+    ///  - offset: the offset in element sized units from
+    ///    the beginning of the buffer to read
+    ///  - count: the number of elements to be accessed
     /// - Returns: a buffer pointer to the elements. Elements will be valid
-    /// when the queue reaches this point
+    ///   when the queue reaches this point
     func read(at offset: Int, count: Int) -> UnsafeBufferPointer<Element>
     
     /// `read(offset:count:queue:`
-    /// - Parameter offset: the offset in element sized units from
-    /// the beginning of the buffer to read
-    /// - Parameter count: the number of elements to be accessed
-    /// - Parameter queue: queue for device placement and synchronization
+    /// - Parameters:
+    ///  - offset: the offset in element sized units from
+    ///    the beginning of the buffer to read
+    ///  - count: the number of elements to be accessed
+    ///  - queue: queue for device placement and synchronization
     /// - Returns: a buffer pointer to the elements. Elements will be valid
-    /// when the queue reaches this point
+    ///   when the queue reaches this point
     func read(at offset: Int, count: Int, using queue: DeviceQueue)
         -> UnsafeBufferPointer<Element>
     
     /// `readWrite(type:offset:count:willOverwrite:
-    /// - Parameter offset: the offset in element sized units from
-    /// the beginning of the buffer to read
-    /// - Parameter count: the number of elements to be accessed
-    /// - Parameter willOverwrite: `true` if the caller guarantees all
-    /// buffer elements will be overwritten
+    /// - Parameters:
+    ///  - offset: the offset in element sized units from
+    ///    the beginning of the buffer to read
+    ///  - count: the number of elements to be accessed
+    ///  - willOverwrite: `true` if the caller guarantees all
+    ///    buffer elements will be overwritten
     /// - Returns: a mutable buffer pointer to the elements.
-    /// Elements will be valid when the queue reaches this point
+    ///   Elements will be valid when the queue reaches this point
     func readWrite(at offset: Int, count: Int, willOverwrite: Bool)
         -> UnsafeMutableBufferPointer<Element>
 
     /// `readWrite(type:offset:count:willOverwrite:queue:
-    /// - Parameter offset: the offset in element sized units from
-    /// the beginning of the buffer to read
-    /// - Parameter count: the number of elements to be accessed
-    /// - Parameter queue: queue for device placement and synchronization
-    /// - Parameter willOverwrite: `true` if the caller guarantees all
-    /// buffer elements will be overwritten
+    /// - Parameters:
+    ///  - offset: the offset in element sized units from
+    ///    the beginning of the buffer to read
+    ///  - count: the number of elements to be accessed
+    ///  - queue: queue for device placement and synchronization
+    ///  - willOverwrite: `true` if the caller guarantees all
+    ///    buffer elements will be overwritten
     /// - Returns: a mutable buffer pointer to the elements.
-    /// Elements will be valid when the queue reaches this point
+    ///   Elements will be valid when the queue reaches this point
     func readWrite(at offset: Int, count: Int,
                    willOverwrite: Bool, using queue: DeviceQueue)
         -> UnsafeMutableBufferPointer<Element>
