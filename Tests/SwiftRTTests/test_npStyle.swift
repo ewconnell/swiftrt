@@ -16,6 +16,7 @@
 import XCTest
 import Foundation
 import SwiftRT
+import SwiftRTNP
 
 class test_npStyle: XCTestCase {
     //==========================================================================

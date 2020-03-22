@@ -24,10 +24,12 @@ let buildCuda = platform == "cuda"
 //---------------------------------------
 // the base products, dependencies, and targets
 var products: [PackageDescription.Product] = [
-    .library(name: "SwiftRT", targets: ["SwiftRT"])
+    .library(name: "SwiftRT", targets: ["SwiftRT"]),
+    .library(name: "SwiftRTNP", targets: ["SwiftRTNP"])
 ]
 var dependencies: [Target.Dependency] = ["Numerics"]
-var testDependencies: [Target.Dependency] = ["SwiftRT"]
+var npDependencies: [Target.Dependency] = ["SwiftRT"]
+var testDependencies: [Target.Dependency] = ["SwiftRT", "SwiftRTNP"]
 var exclusions: [String] = []
 var targets: [PackageDescription.Target] = []
 
@@ -38,6 +40,7 @@ if buildCuda {
     // add Cuda system module
     products.append(.library(name: "CCuda", targets: ["CCuda"]))
     dependencies.append("CCuda")
+    npDependencies.append("CCuda")
     testDependencies.append("CCuda")
 
     #if os(Linux)
@@ -66,14 +69,16 @@ targets.append(
     .target(name: "SwiftRT", dependencies: dependencies, exclude: exclusions))
 
 targets.append(
+    .target(name: "SwiftRTNP", dependencies: npDependencies, exclude: exclusions))
+
+targets.append(
     .testTarget(name: "SwiftRTTests", dependencies: testDependencies))
 
 let package = Package(
     name: "SwiftRT",
     products: products,
     dependencies: [
-        .package(url: "https://github.com/apple/swift-numerics",
-                 .branch("master"))
+        .package(url: "https://github.com/apple/swift-numerics", .branch("master"))
     ],
     targets: targets
 )

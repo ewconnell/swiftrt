@@ -15,6 +15,7 @@
 //
 // numpy array creation routine reference
 // https://numpy.org/doc/1.18/reference/routines.array-creation.html
+import SwiftRT
 
 //==============================================================================
 /// DType
