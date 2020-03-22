@@ -184,7 +184,7 @@ class test_IterateView: XCTestCase {
     //==========================================================================
     // test_repeatingElement
     func test_repeatingElement() {
-        let matrix = IndexMatrix(element: 42).repeated(to: 2, 3)
+        let matrix = IndexMatrix(42).repeated(to: 2, 3)
         XCTAssert(matrix == [
             42, 42, 42,
             42, 42, 42,

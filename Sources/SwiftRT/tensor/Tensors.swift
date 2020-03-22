@@ -117,17 +117,16 @@ public struct Vector<Element>: VectorView {
     public static var diagnosticName: String { "Vector" }
     public let shape: Shape<Bounds1>
     public var buffer: TensorBuffer<Element>
-    public let format: TensorFormat
     public let offset: Int
     public let shared: Bool
-    
+    @inlinable public var format: TensorFormat { .any1 }
+
     @inlinable
     public init(shape: Shape<Bounds1>, buffer: TensorBuffer<Element>,
                 offset: Int, shared: Bool)
     {
         self.shape = shape
         self.buffer = buffer
-        self.format = .rank1
         self.offset = offset
         self.shared = shared
     }
@@ -383,9 +382,9 @@ public struct Matrix<Element>: MatrixView {
     public static var diagnosticName: String { "Matrix" }
     public let shape: Shape<Bounds2>
     public var buffer: TensorBuffer<Element>
-    public let format: TensorFormat
     public let offset: Int
     public let shared: Bool
+    @inlinable public var format: TensorFormat { .any2 }
 
     @inlinable
     public init(shape: Shape<Bounds2>, buffer: TensorBuffer<Element>,
@@ -393,7 +392,6 @@ public struct Matrix<Element>: MatrixView {
     {
         self.shape = shape
         self.buffer = buffer
-        self.format = .rank2
         self.offset = offset
         self.shared = shared
     }
@@ -653,9 +651,9 @@ public struct Volume<Element>: VolumeView {
     public static var diagnosticName: String { "Volume" }
     public let shape: Shape<Bounds3>
     public var buffer: TensorBuffer<Element>
-    public let format: TensorFormat
     public let offset: Int
     public let shared: Bool
+    @inlinable public var format: TensorFormat { .any3 }
 
     @inlinable
     public init(shape: Shape<Bounds3>, buffer: TensorBuffer<Element>,
@@ -663,7 +661,6 @@ public struct Volume<Element>: VolumeView {
     {
         self.shape = shape
         self.buffer = buffer
-        self.format = .rank3
         self.offset = offset
         self.shared = shared
     }

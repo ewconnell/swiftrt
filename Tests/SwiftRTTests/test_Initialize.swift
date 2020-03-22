@@ -147,7 +147,7 @@ class test_Initialize: XCTestCase {
     // test_repeatElement
     func test_repeatElement() {
         let value: Int32 = 42
-        let volume = IndexVolume(element: value).repeated(to: 2, 3, 10)
+        let volume = IndexVolume(value).repeated(to: 2, 3, 10)
         let expected = [Int32](repeating: value, count: volume.count)
         XCTAssert(volume == expected)
     }

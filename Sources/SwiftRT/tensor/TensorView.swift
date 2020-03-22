@@ -67,6 +67,15 @@ public protocol TensorView: Logging {
 }
 
 //==============================================================================
+/// StorageOrder
+/// Specifies how to store multi-dimensional data in row-major (C-style)
+/// or column-major (Fortran-style) order in memory.
+public enum StorageOrder: Int {
+    case C, F
+    static let rowMajor = C, colMajor = F
+}
+
+//==============================================================================
 //
 public extension TensorView {
     /// init(bounds:
@@ -174,7 +183,7 @@ public extension TensorView {
 // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#tensor-descriptor
 public enum TensorFormat: Int, Codable {
     // simple 0-3D layouts
-    case rank1, rank2, rank3
+    case any1, any2, any3
     /// 4D layouts
     case nchw, nhwc
     /// 5D layouts

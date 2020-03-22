@@ -197,10 +197,9 @@ extension TensorFormat {
     public var cudnn: cudnnTensorFormat_t {
         get {
             let formats: [TensorFormat : cudnnTensorFormat_t] = [
-                .rank1: CUDNN_TENSOR_NHWC,
-                .rank1: CUDNN_TENSOR_NHWC,
-                .rank2: CUDNN_TENSOR_NHWC,
-                .rank3: CUDNN_TENSOR_NHWC,
+                .any1: CUDNN_TENSOR_NHWC,
+                .any2: CUDNN_TENSOR_NHWC,
+                .any3: CUDNN_TENSOR_NHWC,
                 .nchw: CUDNN_TENSOR_NCHW,
                 .nhwc: CUDNN_TENSOR_NHWC,
             ]
