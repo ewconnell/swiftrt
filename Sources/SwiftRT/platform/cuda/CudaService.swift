@@ -188,28 +188,6 @@ extension ReductionOp {
     }
 }
 
-//==============================================================================
-// TensorFormat
-extension cudnnTensorFormat_t : Hashable {}
-
-extension TensorFormat {
-    @inlinable
-    public var cudnn: cudnnTensorFormat_t {
-        get {
-            let formats: [TensorFormat : cudnnTensorFormat_t] = [
-                .any1: CUDNN_TENSOR_NHWC,
-                .any2: CUDNN_TENSOR_NHWC,
-                .any3: CUDNN_TENSOR_NHWC,
-                .nchw: CUDNN_TENSOR_NCHW,
-                .nhwc: CUDNN_TENSOR_NHWC,
-            ]
-            assert(formats[self] != nil,
-                   "TensorFormat: \(self) not supported by cudnn")
-            return formats[self]!
-        }
-    }
-}
-
 //------------------------------------------------------------------------------
 // ScalarType extension
 extension cudnnDataType_t : Hashable {}
@@ -438,7 +416,7 @@ public final class FilterDescriptor : ObjectTracking {
         try cudaCheck(status: cudnnSetFilterNdDescriptor(
             desc,
             T.Element.type.cudnn,
-            tensor.format.cudnn,
+            CUDNN_TENSOR_NHWC,
             Int32(tensor.count),
             tensor.bounds.asDeviceIndex))
 

@@ -43,9 +43,6 @@ public protocol TensorView: Logging {
     var shape: Shape<Bounds> { get }
     /// class reference to the underlying platform element buffer
     var buffer: Buffer { get set }
-    /// format describes how to interpret the meaning of each dimension
-    /// which is needed by backend drivers
-    var format: TensorFormat { get }
     /// the linear element offset where the view begins
     var offset: Int { get }
     /// `true` if the view will be shared by by multiple writers
@@ -168,26 +165,6 @@ public extension TensorView {
         UnsafeMutableRawPointer(
             readWrite(using: queue, willOverwrite: willOverwrite).baseAddress!)
     }
-}
-
-//==============================================================================
-/// TensorFormat
-/// an enumeration describing how to interpret the meaning of each
-/// dimension in a tensor.
-///
-/// n: the number of items in the set
-/// d: the number of depths per item
-/// h: the number of rows per depth
-/// w: the number of columns in a row
-/// c: the number of channels per column
-// https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#tensor-descriptor
-public enum TensorFormat: Int, Codable {
-    // simple 0-3D layouts
-    case any1, any2, any3
-    /// 4D layouts
-    case nchw, nhwc
-    /// 5D layouts
-    case ncdhw, ndhwc
 }
 
 //==============================================================================

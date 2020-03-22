@@ -119,7 +119,6 @@ public struct Vector<Element>: VectorView {
     public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
-    @inlinable public var format: TensorFormat { .any1 }
 
     @inlinable
     public init(shape: Shape<Bounds1>, buffer: TensorBuffer<Element>,
@@ -384,7 +383,6 @@ public struct Matrix<Element>: MatrixView {
     public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
-    @inlinable public var format: TensorFormat { .any2 }
 
     @inlinable
     public init(shape: Shape<Bounds2>, buffer: TensorBuffer<Element>,
@@ -653,7 +651,6 @@ public struct Volume<Element>: VolumeView {
     public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
-    @inlinable public var format: TensorFormat { .any3 }
 
     @inlinable
     public init(shape: Shape<Bounds3>, buffer: TensorBuffer<Element>,

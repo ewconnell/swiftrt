@@ -27,7 +27,6 @@ public struct Tensor<Bounds, Element>: TensorView
     public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
-    @inlinable public var format: TensorFormat { .any1 }
 
     @inlinable
     public init(shape: Shape<Bounds>, buffer: TensorBuffer<Element>,
