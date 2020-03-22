@@ -54,7 +54,7 @@ public protocol TensorView: Logging {
 
     //--------------------------------------------------------------------------
     /// creates a new dense tensor of the same type with the specified bounds
-    func createDense(with bounds: Bounds, name: String?) -> Self
+    func createDense(with bounds: Bounds) -> Self
     /// creates a new dense tensor where `Element` equals `Bool`
     /// with the specified bounds
     func createBoolTensor(with bounds: Bounds) -> BoolView
@@ -78,15 +78,15 @@ public extension TensorView {
     /// init(bounds:
     /// creates a dense tensor
     @inlinable
-    init(bounds: Bounds, name: String? = nil) {
-        self = Self.create(Shape<Bounds>(bounds), name)
+    init(bounds: Bounds) {
+        self = Self.create(Shape<Bounds>(bounds))
     }
     
     /// from single `Element`
     @inlinable
-    init(_ element: Element, name: String? = nil) {
+    init(_ element: Element) {
         let shape = Shape(Bounds.one)
-        self = Self.create(for: element, shape, name)
+        self = Self.create(for: element, shape)
     }
 
     /// `bufferElements`
@@ -278,7 +278,7 @@ public extension TensorView {
     /// the name of the view, which can optionally be set to aid in debugging
     @_transparent
     @inlinable
-    var name: String { buffer.name }
+    var name: String { get { buffer.name } set { buffer.name = newValue } }
 
     /// the number of dimensions in the view
     @_transparent
@@ -430,7 +430,8 @@ public extension TensorView where Element: Codable {
         let bounds = try container.decode(Bounds.self, forKey: .bounds)
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
 
-        self = Self.create(Shape(bounds: bounds), name)
+        self = Self.create(Shape(bounds: bounds))
+        self.name = name
 
         assert(self.count == dataContainer.count)
         var mutableElements = mutableBufferElements()

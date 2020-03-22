@@ -381,7 +381,7 @@ public extension Platform {
         T: TensorView, T.Element: BinaryFloatingPoint,
         U: TensorView, U.Element: BinaryInteger, U.Bounds == T.Bounds
     {
-        var result = T.create(other.shape.dense, nil)
+        var result = T.create(other.shape.dense)
         var resultBuffer = write(&result)
         currentQueue.cast(from: read(other), to: &resultBuffer)
         return result
@@ -393,7 +393,7 @@ public extension Platform {
         T: TensorView, T.Element: BinaryInteger,
         U: TensorView, U.Element: BinaryFloatingPoint, U.Bounds == T.Bounds
     {
-        var result = T.create(other.shape.dense, nil)
+        var result = T.create(other.shape.dense)
         var resultBuffer = write(&result)
         currentQueue.cast(from: read(other), to: &resultBuffer)
         return result

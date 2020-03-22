@@ -20,23 +20,23 @@ import Foundation
 /// - Parameter tensors: array of tensors whose elements will be joined
 /// - Parameter axis: dimension to append the elements
 @inlinable
-public func concat<T>(tensors: [T], alongAxis axis: Int = 0,
-                      name: String? = nil) -> T where T: TensorView
+public func concat<T>(tensors: [T], alongAxis axis: Int = 0) -> T
+    where T: TensorView
 {
-    Context.platform.concat(tensors, alongAxis: axis, name)
+    Context.platform.concat(tensors, alongAxis: axis)
 }
 
 public extension Platform {
     @inlinable
-    func concat<T>(_ tensors: [T], alongAxis axis: Int = 0,
-                   _ name: String? = nil) -> T where T: TensorView
+    func concat<T>(_ tensors: [T], alongAxis axis: Int = 0) -> T
+        where T: TensorView
     {
         assert(tensors.count > 1)
         // compute joined shape and create result buffer
         let joinedShape = tensors[0].shape
             .joined(with: tensors[1...].map { $0.shape }, alongAxis: axis)
 
-        var result = tensors[0].createDense(with: joinedShape, name: name)
+        var result = tensors[0].createDense(with: joinedShape)
 
         var lower = T.Bounds.zero
         for tensor in tensors {
@@ -50,10 +50,8 @@ public extension Platform {
 
 public extension TensorView {
     @inlinable
-    func concat(_ others: Self..., alongAxis axis: Int = 0,
-                name: String? = nil) -> Self
-    {
-        Context.platform.concat([self] + others, alongAxis: axis, name)
+    func concat(_ others: Self..., alongAxis axis: Int = 0) -> Self {
+        Context.platform.concat([self] + others, alongAxis: axis)
     }
 }
 

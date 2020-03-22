@@ -83,38 +83,35 @@ public extension Platform {
     }
 
     //--------------------------------------------------------------------------
-    /// `createResult(shape:name:`
+    /// `createResult(shape:`
     /// creates a new tensor like the one specified and access to it's
     /// `bufferRef`
     /// - Parameter other: a tensor to use as a template
     /// - Parameter shape: the shape of the tensor to create
-    /// - Parameter name: an optional name for the new tensor
     /// - Returns: a tensor and an associated `MutableBufferElements`
     /// that can be used to iterate the shape
     @inlinable
-    func createResult<T>(like other: T, with shape: Shape<T.Bounds>,
-                         name: String? = nil)
+    func createResult<T>(like other: T, with shape: Shape<T.Bounds>)
         -> (T, MutableBufferElements<T.Element, T.Bounds>) where T: TensorView
     {
-        var result = other.createDense(with: shape, name: name)
+        var result = other.createDense(with: shape)
         let resultBuffer = write(&result)
         assert(result.isUniquelyReference())
         return (result, resultBuffer)
     }
 
     //--------------------------------------------------------------------------
-    /// `createResult(other:name:`
+    /// `createResult(other:`
     /// creates a new tensor like the one specified and access to it's
     /// `bufferRef`
     /// - Parameter other: a tensor to use as a template
-    /// - Parameter name: an optional name for the new tensor
     /// - Returns: a tensor and an associated `MutableBufferElements`
     /// that can be used to iterate the shape
     @inlinable
-    func createResult<T>(like other: T, name: String? = nil)
+    func createResult<T>(like other: T)
         -> (T, MutableBufferElements<T.Element, T.Bounds>) where T: TensorView
     {
-        createResult(like: other, with: other.shape, name: name)
+        createResult(like: other, with: other.shape)
     }
 }
 

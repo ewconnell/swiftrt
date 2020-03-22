@@ -25,63 +25,57 @@ public extension VectorView {
     //--------------------------------------------------------------------------
     /// reserved space
     @inlinable
-    init(bounds: Bounds, name: String? = nil) {
-        self = Self.create(Shape(bounds), name)
+    init(bounds: Bounds) {
+        self = Self.create(Shape(bounds))
     }
     
     @inlinable
-    init(count: Int, name: String? = nil) {
-        self.init(bounds: Bounds(count), name: name)
+    init(count: Int) {
+        self.init(bounds: Bounds(count))
     }
     
     //--------------------------------------------------------------------------
     /// repeating element
     @inlinable
-    init(repeating value: Element, to bounds: Int, name: String? = nil)
-    {
+    init(repeating value: Element, to bounds: Int) {
         let shape = Shape(Bounds(bounds), strides: Bounds.zero)
-        self = Self.create(for: value, shape, name)
+        self = Self.create(for: value, shape)
     }
 
     //--------------------------------------------------------------------------
     /// from flat `Element` collection
     @inlinable
-    init<C>(_ elements: C, name: String? = nil) where
-        C: Collection, C.Element == Element
-    {
-        self = Self.create(elements, Shape(Bounds(elements.count)), name)
+    init<C>(_ elements: C) where C: Collection, C.Element == Element {
+        self = Self.create(elements, Shape(Bounds(elements.count)))
     }
     
     //--------------------------------------------------------------------------
     /// from flat collection casting Int -> Float
     @inlinable
-    init<C>(_ elements: C, name: String? = nil) where
+    init<C>(_ elements: C) where
         C: Collection, C.Element == Int,
         Self.Element: Numeric
     {
         self = Self.create(elements.lazy.map { Element(exactly: $0)! },
-                           Shape(Bounds(elements.count)), name)
+                           Shape(Bounds(elements.count)))
     }
 
     //--------------------------------------------------------------------------
     /// with reference to read only bufferRef
     /// useful for memory mapped databases, or hardware device buffers
     @inlinable
-    init(referenceTo bufferRef: UnsafeBufferPointer<Element>, name: String? = nil)
-    {
+    init(referenceTo bufferRef: UnsafeBufferPointer<Element>) {
         let shape = Shape(Bounds(bufferRef.count))
-        self = Self.create(referenceTo: bufferRef, shape, name)
+        self = Self.create(referenceTo: bufferRef, shape)
     }
     
     //--------------------------------------------------------------------------
     /// with reference to read write bufferRef
     /// useful for memory mapped databases, or hardware device buffers
     @inlinable
-    init(referenceTo bufferRef: UnsafeMutableBufferPointer<Element>,
-         name: String? = nil)
-    {
+    init(referenceTo bufferRef: UnsafeMutableBufferPointer<Element>) {
         let shape = Shape(Bounds(bufferRef.count))
-        self = Self.create(referenceTo: bufferRef, shape, name)
+        self = Self.create(referenceTo: bufferRef, shape)
     }
 
     //--------------------------------------------------------------------------
@@ -178,62 +172,55 @@ public extension MatrixView {
     //--------------------------------------------------------------------------
     /// reserved space
     @inlinable
-    init(bounds: Bounds, layout: MatrixLayout = .rowMajor,
-         name: String? = nil)
-    {
-        self = Self.create(Self.matrixShape(bounds, layout), name)
+    init(bounds: Bounds, layout: MatrixLayout = .rowMajor) {
+        self = Self.create(Self.matrixShape(bounds, layout))
     }
     
     @inlinable
-    init(_ rows: Int, _ cols: Int, layout: MatrixLayout = .rowMajor,
-         name: String? = nil)
-    {
-        self.init(bounds: Bounds(rows, cols), layout: layout, name: name)
+    init(_ rows: Int, _ cols: Int, layout: MatrixLayout = .rowMajor) {
+        self.init(bounds: Bounds(rows, cols), layout: layout)
     }
 
     //--------------------------------------------------------------------------
     /// repeating element
     @inlinable
-    init(repeating value: Element, to rows: Int, _ cols: Int,
-         name: String? = nil)
-    {
+    init(repeating value: Element, to rows: Int, _ cols: Int) {
         let shape = Shape(Bounds(rows, cols), strides: Bounds.zero)
-        self = Self.create(for: value, shape, name)
+        self = Self.create(for: value, shape)
     }
 
     //--------------------------------------------------------------------------
     /// from flat `Element` collection
     @inlinable
     init<C>(_ rows: Int , _ cols: Int, with elements: C,
-            layout: MatrixLayout = .rowMajor,
-            name: String? = nil) where
-        C: Collection, C.Element == Element
+            layout: MatrixLayout = .rowMajor)
+        where C: Collection, C.Element == Element
     {
         let shape = Self.matrixShape(Bounds(rows, cols), layout)
         assert(shape.count == elements.count, _messageElementCountMismatch)
-        self = Self.create(elements, shape, name)
+        self = Self.create(elements, shape)
     }
 
     //--------------------------------------------------------------------------
     /// from flat collection casting Int -> Float
     @inlinable
     init<C>(_ rows: Int, _ cols: Int, with elements: C,
-            layout: MatrixLayout = .rowMajor, name: String? = nil) where
+            layout: MatrixLayout = .rowMajor) where
         C: Collection, C.Element == Int,
         Self.Element: Numeric
     {
         let shape = Self.matrixShape(Bounds(rows, cols), layout)
         assert(shape.count == elements.count, _messageElementCountMismatch)
         self = Self.create(elements.lazy.map { Element(exactly: $0)! },
-                           shape, name)
+                           shape)
     }
     
     //--------------------------------------------------------------------------
     /// from structred 2D `Element` collection
     @inlinable
-    init(_ elements: [[Element]], name: String? = nil) {
+    init(_ elements: [[Element]]) {
         let shape = Shape(Bounds(elements.count, elements.first!.count))
-        self = Self.create(elements.joined(), shape, name)
+        self = Self.create(elements.joined(), shape)
     }
     
     //--------------------------------------------------------------------------
@@ -242,11 +229,10 @@ public extension MatrixView {
     @inlinable
     init(_ rows: Int, _ cols: Int,
          referenceTo bufferRef: UnsafeBufferPointer<Element>,
-         layout: MatrixLayout = .rowMajor,
-         name: String? = nil)
+         layout: MatrixLayout = .rowMajor)
     {
         let shape = Self.matrixShape(Bounds(rows, cols), layout)
-        self = Self.create(referenceTo: bufferRef, shape, name)
+        self = Self.create(referenceTo: bufferRef, shape)
     }
 
     //--------------------------------------------------------------------------
@@ -255,11 +241,10 @@ public extension MatrixView {
     @inlinable
     init(_ rows: Int, _ cols: Int,
          referenceTo bufferRef: UnsafeMutableBufferPointer<Element>,
-         layout: MatrixLayout = .rowMajor,
-         name: String? = nil)
+         layout: MatrixLayout = .rowMajor)
     {
         let shape = Self.matrixShape(Bounds(rows, cols), layout)
-        self = Self.create(referenceTo: bufferRef, shape, name)
+        self = Self.create(referenceTo: bufferRef, shape)
     }
     
     //--------------------------------------------------------------------------
@@ -436,60 +421,55 @@ public extension VolumeView
     //--------------------------------------------------------------------------
     /// reserved space
     @inlinable
-    init(bounds: Bounds, name: String? = nil) {
-        self = Self.create(Shape(bounds), name)
+    init(bounds: Bounds) {
+        self = Self.create(Shape(bounds))
     }
     
     @inlinable
-    init(_ deps: Int, _ rows: Int, _ cols: Int, name: String? = nil) {
-        self.init(bounds: Bounds(deps, rows, cols), name: name)
+    init(_ deps: Int, _ rows: Int, _ cols: Int) {
+        self.init(bounds: Bounds(deps, rows, cols))
     }
 
     //--------------------------------------------------------------------------
     /// repeating element
     @inlinable
-    init(repeating value: Element, to deps: Int, _ rows: Int, _ cols: Int,
-         name: String? = nil)
-    {
+    init(repeating value: Element, to deps: Int, _ rows: Int, _ cols: Int) {
         let shape = Shape(Bounds(deps, rows, cols), strides: Bounds.zero)
-        self = Self.create(for: value, shape, name)
+        self = Self.create(for: value, shape)
     }
 
     //--------------------------------------------------------------------------
     /// from flat `Element` collection
     @inlinable
-    init<C>(_ deps: Int, _ rows: Int, _ cols: Int,
-            with elements: C, name: String? = nil) where
-        C: Collection, C.Element == Element
+    init<C>(_ deps: Int, _ rows: Int, _ cols: Int, with elements: C)
+        where C: Collection, C.Element == Element
     {
         let shape = Shape(Bounds(deps, rows, cols))
         assert(shape.count == elements.count, _messageElementCountMismatch)
-        self = Self.create(elements, shape, name)
+        self = Self.create(elements, shape)
     }
     
     //--------------------------------------------------------------------------
     /// from flat integer collection
     @inlinable
-    init<C>(_ deps: Int, _ rows: Int, _ cols: Int,
-            with elements: C, name: String? = nil) where
+    init<C>(_ deps: Int, _ rows: Int, _ cols: Int, with elements: C) where
         C: Collection, C.Element == Int,
         Self.Element: Numeric
     {
         let shape = Shape(Bounds(deps, rows, cols))
         assert(shape.count == elements.count, _messageElementCountMismatch)
-        self = Self.create(elements.lazy.map { Element(exactly: $0)! },
-                           shape, name)
+        self = Self.create(elements.lazy.map { Element(exactly: $0)! }, shape)
     }
 
     //--------------------------------------------------------------------------
     /// from structred 3D `Element` collection
     @inlinable
-    init(_ elements: [[[Element]]], name: String? = nil) {
+    init(_ elements: [[[Element]]]) {
         let shape = Shape(Bounds(elements.count,
                                  elements.first!.count,
                                  elements.first!.first!.count))
         let flatElements = elements.joined().joined()
-        self = Self.create(flatElements, shape, name)
+        self = Self.create(flatElements, shape)
     }
     
     //--------------------------------------------------------------------------
@@ -497,11 +477,10 @@ public extension VolumeView
     /// useful for memory mapped databases, or hardware device buffers
     @inlinable
     init(_ deps: Int, _ rows: Int, _ cols: Int,
-         referenceTo bufferRef: UnsafeBufferPointer<Element>,
-         name: String? = nil)
+         referenceTo bufferRef: UnsafeBufferPointer<Element>)
     {
         let shape = Shape(Bounds(deps, rows, cols))
-        self = Self.create(referenceTo: bufferRef, shape, name)
+        self = Self.create(referenceTo: bufferRef, shape)
     }
     
     //--------------------------------------------------------------------------
@@ -509,11 +488,10 @@ public extension VolumeView
     /// useful for memory mapped databases, or hardware device buffers
     @inlinable
     init(_ deps: Int, _ rows: Int, _ cols: Int,
-         referenceTo bufferRef: UnsafeMutableBufferPointer<Element>,
-         name: String? = nil)
+         referenceTo bufferRef: UnsafeMutableBufferPointer<Element>)
     {
         let shape = Shape(Bounds(deps, rows, cols))
-        self = Self.create(referenceTo: bufferRef, shape, name)
+        self = Self.create(referenceTo: bufferRef, shape)
     }
     
     //--------------------------------------------------------------------------

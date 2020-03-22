@@ -61,17 +61,13 @@ public extension TensorView {
     //--------------------------------------------------------------------------
     /// concatenated tensors
     @inlinable
-    init(concatenating tensors: Self..., alongAxis axis: Int = 0,
-         name: String? = nil)
-    {
-        self = Self(concatenating: tensors, alongAxis: axis, name: name)
+    init(concatenating tensors: Self..., alongAxis axis: Int = 0) {
+        self = Self(concatenating: tensors, alongAxis: axis)
     }
     
     @inlinable
-    init(concatenating tensors: [Self], alongAxis axis: Int = 0,
-         name: String? = nil)
-    {
-        self = Context.platform.concat(tensors, alongAxis: axis, name)
+    init(concatenating tensors: [Self], alongAxis axis: Int = 0) {
+        self = Context.platform.concat(tensors, alongAxis: axis)
     }
     
     //--------------------------------------------------------------------------
@@ -226,7 +222,7 @@ public extension TensorView {
         let expanded = others.map { Self(expanding: $0, alongAxes: axis) }
         var stackedExtents = expanded[0].bounds
         stackedExtents[axis] = expanded.count
-        var stacked = Self.create(Shape(bounds: stackedExtents), nil)
+        var stacked = Self.create(Shape(bounds: stackedExtents))
         
         // copy others into place
         var lower = Bounds.zero
@@ -242,40 +238,38 @@ public extension TensorView {
     /// repeating element
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
-    init(repeating value: Element, to bounds: Bounds, name: String? = nil)
-    {
-        let shape = Shape(bounds, strides: Bounds.zero)
-        self = Self.create(for: value, shape, name)
+    init(repeating value: Element, to bounds: Bounds) {
+        self = Self.create(for: value, Shape(bounds, strides: Bounds.zero))
     }
     
     //--------------------------------------------------------------------------
     /// repeating element
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
-    init<U>(repeating value: Element, like other: U, name: String? = nil)
+    init<U>(repeating value: Element, like other: U)
         where U: TensorView, Self.Bounds == U.Bounds
     {
-        self = Self(repeating: value, to: other.bounds, name: name)
+        self = Self(repeating: value, to: other.bounds)
     }
     
     //--------------------------------------------------------------------------
     /// createDense(shape:
     @inlinable
-    func createDense(with shape: Shape<Bounds>, name: String? = nil) -> Self {
-        Self.create(shape.dense, name)
+    func createDense(with shape: Shape<Bounds>) -> Self {
+        Self.create(shape.dense)
     }
     
     //--------------------------------------------------------------------------
     /// createDense(bounds:
     @inlinable
-    func createDense(with bounds: Bounds, name: String? = nil) -> Self {
-        Self.create(Shape(bounds: bounds), name)
+    func createDense(with bounds: Bounds) -> Self {
+        Self.create(Shape(bounds: bounds))
     }
     
     //--------------------------------------------------------------------------
     /// createDense()
     @inlinable
-    func createDense() -> Self { return createDense(with: shape) }
+    func createDense() -> Self { createDense(with: shape) }
     
     //--------------------------------------------------------------------------
     /// reductionBounds
@@ -293,60 +287,52 @@ public extension TensorView {
     /// createSingleElement
     /// helper to create a rank extended value
     @inlinable
-    func createSingleElement(name: String? = nil) -> Self {
-        Self.create(Shape(Bounds.one, strides: Bounds.one), name)
+    func createSingleElement() -> Self {
+        Self.create(Shape(Bounds.one, strides: Bounds.one))
     }
 
     //==========================================================================
     // utility functions for creating shaped types
     @inlinable
-    static func create(_ shape: Shape<Bounds>, _ name: String?) -> Self {
-        let label = name ?? Self.diagnosticName
-        let buffer = Buffer(count: shape.count, name: label)
+    static func create(_ shape: Shape<Bounds>) -> Self {
+        let buffer = Buffer(count: shape.count, name: Self.diagnosticName)
         return Self(shape: shape, buffer: buffer, offset: 0, shared: false)
     }
     
     @inlinable
     static func create(referenceTo buffer: UnsafeBufferPointer<Element>,
-                       _ shape: Shape<Bounds>, _ name: String?) -> Self {
+                       _ shape: Shape<Bounds>) -> Self {
         assert(shape.count == buffer.count,
                "shape count does not match buffer count")
         // create tensor data reference to buffer
-        let label = name ?? Self.diagnosticName
-        let reference = Buffer(referenceTo: buffer, name: label)
+        let reference = Buffer(referenceTo: buffer, name: Self.diagnosticName)
         return Self(shape: shape, buffer: reference, offset: 0, shared: false)
     }
     
     @inlinable
     static func create(referenceTo buffer: UnsafeMutableBufferPointer<Element>,
-                       _ shape: Shape<Bounds>, _ name: String?) -> Self {
+                       _ shape: Shape<Bounds>) -> Self {
         assert(shape.count == buffer.count,
                "shape count does not match buffer count")
         // create tensor data reference to buffer
-        let label = name ?? Self.diagnosticName
-        let reference = Buffer(referenceTo: buffer, name: label)
+        let reference = Buffer(referenceTo: buffer, name: Self.diagnosticName)
         return Self(shape: shape, buffer: reference, offset: 0, shared: false)
     }
     
     @inlinable
-    static func create(for element: Element, _ shape: Shape<Bounds>,
-                       _ name: String?) -> Self
+    static func create(for element: Element, _ shape: Shape<Bounds>) -> Self
     {
-        let buffer = Buffer(for: element, name: name ?? Self.diagnosticName)
+        let buffer = Buffer(for: element, name: Self.diagnosticName)
         return Self(shape: shape, buffer: buffer, offset: 0, shared: false)
     }
 
     @inlinable
-    static func create<C>(_ elements: C, _ shape: Shape<Bounds>,
-                          _ name: String?) -> Self
+    static func create<C>(_ elements: C, _ shape: Shape<Bounds>) -> Self
         where C: Collection, C.Element == Element
     {
         // it can be less if the elements are being repeated
         assert(elements.count <= shape.count, _messageElementCountMismatch)
-        let label = name ?? Self.diagnosticName
-
-        // create the tensor
-        let buffer = Buffer(elements: elements, name: label)
+        let buffer = Buffer(elements: elements, name: Self.diagnosticName)
         return Self(shape: shape, buffer: buffer, offset: 0, shared: false)
     }
 }
@@ -387,11 +373,9 @@ public extension TensorView where Element: Numeric {
 //
 public extension TensorView where Self: DifferentiableTensorView {
     @inlinable
-    @derivative(of: init(repeating:to:name:))
-    static func _vjpInit(repeating value: Element,
-                         to bounds: Bounds,
-                         name: String?) ->
-        (value: Self, pullback: (Self) -> (Element))
+    @derivative(of: init(repeating:to:))
+    static func _vjpInit(repeating value: Element, to bounds: Bounds)
+        -> (value: Self, pullback: (Self) -> (Element))
     {
         (Self(repeating: value, to: bounds), { $0.sum().element })
     }

@@ -29,14 +29,12 @@ public extension TensorView where Element: BinaryFloatingPoint {
     ///  - lowerBound: The lower bound of the distribution
     ///  - upperBound: The upper bound of the distribution
     ///  - seed: The seed value
-    ///  - name: optional tensor name
     init(randomUniform bounds: Bounds,
          lowerBound: Element = 0,
          upperBound: Element = 1,
-         seed: RandomSeed = Context.randomSeed,
-         name: String? = nil)
+         seed: RandomSeed = Context.randomSeed)
     {
-        self = Self.create(Shape(bounds), name)
+        self = Self.create(Shape(bounds))
         Context.platform.fill(randomUniform: &self,
                               lowerBound: lowerBound,
                               upperBound: upperBound,
@@ -46,11 +44,10 @@ public extension TensorView where Element: BinaryFloatingPoint {
     // tuple signature
     init(randomUniform bounds: Bounds.Tuple,
          lowerBound: Element = 0, upperBound: Element = 1,
-         seed: RandomSeed = Context.randomSeed, name: String? = nil)
+         seed: RandomSeed = Context.randomSeed)
     {
         self.init(randomUniform: Bounds(bounds),
-                  lowerBound: lowerBound, upperBound: upperBound,
-                  seed: seed, name: name)
+                  lowerBound: lowerBound, upperBound: upperBound, seed: seed)
     }
     
     //--------------------------------------------------------------------------
@@ -62,14 +59,12 @@ public extension TensorView where Element: BinaryFloatingPoint {
     ///  - mean: The mean of the distribution
     ///  - standardDeviation: The standard deviation of the distribution
     ///  - seed: The seed value
-    ///  - name: optional tensor name
     init(randomNormal bounds: Bounds,
          mean: Element = 0,
          standardDeviation: Element = 1,
-         seed: RandomSeed = Context.randomSeed,
-         name: String? = nil)
+         seed: RandomSeed = Context.randomSeed)
     {
-        self = Self.create(Shape(bounds), name)
+        self = Self.create(Shape(bounds))
         Context.platform.fill(randomNormal: &self,
                               mean: mean,
                               standardDeviation: standardDeviation,
@@ -79,11 +74,10 @@ public extension TensorView where Element: BinaryFloatingPoint {
     // tuple signature
     init(randomNormal bounds: Bounds.Tuple,
          mean: Element = 0, standardDeviation: Element = 1,
-         seed: RandomSeed = Context.randomSeed, name: String? = nil)
+         seed: RandomSeed = Context.randomSeed)
     {
         self.init(randomNormal: Bounds(bounds),
-                  mean: mean, standardDeviation: standardDeviation,
-                  seed: seed, name: name)
+                  mean: mean, standardDeviation: standardDeviation, seed: seed)
     }
 
     //------------------------------------
@@ -91,10 +85,9 @@ public extension TensorView where Element: BinaryFloatingPoint {
     init(randomNormal bounds: Bounds,
          mean: Self,
          standardDeviation: Self,
-         seed: RandomSeed = Context.randomSeed,
-         name: String? = nil)
+         seed: RandomSeed = Context.randomSeed)
     {
-        self = Self.create(Shape(bounds), name)
+        self = Self.create(Shape(bounds))
         Context.platform.fill(randomNormal: &self,
                               mean: mean,
                               standardDeviation: standardDeviation,
@@ -103,12 +96,10 @@ public extension TensorView where Element: BinaryFloatingPoint {
 
     // tuple signature
     init(randomNormal bounds: Bounds.Tuple, mean: Self,
-         standardDeviation: Self, seed: RandomSeed = Context.randomSeed,
-         name: String? = nil)
+         standardDeviation: Self, seed: RandomSeed = Context.randomSeed)
     {
         self.init(randomNormal: Bounds(bounds),
-                  mean: mean, standardDeviation: standardDeviation,
-                  seed: seed, name: name)
+                  mean: mean, standardDeviation: standardDeviation, seed: seed)
     }
     
     //--------------------------------------------------------------------------
@@ -120,14 +111,12 @@ public extension TensorView where Element: BinaryFloatingPoint {
     ///  - mean: The mean of the distribution.
     ///  - standardDeviation: The standard deviation of the distribution.
     ///  - seed: The seed value.
-    ///  - name: optional tensor name
     init(randomTruncatedNormal bounds: Bounds,
          mean: Element = 0,
          standardDeviation: Element = 1,
-         seed: RandomSeed = Context.randomSeed,
-         name: String? = nil)
+         seed: RandomSeed = Context.randomSeed)
     {
-        self = Self.create(Shape(bounds), name)
+        self = Self.create(Shape(bounds))
         Context.platform.fill(randomTruncatedNormal: &self,
                               mean: mean,
                               standardDeviation: standardDeviation,
@@ -137,11 +126,10 @@ public extension TensorView where Element: BinaryFloatingPoint {
     // tuple signature
     init(randomTruncatedNormal bounds: Bounds.Tuple,
          mean: Element = 0, standardDeviation: Element = 1,
-         seed: RandomSeed = Context.randomSeed, name: String? = nil)
+         seed: RandomSeed = Context.randomSeed)
     {
         self.init(randomTruncatedNormal: Bounds(bounds),
-                  mean: mean, standardDeviation: standardDeviation,
-                  seed: seed, name: name)
+                  mean: mean, standardDeviation: standardDeviation, seed: seed)
     }
     
     //------------------------------------
@@ -149,10 +137,9 @@ public extension TensorView where Element: BinaryFloatingPoint {
     init(randomTruncatedNormal bounds: Bounds,
          mean: Self,
          standardDeviation: Self,
-         seed: RandomSeed = Context.randomSeed,
-         name: String? = nil)
+         seed: RandomSeed = Context.randomSeed)
     {
-        self = Self.create(Shape(bounds), name)
+        self = Self.create(Shape(bounds))
         Context.platform.fill(randomTruncatedNormal: &self,
                               mean: mean,
                               standardDeviation: standardDeviation,
@@ -162,12 +149,10 @@ public extension TensorView where Element: BinaryFloatingPoint {
     // tuple signature
     init(randomTruncatedNormal bounds: Bounds.Tuple,
          mean: Self, standardDeviation: Self,
-         seed: RandomSeed = Context.randomSeed,
-         name: String? = nil)
+         seed: RandomSeed = Context.randomSeed)
     {
         self.init(randomTruncatedNormal: Bounds(bounds),
-                  mean: mean, standardDeviation: standardDeviation,
-                  seed: seed, name: name)
+                  mean: mean, standardDeviation: standardDeviation, seed: seed)
     }
 }
 

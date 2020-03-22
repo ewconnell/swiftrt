@@ -45,17 +45,17 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     /// reserved space
     @inlinable
-    init(bounds: Bounds, name: String? = nil) {
-        self = Self.create(Shape(bounds), name)
+    init(bounds: Bounds) {
+        self = Self.create(Shape(bounds))
     }
 
     //--------------------------------------------------------------------------
     /// repeating element
     @inlinable
-    init(repeating value: Element, to bounds: Bounds.Tuple, name: String? = nil)
+    init(repeating value: Element, to bounds: Bounds.Tuple)
     {
         let shape = Shape(Bounds(bounds), strides: Bounds.zero)
-        self = Self.create(for: value, shape, name)
+        self = Self.create(for: value, shape)
     }
 
     //--------------------------------------------------------------------------

@@ -74,7 +74,8 @@ class test_Codable: XCTestCase {
             typealias Image = SwiftRT.Matrix<Pixel>
             let jsonEncoder = JSONEncoder()
             let pixels = [Pixel(0, 0.5, 1), Pixel(0.25, 0.5, 0.75)]
-            let image = Image(1, 2, with: pixels, name: "pixels")
+            var image = Image(1, 2, with: pixels)
+            image.name = "pixels"
             let jsonData = try jsonEncoder.encode(image)
 //            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
 //            print(jsonVectorString)
@@ -95,7 +96,8 @@ class test_Codable: XCTestCase {
             typealias Image = SwiftRT.Matrix<Pixel>
             let jsonEncoder = JSONEncoder()
             let pixels = [Pixel(0, 0.25, 0.5, 1), Pixel(0.25, 0.5, 0.75, 1)]
-            let image = Image(1, 2, with: pixels, name: "pixels")
+            var image = Image(1, 2, with: pixels)
+            image.name = "pixels"
             let jsonData = try jsonEncoder.encode(image)
 //            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
 //            print(jsonVectorString)
