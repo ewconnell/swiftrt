@@ -59,7 +59,7 @@ public func empty<Bounds, Element>(
     _ shape: Bounds, _ dtype: Element.Type, _ order: StorageOrder = .C
 ) -> Tensor<Bounds, Element> where Bounds: ShapeBounds
 {
-    Tensor<Bounds, Element>(bounds: shape)
+    Tensor<Bounds, Element>(bounds: shape, storage: order)
 }
 
 //---------------------------------------

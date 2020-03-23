@@ -65,9 +65,13 @@ extension ShapeProtocol {
     @inlinable
     public var dense: Self { isSequential ? self : Self(bounds: bounds) }
     /// the static rank of the shape
-    @inlinable
-    @_transparent
+    @inlinable @_transparent
     public static var rank: Int { Bounds.rank }
+    ///
+    @inlinable @_transparent
+    public var storageOrder: StorageOrder {
+        strides[Self.rank - 1] < strides[Self.rank - 2] ? .C : .F
+    }
 
     //--------------------------------------------------------------------------
     // getSpanCount
@@ -109,10 +113,11 @@ extension ShapeProtocol {
     }
 
     //--------------------------------------------------------------------------
-    // init(bounds:
+    // init(bounds:order:
     @inlinable
-    public init(bounds: Bounds) {
+    public init(bounds: Bounds, storage order: StorageOrder = .C) {
         self.init(bounds, strides: nil)
+        if order != .C { self = self.columnMajor }
     }
     
     //--------------------------------------------------------------------------

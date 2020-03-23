@@ -45,8 +45,8 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     /// reserved space
     @inlinable
-    init(bounds: Bounds) {
-        self = Self.create(Shape(bounds))
+    init(bounds: Bounds, storage order: StorageOrder = .C) {
+        self = Self.create(Shape(bounds: bounds, storage: order))
     }
 
     //--------------------------------------------------------------------------
