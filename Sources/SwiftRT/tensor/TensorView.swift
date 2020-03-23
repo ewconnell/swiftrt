@@ -67,9 +67,9 @@ public protocol TensorView: Logging {
 /// StorageOrder
 /// Specifies how to store multi-dimensional data in row-major (C-style)
 /// or column-major (Fortran-style) order in memory.
-public enum StorageOrder: Int {
+public enum StorageOrder: Int, Codable {
     case C, F
-    static let rowMajor = C, colMajor = F
+    public static let rowMajor = C, colMajor = F
 }
 
 //==============================================================================
@@ -387,7 +387,8 @@ public extension TensorView {
         // the subview offset is the view offset plus the offset of the position
         let viewStrides = strides ?? self.strides
         let viewOffset = offset + shape.linearIndex(of: lower)
-        let viewShape = Shape(bounds, strides: viewStrides)
+        let viewShape = Shape(bounds, strides: viewStrides,
+                              storage: shape.order)
         return Self(shape: viewShape, buffer: buffer,
                     offset: viewOffset, shared: shared)
     }
@@ -430,7 +431,7 @@ public extension TensorView where Element: Codable {
         let bounds = try container.decode(Bounds.self, forKey: .bounds)
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
 
-        self = Self.create(Shape(bounds: bounds))
+        self = Self.create(Shape(bounds))
         self.name = name
 
         assert(self.count == dataContainer.count)

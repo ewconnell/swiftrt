@@ -17,6 +17,20 @@ import Foundation
 import SwiftRT
 
 //==============================================================================
+/// DType
+/// the implicit tensor Element type
+public typealias DType = Float
+
+//==============================================================================
+///
+public typealias Tensor0<Element> = Tensor<Bounds1, Element>
+public typealias Tensor1<Element> = Tensor<Bounds1, Element>
+public typealias Tensor2<Element> = Tensor<Bounds2, Element>
+public typealias Tensor3<Element> = Tensor<Bounds3, Element>
+public typealias Tensor4<Element> = Tensor<Bounds4, Element>
+public typealias Tensor5<Element> = Tensor<Bounds5, Element>
+
+//==============================================================================
 // Tensor
 public struct Tensor<Bounds, Element>: TensorView
     where Bounds: ShapeBounds
@@ -46,14 +60,13 @@ public extension Tensor {
     /// reserved space
     @inlinable
     init(bounds: Bounds, storage order: StorageOrder = .C) {
-        self = Self.create(Shape(bounds: bounds, storage: order))
+        self = Self.create(Shape(bounds, storage: order))
     }
 
     //--------------------------------------------------------------------------
     /// repeating element
     @inlinable
-    init(repeating value: Element, to bounds: Bounds.Tuple)
-    {
+    init(repeating value: Element, to bounds: Bounds.Tuple) {
         let shape = Shape(Bounds(bounds), strides: Bounds.zero)
         self = Self.create(for: value, shape)
     }

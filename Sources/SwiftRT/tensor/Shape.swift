@@ -31,14 +31,19 @@ public protocol ShapeProtocol: Codable, Equatable, Collection
     var isSequential: Bool { get }
     /// The strided number of elements spanned by the shape
     var spanCount: Int { get }
+    /// Specifies whether data is stored in row-major (C-style)
+    /// or column-major (Fortran-style) order in memory.
+    var order: StorageOrder { get }
     /// The distance to the next element for each dimension
     var strides: Bounds { get }
         
-    /// init(extents:strides:
-    /// - Parameter bounds: bounds of the shape in each dimension
-    /// - Parameter strides: the distance to the next element in each dimension
-    /// A value of `nil` implies row major sequential element strides
-    init(_ bounds: Bounds, strides: Bounds?)
+    /// init(bounds:strides:order:
+    /// - Parameters:
+    ///  - bounds: bounds of the shape in each dimension
+    ///  - strides: the distance to the next element in each dimension
+    ///  - order: specifies whether data is stored in row-major (C-style)
+    ///    or column-major (Fortran-style) order in memory.
+    init(bounds: Bounds, strides: Bounds?, storage order: StorageOrder)
 }
 
 //==============================================================================
@@ -63,15 +68,10 @@ extension ShapeProtocol {
     public var items: Int { bounds[0] }
     /// returns a dense version of self
     @inlinable
-    public var dense: Self { isSequential ? self : Self(bounds: bounds) }
+    public var dense: Self { isSequential ? self : Self(bounds) }
     /// the static rank of the shape
     @inlinable @_transparent
     public static var rank: Int { Bounds.rank }
-    ///
-    @inlinable @_transparent
-    public var storageOrder: StorageOrder {
-        strides[Self.rank - 1] < strides[Self.rank - 2] ? .C : .F
-    }
 
     //--------------------------------------------------------------------------
     // getSpanCount
@@ -115,11 +115,21 @@ extension ShapeProtocol {
     //--------------------------------------------------------------------------
     // init(bounds:order:
     @inlinable
-    public init(bounds: Bounds, storage order: StorageOrder = .C) {
-        self.init(bounds, strides: nil)
-        if order != .C { self = self.columnMajor }
+    public init(_ bounds: Bounds, storage order: StorageOrder = .C) {
+        self.init(bounds: bounds,
+                  strides: Self.sequentialStrides(for: bounds),
+                  storage: order)
     }
     
+    //--------------------------------------------------------------------------
+    // init(bounds:order:
+    @inlinable
+    public init(_ bounds: Bounds, strides: Bounds,
+                storage order: StorageOrder = .C)
+    {
+        self.init(bounds: bounds, strides: strides, storage: order)
+    }
+
     //--------------------------------------------------------------------------
     // init(expanding:
     @inlinable
@@ -153,7 +163,7 @@ extension ShapeProtocol {
                 j -= 1
             }
         }
-        self.init(newBounds, strides: newStrides)
+        self.init(newBounds, strides: newStrides, storage: other.order)
     }
     
     //--------------------------------------------------------------------------
@@ -174,7 +184,7 @@ extension ShapeProtocol {
             newStrides[i] = other.strides[0]
         }
         
-        self.init(newBounds, strides: newStrides)
+        self.init(newBounds, strides: newStrides, storage: other.order)
     }
     
     //--------------------------------------------------------------------------
@@ -190,7 +200,7 @@ extension ShapeProtocol {
             newBounds[i] = other.bounds[i]
             newStrides[i] = other.strides[i]
         }
-        self.init(newBounds, strides: newStrides)
+        self.init(newBounds, strides: newStrides, storage: other.order)
     }
     
     //--------------------------------------------------------------------------
@@ -216,7 +226,7 @@ extension ShapeProtocol {
             newStrides[axis] = other.strides[otherAxis]
             axis += 1
         }
-        self.init(newBounds, strides: newStrides)
+        self.init(newBounds, strides: newStrides, storage: other.order)
     }
     
     //--------------------------------------------------------------------------
@@ -236,7 +246,7 @@ extension ShapeProtocol {
         for j in Self.rank..<S.rank {
             bounds[Self.rank-1] *= other.bounds[j]
         }
-        self = Self(bounds: bounds)
+        self = Self(bounds)
     }
     
     //--------------------------------------------------------------------------
@@ -248,7 +258,7 @@ extension ShapeProtocol {
     public func joined(with others: [Self], alongAxis axis: Int) -> Self {
         var newBounds = bounds
         newBounds[axis] += others.reduce(into: 0) { $0 += $1.bounds[axis] }
-        return Self(bounds: newBounds)
+        return Self(newBounds)
     }
     
     //--------------------------------------------------------------------------
@@ -288,7 +298,7 @@ extension ShapeProtocol {
         cmBounds.swapAt(Self.rank-1, Self.rank-2)
         var cmStrides = cmBounds.sequentialStrides()
         cmStrides.swapAt(Self.rank-1, Self.rank-2)
-        return Self(bounds, strides: cmStrides)
+        return Self(bounds, strides: cmStrides, storage: .colMajor)
     }
     
     //--------------------------------------------------------------------------
@@ -313,7 +323,8 @@ extension ShapeProtocol {
         }
         
         // it is sequential only for vectors
-        return Self(repeatedBounds, strides: repeatedStrides)
+        return Self(repeatedBounds, strides: repeatedStrides,
+                    storage: self.order)
     }
 
     //--------------------------------------------------------------------------
@@ -343,7 +354,7 @@ extension ShapeProtocol {
             newStrides.swapAt(Self.rank-1, Self.rank-2)
         }
         
-        return Self(newBounds, strides: newStrides)
+        return Self(newBounds, strides: newStrides, storage: self.order)
     }
 }
 
@@ -434,13 +445,15 @@ public struct Shape<Bounds: ShapeBounds>: ShapeProtocol
     public let bounds: Bounds
     public let isSequential: Bool
     public let spanCount: Int
+    public let order: StorageOrder
     public let strides: Bounds
     
     @inlinable
-    public init(_ bounds: Bounds, strides: Bounds? = nil) {
+    public init(bounds: Bounds, strides: Bounds?, storage order: StorageOrder){
         assert(bounds.min() > 0, _messageInvalidBounds)
         self.bounds = bounds
         self.count = bounds.elementCount()
+        self.order = order
         let sequentialStrides = bounds.sequentialStrides()
 
         if let callerStrides = strides {

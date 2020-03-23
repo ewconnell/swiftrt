@@ -222,7 +222,7 @@ public extension TensorView {
         let expanded = others.map { Self(expanding: $0, alongAxes: axis) }
         var stackedExtents = expanded[0].bounds
         stackedExtents[axis] = expanded.count
-        var stacked = Self.create(Shape(bounds: stackedExtents))
+        var stacked = Self.create(Shape(stackedExtents))
         
         // copy others into place
         var lower = Bounds.zero
@@ -263,7 +263,7 @@ public extension TensorView {
     /// createDense(bounds:
     @inlinable
     func createDense(with bounds: Bounds) -> Self {
-        Self.create(Shape(bounds: bounds))
+        Self.create(Shape(bounds))
     }
     
     //--------------------------------------------------------------------------

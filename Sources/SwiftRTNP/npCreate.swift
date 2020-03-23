@@ -18,20 +18,6 @@
 import SwiftRT
 
 //==============================================================================
-/// DType
-/// the implicit tensor Element type
-public typealias DType = Float
-
-//==============================================================================
-///
-public typealias Tensor0<Element> = Tensor<Bounds1, Element>
-public typealias Tensor1<Element> = Tensor<Bounds1, Element>
-public typealias Tensor2<Element> = Tensor<Bounds2, Element>
-public typealias Tensor3<Element> = Tensor<Bounds3, Element>
-public typealias Tensor4<Element> = Tensor<Bounds4, Element>
-public typealias Tensor5<Element> = Tensor<Bounds5, Element>
-
-//==============================================================================
 /// empty
 /// Return a new tensor of given shape and type, without initializing entries.
 /// - Parameters:
@@ -102,3 +88,48 @@ public func empty<Element>(_ shape: Bounds2.Tuple, dtype: Element.Type)
 public func empty<Element>(_ shape: Bounds2.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
     -> Tensor2<Element> { empty(shape, dtype, order) }
+
+//---------------------------------------
+// T3
+@inlinable
+public func empty(_ shape: Bounds3.Tuple, order: StorageOrder = .C)
+    -> Tensor3<Float> { empty(shape, Float.self, order) }
+
+@inlinable
+public func empty<Element>(_ shape: Bounds3.Tuple, dtype: Element.Type)
+    -> Tensor3<Element> { empty(shape, dtype) }
+
+@inlinable
+public func empty<Element>(_ shape: Bounds3.Tuple, dtype: Element.Type,
+                           order: StorageOrder = .C)
+    -> Tensor3<Element> { empty(shape, dtype, order) }
+
+//---------------------------------------
+// T4
+@inlinable
+public func empty(_ shape: Bounds4.Tuple, order: StorageOrder = .C)
+    -> Tensor4<Float> { empty(shape, Float.self, order) }
+
+@inlinable
+public func empty<Element>(_ shape: Bounds4.Tuple, dtype: Element.Type)
+    -> Tensor4<Element> { empty(shape, dtype) }
+
+@inlinable
+public func empty<Element>(_ shape: Bounds4.Tuple, dtype: Element.Type,
+                           order: StorageOrder = .C)
+    -> Tensor4<Element> { empty(shape, dtype, order) }
+
+//---------------------------------------
+// T5
+@inlinable
+public func empty(_ shape: Bounds5.Tuple, order: StorageOrder = .C)
+    -> Tensor5<Float> { empty(shape, Float.self, order) }
+
+@inlinable
+public func empty<Element>(_ shape: Bounds5.Tuple, dtype: Element.Type)
+    -> Tensor5<Element> { empty(shape, dtype) }
+
+@inlinable
+public func empty<Element>(_ shape: Bounds5.Tuple, dtype: Element.Type,
+                           order: StorageOrder = .C)
+    -> Tensor5<Element> { empty(shape, dtype, order) }
