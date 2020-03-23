@@ -23,6 +23,7 @@ class test_npStyle: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_empty", test_empty),
+        ("test_empty_like", test_empty_like),
     ]
     
     //==========================================================================
@@ -43,5 +44,20 @@ class test_npStyle: XCTestCase {
         let _ = empty((2, 3), order: .F)
         let _ = empty((2, 3), dtype: Int32.self)
         let _ = empty((2, 3), dtype: Int32.self, order: .F)
+    }
+
+    //==========================================================================
+    // test_empty_like
+    func test_empty_like() {
+        let proto = empty((2, 3))
+        
+        let _ = empty_like(proto)
+        let _ = empty_like(proto, shape: (6))
+        let _ = empty_like(proto, shape: (1, 2, 3))
+        let _ = empty_like(proto, order: .F)
+        let _ = empty_like(proto, order: .F, shape: (1, 2, 3))
+        let _ = empty_like(proto, dtype: Int32.self)
+        let _ = empty_like(proto, dtype: Int32.self, shape: (1, 2, 3))
+        let _ = empty_like(proto, dtype: Int32.self, order: .F, shape: (1, 2, 3))
     }
 }
