@@ -16,6 +16,7 @@
 import Foundation
 import Numerics
 
+#if canImport(CCuda)
 //==============================================================================
 /// Convolution
 public struct Convolution<T, F> where
@@ -120,6 +121,7 @@ public struct Convolution<T, F> where
                   dilations: T.Bounds(repeating: dilation))
     }
 }
+#endif
 
 ////==============================================================================
 ///// DeviceConvolution
