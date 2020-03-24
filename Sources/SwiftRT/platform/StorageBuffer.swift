@@ -78,7 +78,7 @@ public protocol StorageBuffer: class, Logging {
     ///  - bufferedBlocks: the size of the device buffer
     ///    to reserve in block units
     ///  - stream: the I/O object for read/write operations
-    init<B, Stream>(block shape: Shape<B>, bufferedBlocks: Int, stream: Stream)
+    init<B, Stream>(block shape: TensorShape<B>, bufferedBlocks: Int, stream: Stream)
         where B: ShapeBounds, Stream: BufferStream
     
     /// `init(element:name:
@@ -157,7 +157,7 @@ public protocol ShapedBuffer: Collection {
     associatedtype Bounds: ShapeBounds
 
     var pointer: UnsafeBufferPointer<Element> { get }
-    var shape: Shape<Bounds> { get }
+    var shape: TensorShape<Bounds> { get }
 }
 
 //==============================================================================
@@ -165,9 +165,9 @@ public protocol ShapedBuffer: Collection {
 public struct BufferElements<Element, Bounds>: ShapedBuffer
     where Bounds: ShapeBounds
 {
-    public typealias Index = Shape<Bounds>.Index
+    public typealias Index = TensorShape<Bounds>.Index
     public let pointer: UnsafeBufferPointer<Element>
-    public let shape: Shape<Bounds>
+    public let shape: TensorShape<Bounds>
 
     @inlinable public var endIndex: Index { shape.endIndex }
     @inlinable public var startIndex: Index { shape.startIndex }
@@ -175,7 +175,7 @@ public struct BufferElements<Element, Bounds>: ShapedBuffer
     //-----------------------------------
     // initializers
     @inlinable
-    public init(_ shape: Shape<Bounds>,
+    public init(_ shape: TensorShape<Bounds>,
                 _ pointer: UnsafeBufferPointer<Element>)
     {
         assert(pointer.count > 0, "can't enumerate an empty shape")
@@ -201,7 +201,7 @@ public protocol MutableShapedBuffer: MutableCollection {
     associatedtype Bounds: ShapeBounds
 
     var pointer: UnsafeMutableBufferPointer<Element> { get }
-    var shape: Shape<Bounds> { get }
+    var shape: TensorShape<Bounds> { get }
 }
 
 //==============================================================================
@@ -209,9 +209,9 @@ public protocol MutableShapedBuffer: MutableCollection {
 public struct MutableBufferElements<Element, Bounds>: MutableShapedBuffer
     where Bounds: ShapeBounds
 {
-    public typealias Index = Shape<Bounds>.Index
+    public typealias Index = TensorShape<Bounds>.Index
     public let pointer: UnsafeMutableBufferPointer<Element>
-    public let shape: Shape<Bounds>
+    public let shape: TensorShape<Bounds>
     
     @inlinable public var endIndex: Index { shape.endIndex }
     @inlinable public var startIndex: Index { shape.startIndex }
@@ -219,7 +219,7 @@ public struct MutableBufferElements<Element, Bounds>: MutableShapedBuffer
     //-----------------------------------
     // initializers
     @inlinable
-    public init(_ shape: Shape<Bounds>,
+    public init(_ shape: TensorShape<Bounds>,
                 _ pointer: UnsafeMutableBufferPointer<Element>)
     {
         assert(pointer.count > 0, "can't enumerate an empty shape")

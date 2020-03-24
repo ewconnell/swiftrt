@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 /// ShapeProtocol
-public protocol ShapeProtocol: Codable, Equatable, Collection
+public protocol TensorShapeProtocol: Codable, Equatable, Collection
     where Element == Int
 {
     associatedtype Bounds: ShapeBounds
@@ -53,7 +53,7 @@ let _messageInvalidBounds = "bounding dimensions must be greater than 0"
 
 //==============================================================================
 // ShapeProtocol extensions
-extension ShapeProtocol {
+extension TensorShapeProtocol {
     /// array
     @inlinable
     public var array: [Int] { [Int](self) }
@@ -134,7 +134,7 @@ extension ShapeProtocol {
     // init(expanding:
     @inlinable
     public init<S>(expanding other: S, alongAxes axes: Set<Int>? = nil)
-        where S: ShapeProtocol
+        where S: TensorShapeProtocol
     {
         assert(S.rank < Self.rank, "can only expand lower ranked shapes")
         var newBounds = Bounds.zero
@@ -169,7 +169,7 @@ extension ShapeProtocol {
     //--------------------------------------------------------------------------
     // init(indenting:
     @inlinable
-    public init<S>(indenting other: S) where S: ShapeProtocol {
+    public init<S>(indenting other: S) where S: TensorShapeProtocol {
         assert(S.rank < Self.rank, "can only indent lower ranked shapes")
 
         // Self and other are different ranks so we append other's elements
@@ -190,7 +190,7 @@ extension ShapeProtocol {
     //--------------------------------------------------------------------------
     // init(padding:
     @inlinable
-    public init<S>(padding other: S) where S: ShapeProtocol {
+    public init<S>(padding other: S) where S: TensorShapeProtocol {
         assert(S.rank < Self.rank, "can only pad lower ranked shapes")
         
         // Self and other are different ranks so we copy the leading elements
@@ -207,7 +207,7 @@ extension ShapeProtocol {
     // init(squeezing:
     @inlinable
     public init<S>(squeezing other: S, alongAxes axes: Set<Int>? = nil)
-        where S: ShapeProtocol
+        where S: TensorShapeProtocol
     {
         // make sure we have a positive set of axes to squeeze along
         var newBounds = Bounds.zero
@@ -232,7 +232,7 @@ extension ShapeProtocol {
     //--------------------------------------------------------------------------
     // init(flattening:
     @inlinable
-    public init<S>(flattening other: S) where S: ShapeProtocol {
+    public init<S>(flattening other: S) where S: TensorShapeProtocol {
         assert(other.isSequential, "cannot flatten non sequential data")
         assert(S.rank >= Self.rank, "cannot flatten bounds of lower rank")
 
@@ -360,7 +360,7 @@ extension ShapeProtocol {
 
 //==============================================================================
 // Collection
-extension ShapeProtocol
+extension TensorShapeProtocol
 {
     @inlinable
     public var startIndex: ShapeIndex<Bounds> {
@@ -396,7 +396,7 @@ extension ShapeProtocol
 
 //==============================================================================
 // Equatable
-extension ShapeProtocol {
+extension TensorShapeProtocol {
     @inlinable
     public static func == (_ lhs: Self, _ rhs: [Int]) -> Bool {
         lhs.array == rhs
@@ -436,7 +436,7 @@ public struct ShapeIndex<Bounds>: Comparable where Bounds: ShapeBounds {
 
 //==============================================================================
 // Shape
-public struct Shape<Bounds: ShapeBounds>: ShapeProtocol
+public struct TensorShape<Bounds: ShapeBounds>: TensorShapeProtocol
 {
     public typealias Index = ShapeIndex<Bounds>
     

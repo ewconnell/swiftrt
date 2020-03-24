@@ -76,7 +76,7 @@ public extension TensorView {
     init<T>(flattening other: T) where
         T: TensorView, T.Buffer == Buffer
     {
-        self.init(shape: Shape(flattening: other.shape),
+        self.init(shape: TensorShape(flattening: other.shape),
                   buffer: other.buffer,
                   offset: other.offset,
                   shared: other.shared)
@@ -110,7 +110,7 @@ public extension TensorView {
     init<T>(indenting other: T) where
         T: TensorView, T.Buffer == Buffer
     {
-        self.init(shape: Shape(indenting: other.shape),
+        self.init(shape: TensorShape(indenting: other.shape),
                   buffer: other.buffer,
                   offset: other.offset,
                   shared: other.shared)
@@ -122,7 +122,7 @@ public extension TensorView {
     init<T>(padding other: T) where
         T: TensorView, T.Buffer == Buffer
     {
-        self.init(shape: Shape(padding: other.shape),
+        self.init(shape: TensorShape(padding: other.shape),
                   buffer: other.buffer,
                   offset: other.offset,
                   shared: other.shared)
@@ -135,7 +135,7 @@ public extension TensorView {
     init<T>(expanding other: T, alongAxes axes: Set<Int>? = nil)
         where T: TensorView, T.Buffer == Buffer
     {
-        self.init(shape: Shape(expanding: other.shape, alongAxes: axes),
+        self.init(shape: TensorShape(expanding: other.shape, alongAxes: axes),
                   buffer: other.buffer,
                   offset: other.offset,
                   shared: other.shared)
@@ -168,7 +168,7 @@ public extension TensorView {
     init<T>(squeezing other: T, alongAxes axes: Set<Int>? = nil)
         where T: TensorView, T.Buffer == Buffer
     {
-        self.init(shape: Shape(squeezing: other.shape, alongAxes: axes),
+        self.init(shape: TensorShape(squeezing: other.shape, alongAxes: axes),
                   buffer: other.buffer,
                   offset: other.offset,
                   shared: other.shared)
@@ -222,7 +222,7 @@ public extension TensorView {
         let expanded = others.map { Self(expanding: $0, alongAxes: axis) }
         var stackedExtents = expanded[0].bounds
         stackedExtents[axis] = expanded.count
-        var stacked = Self.create(Shape(stackedExtents))
+        var stacked = Self.create(TensorShape(stackedExtents))
         
         // copy others into place
         var lower = Bounds.zero
@@ -239,7 +239,7 @@ public extension TensorView {
     @inlinable
     @differentiable(where Self: DifferentiableTensorView)
     init(repeating value: Element, to bounds: Bounds) {
-        self = Self.create(for: value, Shape(bounds, strides: Bounds.zero))
+        self = Self.create(for: value, TensorShape(bounds, strides: Bounds.zero))
     }
     
     //--------------------------------------------------------------------------
@@ -255,7 +255,7 @@ public extension TensorView {
     //--------------------------------------------------------------------------
     /// createDense(shape:
     @inlinable
-    func createDense(with shape: Shape<Bounds>) -> Self {
+    func createDense(with shape: TensorShape<Bounds>) -> Self {
         Self.create(shape.dense)
     }
     
@@ -263,7 +263,7 @@ public extension TensorView {
     /// createDense(bounds:
     @inlinable
     func createDense(with bounds: Bounds) -> Self {
-        Self.create(Shape(bounds))
+        Self.create(TensorShape(bounds))
     }
     
     //--------------------------------------------------------------------------
@@ -288,20 +288,20 @@ public extension TensorView {
     /// helper to create a rank extended value
     @inlinable
     func createSingleElement() -> Self {
-        Self.create(Shape(Bounds.one, strides: Bounds.one))
+        Self.create(TensorShape(Bounds.one, strides: Bounds.one))
     }
 
     //==========================================================================
     // utility functions for creating shaped types
     @inlinable
-    static func create(_ shape: Shape<Bounds>) -> Self {
+    static func create(_ shape: TensorShape<Bounds>) -> Self {
         let buffer = Buffer(count: shape.count, name: Self.diagnosticName)
         return Self(shape: shape, buffer: buffer, offset: 0, shared: false)
     }
     
     @inlinable
     static func create(referenceTo buffer: UnsafeBufferPointer<Element>,
-                       _ shape: Shape<Bounds>) -> Self {
+                       _ shape: TensorShape<Bounds>) -> Self {
         assert(shape.count == buffer.count,
                "shape count does not match buffer count")
         // create tensor data reference to buffer
@@ -311,7 +311,7 @@ public extension TensorView {
     
     @inlinable
     static func create(referenceTo buffer: UnsafeMutableBufferPointer<Element>,
-                       _ shape: Shape<Bounds>) -> Self {
+                       _ shape: TensorShape<Bounds>) -> Self {
         assert(shape.count == buffer.count,
                "shape count does not match buffer count")
         // create tensor data reference to buffer
@@ -320,14 +320,14 @@ public extension TensorView {
     }
     
     @inlinable
-    static func create(for element: Element, _ shape: Shape<Bounds>) -> Self
+    static func create(for element: Element, _ shape: TensorShape<Bounds>) -> Self
     {
         let buffer = Buffer(for: element, name: Self.diagnosticName)
         return Self(shape: shape, buffer: buffer, offset: 0, shared: false)
     }
 
     @inlinable
-    static func create<C>(_ elements: C, _ shape: Shape<Bounds>) -> Self
+    static func create<C>(_ elements: C, _ shape: TensorShape<Bounds>) -> Self
         where C: Collection, C.Element == Element
     {
         // it can be less if the elements are being repeated

@@ -199,18 +199,18 @@ class test_Shape: XCTestCase {
     // test_ShapeCollection
     func test_ShapeCollection() {
         // repeating
-        XCTAssert(Shape(Bounds1(3), strides: Bounds1(0)) == [0, 0, 0])
-        XCTAssert(Shape(Bounds2(2, 3), strides: Bounds2(0, 1)) == [0, 1, 2, 0, 1, 2])
-        XCTAssert(Shape(Bounds2(2, 3), strides: Bounds2(1, 0)) == [0, 0, 0, 1, 1, 1])
+        XCTAssert(TensorShape(Bounds1(3), strides: Bounds1(0)) == [0, 0, 0])
+        XCTAssert(TensorShape(Bounds2(2, 3), strides: Bounds2(0, 1)) == [0, 1, 2, 0, 1, 2])
+        XCTAssert(TensorShape(Bounds2(2, 3), strides: Bounds2(1, 0)) == [0, 0, 0, 1, 1, 1])
 
         // strided
-        XCTAssert(Shape(Bounds1(5), strides: Bounds1(3)) == [0, 3, 6, 9, 12])
-        XCTAssert(Shape(Bounds1(5), strides: Bounds1(3)) == [0, 3, 6, 9, 12])
-        XCTAssert(Shape(Bounds2(2, 3), strides: Bounds2(6, 2)) == [0, 2, 4, 6, 8, 10])
+        XCTAssert(TensorShape(Bounds1(5), strides: Bounds1(3)) == [0, 3, 6, 9, 12])
+        XCTAssert(TensorShape(Bounds1(5), strides: Bounds1(3)) == [0, 3, 6, 9, 12])
+        XCTAssert(TensorShape(Bounds2(2, 3), strides: Bounds2(6, 2)) == [0, 2, 4, 6, 8, 10])
 
         // dense
-        XCTAssert(Shape(Bounds2(2, 3)) == [0, 1, 2, 3, 4, 5])
-        XCTAssert(Shape(Bounds3(2, 3, 4)) == [Int](0..<24))
+        XCTAssert(TensorShape(Bounds2(2, 3)) == [0, 1, 2, 3, 4, 5])
+        XCTAssert(TensorShape(Bounds3(2, 3, 4)) == [Int](0..<24))
     }
 
     //--------------------------------------------------------------------------

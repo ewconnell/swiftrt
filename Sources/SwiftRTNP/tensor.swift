@@ -37,13 +37,13 @@ public struct Tensor<Bounds, Element>: TensorView
 {
     // properties
     public static var diagnosticName: String { "Tensor\(Bounds.rank)" }
-    public let shape: Shape<Bounds>
+    public let shape: TensorShape<Bounds>
     public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
 
     @inlinable
-    public init(shape: Shape<Bounds>, buffer: TensorBuffer<Element>,
+    public init(shape: TensorShape<Bounds>, buffer: TensorBuffer<Element>,
                 offset: Int, shared: Bool)
     {
         self.shape = shape
@@ -76,7 +76,7 @@ public extension Tensor {
     /// reserved space
     @inlinable
     init(bounds: Bounds, storage order: StorageOrder = .C) {
-        self = Self.create(Shape(bounds, storage: order))
+        self = Self.create(TensorShape(bounds, storage: order))
     }
 
     //--------------------------------------------------------------------------
@@ -85,7 +85,7 @@ public extension Tensor {
     init(repeating value: Element, to bounds: Bounds.Tuple,
          storage order: StorageOrder = .C)
     {
-        let shape = Shape(Bounds(bounds), strides: Bounds.zero, storage: order)
+        let shape = TensorShape(Bounds(bounds), strides: Bounds.zero, storage: order)
         self = Self.create(for: value, shape)
     }
 

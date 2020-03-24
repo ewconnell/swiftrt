@@ -34,7 +34,7 @@ public extension TensorView where Element: BinaryFloatingPoint {
          upperBound: Element = 1,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self.create(Shape(bounds))
+        self = Self.create(TensorShape(bounds))
         Context.platform.fill(randomUniform: &self,
                               lowerBound: lowerBound,
                               upperBound: upperBound,
@@ -64,7 +64,7 @@ public extension TensorView where Element: BinaryFloatingPoint {
          standardDeviation: Element = 1,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self.create(Shape(bounds))
+        self = Self.create(TensorShape(bounds))
         Context.platform.fill(randomNormal: &self,
                               mean: mean,
                               standardDeviation: standardDeviation,
@@ -87,7 +87,7 @@ public extension TensorView where Element: BinaryFloatingPoint {
          standardDeviation: Self,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self.create(Shape(bounds))
+        self = Self.create(TensorShape(bounds))
         Context.platform.fill(randomNormal: &self,
                               mean: mean,
                               standardDeviation: standardDeviation,
@@ -116,7 +116,7 @@ public extension TensorView where Element: BinaryFloatingPoint {
          standardDeviation: Element = 1,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self.create(Shape(bounds))
+        self = Self.create(TensorShape(bounds))
         Context.platform.fill(randomTruncatedNormal: &self,
                               mean: mean,
                               standardDeviation: standardDeviation,
@@ -139,7 +139,7 @@ public extension TensorView where Element: BinaryFloatingPoint {
          standardDeviation: Self,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self.create(Shape(bounds))
+        self = Self.create(TensorShape(bounds))
         Context.platform.fill(randomTruncatedNormal: &self,
                               mean: mean,
                               standardDeviation: standardDeviation,

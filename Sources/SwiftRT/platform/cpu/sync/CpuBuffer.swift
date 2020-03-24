@@ -109,7 +109,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
     //--------------------------------------------------------------------------
     // streaming
     @inlinable
-    public init<B, Stream>(block shape: Shape<B>, bufferedBlocks: Int,
+    public init<B, Stream>(block shape: TensorShape<B>, bufferedBlocks: Int,
                            stream: Stream)
         where B : ShapeBounds, Stream : BufferStream
     {

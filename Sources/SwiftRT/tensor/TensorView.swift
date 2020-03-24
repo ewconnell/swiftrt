@@ -40,7 +40,7 @@ public protocol TensorView: Logging {
     /// a label for the type used as a default name in diagnostics
     static var diagnosticName: String { get }
     /// the shape of the view used for indexing
-    var shape: Shape<Bounds> { get }
+    var shape: TensorShape<Bounds> { get }
     /// class reference to the underlying platform element buffer
     var buffer: Buffer { get set }
     /// the linear element offset where the view begins
@@ -50,7 +50,7 @@ public protocol TensorView: Logging {
 
     //--------------------------------------------------------------------------
     /// fully specified used for creating tensors
-    init(shape: Shape<Bounds>, buffer: Buffer, offset: Int, shared: Bool)
+    init(shape: TensorShape<Bounds>, buffer: Buffer, offset: Int, shared: Bool)
 
     //--------------------------------------------------------------------------
     /// creates a new dense tensor of the same type with the specified bounds
@@ -79,13 +79,13 @@ public extension TensorView {
     /// creates a dense tensor
     @inlinable
     init(bounds: Bounds) {
-        self = Self.create(Shape<Bounds>(bounds))
+        self = Self.create(TensorShape<Bounds>(bounds))
     }
     
     /// from single `Element`
     @inlinable
     init(_ element: Element) {
-        let shape = Shape(Bounds.one)
+        let shape = TensorShape(Bounds.one)
         self = Self.create(for: element, shape)
     }
 
@@ -387,7 +387,7 @@ public extension TensorView {
         // the subview offset is the view offset plus the offset of the position
         let viewStrides = strides ?? self.strides
         let viewOffset = offset + shape.linearIndex(of: lower)
-        let viewShape = Shape(bounds, strides: viewStrides,
+        let viewShape = TensorShape(bounds, strides: viewStrides,
                               storage: shape.order)
         return Self(shape: viewShape, buffer: buffer,
                     offset: viewOffset, shared: shared)
@@ -431,7 +431,7 @@ public extension TensorView where Element: Codable {
         let bounds = try container.decode(Bounds.self, forKey: .bounds)
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
 
-        self = Self.create(Shape(bounds))
+        self = Self.create(TensorShape(bounds))
         self.name = name
 
         assert(self.count == dataContainer.count)

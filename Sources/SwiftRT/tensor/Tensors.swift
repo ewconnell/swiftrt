@@ -26,7 +26,7 @@ public extension VectorView {
     /// reserved space
     @inlinable
     init(bounds: Bounds) {
-        self = Self.create(Shape(bounds))
+        self = Self.create(TensorShape(bounds))
     }
     
     @inlinable
@@ -38,7 +38,7 @@ public extension VectorView {
     /// repeating element
     @inlinable
     init(repeating value: Element, to bounds: Int) {
-        let shape = Shape(Bounds(bounds), strides: Bounds.zero)
+        let shape = TensorShape(Bounds(bounds), strides: Bounds.zero)
         self = Self.create(for: value, shape)
     }
 
@@ -46,7 +46,7 @@ public extension VectorView {
     /// from flat `Element` collection
     @inlinable
     init<C>(_ elements: C) where C: Collection, C.Element == Element {
-        self = Self.create(elements, Shape(Bounds(elements.count)))
+        self = Self.create(elements, TensorShape(Bounds(elements.count)))
     }
     
     //--------------------------------------------------------------------------
@@ -57,7 +57,7 @@ public extension VectorView {
         Self.Element: Numeric
     {
         self = Self.create(elements.lazy.map { Element(exactly: $0)! },
-                           Shape(Bounds(elements.count)))
+                           TensorShape(Bounds(elements.count)))
     }
 
     //--------------------------------------------------------------------------
@@ -65,7 +65,7 @@ public extension VectorView {
     /// useful for memory mapped databases, or hardware device buffers
     @inlinable
     init(referenceTo bufferRef: UnsafeBufferPointer<Element>) {
-        let shape = Shape(Bounds(bufferRef.count))
+        let shape = TensorShape(Bounds(bufferRef.count))
         self = Self.create(referenceTo: bufferRef, shape)
     }
     
@@ -74,7 +74,7 @@ public extension VectorView {
     /// useful for memory mapped databases, or hardware device buffers
     @inlinable
     init(referenceTo bufferRef: UnsafeMutableBufferPointer<Element>) {
-        let shape = Shape(Bounds(bufferRef.count))
+        let shape = TensorShape(Bounds(bufferRef.count))
         self = Self.create(referenceTo: bufferRef, shape)
     }
 
@@ -109,13 +109,13 @@ public extension VectorView {
 public struct Vector<Element>: VectorView {
     // properties
     public static var diagnosticName: String { "Vector" }
-    public let shape: Shape<Bounds1>
+    public let shape: TensorShape<Bounds1>
     public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
 
     @inlinable
-    public init(shape: Shape<Bounds1>, buffer: TensorBuffer<Element>,
+    public init(shape: TensorShape<Bounds1>, buffer: TensorBuffer<Element>,
                 offset: Int, shared: Bool)
     {
         self.shape = shape
@@ -185,7 +185,7 @@ public extension MatrixView {
     /// repeating element
     @inlinable
     init(repeating value: Element, to rows: Int, _ cols: Int) {
-        let shape = Shape(Bounds(rows, cols), strides: Bounds.zero)
+        let shape = TensorShape(Bounds(rows, cols), strides: Bounds.zero)
         self = Self.create(for: value, shape)
     }
 
@@ -219,7 +219,7 @@ public extension MatrixView {
     /// from structred 2D `Element` collection
     @inlinable
     init(_ elements: [[Element]]) {
-        let shape = Shape(Bounds(elements.count, elements.first!.count))
+        let shape = TensorShape(Bounds(elements.count, elements.first!.count))
         self = Self.create(elements.joined(), shape)
     }
     
@@ -279,9 +279,9 @@ public extension MatrixView {
     // utilities
     @inlinable
     static func matrixShape(_ bounds: Bounds, _ layout: MatrixLayout)
-        -> Shape<Bounds>
+        -> TensorShape<Bounds>
     {
-        let shape = Shape(bounds)
+        let shape = TensorShape(bounds)
         return layout == .rowMajor ? shape : shape.columnMajor
     }
 }
@@ -364,13 +364,13 @@ public extension MatrixView
 public struct Matrix<Element>: MatrixView {
     // properties
     public static var diagnosticName: String { "Matrix" }
-    public let shape: Shape<Bounds2>
+    public let shape: TensorShape<Bounds2>
     public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
 
     @inlinable
-    public init(shape: Shape<Bounds2>, buffer: TensorBuffer<Element>,
+    public init(shape: TensorShape<Bounds2>, buffer: TensorBuffer<Element>,
                 offset: Int, shared: Bool)
     {
         self.shape = shape
@@ -422,7 +422,7 @@ public extension VolumeView
     /// reserved space
     @inlinable
     init(bounds: Bounds) {
-        self = Self.create(Shape(bounds))
+        self = Self.create(TensorShape(bounds))
     }
     
     @inlinable
@@ -434,7 +434,7 @@ public extension VolumeView
     /// repeating element
     @inlinable
     init(repeating value: Element, to deps: Int, _ rows: Int, _ cols: Int) {
-        let shape = Shape(Bounds(deps, rows, cols), strides: Bounds.zero)
+        let shape = TensorShape(Bounds(deps, rows, cols), strides: Bounds.zero)
         self = Self.create(for: value, shape)
     }
 
@@ -444,7 +444,7 @@ public extension VolumeView
     init<C>(_ deps: Int, _ rows: Int, _ cols: Int, with elements: C)
         where C: Collection, C.Element == Element
     {
-        let shape = Shape(Bounds(deps, rows, cols))
+        let shape = TensorShape(Bounds(deps, rows, cols))
         assert(shape.count == elements.count, _messageElementCountMismatch)
         self = Self.create(elements, shape)
     }
@@ -456,7 +456,7 @@ public extension VolumeView
         C: Collection, C.Element == Int,
         Self.Element: Numeric
     {
-        let shape = Shape(Bounds(deps, rows, cols))
+        let shape = TensorShape(Bounds(deps, rows, cols))
         assert(shape.count == elements.count, _messageElementCountMismatch)
         self = Self.create(elements.lazy.map { Element(exactly: $0)! }, shape)
     }
@@ -465,7 +465,7 @@ public extension VolumeView
     /// from structred 3D `Element` collection
     @inlinable
     init(_ elements: [[[Element]]]) {
-        let shape = Shape(Bounds(elements.count,
+        let shape = TensorShape(Bounds(elements.count,
                                  elements.first!.count,
                                  elements.first!.first!.count))
         let flatElements = elements.joined().joined()
@@ -479,7 +479,7 @@ public extension VolumeView
     init(_ deps: Int, _ rows: Int, _ cols: Int,
          referenceTo bufferRef: UnsafeBufferPointer<Element>)
     {
-        let shape = Shape(Bounds(deps, rows, cols))
+        let shape = TensorShape(Bounds(deps, rows, cols))
         self = Self.create(referenceTo: bufferRef, shape)
     }
     
@@ -490,7 +490,7 @@ public extension VolumeView
     init(_ deps: Int, _ rows: Int, _ cols: Int,
          referenceTo bufferRef: UnsafeMutableBufferPointer<Element>)
     {
-        let shape = Shape(Bounds(deps, rows, cols))
+        let shape = TensorShape(Bounds(deps, rows, cols))
         self = Self.create(referenceTo: bufferRef, shape)
     }
     
@@ -625,13 +625,13 @@ public extension VolumeView {
 public struct Volume<Element>: VolumeView {
     // properties
     public static var diagnosticName: String { "Volume" }
-    public let shape: Shape<Bounds3>
+    public let shape: TensorShape<Bounds3>
     public var buffer: TensorBuffer<Element>
     public let offset: Int
     public let shared: Bool
 
     @inlinable
-    public init(shape: Shape<Bounds3>, buffer: TensorBuffer<Element>,
+    public init(shape: TensorShape<Bounds3>, buffer: TensorBuffer<Element>,
                 offset: Int, shared: Bool)
     {
         self.shape = shape
