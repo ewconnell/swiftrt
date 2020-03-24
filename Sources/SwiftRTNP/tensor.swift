@@ -54,6 +54,22 @@ public struct Tensor<Bounds, Element>: TensorView
 }
 
 //==============================================================================
+// Tensor extensions
+extension Tensor: Equatable where Element: Equatable { }
+extension Tensor: Codable where Element: Codable { }
+
+extension Tensor: Differentiable & DifferentiableTensorView
+    where Element: DifferentiableElement
+{
+    public typealias TangentVector = Tensor
+}
+
+extension Tensor: AdditiveArithmetic where Element: Numeric {
+    @inlinable @_transparent public static var zero: Self { Self(Element.zero) }
+    @inlinable @_transparent public static var one: Self { Self(Element.one) }
+}
+
+//==============================================================================
 // Tensor
 public extension Tensor {
     //--------------------------------------------------------------------------
@@ -66,8 +82,10 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     /// repeating element
     @inlinable
-    init(repeating value: Element, to bounds: Bounds.Tuple) {
-        let shape = Shape(Bounds(bounds), strides: Bounds.zero)
+    init(repeating value: Element, to bounds: Bounds.Tuple,
+         storage order: StorageOrder = .C)
+    {
+        let shape = Shape(Bounds(bounds), strides: Bounds.zero, storage: order)
         self = Self.create(for: value, shape)
     }
 
@@ -86,6 +104,97 @@ public extension Tensor {
 
 //==============================================================================
 // Tensor1
-public extension Tensor where Bounds == Bounds1
-{
+public extension Tensor where Bounds == Bounds1 {
+    // Swift array of elements
+    @inlinable
+    var array: [Element] { [Element](bufferElements()) }
+
+    var description: String { "\(array)" }
+
+    // simplified integer index
+    @inlinable
+    subscript(index: Int) -> Element {
+        get {
+            view(from: makePositive(index: Bounds(index)),
+                 to: Bounds.one, with: Bounds.one).element
+        }
+        set {
+            expandSelfIfRepeated()
+            var view = sharedView(from: makePositive(index: Bounds(index)),
+                                  to: Bounds.one, with: Bounds.one)
+            view.element = newValue
+        }
+    }
+    
+    // simplified integer range
+    @inlinable
+    subscript<R>(range: R) -> Self
+        where R: PartialRangeExpression, R.Bound == Int
+        {
+        get {
+            let r = range.relativeTo(0..<bounds[0])
+            return self[Bounds(r.start), Bounds(r.end), Bounds(r.step)]
+        }
+        set {
+            let r = range.relativeTo(0..<bounds[0])
+            self[Bounds(r.start), Bounds(r.end), Bounds(r.step)] = newValue
+        }
+    }
+
 }
+
+//==============================================================================
+// Tensor2
+public extension Tensor where Bounds == Bounds2
+{
+    //--------------------------------------------------------------------------
+    /// Swift array of elements
+    @inlinable
+    var array: [[Element]] {
+        var result = [[Element]]()
+        for row in 0..<bounds[0] {
+            result.append([Element](self[row, ...].bufferElements()))
+        }
+        return result
+    }
+    
+    var description: String { "\(array)" }
+
+    //--------------------------------------------------------------------------
+    // subscripting a Matrix view
+    @inlinable
+    subscript<R, C>(rows: R, cols: C) -> Self where
+        R: PartialRangeExpression, R.Bound == Int,
+        C: PartialRangeExpression, C.Bound == Int
+    {
+        get {
+            let r = rows.relativeTo(0..<bounds[0])
+            let c = cols.relativeTo(0..<bounds[1])
+            return self[Bounds(r.start, c.start), Bounds(r.end, c.end),
+                        Bounds(r.step, c.step)]
+        }
+        
+        set {
+            let r = rows.relativeTo(0..<bounds[0])
+            let c = cols.relativeTo(0..<bounds[1])
+            self[Bounds(r.start, c.start), Bounds(r.end, c.end),
+                 Bounds(r.step, c.step)] = newValue
+        }
+    }
+    
+    @inlinable
+    subscript<R>(rows: R, cols: UnboundedRange) -> Self
+        where R: PartialRangeExpression, R.Bound == Int {
+        get { self[rows, 0...] }
+        set { self[rows, 0...] = newValue }
+    }
+    
+    @inlinable
+    subscript<C>(rows: UnboundedRange, cols: C) -> Self
+        where C: PartialRangeExpression, C.Bound == Int {
+        get { self[0..., cols] }
+        set { self[0..., cols] = newValue }
+    }
+
+}
+
