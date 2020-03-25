@@ -15,6 +15,8 @@
 //
 import Foundation
 
+public typealias DeviceIndex = Int32
+
 ////==============================================================================
 ///// TensorView protocol
 ///// A TensorView object is the primary interface for working with data.
