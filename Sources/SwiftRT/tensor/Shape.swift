@@ -24,8 +24,8 @@ public typealias Shape4 = SIMD4<Int>
 public typealias Shape5 = SIMD5<Int>
 
 //==============================================================================
-// ShapeProtocol
-public protocol ShapeProtocol: SIMD where Scalar == Int {
+// Shaped
+public protocol Shaped: SIMD where Scalar == Int {
     // types
     associatedtype Tuple
     
@@ -59,8 +59,8 @@ public protocol ShapeProtocol: SIMD where Scalar == Int {
 }
 
 //==============================================================================
-// ShapeProtocol extensions
-public extension ShapeProtocol {
+// Shaped extensions
+public extension Shaped {
     /// init with optional tuple bounds
     @inlinable @_transparent
     init?(_ bounds: Tuple?) {
@@ -137,7 +137,7 @@ public extension ShapeProtocol {
 
 //==============================================================================
 // SIMD1
-extension SIMD1: ShapeProtocol where Scalar == Int {
+extension SIMD1: Shaped where Scalar == Int {
     //--------------------------------------------------------------------------
     // tuple initialization support
     public typealias Tuple = (Scalar)
@@ -172,7 +172,7 @@ extension SIMD1: ShapeProtocol where Scalar == Int {
 
 //==============================================================================
 // SIMD2
-extension SIMD2: ShapeProtocol where Scalar == Int {
+extension SIMD2: Shaped where Scalar == Int {
     //--------------------------------------------------------------------------
     // tuple initialization support
     public typealias Tuple = (Scalar, Scalar)
@@ -212,7 +212,7 @@ extension SIMD2: ShapeProtocol where Scalar == Int {
 
 //==============================================================================
 // SIMD3
-extension SIMD3: ShapeProtocol where Scalar == Int {
+extension SIMD3: Shaped where Scalar == Int {
     //--------------------------------------------------------------------------
     // tuple initialization support
     public typealias Tuple = (Scalar, Scalar, Scalar)
@@ -248,7 +248,7 @@ extension SIMD3: ShapeProtocol where Scalar == Int {
 
 //==============================================================================
 // SIMD4
-extension SIMD4: ShapeProtocol where Scalar == Int {
+extension SIMD4: Shaped where Scalar == Int {
     //--------------------------------------------------------------------------
     // tuple initialization support
     public typealias Tuple = (Scalar, Scalar, Scalar, Scalar)
@@ -290,7 +290,7 @@ extension SIMD4: ShapeProtocol where Scalar == Int {
 
 //==============================================================================
 // SIMD5
-extension SIMD5: ShapeProtocol where Scalar == Int {
+extension SIMD5: Shaped where Scalar == Int {
     //--------------------------------------------------------------------------
     // tuple initialization support
     public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar)

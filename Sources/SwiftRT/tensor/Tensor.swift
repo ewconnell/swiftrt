@@ -1,0 +1,77 @@
+//******************************************************************************
+// Copyright 2019 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+import Foundation
+
+// Sequence
+// https://www.hackingwithswift.com/example-code/language/how-to-make-a-custom-sequence
+
+//==============================================================================
+/// Tensor protocol
+/// an n-dimensional collection of elements
+public protocol Tensor: Logging {
+    /// a ranked type that describes the dimension of the coordinate space
+    associatedtype Shape: Shaped
+    /// the type of element stored
+    associatedtype Element
+    /// a type used to iterate the elements
+    associatedtype ElementSequence: Sequence & IteratorProtocol
+
+    /// a label for the type used as a default name in diagnostics
+    static var name: String { get }
+    /// the order in memory to store materialized Elements
+    var order: StorageOrder { get }
+    /// the dimension of the coordinate space
+    var shape: Shape { get }
+    
+    /// returns a sequence of elements
+    func elements() -> ElementSequence
+}
+
+/// IndexedTensor
+/// This is used when the tensor generates it's `Element` value as a
+/// function of the index value
+public protocol IndexedTensor: Tensor {
+    /// a type used to iterate the elements
+    associatedtype Elements: Collection
+
+    /// returns an indexed collection of elements
+    func indexedElements() -> Elements
+}
+
+/// MutableIndexedTensor
+/// This is used to perform indexed writes to the collection
+public protocol MutableIndexedTensor: Tensor {
+    /// a type used to iterate the elements
+    associatedtype MutableElements: MutableCollection
+
+    /// returns an indexed mutable collection of elements
+    func mutableElements() -> MutableElements
+}
+
+//==============================================================================
+// default types
+/// the type used for indexing on discreet devices
+public typealias DeviceIndex = Int32
+
+//==============================================================================
+/// StorageOrder
+/// Specifies how to store multi-dimensional data in row-major (C-style)
+/// or column-major (Fortran-style) order in memory.
+public enum StorageOrder: Int, Codable {
+    case C, F
+    public static let rowMajor = C, colMajor = F
+}
+
