@@ -51,6 +51,8 @@ class test_createNumbers: XCTestCase {
         let _ = empty((2, 3), order: .F)
         let _ = empty((2, 3), dtype: Int32.self)
         let _ = empty((2, 3), dtype: Int32.self, order: .F)
+        
+        print(empty((2, 3), dtype: Int32.self))
     }
 
     //==========================================================================

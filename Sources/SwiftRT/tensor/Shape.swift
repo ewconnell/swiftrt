@@ -25,6 +25,11 @@ public typealias Shape5 = SIMD5<Int>
 public typealias Shape6 = SIMD6<Int>
 
 //==============================================================================
+// messages
+@usableFromInline
+let _messageInvalidShape = "shape dimensions must be greater than 0"
+
+//==============================================================================
 // Shaped
 public protocol Shaped: SIMD where Scalar == Int {
     // types
