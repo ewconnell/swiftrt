@@ -46,3 +46,30 @@ public func identity<Element>(
 {
     IdentityTensor(n, order)
 }
+
+//==============================================================================
+/// eye
+/// Return the identity array.
+/// The identity array is a square array with ones on the main diagonal.
+///
+/// - Parameters:
+///  - N: Number of rows in the output.
+///  - M: Number of columns in the output. If nil, defaults to N.
+///  - k: Index of the diagonal: 0 (the default) refers to the main diagonal,
+///    a positive value refers to an upper diagonal, and a negative
+///    value to a lower diagonal.
+///  - dtype: data-type, optional
+///    Desired output data-type for the array, e.g, Int8. Default is DType.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
+/// - Returns: the identity tensor
+@inlinable
+public func eye<Element>(
+    _ N: Int, _ M: Int? = nil, k: Int = 0,
+    _ dtype: Element.Type,
+    order: StorageOrder = .C
+) -> EyeTensor<Element> where Element: Numeric
+{
+    EyeTensor<Element>(N, M ?? N, k, order)
+}

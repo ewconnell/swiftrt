@@ -69,6 +69,56 @@ public struct FillTensorIterator<Shape, Element>: Sequence, IteratorProtocol
 }
 
 //==============================================================================
+/// EyeTensor
+public struct EyeTensor<Element>: Tensor where Element: Numeric {
+    // properties
+    @inlinable public static var name: String { "EyeTensor" }
+    public let count: Int
+    public let shape: Shape2
+    public let order: StorageOrder
+    public let k: Int
+
+    @inlinable
+    public init(
+        _ N: Int, _ M: Int, _ k: Int,
+        _ order: StorageOrder = .rowMajor
+    ) {
+        self.shape = Shape2(N, M)
+        self.count = N * M
+        self.k = k
+        self.order = order
+    }
+    
+    @inlinable
+    public func elements() -> EyeTensorIterator<Element> {
+        EyeTensorIterator(shape)
+    }
+}
+
+//==============================================================================
+/// EyeTensorIterator
+public struct EyeTensorIterator<Element>: Sequence, IteratorProtocol
+    where Element: Numeric
+{
+    public let shape: Shape2
+    public var position: Shape2
+
+    @inlinable public init(_ shape: Shape2) {
+        self.shape = shape
+        position = Shape2.zero
+    }
+
+    @inlinable public mutating func next() -> Element? {
+        // when the row position equals the number of rows, then we're done
+        guard position[0] != shape[0] else { return nil }
+        defer { position.increment(boundedBy: shape) }
+        
+        // if the axes indexes are equal then it's on the diagonal
+        return position[0] == position[1] ? 1 : 0
+    }
+}
+
+//==============================================================================
 /// IdentityTensor
 public struct IdentityTensor<Element>: Tensor where Element: Numeric {
     // properties
