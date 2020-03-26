@@ -23,6 +23,10 @@ class test_createNumbers: XCTestCase {
     static var allTests = [
         ("test_empty", test_empty),
         ("test_emptyLike", test_emptyLike),
+        ("test_ones", test_ones),
+        ("test_onesLike", test_onesLike),
+        ("test_zeros", test_zeros),
+        ("test_zerosLike", test_zerosLike),
         ("test_full", test_full),
         ("test_fullLike", test_fullLike),
     ]
@@ -60,6 +64,76 @@ class test_createNumbers: XCTestCase {
         let _ = empty(like: proto, dtype: Int32.self)
         let _ = empty(like: proto, dtype: Int32.self, shape: (1, 2, 3))
         let _ = empty(like: proto, dtype: Int32.self, order: .F, shape: (1, 2, 3))
+    }
+    
+    //==========================================================================
+    // test_ones
+    func test_ones() {
+        // T0
+        let _ = ones()
+        let _ = ones(dtype: Int32.self)
+
+        // T1
+        let _ = ones(3)
+        let _ = ones(3, order: .F)
+        let _ = ones(3, dtype: Int32.self)
+        let _ = ones(3, dtype: Int32.self, order: .F)
+
+        // T2
+        let _ = ones((2, 3))
+        let _ = ones((2, 3), order: .F)
+        let _ = ones((2, 3), dtype: Int32.self)
+        let _ = ones((2, 3), dtype: Int32.self, order: .F)
+    }
+
+    //==========================================================================
+    // test_onesLike
+    func test_onesLike() {
+        let proto = ones((2, 3))
+        
+        let _ = ones(like: proto)
+        let _ = ones(like: proto, shape: (6))
+        let _ = ones(like: proto, shape: (1, 2, 3))
+        let _ = ones(like: proto, order: .F)
+        let _ = ones(like: proto, order: .F, shape: (1, 2, 3))
+        let _ = ones(like: proto, dtype: Int32.self)
+        let _ = ones(like: proto, dtype: Int32.self, shape: (1, 2, 3))
+        let _ = ones(like: proto, dtype: Int32.self, order: .F, shape: (1, 2, 3))
+    }
+    
+    //==========================================================================
+    // test_zeros
+    func test_zeros() {
+        // T0
+        let _ = zeros()
+        let _ = zeros(dtype: Int32.self)
+
+        // T1
+        let _ = zeros(3)
+        let _ = zeros(3, order: .F)
+        let _ = zeros(3, dtype: Int32.self)
+        let _ = zeros(3, dtype: Int32.self, order: .F)
+
+        // T2
+        let _ = zeros((2, 3))
+        let _ = zeros((2, 3), order: .F)
+        let _ = zeros((2, 3), dtype: Int32.self)
+        let _ = zeros((2, 3), dtype: Int32.self, order: .F)
+    }
+
+    //==========================================================================
+    // test_zerosLike
+    func test_zerosLike() {
+        let proto = zeros((2, 3))
+        
+        let _ = zeros(like: proto)
+        let _ = zeros(like: proto, shape: (6))
+        let _ = zeros(like: proto, shape: (1, 2, 3))
+        let _ = zeros(like: proto, order: .F)
+        let _ = zeros(like: proto, order: .F, shape: (1, 2, 3))
+        let _ = zeros(like: proto, dtype: Int32.self)
+        let _ = zeros(like: proto, dtype: Int32.self, shape: (1, 2, 3))
+        let _ = zeros(like: proto, dtype: Int32.self, order: .F, shape: (1, 2, 3))
     }
     
     //==========================================================================

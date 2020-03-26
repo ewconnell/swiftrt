@@ -329,11 +329,11 @@ public func empty<T>(
 
 //==============================================================================
 /// full
-/// Return a new tensor of given shape and type, without initializing entries.
+/// Return a new tensor of given shape and type filled with `value`
 /// - Parameters:
 ///  - shape: Int or tuple of Int
 ///    Shape of the array, e.g., (2, 3) or 2.
-///  - fillValue: Fill value.
+///  - value: Fill value.
 ///  - dtype: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
 ///  - order: { .C, .F }, optional, default .C
@@ -344,187 +344,187 @@ public func empty<T>(
 @inlinable
 public func full<Shape, Element>(
     _ shape: Shape.Tuple,
-    _ fillValue: Element,
+    _ value: Element,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
 ) -> FillTensor<Shape, Element> where Shape: Shaped
 {
-    full(Shape(shape), fillValue, dtype, order)
+    full(Shape(shape), value, dtype, order)
 }
 
 @inlinable
 public func full<Shape, Element>(
     _ shape: Shape,
-    _ fillValue: Element,
+    _ value: Element,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
 ) -> FillTensor<Shape, Element> where Shape: Shaped
 {
-    FillTensor(shape, element: fillValue, order: order)
+    FillTensor(shape, element: value, order: order)
 }
 
 //---------------------------------------
 // Rank0
 @inlinable
-public func full(_ fillValue: DType) -> Fill1<DType> {
-    full(Shape1(1), fillValue, DType.self)
+public func full(_ value: DType) -> Fill1<DType> {
+    full(Shape1(1), value, DType.self)
 }
 
 @inlinable
-public func full<Element>(_ fillValue: Element, dtype: Element.Type)
-    -> Fill1<Element> { full(Shape1(1), fillValue, dtype) }
+public func full<Element>(_ value: Element, dtype: Element.Type)
+    -> Fill1<Element> { full(Shape1(1), value, dtype) }
 
 //---------------------------------------
 // Rank1
 @inlinable
 public func full(
     _ shape: Shape1.Tuple,
-    _ fillValue: DType,
+    _ value: DType,
     order: StorageOrder = .C
-) -> Fill1<DType> { full(shape, fillValue, DType.self, order) }
+) -> Fill1<DType> { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape1.Tuple,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type
-) -> Fill1<Element> { full(shape, fillValue, dtype) }
+) -> Fill1<Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape1.Tuple,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Fill1<Element> { full(shape, fillValue, dtype, order) }
+) -> Fill1<Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank2
 @inlinable
 public func full(
     _ shape: Shape2.Tuple,
-    _ fillValue: DType,
+    _ value: DType,
     order: StorageOrder = .C
-) -> Fill2<DType> { full(shape, fillValue, DType.self, order) }
+) -> Fill2<DType> { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape2.Tuple,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type
-) -> Fill2<Element> { full(shape, fillValue, dtype) }
+) -> Fill2<Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape2.Tuple,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Fill2<Element> { full(shape, fillValue, dtype, order) }
+) -> Fill2<Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank3
 @inlinable
 public func full(
     _ shape: Shape3.Tuple,
-    _ fillValue: DType,
+    _ value: DType,
     order: StorageOrder = .C
-) -> Fill3<DType> { full(shape, fillValue, DType.self, order) }
+) -> Fill3<DType> { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape3.Tuple,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type
-) -> Fill3<Element> { full(shape, fillValue, dtype) }
+) -> Fill3<Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape3.Tuple,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Fill3<Element> { full(shape, fillValue, dtype, order) }
+) -> Fill3<Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank4
 @inlinable
 public func full(
     _ shape: Shape4.Tuple,
-    _ fillValue: DType,
+    _ value: DType,
     order: StorageOrder = .C
-) -> Fill4<DType> { full(shape, fillValue, DType.self, order) }
+) -> Fill4<DType> { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape4.Tuple,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type
-) -> Fill4<Element> { full(shape, fillValue, dtype) }
+) -> Fill4<Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape4.Tuple,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Fill4<Element> { full(shape, fillValue, dtype, order) }
+) -> Fill4<Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank5
 @inlinable
 public func full(
     _ shape: Shape5.Tuple,
-    _ fillValue: DType,
+    _ value: DType,
     order: StorageOrder = .C
-) -> Fill5<DType> { full(shape, fillValue, DType.self, order) }
+) -> Fill5<DType> { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape5.Tuple,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type
-) -> Fill5<Element> { full(shape, fillValue, dtype) }
+) -> Fill5<Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape5.Tuple,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Fill5<Element> { full(shape, fillValue, dtype, order) }
+) -> Fill5<Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank6
 @inlinable
 public func full(
     _ shape: Shape6.Tuple,
-    _ fillValue: DType,
+    _ value: DType,
     order: StorageOrder = .C
-) -> Fill6<DType> { full(shape, fillValue, DType.self, order) }
+) -> Fill6<DType> { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape6.Tuple,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type
-) -> Fill6<Element> { full(shape, fillValue, dtype) }
+) -> Fill6<Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape6.Tuple,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Fill6<Element> { full(shape, fillValue, dtype, order) }
+) -> Fill6<Element> { full(shape, value, dtype, order) }
 
 
 //==============================================================================
 /// full(like:
-/// Return a new tensor of given shape and type, without initializing entries.
+/// Return a new tensor of given shape and type filled with `value`
 /// - Parameters:
 ///  - prototype: unspecified attributes are copied from this tensor
-///  - fillValue: Fill value.
+///  - value: Fill value.
 ///  - dtype: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
 ///  - order: { .C, .F }, optional, default .C
@@ -539,11 +539,11 @@ public func full<Element>(
 @inlinable
 public func full<T>(
     like prototype: T,
-    _ fillValue: T.Element,
+    _ value: T.Element,
     order: StorageOrder? = nil
 ) -> FillTensor<T.Shape, T.Element> where T: Tensor
 {
-    full(prototype.shape, fillValue, T.Element.self, order ?? prototype.order)
+    full(prototype.shape, value, T.Element.self, order ?? prototype.order)
 }
 
 //------------------------------------------------------------------------------
@@ -551,73 +551,73 @@ public func full<T>(
 // Rank1
 @inlinable public func full<T>(
     like prototype: T,
-    _ fillValue: T.Element,
+    _ value: T.Element,
     order: StorageOrder? = nil,
     shape: Shape1.Tuple
 ) -> Fill1<T.Element> where T: Tensor
 {
     assert(prototype.count == Shape1(shape).elementCount())
-    return full(shape, fillValue, T.Element.self, order ?? prototype.order)
+    return full(shape, value, T.Element.self, order ?? prototype.order)
 }
 
 // Rank2
 @inlinable public func full<T>(
     like prototype: T,
-    _ fillValue: T.Element,
+    _ value: T.Element,
     order: StorageOrder? = nil,
     shape: Shape2.Tuple
 ) -> Fill2<T.Element> where T: Tensor
 {
     assert(prototype.count == Shape2(shape).elementCount())
-    return full(shape, fillValue, T.Element.self, order ?? prototype.order)
+    return full(shape, value, T.Element.self, order ?? prototype.order)
 }
 
 // Rank3
 @inlinable public func full<T>(
     like prototype: T,
-    _ fillValue: T.Element,
+    _ value: T.Element,
     order: StorageOrder? = nil,
     shape: Shape3.Tuple
 ) -> Fill3<T.Element> where T: Tensor
 {
     assert(prototype.count == Shape3(shape).elementCount())
-    return full(shape, fillValue, T.Element.self, order ?? prototype.order)
+    return full(shape, value, T.Element.self, order ?? prototype.order)
 }
 
 // Rank4
 @inlinable public func full<T>(
     like prototype: T,
-    _ fillValue: T.Element,
+    _ value: T.Element,
     order: StorageOrder? = nil,
     shape: Shape4.Tuple
 ) -> Fill4<T.Element> where T: Tensor
 {
     assert(prototype.count == Shape4(shape).elementCount())
-    return full(shape, fillValue, T.Element.self, order ?? prototype.order)
+    return full(shape, value, T.Element.self, order ?? prototype.order)
 }
 
 // Rank5
 @inlinable public func full<T>(
     like prototype: T,
-    _ fillValue: T.Element,
+    _ value: T.Element,
     order: StorageOrder? = nil,
     shape: Shape5.Tuple
 ) -> Fill5<T.Element> where T: Tensor
 {
     assert(prototype.count == Shape5(shape).elementCount())
-    return full(shape, fillValue, T.Element.self, order ?? prototype.order)
+    return full(shape, value, T.Element.self, order ?? prototype.order)
 }
 
 // Rank6
 @inlinable public func full<T>(
     like prototype: T,
-    _ fillValue: T.Element,
+    _ value: T.Element,
     order: StorageOrder? = nil,
     shape: Shape6.Tuple
 ) -> Fill6<T.Element> where T: Tensor
 {
     assert(prototype.count == Shape6(shape).elementCount())
-    return full(shape, fillValue, T.Element.self, order ?? prototype.order)
+    return full(shape, value, T.Element.self, order ?? prototype.order)
 }
 
 
@@ -626,12 +626,12 @@ public func full<T>(
 @inlinable
 public func full<T, Element>(
     like prototype: T,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type,
     order: StorageOrder? = nil
 ) -> FillTensor<T.Shape, Element> where T: Tensor
 {
-    full(prototype.shape, fillValue, Element.self, order ?? prototype.order)
+    full(prototype.shape, value, Element.self, order ?? prototype.order)
 }
 
 //------------------------------------------------------------------------------
@@ -639,78 +639,744 @@ public func full<T, Element>(
 // Rank1
 @inlinable public func full<T, Element>(
     like prototype: T,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape1.Tuple
 ) -> Fill1<Element> where T: Tensor
 {
     assert(prototype.count == Shape1(shape).elementCount())
-    return full(shape, fillValue, Element.self, order ?? prototype.order)
+    return full(shape, value, Element.self, order ?? prototype.order)
 }
 
 // Rank2
 @inlinable public func full<T, Element>(
     like prototype: T,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape2.Tuple
 ) -> Fill2<Element> where T: Tensor
 {
     assert(prototype.count == Shape2(shape).elementCount())
-    return full(shape, fillValue, Element.self, order ?? prototype.order)
+    return full(shape, value, Element.self, order ?? prototype.order)
 }
 
 // Rank3
 @inlinable public func full<T, Element>(
     like prototype: T,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape3.Tuple
 ) -> Fill3<Element> where T: Tensor
 {
     assert(prototype.count == Shape3(shape).elementCount())
-    return full(shape, fillValue, Element.self, order ?? prototype.order)
+    return full(shape, value, Element.self, order ?? prototype.order)
 }
 
 // Rank4
 @inlinable public func full<T, Element>(
     like prototype: T,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape4.Tuple
 ) -> Fill4<Element> where T: Tensor
 {
     assert(prototype.count == Shape4(shape).elementCount())
-    return full(shape, fillValue, Element.self, order ?? prototype.order)
+    return full(shape, value, Element.self, order ?? prototype.order)
 }
 
 // Rank5
 @inlinable public func full<T, Element>(
     like prototype: T,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape5.Tuple
 ) -> Fill5<Element> where T: Tensor
 {
     assert(prototype.count == Shape5(shape).elementCount())
-    return full(shape, fillValue, Element.self, order ?? prototype.order)
+    return full(shape, value, Element.self, order ?? prototype.order)
 }
 
 // Rank6
 @inlinable public func full<T, Element>(
     like prototype: T,
-    _ fillValue: Element,
+    _ value: Element,
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape6.Tuple
 ) -> Fill6<Element> where T: Tensor
 {
     assert(prototype.count == Shape6(shape).elementCount())
-    return full(shape, fillValue, Element.self, order ?? prototype.order)
+    return full(shape, value, Element.self, order ?? prototype.order)
+}
+
+
+//==============================================================================
+/// ones
+/// Return a new tensor of given shape and type filled with ones
+/// - Parameters:
+///  - shape: Int or tuple of Int
+///    Shape of the array, e.g., (2, 3) or 2.
+///  - dtype: data-type, optional
+///    Desired output data-type for the array, e.g, Int8. Default is DType.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
+/// - Returns: Fill of uninitialized (arbitrary) data of the given shape,
+///   dtype, and order. Elements will not be initialized.
+@inlinable
+public func ones<Shape, Element>(
+    _ shape: Shape.Tuple,
+    _ dtype: Element.Type,
+    _ order: StorageOrder = .C
+) -> FillTensor<Shape, Element> where Shape: Shaped, Element: Numeric
+{
+    ones(Shape(shape), dtype, order)
+}
+
+@inlinable
+public func ones<Shape, Element>(
+    _ shape: Shape,
+    _ dtype: Element.Type,
+    _ order: StorageOrder = .C
+) -> FillTensor<Shape, Element> where Shape: Shaped, Element: Numeric
+{
+    FillTensor(shape, element: 1, order: order)
+}
+
+//---------------------------------------
+// Rank0
+@inlinable
+public func ones() -> Fill1<DType> {
+    ones(Shape1(1), DType.self)
+}
+
+@inlinable
+public func ones<Element>(dtype: Element.Type)
+    -> Fill1<Element> where Element: Numeric { ones(Shape1(1), dtype) }
+
+//---------------------------------------
+// Rank1
+@inlinable
+public func ones(_ shape: Shape1.Tuple, order: StorageOrder = .C)
+    -> Fill1<DType> { ones(shape, DType.self, order) }
+
+@inlinable
+public func ones<Element>(_ shape: Shape1.Tuple, dtype: Element.Type)
+    -> Fill1<Element> where Element: Numeric { ones(shape, dtype) }
+
+@inlinable
+public func ones<Element>(
+    _ shape: Shape1.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Fill1<Element> where Element: Numeric { ones(shape, dtype, order) }
+
+//---------------------------------------
+// Rank2
+@inlinable
+public func ones(_ shape: Shape2.Tuple, order: StorageOrder = .C)
+    -> Fill2<DType> { ones(shape, DType.self, order) }
+
+@inlinable
+public func ones<Element>(_ shape: Shape2.Tuple, dtype: Element.Type)
+    -> Fill2<Element> where Element: Numeric { ones(shape, dtype) }
+
+@inlinable
+public func ones<Element>(
+    _ shape: Shape2.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Fill2<Element> where Element: Numeric { ones(shape, dtype, order) }
+
+//---------------------------------------
+// Rank3
+@inlinable
+public func ones(_ shape: Shape3.Tuple, order: StorageOrder = .C)
+    -> Fill3<DType> { ones(shape, DType.self, order) }
+
+@inlinable
+public func ones<Element>(_ shape: Shape3.Tuple, dtype: Element.Type)
+    -> Fill3<Element> where Element: Numeric { ones(shape, dtype) }
+
+@inlinable
+public func ones<Element>(
+    _ shape: Shape3.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Fill3<Element> where Element: Numeric { ones(shape, dtype, order) }
+
+//---------------------------------------
+// Rank4
+@inlinable
+public func ones(_ shape: Shape4.Tuple, order: StorageOrder = .C)
+    -> Fill4<DType> { ones(shape, DType.self, order) }
+
+@inlinable
+public func ones<Element>(_ shape: Shape4.Tuple, dtype: Element.Type)
+    -> Fill4<Element> where Element: Numeric { ones(shape, dtype) }
+
+@inlinable
+public func ones<Element>(
+    _ shape: Shape4.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Fill4<Element> where Element: Numeric { ones(shape, dtype, order) }
+
+//---------------------------------------
+// Rank5
+@inlinable
+public func ones(_ shape: Shape5.Tuple, order: StorageOrder = .C)
+    -> Fill5<DType> { ones(shape, DType.self, order) }
+
+@inlinable
+public func ones<Element>(_ shape: Shape5.Tuple, dtype: Element.Type)
+    -> Fill5<Element> where Element: Numeric { ones(shape, dtype) }
+
+@inlinable
+public func ones<Element>(
+    _ shape: Shape5.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Fill5<Element> where Element: Numeric { ones(shape, dtype, order) }
+
+//---------------------------------------
+// Rank6
+@inlinable
+public func ones(_ shape: Shape6.Tuple, order: StorageOrder = .C)
+    -> Fill6<DType> { ones(shape, DType.self, order) }
+
+@inlinable
+public func ones<Element>(_ shape: Shape6.Tuple, dtype: Element.Type)
+    -> Fill6<Element> where Element: Numeric { ones(shape, dtype) }
+
+@inlinable
+public func ones<Element>(
+    _ shape: Shape6.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Fill6<Element> where Element: Numeric { ones(shape, dtype, order) }
+
+
+//==============================================================================
+/// ones(like:
+/// Return a new tensor of given shape and type filled with ones
+/// - Parameters:
+///  - prototype: unspecified attributes are copied from this tensor
+///  - dtype: data-type, optional
+///    Desired output data-type for the array, e.g, Int8. Default is DType.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
+///  - shape: Int or tuple of Int
+///    Shape of the ones array, e.g., (2, 3) or 2.
+/// - Returns: Fill of uninitialized (arbitrary) data of the given shape,
+///   dtype, and order. Elements will not be initialized.
+
+// same type and shape
+@inlinable
+public func ones<T>(like prototype: T, order: StorageOrder? = nil)
+    -> FillTensor<T.Shape, T.Element> where T: Tensor, T.Element: Numeric
+{
+    ones(prototype.shape, T.Element.self, order ?? prototype.order)
+}
+
+//------------------------------------------------------------------------------
+// same type different shape
+// Rank1
+@inlinable public func ones<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape1.Tuple
+) -> Fill1<T.Element> where T: Tensor, T.Element: Numeric
+{
+    assert(prototype.count == Shape1(shape).elementCount())
+    return ones(shape, T.Element.self, order ?? prototype.order)
+}
+
+// Rank2
+@inlinable public func ones<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape2.Tuple
+) -> Fill2<T.Element> where T: Tensor, T.Element: Numeric
+{
+    assert(prototype.count == Shape2(shape).elementCount())
+    return ones(shape, T.Element.self, order ?? prototype.order)
+}
+
+// Rank3
+@inlinable public func ones<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape3.Tuple
+) -> Fill3<T.Element> where T: Tensor, T.Element: Numeric
+{
+    assert(prototype.count == Shape3(shape).elementCount())
+    return ones(shape, T.Element.self, order ?? prototype.order)
+}
+
+// Rank4
+@inlinable public func ones<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape4.Tuple
+) -> Fill4<T.Element> where T: Tensor, T.Element: Numeric
+{
+    assert(prototype.count == Shape4(shape).elementCount())
+    return ones(shape, T.Element.self, order ?? prototype.order)
+}
+
+// Rank5
+@inlinable public func ones<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape5.Tuple
+) -> Fill5<T.Element> where T: Tensor, T.Element: Numeric
+{
+    assert(prototype.count == Shape5(shape).elementCount())
+    return ones(shape, T.Element.self, order ?? prototype.order)
+}
+
+// Rank6
+@inlinable public func ones<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape6.Tuple
+) -> Fill6<T.Element> where T: Tensor, T.Element: Numeric
+{
+    assert(prototype.count == Shape6(shape).elementCount())
+    return ones(shape, T.Element.self, order ?? prototype.order)
+}
+
+
+//------------------------------------------------------------------------------
+// different type same shape
+@inlinable
+public func ones<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil
+) -> FillTensor<T.Shape, Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    ones(prototype.shape, Element.self, order ?? prototype.order)
+}
+
+//------------------------------------------------------------------------------
+// different type, different shape
+// Rank1
+@inlinable public func ones<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape1.Tuple
+) -> Fill1<Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    assert(prototype.count == Shape1(shape).elementCount())
+    return ones(shape, Element.self, order ?? prototype.order)
+}
+
+// Rank2
+@inlinable public func ones<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape2.Tuple
+) -> Fill2<Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    assert(prototype.count == Shape2(shape).elementCount())
+    return ones(shape, Element.self, order ?? prototype.order)
+}
+
+// Rank3
+@inlinable public func ones<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape3.Tuple
+) -> Fill3<Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    assert(prototype.count == Shape3(shape).elementCount())
+    return ones(shape, Element.self, order ?? prototype.order)
+}
+
+// Rank4
+@inlinable public func ones<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape4.Tuple
+) -> Fill4<Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    assert(prototype.count == Shape4(shape).elementCount())
+    return ones(shape, Element.self, order ?? prototype.order)
+}
+
+// Rank5
+@inlinable public func ones<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape5.Tuple
+) -> Fill5<Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    assert(prototype.count == Shape5(shape).elementCount())
+    return ones(shape, Element.self, order ?? prototype.order)
+}
+
+// Rank6
+@inlinable public func ones<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape6.Tuple
+) -> Fill6<Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    assert(prototype.count == Shape6(shape).elementCount())
+    return ones(shape, Element.self, order ?? prototype.order)
+}
+
+
+//==============================================================================
+/// zeros
+/// Return a new tensor of given shape and type filled with zeros
+/// - Parameters:
+///  - shape: Int or tuple of Int
+///    Shape of the array, e.g., (2, 3) or 2.
+///  - dtype: data-type, optional
+///    Desired output data-type for the array, e.g, Int8. Default is DType.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
+/// - Returns: Fill of uninitialized (arbitrary) data of the given shape,
+///   dtype, and order. Elements will not be initialized.
+@inlinable
+public func zeros<Shape, Element>(
+    _ shape: Shape.Tuple,
+    _ dtype: Element.Type,
+    _ order: StorageOrder = .C
+) -> FillTensor<Shape, Element> where Shape: Shaped, Element: Numeric
+{
+    zeros(Shape(shape), dtype, order)
+}
+
+@inlinable
+public func zeros<Shape, Element>(
+    _ shape: Shape,
+    _ dtype: Element.Type,
+    _ order: StorageOrder = .C
+) -> FillTensor<Shape, Element> where Shape: Shaped, Element: Numeric
+{
+    FillTensor(shape, element: 0, order: order)
+}
+
+//---------------------------------------
+// Rank0
+@inlinable
+public func zeros() -> Fill1<DType> {
+    zeros(Shape1(1), DType.self)
+}
+
+@inlinable
+public func zeros<Element>(dtype: Element.Type)
+    -> Fill1<Element> where Element: Numeric { zeros(Shape1(1), dtype) }
+
+//---------------------------------------
+// Rank1
+@inlinable
+public func zeros(_ shape: Shape1.Tuple, order: StorageOrder = .C)
+    -> Fill1<DType> { zeros(shape, DType.self, order) }
+
+@inlinable
+public func zeros<Element>(_ shape: Shape1.Tuple, dtype: Element.Type)
+    -> Fill1<Element> where Element: Numeric { zeros(shape, dtype) }
+
+@inlinable
+public func zeros<Element>(
+    _ shape: Shape1.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Fill1<Element> where Element: Numeric { zeros(shape, dtype, order) }
+
+//---------------------------------------
+// Rank2
+@inlinable
+public func zeros(_ shape: Shape2.Tuple, order: StorageOrder = .C)
+    -> Fill2<DType> { zeros(shape, DType.self, order) }
+
+@inlinable
+public func zeros<Element>(_ shape: Shape2.Tuple, dtype: Element.Type)
+    -> Fill2<Element> where Element: Numeric { zeros(shape, dtype) }
+
+@inlinable
+public func zeros<Element>(
+    _ shape: Shape2.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Fill2<Element> where Element: Numeric { zeros(shape, dtype, order) }
+
+//---------------------------------------
+// Rank3
+@inlinable
+public func zeros(_ shape: Shape3.Tuple, order: StorageOrder = .C)
+    -> Fill3<DType> { zeros(shape, DType.self, order) }
+
+@inlinable
+public func zeros<Element>(_ shape: Shape3.Tuple, dtype: Element.Type)
+    -> Fill3<Element> where Element: Numeric { zeros(shape, dtype) }
+
+@inlinable
+public func zeros<Element>(
+    _ shape: Shape3.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Fill3<Element> where Element: Numeric { zeros(shape, dtype, order) }
+
+//---------------------------------------
+// Rank4
+@inlinable
+public func zeros(_ shape: Shape4.Tuple, order: StorageOrder = .C)
+    -> Fill4<DType> { zeros(shape, DType.self, order) }
+
+@inlinable
+public func zeros<Element>(_ shape: Shape4.Tuple, dtype: Element.Type)
+    -> Fill4<Element> where Element: Numeric { zeros(shape, dtype) }
+
+@inlinable
+public func zeros<Element>(
+    _ shape: Shape4.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Fill4<Element> where Element: Numeric { zeros(shape, dtype, order) }
+
+//---------------------------------------
+// Rank5
+@inlinable
+public func zeros(_ shape: Shape5.Tuple, order: StorageOrder = .C)
+    -> Fill5<DType> { zeros(shape, DType.self, order) }
+
+@inlinable
+public func zeros<Element>(_ shape: Shape5.Tuple, dtype: Element.Type)
+    -> Fill5<Element> where Element: Numeric { zeros(shape, dtype) }
+
+@inlinable
+public func zeros<Element>(
+    _ shape: Shape5.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Fill5<Element> where Element: Numeric { zeros(shape, dtype, order) }
+
+//---------------------------------------
+// Rank6
+@inlinable
+public func zeros(_ shape: Shape6.Tuple, order: StorageOrder = .C)
+    -> Fill6<DType> { zeros(shape, DType.self, order) }
+
+@inlinable
+public func zeros<Element>(_ shape: Shape6.Tuple, dtype: Element.Type)
+    -> Fill6<Element> where Element: Numeric { zeros(shape, dtype) }
+
+@inlinable
+public func zeros<Element>(
+    _ shape: Shape6.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Fill6<Element> where Element: Numeric { zeros(shape, dtype, order) }
+
+
+//==============================================================================
+/// zeros(like:
+/// Return a new tensor of given shape and type filled with zeros
+/// - Parameters:
+///  - prototype: unspecified attributes are copied from this tensor
+///  - dtype: data-type, optional
+///    Desired output data-type for the array, e.g, Int8. Default is DType.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
+///  - shape: Int or tuple of Int
+///    Shape of the zeros array, e.g., (2, 3) or 2.
+/// - Returns: Fill of uninitialized (arbitrary) data of the given shape,
+///   dtype, and order. Elements will not be initialized.
+
+// same type and shape
+@inlinable
+public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
+    -> FillTensor<T.Shape, T.Element> where T: Tensor, T.Element: Numeric
+{
+    zeros(prototype.shape, T.Element.self, order ?? prototype.order)
+}
+
+//------------------------------------------------------------------------------
+// same type different shape
+// Rank1
+@inlinable public func zeros<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape1.Tuple
+) -> Fill1<T.Element> where T: Tensor, T.Element: Numeric
+{
+    assert(prototype.count == Shape1(shape).elementCount())
+    return zeros(shape, T.Element.self, order ?? prototype.order)
+}
+
+// Rank2
+@inlinable public func zeros<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape2.Tuple
+) -> Fill2<T.Element> where T: Tensor, T.Element: Numeric
+{
+    assert(prototype.count == Shape2(shape).elementCount())
+    return zeros(shape, T.Element.self, order ?? prototype.order)
+}
+
+// Rank3
+@inlinable public func zeros<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape3.Tuple
+) -> Fill3<T.Element> where T: Tensor, T.Element: Numeric
+{
+    assert(prototype.count == Shape3(shape).elementCount())
+    return zeros(shape, T.Element.self, order ?? prototype.order)
+}
+
+// Rank4
+@inlinable public func zeros<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape4.Tuple
+) -> Fill4<T.Element> where T: Tensor, T.Element: Numeric
+{
+    assert(prototype.count == Shape4(shape).elementCount())
+    return zeros(shape, T.Element.self, order ?? prototype.order)
+}
+
+// Rank5
+@inlinable public func zeros<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape5.Tuple
+) -> Fill5<T.Element> where T: Tensor, T.Element: Numeric
+{
+    assert(prototype.count == Shape5(shape).elementCount())
+    return zeros(shape, T.Element.self, order ?? prototype.order)
+}
+
+// Rank6
+@inlinable public func zeros<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape6.Tuple
+) -> Fill6<T.Element> where T: Tensor, T.Element: Numeric
+{
+    assert(prototype.count == Shape6(shape).elementCount())
+    return zeros(shape, T.Element.self, order ?? prototype.order)
+}
+
+
+//------------------------------------------------------------------------------
+// different type same shape
+@inlinable
+public func zeros<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil
+) -> FillTensor<T.Shape, Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    zeros(prototype.shape, Element.self, order ?? prototype.order)
+}
+
+//------------------------------------------------------------------------------
+// different type, different shape
+// Rank1
+@inlinable public func zeros<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape1.Tuple
+) -> Fill1<Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    assert(prototype.count == Shape1(shape).elementCount())
+    return zeros(shape, Element.self, order ?? prototype.order)
+}
+
+// Rank2
+@inlinable public func zeros<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape2.Tuple
+) -> Fill2<Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    assert(prototype.count == Shape2(shape).elementCount())
+    return zeros(shape, Element.self, order ?? prototype.order)
+}
+
+// Rank3
+@inlinable public func zeros<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape3.Tuple
+) -> Fill3<Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    assert(prototype.count == Shape3(shape).elementCount())
+    return zeros(shape, Element.self, order ?? prototype.order)
+}
+
+// Rank4
+@inlinable public func zeros<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape4.Tuple
+) -> Fill4<Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    assert(prototype.count == Shape4(shape).elementCount())
+    return zeros(shape, Element.self, order ?? prototype.order)
+}
+
+// Rank5
+@inlinable public func zeros<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape5.Tuple
+) -> Fill5<Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    assert(prototype.count == Shape5(shape).elementCount())
+    return zeros(shape, Element.self, order ?? prototype.order)
+}
+
+// Rank6
+@inlinable public func zeros<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape6.Tuple
+) -> Fill6<Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    assert(prototype.count == Shape6(shape).elementCount())
+    return zeros(shape, Element.self, order ?? prototype.order)
 }
 
