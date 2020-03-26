@@ -1,0 +1,150 @@
+//******************************************************************************
+// Copyright 2020 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// gyb utility docs
+// https://nshipster.com/swift-gyb/
+%{
+numShapes = 6
+}%
+
+//==============================================================================
+/// empty
+/// Return a new tensor of given shape and type, without initializing entries.
+/// - Parameters:
+///  - shape: Int or tuple of Int
+///    Shape of the empty array, e.g., (2, 3) or 2.
+///  - dtype: data-type, optional
+///    Desired output data-type for the array, e.g, Int8. Default is DType.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
+/// - Returns: Dense of uninitialized (arbitrary) data of the given shape,
+///   dtype, and order. Elements will not be initialized.
+@inlinable
+public func empty<Shape, Element>(
+    _ shape: Shape.Tuple,
+    _ dtype: Element.Type,
+    _ order: StorageOrder = .C
+) -> DenseTensor<Shape, Element> where Shape: Shaped
+{
+    empty(Shape(shape), dtype, order)
+}
+
+@inlinable
+public func empty<Shape, Element>(
+    _ shape: Shape,
+    _ dtype: Element.Type,
+    _ order: StorageOrder = .C
+) -> DenseTensor<Shape, Element> where Shape: Shaped
+{
+    DenseTensor(shape, order: order)
+}
+
+//---------------------------------------
+// Rank 0
+@inlinable
+public func empty() -> Dense1<DType> {
+    empty(Shape1(1), DType.self)
+}
+
+@inlinable
+public func empty<Element>(dtype: Element.Type)
+    -> Dense1<Element> { empty(Shape1(1), dtype) }
+
+%for n in range(1, numShapes + 1):
+//---------------------------------------
+// Rank${n}
+@inlinable
+public func empty(_ shape: Shape${n}.Tuple, order: StorageOrder = .C)
+    -> Dense${n}<DType> { empty(shape, DType.self, order) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape${n}.Tuple, dtype: Element.Type)
+    -> Dense${n}<Element> { empty(shape, dtype) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape${n}.Tuple, dtype: Element.Type,
+                           order: StorageOrder = .C)
+    -> Dense${n}<Element> { empty(shape, dtype, order) }
+    
+%end
+
+//==============================================================================
+/// empty(like:
+/// Return a new tensor of given shape and type, without initializing entries.
+/// - Parameters:
+///  - prototype: unspecified attributes are copied from this tensor
+///  - dtype: data-type, optional
+///    Desired output data-type for the array, e.g, Int8. Default is DType.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
+///  - shape: Int or tuple of Int
+///    Shape of the empty array, e.g., (2, 3) or 2.
+/// - Returns: Dense of uninitialized (arbitrary) data of the given shape,
+///   dtype, and order. Elements will not be initialized.
+
+// same type and shape
+@inlinable
+public func empty<T>(
+    like prototype: T,
+    order: StorageOrder? = nil
+) -> DenseTensor<T.Shape, T.Element> where T: Tensor
+{
+    empty(prototype.shape, T.Element.self, order ?? prototype.order)
+}
+
+//------------------------------------------------------------------------------
+// same type different shape
+%for n in range(1, numShapes + 1):
+// Rank${n}
+@inlinable public func empty<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape${n}.Tuple
+) -> DenseTensor<Shape${n}, T.Element> where T: Tensor
+{
+    assert(prototype.count == Shape${n}(shape).elementCount())
+    return empty(shape, T.Element.self, order ?? prototype.order)
+}
+%end
+
+//------------------------------------------------------------------------------
+// different type same shape
+@inlinable public func empty<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil
+) -> DenseTensor<T.Shape, Element> where T: Tensor
+{
+    empty(prototype.shape, Element.self, order ?? prototype.order)
+}
+
+//------------------------------------------------------------------------------
+// different type, different shape
+%for n in range(1, numShapes + 1):
+// Rank${n}
+@inlinable public func empty<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape${n}.Tuple
+) -> DenseTensor<Shape${n}, Element> where T: Tensor
+{
+    assert(prototype.count == Shape${n}(shape).elementCount())
+    return empty(shape, Element.self, order ?? prototype.order)
+}
+%end

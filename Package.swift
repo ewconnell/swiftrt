@@ -28,7 +28,7 @@ var products: [PackageDescription.Product] = [
 ]
 var dependencies: [Target.Dependency] = ["Numerics"]
 var testDependencies: [Target.Dependency] = ["SwiftRT"]
-var exclusions: [String] = []
+var exclusions: [String] = ["*.gyb"]
 var targets: [PackageDescription.Target] = []
 
 //==============================================================================

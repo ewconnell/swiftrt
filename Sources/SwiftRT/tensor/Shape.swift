@@ -22,6 +22,7 @@ public typealias Shape2 = SIMD2<Int>
 public typealias Shape3 = SIMD3<Int>
 public typealias Shape4 = SIMD4<Int>
 public typealias Shape5 = SIMD5<Int>
+public typealias Shape6 = SIMD6<Int>
 
 //==============================================================================
 // Shaped
@@ -337,6 +338,60 @@ extension SIMD5: Shaped where Scalar == Int {
 }
 
 //==============================================================================
+// SIMD6
+extension SIMD6: Shaped where Scalar == Int {
+    //--------------------------------------------------------------------------
+    // tuple initialization support
+    public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar, Scalar)
+    public static var oneTuple: Tuple { (1, 1, 1, 1, 1, 1) }
+    public static var zeroTuple: Tuple { (0, 0, 0, 0, 0, 0) }
+
+    @inlinable @_transparent
+    public init(_ bounds: Tuple) {
+        self.init()
+        self[0] = bounds.0
+        self[1] = bounds.1
+        self[2] = bounds.2
+        self[3] = bounds.3
+        self[4] = bounds.4
+        self[5] = bounds.5
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable @_transparent
+    public static var rank: Int { 6 }
+    
+    @inlinable
+    public mutating func increment(boundedBy bounds: Self) {
+        self[5] += 1
+        if self[5] == bounds[4] {
+            self[5] = 0
+            self[4] += 1
+            
+            if self[4] == bounds[4] {
+                self[4] = 0
+                self[3] += 1
+                
+                if self[3] == bounds[3] {
+                    self[3] = 0
+                    self[2] += 1
+                    
+                    if self[2] == bounds[2] {
+                        self[2] = 0
+                        self[1] += 1
+                        
+                        if self[1] == bounds[1] {
+                            self[1] = 0
+                            self[0] += 1
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+//==============================================================================
 // additional SIMD types to fill in range
 // https://github.com/apple/swift/blob/master/stdlib/public/core/SIMDVectorTypes.swift.gyb
 // This isn't actually used to do SIMD operations, but merely as
@@ -391,13 +446,56 @@ extension SIMD5: Shaped where Scalar == Int {
     }
 
     @_transparent
-    public init(_ v0: Scalar, _ v1: Scalar, _ v2: Scalar, _ v3: Scalar, _ v4: Scalar) {
+    public init(_ v0: Scalar, _ v1: Scalar, _ v2: Scalar,
+                _ v3: Scalar, _ v4: Scalar
+    ) {
         self.init()
         self[0] = v0
         self[1] = v1
         self[2] = v2
         self[3] = v3
         self[4] = v4
+    }
+    
+    /// Accesses the scalar at the specified position.
+    public subscript(index: Int) -> Scalar {
+        @_transparent get {
+            assert(indices.contains(index))
+            return _storage[index]
+        }
+        @_transparent set {
+            assert(indices.contains(index))
+            _storage[index] = newValue
+        }
+    }
+}
+
+// to support 6D tensors
+@frozen public struct SIMD6<Scalar>: SIMD where Scalar: SIMDScalar {
+    public var _storage: Scalar.SIMD8Storage
+    public typealias MaskStorage = SIMD6<Scalar.SIMDMaskScalar>
+    
+    /// The number of scalars in the vector.
+    @_transparent
+    public var scalarCount: Int { 6 }
+    
+    /// Creates a vector with zero in all lanes.
+    @_transparent
+    public init() {
+        _storage = Scalar.SIMD8Storage()
+    }
+
+    @_transparent
+    public init(_ v0: Scalar, _ v1: Scalar, _ v2: Scalar, _ v3: Scalar,
+                _ v4: Scalar, _ v5: Scalar
+    ) {
+        self.init()
+        self[0] = v0
+        self[1] = v1
+        self[2] = v2
+        self[3] = v3
+        self[4] = v4
+        self[5] = v5
     }
     
     /// Accesses the scalar at the specified position.

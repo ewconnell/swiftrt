@@ -55,6 +55,7 @@ public typealias Fill2<Element> = FillTensor<Shape2, Element>
 public typealias Fill3<Element> = FillTensor<Shape3, Element>
 public typealias Fill4<Element> = FillTensor<Shape4, Element>
 public typealias Fill5<Element> = FillTensor<Shape5, Element>
+public typealias Fill6<Element> = FillTensor<Shape6, Element>
 
 //==============================================================================
 /// FillTensorIterator
@@ -169,6 +170,7 @@ public typealias Dense2<Element> = DenseTensor<Shape2, Element>
 public typealias Dense3<Element> = DenseTensor<Shape3, Element>
 public typealias Dense4<Element> = DenseTensor<Shape4, Element>
 public typealias Dense5<Element> = DenseTensor<Shape5, Element>
+public typealias Dense6<Element> = DenseTensor<Shape6, Element>
 
 //==============================================================================
 /// DenseTensorIterator

@@ -14,7 +14,8 @@
 // limitations under the License.
 //
 
-import Foundation
+// gyb utility docs
+// https://nshipster.com/swift-gyb/
 
 //==============================================================================
 /// empty
@@ -50,7 +51,7 @@ public func empty<Shape, Element>(
 }
 
 //---------------------------------------
-// T0
+// Rank 0
 @inlinable
 public func empty() -> Dense1<DType> {
     empty(Shape1(1), DType.self)
@@ -61,7 +62,7 @@ public func empty<Element>(dtype: Element.Type)
     -> Dense1<Element> { empty(Shape1(1), dtype) }
 
 //---------------------------------------
-// T1
+// Rank1
 @inlinable
 public func empty(_ shape: Shape1.Tuple, order: StorageOrder = .C)
     -> Dense1<DType> { empty(shape, DType.self, order) }
@@ -74,9 +75,9 @@ public func empty<Element>(_ shape: Shape1.Tuple, dtype: Element.Type)
 public func empty<Element>(_ shape: Shape1.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
     -> Dense1<Element> { empty(shape, dtype, order) }
-
+    
 //---------------------------------------
-// T2
+// Rank2
 @inlinable
 public func empty(_ shape: Shape2.Tuple, order: StorageOrder = .C)
     -> Dense2<DType> { empty(shape, DType.self, order) }
@@ -89,9 +90,9 @@ public func empty<Element>(_ shape: Shape2.Tuple, dtype: Element.Type)
 public func empty<Element>(_ shape: Shape2.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
     -> Dense2<Element> { empty(shape, dtype, order) }
-
+    
 //---------------------------------------
-// T3
+// Rank3
 @inlinable
 public func empty(_ shape: Shape3.Tuple, order: StorageOrder = .C)
     -> Dense3<DType> { empty(shape, DType.self, order) }
@@ -104,9 +105,9 @@ public func empty<Element>(_ shape: Shape3.Tuple, dtype: Element.Type)
 public func empty<Element>(_ shape: Shape3.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
     -> Dense3<Element> { empty(shape, dtype, order) }
-
+    
 //---------------------------------------
-// T4
+// Rank4
 @inlinable
 public func empty(_ shape: Shape4.Tuple, order: StorageOrder = .C)
     -> Dense4<DType> { empty(shape, DType.self, order) }
@@ -119,9 +120,9 @@ public func empty<Element>(_ shape: Shape4.Tuple, dtype: Element.Type)
 public func empty<Element>(_ shape: Shape4.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
     -> Dense4<Element> { empty(shape, dtype, order) }
-
+    
 //---------------------------------------
-// T5
+// Rank5
 @inlinable
 public func empty(_ shape: Shape5.Tuple, order: StorageOrder = .C)
     -> Dense5<DType> { empty(shape, DType.self, order) }
@@ -134,9 +135,25 @@ public func empty<Element>(_ shape: Shape5.Tuple, dtype: Element.Type)
 public func empty<Element>(_ shape: Shape5.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
     -> Dense5<Element> { empty(shape, dtype, order) }
+    
+//---------------------------------------
+// Rank6
+@inlinable
+public func empty(_ shape: Shape6.Tuple, order: StorageOrder = .C)
+    -> Dense6<DType> { empty(shape, DType.self, order) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape6.Tuple, dtype: Element.Type)
+    -> Dense6<Element> { empty(shape, dtype) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape6.Tuple, dtype: Element.Type,
+                           order: StorageOrder = .C)
+    -> Dense6<Element> { empty(shape, dtype, order) }
+    
 
 //==============================================================================
-/// empty
+/// empty(like:
 /// Return a new tensor of given shape and type, without initializing entries.
 /// - Parameters:
 ///  - prototype: unspecified attributes are copied from this tensor
@@ -160,58 +177,72 @@ public func empty<T>(
     empty(prototype.shape, T.Element.self, order ?? prototype.order)
 }
 
-//---------------------------------------
+//------------------------------------------------------------------------------
 // same type different shape
-// T1
+// Rank1
 @inlinable public func empty<T>(
-    like prototype: T, order: StorageOrder? = nil, shape: Shape1.Tuple
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape1.Tuple
 ) -> DenseTensor<Shape1, T.Element> where T: Tensor
 {
     assert(prototype.count == Shape1(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.order)
 }
-
-// T2
+// Rank2
 @inlinable public func empty<T>(
-    like prototype: T, order: StorageOrder? = nil, shape: Shape2.Tuple
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape2.Tuple
 ) -> DenseTensor<Shape2, T.Element> where T: Tensor
 {
     assert(prototype.count == Shape2(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.order)
 }
-
-// T3
+// Rank3
 @inlinable public func empty<T>(
-    like prototype: T, order: StorageOrder? = nil, shape: Shape3.Tuple
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape3.Tuple
 ) -> DenseTensor<Shape3, T.Element> where T: Tensor
 {
     assert(prototype.count == Shape3(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.order)
 }
-
-// T4
+// Rank4
 @inlinable public func empty<T>(
-    like prototype: T, order: StorageOrder? = nil, shape: Shape4.Tuple
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape4.Tuple
 ) -> DenseTensor<Shape4, T.Element> where T: Tensor
 {
     assert(prototype.count == Shape4(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.order)
 }
-
-// T5
+// Rank5
 @inlinable public func empty<T>(
-    like prototype: T, order: StorageOrder? = nil, shape: Shape5.Tuple
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape5.Tuple
 ) -> DenseTensor<Shape5, T.Element> where T: Tensor
 {
     assert(prototype.count == Shape5(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.order)
 }
+// Rank6
+@inlinable public func empty<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape6.Tuple
+) -> DenseTensor<Shape6, T.Element> where T: Tensor
+{
+    assert(prototype.count == Shape6(shape).elementCount())
+    return empty(shape, T.Element.self, order ?? prototype.order)
+}
 
-//==============================================================================
-//---------------------------------------
+//------------------------------------------------------------------------------
 // different type same shape
-@inlinable
-public func empty<T, Element>(
+@inlinable public func empty<T, Element>(
     like prototype: T,
     dtype: Element.Type,
     order: StorageOrder? = nil
@@ -220,10 +251,9 @@ public func empty<T, Element>(
     empty(prototype.shape, Element.self, order ?? prototype.order)
 }
 
-//---------------------------------------
+//------------------------------------------------------------------------------
 // different type, different shape
-
-// T1
+// Rank1
 @inlinable public func empty<T, Element>(
     like prototype: T,
     dtype: Element.Type,
@@ -234,8 +264,7 @@ public func empty<T, Element>(
     assert(prototype.count == Shape1(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.order)
 }
-
-// T2
+// Rank2
 @inlinable public func empty<T, Element>(
     like prototype: T,
     dtype: Element.Type,
@@ -246,8 +275,7 @@ public func empty<T, Element>(
     assert(prototype.count == Shape2(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.order)
 }
-
-// T3
+// Rank3
 @inlinable public func empty<T, Element>(
     like prototype: T,
     dtype: Element.Type,
@@ -258,8 +286,7 @@ public func empty<T, Element>(
     assert(prototype.count == Shape3(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.order)
 }
-
-// T4
+// Rank4
 @inlinable public func empty<T, Element>(
     like prototype: T,
     dtype: Element.Type,
@@ -270,8 +297,7 @@ public func empty<T, Element>(
     assert(prototype.count == Shape4(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.order)
 }
-
-// T5
+// Rank5
 @inlinable public func empty<T, Element>(
     like prototype: T,
     dtype: Element.Type,
@@ -280,5 +306,16 @@ public func empty<T, Element>(
 ) -> DenseTensor<Shape5, Element> where T: Tensor
 {
     assert(prototype.count == Shape5(shape).elementCount())
+    return empty(shape, Element.self, order ?? prototype.order)
+}
+// Rank6
+@inlinable public func empty<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape6.Tuple
+) -> DenseTensor<Shape6, Element> where T: Tensor
+{
+    assert(prototype.count == Shape6(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.order)
 }
