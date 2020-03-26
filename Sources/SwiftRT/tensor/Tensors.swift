@@ -69,6 +69,51 @@ public struct FillTensorIterator<Shape, Element>: Sequence, IteratorProtocol
 }
 
 //==============================================================================
+/// IdentityTensor
+public struct IdentityTensor<Element>: Tensor where Element: Numeric {
+    // properties
+    @inlinable public static var name: String { "IdentityTensor" }
+    public let count: Int
+    public let shape: Shape2
+    public let order: StorageOrder
+
+    @inlinable
+    public init(_ n: Int) {
+        shape = Shape2(n, n)
+        count = shape.elementCount()
+        order = .rowMajor
+    }
+    
+    @inlinable
+    public func elements() -> IdentityTensorIterator<Element> {
+        IdentityTensorIterator(shape)
+    }
+}
+
+//==============================================================================
+/// IdentityTensorIterator
+public struct IdentityTensorIterator<Element>: Sequence, IteratorProtocol
+    where Element: Numeric
+{
+    public let shape: Shape2
+    public var position: Shape2
+
+    @inlinable public init(_ shape: Shape2) {
+        self.shape = shape
+        position = Shape2.zero
+    }
+
+    @inlinable public mutating func next() -> Element? {
+        // when the row position equals the number of rows, then we're done
+        guard position[0] != shape[0] else { return nil }
+        defer { position.increment(boundedBy: shape) }
+        
+        // if the axes indexes are equal then it's on the diagonal
+        return position[0] == position[1] ? 1 : 0
+    }
+}
+
+//==============================================================================
 /// DenseTensor
 public struct DenseTensor<Shape, Element>:
     MutableTensor, MutableCollection where Shape: Shaped
