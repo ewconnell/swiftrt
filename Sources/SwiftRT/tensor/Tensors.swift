@@ -22,24 +22,46 @@ public typealias DType = Float
 
 //==============================================================================
 /// FillTensor
-public struct FillTensor<Shape, Element>: Tensor, Sequence, IteratorProtocol
-    where Shape: Shaped
-{
+public struct FillTensor<Shape, Element>: Tensor where Shape: Shaped {
     // properties
     @inlinable public static var name: String { "FillTensor\(Shape.rank)" }
+    public let count: Int
     public let shape: Shape
     public let order: StorageOrder
     public let element: Element
     
     @inlinable
     public init(_ shape: Shape, _ element: Element) {
+        self.count = shape.elementCount()
         self.shape = shape
         self.order = .rowMajor
         self.element = element
     }
     
-    public func elements() -> Self { self }
-    public mutating func next() -> Element? { element }
+    @inlinable
+    public func elements() -> FillTensorIterator<Shape, Element> {
+        FillTensorIterator(count, element)
+    }
+}
+
+//==============================================================================
+/// FillTensorIterator
+public struct FillTensorIterator<Shape, Element>: Sequence, IteratorProtocol
+    where Shape: Shaped
+{
+    public var count: Int
+    public let element: Element
+    
+    @inlinable public init(_ count: Int, _ element: Element) {
+        self.count = count
+        self.element = element
+    }
+
+    @inlinable public mutating func next() -> Element? {
+        guard count >= 0 else { return nil }
+        count -= 1
+        return element
+    }
 }
 
 //==============================================================================
@@ -49,15 +71,20 @@ public struct DenseTensor<Shape, Element>:
 {
     public typealias Index = SequentialIndex<Shape>
 
+    public let buffer: CpuBuffer<Element>
     /// the dense number of elements in the shape
     public let count: Int
-    /// the dimensions of the element space
-    public let shape: Shape
-    /// The strided number of elements spanned by the shape
-    public let spanCount: Int
+    /// the linear element offset where the view begins
+    public let offset: Int
     /// Specifies whether data is stored in row-major (C-style)
     /// or column-major (Fortran-style) order in memory.
     public let order: StorageOrder
+    /// the dimensions of the element space
+    public let shape: Shape
+    /// `true` if the view will be shared by by multiple writers
+    public let shared: Bool
+    /// The strided number of elements spanned by the shape
+    public let spanCount: Int
     /// The distance to the next element along each dimension
     public let strides: Shape
 
@@ -71,9 +98,12 @@ public struct DenseTensor<Shape, Element>:
     public init(_ shape: Shape, _ strides: Shape?, _ order: StorageOrder,
                 _ buffer: TensorBuffer<Element>, offset: Int, shared: Bool)
     {
-        self.shape = shape
-        self.order = .rowMajor
+        self.buffer = buffer
         self.count = shape.elementCount()
+        self.offset = offset
+        self.order = .rowMajor
+        self.shape = shape
+        self.shared = shared
         let sequentialStrides = shape.sequentialStrides()
 
         if let callerStrides = strides {
@@ -85,9 +115,12 @@ public struct DenseTensor<Shape, Element>:
         }
     }
     
+    @inlinable
     public func elements() -> DenseTensorIterator<Shape, Element> {
-        DenseTensorIterator(tensor: self, index: startIndex)
+        DenseTensorIterator(self, startIndex)
     }
+    
+    @inlinable
     public func mutableElements() -> Self { self }
 
     //--------------------------------------------------------------------------
@@ -119,7 +152,13 @@ public struct DenseTensorIterator<Shape, Element>: Sequence, IteratorProtocol
     public let tensor: DenseTensor<Shape, Element>
     public var index: SequentialIndex<Shape>
     
-    public mutating func next() -> Element? {
+    @inlinable public init(_ tensor: DenseTensor<Shape, Element>,
+                           _ index: SequentialIndex<Shape>) {
+        self.tensor = tensor
+        self.index = index
+    }
+    
+    @inlinable public mutating func next() -> Element? {
         index.position.increment(boundedBy: tensor.shape)
         index.sequenceIndex += 1
         return tensor[index]

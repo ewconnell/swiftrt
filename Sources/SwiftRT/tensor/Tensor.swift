@@ -54,8 +54,17 @@ public protocol IndexedTensor: Tensor {
 /// MutableIndexedTensor
 /// This is used to perform indexed writes to the collection
 public protocol MutableIndexedTensor: Tensor {
+    /// tye type of element storage buffer
+    associatedtype Buffer: StorageBuffer where Buffer.Element == Element
     /// a type used to iterate the elements
     associatedtype MutableElements: MutableCollection
+
+    /// class reference to the underlying platform element buffer
+    var buffer: Buffer { get }
+    /// the linear element offset where the view begins
+    var offset: Int { get }
+    /// `true` if the view will be shared by by multiple writers
+    var shared: Bool { get }
 
     /// returns an indexed mutable collection of elements
     func mutableElements() -> MutableElements
