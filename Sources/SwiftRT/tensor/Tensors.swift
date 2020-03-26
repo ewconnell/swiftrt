@@ -91,7 +91,7 @@ public struct EyeTensor<Element>: Tensor where Element: Numeric {
     
     @inlinable
     public func elements() -> EyeTensorIterator<Element> {
-        EyeTensorIterator(shape)
+        EyeTensorIterator(shape, k)
     }
 }
 
@@ -102,10 +102,12 @@ public struct EyeTensorIterator<Element>: Sequence, IteratorProtocol
 {
     public let shape: Shape2
     public var position: Shape2
+    public let k: Shape2
 
-    @inlinable public init(_ shape: Shape2) {
+    @inlinable public init(_ shape: Shape2, _ k: Int) {
         self.shape = shape
         position = Shape2.zero
+        self.k = k < 0 ? Shape2(-k, 0) : Shape2(0, k)
     }
 
     @inlinable public mutating func next() -> Element? {
@@ -114,7 +116,8 @@ public struct EyeTensorIterator<Element>: Sequence, IteratorProtocol
         defer { position.increment(boundedBy: shape) }
         
         // if the axes indexes are equal then it's on the diagonal
-        return position[0] == position[1] ? 1 : 0
+        let pos = position &- k
+        return pos[0] == pos[1] ? 1 : 0
     }
 }
 
