@@ -22,7 +22,9 @@ class test_createNumbers: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_empty", test_empty),
-        ("test_empty_like", test_empty_like),
+        ("test_emptyLike", test_emptyLike),
+        ("test_full", test_full),
+        ("test_fullLike", test_fullLike),
     ]
     
     //==========================================================================
@@ -46,17 +48,52 @@ class test_createNumbers: XCTestCase {
     }
 
     //==========================================================================
-    // test_empty_like
-    func test_empty_like() {
+    // test_emptyLike
+    func test_emptyLike() {
         let proto = empty((2, 3))
         
-        let _ = empty_like(proto)
-        let _ = empty_like(proto, shape: (6))
-        let _ = empty_like(proto, shape: (1, 2, 3))
-        let _ = empty_like(proto, order: .F)
-        let _ = empty_like(proto, order: .F, shape: (1, 2, 3))
-        let _ = empty_like(proto, dtype: Int32.self)
-        let _ = empty_like(proto, dtype: Int32.self, shape: (1, 2, 3))
-        let _ = empty_like(proto, dtype: Int32.self, order: .F, shape: (1, 2, 3))
+        let _ = empty(like: proto)
+        let _ = empty(like: proto, shape: (6))
+        let _ = empty(like: proto, shape: (1, 2, 3))
+        let _ = empty(like: proto, order: .F)
+        let _ = empty(like: proto, order: .F, shape: (1, 2, 3))
+        let _ = empty(like: proto, dtype: Int32.self)
+        let _ = empty(like: proto, dtype: Int32.self, shape: (1, 2, 3))
+        let _ = empty(like: proto, dtype: Int32.self, order: .F, shape: (1, 2, 3))
+    }
+    
+    //==========================================================================
+    // test_full
+    func test_full() {
+        // T0
+        let _ = full(42)
+        let _ = full(42, dtype: Int32.self)
+
+        // T1
+        let _ = full(3)
+        let _ = full(3, 42, order: .F)
+        let _ = full(3, 42, dtype: Int32.self)
+        let _ = full(3, 42, dtype: Int32.self, order: .F)
+
+        // T2
+        let _ = full((2, 3), 42)
+        let _ = full((2, 3), 42, order: .F)
+        let _ = full((2, 3), 42, dtype: Int32.self)
+        let _ = full((2, 3), 42, dtype: Int32.self, order: .F)
+    }
+
+    //==========================================================================
+    // test_fullLike
+    func test_fullLike() {
+        let proto = empty((2, 3))
+        
+        let _ = full(like: proto, 42)
+        let _ = full(like: proto, 42, shape: (6))
+        let _ = full(like: proto, 42, shape: (1, 2, 3))
+        let _ = full(like: proto, 42, order: .F)
+        let _ = full(like: proto, 42, order: .F, shape: (1, 2, 3))
+        let _ = full(like: proto, 42, dtype: Int32.self)
+        let _ = full(like: proto, 42, dtype: Int32.self, shape: (1, 2, 3))
+        let _ = full(like: proto, 42, dtype: Int32.self, order: .F, shape: (1, 2, 3))
     }
 }

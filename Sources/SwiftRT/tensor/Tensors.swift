@@ -31,7 +31,11 @@ public struct FillTensor<Shape, Element>: Tensor where Shape: Shaped {
     public let element: Element
     
     @inlinable
-    public init(_ shape: Shape, _ element: Element) {
+    public init(
+        _ shape: Shape,
+        element: Element,
+        order: StorageOrder = .rowMajor
+    ) {
         self.count = shape.elementCount()
         self.shape = shape
         self.order = .rowMajor
@@ -43,6 +47,14 @@ public struct FillTensor<Shape, Element>: Tensor where Shape: Shaped {
         FillTensorIterator(count, element)
     }
 }
+
+//==============================================================================
+/// FillTensors
+public typealias Fill1<Element> = FillTensor<Shape1, Element>
+public typealias Fill2<Element> = FillTensor<Shape2, Element>
+public typealias Fill3<Element> = FillTensor<Shape3, Element>
+public typealias Fill4<Element> = FillTensor<Shape4, Element>
+public typealias Fill5<Element> = FillTensor<Shape5, Element>
 
 //==============================================================================
 /// FillTensorIterator
@@ -97,11 +109,11 @@ public struct DenseTensor<Shape, Element>:
     @inlinable
     public init(
         _ shape: Shape,
-        strides: Shape? = nil,
-        order: StorageOrder = .rowMajor,
         buffer: TensorBuffer<Element>? = nil,
+        strides: Shape? = nil,
         offset: Int = 0,
-        shared: Bool = false
+        shared: Bool = false,
+        order: StorageOrder = .rowMajor
     ) {
         let count = shape.elementCount()
         self.buffer = buffer ?? TensorBuffer(count: count, name: Self.name)
