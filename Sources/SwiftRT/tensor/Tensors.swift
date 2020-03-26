@@ -71,7 +71,7 @@ public struct DenseTensor<Shape, Element>:
 {
     public typealias Index = SequentialIndex<Shape>
 
-    public let buffer: CpuBuffer<Element>
+    public let buffer: TensorBuffer<Element>
     /// the dense number of elements in the shape
     public let count: Int
     /// the linear element offset where the view begins
@@ -95,11 +95,17 @@ public struct DenseTensor<Shape, Element>:
     //--------------------------------------------------------------------------
     /// init(shape:
     @inlinable
-    public init(_ shape: Shape, _ strides: Shape?, _ order: StorageOrder,
-                _ buffer: TensorBuffer<Element>, offset: Int, shared: Bool)
-    {
-        self.buffer = buffer
-        self.count = shape.elementCount()
+    public init(
+        _ shape: Shape,
+        strides: Shape? = nil,
+        order: StorageOrder = .rowMajor,
+        buffer: TensorBuffer<Element>? = nil,
+        offset: Int = 0,
+        shared: Bool = false
+    ) {
+        let count = shape.elementCount()
+        self.buffer = buffer ?? TensorBuffer(count: count, name: Self.name)
+        self.count = count
         self.offset = offset
         self.order = .rowMajor
         self.shape = shape

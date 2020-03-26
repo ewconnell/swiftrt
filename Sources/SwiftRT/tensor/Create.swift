@@ -42,14 +42,15 @@ import Foundation
 //    empty(Shape(shape), dtype, map)
 //}
 //
-//@inlinable
-//public func empty<Shape, Map, Element>(
-//    _ shape: Shape, _ dtype: Element.Type, _ map: Map
-//) -> Tensor<Shape, Map, Element> where Shape: Shaped
-//{
-//    Tensor<Shape, Map, Element>(shape, map)
-//}
-//
+@inlinable
+public func empty<Shape, Element>(
+    _ shape: Shape,
+    _ dtype: Element.Type
+) -> DenseTensor<Shape, Element> where Shape: Shaped
+{
+    DenseTensor(shape)
+}
+
 ////---------------------------------------
 //// T0
 //@inlinable

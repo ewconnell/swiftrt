@@ -40,6 +40,7 @@ public protocol Tensor: Logging {
     func elements() -> ElementSequence
 }
 
+//==============================================================================
 /// IndexedTensor
 /// This is used when the tensor generates it's `Element` value as a
 /// function of the index value
@@ -51,6 +52,7 @@ public protocol IndexedTensor: Tensor {
     func indexedElements() -> Elements
 }
 
+//==============================================================================
 /// MutableIndexedTensor
 /// This is used to perform indexed writes to the collection
 public protocol MutableIndexedTensor: Tensor {
