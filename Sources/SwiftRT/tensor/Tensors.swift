@@ -49,15 +49,6 @@ public struct FillTensor<Shape, Element>: Tensor where Shape: Shaped {
 }
 
 //==============================================================================
-/// FillTensors
-public typealias Fill1<Element> = FillTensor<Shape1, Element>
-public typealias Fill2<Element> = FillTensor<Shape2, Element>
-public typealias Fill3<Element> = FillTensor<Shape3, Element>
-public typealias Fill4<Element> = FillTensor<Shape4, Element>
-public typealias Fill5<Element> = FillTensor<Shape5, Element>
-public typealias Fill6<Element> = FillTensor<Shape6, Element>
-
-//==============================================================================
 /// FillTensorIterator
 public struct FillTensorIterator<Shape, Element>: Sequence, IteratorProtocol
     where Shape: Shaped
@@ -80,7 +71,7 @@ public struct FillTensorIterator<Shape, Element>: Sequence, IteratorProtocol
 //==============================================================================
 /// DenseTensor
 public struct DenseTensor<Shape, Element>:
-    MutableIndexedTensor, MutableCollection where Shape: Shaped
+    MutableTensor, MutableCollection where Shape: Shaped
 {
     public typealias Index = SequentialIndex<Shape>
 
@@ -162,15 +153,6 @@ public struct DenseTensor<Shape, Element>:
         }
     }
 }
-
-//==============================================================================
-/// DenseTensors
-public typealias Dense1<Element> = DenseTensor<Shape1, Element>
-public typealias Dense2<Element> = DenseTensor<Shape2, Element>
-public typealias Dense3<Element> = DenseTensor<Shape3, Element>
-public typealias Dense4<Element> = DenseTensor<Shape4, Element>
-public typealias Dense5<Element> = DenseTensor<Shape5, Element>
-public typealias Dense6<Element> = DenseTensor<Shape6, Element>
 
 //==============================================================================
 /// DenseTensorIterator

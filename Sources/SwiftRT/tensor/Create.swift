@@ -23,6 +23,33 @@
 //
 //******************************************************************************
 
+//==============================================================================
+// ranked convenience types
+/// FillTensors
+public typealias Fill1<Element> = FillTensor<Shape1, Element>
+/// FillTensors
+public typealias Fill2<Element> = FillTensor<Shape2, Element>
+/// FillTensors
+public typealias Fill3<Element> = FillTensor<Shape3, Element>
+/// FillTensors
+public typealias Fill4<Element> = FillTensor<Shape4, Element>
+/// FillTensors
+public typealias Fill5<Element> = FillTensor<Shape5, Element>
+/// FillTensors
+public typealias Fill6<Element> = FillTensor<Shape6, Element>
+
+/// DenseTensors
+public typealias Dense1<Element> = DenseTensor<Shape1, Element>
+/// DenseTensors
+public typealias Dense2<Element> = DenseTensor<Shape2, Element>
+/// DenseTensors
+public typealias Dense3<Element> = DenseTensor<Shape3, Element>
+/// DenseTensors
+public typealias Dense4<Element> = DenseTensor<Shape4, Element>
+/// DenseTensors
+public typealias Dense5<Element> = DenseTensor<Shape5, Element>
+/// DenseTensors
+public typealias Dense6<Element> = DenseTensor<Shape6, Element>
 
 //==============================================================================
 /// empty

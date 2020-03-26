@@ -26,6 +26,17 @@ numShapes = 6
 //
 //******************************************************************************
 
+//==============================================================================
+// ranked convenience types
+%for n in range(1, numShapes + 1):
+/// FillTensors
+public typealias Fill${n}<Element> = FillTensor<Shape${n}, Element>
+%end
+
+%for n in range(1, numShapes + 1):
+/// DenseTensors
+public typealias Dense${n}<Element> = DenseTensor<Shape${n}, Element>
+%end
 
 //==============================================================================
 /// empty

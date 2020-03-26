@@ -24,12 +24,12 @@ import Foundation
 public protocol Tensor: Logging {
     /// a ranked type that describes the dimension of the coordinate space
     associatedtype Shape: Shaped
-    /// the type of element stored
+    /// the type of element in the collection
     associatedtype Element
     /// a type used to iterate the elements
     associatedtype ElementSequence: Sequence & IteratorProtocol
     
-    /// the dense number of elements in the shape
+    /// the dense number of elements specified by shape
     var count: Int { get }
     /// a label for the type used as a default name in diagnostics
     static var name: String { get }
@@ -38,26 +38,14 @@ public protocol Tensor: Logging {
     /// the dimension of the coordinate space
     var shape: Shape { get }
     
-    /// returns a sequence of elements
+    /// returns a sequence of elements, which might be stored or generated
     func elements() -> ElementSequence
 }
 
 //==============================================================================
-/// IndexedTensor
-/// This is used when the tensor generates it's `Element` value as a
-/// function of the index value
-public protocol IndexedTensor: Tensor {
-    /// a type used to iterate the elements
-    associatedtype Elements: Collection
-
-    /// returns an indexed collection of elements
-    func indexedElements() -> Elements
-}
-
-//==============================================================================
-/// MutableIndexedTensor
+/// MutableTensor
 /// This is used to perform indexed writes to the collection
-public protocol MutableIndexedTensor: Tensor {
+public protocol MutableTensor: Tensor {
     /// tye type of element storage buffer
     associatedtype Buffer: StorageBuffer where Buffer.Element == Element
     /// a type used to iterate the elements
@@ -70,7 +58,7 @@ public protocol MutableIndexedTensor: Tensor {
     /// `true` if the view will be shared by by multiple writers
     var shared: Bool { get }
 
-    /// returns an indexed mutable collection of elements
+    /// returns an indexed mutable collection of stored elements
     func mutableElements() -> MutableElements
 }
 
