@@ -28,7 +28,9 @@ public protocol Tensor: Logging {
     associatedtype Element
     /// a type used to iterate the elements
     associatedtype ElementSequence: Sequence & IteratorProtocol
-
+    
+    /// the dense number of elements in the shape
+    var count: Int { get }
     /// a label for the type used as a default name in diagnostics
     static var name: String { get }
     /// the order in memory to store materialized Elements

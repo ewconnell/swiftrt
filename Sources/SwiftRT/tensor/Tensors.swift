@@ -151,6 +151,14 @@ public struct DenseTensor<Shape, Element>:
 }
 
 //==============================================================================
+/// DenseTensors
+public typealias Dense1<Element> = DenseTensor<Shape1, Element>
+public typealias Dense2<Element> = DenseTensor<Shape2, Element>
+public typealias Dense3<Element> = DenseTensor<Shape3, Element>
+public typealias Dense4<Element> = DenseTensor<Shape4, Element>
+public typealias Dense5<Element> = DenseTensor<Shape5, Element>
+
+//==============================================================================
 /// DenseTensorIterator
 public struct DenseTensorIterator<Shape, Element>: Sequence, IteratorProtocol
     where Shape: Shaped

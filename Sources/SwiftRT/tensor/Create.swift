@@ -16,64 +16,281 @@
 
 import Foundation
 
-//public typealias Tensor1<Map, Element> = Tensor<Shape1, Map, Element>
-//    where Map: ElementMap
-//
-////==============================================================================
-///// empty
-///// Return a new tensor of given shape and type, without initializing entries.
-///// - Parameters:
-/////  - shape: Int or tuple of Int
-/////    Shape of the empty array, e.g., (2, 3) or 2.
-/////  - dtype: data-type, optional
-/////    Desired output data-type for the array, e.g, Int8. Default is Float.
-/////  - order: { .C, .F }, optional, default .C
-/////    Whether to store multi-dimensional data in row-major (C-style)
-/////    or column-major (Fortran-style) order in memory.
-///// - Returns: Tensor of uninitialized (arbitrary) data of the given shape,
-/////   dtype, and order. Elements will not be initialized.
-//@inlinable
-//public func empty<Shape, Map, Element>(
-//    _ shape: Shape.Tuple,
-//    _ dtype: Element.Type,
-//    _ map: Map
-//) -> Tensor<Shape, Map, Element> where Shape: Shaped
-//{
-//    empty(Shape(shape), dtype, map)
-//}
-//
+//==============================================================================
+/// empty
+/// Return a new tensor of given shape and type, without initializing entries.
+/// - Parameters:
+///  - shape: Int or tuple of Int
+///    Shape of the empty array, e.g., (2, 3) or 2.
+///  - dtype: data-type, optional
+///    Desired output data-type for the array, e.g, Int8. Default is Float.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
+/// - Returns: Dense of uninitialized (arbitrary) data of the given shape,
+///   dtype, and order. Elements will not be initialized.
+@inlinable
+public func empty<Shape, Element>(
+    _ shape: Shape.Tuple,
+    _ dtype: Element.Type,
+    _ order: StorageOrder = .C
+) -> DenseTensor<Shape, Element> where Shape: Shaped
+{
+    empty(Shape(shape), dtype, order)
+}
+
 @inlinable
 public func empty<Shape, Element>(
     _ shape: Shape,
-    _ dtype: Element.Type
+    _ dtype: Element.Type,
+    _ order: StorageOrder = .C
 ) -> DenseTensor<Shape, Element> where Shape: Shaped
 {
-    DenseTensor(shape)
+    DenseTensor(shape, order: order)
 }
 
-////---------------------------------------
-//// T0
+//---------------------------------------
+// T0
+@inlinable
+public func empty() -> Dense1<Float> {
+    empty(Shape1(1), Float.self)
+}
+
+@inlinable
+public func empty<Element>(dtype: Element.Type)
+    -> Dense1<Element> { empty(Shape1(1), dtype) }
+
+//---------------------------------------
+// T1
+@inlinable
+public func empty(_ shape: Shape1.Tuple, order: StorageOrder = .C)
+    -> Dense1<Float> { empty(shape, Float.self, order) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape1.Tuple, dtype: Element.Type)
+    -> Dense1<Element> { empty(shape, dtype) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape1.Tuple, dtype: Element.Type,
+                           order: StorageOrder = .C)
+    -> Dense1<Element> { empty(shape, dtype, order) }
+
+//---------------------------------------
+// T2
+@inlinable
+public func empty(_ shape: Shape2.Tuple, order: StorageOrder = .C)
+    -> Dense2<Float> { empty(shape, Float.self, order) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape2.Tuple, dtype: Element.Type)
+    -> Dense2<Element> { empty(shape, dtype) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape2.Tuple, dtype: Element.Type,
+                           order: StorageOrder = .C)
+    -> Dense2<Element> { empty(shape, dtype, order) }
+
+//---------------------------------------
+// T3
+@inlinable
+public func empty(_ shape: Shape3.Tuple, order: StorageOrder = .C)
+    -> Dense3<Float> { empty(shape, Float.self, order) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape3.Tuple, dtype: Element.Type)
+    -> Dense3<Element> { empty(shape, dtype) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape3.Tuple, dtype: Element.Type,
+                           order: StorageOrder = .C)
+    -> Dense3<Element> { empty(shape, dtype, order) }
+
+//---------------------------------------
+// T4
+@inlinable
+public func empty(_ shape: Shape4.Tuple, order: StorageOrder = .C)
+    -> Dense4<Float> { empty(shape, Float.self, order) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape4.Tuple, dtype: Element.Type)
+    -> Dense4<Element> { empty(shape, dtype) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape4.Tuple, dtype: Element.Type,
+                           order: StorageOrder = .C)
+    -> Dense4<Element> { empty(shape, dtype, order) }
+
+//---------------------------------------
+// T5
+@inlinable
+public func empty(_ shape: Shape5.Tuple, order: StorageOrder = .C)
+    -> Dense5<Float> { empty(shape, Float.self, order) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape5.Tuple, dtype: Element.Type)
+    -> Dense5<Element> { empty(shape, dtype) }
+
+@inlinable
+public func empty<Element>(_ shape: Shape5.Tuple, dtype: Element.Type,
+                           order: StorageOrder = .C)
+    -> Dense5<Element> { empty(shape, dtype, order) }
+
+//==============================================================================
+/// empty_like
+/// Return a new tensor of given shape and type, without initializing entries.
+/// - Parameters:
+///  - prototype: unspecified attributes are copied from this tensor
+///  - dtype: data-type, optional
+///    Desired output data-type for the array, e.g, Int8. Default is Float.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
+///  - shape: Int or tuple of Int
+///    Shape of the empty array, e.g., (2, 3) or 2.
+/// - Returns: Dense of uninitialized (arbitrary) data of the given shape,
+///   dtype, and order. Elements will not be initialized.
 //@inlinable
-//public func empty() -> Tensor1<DenseRowMap, Float> {
-//    empty(Shape1(1), Float.self, )
+//public func empty_like<T, Shape, Element>(
+//    _ prototype: T,
+//    _ dtype: Element.Type,
+//    _ order: StorageOrder = .C,
+//    _ shape: Shape.Tuple
+//) -> Dense<Shape, Element>
+//    where T: DenseView, Shape: ShapeBounds
+//{
+//    empty(Shape(shape), dtype, order)
 //}
 
-//@inlinable
-//public func empty<Element>(dtype: Element.Type)
-//    -> Tensor1<Element> { empty(Bounds1(1), dtype) }
-//
-////---------------------------------------
-//// T1
-//@inlinable
-//public func empty(_ shape: Bounds1.Tuple, order: StorageOrder = .C)
-//    -> Tensor1<Float> { empty(shape, Float.self, order) }
-//
-//@inlinable
-//public func empty<Element>(_ shape: Bounds1.Tuple, dtype: Element.Type)
-//    -> Tensor1<Element> { empty(shape, dtype) }
-//
-//@inlinable
-//public func empty<Element>(_ shape: Bounds1.Tuple, dtype: Element.Type,
-//                           order: StorageOrder = .C)
-//    -> Tensor1<Element> { empty(shape, dtype, order) }
-//
+//---------------------------------------
+// same type and shape
+@inlinable
+public func empty_like<T>(
+    _ prototype: T,
+    order: StorageOrder? = nil
+) -> DenseTensor<T.Shape, T.Element> where T: Tensor
+{
+    empty(prototype.shape, T.Element.self, order ?? prototype.order)
+}
+
+//---------------------------------------
+// same type different shape
+// T1
+@inlinable public func empty_like<T>(
+    _ prototype: T, order: StorageOrder? = nil, shape: Shape1.Tuple
+) -> DenseTensor<Shape1, T.Element> where T: Tensor
+{
+    assert(prototype.count == Shape1(shape).elementCount())
+    return empty(shape, T.Element.self, order ?? prototype.order)
+}
+
+// T2
+@inlinable public func empty_like<T>(
+    _ prototype: T, order: StorageOrder? = nil, shape: Shape2.Tuple
+) -> DenseTensor<Shape2, T.Element> where T: Tensor
+{
+    assert(prototype.count == Shape2(shape).elementCount())
+    return empty(shape, T.Element.self, order ?? prototype.order)
+}
+
+// T3
+@inlinable public func empty_like<T>(
+    _ prototype: T, order: StorageOrder? = nil, shape: Shape3.Tuple
+) -> DenseTensor<Shape3, T.Element> where T: Tensor
+{
+    assert(prototype.count == Shape3(shape).elementCount())
+    return empty(shape, T.Element.self, order ?? prototype.order)
+}
+
+// T4
+@inlinable public func empty_like<T>(
+    _ prototype: T, order: StorageOrder? = nil, shape: Shape4.Tuple
+) -> DenseTensor<Shape4, T.Element> where T: Tensor
+{
+    assert(prototype.count == Shape4(shape).elementCount())
+    return empty(shape, T.Element.self, order ?? prototype.order)
+}
+
+// T5
+@inlinable public func empty_like<T>(
+    _ prototype: T, order: StorageOrder? = nil, shape: Shape5.Tuple
+) -> DenseTensor<Shape5, T.Element> where T: Tensor
+{
+    assert(prototype.count == Shape5(shape).elementCount())
+    return empty(shape, T.Element.self, order ?? prototype.order)
+}
+
+//==============================================================================
+//---------------------------------------
+// different type same shape
+@inlinable
+public func empty_like<T, Element>(
+    _ prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil
+) -> DenseTensor<T.Shape, Element> where T: Tensor
+{
+    empty(prototype.shape, Element.self, order ?? prototype.order)
+}
+
+//---------------------------------------
+// different type, different shape
+
+// T1
+@inlinable public func empty_like<T, Element>(
+    _ prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape1.Tuple
+) -> DenseTensor<Shape1, Element> where T: Tensor
+{
+    assert(prototype.count == Shape1(shape).elementCount())
+    return empty(shape, Element.self, order ?? prototype.order)
+}
+
+// T2
+@inlinable public func empty_like<T, Element>(
+    _ prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape2.Tuple
+) -> DenseTensor<Shape2, Element> where T: Tensor
+{
+    assert(prototype.count == Shape2(shape).elementCount())
+    return empty(shape, Element.self, order ?? prototype.order)
+}
+
+// T3
+@inlinable public func empty_like<T, Element>(
+    _ prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape3.Tuple
+) -> DenseTensor<Shape3, Element> where T: Tensor
+{
+    assert(prototype.count == Shape3(shape).elementCount())
+    return empty(shape, Element.self, order ?? prototype.order)
+}
+
+// T4
+@inlinable public func empty_like<T, Element>(
+    _ prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape4.Tuple
+) -> DenseTensor<Shape4, Element> where T: Tensor
+{
+    assert(prototype.count == Shape4(shape).elementCount())
+    return empty(shape, Element.self, order ?? prototype.order)
+}
+
+// T5
+@inlinable public func empty_like<T, Element>(
+    _ prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape5.Tuple
+) -> DenseTensor<Shape5, Element> where T: Tensor
+{
+    assert(prototype.count == Shape5(shape).elementCount())
+    return empty(shape, Element.self, order ?? prototype.order)
+}
