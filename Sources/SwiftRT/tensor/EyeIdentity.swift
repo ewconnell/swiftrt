@@ -26,15 +26,23 @@ import Foundation
 ///    Shape of the empty array, e.g., (2, 3) or 2.
 ///  - dtype: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
 /// - Returns: the identity tensor
 @inlinable
-public func identity(_ n: Int) -> IdentityTensor<DType> {
-    IdentityTensor(n)
+public func identity(_ n: Int, order: StorageOrder = .C)
+    -> IdentityTensor<DType>
+{
+    IdentityTensor(n, order)
 }
 
 @inlinable
-public func identity<Element>(_ n: Int, _ dtype: Element.Type)
-    -> IdentityTensor<Element> where Element: Numeric
+public func identity<Element>(
+    _ n: Int,
+    _ dtype: Element.Type,
+    order: StorageOrder = .C
+) -> IdentityTensor<Element> where Element: Numeric
 {
-    IdentityTensor(n)
+    IdentityTensor(n, order)
 }

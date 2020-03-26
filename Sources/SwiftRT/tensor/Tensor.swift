@@ -33,7 +33,9 @@ public protocol Tensor: Logging {
     var count: Int { get }
     /// a label for the type used as a default name in diagnostics
     static var name: String { get }
-    /// the order in memory to store materialized Elements
+    /// the order in memory to store materialized Elements. Generator
+    /// tensor types maintain this property as a template for dense
+    /// result tensors.
     var order: StorageOrder { get }
     /// the dimension of the coordinate space
     var shape: Shape { get }

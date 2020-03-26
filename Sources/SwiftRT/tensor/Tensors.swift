@@ -78,10 +78,10 @@ public struct IdentityTensor<Element>: Tensor where Element: Numeric {
     public let order: StorageOrder
 
     @inlinable
-    public init(_ n: Int) {
-        shape = Shape2(n, n)
-        count = shape.elementCount()
-        order = .rowMajor
+    public init(_ n: Int, _ order: StorageOrder = .rowMajor) {
+        self.shape = Shape2(n, n)
+        self.count = n * n
+        self.order = order
     }
     
     @inlinable
