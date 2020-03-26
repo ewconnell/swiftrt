@@ -40,7 +40,7 @@ public func identity(_ n: Int, order: StorageOrder = .C)
 @inlinable
 public func identity<Element>(
     _ n: Int,
-    _ dtype: Element.Type,
+    dtype: Element.Type,
     order: StorageOrder = .C
 ) -> IdentityTensor<Element> where Element: Numeric
 {
@@ -65,9 +65,16 @@ public func identity<Element>(
 ///    or column-major (Fortran-style) order in memory.
 /// - Returns: the identity tensor
 @inlinable
+public func eye(_ N: Int, _ M: Int? = nil, k: Int = 0,
+                order: StorageOrder = .C) -> EyeTensor<DType>
+{
+    EyeTensor<DType>(N, M ?? N, k, order)
+}
+
+@inlinable
 public func eye<Element>(
     _ N: Int, _ M: Int? = nil, k: Int = 0,
-    _ dtype: Element.Type,
+    dtype: Element.Type,
     order: StorageOrder = .C
 ) -> EyeTensor<Element> where Element: Numeric
 {

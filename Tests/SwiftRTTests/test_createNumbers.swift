@@ -29,6 +29,8 @@ class test_createNumbers: XCTestCase {
         ("test_zerosLike", test_zerosLike),
         ("test_full", test_full),
         ("test_fullLike", test_fullLike),
+        ("test_identity", test_identity),
+        ("test_eye", test_eye),
     ]
     
     //==========================================================================
@@ -169,5 +171,23 @@ class test_createNumbers: XCTestCase {
         let _ = full(like: proto, 42, dtype: Int32.self)
         let _ = full(like: proto, 42, dtype: Int32.self, shape: (1, 2, 3))
         let _ = full(like: proto, 42, dtype: Int32.self, order: .F, shape: (1, 2, 3))
+    }
+
+    //==========================================================================
+    // test_identity
+    func test_identity() {
+        let _ = identity(3)
+        let _ = identity(3, order: .F)
+        let _ = identity(3, dtype: Int32.self)
+        let _ = identity(3, dtype: Int32.self, order: .F)
+    }
+
+    //==========================================================================
+    // test_eye
+    func test_eye() {
+        let _ = eye(2)
+        let _ = eye(3, k: 1)
+        let _ = eye(4, 3, k: -1, dtype: Int32.self)
+        let _ = eye(3, dtype: Int32.self, order: .F)
     }
 }
