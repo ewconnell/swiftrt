@@ -32,7 +32,7 @@ let _messageInvalidShape = "shape dimensions must be greater than 0"
 //==============================================================================
 // Shaped
 public protocol Shaped: SIMD where Scalar == Int {
-    // types
+    // a ranked tuple convenience type used for api parameters
     associatedtype Tuple
     
     /// conversion to DeviceIndex to support drivers
