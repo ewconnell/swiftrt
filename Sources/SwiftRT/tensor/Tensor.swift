@@ -20,11 +20,11 @@ import Foundation
 /// an n-dimensional collection of elements
 public protocol Tensor: Logging {
     //----------------------------------
-    /// a ranked type that describes the dimension of the coordinate space
+    /// the ranked short vector type that defines the tensor coordinate space
     associatedtype Shape: Shaped
     /// the type of element in the collection
     associatedtype Element
-    /// a type used to iterate the elements
+    /// the type used to iterate the elements
     associatedtype ElementSequence: Sequence & IteratorProtocol
         where ElementSequence.Element == Element
 
@@ -62,7 +62,7 @@ public protocol Tensor: Logging {
 
 //==============================================================================
 /// MutableTensor
-/// an n-dimensional mutable collection of elements
+/// an n-dimensional mutable collection of stored elements
 public protocol MutableTensor: Tensor {
     //----------------------------------
     /// tye type of element storage buffer
