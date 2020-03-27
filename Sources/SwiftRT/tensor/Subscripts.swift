@@ -16,6 +16,122 @@
 import Foundation
 
 //==============================================================================
+// Rank1 array property and subscripts
+public extension Tensor where Shape == Shape1 {
+    /// return an array of elements
+    @inlinable var array: [Element] {
+        [Element](elements())
+    }
+}
+
+//==============================================================================
+// Rank2 array property and subscripts
+public extension Tensor where Shape == Shape2 {
+    //--------------------------------------------------------------------------
+    /// return an array of elements
+    @inlinable var array: [[Element]] {
+        var position = Shape2.zero
+        let rowShape = Shape2(1, shape[1])
+        var array2 = [[Element]]()
+        for _ in 0..<shape[0] {
+            array2.append([Element](self[position, rowShape].elements()))
+            position[0] += 1
+        }
+        return array2
+    }
+    
+    //--------------------------------------------------------------------------
+    // subscripts
+    @inlinable
+//    @differentiable(where Self: DifferentiableTensorView)
+    subscript<R, C>(rows: R, cols: C) -> Self where
+        R: PartialRangeExpression, R.Bound == Int,
+        C: PartialRangeExpression, C.Bound == Int
+    {
+        get {
+            let r = rows.relativeTo(0..<shape[0])
+            let c = cols.relativeTo(0..<shape[1])
+            return self[Shape2(r.start, c.start), Shape2(r.end, c.end),
+                        Shape2(r.step, c.step)]
+        }
+    }
+    
+    @inlinable
+//    @differentiable(where Self: DifferentiableTensorView)
+    subscript<R>(rows: R, cols: UnboundedRange) -> Self
+        where R: PartialRangeExpression, R.Bound == Int {
+        get { self[rows, 0...] }
+    }
+    
+    @inlinable
+//    @differentiable(where Self: DifferentiableTensorView)
+    subscript<C>(rows: UnboundedRange, cols: C) -> Self
+        where C: PartialRangeExpression, C.Bound == Int {
+        get { self[0..., cols] }
+    }
+}
+
+//------------------------------------------------------------------------------
+// mutables
+public extension MutableTensor where Shape == Shape2 {
+    //    @differentiable(where Self: DifferentiableTensorView)
+    @inlinable subscript<R, C>(rows: R, cols: C) -> Self where
+        R: PartialRangeExpression, R.Bound == Int,
+        C: PartialRangeExpression, C.Bound == Int
+        {
+        get {
+            let r = rows.relativeTo(0..<shape[0])
+            let c = cols.relativeTo(0..<shape[1])
+            return self[Shape2(r.start, c.start), Shape2(r.end, c.end),
+                        Shape2(r.step, c.step)]
+        }
+        
+        set {
+            let r = rows.relativeTo(0..<shape[0])
+            let c = cols.relativeTo(0..<shape[1])
+            self[Shape2(r.start, c.start), Shape2(r.end, c.end),
+                 Shape2(r.step, c.step)] = newValue
+        }
+    }
+    
+    //    @differentiable(where Self: DifferentiableTensorView)
+    @inlinable subscript<R>(rows: R, cols: UnboundedRange) -> Self
+        where R: PartialRangeExpression, R.Bound == Int {
+        get { self[rows, 0...] }
+        set { self[rows, 0...] = newValue }
+    }
+    
+    //    @differentiable(where Self: DifferentiableTensorView)
+    @inlinable subscript<C>(rows: UnboundedRange, cols: C) -> Self
+        where C: PartialRangeExpression, C.Bound == Int {
+        get { self[0..., cols] }
+        set { self[0..., cols] = newValue }
+    }
+}
+
+//==============================================================================
+// Rank3 array property and subscripts
+public extension Tensor where Shape == Shape3 {
+    //--------------------------------------------------------------------------
+    /// return an array of elements
+    @inlinable var array: [[[Element]]] {
+        var position = Shape3.zero
+        let rowShape = Shape3(1, 1, shape[1])
+        var array3 = [[[Element]]]()
+        for _ in 0..<shape[0] {
+            var array2 = [[Element]]()
+            for _ in 0..<shape[1] {
+                array2.append([Element](self[position, rowShape].elements()))
+                position[1] += 1
+            }
+            array3.append(array2)
+            position[0] += 1
+        }
+        return array3
+    }
+}
+
+//==============================================================================
 // These subscripts do a mutli-dimensional selection based on item indexes
 // from dimension 0
 public extension Tensor {

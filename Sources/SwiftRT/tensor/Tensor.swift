@@ -126,20 +126,3 @@ public enum StorageOrder: Int, Codable {
     public static let rowMajor = C, colMajor = F
 }
 
-//==============================================================================
-/// Tensor.array
-extension Tensor where Shape == Shape1 {
-    @inlinable var array: [Element] {
-        [Element](elements())
-    }
-}
-
-//extension Tensor where Shape == Shape2 {
-//    @inlinable var array: [[Element]] {
-//        var elements = [[Element]]()
-//        for row in 0..<shape[0] {
-//            elements.append([Element](self[row, ...].elements()))
-//        }
-//        return elements
-//    }
-//}

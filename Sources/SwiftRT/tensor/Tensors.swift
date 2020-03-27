@@ -72,7 +72,7 @@ public struct FillTensorIterator<Shape, Element>: Sequence, IteratorProtocol
     }
 
     @inlinable public mutating func next() -> Element? {
-        guard count >= 0 else { return nil }
+        guard count > 0 else { return nil }
         count -= 1
         return element
     }
