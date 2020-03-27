@@ -39,21 +39,21 @@ class test_createTensor: XCTestCase {
     func test_empty() {
         // T0
         let _ = empty()
-        let _ = empty(dtype: Int32.self)
+        let _ = empty(dtype: Int.self)
 
         // T1
         let _ = empty(3)
         let _ = empty(3, order: .F)
-        let _ = empty(3, dtype: Int32.self)
-        let _ = empty(3, dtype: Int32.self, order: .F)
+        let _ = empty(3, dtype: Int.self)
+        let _ = empty(3, dtype: Int.self, order: .F)
 
         // T2
         let _ = empty((2, 3))
         let _ = empty((2, 3), order: .F)
-        let _ = empty((2, 3), dtype: Int32.self)
-        let _ = empty((2, 3), dtype: Int32.self, order: .F)
+        let _ = empty((2, 3), dtype: Int.self)
+        let _ = empty((2, 3), dtype: Int.self, order: .F)
         
-        print(empty((2, 3), dtype: Int32.self))
+        print(empty((2, 3), dtype: Int.self))
     }
 
     //==========================================================================
@@ -66,9 +66,9 @@ class test_createTensor: XCTestCase {
         let _ = empty(like: proto, shape: (1, 2, 3))
         let _ = empty(like: proto, order: .F)
         let _ = empty(like: proto, order: .F, shape: (1, 2, 3))
-        let _ = empty(like: proto, dtype: Int32.self)
-        let _ = empty(like: proto, dtype: Int32.self, shape: (1, 2, 3))
-        let _ = empty(like: proto, dtype: Int32.self, order: .F, shape: (1, 2, 3))
+        let _ = empty(like: proto, dtype: Int.self)
+        let _ = empty(like: proto, dtype: Int.self, shape: (1, 2, 3))
+        let _ = empty(like: proto, dtype: Int.self, order: .F, shape: (1, 2, 3))
     }
     
     //==========================================================================
@@ -76,19 +76,19 @@ class test_createTensor: XCTestCase {
     func test_ones() {
         // T0
         let _ = ones()
-        let _ = ones(dtype: Int32.self)
+        let _ = ones(dtype: Int.self)
 
         // T1
         let _ = ones(3)
         let _ = ones(3, order: .F)
-        let _ = ones(3, dtype: Int32.self)
-        let _ = ones(3, dtype: Int32.self, order: .F)
+        let _ = ones(3, dtype: Int.self)
+        let _ = ones(3, dtype: Int.self, order: .F)
 
         // T2
         let _ = ones((2, 3))
         let _ = ones((2, 3), order: .F)
-        let _ = ones((2, 3), dtype: Int32.self)
-        let _ = ones((2, 3), dtype: Int32.self, order: .F)
+        let _ = ones((2, 3), dtype: Int.self)
+        let _ = ones((2, 3), dtype: Int.self, order: .F)
     }
 
     //==========================================================================
@@ -101,9 +101,9 @@ class test_createTensor: XCTestCase {
         let _ = ones(like: proto, shape: (1, 2, 3))
         let _ = ones(like: proto, order: .F)
         let _ = ones(like: proto, order: .F, shape: (1, 2, 3))
-        let _ = ones(like: proto, dtype: Int32.self)
-        let _ = ones(like: proto, dtype: Int32.self, shape: (1, 2, 3))
-        let _ = ones(like: proto, dtype: Int32.self, order: .F, shape: (1, 2, 3))
+        let _ = ones(like: proto, dtype: Int.self)
+        let _ = ones(like: proto, dtype: Int.self, shape: (1, 2, 3))
+        let _ = ones(like: proto, dtype: Int.self, order: .F, shape: (1, 2, 3))
     }
     
     //==========================================================================
@@ -121,19 +121,19 @@ class test_createTensor: XCTestCase {
     func test_zeros() {
         // T0
         let _ = zeros()
-        let _ = zeros(dtype: Int32.self)
+        let _ = zeros(dtype: Int.self)
 
         // T1
         let _ = zeros(3)
         let _ = zeros(3, order: .F)
-        let _ = zeros(3, dtype: Int32.self)
-        let _ = zeros(3, dtype: Int32.self, order: .F)
+        let _ = zeros(3, dtype: Int.self)
+        let _ = zeros(3, dtype: Int.self, order: .F)
 
         // T2
         let _ = zeros((2, 3))
         let _ = zeros((2, 3), order: .F)
-        let _ = zeros((2, 3), dtype: Int32.self)
-        let _ = zeros((2, 3), dtype: Int32.self, order: .F)
+        let _ = zeros((2, 3), dtype: Int.self)
+        let _ = zeros((2, 3), dtype: Int.self, order: .F)
     }
 
     //==========================================================================
@@ -146,9 +146,9 @@ class test_createTensor: XCTestCase {
         let _ = zeros(like: proto, shape: (1, 2, 3))
         let _ = zeros(like: proto, order: .F)
         let _ = zeros(like: proto, order: .F, shape: (1, 2, 3))
-        let _ = zeros(like: proto, dtype: Int32.self)
-        let _ = zeros(like: proto, dtype: Int32.self, shape: (1, 2, 3))
-        let _ = zeros(like: proto, dtype: Int32.self, order: .F, shape: (1, 2, 3))
+        let _ = zeros(like: proto, dtype: Int.self)
+        let _ = zeros(like: proto, dtype: Int.self, shape: (1, 2, 3))
+        let _ = zeros(like: proto, dtype: Int.self, order: .F, shape: (1, 2, 3))
     }
     
     //==========================================================================
@@ -156,19 +156,19 @@ class test_createTensor: XCTestCase {
     func test_full() {
         // T0
         let _ = full(42)
-        let _ = full(42, dtype: Int32.self)
+        let _ = full(42, dtype: Int.self)
 
         // T1
         let _ = full(3)
         let _ = full(3, 42, order: .F)
-        let _ = full(3, 42, dtype: Int32.self)
-        let _ = full(3, 42, dtype: Int32.self, order: .F)
+        let _ = full(3, 42, dtype: Int.self)
+        let _ = full(3, 42, dtype: Int.self, order: .F)
 
         // T2
         let _ = full((2, 3), 42)
         let _ = full((2, 3), 42, order: .F)
-        let _ = full((2, 3), 42, dtype: Int32.self)
-        let _ = full((2, 3), 42, dtype: Int32.self, order: .F)
+        let _ = full((2, 3), 42, dtype: Int.self)
+        let _ = full((2, 3), 42, dtype: Int.self, order: .F)
     }
 
     //==========================================================================
@@ -181,9 +181,9 @@ class test_createTensor: XCTestCase {
         let _ = full(like: proto, 42, shape: (1, 2, 3))
         let _ = full(like: proto, 42, order: .F)
         let _ = full(like: proto, 42, order: .F, shape: (1, 2, 3))
-        let _ = full(like: proto, 42, dtype: Int32.self)
-        let _ = full(like: proto, 42, dtype: Int32.self, shape: (1, 2, 3))
-        let _ = full(like: proto, 42, dtype: Int32.self, order: .F, shape: (1, 2, 3))
+        let _ = full(like: proto, 42, dtype: Int.self)
+        let _ = full(like: proto, 42, dtype: Int.self, shape: (1, 2, 3))
+        let _ = full(like: proto, 42, dtype: Int.self, order: .F, shape: (1, 2, 3))
     }
 
     //==========================================================================
@@ -191,8 +191,8 @@ class test_createTensor: XCTestCase {
     func test_identity() {
         let _ = identity(3)
         let _ = identity(3, order: .F)
-        let _ = identity(3, dtype: Int32.self)
-        let _ = identity(3, dtype: Int32.self, order: .F)
+        let _ = identity(3, dtype: Int.self)
+        let _ = identity(3, dtype: Int.self, order: .F)
     }
 
     //==========================================================================
@@ -200,7 +200,7 @@ class test_createTensor: XCTestCase {
     func test_eye() {
         let _ = eye(2)
         let _ = eye(3, k: 1)
-        let _ = eye(4, 3, k: -1, dtype: Int32.self)
-        let _ = eye(3, dtype: Int32.self, order: .F)
+        let _ = eye(4, 3, k: -1, dtype: Int.self)
+        let _ = eye(3, dtype: Int.self, order: .F)
     }
 }
