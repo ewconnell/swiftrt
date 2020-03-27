@@ -18,7 +18,7 @@ import Foundation
 //==============================================================================
 /// Tensor protocol
 /// an n-dimensional collection of elements
-public protocol Tensor: Logging {
+public protocol Tensor: Logging, CustomStringConvertible {
     //----------------------------------
     /// the ranked short vector type that defines the tensor coordinate space
     associatedtype Shape: Shaped

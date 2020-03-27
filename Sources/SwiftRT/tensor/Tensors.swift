@@ -58,6 +58,14 @@ public struct FillTensor<Shape, Element>: Tensor where Shape: Shaped {
     }
 }
 
+public extension Tensor {
+    var description: String { "no description" }
+}
+
+extension FillTensor where Shape == Shape2 {
+    @inlinable public var description: String { "\(self.array)" }
+}
+
 //==============================================================================
 /// FillTensorIterator
 public struct FillTensorIterator<Shape, Element>: Sequence, IteratorProtocol

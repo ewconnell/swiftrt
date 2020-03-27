@@ -51,8 +51,10 @@ public extension Tensor where Shape == Shape2 {
         get {
             let r = rows.relativeTo(0..<shape[0])
             let c = cols.relativeTo(0..<shape[1])
-            return self[Shape2(r.start, c.start), Shape2(r.end, c.end),
-                        Shape2(r.step, c.step)]
+            let position = Shape2(r.start, c.start)
+            let shape = Shape2(r.end, c.end) &- position
+            let steps = Shape2(r.step, c.step)
+            return self[position, shape, steps]
         }
     }
     
