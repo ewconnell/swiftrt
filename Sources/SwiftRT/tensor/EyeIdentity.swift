@@ -31,10 +31,8 @@ import Foundation
 ///    or column-major (Fortran-style) order in memory.
 /// - Returns: the identity tensor
 @inlinable
-public func identity(_ n: Int, order: StorageOrder = .C)
-    -> IdentityTensor<DType>
-{
-    IdentityTensor(n, order)
+public func identity(_ n: Int, order: StorageOrder = .C) -> EyeTensor<DType> {
+    EyeTensor<DType>(n, n, 0, order)
 }
 
 @inlinable
@@ -42,9 +40,9 @@ public func identity<Element>(
     _ n: Int,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> IdentityTensor<Element> where Element: Numeric
+) -> EyeTensor<Element> where Element: Numeric
 {
-    IdentityTensor(n, order)
+    EyeTensor(n, n, 0, order)
 }
 
 //==============================================================================

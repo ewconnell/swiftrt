@@ -15,66 +15,131 @@
 //
 import Foundation
 
-// Sequence
-// https://www.hackingwithswift.com/example-code/language/how-to-make-a-custom-sequence
-
 //==============================================================================
 /// Tensor protocol
 /// an n-dimensional collection of elements
 public protocol Tensor: Logging {
+    //----------------------------------
     /// a ranked type that describes the dimension of the coordinate space
     associatedtype Shape: Shaped
     /// the type of element in the collection
     associatedtype Element
     /// a type used to iterate the elements
     associatedtype ElementSequence: Sequence & IteratorProtocol
-    
-    /// the dense number of elements specified by shape
-    var count: Int { get }
+        where ElementSequence.Element == Element
+
+    //----------------------------------
+    /// the number of elements described by `shape`
+    var elementCount: Int { get }
     /// a label for the type used as a default name in diagnostics
     static var name: String { get }
     /// the order in memory to store materialized Elements. Generator
     /// tensor types maintain this property as a template for dense
     /// result tensors.
-    var order: StorageOrder { get }
+    var storageOrder: StorageOrder { get }
     /// the dimension of the coordinate space
     var shape: Shape { get }
     
-    /// returns a sequence of elements, which might be stored or generated
+    //----------------------------------
+    /// returns a sequence of elements (stored or generated)
     func elements() -> ElementSequence
+    
+    /// subscript
+    /// returns a sub view
+    /// - Parameters:
+    ///  - position: the view starting point
+    ///  - shape: shape of the view
+    subscript(position: Shape, shape: Shape) -> Self { get }
+
+    /// subscript
+    /// returns a sub view
+    /// - Parameters:
+    ///  - position: the view starting point
+    ///  - shape: shape of the view
+    ///  - steps: steps across the parent space
+    subscript(position: Shape, shape: Shape, steps: Shape) -> Self { get }
 }
 
 //==============================================================================
 /// MutableTensor
-/// This is used to perform indexed writes to the collection
+/// an n-dimensional mutable collection of elements
 public protocol MutableTensor: Tensor {
+    //----------------------------------
     /// tye type of element storage buffer
     associatedtype Buffer: StorageBuffer where Buffer.Element == Element
     /// a type used to iterate the elements
     associatedtype MutableElements: MutableCollection
 
+    //----------------------------------
     /// class reference to the underlying platform element buffer
-    var buffer: Buffer { get }
+    var storageBuffer: Buffer { get }
     /// the linear element offset where the view begins
-    var offset: Int { get }
+    var bufferOffset: Int { get }
     /// `true` if the view will be shared by by multiple writers
-    var shared: Bool { get }
+    var isShared: Bool { get }
 
-    /// returns an indexed mutable collection of stored elements
+    //----------------------------------
+    /// returns a mutable collection of stored elements
     func mutableElements() -> MutableElements
+    
+    /// shared
+    /// returns a sub view that does not do copy-on-write to allow
+    /// for multi-threaded writes.
+    /// - Parameters:
+    ///  - position: the view starting point
+    ///  - shape: shape of the view
+    ///  - steps: steps across the parent space
+    func shared(at position: Shape, with shape: Shape, by steps: Shape?) -> Self
+
+    /// subscript
+    /// returns a sub view
+    /// - Parameters:
+    ///  - position: the view starting point
+    ///  - shape: shape of the view
+    subscript(position: Shape, shape: Shape) -> Self { get set }
+
+    /// subscript
+    /// returns a sub view
+    /// - Parameters:
+    ///  - position: the view starting point
+    ///  - shape: shape of the view
+    ///  - steps: steps across the parent space
+    subscript(position: Shape, shape: Shape, steps: Shape) -> Self { get set }
 }
 
 //==============================================================================
 // default types
-/// the type used for indexing on discreet devices
+/// the type used for memory indexing on discreet devices
 public typealias DeviceIndex = Int32
 
 //==============================================================================
 /// StorageOrder
 /// Specifies how to store multi-dimensional data in row-major (C-style)
 /// or column-major (Fortran-style) order in memory.
+/// These names are following the numpy naming convention
 public enum StorageOrder: Int, Codable {
-    case C, F
+    /// C style row major memory layout
+    case C
+    /// Fortran style column major memory layout
+    case F
+    /// more expressive aliases
     public static let rowMajor = C, colMajor = F
 }
 
+//==============================================================================
+/// Tensor.array
+extension Tensor where Shape == Shape1 {
+    @inlinable var array: [Element] {
+        [Element](elements())
+    }
+}
+
+//extension Tensor where Shape == Shape2 {
+//    @inlinable var array: [[Element]] {
+//        var elements = [[Element]]()
+//        for row in 0..<shape[0] {
+//            elements.append([Element](self[row, ...].elements()))
+//        }
+//        return elements
+//    }
+//}

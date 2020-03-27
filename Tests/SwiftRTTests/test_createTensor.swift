@@ -17,7 +17,7 @@ import XCTest
 import Foundation
 import SwiftRT
 
-class test_createNumbers: XCTestCase {
+class test_createTensor: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
@@ -25,6 +25,7 @@ class test_createNumbers: XCTestCase {
         ("test_emptyLike", test_emptyLike),
         ("test_ones", test_ones),
         ("test_onesLike", test_onesLike),
+        ("test_onesView", test_onesView),
         ("test_zeros", test_zeros),
         ("test_zerosLike", test_zerosLike),
         ("test_full", test_full),
@@ -103,6 +104,13 @@ class test_createNumbers: XCTestCase {
         let _ = ones(like: proto, dtype: Int32.self)
         let _ = ones(like: proto, dtype: Int32.self, shape: (1, 2, 3))
         let _ = ones(like: proto, dtype: Int32.self, order: .F, shape: (1, 2, 3))
+    }
+    
+    //==========================================================================
+    // test_onesView
+    func test_onesView() {
+        let t = ones((4, 3))
+        
     }
     
     //==========================================================================

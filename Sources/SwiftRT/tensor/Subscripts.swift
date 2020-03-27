@@ -15,42 +15,58 @@
 //
 import Foundation
 
-//public extension Tensor {
-//    @inlinable
-////    @differentiable(where Self: DifferentiableTensorView)
-//    subscript(range: UnboundedRange) -> Self { self }
-//
-//    @inlinable
-////    @differentiable(where Self: DifferentiableTensorView)
-//    subscript<R>(range: R) -> Self
-//        where R: PartialRangeExpression, R.Bound == Int {
-//        get {
-//            let (start, end, steps) =
-//                getItemRange(range.relativeTo(0..<shape[0]))
-//            return self[start, end, steps]
-//        }
-//        set {
-//            let (start, end, steps) =
-//                getItemRange(range.relativeTo(0..<shape[0]))
-//            self[start, end, steps] = newValue
-//        }
-//    }
-//
-//    @usableFromInline
-//    @_semantics("autodiff.nonvarying")
-//    internal func getItemRange(_ range: StridedRange<Int>) ->
-//        (Shape, Shape, Shape)
-//    {
-//        var start = Shape.zero
-//        var end = self.shape
-//        var steps = Shape.one
-//        start[0] = range.start
-//        end[0] = range.end
-//        steps[0] = range.step
-//        return (start, end, steps)
-//    }
-//}
-//
+//==============================================================================
+// These subscripts do a mutli-dimensional selection based on item indexes
+// from dimension 0
+public extension Tensor {
+    @inlinable
+//    @differentiable(where Self: DifferentiableTensorView)
+    subscript(range: UnboundedRange) -> Self { self }
+
+    @inlinable
+//    @differentiable(where Self: DifferentiableTensorView)
+    subscript<R>(range: R) -> Self
+        where R: PartialRangeExpression, R.Bound == Int {
+        get {
+            let (start, end, steps) =
+                getItemRange(range.relativeTo(0..<shape[0]))
+            return self[start, end, steps]
+        }
+    }
+
+    @usableFromInline
+    @_semantics("autodiff.nonvarying")
+    internal func getItemRange(_ range: StridedRange<Int>) ->
+        (Shape, Shape, Shape)
+    {
+        var start = Shape.zero
+        var end = self.shape
+        var steps = Shape.one
+        start[0] = range.start
+        end[0] = range.end
+        steps[0] = range.step
+        return (start, end, steps)
+    }
+}
+
+public extension MutableTensor {
+    @inlinable
+//    @differentiable(where Self: DifferentiableTensorView)
+    subscript<R>(range: R) -> Self
+        where R: PartialRangeExpression, R.Bound == Int {
+        get {
+            let (start, end, steps) =
+                getItemRange(range.relativeTo(0..<shape[0]))
+            return self[start, end, steps]
+        }
+        set {
+            let (start, end, steps) =
+                getItemRange(range.relativeTo(0..<shape[0]))
+            self[start, end, steps] = newValue
+        }
+    }
+}
+
 ////==============================================================================
 //public extension Tensor {
 //    //--------------------------------------------------------------------------

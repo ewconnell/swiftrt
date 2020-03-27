@@ -18,7 +18,7 @@ import XCTest
 #if !canImport(ObjectiveC)
 public func allTests() -> [XCTestCaseEntry] {
     return [
-        testCase(test_createNumbers.allTests),
+        testCase(test_createTensor.allTests),
         testCase(test_Initialize.allTests),
     ]
 }
