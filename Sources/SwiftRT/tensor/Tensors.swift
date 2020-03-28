@@ -15,80 +15,25 @@
 //
 import Foundation
 
-
-public extension Tensor {
-    var description: String {
-        var string = ""
-        let tab = 2
-        var rowShape = Shape.one
-        rowShape[Shape.rank - 1] = shape[Shape.rank - 1]
-
-        switch Shape.rank {
-        case 1:
-            let row = [Element](self[Shape.zero, rowShape].elements())
-            string += "\(row)"
-            
-        case 2:
-            string += "[\n"
-            for _ in 0..<shape[0] {
-                let row = [Element](self[Shape.zero, rowShape].elements())
-                string.append("\(String(repeating: " ", count: tab))\(row),\n")
-            }
-            string = String(string.dropLast(2))
-            string += "\n]"
-            
-        default:
-            let rowDim = Shape.rank - 2
-            var pos = Shape.zero
-            
-            func addRows(_ dim: Int) {
-                let indent = String(repeating: " ", count: dim * tab)
-                if dim < rowDim {
-                    while true {
-                        string += "\(indent)["
-                        if shape[dim] > 1 { string += "\(pos[dim])" }
-                        string += "\n"
-                        addRows(dim + 1)
-                        string += "\(indent)],\n"
-
-                        // increment position
-                        pos[dim] += 1
-                        if pos[dim] == shape[dim] {
-                            pos[dim] = 0
-                            break
-                        }
-                    }
-                } else {
-                    for _ in 0..<shape[dim] {
-                        let row = [Element](self[Shape.zero, rowShape].elements())
-                        string += "\(indent)\(row),\n"
-                    }
-                }
-                string = String(string.dropLast(2)) + "\n"
-            }
-            addRows(0)
-        }
-        return string
-    }
-}
-
-//==============================================================================
-/// DType
-/// the implicit tensor Element type
-public typealias DType = Float
-
 //==============================================================================
 /// FillTensor
-public struct FillTensor<Shape, Element>: Tensor where Shape: Shaped {
-    // properties
+public struct FillTensor<Shape, Element>: Tensor, Collection
+    where Shape: Shaped
+{
+    // Tensor properties
     @inlinable public static var name: String { "FillTensor\(Shape.rank)" }
     public let elementCount: Int
     public let shape: Shape
     public let storageOrder: StorageOrder
     public let element: Element
     
-    @inlinable
-    public init(
+    // Collection properties
+    @inlinable public var startIndex: Int { 0 }
+    @inlinable public var endIndex: Int { elementCount }
+
+    //------------------------------------
+    /// init(shape:element:order:
+    @inlinable public init(
         _ shape: Shape,
         element: Element,
         order: StorageOrder = .rowMajor
@@ -99,11 +44,14 @@ public struct FillTensor<Shape, Element>: Tensor where Shape: Shaped {
         self.element = element
     }
     
-    @inlinable
-    public func elements() -> FillTensorIterator<Shape, Element> {
-        FillTensorIterator(elementCount, element)
-    }
-    
+    //------------------------------------
+    // Collection functions
+    @inlinable public func elements() -> Self { self }
+    @inlinable public subscript(index: Int) -> Element { element }
+    @inlinable public func index(after i: Int) -> Int { i + 1 }
+
+    //------------------------------------
+    // view subscripts
     @inlinable
     public subscript(position: Shape, shape: Shape) -> Self {
         FillTensor(shape, element: element, order: storageOrder)
@@ -116,93 +64,70 @@ public struct FillTensor<Shape, Element>: Tensor where Shape: Shaped {
 }
 
 //==============================================================================
-/// FillTensorIterator
-public struct FillTensorIterator<Shape, Element>: Sequence, IteratorProtocol
-    where Shape: Shaped
-{
-    public var count: Int
-    public let element: Element
-    
-    @inlinable public init(_ count: Int, _ element: Element) {
-        self.count = count
-        self.element = element
-    }
-
-    @inlinable public mutating func next() -> Element? {
-        guard count > 0 else { return nil }
-        count -= 1
-        return element
-    }
-}
-
-//==============================================================================
 /// EyeTensor
-public struct EyeTensor<Element>: Tensor where Element: Numeric {
-    // properties
+public struct EyeTensor<Element>: Tensor, Collection
+    where Element: Numeric
+{
+    // tensor properties
     @inlinable public static var name: String { "EyeTensor" }
     public let elementCount: Int
     public let shape: Shape2
     public let storageOrder: StorageOrder
     public let k: Int
 
-    @inlinable
-    public init(
+    // Collection properties
+    public let startIndex: ShapeIndex<Shape2>
+    public let endIndex: ShapeIndex<Shape2>
+
+    //------------------------------------
+    /// init(N:M:k:order:
+    @inlinable public init(
         _ N: Int, _ M: Int, _ k: Int,
-        _ order: StorageOrder = .rowMajor
+        _ order: StorageOrder = .rowMajor,
+        start: Shape2 = Shape2.zero
     ) {
         self.k = k
         self.shape = Shape2(N, M)
         self.elementCount = N * M
         self.storageOrder = order
+        self.startIndex = Index(start, 0)
+        self.endIndex = Index(start &+ self.shape, self.elementCount)
     }
     
-    @inlinable
-    public func elements() -> EyeTensorIterator<Element> {
-        EyeTensorIterator(shape, k)
+    //------------------------------------
+    // Collection functions
+    @inlinable public func elements() -> Self { self }
+    @inlinable public func index(after i: ShapeIndex<Shape2>)
+        -> ShapeIndex<Shape2>
+    {
+        i.incremented(boundedBy: shape)
     }
 
+    @inlinable public subscript(index: ShapeIndex<Shape2>) -> Element {
+        // if the axes indexes are equal then it's on the diagonal
+        let pos = index.position &- k
+        return pos[0] == pos[1] ? 1 : 0
+    }
+
+    //------------------------------------
+    // view subscripts
     public subscript(position: Shape2, shape: Shape2) -> Self {
-        EyeTensor(shape[0], shape[1], k)
+        EyeTensor(shape[0], shape[1], k, start: position)
     }
     
     public subscript(position: Shape2, shape: Shape2, steps: Shape2) -> Self {
-        EyeTensor(shape[0], shape[1], k)
-    }
-}
-
-//==============================================================================
-/// EyeTensorIterator
-public struct EyeTensorIterator<Element>: Sequence, IteratorProtocol
-    where Element: Numeric
-{
-    public let shape: Shape2
-    public var position: Shape2
-    public let k: Shape2
-
-    @inlinable public init(_ shape: Shape2, _ k: Int) {
-        self.shape = shape
-        position = Shape2.zero
-        self.k = k < 0 ? Shape2(-k, 0) : Shape2(0, k)
-    }
-
-    @inlinable public mutating func next() -> Element? {
-        // when the row position equals the number of rows, then we're done
-        guard position[0] != shape[0] else { return nil }
-        defer { position.increment(boundedBy: shape) }
-        
-        // if the axes indexes are equal then it's on the diagonal
-        let pos = position &- k
-        return pos[0] == pos[1] ? 1 : 0
+        EyeTensor(shape[0], shape[1], k, start: position)
     }
 }
 
 //==============================================================================
 /// DenseTensor
-public struct DenseTensor<Shape, Element>:
-    MutableTensor, MutableCollection where Shape: Shaped
+public struct DenseTensor<Shape, Element, Index>:
+    MutableTensor, MutableCollection
+    where
+    Index: ShapeIndexProtocol,
+    Index.Shape == Shape
 {
-    public typealias Index = SequentialIndex<Shape>
-
     public let storageBuffer: TensorBuffer<Element>
     /// the dense number of elements in the shape
     public let elementCount: Int
@@ -222,7 +147,7 @@ public struct DenseTensor<Shape, Element>:
 
     @inlinable public static var name: String { "DenseTensor\(Shape.rank)" }
     @inlinable public var startIndex: Index { Index(Shape.zero, 0) }
-    @inlinable public var endIndex: Index { Index(Shape.zero, elementCount) }
+    @inlinable public var endIndex: Index { Index(shape, elementCount) }
 
     //--------------------------------------------------------------------------
     /// init(shape:
@@ -254,15 +179,31 @@ public struct DenseTensor<Shape, Element>:
         }
     }
     
-    @inlinable
-    public func elements() -> DenseTensorIterator<Shape, Element> {
-        DenseTensorIterator(self, startIndex)
+    @inlinable public func elements() -> Self {
+        // TODO: call read
+        return self
+    }
+
+    @inlinable public func mutableElements(willOverwrite: Bool) -> Self {
+        // TODO: call read write
+        return self
     }
     
-    @inlinable
-    public func mutableElements() -> Self { self }
+    //-----------------------------------
+    @inlinable public func index(after i: Index) -> Index {
+        fatalError()
+    }
     
-    //--------------------------------------------------------------------------
+    @inlinable public subscript(position: Index) -> Element {
+        get {
+            fatalError()
+        }
+        set(newValue) {
+            fatalError()
+        }
+    }
+    
+    //-----------------------------------
     //
     @inlinable
     public func shared(at position: Shape, with shape: Shape, by steps: Shape?)
@@ -288,75 +229,6 @@ public struct DenseTensor<Shape, Element>:
         set {
             fatalError()
         }
-    }
-    
-    //--------------------------------------------------------------------------
-    // Collection
-    @inlinable
-    public func index(after i: Index) -> Index {
-        var index = i
-        index.position.increment(boundedBy: shape)
-        index.sequenceIndex += 1
-        return index
-    }
-
-    @inlinable
-    public subscript(index: Index) -> Element {
-        get {
-            fatalError()
-        }
-        set {
-            fatalError()
-        }
-    }
-}
-
-//==============================================================================
-/// DenseTensorIterator
-public struct DenseTensorIterator<Shape, Element>: Sequence, IteratorProtocol
-    where Shape: Shaped
-{
-    public let tensor: DenseTensor<Shape, Element>
-    public var index: SequentialIndex<Shape>
-    
-    @inlinable public init(_ tensor: DenseTensor<Shape, Element>,
-                           _ index: SequentialIndex<Shape>) {
-        self.tensor = tensor
-        self.index = index
-    }
-    
-    @inlinable public mutating func next() -> Element? {
-        index.position.increment(boundedBy: tensor.shape)
-        index.sequenceIndex += 1
-        return tensor[index]
-    }
-}
-
-//==============================================================================
-/// SequentialIndex
-public struct SequentialIndex<Shape>: Comparable where Shape: Shaped {
-    /// the logical position along each axis
-    public var position: Shape
-    /// linear sequence position
-    public var sequenceIndex: Int
-
-    /// `init(position:sequenceIndex:`
-    @inlinable
-    public init(_ position: Shape, _ sequenceIndex: Int) {
-        self.position = position
-        self.sequenceIndex = sequenceIndex
-    }
-    
-    /// `==(lhs:rhs:`
-    @inlinable
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.sequenceIndex == rhs.sequenceIndex
-    }
-    
-    /// `<(lhs:rhs`
-    @inlinable
-    public static func < (lhs: Self, rhs: Self) -> Bool {
-        lhs.sequenceIndex < rhs.sequenceIndex
     }
 }
 

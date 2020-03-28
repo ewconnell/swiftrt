@@ -25,8 +25,8 @@ public protocol Tensor: Logging, CustomStringConvertible {
     /// the type of element in the collection
     associatedtype Element
     /// the type used to iterate the elements
-    associatedtype ElementSequence: Sequence & IteratorProtocol
-        where ElementSequence.Element == Element
+    associatedtype Elements: Collection
+        where Elements.Element == Element
 
     //----------------------------------
     /// the number of elements described by `shape`
@@ -41,8 +41,10 @@ public protocol Tensor: Logging, CustomStringConvertible {
     var shape: Shape { get }
     
     //----------------------------------
-    /// returns a sequence of elements (stored or generated)
-    func elements() -> ElementSequence
+    /// Returns a collection of elements (stored or generated)
+    /// `Tensor` does not conform to `Collection` directly. The `elements`
+    /// function first ensures synchronization for read only access.
+    func elements() -> Elements
     
     /// subscript
     /// returns a sub view
@@ -69,6 +71,7 @@ public protocol MutableTensor: Tensor {
     associatedtype Buffer: StorageBuffer where Buffer.Element == Element
     /// a type used to iterate the elements
     associatedtype MutableElements: MutableCollection
+        where MutableElements.Element == Element
 
     //----------------------------------
     /// class reference to the underlying platform element buffer
@@ -79,8 +82,16 @@ public protocol MutableTensor: Tensor {
     var isShared: Bool { get }
 
     //----------------------------------
-    /// returns a mutable collection of stored elements
-    func mutableElements() -> MutableElements
+    /// Returns a mutable collection of stored elements
+    /// `MutableTensor` does not conform to `MutableCollection` directly.
+    /// The `mutableElements` function first ensures synchronization
+    /// for read write access.
+    /// - Parameters:
+    ///  - willOverwrite: `true` indicates that the caller will overwrite
+    ///    all elements in the collection, which eliminates the need to
+    ///    read data back from discreet memory space if in use
+    /// - Returns: a mutable collection of elements
+    func mutableElements(willOverwrite: Bool) -> MutableElements
     
     /// shared
     /// returns a sub view that does not do copy-on-write to allow

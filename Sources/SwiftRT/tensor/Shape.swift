@@ -46,8 +46,8 @@ public protocol Shaped: SIMD where Scalar == Int {
 
     //---------------------------------
     // initializers
-    init(_ bounds: Tuple)
-    init?(_ bounds: Tuple?)
+    init(_ shape: Tuple)
+    init?(_ shape: Tuple?)
 
     //---------------------------------
     /// - Returns: the number of elements described by the bounded space,
@@ -58,20 +58,20 @@ public protocol Shaped: SIMD where Scalar == Int {
     // indexing performance to both Shape indexing and to Normal SIMD
     // operations.
     // Extending the SIMD classes seems to be a really bad thing
-    mutating func increment(boundedBy bounds: Self)
+    mutating func increment(boundedBy shape: Self)
     
-    /// - Returns: row major sequential srtides for the bounds
+    /// - Returns: row major sequential srtides for the shape
     func sequentialStrides() -> Self
 }
 
 //==============================================================================
 // Shaped extensions
 public extension Shaped {
-    /// init with optional tuple bounds
+    /// init with optional tuple shape
     @inlinable @_transparent
-    init?(_ bounds: Tuple?) {
-        guard let bounds = bounds else { return nil }
-        self.init(bounds)
+    init?(_ shape: Tuple?) {
+        guard let shape = shape else { return nil }
+        self.init(shape)
     }
 
     /// instance member access
@@ -96,11 +96,11 @@ public extension Shaped {
     
     // generic n-dimensional position increment function
     @inlinable
-    mutating func increment(boundedBy bounds: Self) {
+    mutating func increment(boundedBy shape: Self) {
         var dim = Self.rank - 1
         while true {
             self[dim] += 1
-            if self[dim] < bounds[dim] {
+            if self[dim] < shape[dim] {
                 break
             } else if dim > 0 {
                 self[dim] = 0
@@ -111,6 +111,12 @@ public extension Shaped {
         }
     }
 
+    @inlinable func incremented(boundedBy shape: Self) -> Self {
+        var i = self
+        i.increment(boundedBy: shape)
+        return i
+    }
+    
     //--------------------------------------------------------------------------
     /// `reduce`
     @inlinable
@@ -142,6 +148,94 @@ public extension Shaped {
 }
 
 //==============================================================================
+/// ShapeIndexProtocol
+public protocol ShapeIndexProtocol: Comparable {
+    associatedtype Shape: Shaped
+    
+    init(_ position: Shape, _ sequenceIndex: Int)
+    
+    func incremented(boundedBy shape: Shape) -> Self
+}
+
+//==============================================================================
+/// ShapeIndex
+/// The shape index is used to sequentially iterate through the logical
+/// coordinate space specified by `Shape`. A sequence index is also
+/// incremented to enable fast index comparison.
+public struct ShapeIndex<Shape>: ShapeIndexProtocol
+    where Shape: Shaped
+{
+    /// the logical position along each axis
+    public var position: Shape
+    /// linear sequence position
+    public var sequenceIndex: Int
+
+    //------------------------------------
+    // initializers
+    @inlinable
+    public init(_ position: Shape, _ sequenceIndex: Int) {
+        self.position = position
+        self.sequenceIndex = sequenceIndex
+    }
+
+    @inlinable public func incremented(boundedBy shape: Shape) -> Self {
+        var i = self
+        i.position.increment(boundedBy: shape)
+        i.sequenceIndex += 1
+        return i
+    }
+
+    //------------------------------------
+    // Equatable
+    @inlinable
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.sequenceIndex == rhs.sequenceIndex
+    }
+    
+    //------------------------------------
+    // Comparable
+    @inlinable
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.sequenceIndex < rhs.sequenceIndex
+    }
+}
+
+//==============================================================================
+/// SequentialIndex
+/// The sequential index is used to seq
+public struct SequentialIndex<Shape>: ShapeIndexProtocol
+    where Shape: Shaped
+{
+    /// linear sequence position
+    public var sequenceIndex: Int
+
+    /// `init(position:sequenceIndex:`
+    @inlinable
+    public init(_ position: Shape, _ sequenceIndex: Int) {
+        self.sequenceIndex = sequenceIndex
+    }
+    
+    @inlinable public func incremented(boundedBy shape: Shape) -> Self {
+        var i = self
+        i.sequenceIndex += 1
+        return i
+    }
+
+    /// `==(lhs:rhs:`
+    @inlinable
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.sequenceIndex == rhs.sequenceIndex
+    }
+    
+    /// `<(lhs:rhs`
+    @inlinable
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.sequenceIndex < rhs.sequenceIndex
+    }
+}
+
+
+//==============================================================================
 // SIMD1
 extension SIMD1: Shaped where Scalar == Int {
     //--------------------------------------------------------------------------
@@ -151,9 +245,9 @@ extension SIMD1: Shaped where Scalar == Int {
     public static var zeroTuple: Tuple { (0) }
 
     @inlinable @_transparent
-    public init(_ bounds: Tuple) {
+    public init(_ shape: Tuple) {
         self.init()
-        self[0] = bounds
+        self[0] = shape
     }
 
     //--------------------------------------------------------------------------
@@ -171,7 +265,7 @@ extension SIMD1: Shaped where Scalar == Int {
     }
     
     @inlinable
-    public mutating func increment(boundedBy bounds: Self) {
+    public mutating func increment(boundedBy shape: Self) {
         self[0] += 1
     }
 }
@@ -186,10 +280,10 @@ extension SIMD2: Shaped where Scalar == Int {
     public static var zeroTuple: Tuple { (0, 0) }
 
     @inlinable @_transparent
-    public init(_ bounds: Tuple) {
+    public init(_ shape: Tuple) {
         self.init()
-        self[0] = bounds.0
-        self[1] = bounds.1
+        self[0] = shape.0
+        self[1] = shape.1
     }
 
     //--------------------------------------------------------------------------
@@ -207,9 +301,9 @@ extension SIMD2: Shaped where Scalar == Int {
     }
 
     @inlinable
-    public mutating func increment(boundedBy bounds: Self) {
+    public mutating func increment(boundedBy shape: Self) {
         self[1] += 1
-        if self[1] == bounds[1] {
+        if self[1] == shape[1] {
             self[1] = 0
             self[0] += 1
         }
@@ -226,11 +320,11 @@ extension SIMD3: Shaped where Scalar == Int {
     public static var zeroTuple: Tuple { (0, 0, 0) }
 
     @inlinable @_transparent
-    public init(_ bounds: Tuple) {
+    public init(_ shape: Tuple) {
         self.init()
-        self[0] = bounds.0
-        self[1] = bounds.1
-        self[2] = bounds.2
+        self[0] = shape.0
+        self[1] = shape.1
+        self[2] = shape.2
     }
 
     //--------------------------------------------------------------------------
@@ -238,13 +332,13 @@ extension SIMD3: Shaped where Scalar == Int {
     public static var rank: Int { 3 }
     
     @inlinable
-    public mutating func increment(boundedBy bounds: Self) {
+    public mutating func increment(boundedBy shape: Self) {
         self[2] += 1
-        if self[2] == bounds[2] {
+        if self[2] == shape[2] {
             self[2] = 0
             self[1] += 1
             
-            if self[1] == bounds[1] {
+            if self[1] == shape[1] {
                 self[1] = 0
                 self[0] += 1
             }
@@ -262,12 +356,12 @@ extension SIMD4: Shaped where Scalar == Int {
     public static var zeroTuple: Tuple { (0, 0, 0, 0) }
 
     @inlinable @_transparent
-    public init(_ bounds: Tuple) {
+    public init(_ shape: Tuple) {
         self.init()
-        self[0] = bounds.0
-        self[1] = bounds.1
-        self[2] = bounds.2
-        self[3] = bounds.3
+        self[0] = shape.0
+        self[1] = shape.1
+        self[2] = shape.2
+        self[3] = shape.3
     }
 
     //--------------------------------------------------------------------------
@@ -275,17 +369,17 @@ extension SIMD4: Shaped where Scalar == Int {
     public static var rank: Int { 4 }
 
     @inlinable
-    public mutating func increment(boundedBy bounds: Self) {
+    public mutating func increment(boundedBy shape: Self) {
         self[3] += 1
-        if self[3] == bounds[3] {
+        if self[3] == shape[3] {
             self[3] = 0
             self[2] += 1
             
-            if self[2] == bounds[2] {
+            if self[2] == shape[2] {
                 self[2] = 0
                 self[1] += 1
                 
-                if self[1] == bounds[1] {
+                if self[1] == shape[1] {
                     self[1] = 0
                     self[0] += 1
                 }
@@ -304,13 +398,13 @@ extension SIMD5: Shaped where Scalar == Int {
     public static var zeroTuple: Tuple { (0, 0, 0, 0, 0) }
 
     @inlinable @_transparent
-    public init(_ bounds: Tuple) {
+    public init(_ shape: Tuple) {
         self.init()
-        self[0] = bounds.0
-        self[1] = bounds.1
-        self[2] = bounds.2
-        self[3] = bounds.3
-        self[4] = bounds.4
+        self[0] = shape.0
+        self[1] = shape.1
+        self[2] = shape.2
+        self[3] = shape.3
+        self[4] = shape.4
     }
 
     //--------------------------------------------------------------------------
@@ -318,21 +412,21 @@ extension SIMD5: Shaped where Scalar == Int {
     public static var rank: Int { 5 }
 
     @inlinable
-    public mutating func increment(boundedBy bounds: Self) {
+    public mutating func increment(boundedBy shape: Self) {
         self[4] += 1
-        if self[4] == bounds[4] {
+        if self[4] == shape[4] {
             self[4] = 0
             self[3] += 1
             
-            if self[3] == bounds[3] {
+            if self[3] == shape[3] {
                 self[3] = 0
                 self[2] += 1
                 
-                if self[2] == bounds[2] {
+                if self[2] == shape[2] {
                     self[2] = 0
                     self[1] += 1
                     
-                    if self[1] == bounds[1] {
+                    if self[1] == shape[1] {
                         self[1] = 0
                         self[0] += 1
                     }
@@ -352,14 +446,14 @@ extension SIMD6: Shaped where Scalar == Int {
     public static var zeroTuple: Tuple { (0, 0, 0, 0, 0, 0) }
 
     @inlinable @_transparent
-    public init(_ bounds: Tuple) {
+    public init(_ shape: Tuple) {
         self.init()
-        self[0] = bounds.0
-        self[1] = bounds.1
-        self[2] = bounds.2
-        self[3] = bounds.3
-        self[4] = bounds.4
-        self[5] = bounds.5
+        self[0] = shape.0
+        self[1] = shape.1
+        self[2] = shape.2
+        self[3] = shape.3
+        self[4] = shape.4
+        self[5] = shape.5
     }
 
     //--------------------------------------------------------------------------
@@ -367,25 +461,25 @@ extension SIMD6: Shaped where Scalar == Int {
     public static var rank: Int { 6 }
     
     @inlinable
-    public mutating func increment(boundedBy bounds: Self) {
+    public mutating func increment(boundedBy shape: Self) {
         self[5] += 1
-        if self[5] == bounds[4] {
+        if self[5] == shape[4] {
             self[5] = 0
             self[4] += 1
             
-            if self[4] == bounds[4] {
+            if self[4] == shape[4] {
                 self[4] = 0
                 self[3] += 1
                 
-                if self[3] == bounds[3] {
+                if self[3] == shape[3] {
                     self[3] = 0
                     self[2] += 1
                     
-                    if self[2] == bounds[2] {
+                    if self[2] == shape[2] {
                         self[2] = 0
                         self[1] += 1
                         
-                        if self[1] == bounds[1] {
+                        if self[1] == shape[1] {
                             self[1] = 0
                             self[0] += 1
                         }
