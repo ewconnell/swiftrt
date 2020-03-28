@@ -22,12 +22,37 @@ public extension Tensor where Shape == Shape1 {
     @inlinable var array: [Element] {
         [Element](elements())
     }
+    
+    // simplified integer range
+    @inlinable subscript<R>(range: R) -> Self
+        where R: PartialRangeExpression, R.Bound == Int
+    {
+        let r = range.relativeTo(0..<shape[0])
+        return self[Shape(r.start), Shape(r.end), Shape(r.step)]
+    }
+}
+
+//------------------------------------------------------------------------------
+
+public extension MutableTensor where Shape == Shape1 {
+    // simplified integer range
+    @inlinable subscript<R>(range: R) -> Self
+        where R: PartialRangeExpression, R.Bound == Int
+        {
+        get {
+            let r = range.relativeTo(0..<shape[0])
+            return self[Shape(r.start), Shape(r.end), Shape(r.step)]
+        }
+        set {
+            let r = range.relativeTo(0..<shape[0])
+            self[Shape(r.start), Shape(r.end), Shape(r.step)] = newValue
+        }
+    }
 }
 
 //==============================================================================
 // Rank2 array property and subscripts
 public extension Tensor where Shape == Shape2 {
-    //--------------------------------------------------------------------------
     /// return an array of elements
     @inlinable var array: [[Element]] {
         var position = Shape2.zero
@@ -42,39 +67,37 @@ public extension Tensor where Shape == Shape2 {
     
     //--------------------------------------------------------------------------
     // subscripts
-    @inlinable
-//    @differentiable(where Self: DifferentiableTensorView)
-    subscript<R, C>(rows: R, cols: C) -> Self where
+    //    @differentiable(where Self: DifferentiableTensorView)
+    @inlinable subscript<R, C>(rows: R, cols: C) -> Self where
         R: PartialRangeExpression, R.Bound == Int,
         C: PartialRangeExpression, C.Bound == Int
     {
-        get {
-            let r = rows.relativeTo(0..<shape[0])
-            let c = cols.relativeTo(0..<shape[1])
-            let position = Shape2(r.start, c.start)
-            let shape = Shape2(r.end, c.end) &- position
-            let steps = Shape2(r.step, c.step)
-            return self[position, shape, steps]
-        }
+        let r = rows.relativeTo(0..<shape[0])
+        let c = cols.relativeTo(0..<shape[1])
+        let position = Shape2(r.start, c.start)
+        let shape = Shape2(r.end, c.end) &- position
+        let steps = Shape2(r.step, c.step)
+        return self[position, shape, steps]
     }
     
-    @inlinable
-//    @differentiable(where Self: DifferentiableTensorView)
-    subscript<R>(rows: R, cols: UnboundedRange) -> Self
-        where R: PartialRangeExpression, R.Bound == Int {
-        get { self[rows, 0...] }
+    //    @differentiable(where Self: DifferentiableTensorView)
+    @inlinable subscript<R>(rows: R, cols: UnboundedRange) -> Self
+        where R: PartialRangeExpression, R.Bound == Int
+    {
+        self[rows, 0...]
     }
     
-    @inlinable
-//    @differentiable(where Self: DifferentiableTensorView)
-    subscript<C>(rows: UnboundedRange, cols: C) -> Self
-        where C: PartialRangeExpression, C.Bound == Int {
-        get { self[0..., cols] }
+    
+    //    @differentiable(where Self: DifferentiableTensorView)
+    @inlinable subscript<C>(rows: UnboundedRange, cols: C) -> Self
+        where C: PartialRangeExpression, C.Bound == Int
+    {
+        self[0..., cols]
     }
 }
 
 //------------------------------------------------------------------------------
-// mutables
+
 public extension MutableTensor where Shape == Shape2 {
     //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable subscript<R, C>(rows: R, cols: C) -> Self where
@@ -131,6 +154,133 @@ public extension Tensor where Shape == Shape3 {
         }
         return array3
     }
+    
+    //    @differentiable(where Self: DifferentiableTensorView)
+    @inlinable subscript<D, R, C>(deps: D, rows: R, cols: C) -> Self where
+        D: PartialRangeExpression, D.Bound == Int,
+        R: PartialRangeExpression, R.Bound == Int,
+        C: PartialRangeExpression, C.Bound == Int
+    {
+        let d = deps.relativeTo(0..<shape[0])
+        let r = rows.relativeTo(0..<shape[1])
+        let c = cols.relativeTo(0..<shape[2])
+        return self[Shape3(d.start, r.start, c.start),
+                    Shape3(d.end, r.end, c.end),
+                    Shape3(d.step, r.step, c.step)]
+    }
+    
+    @inlinable
+    //    @differentiable(where Self: DifferentiableTensorView)
+    subscript<D>(deps: D, rows: UnboundedRange, cols: UnboundedRange) -> Self
+        where D: PartialRangeExpression, D.Bound == Int
+    {
+        self[deps, 0..., 0...]
+    }
+    
+    @inlinable
+    //    @differentiable(where Self: DifferentiableTensorView)
+    subscript<D, R>(deps: D, rows: R, cols: UnboundedRange) -> Self where
+        D: PartialRangeExpression, D.Bound == Int,
+        R: PartialRangeExpression, R.Bound == Int
+    {
+        self[deps, rows, 0...]
+    }
+    
+    @inlinable
+    //    @differentiable(where Self: DifferentiableTensorView)
+    subscript<D, C>(deps: D, rows: UnboundedRange, cols: C) -> Self where
+        D: PartialRangeExpression, D.Bound == Int,
+        C: PartialRangeExpression, C.Bound == Int
+    {
+        self[deps, 0..., cols]
+    }
+    
+    @inlinable
+    //    @differentiable(where Self: DifferentiableTensorView)
+    subscript<R>(deps: UnboundedRange, rows: R, cols: UnboundedRange) -> Self
+        where R: PartialRangeExpression, R.Bound == Int
+    {
+        self[0..., rows, 0...]
+    }
+    
+    @inlinable
+    //    @differentiable(where Self: DifferentiableTensorView)
+    subscript<C>(deps: UnboundedRange, rows: UnboundedRange, cols: C) -> Self
+        where C: PartialRangeExpression, C.Bound == Int
+    {
+        self[0..., 0..., cols]
+    }
+}
+
+//------------------------------------------------------------------------------
+
+public extension MutableTensor where Shape == Shape3 {
+    //    @differentiable(where Self: DifferentiableTensorView)
+    @inlinable subscript<D, R, C>(deps: D, rows: R, cols: C) -> Self where
+        D: PartialRangeExpression, D.Bound == Int,
+        R: PartialRangeExpression, R.Bound == Int,
+        C: PartialRangeExpression, C.Bound == Int
+        {
+        get {
+            let d = deps.relativeTo(0..<shape[0])
+            let r = rows.relativeTo(0..<shape[1])
+            let c = cols.relativeTo(0..<shape[2])
+            return self[Shape3(d.start, r.start, c.start),
+                        Shape3(d.end, r.end, c.end),
+                        Shape3(d.step, r.step, c.step)]
+        }
+        
+        set {
+            let d = deps.relativeTo(0..<shape[0])
+            let r = rows.relativeTo(0..<shape[1])
+            let c = cols.relativeTo(0..<shape[2])
+            self[Shape3(d.start, r.start, c.start),
+                 Shape3(d.end, r.end, c.end),
+                 Shape3(d.step, r.step, c.step)] = newValue
+        }
+    }
+    
+    @inlinable
+    //    @differentiable(where Self: DifferentiableTensorView)
+    subscript<D>(deps: D, rows: UnboundedRange, cols: UnboundedRange) -> Self
+        where D: PartialRangeExpression, D.Bound == Int {
+        get { self[deps, 0..., 0...] }
+        set { self[deps, 0..., 0...] = newValue }
+    }
+    
+    @inlinable
+    //    @differentiable(where Self: DifferentiableTensorView)
+    subscript<D, R>(deps: D, rows: R, cols: UnboundedRange) -> Self where
+        D: PartialRangeExpression, D.Bound == Int,
+        R: PartialRangeExpression, R.Bound == Int {
+        get { self[deps, rows, 0...] }
+        set { self[deps, rows, 0...] = newValue }
+    }
+    
+    @inlinable
+    //    @differentiable(where Self: DifferentiableTensorView)
+    subscript<D, C>(deps: D, rows: UnboundedRange, cols: C) -> Self where
+        D: PartialRangeExpression, D.Bound == Int,
+        C: PartialRangeExpression, C.Bound == Int {
+        get { self[deps, 0..., cols] }
+        set { self[deps, 0..., cols] = newValue }
+    }
+    
+    @inlinable
+    //    @differentiable(where Self: DifferentiableTensorView)
+    subscript<R>(deps: UnboundedRange, rows: R, cols: UnboundedRange) -> Self
+        where R: PartialRangeExpression, R.Bound == Int {
+        get { self[0..., rows, 0...] }
+        set { self[0..., rows, 0...] = newValue }
+    }
+    
+    @inlinable
+    //    @differentiable(where Self: DifferentiableTensorView)
+    subscript<C>(deps: UnboundedRange, rows: UnboundedRange, cols: C) -> Self
+        where C: PartialRangeExpression, C.Bound == Int {
+        get { self[0..., 0..., cols] }
+        set { self[0..., 0..., cols] = newValue }
+    }
 }
 
 //==============================================================================
@@ -138,11 +288,11 @@ public extension Tensor where Shape == Shape3 {
 // from dimension 0
 public extension Tensor {
     @inlinable
-//    @differentiable(where Self: DifferentiableTensorView)
+    //    @differentiable(where Self: DifferentiableTensorView)
     subscript(range: UnboundedRange) -> Self { self }
-
+    
     @inlinable
-//    @differentiable(where Self: DifferentiableTensorView)
+    //    @differentiable(where Self: DifferentiableTensorView)
     subscript<R>(range: R) -> Self
         where R: PartialRangeExpression, R.Bound == Int {
         get {
@@ -151,7 +301,7 @@ public extension Tensor {
             return self[start, end, steps]
         }
     }
-
+    
     @usableFromInline
     @_semantics("autodiff.nonvarying")
     internal func getItemRange(_ range: StridedRange<Int>) ->
@@ -169,7 +319,7 @@ public extension Tensor {
 
 public extension MutableTensor {
     @inlinable
-//    @differentiable(where Self: DifferentiableTensorView)
+    //    @differentiable(where Self: DifferentiableTensorView)
     subscript<R>(range: R) -> Self
         where R: PartialRangeExpression, R.Bound == Int {
         get {
@@ -185,61 +335,6 @@ public extension MutableTensor {
     }
 }
 
-////==============================================================================
-//public extension Tensor {
-//    //--------------------------------------------------------------------------
-//    /// `getUpper(_:_:_`
-//    /// computes the upper bound and strides from the specified shape and steps
-//    /// - Parameter lower: the lower bound of the subview
-//    /// - Parameter upper: the upper bound of the subview
-//    /// - Parameter steps: the step interval along each dimension. This
-//    ///                    value can be negative to perform reverse traversal
-//    /// - Returns: the shape and strides to be used to create a subview
-//    @inlinable
-//    func getUpper(_ lower: Shape, _ upper: Shape, _ steps: Shape) ->
-//        (shape: Shape, strides: Shape)
-//    {
-//        // verify shape
-//        let shape = upper &- lower
-//        assert(shape.min() > 0, _messageInvalidShape)
-//
-//        // if all the steps are 1, then just reuse the parent strides
-//        if steps == Shape.one {
-//            return (upper, self.strides)
-//
-//        } else {
-//            // if one or more steps are not 1,
-//            // then recompute the subview shape and strides
-//
-//            // TODO: find out how to do SIMD abs(), doesn't seem to exist
-//            var absSteps = steps
-//            for i in 0..<Shape.rank { absSteps[i] = Swift.abs(absSteps[i]) }
-//
-//            let viewUpper = ((shape &- 1 &+ absSteps) / absSteps) &+ lower
-//            let viewStrides = strides &* steps
-//            return (viewUpper, viewStrides)
-//        }
-//    }
-//
-//    //--------------------------------------------------------------------------
-//    // views will have the same shared state as the parent
-//    @inlinable
-//    @differentiable(where Self: DifferentiableTensorView)
-//    subscript(lower: Shape, upper: Shape, steps: Shape) -> Self
-//    {
-//        get {
-//            let (viewUpper, strides) = getUpper(lower, upper, steps)
-//            return view(from: lower, to: viewUpper, with: strides)
-//        }
-//        set {
-//            expandSelfIfRepeated()
-//            let (viewUpper, strides) = getUpper(lower, upper, steps)
-//            var view = sharedView(from: lower, to: viewUpper, with: strides)
-//            Context.platform.copy(from: newValue, to: &view)
-//        }
-//    }
-//}
-//
 ////==============================================================================
 ///// Derivative registration
 //extension Tensor where Self: Differentiable {
