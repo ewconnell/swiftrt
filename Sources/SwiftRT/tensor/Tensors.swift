@@ -15,6 +15,63 @@
 //
 import Foundation
 
+
+public extension Tensor {
+    var description: String {
+        var string = ""
+        let tab = 2
+        var rowShape = Shape.one
+        rowShape[Shape.rank - 1] = shape[Shape.rank - 1]
+
+        switch Shape.rank {
+        case 1:
+            let row = [Element](self[Shape.zero, rowShape].elements())
+            string += "\(row)"
+            
+        case 2:
+            string += "[\n"
+            for _ in 0..<shape[0] {
+                let row = [Element](self[Shape.zero, rowShape].elements())
+                string.append("\(String(repeating: " ", count: tab))\(row),\n")
+            }
+            string = String(string.dropLast(2))
+            string += "\n]"
+            
+        default:
+            let rowDim = Shape.rank - 2
+            var pos = Shape.zero
+            
+            func addRows(_ dim: Int) {
+                let indent = String(repeating: " ", count: dim * tab)
+                if dim < rowDim {
+                    while true {
+                        string += "\(indent)["
+                        if shape[dim] > 1 { string += "\(pos[dim])" }
+                        string += "\n"
+                        addRows(dim + 1)
+                        string += "\(indent)],\n"
+
+                        // increment position
+                        pos[dim] += 1
+                        if pos[dim] == shape[dim] {
+                            pos[dim] = 0
+                            break
+                        }
+                    }
+                } else {
+                    for _ in 0..<shape[dim] {
+                        let row = [Element](self[Shape.zero, rowShape].elements())
+                        string += "\(indent)\(row),\n"
+                    }
+                }
+                string = String(string.dropLast(2)) + "\n"
+            }
+            addRows(0)
+        }
+        return string
+    }
+}
+
 //==============================================================================
 /// DType
 /// the implicit tensor Element type
@@ -56,14 +113,6 @@ public struct FillTensor<Shape, Element>: Tensor where Shape: Shaped {
     public subscript(position: Shape, shape: Shape, steps: Shape) -> Self {
         FillTensor(shape, element: element, order: storageOrder)
     }
-}
-
-public extension Tensor {
-    var description: String { "no description" }
-}
-
-extension FillTensor where Shape == Shape2 {
-    @inlinable public var description: String { "\(self.array)" }
 }
 
 //==============================================================================

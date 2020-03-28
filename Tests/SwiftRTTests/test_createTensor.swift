@@ -109,11 +109,12 @@ class test_createTensor: XCTestCase {
     //==========================================================================
     // test_onesView
     func test_onesView() {
-        let tensor = ones((4, 3), dtype: Int.self)
-        let view = tensor[1...2, ...]
-        print(view)
-        print(view.description)
-        XCTAssert(view.array == [[1, 1, 1], [1, 1, 1]])
+//        let t1 = ones((4, 3), dtype: Int.self)
+//        let view = t1[1...2, ...]
+//        XCTAssert(view.array == [[1, 1, 1], [1, 1, 1]])
+        
+        let t2 = ones((1, 1, 1, 3, 4), dtype: Int.self)
+        print(t2)
     }
     
     //==========================================================================
