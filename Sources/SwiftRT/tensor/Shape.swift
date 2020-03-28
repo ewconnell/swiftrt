@@ -162,7 +162,7 @@ public protocol ShapeIndexProtocol: Comparable {
 /// The shape index is used to sequentially iterate through the logical
 /// coordinate space specified by `Shape`. A sequence index is also
 /// incremented to enable fast index comparison.
-public struct ShapeIndex<Shape>: ShapeIndexProtocol
+public struct ShapeIndex<Shape>: ShapeIndexProtocol, Codable
     where Shape: Shaped
 {
     /// the logical position along each axis
@@ -203,7 +203,7 @@ public struct ShapeIndex<Shape>: ShapeIndexProtocol
 //==============================================================================
 /// SequentialIndex
 /// The sequential index is used to seq
-public struct SequentialIndex<Shape>: ShapeIndexProtocol
+public struct SequentialIndex<Shape>: ShapeIndexProtocol, Codable
     where Shape: Shaped
 {
     /// linear sequence position

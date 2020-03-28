@@ -63,6 +63,11 @@ public struct FillTensor<Shape, Element>: Tensor, Collection
     }
 }
 
+//------------------------------------------------------------------------------
+// extensions
+extension FillTensor: Equatable where Element: Equatable { }
+extension FillTensor: Codable where Element: Codable { }
+
 //==============================================================================
 /// EyeTensor
 public struct EyeTensor<Element>: Tensor, Collection
@@ -120,135 +125,12 @@ public struct EyeTensor<Element>: Tensor, Collection
     }
 }
 
-//==============================================================================
-/// DenseTensor
-public struct DenseTensor<Shape, Element, Index>:
-    MutableTensor, MutableCollection
-    where
-    Index: ShapeIndexProtocol,
-    Index.Shape == Shape
-{
-    public let storageBuffer: TensorBuffer<Element>
-    /// the dense number of elements in the shape
-    public let elementCount: Int
-    /// the linear element offset where the view begins
-    public let bufferOffset: Int
-    /// Specifies whether data is stored in row-major (C-style)
-    /// or column-major (Fortran-style) order in memory.
-    public let storageOrder: StorageOrder
-    /// the dimensions of the element space
-    public let shape: Shape
-    /// `true` if the view will be shared by by multiple writers
-    public let isShared: Bool
-    /// The strided number of elements spanned by the shape
-    public let spanCount: Int
-    /// The distance to the next element along each dimension
-    public let strides: Shape
-
-    @inlinable public static var name: String { "DenseTensor\(Shape.rank)" }
-    @inlinable public var startIndex: Index { Index(Shape.zero, 0) }
-    @inlinable public var endIndex: Index { Index(shape, elementCount) }
-
-    //--------------------------------------------------------------------------
-    /// init(shape:
-    @inlinable
-    public init(
-        _ shape: Shape,
-        storageBuffer: TensorBuffer<Element>? = nil,
-        strides: Shape? = nil,
-        bufferOffset: Int = 0,
-        share: Bool = false,
-        order: StorageOrder = .rowMajor
-    ) {
-        let elementCount = shape.elementCount()
-        self.storageBuffer = storageBuffer ??
-            TensorBuffer(count: elementCount, name: Self.name)
-        self.elementCount = elementCount
-        self.bufferOffset = bufferOffset
-        self.storageOrder = order
-        self.shape = shape
-        self.isShared = share
-        let sequentialStrides = shape.sequentialStrides()
-
-        if let callerStrides = strides {
-            self.strides = callerStrides
-            self.spanCount =  ((shape &- 1) &* callerStrides).wrappedSum() + 1
-        } else {
-            self.strides = sequentialStrides
-            self.spanCount = elementCount
-        }
-    }
-    
-    @inlinable public func elements() -> Self {
-        // TODO: call read
-        return self
-    }
-
-    @inlinable public func mutableElements(willOverwrite: Bool) -> Self {
-        // TODO: call read write
-        return self
-    }
-    
-    //-----------------------------------
-    @inlinable public func index(after i: Index) -> Index {
-        fatalError()
-    }
-    
-    @inlinable public subscript(position: Index) -> Element {
-        get {
-            fatalError()
-        }
-        set(newValue) {
-            fatalError()
-        }
-    }
-    
-    //-----------------------------------
-    //
-    @inlinable
-    public func shared(at position: Shape, with shape: Shape, by steps: Shape?)
-        -> Self
-    {
-        fatalError()
-    }
-    
-    @inlinable
-    public subscript(position: Shape, shape: Shape, steps: Shape) -> Self {
-        get {
-            fatalError()
-        }
-        set {
-            fatalError()
-        }
-    }
-    
-    public subscript(position: Shape, shape: Shape) -> Self {
-        get {
-            fatalError()
-        }
-        set {
-            fatalError()
-        }
-    }
-}
+//------------------------------------------------------------------------------
+// extensions
+extension EyeTensor: Equatable where Element: Equatable { }
+extension EyeTensor: Codable where Element: Codable { }
 
 
-////==============================================================================
-//// Tensor extensions
-//extension Tensor: Equatable where Element: Equatable { }
-//extension Tensor: Codable where Element: Codable { }
-//
-//extension Tensor: Differentiable & DifferentiableTensorView
-//    where Element: DifferentiableElement
-//{
-//    public typealias TangentVector = Tensor
-//}
-//
-//extension Tensor: AdditiveArithmetic where Element: Numeric {
-//    @inlinable @_transparent public static var zero: Self { Self(Element.zero) }
-//    @inlinable @_transparent public static var one: Self { Self(Element.one) }
-//}
-//
 ////==============================================================================
 //// Tensor
 //public extension Tensor {
