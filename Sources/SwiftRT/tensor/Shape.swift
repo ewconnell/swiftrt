@@ -54,11 +54,12 @@ public protocol Shaped: SIMD where Scalar == Int {
     /// which is the product of the dimensions
     func elementCount() -> Int
 
-    // **** Adding this to the protocol causes about a 40% loss in
-    // indexing performance to both Shape indexing and to Normal SIMD
-    // operations.
-    // Extending the SIMD classes seems to be a really bad thing
-    mutating func increment(boundedBy shape: Self)
+    /// used to iterate the n-dimensional range `lower..<upper` as
+    /// a linear sequence of positions in spatial order
+    /// - Parameters:
+    ///  - lower: the lower bound of the iteration range
+    ///  - upper: the upper bound of the iteration range
+    mutating func incremented(between lower: Self, and upper: Self)
     
     /// - Returns: row major sequential srtides for the shape
     func sequentialStrides() -> Self
@@ -109,12 +110,6 @@ public extension Shaped {
                 break
             }
         }
-    }
-
-    @inlinable func incremented(boundedBy shape: Self) -> Self {
-        var i = self
-        i.increment(boundedBy: shape)
-        return i
     }
     
     //--------------------------------------------------------------------------
@@ -254,18 +249,17 @@ extension SIMD1: Shaped where Scalar == Int {
     @inlinable @_transparent
     public static var rank: Int { 1 }
     
-    @inlinable
-    public func elementCount() -> Int {
+    @inlinable public func elementCount() -> Int {
         self[0]
     }
     
-    @inlinable
-    public func sequentialStrides() -> Self {
+    @inlinable public func sequentialStrides() -> Self {
         Self(1)
     }
     
     @inlinable
-    public mutating func increment(boundedBy shape: Self) {
+    public mutating func incremented(between lower: Self, and upper: Self) {
+        assert(self[0] >= lower[0])
         self[0] += 1
     }
 }
@@ -301,10 +295,11 @@ extension SIMD2: Shaped where Scalar == Int {
     }
 
     @inlinable
-    public mutating func increment(boundedBy shape: Self) {
+    public mutating func incremented(between lower: Self, and upper: Self) {
+        assert(self[0] >= lower[0] && self[1] >= lower[1])
         self[1] += 1
-        if self[1] == shape[1] {
-            self[1] = 0
+        if self[1] == upper[1] {
+            self[1] = lower[1]
             self[0] += 1
         }
     }
@@ -332,14 +327,17 @@ extension SIMD3: Shaped where Scalar == Int {
     public static var rank: Int { 3 }
     
     @inlinable
-    public mutating func increment(boundedBy shape: Self) {
+    public mutating func incremented(between lower: Self, and upper: Self) {
+        assert({for i in 0..<Self.rank { if self[i] < lower[i] { return false }}
+            return true}())
+        
         self[2] += 1
-        if self[2] == shape[2] {
-            self[2] = 0
+        if self[2] == upper[2] {
+            self[2] = lower[2]
             self[1] += 1
             
-            if self[1] == shape[1] {
-                self[1] = 0
+            if self[1] == upper[1] {
+                self[1] = lower[1]
                 self[0] += 1
             }
         }
@@ -369,18 +367,21 @@ extension SIMD4: Shaped where Scalar == Int {
     public static var rank: Int { 4 }
 
     @inlinable
-    public mutating func increment(boundedBy shape: Self) {
+    public mutating func incremented(between lower: Self, and upper: Self) {
+        assert({for i in 0..<Self.rank { if self[i] < lower[i] { return false }}
+            return true}())
+        
         self[3] += 1
-        if self[3] == shape[3] {
-            self[3] = 0
+        if self[3] == upper[3] {
+            self[3] = lower[3]
             self[2] += 1
             
-            if self[2] == shape[2] {
-                self[2] = 0
+            if self[2] == upper[2] {
+                self[2] = lower[2]
                 self[1] += 1
                 
-                if self[1] == shape[1] {
-                    self[1] = 0
+                if self[1] == upper[1] {
+                    self[1] = lower[1]
                     self[0] += 1
                 }
             }
@@ -412,22 +413,25 @@ extension SIMD5: Shaped where Scalar == Int {
     public static var rank: Int { 5 }
 
     @inlinable
-    public mutating func increment(boundedBy shape: Self) {
+    public mutating func incremented(between lower: Self, and upper: Self) {
+        assert({for i in 0..<Self.rank { if self[i] < lower[i] { return false }}
+            return true}())
+
         self[4] += 1
-        if self[4] == shape[4] {
-            self[4] = 0
+        if self[4] == upper[4] {
+            self[4] = lower[4]
             self[3] += 1
             
-            if self[3] == shape[3] {
-                self[3] = 0
+            if self[3] == upper[3] {
+                self[3] = lower[3]
                 self[2] += 1
                 
-                if self[2] == shape[2] {
-                    self[2] = 0
+                if self[2] == upper[2] {
+                    self[2] = lower[2]
                     self[1] += 1
                     
-                    if self[1] == shape[1] {
-                        self[1] = 0
+                    if self[1] == upper[1] {
+                        self[1] = lower[1]
                         self[0] += 1
                     }
                 }
@@ -461,26 +465,29 @@ extension SIMD6: Shaped where Scalar == Int {
     public static var rank: Int { 6 }
     
     @inlinable
-    public mutating func increment(boundedBy shape: Self) {
+    public mutating func incremented(between lower: Self, and upper: Self) {
+        assert({for i in 0..<Self.rank { if self[i] < lower[i] { return false }}
+            return true}())
+
         self[5] += 1
-        if self[5] == shape[4] {
-            self[5] = 0
+        if self[5] == upper[4] {
+            self[5] = lower[5]
             self[4] += 1
             
-            if self[4] == shape[4] {
-                self[4] = 0
+            if self[4] == upper[4] {
+                self[4] = lower[4]
                 self[3] += 1
                 
-                if self[3] == shape[3] {
-                    self[3] = 0
+                if self[3] == upper[3] {
+                    self[3] = lower[3]
                     self[2] += 1
                     
-                    if self[2] == shape[2] {
-                        self[2] = 0
+                    if self[2] == upper[2] {
+                        self[2] = lower[2]
                         self[1] += 1
                         
-                        if self[1] == shape[1] {
-                            self[1] = 0
+                        if self[1] == upper[1] {
+                            self[1] = lower[1]
                             self[0] += 1
                         }
                     }

@@ -22,14 +22,15 @@ public struct FillTensor<Shape, Element>: Tensor, Collection
 {
     // Tensor properties
     @inlinable public static var name: String { "FillTensor\(Shape.rank)" }
+    public typealias Index = Int
     public let elementCount: Int
     public let shape: Shape
     public let storageOrder: StorageOrder
     public let element: Element
-    
+
     // Collection properties
-    @inlinable public var startIndex: Int { 0 }
-    @inlinable public var endIndex: Int { elementCount }
+    public let startIndex: Index
+    public let endIndex: Index
 
     //------------------------------------
     /// init(shape:element:order:
@@ -38,28 +39,28 @@ public struct FillTensor<Shape, Element>: Tensor, Collection
         element: Element,
         order: StorageOrder = .rowMajor
     ) {
-        self.elementCount = shape.elementCount()
         self.shape = shape
-        self.storageOrder = order
         self.element = element
+        self.storageOrder = order
+        elementCount = shape.elementCount()
+        startIndex = 0
+        endIndex = elementCount
     }
     
     //------------------------------------
     // Collection functions
     @inlinable public func elements() -> Self { self }
-    @inlinable public subscript(index: Int) -> Element { element }
-    @inlinable public func index(after i: Int) -> Int { i + 1 }
+    @inlinable public subscript(index: Index) -> Element { element }
+    @inlinable public func index(after i: Index) -> Index { i + 1 }
 
     //------------------------------------
     // view subscripts
-    @inlinable
-    public subscript(position: Shape, shape: Shape) -> Self {
-        FillTensor(shape, element: element, order: storageOrder)
+    @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
+        FillTensor(upper &- lower, element: element, order: storageOrder)
     }
     
-    @inlinable
-    public subscript(position: Shape, shape: Shape, steps: Shape) -> Self {
-        FillTensor(shape, element: element, order: storageOrder)
+    @inlinable public subscript(lower: Shape, upper: Shape, steps: Shape) -> Self {
+        fatalError()
     }
 }
 
@@ -85,18 +86,18 @@ public struct EyeTensor<Element>: Tensor, Collection
     public let endIndex: ShapeIndex<Shape2>
 
     //------------------------------------
-    /// init(N:M:k:order:
+    /// init(shape:k:order:
     @inlinable public init(
-        _ N: Int, _ M: Int, _ k: Int,
-        _ order: StorageOrder = .rowMajor,
-        start: Shape2 = Shape2.zero
+        _ shape: Shape2,
+        _ k: Int,
+        _ order: StorageOrder = .rowMajor
     ) {
         self.k = k
-        self.shape = Shape2(N, M)
-        self.elementCount = N * M
+        self.shape = shape
+        self.elementCount = shape.elementCount()
         self.storageOrder = order
-        self.startIndex = Index(start, 0)
-        self.endIndex = Index(start &+ self.shape, self.elementCount)
+        self.startIndex = Index(Shape2.zero, 0)
+        self.endIndex = Index(self.shape, self.elementCount)
     }
     
     //------------------------------------
@@ -110,18 +111,18 @@ public struct EyeTensor<Element>: Tensor, Collection
 
     @inlinable public subscript(index: ShapeIndex<Shape2>) -> Element {
         // if the axes indexes are equal then it's on the diagonal
-        let pos = index.position &- k
+        let pos = index.position // &- k
         return pos[0] == pos[1] ? 1 : 0
     }
 
     //------------------------------------
     // view subscripts
-    public subscript(position: Shape2, shape: Shape2) -> Self {
-        EyeTensor(shape[0], shape[1], k, start: position)
+    @inlinable public subscript(lower: Shape2, upper: Shape2) -> Self {
+        fatalError()
     }
     
-    public subscript(position: Shape2, shape: Shape2, steps: Shape2) -> Self {
-        EyeTensor(shape[0], shape[1], k, start: position)
+    @inlinable public subscript(lower: Shape2, upper: Shape2, steps: Shape2) -> Self {
+        fatalError()
     }
 }
 

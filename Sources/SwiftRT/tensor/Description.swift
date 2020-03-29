@@ -18,21 +18,25 @@ import Foundation
 public extension Tensor {
     @inlinable
     var description: String {
-        var string = ""
         let tab = 2
-        var rowShape = Shape.one
-        rowShape[Shape.rank - 1] = shape[Shape.rank - 1]
+        var string = ""
 
         switch Shape.rank {
         case 1:
-            let row = [Element](self[Shape.zero, rowShape].elements())
-            string += "\(row)"
+            string += "\([Element](self))"
             
         case 2:
+            // set row range
+            var lower = Shape.zero
+            var upper = Shape.one
+            upper[1] = shape[1]
             string += "[\n"
+
             for _ in 0..<shape[0] {
-                let row = [Element](self[Shape.zero, rowShape].elements())
+                let row = [Element](self[lower, upper])
                 string.append("\(String(repeating: " ", count: tab))\(row),\n")
+                lower[0] += 1
+                upper[0] += 1
             }
             string = String(string.dropLast(2))
             string += "\n]"
@@ -40,7 +44,7 @@ public extension Tensor {
         default:
             let rowDim = Shape.rank - 2
             var pos = Shape.zero
-            
+
             func addRows(_ dim: Int) {
                 let indent = String(repeating: " ", count: dim * tab)
                 if dim < rowDim {
@@ -59,9 +63,16 @@ public extension Tensor {
                         }
                     }
                 } else {
+                    // set row range
+                    var lower = Shape.zero
+                    var upper = Shape.one
+                    upper[rowDim] = shape[rowDim]
+                    
                     for _ in 0..<shape[dim] {
-                        let row = [Element](self[Shape.zero, rowShape].elements())
+                        let row = [Element](self[lower, upper])
                         string += "\(indent)\(row),\n"
+                        lower[0] += 1
+                        upper[0] += 1
                     }
                 }
                 string = String(string.dropLast(2)) + "\n"

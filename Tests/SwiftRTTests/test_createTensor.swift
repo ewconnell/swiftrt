@@ -196,9 +196,38 @@ class test_createTensor: XCTestCase {
     //==========================================================================
     // test_eye
     func test_eye() {
-        let _ = eye(2)
-        let _ = eye(3, k: 1)
-        let _ = eye(4, 3, k: -1, dtype: Int.self)
-        let _ = eye(3, dtype: Int.self, order: .F)
+//        // verify signature combinations
+//        let _ = eye(2)
+//        let _ = eye(3, k: 1)
+//        let _ = eye(4, 3, k: -1, dtype: Int.self)
+//        let _ = eye(3, dtype: Int.self, order: .F)
+        print(eye(3, k: 0, dtype: Int.self))
+        // check plus
+        XCTAssert(eye(3, k: 1).array == [
+            [0, 1, 0],
+            [0, 0, 1],
+            [0, 0, 0],
+        ])
+        
+        // check subview plus
+        XCTAssert(eye(4, k: 1)[..<3, 1...].array == [
+            [0, 1, 0],
+            [0, 0, 1],
+            [0, 0, 0],
+        ])
+
+        // check minus
+        XCTAssert(eye(3, k: -1).array == [
+            [0, 0, 0],
+            [1, 0, 0],
+            [0, 1, 0],
+        ])
+        
+        // check subview minus
+        XCTAssert(eye(4, k: -1)[1..., ..<3].array == [
+            [0, 0, 0],
+            [1, 0, 0],
+            [0, 1, 0],
+        ])
     }
 }

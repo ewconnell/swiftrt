@@ -19,9 +19,7 @@ import Foundation
 // Rank1 array property and subscripts
 public extension Tensor where Shape == Shape1 {
     /// return an array of elements
-    @inlinable var array: [Element] {
-        [Element](elements())
-    }
+    @inlinable var array: [Element] { [Element](self) }
     
     // simplified integer range
     @inlinable subscript<R>(range: R) -> Self
@@ -55,12 +53,9 @@ public extension MutableTensor where Shape == Shape1 {
 public extension Tensor where Shape == Shape2 {
     /// return an array of elements
     @inlinable var array: [[Element]] {
-        var position = Shape2.zero
-        let rowShape = Shape2(1, shape[1])
         var array2 = [[Element]]()
-        for _ in 0..<shape[0] {
-            array2.append([Element](self[position, rowShape].elements()))
-            position[0] += 1
+        for row in 0..<shape[0] {
+            array2.append([Element](self[row, ...]))
         }
         return array2
     }
@@ -74,10 +69,10 @@ public extension Tensor where Shape == Shape2 {
     {
         let r = rows.relativeTo(0..<shape[0])
         let c = cols.relativeTo(0..<shape[1])
-        let position = Shape2(r.start, c.start)
-        let shape = Shape2(r.end, c.end) &- position
+        let lower = Shape2(r.start, c.start)
+        let upper = Shape2(r.end, c.end)
         let steps = Shape2(r.step, c.step)
-        return self[position, shape, steps]
+        return self[lower, upper, steps]
     }
     
     //    @differentiable(where Self: DifferentiableTensorView)
@@ -107,7 +102,8 @@ public extension MutableTensor where Shape == Shape2 {
         get {
             let r = rows.relativeTo(0..<shape[0])
             let c = cols.relativeTo(0..<shape[1])
-            return self[Shape2(r.start, c.start), Shape2(r.end, c.end),
+            return self[Shape2(r.start, c.start),
+                        Shape2(r.end, c.end),
                         Shape2(r.step, c.step)]
         }
         
@@ -140,17 +136,14 @@ public extension Tensor where Shape == Shape3 {
     //--------------------------------------------------------------------------
     /// return an array of elements
     @inlinable var array: [[[Element]]] {
-        var position = Shape3.zero
-        let rowShape = Shape3(1, 1, shape[1])
         var array3 = [[[Element]]]()
-        for _ in 0..<shape[0] {
+        for depth in 0..<shape[0] {
             var array2 = [[Element]]()
-            for _ in 0..<shape[1] {
-                array2.append([Element](self[position, rowShape].elements()))
-                position[1] += 1
+            
+            for row in 0..<shape[1] {
+                array2.append([Element](self[depth, row, ...]))
             }
             array3.append(array2)
-            position[0] += 1
         }
         return array3
     }

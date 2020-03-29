@@ -75,17 +75,6 @@ public struct DenseTensor<Shape, Element, Index>:
     }
     
     //--------------------------------------------------------------------------
-    @inlinable public func elements() -> Self {
-        // TODO: call read
-        return self
-    }
-
-    @inlinable public func mutableElements(willOverwrite: Bool) -> Self {
-        // TODO: call read write
-        return self
-    }
-    
-    //--------------------------------------------------------------------------
     @inlinable public func index(after i: Index) -> Index {
         i.incremented(boundedBy: shape)
     }
@@ -101,17 +90,13 @@ public struct DenseTensor<Shape, Element, Index>:
     
     //--------------------------------------------------------------------------
     //
-    @inlinable
-    public func shared(at position: Shape, with shape: Shape, by steps: Shape?)
-        -> Self
-    {
+    @inlinable public func shared(from lower: Shape, to upper: Shape) -> Self {
         fatalError()
     }
     
     //--------------------------------------------------------------------------
     // view subscripts
-    @inlinable
-    public subscript(position: Shape, shape: Shape, steps: Shape) -> Self {
+    @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
         get {
             fatalError()
         }
@@ -120,7 +105,7 @@ public struct DenseTensor<Shape, Element, Index>:
         }
     }
     
-    public subscript(position: Shape, shape: Shape) -> Self {
+    @inlinable public subscript(lower: Shape, upper: Shape, steps: Shape) -> Self {
         get {
             fatalError()
         }

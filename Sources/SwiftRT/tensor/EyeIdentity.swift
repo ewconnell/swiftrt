@@ -32,7 +32,7 @@ import Foundation
 /// - Returns: the identity tensor
 @inlinable
 public func identity(_ n: Int, order: StorageOrder = .C) -> EyeTensor<DType> {
-    EyeTensor<DType>(n, n, 0, order)
+    EyeTensor<DType>(Shape2(n, n), 0, order)
 }
 
 @inlinable
@@ -42,7 +42,7 @@ public func identity<Element>(
     order: StorageOrder = .C
 ) -> EyeTensor<Element> where Element: Numeric
 {
-    EyeTensor(n, n, 0, order)
+    EyeTensor(Shape2(n, n), 0, order)
 }
 
 //==============================================================================
@@ -66,7 +66,7 @@ public func identity<Element>(
 public func eye(_ N: Int, _ M: Int? = nil, k: Int = 0,
                 order: StorageOrder = .C) -> EyeTensor<DType>
 {
-    EyeTensor<DType>(N, M ?? N, k, order)
+    EyeTensor<DType>(Shape2(N, M ?? N), k, order)
 }
 
 @inlinable
@@ -76,5 +76,5 @@ public func eye<Element>(
     order: StorageOrder = .C
 ) -> EyeTensor<Element> where Element: Numeric
 {
-    EyeTensor<Element>(N, M ?? N, k, order)
+    EyeTensor<Element>(Shape2(N, M ?? N), k, order)
 }

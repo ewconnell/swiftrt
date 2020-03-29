@@ -18,15 +18,14 @@ import Foundation
 //==============================================================================
 /// Tensor protocol
 /// an n-dimensional collection of elements
-public protocol Tensor: Logging, CustomStringConvertible {
+public protocol Tensor:
+    Collection, CustomStringConvertible, Logging
+{
     //----------------------------------
     /// the ranked short vector type that defines the tensor coordinate space
     associatedtype Shape: Shaped
     /// the type of element in the collection
     associatedtype Element
-    /// the type used to iterate the elements
-    associatedtype Elements: Collection
-        where Elements.Element == Element
 
     //----------------------------------
     /// the number of elements described by `shape`
@@ -40,82 +39,58 @@ public protocol Tensor: Logging, CustomStringConvertible {
     /// the dimension of the coordinate space
     var shape: Shape { get }
     
-    //----------------------------------
-    /// Returns a collection of elements (stored or generated)
-    /// `Tensor` does not conform to `Collection` directly. The `elements`
-    /// function first ensures synchronization for read only access.
-    func elements() -> Elements
+    /// subscript
+    /// - Parameters:
+    ///  - lower: the lower bound of the slice
+    ///  - upper: the upper bound of the slice
+    /// - Returns: an n-dimensional tensor slice
+    subscript(lower: Shape, upper: Shape) -> Self { get }
     
     /// subscript
-    /// returns a sub view
     /// - Parameters:
-    ///  - position: the view starting point
-    ///  - shape: shape of the view
-    subscript(position: Shape, shape: Shape) -> Self { get }
-
-    /// subscript
-    /// returns a sub view
-    /// - Parameters:
-    ///  - position: the view starting point
-    ///  - shape: shape of the view
-    ///  - steps: steps across the parent space
-    subscript(position: Shape, shape: Shape, steps: Shape) -> Self { get }
+    ///  - lower: the lower bound of the slice
+    ///  - upper: the upper bound of the slice
+    ///  - steps: steps along axes in parent space while forming the result
+    /// - Returns: an n-dimensional tensor slice
+    subscript(lower: Shape, upper: Shape, steps: Shape) -> Self { get }
 }
 
 //==============================================================================
 /// MutableTensor
 /// an n-dimensional mutable collection of stored elements
-public protocol MutableTensor: Tensor {
+public protocol MutableTensor: Tensor, MutableCollection {
     //----------------------------------
     /// tye type of element storage buffer
     associatedtype Buffer: StorageBuffer where Buffer.Element == Element
-    /// a type used to iterate the elements
-    associatedtype MutableElements: MutableCollection
-        where MutableElements.Element == Element
 
-    //----------------------------------
-    /// class reference to the underlying platform element buffer
-    var storageBuffer: Buffer { get }
-    /// the linear element offset where the view begins
-    var bufferOffset: Int { get }
     /// `true` if the view will be shared by by multiple writers
     var isShared: Bool { get }
-
-    //----------------------------------
-    /// Returns a mutable collection of stored elements
-    /// `MutableTensor` does not conform to `MutableCollection` directly.
-    /// The `mutableElements` function first ensures synchronization
-    /// for read write access.
-    /// - Parameters:
-    ///  - willOverwrite: `true` indicates that the caller will overwrite
-    ///    all elements in the collection, which eliminates the need to
-    ///    read data back from discreet memory space if in use
-    /// - Returns: a mutable collection of elements
-    func mutableElements(willOverwrite: Bool) -> MutableElements
+    /// a linear buffer of materialized `Elements`
+    var storageBuffer: Buffer { get }
     
     /// shared
     /// returns a sub view that does not do copy-on-write to allow
     /// for multi-threaded writes.
     /// - Parameters:
-    ///  - position: the view starting point
-    ///  - shape: shape of the view
-    ///  - steps: steps across the parent space
-    func shared(at position: Shape, with shape: Shape, by steps: Shape?) -> Self
+    ///  - lower: the lower bound of the slice
+    ///  - upper: the upper bound of the slice
+    /// - Returns: an n-dimensional tensor slice
+    func shared(from lower: Shape, to upper: Shape) -> Self
 
     /// subscript
-    /// returns a sub view
     /// - Parameters:
-    ///  - position: the view starting point
-    ///  - shape: shape of the view
-    subscript(position: Shape, shape: Shape) -> Self { get set }
-
+    ///  - lower: the lower bound of the slice
+    ///  - upper: the upper bound of the slice
+    /// - Returns: an n-dimensional tensor slice
+    subscript(lower: Shape, upper: Shape) -> Self { get set }
+    
     /// subscript
-    /// returns a sub view
     /// - Parameters:
-    ///  - position: the view starting point
-    ///  - shape: shape of the view
-    ///  - steps: steps across the parent space
-    subscript(position: Shape, shape: Shape, steps: Shape) -> Self { get set }
+    ///  - lower: the lower bound of the slice
+    ///  - upper: the upper bound of the slice
+    ///  - steps: steps along axes in parent space while forming the result
+    /// - Returns: an n-dimensional tensor slice
+    subscript(lower: Shape, upper: Shape, steps: Shape) -> Self { get set }
 }
 
 //==============================================================================
