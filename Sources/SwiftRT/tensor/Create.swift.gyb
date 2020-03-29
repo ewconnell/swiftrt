@@ -33,13 +33,19 @@ public typealias DType = Float
 
 //==============================================================================
 // ranked convenience types
-%for n in range(1, numShapes + 1):
 /// ElementTensors
+%for n in range(1, numShapes + 1):
 public typealias ElementTensor${n}<Element> = ElementTensor<Shape${n}, Element>
 %end
 
+/// IndexTensors
 %for n in range(1, numShapes + 1):
+public typealias IndexTensor${n}<Element> = IndexTensor<Shape${n}, Element>
+    where Element: Numeric
+%end
+
 /// DenseTensors
+%for n in range(1, numShapes + 1):
 public typealias Dense${n}<Element> =
     DenseTensor<Shape${n}, Element, SequentialIndex<Shape${n}>>
 %end
@@ -589,3 +595,138 @@ public func zeros<T, Element>(
 }
 
 %end
+
+//==============================================================================
+/// index
+/// Return a new tensor of given shape and type where the element values
+/// are equal to their linear index
+/// - Parameters:
+///  - shape: Int or tuple of Int
+///    Shape of the array, e.g., (2, 3) or 2.
+///  - dtype: data-type, optional
+///    Desired output data-type for the array, e.g, Int8. Default is DType.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
+/// - Returns: a collection of linear index values
+@inlinable
+public func index<Shape, Element>(
+    _ shape: Shape.Tuple,
+    _ dtype: Element.Type,
+    _ order: StorageOrder = .C
+) -> IndexTensor<Shape, Element> where Shape: Shaped, Element: Numeric
+{
+    index(Shape(shape), dtype, order)
+}
+
+@inlinable
+public func index<Shape, Element>(
+    _ shape: Shape,
+    _ dtype: Element.Type,
+    _ order: StorageOrder = .C
+) -> IndexTensor<Shape, Element> where Shape: Shaped, Element: Numeric
+{
+    IndexTensor(from: Shape.zero, to: shape, order: order)
+}
+
+//---------------------------------------
+// Rank0
+@inlinable
+public func index() -> IndexTensor1<DType> {
+    index(Shape1(1), DType.self)
+}
+
+@inlinable
+public func index<Element>(dtype: Element.Type)
+    -> IndexTensor1<Element> where Element: Numeric { index(Shape1(1), dtype) }
+
+%for n in range(1, numShapes + 1):
+//---------------------------------------
+// Rank${n}
+@inlinable
+public func index(_ shape: Shape${n}.Tuple, order: StorageOrder = .C)
+    -> IndexTensor${n}<DType> { index(shape, DType.self, order) }
+
+@inlinable
+public func index<Element>(_ shape: Shape${n}.Tuple, dtype: Element.Type)
+    -> IndexTensor${n}<Element> where Element: Numeric { index(shape, dtype) }
+
+@inlinable
+public func index<Element>(
+    _ shape: Shape${n}.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> IndexTensor${n}<Element> where Element: Numeric { index(shape, dtype, order) }
+
+%end
+
+//==============================================================================
+/// index(like:
+/// Return a new tensor of given shape and type where the elements are
+/// equal to their linear index
+/// - Parameters:
+///  - prototype: unspecified attributes are copied from this tensor
+///  - dtype: data-type, optional
+///    Desired output data-type for the array, e.g, Int8. Default is DType.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
+///  - shape: Int or tuple of Int
+///    Shape of the index array, e.g., (2, 3) or 2.
+/// - Returns:
+
+// same type and shape
+@inlinable
+public func index<T>(like prototype: T, order: StorageOrder? = nil)
+    -> IndexTensor<T.Shape, T.Element> where T: Tensor, T.Element: Numeric
+{
+    index(prototype.shape, T.Element.self, order ?? prototype.storageOrder)
+}
+
+//------------------------------------------------------------------------------
+// same type different shape
+%for n in range(1, numShapes + 1):
+// Rank${n}
+@inlinable public func index<T>(
+    like prototype: T,
+    order: StorageOrder? = nil,
+    shape: Shape${n}.Tuple
+) -> IndexTensor${n}<T.Element> where T: Tensor, T.Element: Numeric
+{
+    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    return index(shape, T.Element.self, order ?? prototype.storageOrder)
+}
+
+%end
+
+//------------------------------------------------------------------------------
+// different type same shape
+@inlinable
+public func index<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil
+) -> IndexTensor<T.Shape, Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    index(prototype.shape, Element.self, order ?? prototype.storageOrder)
+}
+
+//------------------------------------------------------------------------------
+// different type, different shape
+%for n in range(1, numShapes + 1):
+// Rank${n}
+@inlinable public func index<T, Element>(
+    like prototype: T,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape${n}.Tuple
+) -> IndexTensor${n}<Element>
+    where T: Tensor, T.Element: Numeric, Element: Numeric
+{
+    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    return index(shape, Element.self, order ?? prototype.storageOrder)
+}
+
+%end
+
