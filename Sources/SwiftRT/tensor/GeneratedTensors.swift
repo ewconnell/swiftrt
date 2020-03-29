@@ -75,58 +75,65 @@ extension ElementTensor: Equatable where Element: Equatable { }
 extension ElementTensor: Codable where Element: Codable { }
 
 //==============================================================================
-/// RangeTensor
-public struct RangeTensor<Shape, Element>: Tensor, Collection
-    where Shape: Shaped
+/// IndexTensor
+/// A collection where each element is equal to it's index
+public struct IndexTensor<Shape, Element>: Tensor, Collection
+    where Shape: Shaped, Element: Numeric
 {
     // Tensor properties
-    @inlinable public static var name: String { "RangeTensor\(Shape.rank)" }
-    public typealias Index = Int
+    @inlinable public static var name: String { "IndexTensor\(Shape.rank)" }
     public let elementCount: Int
     public let shape: Shape
     public let storageOrder: StorageOrder
-    public let element: Element
 
     // Collection properties
-    public let startIndex: Index
-    public let endIndex: Index
+    public let startIndex: Int
+    public let endIndex: Int
 
     //------------------------------------
-    /// init(shape:element:order:
+    /// init(lower:upper:order:
+    /// - Parameters:
+    ///  - lower: lower bound of the range
+    ///  - upper: upper bound of the range
+    ///  - order: the order in memory to store materialized Elements
     @inlinable public init(
-        _ shape: Shape,
-        element: Element,
+        from lower: Shape,
+        to upper: Shape,
         order: StorageOrder = .rowMajor
     ) {
-        self.shape = shape
-        self.element = element
+        self.shape = upper &- lower
         self.storageOrder = order
         elementCount = shape.elementCount()
-        startIndex = 0
-        endIndex = elementCount
+        startIndex = lower.elementCount()
+        endIndex = startIndex + elementCount
     }
     
     //------------------------------------
     // Collection functions
     @inlinable public func elements() -> Self { self }
-    @inlinable public subscript(index: Index) -> Element { element }
-    @inlinable public func index(after i: Index) -> Index { i + 1 }
+    @inlinable public func index(after i: Int) -> Int { i + 1 }
+    @inlinable public subscript(index: Int) -> Element {
+        assert(Element(exactly: index) != nil,
+               "index value is too large for Element type")
+        return Element(exactly: index)!
+    }
 
     //------------------------------------
     // view subscripts
     @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
-        RangeTensor(upper &- lower, element: element, order: storageOrder)
+        IndexTensor(from: lower, to: upper, order: storageOrder)
     }
     
-    @inlinable public subscript(lower: Shape, upper: Shape, steps: Shape) -> Self {
-        fatalError()
+    @inlinable
+    public subscript(lower: Shape, upper: Shape, steps: Shape) -> Self {
+        IndexTensor(from: lower, to: upper, order: storageOrder)
     }
 }
 
 //------------------------------------------------------------------------------
 // extensions
-extension RangeTensor: Equatable where Element: Equatable { }
-extension RangeTensor: Codable where Element: Codable { }
+extension IndexTensor: Equatable where Element: Equatable { }
+extension IndexTensor: Codable where Element: Codable { }
 
 //==============================================================================
 /// EyeTensor
@@ -145,18 +152,24 @@ public struct EyeTensor<Element>: Tensor, Collection
     public let endIndex: ShapeIndex<Shape2>
 
     //------------------------------------
-    /// init(shape:k:order:
+    /// init(lower:upper:order:
+    /// - Parameters:
+    ///  - lower: lower bound of the range
+    ///  - upper: upper bound of the range
+    ///  - k:
+    ///  - order: the order in memory to store materialized Elements
     @inlinable public init(
-        _ shape: Shape2,
-        _ k: Int,
-        _ order: StorageOrder = .rowMajor
+        from lower: Shape2,
+        to upper: Shape2,
+        k: Int,
+        storage order: StorageOrder = .rowMajor
     ) {
-        self.k = k
-        self.shape = shape
-        self.elementCount = shape.elementCount()
+        self.shape = upper &- lower
         self.storageOrder = order
-        self.startIndex = Index(Shape2.zero, 0)
-        self.endIndex = Index(self.shape, self.elementCount)
+        self.k = k
+        self.elementCount = shape.elementCount()
+        self.startIndex = Index(lower, 0)
+        self.endIndex = Index(upper, self.elementCount)
     }
     
     //------------------------------------
@@ -177,11 +190,12 @@ public struct EyeTensor<Element>: Tensor, Collection
     //------------------------------------
     // view subscripts
     @inlinable public subscript(lower: Shape2, upper: Shape2) -> Self {
-        fatalError()
+        EyeTensor(from: lower, to: upper, k: k, storage: storageOrder)
     }
     
-    @inlinable public subscript(lower: Shape2, upper: Shape2, steps: Shape2) -> Self {
-        fatalError()
+    @inlinable
+    public subscript(lower: Shape2, upper: Shape2, steps: Shape2) -> Self {
+        EyeTensor(from: lower, to: upper, k: k, storage: storageOrder)
     }
 }
 
