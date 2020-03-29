@@ -16,12 +16,71 @@
 import Foundation
 
 //==============================================================================
-/// FillTensor
-public struct FillTensor<Shape, Element>: Tensor, Collection
+/// ElementTensor
+/// Repeats an element value for all indices
+public struct ElementTensor<Shape, Element>: Tensor, Collection
     where Shape: Shaped
 {
     // Tensor properties
-    @inlinable public static var name: String { "FillTensor\(Shape.rank)" }
+    @inlinable public static var name: String { "ElementTensor\(Shape.rank)" }
+    public typealias Index = Int
+    public let elementCount: Int
+    public let shape: Shape
+    public let storageOrder: StorageOrder
+    public let element: Element
+
+    // Collection properties
+    public let startIndex: Index
+    public let endIndex: Index
+
+    //------------------------------------
+    /// init(shape:element:order:
+    /// - Parameters:
+    ///  - shape: the shape of the tensor
+    ///  - element: the element value to repeat
+    ///  - order: the order in memory to store materialized Elements
+    @inlinable public init(
+        _ shape: Shape,
+        element: Element,
+        order: StorageOrder = .rowMajor
+    ) {
+        self.shape = shape
+        self.element = element
+        self.storageOrder = order
+        elementCount = shape.elementCount()
+        startIndex = 0
+        endIndex = elementCount
+    }
+    
+    //------------------------------------
+    // Collection functions
+    @inlinable public func elements() -> Self { self }
+    @inlinable public subscript(index: Index) -> Element { element }
+    @inlinable public func index(after i: Index) -> Index { i + 1 }
+
+    //------------------------------------
+    // view subscripts
+    @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
+        ElementTensor(upper &- lower, element: element, order: storageOrder)
+    }
+    
+    @inlinable public subscript(lower: Shape, upper: Shape, steps: Shape) -> Self {
+        fatalError()
+    }
+}
+
+//------------------------------------------------------------------------------
+// extensions
+extension ElementTensor: Equatable where Element: Equatable { }
+extension ElementTensor: Codable where Element: Codable { }
+
+//==============================================================================
+/// RangeTensor
+public struct RangeTensor<Shape, Element>: Tensor, Collection
+    where Shape: Shaped
+{
+    // Tensor properties
+    @inlinable public static var name: String { "RangeTensor\(Shape.rank)" }
     public typealias Index = Int
     public let elementCount: Int
     public let shape: Shape
@@ -56,7 +115,7 @@ public struct FillTensor<Shape, Element>: Tensor, Collection
     //------------------------------------
     // view subscripts
     @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
-        FillTensor(upper &- lower, element: element, order: storageOrder)
+        RangeTensor(upper &- lower, element: element, order: storageOrder)
     }
     
     @inlinable public subscript(lower: Shape, upper: Shape, steps: Shape) -> Self {
@@ -66,8 +125,8 @@ public struct FillTensor<Shape, Element>: Tensor, Collection
 
 //------------------------------------------------------------------------------
 // extensions
-extension FillTensor: Equatable where Element: Equatable { }
-extension FillTensor: Codable where Element: Codable { }
+extension RangeTensor: Equatable where Element: Equatable { }
+extension RangeTensor: Codable where Element: Codable { }
 
 //==============================================================================
 /// EyeTensor
@@ -130,4 +189,3 @@ public struct EyeTensor<Element>: Tensor, Collection
 // extensions
 extension EyeTensor: Equatable where Element: Equatable { }
 extension EyeTensor: Codable where Element: Codable { }
-
