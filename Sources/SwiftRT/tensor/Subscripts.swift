@@ -15,18 +15,25 @@
 //
 import Foundation
 
+// HACK!!
+public func copy<T, U>(from src: T, to dest: inout U)
+    where T: Tensor, U: MutableTensor, T.Element == U.Element
+{
+    zip(dest.indices, src).forEach { dest[$0] = $1 }
+}
+
 //==============================================================================
 // Rank1 array property and subscripts
 public extension Tensor where Shape == Shape1 {
     /// return an array of elements
     @inlinable var array: [Element] { [Element](self) }
     
-    // simplified integer range
     @inlinable subscript<R>(range: R) -> Self
         where R: PartialRangeExpression, R.Bound == Int
     {
         let r = range.relativeTo(0..<shape[0])
-        return self[Shape(r.start), Shape(r.end), Shape(r.step)]
+        return Self(self, from: Shape(r.start), to: Shape(r.end),
+                    by: Shape(r.step), indexedBy: SeqIndex<Shape1>.self)
     }
 }
 
@@ -39,11 +46,14 @@ public extension MutableTensor where Shape == Shape1 {
         {
         get {
             let r = range.relativeTo(0..<shape[0])
-            return self[Shape(r.start), Shape(r.end), Shape(r.step)]
+            return Self(self, from: Shape(r.start), to: Shape(r.end),
+                        by: Shape(r.step), indexedBy: SeqIndex<Shape1>.self)
         }
         set {
             let r = range.relativeTo(0..<shape[0])
-            self[Shape(r.start), Shape(r.end), Shape(r.step)] = newValue
+            var view = Self(self, from: Shape(r.start), to: Shape(r.end),
+                            by: Shape(r.step), indexedBy: SeqIndex<Shape1>.self)
+            copy(from: newValue, to: &view)
         }
     }
 }

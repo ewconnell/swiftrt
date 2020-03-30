@@ -39,6 +39,15 @@ public protocol Tensor:
     /// the dimension of the coordinate space
     var shape: Shape { get }
     
+    init<Parent, Index>(
+        _ parent: Parent,
+        from lower: Shape,
+        to upper: Shape,
+        by steps: Shape,
+        indexedBy: Index.Type) where
+        Parent: Tensor, Parent.Shape == Shape, Parent.Element == Element,
+        Index: TensorIndex, Index.Shape == Shape
+    
     /// subscript
     /// - Parameters:
     ///  - lower: the lower bound of the slice

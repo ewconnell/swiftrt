@@ -129,6 +129,14 @@ public extension TensorShape {
         self.reduce(into: 1, *=)
     }
     
+    @inlinable func linearIndex(with strides: Self) -> Int {
+        (self &* strides).wrappedSum()
+    }
+    
+    @inlinable func spanCount(with strides: Self) -> Int {
+        ((self &- 1) &* strides).wrappedSum() + 1
+    }
+    
     //--------------------------------------------------------------------------
     /// `sequentialStrides`
     /// computes the row major sequential strides

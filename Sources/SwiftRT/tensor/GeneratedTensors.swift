@@ -51,6 +51,19 @@ public struct RepeatedElement<Shape, Element>: Tensor, Collection
         endIndex = elementCount
     }
     
+    public init<Parent, Index>(
+        _ parent: Parent,
+        from lower: Shape,
+        to upper: Shape,
+        by steps: Shape,
+        indexedBy: Index.Type
+    ) where
+        Parent: Tensor, Parent.Shape == Shape, Parent.Element == Element,
+        Index: TensorIndex, Index.Shape == Shape
+    {
+        fatalError()
+    }
+    
     //------------------------------------
     // Collection functions
     @inlinable public func elements() -> Self { self }
@@ -107,6 +120,19 @@ public struct IndexTensor<Shape, Element>: Tensor, Collection
         endIndex = startIndex + elementCount
     }
     
+    public init<Parent, Index>(
+        _ parent: Parent,
+        from lower: Shape,
+        to upper: Shape,
+        by steps: Shape,
+        indexedBy: Index.Type
+    ) where
+        Parent: Tensor, Parent.Shape == Shape, Parent.Element == Element,
+        Index: TensorIndex, Index.Shape == Shape
+    {
+        fatalError()
+    }
+
     //------------------------------------
     // Collection functions
     @inlinable public func elements() -> Self { self }
@@ -171,6 +197,19 @@ public struct EyeTensor<Element>: Tensor, Collection
         self.endIndex = Index(upper, self.elementCount)
     }
     
+    public init<Parent, Index>(
+        _ parent: Parent,
+        from lower: Shape2,
+        to upper: Shape2,
+        by steps: Shape2,
+        indexedBy: Index.Type
+    ) where
+        Parent: Tensor, Parent.Shape == Shape2, Parent.Element == Element,
+        Index: TensorIndex, Index.Shape == Shape2
+    {
+        fatalError()
+    }
+
     //------------------------------------
     // Collection functions
     @inlinable public func elements() -> Self { self }

@@ -68,11 +68,32 @@ public struct DenseTensor<Shape, Element, Index>:
 
         if let callerStrides = strides {
             self.strides = callerStrides
-            self.spanCount =  ((shape &- 1) &* callerStrides).wrappedSum() + 1
+            self.spanCount = shape.spanCount(with: callerStrides)
         } else {
             self.strides = sequentialStrides
             self.spanCount = elementCount
         }
+    }
+    
+    public init<Parent, Index>(
+        _ parent: Parent,
+        from lower: Shape,
+        to upper: Shape,
+        by steps: Shape,
+        indexedBy: Index.Type
+    ) where
+        Parent: Tensor, Parent.Shape == Shape, Parent.Element == Element,
+        Index: TensorIndex, Index.Shape == Shape
+    {
+        let other = parent as! DenseTensor<Shape, Element, Index>
+        self.shape = upper &- lower
+        self.elementCount = self.shape.elementCount()
+        self.storageBuffer = other.storageBuffer
+        self.strides = other.strides
+        self.bufferOffset = lower.linearIndex(with: self.strides)
+        self.storageOrder = other.storageOrder
+        self.isShared = other.isShared
+        self.spanCount = shape.spanCount(with: self.strides)
     }
     
     //--------------------------------------------------------------------------
