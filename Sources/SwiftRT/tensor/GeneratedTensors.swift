@@ -19,7 +19,7 @@ import Foundation
 /// RepeatedElement
 /// Repeats an element value for all indices
 public struct RepeatedElement<Shape, Element>: Tensor, Collection
-    where Shape: Shaped
+    where Shape: TensorShape
 {
     // Tensor properties
     @inlinable public static var name: String { "RepeatedElement\(Shape.rank)" }
@@ -77,7 +77,7 @@ extension RepeatedElement: Codable where Element: Codable { }
 /// IndexTensor
 /// A collection where each element is equal to it's index
 public struct IndexTensor<Shape, Element>: Tensor, Collection
-    where Shape: Shaped, Element: Numeric
+    where Shape: TensorShape, Element: Numeric
 {
     // Tensor properties
     @inlinable public static var name: String { "IndexTensor\(Shape.rank)" }

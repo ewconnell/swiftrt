@@ -30,8 +30,8 @@ public typealias Shape6 = SIMD6<Int>
 let _messageInvalidShape = "shape dimensions must be greater than 0"
 
 //==============================================================================
-// Shaped
-public protocol Shaped: SIMD where Scalar == Int {
+// TensorShape
+public protocol TensorShape: SIMD where Scalar == Int {
     // a ranked tuple convenience type used for api parameters
     associatedtype Tuple
     
@@ -66,8 +66,8 @@ public protocol Shaped: SIMD where Scalar == Int {
 }
 
 //==============================================================================
-// Shaped extensions
-public extension Shaped {
+// TensorShape extensions
+public extension TensorShape {
     /// init with optional tuple shape
     @inlinable @_transparent
     init?(_ shape: Tuple?) {
@@ -144,7 +144,7 @@ public extension Shaped {
 
 //==============================================================================
 // SIMD1
-extension SIMD1: Shaped where Scalar == Int {
+extension SIMD1: TensorShape where Scalar == Int {
     //--------------------------------------------------------------------------
     // tuple initialization support
     public typealias Tuple = (Scalar)
@@ -178,7 +178,7 @@ extension SIMD1: Shaped where Scalar == Int {
 
 //==============================================================================
 // SIMD2
-extension SIMD2: Shaped where Scalar == Int {
+extension SIMD2: TensorShape where Scalar == Int {
     //--------------------------------------------------------------------------
     // tuple initialization support
     public typealias Tuple = (Scalar, Scalar)
@@ -219,7 +219,7 @@ extension SIMD2: Shaped where Scalar == Int {
 
 //==============================================================================
 // SIMD3
-extension SIMD3: Shaped where Scalar == Int {
+extension SIMD3: TensorShape where Scalar == Int {
     //--------------------------------------------------------------------------
     // tuple initialization support
     public typealias Tuple = (Scalar, Scalar, Scalar)
@@ -258,7 +258,7 @@ extension SIMD3: Shaped where Scalar == Int {
 
 //==============================================================================
 // SIMD4
-extension SIMD4: Shaped where Scalar == Int {
+extension SIMD4: TensorShape where Scalar == Int {
     //--------------------------------------------------------------------------
     // tuple initialization support
     public typealias Tuple = (Scalar, Scalar, Scalar, Scalar)
@@ -303,7 +303,7 @@ extension SIMD4: Shaped where Scalar == Int {
 
 //==============================================================================
 // SIMD5
-extension SIMD5: Shaped where Scalar == Int {
+extension SIMD5: TensorShape where Scalar == Int {
     //--------------------------------------------------------------------------
     // tuple initialization support
     public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar)
@@ -354,7 +354,7 @@ extension SIMD5: Shaped where Scalar == Int {
 
 //==============================================================================
 // SIMD6
-extension SIMD6: Shaped where Scalar == Int {
+extension SIMD6: TensorShape where Scalar == Int {
     //--------------------------------------------------------------------------
     // tuple initialization support
     public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar, Scalar)

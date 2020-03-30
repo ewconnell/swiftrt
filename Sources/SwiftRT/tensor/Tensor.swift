@@ -23,7 +23,7 @@ public protocol Tensor:
 {
     //----------------------------------
     /// the ranked short vector type that defines the tensor coordinate space
-    associatedtype Shape: Shaped
+    associatedtype Shape: TensorShape
     /// the type of element in the collection
     associatedtype Element
 

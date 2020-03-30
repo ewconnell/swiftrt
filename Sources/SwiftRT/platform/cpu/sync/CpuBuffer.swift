@@ -113,7 +113,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
     // streaming
     @inlinable
     public init<S, Stream>(block shape: S, bufferedBlocks: Int, stream: Stream)
-        where S: Shaped, Stream: BufferStream
+        where S: TensorShape, Stream: BufferStream
     {
         fatalError()
     }

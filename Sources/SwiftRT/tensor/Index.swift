@@ -18,7 +18,7 @@ import Foundation
 //==============================================================================
 /// TensorIndex
 public protocol TensorIndex: Comparable {
-    associatedtype Shape: Shaped
+    associatedtype Shape: TensorShape
     
     init(_ position: Shape, _ sequenceIndex: Int)
     
@@ -26,10 +26,10 @@ public protocol TensorIndex: Comparable {
 }
 
 //==============================================================================
-/// SequentialIndex
+/// SeqIndex
 /// The sequential index is used to seq
-public struct SequentialIndex<Shape>: TensorIndex, Codable
-    where Shape: Shaped
+public struct SeqIndex<Shape>: TensorIndex, Codable
+    where Shape: TensorShape
 {
     /// linear sequence position
     public var sequenceIndex: Int
@@ -65,7 +65,7 @@ public struct SequentialIndex<Shape>: TensorIndex, Codable
 /// coordinate space specified by `Shape`. A sequence index is also
 /// incremented to enable fast index comparison.
 public struct StridedIndex<Shape>: TensorIndex, Codable
-    where Shape: Shaped
+    where Shape: TensorShape
 {
     /// the logical position along each axis
     public var position: Shape

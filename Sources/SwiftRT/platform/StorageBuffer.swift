@@ -80,7 +80,7 @@ public protocol StorageBuffer: class, Logging {
     ///    to reserve in block units
     ///  - stream: the I/O object for read/write operations
     init<S, Stream>(block shape: S, bufferedBlocks: Int, stream: Stream)
-        where S: Shaped, Stream: BufferStream
+        where S: TensorShape, Stream: BufferStream
     
     /// `init(element:name:
     /// initializes an element buffer for the specified `Element` value.
