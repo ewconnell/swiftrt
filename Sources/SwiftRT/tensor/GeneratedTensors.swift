@@ -23,15 +23,14 @@ public struct ElementTensor<Shape, Element>: Tensor, Collection
 {
     // Tensor properties
     @inlinable public static var name: String { "ElementTensor\(Shape.rank)" }
-    public typealias Index = Int
     public let elementCount: Int
     public let shape: Shape
     public let storageOrder: StorageOrder
     public let element: Element
 
     // Collection properties
-    public let startIndex: Index
-    public let endIndex: Index
+    public let startIndex: Int
+    public let endIndex: Int
 
     //------------------------------------
     /// init(shape:element:order:
@@ -55,8 +54,8 @@ public struct ElementTensor<Shape, Element>: Tensor, Collection
     //------------------------------------
     // Collection functions
     @inlinable public func elements() -> Self { self }
-    @inlinable public subscript(index: Index) -> Element { element }
-    @inlinable public func index(after i: Index) -> Index { i + 1 }
+    @inlinable public subscript(index: Int) -> Element { element }
+    @inlinable public func index(after i: Int) -> Int { i + 1 }
 
     //------------------------------------
     // view subscripts
@@ -148,8 +147,8 @@ public struct EyeTensor<Element>: Tensor, Collection
     public let k: Int
 
     // Collection properties
-    public let startIndex: ShapeIndex<Shape2>
-    public let endIndex: ShapeIndex<Shape2>
+    public let startIndex: StridedIndex<Shape2>
+    public let endIndex: StridedIndex<Shape2>
 
     //------------------------------------
     /// init(lower:upper:order:
@@ -175,13 +174,13 @@ public struct EyeTensor<Element>: Tensor, Collection
     //------------------------------------
     // Collection functions
     @inlinable public func elements() -> Self { self }
-    @inlinable public func index(after i: ShapeIndex<Shape2>)
-        -> ShapeIndex<Shape2>
+    @inlinable public func index(after i: StridedIndex<Shape2>)
+        -> StridedIndex<Shape2>
     {
         i.incremented(boundedBy: shape)
     }
 
-    @inlinable public subscript(index: ShapeIndex<Shape2>) -> Element {
+    @inlinable public subscript(index: StridedIndex<Shape2>) -> Element {
         // if the axes indexes are equal then it's on the diagonal
         let pos = index.position // &- k
         return pos[0] == pos[1] ? 1 : 0

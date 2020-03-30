@@ -20,7 +20,7 @@ import Foundation
 public struct DenseTensor<Shape, Element, Index>:
     MutableTensor, MutableCollection
     where
-    Index: ShapeIndexProtocol,
+    Index: TensorIndex,
     Index.Shape == Shape
 {
     public let storageBuffer: TensorBuffer<Element>
