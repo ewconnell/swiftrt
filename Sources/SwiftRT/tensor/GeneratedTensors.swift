@@ -16,13 +16,13 @@
 import Foundation
 
 //==============================================================================
-/// ElementTensor
+/// RepeatedElement
 /// Repeats an element value for all indices
-public struct ElementTensor<Shape, Element>: Tensor, Collection
+public struct RepeatedElement<Shape, Element>: Tensor, Collection
     where Shape: Shaped
 {
     // Tensor properties
-    @inlinable public static var name: String { "ElementTensor\(Shape.rank)" }
+    @inlinable public static var name: String { "RepeatedElement\(Shape.rank)" }
     public let elementCount: Int
     public let shape: Shape
     public let storageOrder: StorageOrder
@@ -60,7 +60,7 @@ public struct ElementTensor<Shape, Element>: Tensor, Collection
     //------------------------------------
     // view subscripts
     @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
-        ElementTensor(upper &- lower, element: element, order: storageOrder)
+        RepeatedElement(upper &- lower, element: element, order: storageOrder)
     }
     
     @inlinable public subscript(lower: Shape, upper: Shape, steps: Shape) -> Self {
@@ -70,8 +70,8 @@ public struct ElementTensor<Shape, Element>: Tensor, Collection
 
 //------------------------------------------------------------------------------
 // extensions
-extension ElementTensor: Equatable where Element: Equatable { }
-extension ElementTensor: Codable where Element: Codable { }
+extension RepeatedElement: Equatable where Element: Equatable { }
+extension RepeatedElement: Codable where Element: Codable { }
 
 //==============================================================================
 /// IndexTensor
