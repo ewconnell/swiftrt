@@ -53,7 +53,8 @@ public struct DenseTensor<Shape, Element, Index>:
         strides: Shape? = nil,
         bufferOffset: Int = 0,
         share: Bool = false,
-        order: StorageOrder = .rowMajor
+        order: StorageOrder = .rowMajor,
+        fillWith element: Element? = nil
     ) {
         let elementCount = shape.elementCount()
         self.storageBuffer = storageBuffer ??

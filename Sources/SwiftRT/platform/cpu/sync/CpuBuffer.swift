@@ -28,8 +28,11 @@ public final class CpuBuffer<Element>: StorageBuffer {
     //--------------------------------------------------------------------------
     // init(count:name:
     @inlinable
-    public init(count: Int, name: String) {
+    public init(count: Int, name: String, initWith element: Element? = nil) {
         self.buffer = UnsafeMutableBufferPointer.allocate(capacity: count)
+        if let element = element {
+            self.buffer.initialize(repeating: element)
+        }
         self.element = buffer[0]
         self.id = Context.nextBufferId
         self.isReadOnly = false
