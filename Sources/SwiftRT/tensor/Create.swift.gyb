@@ -482,7 +482,8 @@ public func zeros<Shape, Element>(
     _ shape: Shape.Tuple,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> RepeatedElement<Shape, Element> where Shape: TensorShape, Element: Numeric
+) -> DenseTensor<Shape, Element, SeqIndex<Shape>>
+    where Shape: TensorShape, Element: Numeric
 {
     zeros(Shape(shape), dtype, order)
 }
@@ -492,45 +493,46 @@ public func zeros<Shape, Element>(
     _ shape: Shape,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> RepeatedElement<Shape, Element> where Shape: TensorShape, Element: Numeric
+) -> DenseTensor<Shape, Element, SeqIndex<Shape>>
+    where Shape: TensorShape, Element: Numeric
 {
-    RepeatedElement(shape, element: 0, order: order)
+    DenseTensor(shape, order: order, element: 0)
 }
 
 //---------------------------------------
 // Rank0
 @inlinable
-public func zeros() -> RepeatedElement1<DType> {
+public func zeros() -> Dense1<DType> {
     zeros(Shape1(1), DType.self)
 }
 
 @inlinable
 public func zeros<Element>(dtype: Element.Type)
-    -> RepeatedElement1<Element> where Element: Numeric { zeros(Shape1(1), dtype) }
+    -> Dense1<Element> where Element: Numeric { zeros(Shape1(1), dtype) }
 
 %for n in range(1, numShapes + 1):
 //---------------------------------------
 // Rank${n}
 @inlinable
 public func zeros(_ shape: Shape${n}.Tuple, order: StorageOrder = .C)
-    -> RepeatedElement${n}<DType> { zeros(shape, DType.self, order) }
+    -> Dense${n}<DType> { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape${n}.Tuple, dtype: Element.Type)
-    -> RepeatedElement${n}<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Dense${n}<Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> RepeatedElement${n}<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Dense${n}<Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 %end
 
 //==============================================================================
 /// zeros(like:
-/// Return a new tensor of given shape and type filled with zeros
+/// Return a new tensor of given shape and type filled with `value`
 /// - Parameters:
 ///  - prototype: unspecified attributes are copied from this tensor
 ///  - dtype: data-type, optional
@@ -546,7 +548,8 @@ public func zeros<Element>(
 // same type and shape
 @inlinable
 public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
-    -> RepeatedElement<T.Shape, T.Element> where T: Tensor, T.Element: Numeric
+    -> DenseTensor<T.Shape, T.Element, SeqIndex<T.Shape>>
+    where T: Tensor, T.Element: Numeric
 {
     zeros(prototype.shape, T.Element.self, order ?? prototype.storageOrder)
 }
@@ -559,7 +562,8 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> RepeatedElement${n}<T.Element> where T: Tensor, T.Element: Numeric
+) -> DenseTensor<Shape${n}, T.Element, SeqIndex<Shape${n}>>
+    where T: Tensor, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -574,8 +578,8 @@ public func zeros<T, Element>(
     like prototype: T,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> RepeatedElement<T.Shape, Element>
-    where T: Tensor, T.Element: Numeric, Element: Numeric
+) -> DenseTensor<T.Shape, Element, SeqIndex<T.Shape>>
+    where T: Tensor, Element: Numeric
 {
     zeros(prototype.shape, Element.self, order ?? prototype.storageOrder)
 }
@@ -589,8 +593,8 @@ public func zeros<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> RepeatedElement${n}<Element>
-    where T: Tensor, T.Element: Numeric, Element: Numeric
+) -> DenseTensor<Shape${n}, Element, SeqIndex<Shape${n}>>
+    where T: Tensor, Element: Numeric
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)
