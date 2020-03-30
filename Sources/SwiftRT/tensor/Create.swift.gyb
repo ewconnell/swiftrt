@@ -344,7 +344,8 @@ public func ones<Shape, Element>(
     _ shape: Shape.Tuple,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> RepeatedElement<Shape, Element> where Shape: TensorShape, Element: Numeric
+) -> DenseTensor<Shape, Element, SeqIndex<Shape>>
+    where Shape: TensorShape, Element: Numeric
 {
     ones(Shape(shape), dtype, order)
 }
@@ -354,45 +355,46 @@ public func ones<Shape, Element>(
     _ shape: Shape,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> RepeatedElement<Shape, Element> where Shape: TensorShape, Element: Numeric
+) -> DenseTensor<Shape, Element, SeqIndex<Shape>>
+    where Shape: TensorShape, Element: Numeric
 {
-    RepeatedElement(shape, element: 1, order: order)
+    DenseTensor(shape, order: order, element: 1)
 }
 
 //---------------------------------------
 // Rank0
 @inlinable
-public func ones() -> RepeatedElement1<DType> {
+public func ones() -> Dense1<DType> {
     ones(Shape1(1), DType.self)
 }
 
 @inlinable
 public func ones<Element>(dtype: Element.Type)
-    -> RepeatedElement1<Element> where Element: Numeric { ones(Shape1(1), dtype) }
+    -> Dense1<Element> where Element: Numeric { ones(Shape1(1), dtype) }
 
 %for n in range(1, numShapes + 1):
 //---------------------------------------
 // Rank${n}
 @inlinable
 public func ones(_ shape: Shape${n}.Tuple, order: StorageOrder = .C)
-    -> RepeatedElement${n}<DType> { ones(shape, DType.self, order) }
+    -> Dense${n}<DType> { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape${n}.Tuple, dtype: Element.Type)
-    -> RepeatedElement${n}<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Dense${n}<Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> RepeatedElement${n}<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Dense${n}<Element> where Element: Numeric { ones(shape, dtype, order) }
 
 %end
 
 //==============================================================================
 /// ones(like:
-/// Return a new tensor of given shape and type filled with ones
+/// Return a new tensor of given shape and type filled with `value`
 /// - Parameters:
 ///  - prototype: unspecified attributes are copied from this tensor
 ///  - dtype: data-type, optional
@@ -408,7 +410,8 @@ public func ones<Element>(
 // same type and shape
 @inlinable
 public func ones<T>(like prototype: T, order: StorageOrder? = nil)
-    -> RepeatedElement<T.Shape, T.Element> where T: Tensor, T.Element: Numeric
+    -> DenseTensor<T.Shape, T.Element, SeqIndex<T.Shape>>
+    where T: Tensor, T.Element: Numeric
 {
     ones(prototype.shape, T.Element.self, order ?? prototype.storageOrder)
 }
@@ -421,7 +424,8 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> RepeatedElement${n}<T.Element> where T: Tensor, T.Element: Numeric
+) -> DenseTensor<Shape${n}, T.Element, SeqIndex<Shape${n}>>
+    where T: Tensor, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -436,8 +440,8 @@ public func ones<T, Element>(
     like prototype: T,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> RepeatedElement<T.Shape, Element>
-    where T: Tensor, T.Element: Numeric, Element: Numeric
+) -> DenseTensor<T.Shape, Element, SeqIndex<T.Shape>>
+    where T: Tensor, Element: Numeric
 {
     ones(prototype.shape, Element.self, order ?? prototype.storageOrder)
 }
@@ -451,8 +455,8 @@ public func ones<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> RepeatedElement${n}<Element>
-    where T: Tensor, T.Element: Numeric, Element: Numeric
+) -> DenseTensor<Shape${n}, Element, SeqIndex<Shape${n}>>
+    where T: Tensor, Element: Numeric
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
