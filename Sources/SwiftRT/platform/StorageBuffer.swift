@@ -35,8 +35,8 @@ public protocol StorageBuffer: class, Logging {
     /// - Parameters:
     ///  - count: size of the buffer in `Element` units
     ///  - name: name used in diagnostic messages
-    ///  - element: optional initial element value
-    init(count: Int, name: String, initWith element: Element?)
+    ///  - value: optional initial element value
+    init(count: Int, name: String, element value: Element?)
     
     /// `init(copying other:`
     /// copy constructor

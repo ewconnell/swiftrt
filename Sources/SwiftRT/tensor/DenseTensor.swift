@@ -54,11 +54,11 @@ public struct DenseTensor<Shape, Element, Index>:
         bufferOffset: Int = 0,
         share: Bool = false,
         order: StorageOrder = .rowMajor,
-        fillWith element: Element? = nil
+        element value: Element? = nil
     ) {
         let elementCount = shape.elementCount()
         self.storageBuffer = storageBuffer ??
-            TensorBuffer(count: elementCount, name: Self.name)
+            TensorBuffer(count: elementCount, name: Self.name, element: value)
         self.elementCount = elementCount
         self.bufferOffset = bufferOffset
         self.storageOrder = order

@@ -28,10 +28,10 @@ public final class CpuBuffer<Element>: StorageBuffer {
     //--------------------------------------------------------------------------
     // init(count:name:
     @inlinable
-    public init(count: Int, name: String, initWith element: Element? = nil) {
+    public init(count: Int, name: String, element value: Element? = nil) {
         self.buffer = UnsafeMutableBufferPointer.allocate(capacity: count)
-        if let element = element {
-            self.buffer.initialize(repeating: element)
+        if let value = value {
+            self.buffer.initialize(repeating: value)
         }
         self.element = buffer[0]
         self.id = Context.nextBufferId
