@@ -19,8 +19,11 @@ import Foundation
 //==============================================================================
 /// StorageBuffer protocol
 public protocol StorageBuffer: class, Logging {
+    /// the type of element stored in the buffer
     associatedtype Element
-    
+
+    /// the buffer used for host access
+    var hostBuffer: UnsafeMutableBufferPointer<Element> { get }
     /// the id of the buffer for diagnostics
     var id: Int { get }
     /// `true` if the buffer is read only

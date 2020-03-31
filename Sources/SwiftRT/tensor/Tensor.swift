@@ -58,7 +58,7 @@ public protocol MutableTensor: Tensor, MutableCollection
     /// `true` if the view will be shared by by multiple writers
     var isShared: Bool { get }
     /// a linear buffer of materialized `Elements`
-    var storageBuffer: Buffer { get }
+    var storage: Buffer { get }
     
     //----------------------------------
     /// shared
@@ -117,10 +117,17 @@ public struct ElementIndex<Shape>: Comparable, Codable
         self.sequencePosition = sequencePosition
     }
     
+    /// incremented(lower:upper:
+    /// increments `position` with the range `lower..<upper`
     @inlinable
-    public func incremented(between lower: Shape, and upper: Shape) -> Self {
-        ElementIndex(position.incremented(between: lower, and: upper),
-                     sequencePosition + 1)
+    public func incremented(between lower: Self, and upper: Self) -> Self {
+        let pos = position.incremented(between: lower.position,
+                                       and: upper.position)
+        return ElementIndex(pos, sequencePosition + 1)
+    }
+    
+    @inlinable public func linearIndex(with strides: Shape) -> Int {
+        position.linearIndex(with: strides)
     }
 
     // Equatable

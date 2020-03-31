@@ -18,7 +18,7 @@
 /// CpuBuffer
 /// Used to manage a host memory buffer
 public final class CpuBuffer<Element>: StorageBuffer {
-    public let buffer: UnsafeMutableBufferPointer<Element>
+    public let hostBuffer: UnsafeMutableBufferPointer<Element>
     public var element: Element
     public let id: Int
     public let isReadOnly: Bool
@@ -29,11 +29,11 @@ public final class CpuBuffer<Element>: StorageBuffer {
     // init(count:name:
     @inlinable
     public init(count: Int, name: String, element value: Element? = nil) {
-        self.buffer = UnsafeMutableBufferPointer.allocate(capacity: count)
+        self.hostBuffer = UnsafeMutableBufferPointer.allocate(capacity: count)
         if let value = value {
-            self.buffer.initialize(repeating: value)
+            self.hostBuffer.initialize(repeating: value)
         }
-        self.element = buffer[0]
+        self.element = hostBuffer[0]
         self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = false
@@ -55,11 +55,11 @@ public final class CpuBuffer<Element>: StorageBuffer {
         self.isReference = other.isReference
         self.name = other.name
         if isReference {
-            buffer = other.buffer
+            hostBuffer = other.hostBuffer
         } else {
-            buffer = UnsafeMutableBufferPointer
-                .allocate(capacity: other.buffer.count)
-            _ = buffer.initialize(from: other.buffer)
+            hostBuffer = UnsafeMutableBufferPointer
+                .allocate(capacity: other.hostBuffer.count)
+            _ = hostBuffer.initialize(from: other.hostBuffer)
         }
     }
     
@@ -70,14 +70,14 @@ public final class CpuBuffer<Element>: StorageBuffer {
         where C: Collection, C.Element == Element
     {
         self.init(count: elements.count, name: name)
-        _ = buffer.initialize(from: elements)
+        _ = hostBuffer.initialize(from: elements)
     }
     
     //--------------------------------------------------------------------------
     // init(buffer:name:
     @inlinable
     public init(referenceTo buffer: UnsafeBufferPointer<Element>, name: String) {
-        self.buffer = UnsafeMutableBufferPointer(mutating: buffer)
+        self.hostBuffer = UnsafeMutableBufferPointer(mutating: buffer)
         self.element = buffer[0]
         self.id = Context.nextBufferId
         self.isReadOnly = true
@@ -86,7 +86,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
         
         #if DEBUG
         diagnostic("\(createString) Reference \(name)(\(id)) " +
-            "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
+            "\(Element.self)[\(hostBuffer.count)]", categories: .dataAlloc)
         #endif
     }
     
@@ -96,7 +96,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
     public init(referenceTo buffer: UnsafeMutableBufferPointer<Element>,
                 name: String)
     {
-        self.buffer = buffer
+        self.hostBuffer = buffer
         self.element = buffer[0]
         self.id = Context.nextBufferId
         self.isReadOnly = false
@@ -105,7 +105,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
         
         #if DEBUG
         diagnostic("\(createString) Reference \(name)(\(id)) " +
-            "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
+            "\(Element.self)[\(hostBuffer.count)]", categories: .dataAlloc)
         #endif
     }
     
@@ -128,7 +128,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
         self.isReadOnly = false
         self.isReference = true
         self.name = name
-        self.buffer = withUnsafeMutablePointer(to: &self.element) {
+        self.hostBuffer = withUnsafeMutablePointer(to: &self.element) {
             UnsafeMutableBufferPointer(start: $0, count: 1)
         }
         
@@ -143,7 +143,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
     @inlinable
     deinit {
         if !isReference {
-            buffer.deallocate()
+            hostBuffer.deallocate()
             #if DEBUG
             diagnostic("\(releaseString) \(name)(\(id)) ",
                 categories: .dataAlloc)
@@ -156,7 +156,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
     @inlinable
     public func read(at offset: Int, count: Int) -> UnsafeBufferPointer<Element>
     {
-        let start = buffer.baseAddress!.advanced(by: offset)
+        let start = hostBuffer.baseAddress!.advanced(by: offset)
         return UnsafeBufferPointer(start: start, count: count)
     }
     
@@ -166,7 +166,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
     public func read(at offset: Int, count: Int, using queue: DeviceQueue)
         -> UnsafeBufferPointer<Element>
     {
-        let start = buffer.baseAddress!.advanced(by: offset)
+        let start = hostBuffer.baseAddress!.advanced(by: offset)
         return UnsafeBufferPointer(start: start, count: count)
     }
     
@@ -176,7 +176,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
     public func readWrite(at offset: Int, count: Int, willOverwrite: Bool)
         -> UnsafeMutableBufferPointer<Element>
     {
-        let start = buffer.baseAddress!.advanced(by: offset)
+        let start = hostBuffer.baseAddress!.advanced(by: offset)
         return UnsafeMutableBufferPointer(start: start, count: count)
     }
     
@@ -187,7 +187,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
                           using queue: DeviceQueue)
         -> UnsafeMutableBufferPointer<Element>
     {
-        let start = buffer.baseAddress!.advanced(by: offset)
+        let start = hostBuffer.baseAddress!.advanced(by: offset)
         return UnsafeMutableBufferPointer(start: start, count: count)
     }
 }

@@ -25,33 +25,46 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
 
     //-----------------------------------
     // properties
-    public let storageBuffer: TensorBuffer<Element>
+    /// the diagnostic name for the collection
+    @inlinable public static var name: String { "DenseTensor\(Shape.rank)" }
+    /// the element storage buffer
+    public let storage: TensorBuffer<Element>
     /// the dense number of elements in the shape
     public let elementCount: Int
     /// the linear element offset where the view begins
     public let bufferOffset: Int
+    /// `true` if elements are in row major contiguous order
+    public let isSequential: Bool
+    /// `true` if the view will be shared by by multiple writers
+    public let isShared: Bool
     /// Specifies whether data is stored in row-major (C-style)
     /// or column-major (Fortran-style) order in memory.
     public let storageOrder: StorageOrder
     /// the dimensions of the element space
     public let shape: Shape
-    /// `true` if the view will be shared by by multiple writers
-    public let isShared: Bool
     /// The strided number of elements spanned by the shape
     public let spanCount: Int
     /// The distance to the next element along each dimension
     public let strides: Shape
 
-    @inlinable public static var name: String { "DenseTensor\(Shape.rank)" }
+    //-----------------------------------
+    /// the starting index within the storage buffer
     @inlinable public var startIndex: Index { Index(Shape.zero, 0) }
+    /// the ending index within the storage buffer
     @inlinable public var endIndex: Index { Index(shape, elementCount) }
 
     //-----------------------------------
+    /// a function defined during initialization to get storage elements
+    @usableFromInline let getElement: (Index) -> Element
+    /// a function defined during initialization to set storage elements
+    @usableFromInline let setElement: (Index, Element) -> Void
+
+    
+    //--------------------------------------------------------------------------
     /// init(shape:
-    @inlinable
-    public init(
+    @inlinable public init(
         _ shape: Shape,
-        storageBuffer: TensorBuffer<Element>? = nil,
+        storage: TensorBuffer<Element>? = nil,
         strides: Shape? = nil,
         bufferOffset: Int = 0,
         share: Bool = false,
@@ -59,7 +72,7 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
         element value: Element? = nil
     ) {
         let elementCount = shape.elementCount()
-        self.storageBuffer = storageBuffer ??
+        self.storage = storage ??
             TensorBuffer(count: elementCount, name: Self.name, element: value)
         self.elementCount = elementCount
         self.bufferOffset = bufferOffset
@@ -71,9 +84,29 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
         if let callerStrides = strides {
             self.strides = callerStrides
             self.spanCount = shape.spanCount(with: callerStrides)
+            self.isSequential = self.strides == sequentialStrides
         } else {
+            self.isSequential = true
             self.strides = sequentialStrides
             self.spanCount = elementCount
+        }
+        
+        //----------------------------------
+        // element access functions depending on memory order
+        if isSequential {
+            getElement = { [storage = self.storage] in
+                storage.hostBuffer[$0.sequencePosition]
+            }
+            setElement = { [storage = self.storage] in
+                storage.hostBuffer[$0.sequencePosition] = $1
+            }
+        } else {
+            getElement = { [storage = self.storage, strides = self.strides] in
+                storage.hostBuffer[$0.linearIndex(with: strides)]
+            }
+            setElement = { [storage = self.storage, strides = self.strides] in
+                storage.hostBuffer[$0.linearIndex(with: strides)] = $1
+            }
         }
     }
     
@@ -81,16 +114,13 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     // Collection
     
     @inlinable public func index(after i: Index) -> Index {
-        fatalError()
+        i.incremented(between: startIndex, and: endIndex)
     }
     
-    @inlinable public subscript(position: Index) -> Element {
-        get {
-            fatalError()
-        }
-        set(newValue) {
-            fatalError()
-        }
+    // elemment subscript
+    @inlinable public subscript(index: Index) -> Element {
+        get { getElement(index) }
+        set { setElement(index, newValue) }
     }
     
     //--------------------------------------------------------------------------
@@ -100,7 +130,7 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     }
     
     //--------------------------------------------------------------------------
-    // subscripts
+    // view subscripts
     @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
         get {
             fatalError()
