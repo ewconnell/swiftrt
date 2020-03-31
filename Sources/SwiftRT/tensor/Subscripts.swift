@@ -49,8 +49,7 @@ public extension MutableTensor where Shape == Shape1 {
         }
         set {
             let r = range.relativeTo(0..<shape[0])
-            var view = self[Shape(r.start), Shape(r.end)]
-            copy(from: newValue, to: &view)
+            self[Shape(r.start), Shape(r.end)] = newValue
         }
     }
 }
@@ -114,8 +113,7 @@ public extension MutableTensor where Shape == Shape2 {
         set {
             let r = rows.relativeTo(0..<shape[0])
             let c = cols.relativeTo(0..<shape[1])
-            var view = self[Shape2(r.start, c.start), Shape2(r.end, c.end)]
-            copy(from: newValue, to: &view)
+            self[Shape2(r.start, c.start), Shape2(r.end, c.end)] = newValue
         }
     }
     
@@ -229,9 +227,8 @@ public extension MutableTensor where Shape == Shape3 {
             let d = deps.relativeTo(0..<shape[0])
             let r = rows.relativeTo(0..<shape[1])
             let c = cols.relativeTo(0..<shape[2])
-            var view = self[Shape3(d.start, r.start, c.start),
-                            Shape3(d.end, r.end, c.end)]
-            copy(from: newValue, to: &view)
+            self[Shape3(d.start, r.start, c.start),
+                 Shape3(d.end, r.end, c.end)] = newValue
         }
     }
     
@@ -322,8 +319,7 @@ public extension MutableTensor {
         }
         set {
             let (start, end, _) = getItemRange(range.relativeTo(0..<shape[0]))
-            var view = self[start, end]
-            copy(from: newValue, to: &view)
+            self[start, end] = newValue
         }
     }
 }

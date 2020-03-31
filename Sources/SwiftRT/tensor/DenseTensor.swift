@@ -63,7 +63,8 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     //--------------------------------------------------------------------------
     /// init(shape:
     @inlinable public init(
-        _ shape: Shape,
+        from lower: Shape,
+        to upper: Shape,
         storage: TensorBuffer<Element>? = nil,
         strides: Shape? = nil,
         bufferOffset: Int = 0,
@@ -71,13 +72,15 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
         order: StorageOrder = .rowMajor,
         element value: Element? = nil
     ) {
-        let elementCount = shape.elementCount()
+        assert(storage == nil || lower == Shape.zero,
+               "The lower bound of new storage must be zero")
+        self.shape = upper &- lower
+        let elementCount = self.shape.elementCount()
         self.storage = storage ??
             TensorBuffer(count: elementCount, name: Self.name, element: value)
         self.elementCount = elementCount
         self.bufferOffset = bufferOffset
         self.storageOrder = order
-        self.shape = shape
         self.isShared = share
         let sequentialStrides = shape.sequentialStrides()
 
@@ -112,7 +115,7 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     
     //--------------------------------------------------------------------------
     // Collection
-    
+    /// index(i:
     @inlinable public func index(after i: Index) -> Index {
         i.incremented(between: startIndex, and: endIndex)
     }
@@ -124,20 +127,27 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     }
     
     //--------------------------------------------------------------------------
-    //
-    @inlinable public func shared(from lower: Shape, to upper: Shape) -> Self {
-        fatalError()
-    }
-    
-    //--------------------------------------------------------------------------
     // view subscripts
     @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
         get {
-            fatalError()
+            DenseTensor(from: lower, to: upper, storage: storage,
+                        strides: strides, bufferOffset: bufferOffset,
+                        share: isShared, order: storageOrder, element: nil)
         }
         set {
-            fatalError()
+            var view = DenseTensor(from: lower, to: upper, storage: storage,
+                                   strides: strides, bufferOffset: bufferOffset,
+                                   share: isShared, order: storageOrder,
+                                   element: nil)
+            copy(from: newValue, to: &view)
         }
+    }
+    
+    /// share(lower:upper:
+    @inlinable public func shared(from lower: Shape, to upper: Shape) -> Self {
+        DenseTensor(from: lower, to: upper, storage: storage,
+                    strides: strides, bufferOffset: bufferOffset,
+                    share: true, order: storageOrder, element: nil)
     }
 }
 
