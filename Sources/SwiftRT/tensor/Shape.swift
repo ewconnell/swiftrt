@@ -59,7 +59,7 @@ public protocol TensorShape: SIMD where Scalar == Int {
     /// - Parameters:
     ///  - lower: the lower bound of the iteration range
     ///  - upper: the upper bound of the iteration range
-    mutating func incremented(between lower: Self, and upper: Self)
+    func incremented(between lower: Self, and upper: Self) -> Self
     
     /// - Returns: row major sequential srtides for the shape
     func sequentialStrides() -> Self
@@ -97,19 +97,21 @@ public extension TensorShape {
     
     // generic n-dimensional position increment function
     @inlinable
-    mutating func incremented(between lower: Self, and upper: Self) {
+    func incremented(between lower: Self, and upper: Self) -> Self {
+        var next = self
         var dim = Self.rank - 1
         while true {
-            self[dim] += 1
-            if self[dim] < upper[dim] {
+            next[dim] += 1
+            if next[dim] < upper[dim] {
                 break
             } else if dim > 0 {
-                self[dim] = lower[dim]
+                next[dim] = lower[dim]
                 dim -= 1
             } else {
                 break
             }
         }
+        return next
     }
     
     //--------------------------------------------------------------------------
@@ -178,9 +180,11 @@ extension SIMD1: TensorShape where Scalar == Int {
     }
     
     @inlinable
-    public mutating func incremented(between lower: Self, and upper: Self) {
+    public func incremented(between lower: Self, and upper: Self) -> Self {
         assert(self[0] >= lower[0])
-        self[0] += 1
+        var next = self
+        next[0] += 1
+        return next
     }
 }
 
@@ -215,13 +219,15 @@ extension SIMD2: TensorShape where Scalar == Int {
     }
 
     @inlinable
-    public mutating func incremented(between lower: Self, and upper: Self) {
+    public func incremented(between lower: Self, and upper: Self) -> Self {
         assert(self[0] >= lower[0] && self[1] >= lower[1])
-        self[1] += 1
-        if self[1] == upper[1] {
-            self[1] = lower[1]
-            self[0] += 1
+        var next = self
+        next[1] += 1
+        if next[1] == upper[1] {
+            next[1] = lower[1]
+            next[0] += 1
         }
+        return next
     }
 }
 
@@ -247,20 +253,22 @@ extension SIMD3: TensorShape where Scalar == Int {
     public static var rank: Int { 3 }
     
     @inlinable
-    public mutating func incremented(between lower: Self, and upper: Self) {
+    public func incremented(between lower: Self, and upper: Self) -> Self {
         assert({for i in 0..<Self.rank { if self[i] < lower[i] { return false }}
             return true}())
-        
-        self[2] += 1
-        if self[2] == upper[2] {
-            self[2] = lower[2]
-            self[1] += 1
+        var next = self
+
+        next[2] += 1
+        if next[2] == upper[2] {
+            next[2] = lower[2]
+            next[1] += 1
             
-            if self[1] == upper[1] {
-                self[1] = lower[1]
-                self[0] += 1
+            if next[1] == upper[1] {
+                next[1] = lower[1]
+                next[0] += 1
             }
         }
+        return next
     }
 }
 
@@ -287,25 +295,27 @@ extension SIMD4: TensorShape where Scalar == Int {
     public static var rank: Int { 4 }
 
     @inlinable
-    public mutating func incremented(between lower: Self, and upper: Self) {
+    public func incremented(between lower: Self, and upper: Self) -> Self {
         assert({for i in 0..<Self.rank { if self[i] < lower[i] { return false }}
             return true}())
-        
-        self[3] += 1
-        if self[3] == upper[3] {
-            self[3] = lower[3]
-            self[2] += 1
+        var next = self
+
+        next[3] += 1
+        if next[3] == upper[3] {
+            next[3] = lower[3]
+            next[2] += 1
             
-            if self[2] == upper[2] {
-                self[2] = lower[2]
-                self[1] += 1
+            if next[2] == upper[2] {
+                next[2] = lower[2]
+                next[1] += 1
                 
-                if self[1] == upper[1] {
-                    self[1] = lower[1]
-                    self[0] += 1
+                if next[1] == upper[1] {
+                    next[1] = lower[1]
+                    next[0] += 1
                 }
             }
         }
+        return next
     }
 }
 
@@ -333,30 +343,32 @@ extension SIMD5: TensorShape where Scalar == Int {
     public static var rank: Int { 5 }
 
     @inlinable
-    public mutating func incremented(between lower: Self, and upper: Self) {
+    public func incremented(between lower: Self, and upper: Self) -> Self {
         assert({for i in 0..<Self.rank { if self[i] < lower[i] { return false }}
             return true}())
+        var next = self
 
-        self[4] += 1
-        if self[4] == upper[4] {
-            self[4] = lower[4]
-            self[3] += 1
+        next[4] += 1
+        if next[4] == upper[4] {
+            next[4] = lower[4]
+            next[3] += 1
             
-            if self[3] == upper[3] {
-                self[3] = lower[3]
-                self[2] += 1
+            if next[3] == upper[3] {
+                next[3] = lower[3]
+                next[2] += 1
                 
-                if self[2] == upper[2] {
-                    self[2] = lower[2]
-                    self[1] += 1
+                if next[2] == upper[2] {
+                    next[2] = lower[2]
+                    next[1] += 1
                     
-                    if self[1] == upper[1] {
-                        self[1] = lower[1]
-                        self[0] += 1
+                    if next[1] == upper[1] {
+                        next[1] = lower[1]
+                        next[0] += 1
                     }
                 }
             }
         }
+        return next
     }
 }
 
@@ -385,35 +397,37 @@ extension SIMD6: TensorShape where Scalar == Int {
     public static var rank: Int { 6 }
     
     @inlinable
-    public mutating func incremented(between lower: Self, and upper: Self) {
+    public func incremented(between lower: Self, and upper: Self) -> Self {
         assert({for i in 0..<Self.rank { if self[i] < lower[i] { return false }}
             return true}())
+        var next = self
 
-        self[5] += 1
-        if self[5] == upper[4] {
-            self[5] = lower[5]
-            self[4] += 1
+        next[5] += 1
+        if next[5] == upper[4] {
+            next[5] = lower[5]
+            next[4] += 1
             
-            if self[4] == upper[4] {
-                self[4] = lower[4]
-                self[3] += 1
+            if next[4] == upper[4] {
+                next[4] = lower[4]
+                next[3] += 1
                 
-                if self[3] == upper[3] {
-                    self[3] = lower[3]
-                    self[2] += 1
+                if next[3] == upper[3] {
+                    next[3] = lower[3]
+                    next[2] += 1
                     
-                    if self[2] == upper[2] {
-                        self[2] = lower[2]
-                        self[1] += 1
+                    if next[2] == upper[2] {
+                        next[2] = lower[2]
+                        next[1] += 1
                         
-                        if self[1] == upper[1] {
-                            self[1] = lower[1]
-                            self[0] += 1
+                        if next[1] == upper[1] {
+                            next[1] = lower[1]
+                            next[0] += 1
                         }
                     }
                 }
             }
         }
+        return next
     }
 }
 

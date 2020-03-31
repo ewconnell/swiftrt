@@ -99,8 +99,7 @@ public enum StorageOrder: Int, Codable {
 
 //==============================================================================
 /// ElementIndex
-/// A common index type used to iterate through the logical
-/// coordinate space specified by `Shape`.
+/// Common index type used to iterate through collection elements
 /// `position` is the index position in n-dimensional space
 /// `sequencePosition` is the linear sequence position when iterating
 /// and used for comparison
@@ -108,14 +107,20 @@ public struct ElementIndex<Shape>: Comparable, Codable
     where Shape: TensorShape
 {
     /// the logical position along each axis
-    public var position: Shape
+    public let position: Shape
     /// linear sequence position
-    public var sequencePosition: Int
+    public let sequencePosition: Int
 
     // init(position:sequencePosition:
     @inlinable public init(_ position: Shape, _ sequencePosition: Int) {
         self.position = position
         self.sequencePosition = sequencePosition
+    }
+    
+    @inlinable
+    public func incremented(between lower: Shape, and upper: Shape) -> Self {
+        ElementIndex(position.incremented(between: lower, and: upper),
+                     sequencePosition + 1)
     }
 
     // Equatable
