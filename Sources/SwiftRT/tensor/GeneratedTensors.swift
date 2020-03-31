@@ -51,19 +51,6 @@ public struct RepeatedElement<Shape, Element>: Tensor, Collection
         endIndex = elementCount
     }
     
-    public init<Parent, Index>(
-        _ parent: Parent,
-        from lower: Shape,
-        to upper: Shape,
-        by steps: Shape,
-        indexedBy: Index.Type
-    ) where
-        Parent: Tensor, Parent.Shape == Shape, Parent.Element == Element,
-        Index: TensorIndex, Index.Shape == Shape
-    {
-        fatalError()
-    }
-    
     //------------------------------------
     // Collection functions
     @inlinable public func elements() -> Self { self }
@@ -75,10 +62,6 @@ public struct RepeatedElement<Shape, Element>: Tensor, Collection
     @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
         RepeatedElement(upper &- lower, element: element, order: storageOrder)
     }
-    
-    @inlinable public subscript(lower: Shape, upper: Shape, steps: Shape) -> Self {
-        fatalError()
-    }
 }
 
 //------------------------------------------------------------------------------
@@ -87,13 +70,13 @@ extension RepeatedElement: Equatable where Element: Equatable { }
 extension RepeatedElement: Codable where Element: Codable { }
 
 //==============================================================================
-/// IndexTensor
+/// IndexGenerator
 /// A collection where each element is equal to it's index
-public struct IndexTensor<Shape, Element>: Tensor, Collection
+public struct IndexGenerator<Shape, Element>: Tensor, Collection
     where Shape: TensorShape, Element: Numeric
 {
     // Tensor properties
-    @inlinable public static var name: String { "IndexTensor\(Shape.rank)" }
+    @inlinable public static var name: String { "IndexGenerator\(Shape.rank)" }
     public let elementCount: Int
     public let shape: Shape
     public let storageOrder: StorageOrder
@@ -119,19 +102,6 @@ public struct IndexTensor<Shape, Element>: Tensor, Collection
         startIndex = lower.elementCount()
         endIndex = startIndex + elementCount
     }
-    
-    public init<Parent, Index>(
-        _ parent: Parent,
-        from lower: Shape,
-        to upper: Shape,
-        by steps: Shape,
-        indexedBy: Index.Type
-    ) where
-        Parent: Tensor, Parent.Shape == Shape, Parent.Element == Element,
-        Index: TensorIndex, Index.Shape == Shape
-    {
-        fatalError()
-    }
 
     //------------------------------------
     // Collection functions
@@ -146,26 +116,25 @@ public struct IndexTensor<Shape, Element>: Tensor, Collection
     //------------------------------------
     // view subscripts
     @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
-        IndexTensor(from: lower, to: upper, order: storageOrder)
-    }
-    
-    @inlinable
-    public subscript(lower: Shape, upper: Shape, steps: Shape) -> Self {
-        IndexTensor(from: lower, to: upper, order: storageOrder)
+        IndexGenerator(from: lower, to: upper, order: storageOrder)
     }
 }
 
 //------------------------------------------------------------------------------
 // extensions
-extension IndexTensor: Equatable where Element: Equatable { }
-extension IndexTensor: Codable where Element: Codable { }
+extension IndexGenerator: Equatable where Element: Equatable { }
+extension IndexGenerator: Codable where Element: Codable { }
 
 //==============================================================================
 /// EyeTensor
 public struct EyeTensor<Element>: Tensor, Collection
     where Element: Numeric
 {
-    // tensor properties
+    // types
+    public typealias Index = ElementIndex<Shape2>
+
+    //-----------------------------------
+    // properties
     @inlinable public static var name: String { "EyeTensor" }
     public let elementCount: Int
     public let shape: Shape2
@@ -173,8 +142,8 @@ public struct EyeTensor<Element>: Tensor, Collection
     public let k: Int
 
     // Collection properties
-    public let startIndex: StridedIndex<Shape2>
-    public let endIndex: StridedIndex<Shape2>
+    public let startIndex: Index
+    public let endIndex: Index
 
     //------------------------------------
     /// init(lower:upper:order:
@@ -196,30 +165,15 @@ public struct EyeTensor<Element>: Tensor, Collection
         self.startIndex = Index(lower, 0)
         self.endIndex = Index(upper, self.elementCount)
     }
-    
-    public init<Parent, Index>(
-        _ parent: Parent,
-        from lower: Shape2,
-        to upper: Shape2,
-        by steps: Shape2,
-        indexedBy: Index.Type
-    ) where
-        Parent: Tensor, Parent.Shape == Shape2, Parent.Element == Element,
-        Index: TensorIndex, Index.Shape == Shape2
-    {
-        fatalError()
-    }
 
     //------------------------------------
     // Collection functions
     @inlinable public func elements() -> Self { self }
-    @inlinable public func index(after i: StridedIndex<Shape2>)
-        -> StridedIndex<Shape2>
-    {
-        i.incremented(boundedBy: shape)
+    @inlinable public func index(after i: Index) -> Index {
+        fatalError()
     }
 
-    @inlinable public subscript(index: StridedIndex<Shape2>) -> Element {
+    @inlinable public subscript(index: Index) -> Element {
         // if the axes indexes are equal then it's on the diagonal
         let pos = index.position // &- k
         return pos[0] == pos[1] ? 1 : 0
@@ -228,11 +182,6 @@ public struct EyeTensor<Element>: Tensor, Collection
     //------------------------------------
     // view subscripts
     @inlinable public subscript(lower: Shape2, upper: Shape2) -> Self {
-        EyeTensor(from: lower, to: upper, k: k, storage: storageOrder)
-    }
-    
-    @inlinable
-    public subscript(lower: Shape2, upper: Shape2, steps: Shape2) -> Self {
         EyeTensor(from: lower, to: upper, k: k, storage: storageOrder)
     }
 }

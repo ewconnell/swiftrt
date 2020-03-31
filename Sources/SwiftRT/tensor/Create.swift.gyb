@@ -33,19 +33,19 @@ public typealias DType = Float
 
 //==============================================================================
 // ranked convenience types
-/// RepeatedElements
+/// RepeatedElement
 %for n in range(1, numShapes + 1):
 public typealias RepeatedElement${n}<Element> = RepeatedElement<Shape${n}, Element>
 %end
 
-/// IndexTensors
+/// IndexGenerator
 %for n in range(1, numShapes + 1):
-public typealias IndexTensor${n}<Element> = IndexTensor<Shape${n}, Element> where Element: Numeric
+public typealias IndexGenerator${n}<Element: Numeric> = IndexGenerator<Shape${n}, Element>
 %end
 
-/// DenseTensors
+/// DenseTensor
 %for n in range(1, numShapes + 1):
-public typealias Dense${n}<Element> = DenseTensor<Shape${n}, Element, SeqIndex<Shape${n}>>
+public typealias Dense${n}<Element> = DenseTensor<Shape${n}, Element>
 %end
 
 //==============================================================================
@@ -66,7 +66,7 @@ public func empty<Shape, Element>(
     _ shape: Shape.Tuple,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element, SeqIndex<Shape>> where Shape: TensorShape
+) -> DenseTensor<Shape, Element> where Shape: TensorShape
 {
     empty(Shape(shape), dtype, order)
 }
@@ -76,7 +76,7 @@ public func empty<Shape, Element>(
     _ shape: Shape,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element, SeqIndex<Shape>> where Shape: TensorShape
+) -> DenseTensor<Shape, Element> where Shape: TensorShape
 {
     DenseTensor(shape, order: order)
 }
@@ -130,7 +130,7 @@ public func empty<Element>(_ shape: Shape${n}.Tuple, dtype: Element.Type,
 public func empty<T>(
     like prototype: T,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, T.Element, SeqIndex<T.Shape>> where T: Tensor
+) -> DenseTensor<T.Shape, T.Element> where T: Tensor
 {
     empty(prototype.shape, T.Element.self, order ?? prototype.storageOrder)
 }
@@ -143,7 +143,7 @@ public func empty<T>(
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> DenseTensor<Shape${n}, T.Element, SeqIndex<Shape${n}>> where T: Tensor
+) -> DenseTensor<Shape${n}, T.Element> where T: Tensor
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -156,7 +156,7 @@ public func empty<T>(
     like prototype: T,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, Element, SeqIndex<T.Shape>> where T: Tensor
+) -> DenseTensor<T.Shape, Element> where T: Tensor
 {
     empty(prototype.shape, Element.self, order ?? prototype.storageOrder)
 }
@@ -170,7 +170,7 @@ public func empty<T>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> DenseTensor<Shape${n}, Element, SeqIndex<Shape${n}>> where T: Tensor
+) -> DenseTensor<Shape${n}, Element> where T: Tensor
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
@@ -197,7 +197,7 @@ public func full<Shape, Element>(
     _ value: Element,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element, SeqIndex<Shape>> where Shape: TensorShape
+) -> DenseTensor<Shape, Element> where Shape: TensorShape
 {
     full(Shape(shape), value, dtype, order)
 }
@@ -208,7 +208,7 @@ public func full<Shape, Element>(
     _ value: Element,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element, SeqIndex<Shape>> where Shape: TensorShape
+) -> DenseTensor<Shape, Element> where Shape: TensorShape
 {
     DenseTensor(shape, order: order, element: value)
 }
@@ -273,7 +273,7 @@ public func full<T>(
     like prototype: T,
     _ value: T.Element,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, T.Element, SeqIndex<T.Shape>> where T: Tensor
+) -> DenseTensor<T.Shape, T.Element> where T: Tensor
 {
     full(prototype.shape, value, T.Element.self, order ?? prototype.storageOrder)
 }
@@ -287,7 +287,7 @@ public func full<T>(
     _ value: T.Element,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> DenseTensor<Shape${n}, T.Element, SeqIndex<Shape${n}>> where T: Tensor
+) -> DenseTensor<Shape${n}, T.Element> where T: Tensor
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
@@ -303,7 +303,7 @@ public func full<T, Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, Element, SeqIndex<T.Shape>> where T: Tensor
+) -> DenseTensor<T.Shape, Element> where T: Tensor
 {
     full(prototype.shape, value, Element.self, order ?? prototype.storageOrder)
 }
@@ -318,7 +318,7 @@ public func full<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> DenseTensor<Shape${n}, Element, SeqIndex<Shape${n}>> where T: Tensor
+) -> DenseTensor<Shape${n}, Element> where T: Tensor
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
@@ -344,7 +344,7 @@ public func ones<Shape, Element>(
     _ shape: Shape.Tuple,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element, SeqIndex<Shape>>
+) -> DenseTensor<Shape, Element>
     where Shape: TensorShape, Element: Numeric
 {
     ones(Shape(shape), dtype, order)
@@ -355,7 +355,7 @@ public func ones<Shape, Element>(
     _ shape: Shape,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element, SeqIndex<Shape>>
+) -> DenseTensor<Shape, Element>
     where Shape: TensorShape, Element: Numeric
 {
     DenseTensor(shape, order: order, element: 1)
@@ -410,7 +410,7 @@ public func ones<Element>(
 // same type and shape
 @inlinable
 public func ones<T>(like prototype: T, order: StorageOrder? = nil)
-    -> DenseTensor<T.Shape, T.Element, SeqIndex<T.Shape>>
+    -> DenseTensor<T.Shape, T.Element>
     where T: Tensor, T.Element: Numeric
 {
     ones(prototype.shape, T.Element.self, order ?? prototype.storageOrder)
@@ -424,7 +424,7 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> DenseTensor<Shape${n}, T.Element, SeqIndex<Shape${n}>>
+) -> DenseTensor<Shape${n}, T.Element>
     where T: Tensor, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
@@ -440,7 +440,7 @@ public func ones<T, Element>(
     like prototype: T,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, Element, SeqIndex<T.Shape>>
+) -> DenseTensor<T.Shape, Element>
     where T: Tensor, Element: Numeric
 {
     ones(prototype.shape, Element.self, order ?? prototype.storageOrder)
@@ -455,7 +455,7 @@ public func ones<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> DenseTensor<Shape${n}, Element, SeqIndex<Shape${n}>>
+) -> DenseTensor<Shape${n}, Element>
     where T: Tensor, Element: Numeric
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
@@ -482,7 +482,7 @@ public func zeros<Shape, Element>(
     _ shape: Shape.Tuple,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element, SeqIndex<Shape>>
+) -> DenseTensor<Shape, Element>
     where Shape: TensorShape, Element: Numeric
 {
     zeros(Shape(shape), dtype, order)
@@ -493,7 +493,7 @@ public func zeros<Shape, Element>(
     _ shape: Shape,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element, SeqIndex<Shape>>
+) -> DenseTensor<Shape, Element>
     where Shape: TensorShape, Element: Numeric
 {
     DenseTensor(shape, order: order, element: 0)
@@ -548,7 +548,7 @@ public func zeros<Element>(
 // same type and shape
 @inlinable
 public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
-    -> DenseTensor<T.Shape, T.Element, SeqIndex<T.Shape>>
+    -> DenseTensor<T.Shape, T.Element>
     where T: Tensor, T.Element: Numeric
 {
     zeros(prototype.shape, T.Element.self, order ?? prototype.storageOrder)
@@ -562,7 +562,7 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> DenseTensor<Shape${n}, T.Element, SeqIndex<Shape${n}>>
+) -> DenseTensor<Shape${n}, T.Element>
     where T: Tensor, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
@@ -578,7 +578,7 @@ public func zeros<T, Element>(
     like prototype: T,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, Element, SeqIndex<T.Shape>>
+) -> DenseTensor<T.Shape, Element>
     where T: Tensor, Element: Numeric
 {
     zeros(prototype.shape, Element.self, order ?? prototype.storageOrder)
@@ -593,7 +593,7 @@ public func zeros<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> DenseTensor<Shape${n}, Element, SeqIndex<Shape${n}>>
+) -> DenseTensor<Shape${n}, Element>
     where T: Tensor, Element: Numeric
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
@@ -620,7 +620,7 @@ public func index<Shape, Element>(
     _ shape: Shape.Tuple,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> IndexTensor<Shape, Element> where Shape: TensorShape, Element: Numeric
+) -> IndexGenerator<Shape, Element> where Shape: TensorShape, Element: Numeric
 {
     index(Shape(shape), dtype, order)
 }
@@ -630,39 +630,39 @@ public func index<Shape, Element>(
     _ shape: Shape,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> IndexTensor<Shape, Element> where Shape: TensorShape, Element: Numeric
+) -> IndexGenerator<Shape, Element> where Shape: TensorShape, Element: Numeric
 {
-    IndexTensor(from: Shape.zero, to: shape, order: order)
+    IndexGenerator(from: Shape.zero, to: shape, order: order)
 }
 
 //---------------------------------------
 // Rank0
 @inlinable
-public func index() -> IndexTensor1<DType> {
+public func index() -> IndexGenerator1<DType> {
     index(Shape1(1), DType.self)
 }
 
 @inlinable
 public func index<Element>(dtype: Element.Type)
-    -> IndexTensor1<Element> where Element: Numeric { index(Shape1(1), dtype) }
+    -> IndexGenerator1<Element> where Element: Numeric { index(Shape1(1), dtype) }
 
 %for n in range(1, numShapes + 1):
 //---------------------------------------
 // Rank${n}
 @inlinable
 public func index(_ shape: Shape${n}.Tuple, order: StorageOrder = .C)
-    -> IndexTensor${n}<DType> { index(shape, DType.self, order) }
+    -> IndexGenerator${n}<DType> { index(shape, DType.self, order) }
 
 @inlinable
 public func index<Element>(_ shape: Shape${n}.Tuple, dtype: Element.Type)
-    -> IndexTensor${n}<Element> where Element: Numeric { index(shape, dtype) }
+    -> IndexGenerator${n}<Element> where Element: Numeric { index(shape, dtype) }
 
 @inlinable
 public func index<Element>(
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> IndexTensor${n}<Element> where Element: Numeric { index(shape, dtype, order) }
+) -> IndexGenerator${n}<Element> where Element: Numeric { index(shape, dtype, order) }
 
 %end
 
@@ -684,7 +684,7 @@ public func index<Element>(
 // same type and shape
 @inlinable
 public func index<T>(like prototype: T, order: StorageOrder? = nil)
-    -> IndexTensor<T.Shape, T.Element> where T: Tensor, T.Element: Numeric
+    -> IndexGenerator<T.Shape, T.Element> where T: Tensor, T.Element: Numeric
 {
     index(prototype.shape, T.Element.self, order ?? prototype.storageOrder)
 }
@@ -697,7 +697,7 @@ public func index<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> IndexTensor${n}<T.Element> where T: Tensor, T.Element: Numeric
+) -> IndexGenerator${n}<T.Element> where T: Tensor, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
     return index(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -712,7 +712,7 @@ public func index<T, Element>(
     like prototype: T,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> IndexTensor<T.Shape, Element>
+) -> IndexGenerator<T.Shape, Element>
     where T: Tensor, T.Element: Numeric, Element: Numeric
 {
     index(prototype.shape, Element.self, order ?? prototype.storageOrder)
@@ -727,7 +727,7 @@ public func index<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> IndexTensor${n}<Element>
+) -> IndexGenerator${n}<Element>
     where T: Tensor, T.Element: Numeric, Element: Numeric
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())

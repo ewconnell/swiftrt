@@ -97,14 +97,14 @@ public extension TensorShape {
     
     // generic n-dimensional position increment function
     @inlinable
-    mutating func increment(boundedBy shape: Self) {
+    mutating func incremented(between lower: Self, and upper: Self) {
         var dim = Self.rank - 1
         while true {
             self[dim] += 1
-            if self[dim] < shape[dim] {
+            if self[dim] < upper[dim] {
                 break
             } else if dim > 0 {
-                self[dim] = 0
+                self[dim] = lower[dim]
                 dim -= 1
             } else {
                 break

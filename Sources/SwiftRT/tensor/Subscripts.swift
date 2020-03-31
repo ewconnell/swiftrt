@@ -32,8 +32,7 @@ public extension Tensor where Shape == Shape1 {
         where R: PartialRangeExpression, R.Bound == Int
     {
         let r = range.relativeTo(0..<shape[0])
-        return Self(self, from: Shape(r.start), to: Shape(r.end),
-                    by: Shape(r.step), indexedBy: SeqIndex<Shape1>.self)
+        return self[Shape(r.start), Shape(r.end)]
     }
 }
 
@@ -46,13 +45,11 @@ public extension MutableTensor where Shape == Shape1 {
         {
         get {
             let r = range.relativeTo(0..<shape[0])
-            return Self(self, from: Shape(r.start), to: Shape(r.end),
-                        by: Shape(r.step), indexedBy: SeqIndex<Shape1>.self)
+            return self[Shape(r.start), Shape(r.end)]
         }
         set {
             let r = range.relativeTo(0..<shape[0])
-            var view = Self(self, from: Shape(r.start), to: Shape(r.end),
-                            by: Shape(r.step), indexedBy: SeqIndex<Shape1>.self)
+            var view = self[Shape(r.start), Shape(r.end)]
             copy(from: newValue, to: &view)
         }
     }
@@ -81,8 +78,7 @@ public extension Tensor where Shape == Shape2 {
         let c = cols.relativeTo(0..<shape[1])
         let lower = Shape2(r.start, c.start)
         let upper = Shape2(r.end, c.end)
-        let steps = Shape2(r.step, c.step)
-        return self[lower, upper, steps]
+        return self[lower, upper]
     }
     
     //    @differentiable(where Self: DifferentiableTensorView)
@@ -112,16 +108,14 @@ public extension MutableTensor where Shape == Shape2 {
         get {
             let r = rows.relativeTo(0..<shape[0])
             let c = cols.relativeTo(0..<shape[1])
-            return self[Shape2(r.start, c.start),
-                        Shape2(r.end, c.end),
-                        Shape2(r.step, c.step)]
+            return self[Shape2(r.start, c.start), Shape2(r.end, c.end)]
         }
         
         set {
             let r = rows.relativeTo(0..<shape[0])
             let c = cols.relativeTo(0..<shape[1])
-            self[Shape2(r.start, c.start), Shape2(r.end, c.end),
-                 Shape2(r.step, c.step)] = newValue
+            var view = self[Shape2(r.start, c.start), Shape2(r.end, c.end)]
+            copy(from: newValue, to: &view)
         }
     }
     
@@ -168,8 +162,7 @@ public extension Tensor where Shape == Shape3 {
         let r = rows.relativeTo(0..<shape[1])
         let c = cols.relativeTo(0..<shape[2])
         return self[Shape3(d.start, r.start, c.start),
-                    Shape3(d.end, r.end, c.end),
-                    Shape3(d.step, r.step, c.step)]
+                    Shape3(d.end, r.end, c.end)]
     }
     
     @inlinable
@@ -229,17 +222,16 @@ public extension MutableTensor where Shape == Shape3 {
             let r = rows.relativeTo(0..<shape[1])
             let c = cols.relativeTo(0..<shape[2])
             return self[Shape3(d.start, r.start, c.start),
-                        Shape3(d.end, r.end, c.end),
-                        Shape3(d.step, r.step, c.step)]
+                        Shape3(d.end, r.end, c.end)]
         }
         
         set {
             let d = deps.relativeTo(0..<shape[0])
             let r = rows.relativeTo(0..<shape[1])
             let c = cols.relativeTo(0..<shape[2])
-            self[Shape3(d.start, r.start, c.start),
-                 Shape3(d.end, r.end, c.end),
-                 Shape3(d.step, r.step, c.step)] = newValue
+            var view = self[Shape3(d.start, r.start, c.start),
+                            Shape3(d.end, r.end, c.end)]
+            copy(from: newValue, to: &view)
         }
     }
     
@@ -299,9 +291,8 @@ public extension Tensor {
     subscript<R>(range: R) -> Self
         where R: PartialRangeExpression, R.Bound == Int {
         get {
-            let (start, end, steps) =
-                getItemRange(range.relativeTo(0..<shape[0]))
-            return self[start, end, steps]
+            let (start, end, _) = getItemRange(range.relativeTo(0..<shape[0]))
+            return self[start, end]
         }
     }
     
@@ -326,14 +317,13 @@ public extension MutableTensor {
     subscript<R>(range: R) -> Self
         where R: PartialRangeExpression, R.Bound == Int {
         get {
-            let (start, end, steps) =
-                getItemRange(range.relativeTo(0..<shape[0]))
-            return self[start, end, steps]
+            let (start, end, _) = getItemRange(range.relativeTo(0..<shape[0]))
+            return self[start, end]
         }
         set {
-            let (start, end, steps) =
-                getItemRange(range.relativeTo(0..<shape[0]))
-            self[start, end, steps] = newValue
+            let (start, end, _) = getItemRange(range.relativeTo(0..<shape[0]))
+            var view = self[start, end]
+            copy(from: newValue, to: &view)
         }
     }
 }

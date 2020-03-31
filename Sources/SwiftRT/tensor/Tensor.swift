@@ -18,11 +18,9 @@ import Foundation
 //==============================================================================
 /// Tensor protocol
 /// an n-dimensional collection of elements
-public protocol Tensor:
-    Collection, CustomStringConvertible, Logging
+public protocol Tensor: Collection, CustomStringConvertible, Logging
 {
-    //----------------------------------
-    /// the ranked short vector type that defines the tensor coordinate space
+    /// the ranked short vector type that defines the collection's dimensions
     associatedtype Shape: TensorShape
     /// the type of element in the collection
     associatedtype Element
@@ -32,74 +30,52 @@ public protocol Tensor:
     var elementCount: Int { get }
     /// a label for the type used as a default name in diagnostics
     static var name: String { get }
+    /// the dimensions of the collection
+    var shape: Shape { get }
     /// the order in memory to store materialized Elements. Generator
     /// tensor types maintain this property as a template for dense
     /// result tensors.
     var storageOrder: StorageOrder { get }
-    /// the dimension of the coordinate space
-    var shape: Shape { get }
     
-    init<Parent, Index>(
-        _ parent: Parent,
-        from lower: Shape,
-        to upper: Shape,
-        by steps: Shape,
-        indexedBy: Index.Type) where
-        Parent: Tensor, Parent.Shape == Shape, Parent.Element == Element,
-        Index: TensorIndex, Index.Shape == Shape
-    
+    //----------------------------------
     /// subscript
     /// - Parameters:
     ///  - lower: the lower bound of the slice
     ///  - upper: the upper bound of the slice
-    /// - Returns: an n-dimensional tensor slice
+    /// - Returns: the collection slice
     subscript(lower: Shape, upper: Shape) -> Self { get }
-    
-    /// subscript
-    /// - Parameters:
-    ///  - lower: the lower bound of the slice
-    ///  - upper: the upper bound of the slice
-    ///  - steps: steps along axes in parent space while forming the result
-    /// - Returns: an n-dimensional tensor slice
-    subscript(lower: Shape, upper: Shape, steps: Shape) -> Self { get }
 }
 
 //==============================================================================
 /// MutableTensor
 /// an n-dimensional mutable collection of stored elements
-public protocol MutableTensor: Tensor, MutableCollection {
-    //----------------------------------
+public protocol MutableTensor: Tensor, MutableCollection
+{
     /// tye type of element storage buffer
     associatedtype Buffer: StorageBuffer where Buffer.Element == Element
 
+    //----------------------------------
     /// `true` if the view will be shared by by multiple writers
     var isShared: Bool { get }
     /// a linear buffer of materialized `Elements`
     var storageBuffer: Buffer { get }
     
+    //----------------------------------
     /// shared
     /// returns a sub view that does not do copy-on-write to allow
     /// for multi-threaded writes.
     /// - Parameters:
     ///  - lower: the lower bound of the slice
     ///  - upper: the upper bound of the slice
-    /// - Returns: an n-dimensional tensor slice
+    /// - Returns: the collection slice
     func shared(from lower: Shape, to upper: Shape) -> Self
 
     /// subscript
     /// - Parameters:
     ///  - lower: the lower bound of the slice
     ///  - upper: the upper bound of the slice
-    /// - Returns: an n-dimensional tensor slice
+    /// - Returns: the collection slice
     subscript(lower: Shape, upper: Shape) -> Self { get set }
-    
-    /// subscript
-    /// - Parameters:
-    ///  - lower: the lower bound of the slice
-    ///  - upper: the upper bound of the slice
-    ///  - steps: steps along axes in parent space while forming the result
-    /// - Returns: an n-dimensional tensor slice
-    subscript(lower: Shape, upper: Shape, steps: Shape) -> Self { get set }
 }
 
 //==============================================================================
@@ -121,3 +97,34 @@ public enum StorageOrder: Int, Codable {
     public static let rowMajor = C, colMajor = F
 }
 
+//==============================================================================
+/// ElementIndex
+/// A common index type used to iterate through the logical
+/// coordinate space specified by `Shape`.
+/// `position` is the index position in n-dimensional space
+/// `sequencePosition` is the linear sequence position when iterating
+/// and used for comparison
+public struct ElementIndex<Shape>: Comparable, Codable
+    where Shape: TensorShape
+{
+    /// the logical position along each axis
+    public var position: Shape
+    /// linear sequence position
+    public var sequencePosition: Int
+
+    // init(position:sequencePosition:
+    @inlinable public init(_ position: Shape, _ sequencePosition: Int) {
+        self.position = position
+        self.sequencePosition = sequencePosition
+    }
+
+    // Equatable
+    @inlinable public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.sequencePosition == rhs.sequencePosition
+    }
+    
+    // Comparable
+    @inlinable public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.sequencePosition < rhs.sequencePosition
+    }
+}

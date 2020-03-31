@@ -17,12 +17,14 @@ import Foundation
 
 //==============================================================================
 /// DenseTensor
-public struct DenseTensor<Shape, Element, Index>:
-    MutableTensor, MutableCollection
-    where
-    Index: TensorIndex,
-    Index.Shape == Shape
+public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
+    where Shape: TensorShape
 {
+    // types
+    public typealias Index = ElementIndex<Shape>
+
+    //-----------------------------------
+    // properties
     public let storageBuffer: TensorBuffer<Element>
     /// the dense number of elements in the shape
     public let elementCount: Int
@@ -75,30 +77,11 @@ public struct DenseTensor<Shape, Element, Index>:
         }
     }
     
-    public init<Parent, Index>(
-        _ parent: Parent,
-        from lower: Shape,
-        to upper: Shape,
-        by steps: Shape,
-        indexedBy: Index.Type
-    ) where
-        Parent: Tensor, Parent.Shape == Shape, Parent.Element == Element,
-        Index: TensorIndex, Index.Shape == Shape
-    {
-        let other = parent as! DenseTensor<Shape, Element, Index>
-        self.shape = upper &- lower
-        self.elementCount = self.shape.elementCount()
-        self.storageBuffer = other.storageBuffer
-        self.strides = other.strides
-        self.bufferOffset = lower.linearIndex(with: self.strides)
-        self.storageOrder = other.storageOrder
-        self.isShared = other.isShared
-        self.spanCount = shape.spanCount(with: self.strides)
-    }
-    
     //--------------------------------------------------------------------------
+    // Collection
+    
     @inlinable public func index(after i: Index) -> Index {
-        i.incremented(boundedBy: shape)
+        fatalError()
     }
     
     @inlinable public subscript(position: Index) -> Element {
@@ -117,17 +100,8 @@ public struct DenseTensor<Shape, Element, Index>:
     }
     
     //--------------------------------------------------------------------------
-    // view subscripts
+    // subscripts
     @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
-        get {
-            fatalError()
-        }
-        set {
-            fatalError()
-        }
-    }
-    
-    @inlinable public subscript(lower: Shape, upper: Shape, steps: Shape) -> Self {
         get {
             fatalError()
         }
