@@ -27,8 +27,8 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     // properties
     /// the diagnostic name for the collection
     @inlinable public static var name: String { "DenseTensor\(Shape.rank)" }
-    /// the element storage buffer
-    public let storage: TensorBuffer<Element>
+    /// the element storage buffer.
+    @usableFromInline var storage: StorageBufferType<Element>
     /// the dense number of elements in the shape
     public let elementCount: Int
     /// the linear element offset where the view begins
@@ -65,9 +65,8 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     @inlinable public init(
         from lower: Shape,
         to upper: Shape,
-        storage: TensorBuffer<Element>? = nil,
+        storage: StorageBufferType<Element>? = nil,
         strides: Shape? = nil,
-        bufferOffset: Int = 0,
         share: Bool = false,
         order: StorageOrder = .rowMajor,
         element value: Element? = nil
@@ -75,15 +74,14 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
         assert(storage == nil || lower == Shape.zero,
                "The lower bound of new storage must be zero")
         self.shape = upper &- lower
+        let sequentialStrides = shape.sequentialStrides()
         let elementCount = self.shape.elementCount()
-        self.storage = storage ??
-            TensorBuffer(count: elementCount, name: Self.name, element: value)
         self.elementCount = elementCount
-        self.bufferOffset = bufferOffset
         self.storageOrder = order
         self.isShared = share
-        let sequentialStrides = shape.sequentialStrides()
-
+        self.storage = storage ?? StorageBufferType(count: elementCount,
+                                                    name: Self.name,
+                                                    element: value)
         if let callerStrides = strides {
             self.strides = callerStrides
             self.spanCount = shape.spanCount(with: callerStrides)
@@ -93,7 +91,8 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
             self.strides = sequentialStrides
             self.spanCount = elementCount
         }
-        
+        self.bufferOffset = lower.linearIndex(with: self.strides)
+
         //----------------------------------
         // element access functions depending on memory order
         if isSequential {
@@ -131,23 +130,34 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
         get {
             DenseTensor(from: lower, to: upper, storage: storage,
-                        strides: strides, bufferOffset: bufferOffset,
-                        share: isShared, order: storageOrder, element: nil)
+                        strides: strides, share: isShared,
+                        order: storageOrder, element: nil)
         }
         set {
             var view = DenseTensor(from: lower, to: upper, storage: storage,
-                                   strides: strides, bufferOffset: bufferOffset,
-                                   share: isShared, order: storageOrder,
-                                   element: nil)
+                                   strides: strides, share: isShared,
+                                   order: storageOrder, element: nil)
             copy(from: newValue, to: &view)
         }
     }
     
+    //--------------------------------------------------------------------------
     /// share(lower:upper:
-    @inlinable public func shared(from lower: Shape, to upper: Shape) -> Self {
-        DenseTensor(from: lower, to: upper, storage: storage,
-                    strides: strides, bufferOffset: bufferOffset,
-                    share: true, order: storageOrder, element: nil)
+    @inlinable
+    public mutating func share(from lower: Shape, to upper: Shape) -> Self {
+        // if not uniquely held then copy before creating the shared view
+        if !isKnownUniquelyReferenced(&storage) {
+            diagnostic("\(mutationString) \(storage.name)(\(storage.id)) " +
+                "\(Element.self)[\(elementCount)]",
+                categories: [.dataCopy, .dataMutation])
+
+            storage = StorageBufferType(copying: storage)
+        }
+
+        // return shared view
+        return DenseTensor(from: lower, to: upper, storage: storage,
+                           strides: strides, share: true,
+                           order: storageOrder, element: nil)
     }
 }
 

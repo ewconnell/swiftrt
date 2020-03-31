@@ -25,10 +25,10 @@ import Darwin.C
 // Platform types
 #if canImport(CCuda)
 public typealias PlatformType = CudaService
-public typealias TensorBuffer<Element> = ReplicatedBuffer<Element>
+public typealias StorageBufferType<Element> = ReplicatedBuffer<Element>
 #else
 public typealias PlatformType = CpuService
-public typealias TensorBuffer<Element> = CpuBuffer<Element>
+public typealias StorageBufferType<Element> = CpuBuffer<Element>
 #endif
 
 //==============================================================================

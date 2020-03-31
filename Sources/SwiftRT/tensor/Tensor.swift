@@ -51,24 +51,20 @@ public protocol Tensor: Collection, CustomStringConvertible, Logging
 /// an n-dimensional mutable collection of stored elements
 public protocol MutableTensor: Tensor, MutableCollection
 {
-    /// tye type of element storage buffer
-    associatedtype Buffer: StorageBuffer where Buffer.Element == Element
-
-    //----------------------------------
     /// `true` if the view will be shared by by multiple writers
     var isShared: Bool { get }
-    /// a linear buffer of materialized `Elements`
-    var storage: Buffer { get }
     
     //----------------------------------
-    /// shared
-    /// returns a sub view that does not do copy-on-write to allow
-    /// for multi-threaded writes.
+    /// share
+    /// returns a sub view that does not do copy-on-write to enable
+    /// multi-threaded writes. If the associated storage is not uniquely
+    /// referenced, then a copy will be made before returning the sharable
+    /// view.
     /// - Parameters:
     ///  - lower: the lower bound of the slice
     ///  - upper: the upper bound of the slice
     /// - Returns: the collection slice
-    func shared(from lower: Shape, to upper: Shape) -> Self
+    mutating func share(from lower: Shape, to upper: Shape) -> Self
 
     /// subscript
     /// - Parameters:
@@ -139,4 +135,9 @@ public struct ElementIndex<Shape>: Comparable, Codable
     @inlinable public static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.sequencePosition < rhs.sequencePosition
     }
+}
+
+//==============================================================================
+/// Tensor extensions
+public extension Tensor {
 }
