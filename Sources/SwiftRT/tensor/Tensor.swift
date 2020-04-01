@@ -140,4 +140,7 @@ public struct ElementIndex<Shape>: Comparable, Codable
 //==============================================================================
 /// Tensor extensions
 public extension Tensor {
+    @inlinable var flatArray: [Element] {
+        [Element](self)
+    }
 }

@@ -143,7 +143,8 @@ public extension Tensor where Shape == Shape3 {
             var array2 = [[Element]]()
             
             for row in 0..<shape[1] {
-                array2.append([Element](self[depth, row, ...]))
+                let v = [Element](self[depth, row, ...])
+                array2.append(v)
             }
             array3.append(array2)
         }

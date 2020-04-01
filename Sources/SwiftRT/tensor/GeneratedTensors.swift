@@ -70,62 +70,6 @@ extension RepeatedElement: Equatable where Element: Equatable { }
 extension RepeatedElement: Codable where Element: Codable { }
 
 //==============================================================================
-/// IndexGenerator
-/// A collection where each element is equal to it's index
-public struct IndexGenerator<Shape, Element>: Tensor, Collection
-    where Shape: TensorShape, Element: Numeric
-{
-    // Tensor properties
-    @inlinable public static var name: String { "IndexGenerator\(Shape.rank)" }
-    public let elementCount: Int
-    public let shape: Shape
-    public let storageOrder: StorageOrder
-
-    // Collection properties
-    public let startIndex: Int
-    public let endIndex: Int
-
-    //------------------------------------
-    /// init(lower:upper:order:
-    /// - Parameters:
-    ///  - lower: lower bound of the range
-    ///  - upper: upper bound of the range
-    ///  - order: the order in memory to store materialized Elements
-    @inlinable public init(
-        from lower: Shape,
-        to upper: Shape,
-        order: StorageOrder = .rowMajor
-    ) {
-        self.shape = upper &- lower
-        self.storageOrder = order
-        elementCount = shape.elementCount()
-        startIndex = lower.elementCount()
-        endIndex = startIndex + elementCount
-    }
-
-    //------------------------------------
-    // Collection functions
-    @inlinable public func elements() -> Self { self }
-    @inlinable public func index(after i: Int) -> Int { i + 1 }
-    @inlinable public subscript(index: Int) -> Element {
-        assert(Element(exactly: index) != nil,
-               "index value is too large for Element type")
-        return Element(exactly: index)!
-    }
-
-    //------------------------------------
-    // view subscripts
-    @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
-        IndexGenerator(from: lower, to: upper, order: storageOrder)
-    }
-}
-
-//------------------------------------------------------------------------------
-// extensions
-extension IndexGenerator: Equatable where Element: Equatable { }
-extension IndexGenerator: Codable where Element: Codable { }
-
-//==============================================================================
 /// EyeTensor
 public struct EyeTensor<Element>: Tensor, Collection
     where Element: Numeric

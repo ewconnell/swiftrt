@@ -42,12 +42,11 @@ public extension Tensor {
             string += "\n]"
             
         default:
-            let rowDim = Shape.rank - 2
             var pos = Shape.zero
 
             func addRows(_ dim: Int) {
                 let indent = String(repeating: " ", count: dim * tab)
-                if dim < rowDim {
+                if dim < Shape.rank-2 {
                     while true {
                         string += "\(indent)["
                         if shape[dim] > 1 { string += "\(pos[dim])" }
@@ -66,13 +65,13 @@ public extension Tensor {
                     // set row range
                     var lower = Shape.zero
                     var upper = Shape.one
-                    upper[rowDim] = shape[rowDim]
+                    upper[Shape.rank-1] = shape[Shape.rank-1]
                     
                     for _ in 0..<shape[dim] {
                         let row = [Element](self[lower, upper])
                         string += "\(indent)\(row),\n"
-                        lower[0] += 1
-                        upper[0] += 1
+                        lower[dim] += 1
+                        upper[dim] += 1
                     }
                 }
                 string = String(string.dropLast(2)) + "\n"

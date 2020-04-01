@@ -23,7 +23,6 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     // types
     public typealias Index = ElementIndex<Shape>
 
-    //-----------------------------------
     // properties
     /// the diagnostic name for the collection
     @inlinable public static var name: String { "DenseTensor\(Shape.rank)" }
@@ -48,9 +47,9 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     public let strides: Shape
 
     //-----------------------------------
-    /// the starting index within the storage buffer
+    /// the starting index zero relative to the storage buffer
     @inlinable public var startIndex: Index { Index(Shape.zero, 0) }
-    /// the ending index within the storage buffer
+    /// the ending index zero relative to the storage buffer
     @inlinable public var endIndex: Index { Index(shape, elementCount) }
 
     //-----------------------------------
@@ -74,18 +73,19 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
         assert(storage == nil || lower == Shape.zero,
                "The lower bound of new storage must be zero")
         self.shape = upper &- lower
-        let sequentialStrides = shape.sequentialStrides()
-        let elementCount = self.shape.elementCount()
+        var sequentialStrides = shape.sequentialStrides()
+        let elementCount = shape.elementCount()
         self.elementCount = elementCount
         self.storageOrder = order
         self.isShared = share
         self.storage = storage ?? StorageBufferType(count: elementCount,
                                                     name: Self.name,
                                                     element: value)
-        if let callerStrides = strides {
-            self.strides = callerStrides
-            self.spanCount = shape.spanCount(with: callerStrides)
-            self.isSequential = self.strides == sequentialStrides
+        if let strides = strides {
+            self.strides = strides
+            self.spanCount = shape.spanCount(with: strides)
+            sequentialStrides[0] = strides[0]
+            self.isSequential = strides == sequentialStrides
         } else {
             self.isSequential = true
             self.strides = sequentialStrides

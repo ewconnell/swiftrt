@@ -21,6 +21,7 @@ class test_createTensor: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_array", test_array),
         ("test_empty", test_empty),
         ("test_emptyLike", test_emptyLike),
         ("test_ones", test_ones),
@@ -34,6 +35,12 @@ class test_createTensor: XCTestCase {
         ("test_eye", test_eye),
     ]
     
+
+    //==========================================================================
+    // test_array
+    func test_array() {
+    }
+
     //==========================================================================
     // test_empty
     func test_empty() {

@@ -21,9 +21,21 @@ class test_Initialize: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_index", test_index),
         ("test_copy", test_copy),
     ]
     
+    //--------------------------------------------------------------------------
+    // test_index
+    // tests creating an index and dump values
+    func test_index() {
+//        let i = array(0..<24, (2, 3, 4), dtype: Int.self)
+////        print(i.array)
+//        print(i[1, 0, ...])
+//        print(i[1, 0, ...].flatArray)
+//        print(i[1, 0, ...].array)
+    }
+
     //--------------------------------------------------------------------------
     // test_copy
     // tests copying from source to destination view
