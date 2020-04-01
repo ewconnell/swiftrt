@@ -199,7 +199,11 @@ public extension DenseTensor {
     {
         assert(shape.elementCount() == elements.count)
         self.init(from: Shape.zero, to: shape, order: order)
-        let lazyElements = elements.lazy.map { Element(exactly: $0)! }
+        let lazyElements = elements.lazy.map { value -> Element in
+            assert(Element(exactly: value) != nil,
+                   "Value cast \(Element.self)(\(value)) failed")
+            return Element(exactly: value)!
+        }
         _ = storage.hostBuffer.initialize(from: lazyElements)
     }
     
