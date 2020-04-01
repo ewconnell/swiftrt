@@ -39,6 +39,20 @@ class test_createTensor: XCTestCase {
     //==========================================================================
     // test_array
     func test_array() {
+        // Rank1
+        let b: [Int8] = [0, 1, 2]
+        print(array(b))
+        print(array(b, dtype: Int32.self))
+        print(array(b, dtype: Double.self))
+
+        let dt: [DType] = [1.5, 2.5, 3.5]
+        print(array(dt))
+        print(array(dt, dtype: Int32.self))
+        print(array(dt, dtype: Double.self))
+
+        let d = [1.5, 2.5, 3.5]
+        print(array(d))
+        print(array(d, dtype: Int32.self))
     }
 
     //==========================================================================

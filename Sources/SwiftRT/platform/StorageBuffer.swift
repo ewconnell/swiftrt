@@ -34,24 +34,15 @@ public protocol StorageBuffer: class, Logging {
     var name: String { get set }
     
     /// `init(count:name:
-    /// creates a lazily allocated element buffer
+    /// creates an uninitialized lazily allocated element buffer
     /// - Parameters:
     ///  - count: size of the buffer in `Element` units
     ///  - name: name used in diagnostic messages
-    ///  - value: optional initial element value
-    init(count: Int, name: String, element value: Element?)
+    init(count: Int, name: String)
     
     /// `init(copying other:`
     /// copy constructor
     init(copying other: Self)
-    
-    /// `init(elements:name:`
-    /// creates a lazily allocated element buffer
-    /// - Parameters:
-    ///  - elements: a collection of initial buffer elements
-    ///  - name: name used in diagnostic messages
-    init<C>(elements: C, name: String)
-        where C: Collection, C.Element == Element
     
     /// `init(buffer:`
     /// creates an element buffer whose data is managed by the application.
@@ -84,7 +75,8 @@ public protocol StorageBuffer: class, Logging {
     ///  - stream: the I/O object for read/write operations
     init<S, Stream>(block shape: S, bufferedBlocks: Int, stream: Stream)
         where S: TensorShape, Stream: BufferStream
-    
+        
+    // ***** Note: This might be removed *****
     /// `init(element:name:
     /// initializes an element buffer for the specified `Element` value.
     /// User expressions use a lot of constant scalar values

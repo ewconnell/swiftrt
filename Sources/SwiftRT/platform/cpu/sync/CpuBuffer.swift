@@ -17,7 +17,8 @@
 //==============================================================================
 /// CpuBuffer
 /// Used to manage a host memory buffer
-public final class CpuBuffer<Element>: StorageBuffer {
+public final class CpuBuffer<Element>: StorageBuffer
+{
     public let hostBuffer: UnsafeMutableBufferPointer<Element>
     public var element: Element
     public let id: Int
@@ -28,11 +29,8 @@ public final class CpuBuffer<Element>: StorageBuffer {
     //--------------------------------------------------------------------------
     // init(count:name:
     @inlinable
-    public init(count: Int, name: String, element value: Element? = nil) {
+    public init(count: Int, name: String) {
         self.hostBuffer = UnsafeMutableBufferPointer.allocate(capacity: count)
-        if let value = value {
-            self.hostBuffer.initialize(repeating: value)
-        }
         self.element = hostBuffer[0]
         self.id = Context.nextBufferId
         self.isReadOnly = false
@@ -62,17 +60,7 @@ public final class CpuBuffer<Element>: StorageBuffer {
             _ = hostBuffer.initialize(from: other.hostBuffer)
         }
     }
-    
-    //--------------------------------------------------------------------------
-    // init(elements:name:
-    @inlinable
-    public convenience init<C>(elements: C, name: String)
-        where C: Collection, C.Element == Element
-    {
-        self.init(count: elements.count, name: name)
-        _ = hostBuffer.initialize(from: elements)
-    }
-    
+
     //--------------------------------------------------------------------------
     // init(buffer:name:
     @inlinable

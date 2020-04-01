@@ -76,7 +76,7 @@ public func empty<Shape, Element>(
     _ order: StorageOrder = .C
 ) -> DenseTensor<Shape, Element> where Shape: TensorShape
 {
-    DenseTensor(from: Shape.zero, to: shape, order: order)
+    DenseTensor(shape, order: order)
 }
 
 //---------------------------------------
@@ -382,7 +382,7 @@ public func full<Shape, Element>(
     _ order: StorageOrder = .C
 ) -> DenseTensor<Shape, Element> where Shape: TensorShape
 {
-    DenseTensor(from: Shape.zero, to: shape, order: order, element: value)
+    DenseTensor<Shape, Element>(value, shape, order: order)
 }
 
 //---------------------------------------
@@ -769,7 +769,7 @@ public func ones<Shape, Element>(
 ) -> DenseTensor<Shape, Element>
     where Shape: TensorShape, Element: Numeric
 {
-    DenseTensor(from: Shape.zero, to: shape, order: order, element: 1)
+    DenseTensor<Shape, Element>(1, shape, order: order)
 }
 
 //---------------------------------------
@@ -1111,7 +1111,7 @@ public func zeros<Shape, Element>(
 ) -> DenseTensor<Shape, Element>
     where Shape: TensorShape, Element: Numeric
 {
-    DenseTensor(from: Shape.zero, to: shape, order: order, element: 0)
+    DenseTensor<Shape, Element>(0, shape, order: order)
 }
 
 //---------------------------------------

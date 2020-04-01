@@ -63,27 +63,25 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
 
     
     //--------------------------------------------------------------------------
-    /// init(shape:
+    /// init(lower:upper:storage:strides:share:order
     @inlinable public init(
         from lower: Shape,
         to upper: Shape,
         storage: StorageBufferType<Element>? = nil,
         strides: Shape? = nil,
         share: Bool = false,
-        order: StorageOrder = .rowMajor,
-        element value: Element? = nil
+        order: StorageOrder = .rowMajor
     ) {
         assert(storage == nil || lower == Shape.zero,
                "The lower bound of new storage must be zero")
         self.shape = upper &- lower
         var sequentialStrides = shape.sequentialStrides()
-        let elementCount = shape.elementCount()
-        self.elementCount = elementCount
+        let count = shape.elementCount()
+        self.elementCount = count
         self.storageOrder = order
         self._isShared = share
-        self.storage = storage ?? StorageBufferType(count: elementCount,
-                                                    name: Self.name,
-                                                    element: value)
+        self.storage = storage ?? StorageBufferType(count: count, name: Self.name)
+        
         if let strides = strides {
             self.strides = strides
             self.spanCount = shape.spanCount(with: strides)
@@ -138,12 +136,12 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
         get {
             DenseTensor(from: lower, to: upper, storage: storage,
                         strides: strides, share: isShared,
-                        order: storageOrder, element: nil)
+                        order: storageOrder)
         }
         set {
             var view = DenseTensor(from: lower, to: upper, storage: storage,
                                    strides: strides, share: isShared,
-                                   order: storageOrder, element: nil)
+                                   order: storageOrder)
             copy(from: newValue, to: &view)
         }
     }
@@ -167,3 +165,63 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     }
 }
 
+//==============================================================================
+// DenseTensor initializer extensions
+public extension DenseTensor {
+
+    /// init(shape:order:
+    @inlinable init(_ shape: Shape, order: StorageOrder = .C) {
+        self.init(from: Shape.zero, to: shape, order: order)
+    }
+    
+    /// init(shape:element:order:
+    @inlinable init(_ element: Element, _ shape: Shape, order: StorageOrder) {
+        self.init(from: Shape.zero, to: shape, order: order)
+
+        // initialize storage on the target device
+        copy(from: RepeatedElement(shape, element: element), to: &self)
+    }
+    
+    /// init(shape:elements:order:
+    /// implicitly casts from C.Element integer -> Element
+    @inlinable init<C>(_ elements: C, _ shape: Shape, order: StorageOrder = .C)
+        where C: Collection, C.Element == Element
+    {
+        assert(shape.elementCount() == elements.count)
+        self.init(from: Shape.zero, to: shape, order: order)
+        _ = storage.hostBuffer.initialize(from: elements)
+    }
+    
+    /// init(shape:elements:order:
+    /// implicitly casts from C.Element integer -> Element
+    @inlinable init<C>(_ elements: C, _ shape: Shape, order: StorageOrder = .C)
+        where C: Collection, C.Element: BinaryInteger, Element: Numeric
+    {
+        assert(shape.elementCount() == elements.count)
+        self.init(from: Shape.zero, to: shape, order: order)
+        let lazyElements = elements.lazy.map { Element(exactly: $0)! }
+        _ = storage.hostBuffer.initialize(from: lazyElements)
+    }
+    
+    /// init(shape:order:elements:
+    /// implicitly casts from C.Element float -> Element integer
+    @inlinable init<C>(_ elements: C, _ shape: Shape, order: StorageOrder = .C)
+        where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
+    {
+        assert(shape.elementCount() == elements.count)
+        self.init(from: Shape.zero, to: shape, order: order)
+        let lazyElements = elements.lazy.map { Element($0) }
+        _ = storage.hostBuffer.initialize(from: lazyElements)
+    }
+    
+    /// init(shape:order:elements:
+    /// implicitly casts from C.Element float -> Element integer
+    @inlinable init<C>(_ elements: C, _ shape: Shape, order: StorageOrder = .C)
+        where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryFloatingPoint
+    {
+        assert(shape.elementCount() == elements.count)
+        self.init(from: Shape.zero, to: shape, order: order)
+        let lazyElements = elements.lazy.map { Element($0) }
+        _ = storage.hostBuffer.initialize(from: lazyElements)
+    }
+}

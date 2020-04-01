@@ -29,47 +29,73 @@ import Foundation
 ///    or column-major (Fortran-style) order in memory.
 /// - Returns: Dense of uninitialized (arbitrary) data of the given shape,
 ///   dtype, and order. Elements will not be initialized.
-@inlinable
-public func array<C, Shape, Element>(
-    _ elements: C,
-    _ shape: Shape.Tuple,
-    _ dtype: Element.Type,
-    _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element>
-    where Shape: TensorShape, C: Collection
-{
-    empty(Shape(shape), dtype, order)
-}
-
-@inlinable
-public func array<C, Shape, Element>(
-    _ elements: C,
-    _ shape: Shape,
-    _ dtype: Element.Type,
-    _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element>
-    where Shape: TensorShape, C: Collection
-{
-    DenseTensor(from: Shape.zero, to: shape, order: order)
-}
+//@inlinable
+//public func array<C, Shape, Element>(
+//    _ elements: C,
+//    _ shape: Shape.Tuple,
+//    _ dtype: Element.Type,
+//    _ order: StorageOrder = .C
+//) -> DenseTensor<Shape, Element>
+//    where Shape: TensorShape, C: Collection
+//{
+//    array(elements, Shape(shape), dtype, order)
+//}
+//
+//@inlinable
+//public func array<C, Shape, Element>(
+//    _ elements: C,
+//    _ shape: Shape,
+//    _ dtype: Element.Type,
+//    _ order: StorageOrder = .C
+//) -> DenseTensor<Shape, Element>
+//    where Shape: TensorShape, C: Collection
+//{
+//    DenseTensor<Shape, Element>(shape, order: order, elements: elements)
+//}
 
 //---------------------------------------
 // Rank1
-@inlinable
-public func array<C>(
-    _ elements: C,
-    _ shape: Shape1.Tuple,
-    order: StorageOrder = .C
-) -> Dense1<DType> where C: Collection
+
+// same type
+@inlinable public func array<C>(_ elements: C)
+    -> Dense1<C.Element> where C: Collection
 {
-    array(elements, shape, DType.self, order)
+    Dense1(elements, Shape1(elements.count))
 }
 
-@inlinable
-public func array<Element>(_ shape: Shape1.Tuple, dtype: Element.Type)
-    -> Dense1<Element> { empty(shape, dtype) }
+/// implicitly casts from C.Element integer -> Element
+@inlinable public func array<C>(_ elements: C)
+    -> Dense1<DType> where C: Collection, C.Element: BinaryInteger
+{
+    Dense1(elements, Shape1(elements.count))
+}
 
-@inlinable
-public func array<Element>(_ shape: Shape1.Tuple, dtype: Element.Type,
-                           order: StorageOrder = .C)
-    -> Dense1<Element> { empty(shape, dtype, order) }
+/// implicitly casts from C.Element integer -> Element
+@inlinable public func array<C, Element>(
+    _ elements: C,
+    dtype: Element.Type
+) -> Dense1<Element>
+    where C: Collection, C.Element: BinaryInteger, Element: Numeric
+{
+    Dense1<Element>(elements, Shape1(elements.count))
+}
+
+/// implicitly casts from C.Element integer -> Element
+@inlinable public func array<C, Element>(
+    _ elements: C,
+    dtype: Element.Type
+) -> Dense1<Element>
+    where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
+{
+    Dense1<Element>(elements, Shape1(elements.count))
+}
+
+/// implicitly casts from C.Element integer -> Element
+@inlinable public func array<C, Element>(
+    _ elements: C,
+    dtype: Element.Type
+) -> Dense1<Element>
+    where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryFloatingPoint
+{
+    Dense1<Element>(elements, Shape1(elements.count))
+}
