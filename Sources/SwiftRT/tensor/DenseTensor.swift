@@ -98,18 +98,22 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
 
         //----------------------------------
         // element access functions depending on memory order
+        // shadow these variables for implicit capture
+        let storage = self.storage
+        let strides = self.strides
+
         if isSequential {
-            getElement = { [storage = self.storage] in
+            getElement = {
                 storage.hostBuffer[$0.sequencePosition]
             }
-            setElement = { [storage = self.storage] in
+            setElement = {
                 storage.hostBuffer[$0.sequencePosition] = $1
             }
         } else {
-            getElement = { [storage = self.storage, strides = self.strides] in
+            getElement = {
                 storage.hostBuffer[$0.linearIndex(with: strides)]
             }
-            setElement = { [storage = self.storage, strides = self.strides] in
+            setElement = {
                 storage.hostBuffer[$0.linearIndex(with: strides)] = $1
             }
         }
