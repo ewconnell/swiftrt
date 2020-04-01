@@ -51,20 +51,18 @@ public protocol Tensor: Collection, CustomStringConvertible, Logging
 /// an n-dimensional mutable collection of stored elements
 public protocol MutableTensor: Tensor, MutableCollection
 {
-    /// `true` if the view will be shared by by multiple writers
+    /// `true` if the collection can be shared by multiple writers
+    /// without performing copy-on-write
     var isShared: Bool { get }
     
     //----------------------------------
-    /// share
-    /// returns a sub view that does not do copy-on-write to enable
+    /// shared
+    /// returns a copy of `self` that does not perform copy-on-write to enable
     /// multi-threaded writes. If the associated storage is not uniquely
     /// referenced, then a copy will be made before returning the sharable
-    /// view.
-    /// - Parameters:
-    ///  - lower: the lower bound of the slice
-    ///  - upper: the upper bound of the slice
-    /// - Returns: the collection slice
-    mutating func share(from lower: Shape, to upper: Shape) -> Self
+    /// copy. Subscripted views inherit the `isShared` property
+    /// - Returns: a sharable copy of `self`
+    mutating func shared() -> Self
 
     /// subscript
     /// - Parameters:

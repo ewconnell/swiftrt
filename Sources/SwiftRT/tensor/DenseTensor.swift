@@ -34,8 +34,6 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     public let bufferOffset: Int
     /// `true` if elements are in row major contiguous order
     public let isSequential: Bool
-    /// `true` if the view will be shared by by multiple writers
-    public let isShared: Bool
     /// Specifies whether data is stored in row-major (C-style)
     /// or column-major (Fortran-style) order in memory.
     public let storageOrder: StorageOrder
@@ -45,6 +43,11 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     public let spanCount: Int
     /// The distance to the next element along each dimension
     public let strides: Shape
+
+    //-----------------------------------
+    /// `true` if the view will be shared by by multiple writers
+    @inlinable public var isShared: Bool { _isShared }
+    @usableFromInline var _isShared: Bool
 
     //-----------------------------------
     /// the starting index zero relative to the storage buffer
@@ -77,7 +80,7 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
         let elementCount = shape.elementCount()
         self.elementCount = elementCount
         self.storageOrder = order
-        self.isShared = share
+        self._isShared = share
         self.storage = storage ?? StorageBufferType(count: elementCount,
                                                     name: Self.name,
                                                     element: value)
@@ -142,9 +145,8 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     }
     
     //--------------------------------------------------------------------------
-    /// share(lower:upper:
-    @inlinable
-    public mutating func share(from lower: Shape, to upper: Shape) -> Self {
+    /// shared(
+    @inlinable public mutating func shared() -> Self {
         // if not uniquely held then copy before creating the shared view
         if !isKnownUniquelyReferenced(&storage) {
             diagnostic("\(mutationString) \(storage.name)(\(storage.id)) " +
@@ -153,11 +155,11 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
 
             storage = StorageBufferType(copying: storage)
         }
-
-        // return shared view
-        return DenseTensor(from: lower, to: upper, storage: storage,
-                           strides: strides, share: true,
-                           order: storageOrder, element: nil)
+        
+        // copy self and set the isShared flag to true
+        var result = self
+        result._isShared = true
+        return result
     }
 }
 
