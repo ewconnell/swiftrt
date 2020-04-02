@@ -19,6 +19,7 @@ import Foundation
 /// Tensor protocol
 /// an n-dimensional collection of elements
 public protocol Tensor: Collection, CustomStringConvertible, Logging
+    where Index == ElementIndex<Shape>
 {
     /// the ranked short vector type that defines the collection's dimensions
     associatedtype Shape: TensorShape
@@ -44,6 +45,13 @@ public protocol Tensor: Collection, CustomStringConvertible, Logging
     ///  - upper: the upper bound of the slice
     /// - Returns: the collection slice
     subscript(lower: Shape, upper: Shape) -> Self { get }
+    
+    /// makeIndex(position:
+    /// makes an index from a logical position within `shape`
+    /// - Parameters:
+    ///  - position: the n-dimensional coordinate position within `shape`
+    /// - Returns: the index
+    func makeIndex(at position: Shape) -> Index
 }
 
 //==============================================================================
@@ -105,12 +113,25 @@ public struct ElementIndex<Shape>: Comparable, Codable
     /// linear sequence position
     public let sequencePosition: Int
 
+    /// init(position:sequencePosition:
+    @inlinable public init(at position: Shape, stridedBy strides: Shape) {
+        self.position = position
+        self.sequencePosition = position.index(stridedBy: strides)
+    }
+
     // init(position:sequencePosition:
     @inlinable public init(_ position: Shape, _ sequencePosition: Int) {
         self.position = position
         self.sequencePosition = sequencePosition
     }
-    
+
+    /// init(sequencePosition:
+    /// initializer for collections that ignore logical position
+    @inlinable public init(at sequencePosition: Int) {
+        self.position = Shape.zero
+        self.sequencePosition = sequencePosition
+    }
+
     /// incremented(lower:upper:
     /// increments `position` with the range `lower..<upper`
     @inlinable
@@ -121,7 +142,7 @@ public struct ElementIndex<Shape>: Comparable, Codable
     }
     
     @inlinable public func linearIndex(with strides: Shape) -> Int {
-        position.linearIndex(with: strides)
+        position.index(stridedBy: strides)
     }
 
     // Equatable

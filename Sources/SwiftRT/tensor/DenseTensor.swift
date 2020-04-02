@@ -51,9 +51,13 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
 
     //-----------------------------------
     /// the starting index zero relative to the storage buffer
-    @inlinable public var startIndex: Index { Index(Shape.zero, 0) }
+    @inlinable public var startIndex: Index {
+        Index(at: Shape.zero, stridedBy: strides)
+    }
     /// the ending index zero relative to the storage buffer
-    @inlinable public var endIndex: Index { Index(shape, elementCount) }
+    @inlinable public var endIndex: Index {
+        Index(at: shape, stridedBy: strides)
+    }
 
     //-----------------------------------
     /// a function defined during initialization to get storage elements
@@ -92,7 +96,7 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
             self.strides = sequentialStrides
             self.spanCount = elementCount
         }
-        self.bufferOffset = lower.linearIndex(with: self.strides)
+        self.bufferOffset = lower.index(stridedBy: self.strides)
 
         //----------------------------------
         // element access functions depending on memory order
@@ -123,7 +127,11 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     @inlinable public func index(after i: Index) -> Index {
         i.incremented(between: startIndex, and: endIndex)
     }
-    
+
+    @inlinable public func makeIndex(at position: Shape) -> Index {
+        Index(at: position, stridedBy: strides)
+    }
+
     // elemment subscript
     @inlinable public subscript(index: Index) -> Element {
         get { getElement(index) }

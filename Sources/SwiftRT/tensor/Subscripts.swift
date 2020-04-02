@@ -15,19 +15,26 @@
 //
 import Foundation
 
-// HACK!!
-public func copy<T, U>(from src: T, to dest: inout U)
-    where T: Tensor, U: MutableTensor, T.Element == U.Element
-{
-    zip(dest.indices, src).forEach { dest[$0] = $1 }
-}
+/// `Tensor Subscript Behavior`
+/// A tensor subscripted with a range returns a tensor slice.
+/// A tensor subscripted using `tensor.indices` or an index formed
+/// via the `ElementIndex` structure, will return the tensor's `Elements`
+/// A tensor subscripted with integers for each dimension is a convenience
+/// function for wrapping the values in a `ElementIndex` structure, and
+/// then returning the corresponding tensor `Element`
 
 //==============================================================================
 // Rank1 array property and subscripts
 public extension Tensor where Shape == Shape1 {
-    /// return an array of elements
+    /// - Returns: an array of `Element`s
     @inlinable var array: [Element] { [Element](self) }
     
+    /// - Returns: the corresponding element
+    @inlinable subscript(i: Int) -> Element {
+        self[makeIndex(at: Shape(i))]
+    }
+
+    /// - Returns: a slice defined by the range
     @inlinable subscript<R>(range: R) -> Self
         where R: PartialRangeExpression, R.Bound == Int
     {
@@ -39,7 +46,13 @@ public extension Tensor where Shape == Shape1 {
 //------------------------------------------------------------------------------
 
 public extension MutableTensor where Shape == Shape1 {
-    // simplified integer range
+    /// - Returns: the corresponding element
+    @inlinable subscript(i: Int) -> Element {
+        get { self[makeIndex(at: Shape(i))] }
+        set { self[makeIndex(at: Shape(i))] = newValue }
+    }
+
+    /// - Returns: a slice defined by the range
     @inlinable subscript<R>(range: R) -> Self
         where R: PartialRangeExpression, R.Bound == Int
         {
@@ -57,7 +70,7 @@ public extension MutableTensor where Shape == Shape1 {
 //==============================================================================
 // Rank2 array property and subscripts
 public extension Tensor where Shape == Shape2 {
-    /// return an array of elements
+    /// - Returns: an array of `Element`s
     @inlinable var array: [[Element]] {
         var array2 = [[Element]]()
         for row in 0..<shape[0] {
@@ -66,6 +79,11 @@ public extension Tensor where Shape == Shape2 {
         return array2
     }
     
+    /// - Returns: the corresponding element
+    @inlinable subscript(r: Int, c: Int) -> Element {
+        self[makeIndex(at: Shape(r, c))]
+    }
+
     //--------------------------------------------------------------------------
     // subscripts
     //    @differentiable(where Self: DifferentiableTensorView)
@@ -87,7 +105,6 @@ public extension Tensor where Shape == Shape2 {
         self[rows, 0...]
     }
     
-    
     //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable subscript<C>(rows: UnboundedRange, cols: C) -> Self
         where C: PartialRangeExpression, C.Bound == Int
@@ -99,6 +116,12 @@ public extension Tensor where Shape == Shape2 {
 //------------------------------------------------------------------------------
 
 public extension MutableTensor where Shape == Shape2 {
+    /// - Returns: the corresponding element
+    @inlinable subscript(r: Int, c: Int) -> Element {
+        get { self[makeIndex(at: Shape(r, c))] }
+        set { self[makeIndex(at: Shape(r, c))] = newValue }
+    }
+
     //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable subscript<R, C>(rows: R, cols: C) -> Self where
         R: PartialRangeExpression, R.Bound == Int,
@@ -150,7 +173,12 @@ public extension Tensor where Shape == Shape3 {
         }
         return array3
     }
-    
+
+    /// - Returns: the corresponding element
+    @inlinable subscript(d: Int, r: Int, c: Int) -> Element {
+        self[makeIndex(at: Shape(d, r, c))]
+    }
+
     //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable subscript<D, R, C>(deps: D, rows: R, cols: C) -> Self where
         D: PartialRangeExpression, D.Bound == Int,
@@ -210,6 +238,12 @@ public extension Tensor where Shape == Shape3 {
 //------------------------------------------------------------------------------
 
 public extension MutableTensor where Shape == Shape3 {
+    /// - Returns: the corresponding element
+    @inlinable subscript(d: Int, r: Int, c: Int) -> Element {
+        get { self[makeIndex(at: Shape(d, r, c))] }
+        set { self[makeIndex(at: Shape(d, r, c))] = newValue }
+    }
+
     //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable subscript<D, R, C>(deps: D, rows: R, cols: C) -> Self where
         D: PartialRangeExpression, D.Bound == Int,

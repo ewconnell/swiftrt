@@ -50,12 +50,17 @@ class test_npTensor: XCTestCase {
         let _ = array(dt, dtype: Int32.self)
         let _ = array(dt, dtype: Double.self)
 
-        let d = [1.5, 2.5, 3.5]
+        let d: [Double] = [1.5, 2.5, 3.5]
         let _ = array(d)
-        let a = array(d, dtype: Int32.self)
+        let _ = array(d, dtype: Int32.self)
         
-        for i in 0..<a.count {
-            print(a[i])
+        let i2 = [[0, 1, 2], [3, 4, 5]]
+        let a = array(i2)
+        
+        for r in 0..<a.shape[0] {
+            for c in 0..<a.shape[1] {
+                print(a[r, c])
+            }
         }
     }
 

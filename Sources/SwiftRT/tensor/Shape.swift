@@ -131,7 +131,7 @@ public extension TensorShape {
         self.reduce(into: 1, *=)
     }
     
-    @inlinable func linearIndex(with strides: Self) -> Int {
+    @inlinable func index(stridedBy strides: Self) -> Int {
         (self &* strides).wrappedSum()
     }
     

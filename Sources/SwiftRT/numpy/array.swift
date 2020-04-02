@@ -46,14 +46,14 @@ import Foundation
 //------------------------------------------------------------------------------
 // Rank1
 // same type
-@inlinable public func array<C>(_ elements: C)
+@inlinable public func array<C>(flat elements: C)
     -> Dense1<C.Element> where C: Collection
 {
     Dense1(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element integer -> Element
-@inlinable public func array<C>(_ elements: C)
+@inlinable public func array<C>(flat elements: C)
     -> Dense1<DType> where C: Collection, C.Element: BinaryInteger
 {
     Dense1(elements, Shape1(elements.count))
@@ -61,7 +61,7 @@ import Foundation
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
-    _ elements: C,
+    flat elements: C,
     dtype: Element.Type
 ) -> Dense1<Element>
     where C: Collection, C.Element: BinaryInteger, Element: Numeric
@@ -71,7 +71,7 @@ import Foundation
 
 /// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C, Element>(
-    _ elements: C,
+    flat elements: C,
     dtype: Element.Type
 ) -> Dense1<Element>
     where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
@@ -81,7 +81,7 @@ import Foundation
 
 /// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C, Element>(
-    _ elements: C,
+    flat elements: C,
     dtype: Element.Type
 ) -> Dense1<Element>
     where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryFloatingPoint
@@ -90,10 +90,80 @@ import Foundation
 }
 
 //==============================================================================
+// Rank1 from 1D swift array
+
+// same type
+@inlinable public func array<Element>(
+    _ elements: [Element],
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Dense1<Element>
+{
+    let shape = Shape1(elements.count)
+    return Dense1<Element>(elements, shape, order: order)
+}
+
+/// implicitly casts from C.Element integer -> Element
+@inlinable public func array<DType>(
+    _ elements: [DType],
+    order: StorageOrder = .C
+) -> Dense1<DType>
+{
+    let shape = Shape1(elements.count)
+    return Dense1<DType>(elements, shape, order: order)
+}
+
+/// implicitly casts from C.Element integer -> Element
+@inlinable public func array<ArrayElement>(
+    _ elements: [ArrayElement],
+    order: StorageOrder = .C
+) -> Dense1<DType> where ArrayElement: BinaryInteger
+{
+    let shape = Shape1(elements.count)
+    return Dense1<DType>(elements, shape, order: order)
+}
+
+/// implicitly casts from C.Element integer -> Element
+@inlinable public func array<ArrayElement, Element>(
+    _ elements: [ArrayElement],
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Dense1<Element>
+    where ArrayElement: BinaryInteger, Element: Numeric
+{
+    let shape = Shape1(elements.count)
+    return Dense1<Element>(elements, shape, order: order)
+}
+
+/// implicitly casts from C.Element float -> Element integer
+@inlinable public func array<ArrayElement, Element>(
+    _ elements: [ArrayElement],
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Dense1<Element>
+    where ArrayElement: BinaryFloatingPoint, Element: BinaryInteger
+{
+    let shape = Shape1(elements.count)
+    return Dense1<Element>(elements, shape, order: order)
+}
+
+/// implicitly casts from C.Element float -> Element float
+@inlinable public func array<ArrayElement, Element>(
+    _ elements: [ArrayElement],
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Dense1<Element>
+    where ArrayElement: BinaryFloatingPoint, Element: BinaryFloatingPoint
+{
+    let shape = Shape1(elements.count)
+    return Dense1<Element>(elements, shape, order: order)
+}
+
+//==============================================================================
 // Rank2 from flat collection
 // same type
 @inlinable public func array<C>(
-    _ elements: C,
+    flat elements: C,
     _ shape: Shape2.Tuple,
     order: StorageOrder = .C
 ) -> Dense2<C.Element> where C: Collection
@@ -103,7 +173,7 @@ import Foundation
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C>(
-    _ elements: C,
+    flat elements: C,
     _ shape: Shape2.Tuple,
     order: StorageOrder = .C
 ) -> Dense2<DType> where C: Collection, C.Element: BinaryInteger
@@ -113,7 +183,7 @@ import Foundation
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
-    _ elements: C,
+    flat elements: C,
     _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
@@ -125,7 +195,7 @@ import Foundation
 
 /// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C, Element>(
-    _ elements: C,
+    flat elements: C,
     _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
@@ -137,7 +207,7 @@ import Foundation
 
 /// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C, Element>(
-    _ elements: C,
+    flat elements: C,
     _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
@@ -148,7 +218,7 @@ import Foundation
 }
 
 //==============================================================================
-// Rank2 from swift array
+// Rank2 from 2D swift array
 
 // same type
 @inlinable public func array<Element>(
@@ -164,7 +234,6 @@ import Foundation
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<ArrayElement>(
     _ elements: [[ArrayElement]],
-    _ shape: Shape2.Tuple,
     order: StorageOrder = .C
 ) -> Dense2<DType> where ArrayElement: BinaryInteger
 {
@@ -175,7 +244,6 @@ import Foundation
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<ArrayElement, Element>(
     _ elements: [[ArrayElement]],
-    _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Dense2<Element>
@@ -188,7 +256,6 @@ import Foundation
 /// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<ArrayElement, Element>(
     _ elements: [[ArrayElement]],
-    _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Dense2<Element>
@@ -201,7 +268,6 @@ import Foundation
 /// implicitly casts from C.Element float -> Element float
 @inlinable public func array<ArrayElement, Element>(
     _ elements: [[ArrayElement]],
-    _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Dense2<Element>
