@@ -130,7 +130,7 @@ public struct ElementIndex<Shape>: Comparable, Codable
         return ElementIndex(pos, sequencePosition + 1)
     }
     
-    @inlinable public func linearIndex(with strides: Shape) -> Int {
+    @inlinable public func linearIndex(_ strides: Shape) -> Int {
         position.index(stridedBy: strides)
     }
 

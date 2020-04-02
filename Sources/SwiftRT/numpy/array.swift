@@ -30,21 +30,8 @@ import Foundation
 /// - Returns: Dense of uninitialized (arbitrary) data of the given shape,
 ///   dtype, and order. Elements will not be initialized.
 
-/// create tensor from 3D array
-@inlinable public func array<Element>(
-    _ elements: [[[Element]]],
-    dtype: Element.Type,
-    order: StorageOrder = .C
-) -> Dense3<Element>
-{
-    let shape = Shape3(elements.count,
-                       elements.first!.count,
-                       elements.first!.first!.count)
-    return Dense3<Element>(elements.joined().joined(), shape)
-}
-
 //------------------------------------------------------------------------------
-// Rank1
+// Rank1 from a flat collection
 // same type
 @inlinable public func array<C>(flat elements: C)
     -> Dense1<C.Element> where C: Collection
@@ -160,7 +147,7 @@ import Foundation
 }
 
 //==============================================================================
-// Rank2 from flat collection
+// Rank2 from a flat collection
 // same type
 @inlinable public func array<C>(
     flat elements: C,
