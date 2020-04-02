@@ -54,19 +54,15 @@ class test_npTensor: XCTestCase {
         let _ = array(d)
         let _ = array(d, dtype: Int32.self)
         
-        let i2 = [[0, 1, 2], [3, 4, 5]]
-        let a = array(i2)
-        
-        for r in 0..<a.shape[0] {
-            for c in 0..<a.shape[1] {
-                let i = a.makeIndex(at: Shape2(r, c))
-                print(a[i])
+        let a = array([[0, 1, 2], [3, 4, 5]])
+        let a1 = array(flat: 0..<6, (2, 3))
+
+        for r in 0..<a1.shape[0] {
+            for c in 0..<a1.shape[1] {
+                print(a[r, c])
             }
         }
         
-        for i in a.indices {
-            print(a[i])
-        }
     }
 
     //==========================================================================
