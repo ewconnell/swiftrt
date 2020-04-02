@@ -33,7 +33,7 @@ public protocol Tensor: Collection, CustomStringConvertible, Logging
     static var name: String { get }
     /// the dimensions of the collection
     var shape: Shape { get }
-    /// the strides used to compute logical positions within `shape`
+    /// the strides used to compute linear positions within `shape`
     var shapeStrides: Shape { get }
     /// the order in memory to store materialized Elements. Generator
     /// tensor types maintain this property as a template for dense
