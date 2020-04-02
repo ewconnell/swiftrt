@@ -33,6 +33,8 @@ public protocol Tensor: Collection, CustomStringConvertible, Logging
     static var name: String { get }
     /// the dimensions of the collection
     var shape: Shape { get }
+    /// the strides used to compute logical positions within `shape`
+    var shapeStrides: Shape { get }
     /// the order in memory to store materialized Elements. Generator
     /// tensor types maintain this property as a template for dense
     /// result tensors.
@@ -45,13 +47,6 @@ public protocol Tensor: Collection, CustomStringConvertible, Logging
     ///  - upper: the upper bound of the slice
     /// - Returns: the collection slice
     subscript(lower: Shape, upper: Shape) -> Self { get }
-    
-    /// makeIndex(position:
-    /// makes an index from a logical position within `shape`
-    /// - Parameters:
-    ///  - position: the n-dimensional coordinate position within `shape`
-    /// - Returns: the index
-    func makeIndex(at position: Shape) -> Index
 }
 
 //==============================================================================
@@ -113,12 +108,6 @@ public struct ElementIndex<Shape>: Comparable, Codable
     /// linear sequence position
     public let sequencePosition: Int
 
-    /// init(position:sequencePosition:
-    @inlinable public init(at position: Shape, stridedBy strides: Shape) {
-        self.position = position
-        self.sequencePosition = position.index(stridedBy: strides)
-    }
-
     // init(position:sequencePosition:
     @inlinable public init(_ position: Shape, _ sequencePosition: Int) {
         self.position = position
@@ -161,5 +150,14 @@ public struct ElementIndex<Shape>: Comparable, Codable
 public extension Tensor {
     @inlinable var flatArray: [Element] {
         [Element](self)
+    }
+    
+    /// makeIndex(position:
+    /// makes an index from a logical position within `shape`
+    /// - Parameters:
+    ///  - position: the n-dimensional coordinate position within `shape`
+    /// - Returns: the index
+    @inlinable func makeIndex(at position: Shape) -> Index {
+        Index(position, position.index(stridedBy: shapeStrides))
     }
 }

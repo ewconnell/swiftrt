@@ -59,8 +59,13 @@ class test_npTensor: XCTestCase {
         
         for r in 0..<a.shape[0] {
             for c in 0..<a.shape[1] {
-                print(a[r, c])
+                let i = a.makeIndex(at: Shape2(r, c))
+                print(a[i])
             }
+        }
+        
+        for i in a.indices {
+            print(a[i])
         }
     }
 

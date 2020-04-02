@@ -39,6 +39,8 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     public let storageOrder: StorageOrder
     /// the dimensions of the element space
     public let shape: Shape
+    /// the strides used to compute logical positions within `shape`
+    public let shapeStrides: Shape
     /// The strided number of elements spanned by the shape
     public let spanCount: Int
     /// The distance to the next element along each dimension
@@ -51,13 +53,9 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
 
     //-----------------------------------
     /// the starting index zero relative to the storage buffer
-    @inlinable public var startIndex: Index {
-        Index(at: Shape.zero, stridedBy: strides)
-    }
+    @inlinable public var startIndex: Index { Index(Shape.zero, 0) }
     /// the ending index zero relative to the storage buffer
-    @inlinable public var endIndex: Index {
-        Index(at: shape, stridedBy: strides)
-    }
+    @inlinable public var endIndex: Index { Index(shape, elementCount) }
 
     //-----------------------------------
     /// a function defined during initialization to get storage elements
@@ -79,7 +77,7 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
         assert(storage == nil || lower == Shape.zero,
                "The lower bound of new storage must be zero")
         self.shape = upper &- lower
-        var sequentialStrides = shape.sequentialStrides()
+        self.shapeStrides = shape.sequentialStrides()
         let count = shape.elementCount()
         self.elementCount = count
         self.storageOrder = order
@@ -89,11 +87,12 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
         if let strides = strides {
             self.strides = strides
             self.spanCount = shape.spanCount(with: strides)
-            sequentialStrides[0] = strides[0]
+            var sequentialStrides = self.shapeStrides
+            if shape[0] == 1 { sequentialStrides[0] = strides[0] }
             self.isSequential = strides == sequentialStrides
         } else {
             self.isSequential = true
-            self.strides = sequentialStrides
+            self.strides = self.shapeStrides
             self.spanCount = elementCount
         }
         self.bufferOffset = lower.index(stridedBy: self.strides)
@@ -126,10 +125,6 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     /// index(i:
     @inlinable public func index(after i: Index) -> Index {
         i.incremented(between: startIndex, and: endIndex)
-    }
-
-    @inlinable public func makeIndex(at position: Shape) -> Index {
-        Index(at: position, stridedBy: strides)
     }
 
     // elemment subscript
