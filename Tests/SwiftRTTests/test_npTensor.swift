@@ -17,7 +17,7 @@ import XCTest
 import Foundation
 import SwiftRT
 
-class test_createTensor: XCTestCase {
+class test_npTensor: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
@@ -54,11 +54,8 @@ class test_createTensor: XCTestCase {
         let _ = array(d)
         let a = array(d, dtype: Int32.self)
         
-        let i = [500]
-        let _ = array(i, dtype: Int8.self)
-        
-        for value in a {
-            print(value)
+        for i in 0..<a.count {
+            print(a[i])
         }
     }
 
