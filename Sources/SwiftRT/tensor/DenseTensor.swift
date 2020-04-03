@@ -180,6 +180,7 @@ public extension DenseTensor {
 // DenseTensor read write extensions
 public extension DenseTensor {
     @inlinable func read() {
+        
     }
     
     @inlinable func read(using queue: DeviceQueue) {
