@@ -63,8 +63,8 @@ public extension Tensor {
                     }
                 } else {
                     // set row range
-                    var lower = Shape.zero
-                    var upper = Shape.one
+                    var lower = pos
+                    var upper = pos &+ 1
                     upper[Shape.rank-1] = shape[Shape.rank-1]
                     
                     for _ in 0..<shape[dim] {

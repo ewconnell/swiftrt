@@ -57,10 +57,10 @@ class test_npTensor: XCTestCase {
         let _ = array([[0, 1, 2], [3, 4, 5]])
         let _ = array(flat: 0..<6, (2, 3))
         
-        let a3 = array([[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]])
-//        let af3 = array(flat: 0..<12, (2, 2, 3))
+//        let a3 = array([[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]])
+        let af4 = array(flat: 0..<120, (2, 3, 4, 5))
 
-        print(a3)
+        print(af4.flatArray)
         
 //        for r in 0..<a1.shape[0] {
 //            for c in 0..<a1.shape[1] {

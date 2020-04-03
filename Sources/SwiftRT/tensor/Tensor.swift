@@ -47,6 +47,32 @@ public protocol Tensor: Collection, CustomStringConvertible, Logging
     ///  - upper: the upper bound of the slice
     /// - Returns: the collection slice
     subscript(lower: Shape, upper: Shape) -> Self { get }
+
+    //----------------------------------
+    /// `read`
+    /// Synchronizes a collection of materialized elements for reading.
+    /// This function blocks until the elements are available.
+    /// `Elements` are accessed by the application using `Collection`
+    /// enumeration via `indices` or subscripting.
+    func read()
+    
+    /// `read(queue:
+    /// Synchronizes a collection of materialized elements for reading
+    /// using the specified `queue`. This function is non blocking, and
+    /// the elements will be available when the request reaches the
+    /// head of the queue.
+    ///
+    /// - Parameter queue: the device queue to use for synchronization
+    func read(using queue: DeviceQueue)
+}
+
+//------------------------------------------------------------------------------
+
+public extension Tensor {
+    // data is always available for generator tensor types
+    // so provide no op stubs for them
+    @inlinable func read() { }
+    @inlinable func read(using queue: DeviceQueue) { }
 }
 
 //==============================================================================
@@ -59,7 +85,7 @@ public protocol MutableTensor: Tensor, MutableCollection
     var isShared: Bool { get }
     
     //----------------------------------
-    /// shared
+    /// `shared`
     /// returns a copy of `self` that does not perform copy-on-write to enable
     /// multi-threaded writes. If the associated storage is not uniquely
     /// referenced, then a copy will be made before returning the sharable
@@ -73,6 +99,23 @@ public protocol MutableTensor: Tensor, MutableCollection
     ///  - upper: the upper bound of the slice
     /// - Returns: the collection slice
     subscript(lower: Shape, upper: Shape) -> Self { get set }
+    
+    //----------------------------------
+    /// `readWrite`
+    /// Synchronizes a collection of materialized elements for read write.
+    /// This function blocks until the elements are available.
+    /// `Elements` are accessed by the application using `MutableCollection`
+    /// enumeration via `indices` or subscripting.
+    mutating func readWrite()
+
+    /// `readWrite(queue:`
+    /// Synchronizes a mutable collection of materialized elements
+    /// using the specified `queue`. This function is non blocking, and
+    /// the elements will be available when the request reaches the
+    /// head of the queue.
+    ///
+    /// - Parameter queue: the device queue to use for synchronization
+    mutating func readWrite(using queue: DeviceQueue)
 }
 
 //==============================================================================
@@ -146,12 +189,15 @@ public struct ElementIndex<Shape>: Comparable, Codable
 }
 
 //==============================================================================
-/// Tensor extensions
+// Tensor extensions
 public extension Tensor {
+    //--------------------------------------------------------------------------
+    /// - Returns: the collection elements as a 1D Swift array
     @inlinable var flatArray: [Element] {
         [Element](self)
     }
     
+    //--------------------------------------------------------------------------
     /// makeIndex(position:
     /// makes an index from a logical position within `shape`
     /// - Parameters:

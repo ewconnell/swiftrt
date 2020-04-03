@@ -121,23 +121,27 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
             }
         }
     }
-    
+}
+
+//==============================================================================
+// DenseTensor collection and sub view extensions
+public extension DenseTensor {
     //--------------------------------------------------------------------------
     // Collection
     /// index(i:
-    @inlinable public func index(after i: Index) -> Index {
+    @inlinable func index(after i: Index) -> Index {
         i.incremented(between: startIndex, and: endIndex)
     }
 
     // elemment subscript
-    @inlinable public subscript(index: Index) -> Element {
+    @inlinable subscript(index: Index) -> Element {
         get { getElement(index) }
         set { setElement(index, newValue) }
     }
     
     //--------------------------------------------------------------------------
     // view subscripts
-    @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
+    @inlinable subscript(lower: Shape, upper: Shape) -> Self {
         get {
             DenseTensor(shape: upper &- lower, storage: storage,
                         baseOffset: lower.index(stridedBy: strides),
@@ -155,7 +159,7 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     
     //--------------------------------------------------------------------------
     /// shared(
-    @inlinable public mutating func shared() -> Self {
+    @inlinable mutating func shared() -> Self {
         // if not uniquely held then copy before creating the shared view
         if !isKnownUniquelyReferenced(&storage) {
             diagnostic("\(mutationString) \(storage.name)(\(storage.id)) " +
@@ -169,6 +173,22 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
         var result = self
         result._isShared = true
         return result
+    }
+}
+
+//==============================================================================
+// DenseTensor read write extensions
+public extension DenseTensor {
+    @inlinable func read() {
+    }
+    
+    @inlinable func read(using queue: DeviceQueue) {
+    }
+
+    @inlinable mutating func readWrite() {
+    }
+    
+    @inlinable mutating func readWrite(using queue: DeviceQueue) {
     }
 }
 
