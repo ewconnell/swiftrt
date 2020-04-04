@@ -22,8 +22,6 @@ public protocol StorageBuffer: class, Logging {
     /// the type of element stored in the buffer
     associatedtype Element
 
-    /// the buffer used for host access
-    var hostBuffer: UnsafeMutableBufferPointer<Element> { get }
     /// the id of the buffer for diagnostics
     var id: Int { get }
     /// `true` if the buffer is read only
@@ -92,8 +90,7 @@ public protocol StorageBuffer: class, Logging {
     /// `read(offset:count:
     /// gets a buffer pointer blocking the calling thread until synchronized
     /// - Parameters:
-    ///  - offset: the offset in element sized units from
-    ///    the beginning of the buffer to read
+    ///  - offset: the buffer base offset within storage
     ///  - count: the number of elements to be accessed
     /// - Returns: a buffer pointer to the elements. Elements will be valid
     ///   when the queue reaches this point
@@ -101,8 +98,7 @@ public protocol StorageBuffer: class, Logging {
     
     /// `read(offset:count:queue:`
     /// - Parameters:
-    ///  - offset: the offset in element sized units from
-    ///    the beginning of the buffer to read
+    ///  - offset: the buffer base offset within storage
     ///  - count: the number of elements to be accessed
     ///  - queue: queue for device placement and synchronization
     /// - Returns: a buffer pointer to the elements. Elements will be valid
@@ -112,20 +108,16 @@ public protocol StorageBuffer: class, Logging {
     
     /// `readWrite(type:offset:count:willOverwrite:
     /// - Parameters:
-    ///  - offset: the offset in element sized units from
-    ///    the beginning of the buffer to read
+    ///  - offset: the buffer base offset within storage
     ///  - count: the number of elements to be accessed
-    ///  - willOverwrite: `true` if the caller guarantees all
-    ///    buffer elements will be overwritten
     /// - Returns: a mutable buffer pointer to the elements.
     ///   Elements will be valid when the queue reaches this point
-    func readWrite(at offset: Int, count: Int, willOverwrite: Bool)
+    func readWrite(at offset: Int, count: Int)
         -> UnsafeMutableBufferPointer<Element>
 
     /// `readWrite(type:offset:count:willOverwrite:queue:
     /// - Parameters:
-    ///  - offset: the offset in element sized units from
-    ///    the beginning of the buffer to read
+    ///  - offset: the buffer base offset within storage
     ///  - count: the number of elements to be accessed
     ///  - queue: queue for device placement and synchronization
     ///  - willOverwrite: `true` if the caller guarantees all

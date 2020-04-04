@@ -161,7 +161,7 @@ public final class CpuBuffer<Element>: StorageBuffer
     //--------------------------------------------------------------------------
     // readWrite
     @inlinable
-    public func readWrite(at offset: Int, count: Int, willOverwrite: Bool)
+    public func readWrite(at offset: Int, count: Int)
         -> UnsafeMutableBufferPointer<Element>
     {
         let start = hostBuffer.baseAddress!.advanced(by: offset)

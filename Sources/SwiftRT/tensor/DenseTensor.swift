@@ -62,24 +62,21 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
     }
 
     //-----------------------------------
-    /// a function defined during initialization to get storage elements
-    @usableFromInline let getElement: (Index) -> Element
-    /// a function defined during initialization to set storage elements
-    @usableFromInline let setElement: (Index, Element) -> Void
-
+    /// a function defined during initialization to get storage element index
+    @usableFromInline let linear: (Index) -> Int
     
     //--------------------------------------------------------------------------
     /// init(lower:upper:storage:strides:share:order
     @inlinable public init(
         shape: Shape,
         storage: StorageBufferType<Element>? = nil,
-        baseOffset: Int = 0,
+        offset: Int = 0,
         strides: Shape? = nil,
         share: Bool = false,
         order: StorageOrder = .rowMajor
     ) {
         self.shape = shape
-        self.baseOffset = baseOffset
+        self.baseOffset = offset
         self.shapeStrides = shape.sequentialStrides()
         let count = shape.elementCount()
         self.elementCount = count
@@ -101,23 +98,11 @@ public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
 
         //----------------------------------
         // element access functions depending on memory order
-        // shadow these variables for implicit capture
-        let storage = self.storage
-        let strides = self.strides
-
         if isSequential {
-            getElement = {
-                storage.hostBuffer[$0.sequencePosition]
-            }
-            setElement = {
-                storage.hostBuffer[$0.sequencePosition] = $1
-            }
+            linear = { $0.sequencePosition }
         } else {
-            getElement = {
-                storage.hostBuffer[baseOffset + $0.linearIndex(strides)]
-            }
-            setElement = {
-                storage.hostBuffer[baseOffset + $0.linearIndex(strides)] = $1
+            linear = { [strides = self.strides] in
+                $0.linearIndex(strides)
             }
         }
     }
@@ -135,22 +120,26 @@ public extension DenseTensor {
 
     // elemment subscript
     @inlinable subscript(index: Index) -> Element {
-        get { getElement(index) }
-        set { setElement(index, newValue) }
+        get {
+            storage.read(at: baseOffset, count: 1)[linear(index)]
+        }
+        set {
+            storage.readWrite(at: baseOffset, count: 1)[linear(index)] = newValue
+        }
     }
-    
+
     //--------------------------------------------------------------------------
     // view subscripts
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
         get {
             DenseTensor(shape: upper &- lower, storage: storage,
-                        baseOffset: lower.index(stridedBy: strides),
+                        offset: lower.index(stridedBy: strides),
                         strides: strides, share: isShared,
                         order: storageOrder)
         }
         set {
             var view = DenseTensor(shape: upper &- lower, storage: storage,
-                                   baseOffset: lower.index(stridedBy: strides),
+                                   offset: lower.index(stridedBy: strides),
                                    strides: strides, share: isShared,
                                    order: storageOrder)
             copy(from: newValue, to: &view)
