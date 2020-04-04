@@ -39,6 +39,8 @@ public struct DenseTensor<Shape, Element>: MutableTensor
     public let storageOrder: StorageOrder
     /// the dimensions of the element space
     public let shape: Shape
+    // used for makeIndex
+    @usableFromInline var shapeStrides: Shape { shape.sequentialStrides() }
     /// The strided number of elements spanned by the shape
     public let spanCount: Int
     /// The distance to the next element along each dimension
@@ -141,16 +143,31 @@ public extension DenseTensor {
     // view subscripts
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
         get {
-            DenseTensor(shape: upper &- lower, storage: storage,
-                        offset: lower.index(stridedBy: strides),
-                        strides: strides, share: isShared,
-                        order: storageOrder)
+            let shape = upper &- lower
+            return DenseTensor(
+                shape: shape,
+                strides: strides,
+                elementCount: shape.elementCount(),
+                spanCount: shape.spanCount(stridedBy: strides),
+                storage: storage,
+                baseOffset: lower.index(stridedBy: strides),
+                order: storageOrder,
+                share: isShared,
+                isSequential: strides == shapeStrides)
         }
         set {
-            var view = DenseTensor(shape: upper &- lower, storage: storage,
-                                   offset: lower.index(stridedBy: strides),
-                                   strides: strides, share: isShared,
-                                   order: storageOrder)
+            let shape = upper &- lower
+            var view = DenseTensor(
+                shape: shape,
+                strides: strides,
+                elementCount: shape.elementCount(),
+                spanCount: shape.spanCount(stridedBy: strides),
+                storage: storage,
+                baseOffset: lower.index(stridedBy: strides),
+                order: storageOrder,
+                share: isShared,
+                isSequential: strides == shapeStrides)
+            
             copy(from: newValue, to: &view)
         }
     }
@@ -192,7 +209,7 @@ public extension DenseTensor {
 }
 
 //==============================================================================
-// DenseTensor initializer extensions
+// DenseTensor initializers
 public extension DenseTensor {
     /// init(shape:order:
     @inlinable init(_ shape: Shape, order: StorageOrder) {

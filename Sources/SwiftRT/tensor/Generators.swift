@@ -24,15 +24,16 @@ public struct RepeatedElement<Shape, Element>: Tensor, Collection
     // properties
     public typealias Index = ElementIndex<Shape>
     @inlinable public static var name: String { "RepeatedElement\(Shape.rank)" }
-    public let elementCount: Int
+    @usableFromInline lazy var shapeStrides: Shape = shape.sequentialStrides()
+
     public let shape: Shape
-    public let shapeStrides: Shape
-    public let storageOrder: StorageOrder
     public let element: Element
+    public let elementCount: Int
+    public let storageOrder: StorageOrder
 
     // Collection properties
-    public let startIndex: Index
-    public let endIndex: Index
+    @inlinable public var startIndex: Index { Index(at: 0) }
+    @inlinable public var endIndex: Index { Index(at: elementCount) }
 
     //-----------------------------------
     // device compatibility properties
@@ -58,10 +59,7 @@ public struct RepeatedElement<Shape, Element>: Tensor, Collection
         self.shape = shape
         self.element = element
         self.storageOrder = order
-        shapeStrides = shape.sequentialStrides()
-        elementCount = shape.elementCount()
-        startIndex = Index(at: 0)
-        endIndex = Index(at: elementCount)
+        self.elementCount = shape.elementCount()
     }
     
     //------------------------------------
@@ -70,6 +68,13 @@ public struct RepeatedElement<Shape, Element>: Tensor, Collection
     @inlinable public subscript(index: Index) -> Element { element }
     @inlinable public func index(after i: Index) -> Index {
         Index(at: i.sequencePosition + 1)
+    }
+    
+    @inlinable
+    public func makeIndex(at position: Shape) -> ElementIndex<Shape> {
+        // in the repeated case, all positions return the same value
+        // so don't waste time computing the sequence position
+        startIndex
     }
 
     //------------------------------------
@@ -140,6 +145,11 @@ public struct EyeTensor<Element>: Tensor, Collection
     // Collection functions
     @inlinable public func elements() -> Self { self }
     @inlinable public func index(after i: Index) -> Index {
+        fatalError()
+    }
+
+    @inlinable
+    public func makeIndex(at position: Shape2) -> ElementIndex<Shape2> {
         fatalError()
     }
 

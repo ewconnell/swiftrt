@@ -135,7 +135,7 @@ public extension TensorShape {
         (self &* strides).wrappedSum()
     }
     
-    @inlinable func spanCount(with strides: Self) -> Int {
+    @inlinable func spanCount(stridedBy strides: Self) -> Int {
         ((self &- 1) &* strides).wrappedSum() + 1
     }
     

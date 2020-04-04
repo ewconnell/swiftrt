@@ -73,7 +73,7 @@ public func empty<Shape, Element>(
     _ order: StorageOrder = .C
 ) -> DenseTensor<Shape, Element> where Shape: TensorShape
 {
-    DenseTensor(shape: shape, order: order)
+    DenseTensor(shape, order: order)
 }
 
 //---------------------------------------

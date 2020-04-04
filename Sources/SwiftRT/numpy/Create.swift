@@ -19,7 +19,7 @@
 
 //******************************************************************************
 //
-// DO NOT EDIT. THIS FILE IS GENERATED FROM Create.swift.gyb
+// DO NOT EDIT. THIS FILE IS GENERATED FROM .swift.gyb file
 //
 //******************************************************************************
 
@@ -76,7 +76,7 @@ public func empty<Shape, Element>(
     _ order: StorageOrder = .C
 ) -> DenseTensor<Shape, Element> where Shape: TensorShape
 {
-    DenseTensor(shape: shape, order: order)
+    DenseTensor(shape, order: order)
 }
 
 //---------------------------------------
