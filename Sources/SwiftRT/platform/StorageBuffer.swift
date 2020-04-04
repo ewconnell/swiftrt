@@ -92,11 +92,11 @@ public protocol StorageBuffer: class, Logging {
     /// - Returns: a single element at the specified offset
     func element(at offset: Int) -> Element
     
-    /// `element(offset:value:`
+    /// `setElement(value:offset:`
     /// - Parameters:
-    ///  - offset: the linear storage index of the element
     ///  - value: the value to set
-    func element(at offset: Int, value: Element)
+    ///  - offset: the linear storage index of the element
+    func setElement(value: Element, at offset: Int)
     
     /// `read(offset:count:`
     /// gets a buffer pointer blocking the calling thread until synchronized

@@ -145,7 +145,7 @@ public final class CpuBuffer<Element>: StorageBuffer
     }
     
     @inlinable
-    public func element(at offset: Int, value: Element) {
+    public func setElement(value: Element, at offset: Int) {
         hostBuffer[offset] = value
     }
     

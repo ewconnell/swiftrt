@@ -53,18 +53,16 @@ public struct DenseTensor<Shape, Element>: MutableTensor
 
     //-----------------------------------
     /// the starting index zero relative to the storage buffer
-    @inlinable public var startIndex: Index {
-        Index(Shape.zero, baseOffset)
-    }
+    public let startIndex: Index
     /// the ending index zero relative to the storage buffer
-    @inlinable public var endIndex: Index {
-        Index(shape, baseOffset + elementCount)
-    }
+    public let endIndex: Index
 
     //-----------------------------------
-    /// a function defined during initialization to get storage element index
+    /// defined during init to compute a linear storage buffer index
     @usableFromInline let linear: (Index) -> Int
-    
+    /// defined during init to increment an index to the next position
+    @usableFromInline let increment: (Index) -> Index
+
     //--------------------------------------------------------------------------
     /// init(lower:upper:storage:strides:share:order
     @inlinable public init(
@@ -95,14 +93,20 @@ public struct DenseTensor<Shape, Element>: MutableTensor
             self.strides = self.shapeStrides
             self.spanCount = elementCount
         }
+        self.startIndex = Index(Shape.zero, baseOffset)
+        self.endIndex = Index(shape, baseOffset + elementCount)
 
         //----------------------------------
         // element access functions depending on memory order
         if isSequential {
             linear = { $0.sequencePosition }
+            increment = { Index(at: $0.sequencePosition + 1) }
         } else {
             linear = { [offset = baseOffset, strides = self.strides] in
                 offset + $0.linearIndex(strides)
+            }
+            increment = { [start = self.startIndex, end = self.endIndex] in
+                $0.incremented(between: start, and: end)
             }
         }
     }
@@ -111,12 +115,8 @@ public struct DenseTensor<Shape, Element>: MutableTensor
 //==============================================================================
 // DenseTensor collection and sub view extensions
 public extension DenseTensor {
-    //--------------------------------------------------------------------------
-    // Collection
     /// index(i:
-    @inlinable func index(after i: Index) -> Index {
-        i.incremented(between: startIndex, and: endIndex)
-    }
+    @inlinable func index(after i: Index) -> Index { increment(i) }
 
     // elemment subscript
     @inlinable subscript(index: Index) -> Element {
@@ -124,7 +124,7 @@ public extension DenseTensor {
             storage.element(at: linear(index))
         }
         set {
-            storage.element(at: linear(index), value: newValue)
+            storage.setElement(value: newValue, at: linear(index))
         }
     }
 
@@ -159,9 +159,9 @@ public extension DenseTensor {
         }
         
         // copy self and set the isShared flag to true
-        var result = self
-        result._isShared = true
-        return result
+        var sharedDense = self
+        sharedDense._isShared = true
+        return sharedDense
     }
 }
 
