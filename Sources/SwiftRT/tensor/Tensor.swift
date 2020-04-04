@@ -29,17 +29,32 @@ public protocol Tensor: Collection, CustomStringConvertible, Logging
     //----------------------------------
     /// the number of elements described by `shape`
     var elementCount: Int { get }
+    
     /// a label for the type used as a default name in diagnostics
     static var name: String { get }
+    
     /// the dimensions of the collection
     var shape: Shape { get }
+    
     /// the strides used to compute linear positions within `shape`
     var shapeStrides: Shape { get }
+    
     /// the order in memory to store materialized Elements. Generator
     /// tensor types maintain this property as a template for dense
     /// result tensors.
     var storageOrder: StorageOrder { get }
+
+    //----------------------------------
+    // for guaranteed discreet device compatibility
+    /// - Returns: a value if the tensor can be represented as a
+    /// single element, and `nil` if it cannot.
+    var asElement: Element? { get }
     
+    /// used to ensure that a discreet device always has something
+    /// it can work with. In the case of an unrecognized generator tensor,
+    /// this can be used to render it on the cpu into a common form.
+    var asDense: DenseTensor<Shape, Element> { get }
+
     //----------------------------------
     /// subscript
     /// - Parameters:

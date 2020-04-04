@@ -34,6 +34,16 @@ public struct RepeatedElement<Shape, Element>: Tensor, Collection
     public let startIndex: Index
     public let endIndex: Index
 
+    //-----------------------------------
+    // device compatibility properties
+    @inlinable  @_transparent
+    public var asElement: Element? { element }
+    
+    @inlinable @_transparent
+    public var asDense: DenseTensor<Shape, Element> {
+        DenseTensor(element, Shape.one, order: .C)
+    }
+
     //------------------------------------
     /// init(shape:element:order:
     /// - Parameters:
@@ -112,6 +122,18 @@ public struct EyeTensor<Element>: Tensor, Collection
         self.elementCount = shape.elementCount()
         self.startIndex = Index(lower, 0)
         self.endIndex = Index(upper, self.elementCount)
+    }
+
+    //-----------------------------------
+    // device compatibility properties
+    @inlinable  @_transparent
+    public var asElement: Element? {
+        fatalError()
+    }
+    
+    @inlinable @_transparent
+    public var asDense: DenseTensor<Shape, Element> {
+        fatalError()
     }
 
     //------------------------------------

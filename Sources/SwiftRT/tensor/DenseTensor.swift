@@ -47,6 +47,15 @@ public struct DenseTensor<Shape, Element>: MutableTensor
     public let strides: Shape
 
     //-----------------------------------
+    // device compatibility properties
+    @inlinable public var asElement: Element? {
+        elementCount == 1 ? storage.element(at: 0) : nil
+    }
+    
+    @inlinable @_transparent
+    public var asDense: DenseTensor<Shape, Element> { self }
+
+    //-----------------------------------
     /// `true` if the view will be shared by by multiple writers
     @inlinable public var isShared: Bool { _isShared }
     @usableFromInline var _isShared: Bool
