@@ -16,6 +16,12 @@
 import Foundation
 
 //==============================================================================
+//
+//extension DenseTensor: Differentiable where Element: Differentiable {
+//    public typealias TangentVector = Self
+//}
+
+//==============================================================================
 /// DenseTensor
 public struct DenseTensor<Shape, Element>: MutableTensor
     where Shape: TensorShape

@@ -244,8 +244,9 @@ open class DeviceQueue: Logging {
 //    }
 //
     @inlinable
-    func add<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
+    func add<T,U,R>(_ lhs: T, _ rhs: U, _ result: inout R) where
         T: Tensor, T.Element: AdditiveArithmetic,
+        U: Tensor, U.Element == T.Element,
         R: MutableTensor, R.Element == T.Element
     {
         mapOp(lhs, rhs, &result, +)

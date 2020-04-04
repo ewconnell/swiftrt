@@ -173,6 +173,156 @@ public func empty<T>(
 %end
 
 //==============================================================================
+/// repeating
+/// Return a new tensor of given shape and type repeating `value`
+/// - Parameters:
+///  - shape: Int or tuple of Int
+///    Shape of the array, e.g., (2, 3) or 2.
+///  - value: Fill value.
+///  - dtype: data-type, optional
+///    Desired output data-type for the array, e.g, Int8. Default is DType.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
+/// - Returns: Fill of uninitialized (arbitrary) data of the given shape,
+///   dtype, and order. Elements will not be initialized.
+@inlinable
+public func repeating<Shape, Element>(
+    _ shape: Shape.Tuple,
+    _ value: Element,
+    _ dtype: Element.Type,
+    _ order: StorageOrder = .C
+) -> DenseTensor<Shape, Element> where Shape: TensorShape
+{
+    repeating(Shape(shape), value, dtype, order)
+}
+
+@inlinable
+public func repeating<Shape, Element>(
+    _ shape: Shape,
+    _ value: Element,
+    _ dtype: Element.Type,
+    _ order: StorageOrder = .C
+) -> DenseTensor<Shape, Element> where Shape: TensorShape
+{
+    DenseTensor<Shape, Element>(value, shape, order: order)
+}
+
+//---------------------------------------
+// Rank0
+@inlinable
+public func repeating(_ value: DType) -> Dense1<DType> {
+    repeating(Shape1(1), value, DType.self)
+}
+
+@inlinable
+public func repeating<Element>(_ value: Element, dtype: Element.Type)
+    -> Dense1<Element> { repeating(Shape1(1), value, dtype) }
+
+%for n in range(1, numShapes + 1):
+//---------------------------------------
+// Rank${n}
+@inlinable
+public func repeating(
+    _ shape: Shape${n}.Tuple,
+    _ value: DType,
+    order: StorageOrder = .C
+) -> Dense${n}<DType> { repeating(shape, value, DType.self, order) }
+
+@inlinable
+public func repeating<Element>(
+    _ shape: Shape${n}.Tuple,
+    _ value: Element,
+    dtype: Element.Type
+) -> Dense${n}<Element> { repeating(shape, value, dtype) }
+
+@inlinable
+public func repeating<Element>(
+    _ shape: Shape${n}.Tuple,
+    _ value: Element,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Dense${n}<Element> { repeating(shape, value, dtype, order) }
+
+%end
+
+//==============================================================================
+/// repeating(like:
+/// Return a new tensor of given shape and type repeating `value`
+/// - Parameters:
+///  - prototype: unspecified attributes are copied from this tensor
+///  - value: Fill value.
+///  - dtype: data-type, optional
+///    Desired output data-type for the array, e.g, Int8. Default is DType.
+///  - order: { .C, .F }, optional, default .C
+///    Whether to store multi-dimensional data in row-major (C-style)
+///    or column-major (Fortran-style) order in memory.
+///  - shape: Int or tuple of Int
+///    Shape of the repeated value, e.g., (2, 3) or 2.
+/// - Returns: Fill of uninitialized (arbitrary) data of the given shape,
+///   dtype, and order. Elements will not be initialized.
+
+// same type and shape
+@inlinable
+public func repeating<T>(
+    like prototype: T,
+    _ value: T.Element,
+    order: StorageOrder? = nil
+) -> DenseTensor<T.Shape, T.Element> where T: Tensor
+{
+    repeating(prototype.shape, value, T.Element.self, order ?? prototype.storageOrder)
+}
+
+//------------------------------------------------------------------------------
+// same type different shape
+%for n in range(1, numShapes + 1):
+// Rank${n}
+@inlinable public func repeating<T>(
+    like prototype: T,
+    _ value: T.Element,
+    order: StorageOrder? = nil,
+    shape: Shape${n}.Tuple
+) -> DenseTensor<Shape${n}, T.Element> where T: Tensor
+{
+    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    return repeating(shape, value, T.Element.self, order ?? prototype.storageOrder)
+}
+
+%end
+
+//------------------------------------------------------------------------------
+// different type same shape
+@inlinable
+public func repeating<T, Element>(
+    like prototype: T,
+    _ value: Element,
+    dtype: Element.Type,
+    order: StorageOrder? = nil
+) -> DenseTensor<T.Shape, Element> where T: Tensor
+{
+    repeating(prototype.shape, value, Element.self, order ?? prototype.storageOrder)
+}
+
+//------------------------------------------------------------------------------
+// different type, different shape
+%for n in range(1, numShapes + 1):
+// Rank${n}
+@inlinable public func repeating<T, Element>(
+    like prototype: T,
+    _ value: Element,
+    dtype: Element.Type,
+    order: StorageOrder? = nil,
+    shape: Shape${n}.Tuple
+) -> DenseTensor<Shape${n}, Element> where T: Tensor
+{
+    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    return repeating(shape, value, Element.self, order ?? prototype.storageOrder)
+}
+
+%end
+
+
+//==============================================================================
 /// full
 /// Return a new tensor of given shape and type filled with `value`
 /// - Parameters:
