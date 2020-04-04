@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 import Foundation
+import Numerics
 
 //==============================================================================
 /// Tensor protocol
@@ -212,4 +213,30 @@ public extension Tensor {
     @inlinable var flatArray: [Element] {
         [Element](self)
     }
+}
+
+//==============================================================================
+/// DifferentiableTensor
+///
+/// Marker protocol for `Tensor` that conform to `Differentiable`.
+///
+/// While this protoocl is not strictly necessary, it is used to reduce the
+/// number of generic requirements when writing `@differentiable` attributes on
+/// generic differentiable `Tensor` functions.
+public protocol DifferentiableTensor: Tensor & Differentiable
+    where Self == TangentVector, Element: DifferentiableElement {}
+
+//==============================================================================
+/// DifferentiableElement
+// this is for shorthand also to make the code less verbose
+public protocol DifferentiableElement:
+    Differentiable & Numeric where Self == TangentVector {}
+
+extension Float: DifferentiableElement {}
+extension Double: DifferentiableElement {}
+
+// this is defined with the typealias because of AD same file
+// compiler requirements. Hopefully fixed in the future
+extension Complex: DifferentiableElement {
+  public typealias TangentVector = Self
 }

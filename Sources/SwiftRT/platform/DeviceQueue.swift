@@ -168,15 +168,15 @@ open class DeviceQueue: Logging {
 //        zip(r.indices, x).forEach { r[$0] = op($1) }
 //    }
 //
-//    // mapOp 2
-//    @inlinable
-//    func mapOp<LHS, RHS, R>(
-//        _ lhs: LHS, _ rhs: RHS, _ r: inout R,
-//        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
-//        LHS: ShapedBuffer, RHS: ShapedBuffer, R: MutableShapedBuffer
-//    {
-//        zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = op($1.0, $1.1) }
-//    }
+    // mapOp 2
+    @inlinable
+    func mapOp<LHS, RHS, R>(
+        _ lhs: LHS, _ rhs: RHS, _ r: inout R,
+        _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
+        LHS: Tensor, RHS: Tensor, R: MutableTensor
+    {
+        zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = op($1.0, $1.1) }
+    }
 //
 //    // mapOp 3
 //    @inlinable
@@ -243,13 +243,13 @@ open class DeviceQueue: Logging {
 //        mapOp(x, &result) { .acosh($0) }
 //    }
 //
-//    @inlinable
-//    func add<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
-//        T: ShapedBuffer, T.Element: AdditiveArithmetic,
-//        R: MutableShapedBuffer, R.Element == T.Element
-//    {
-//        mapOp(lhs, rhs, &result, +)
-//    }
+    @inlinable
+    func add<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where
+        T: Tensor, T.Element: AdditiveArithmetic,
+        R: MutableTensor, R.Element == T.Element
+    {
+        mapOp(lhs, rhs, &result, +)
+    }
 //
 //    @inlinable
 //    func and<T, R>(_ lhs: T, _ rhs: T, _ result: inout R) where

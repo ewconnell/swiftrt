@@ -151,21 +151,6 @@ public enum ReductionOp: Int, Codable {
 
 public typealias ReduceOpFinal<R: MutableCollection> = (R.Element) -> R.Element
 
-////==============================================================================
-//// parameter matching helper
-//@inlinable
-//public func implicitlyMatchExtents<T>(_ lhs: T, _ rhs: T) -> (T, T)
-//    where T: TensorView
-//{
-//    if lhs.count == rhs.count {
-//        return (lhs, rhs)
-//    } else if lhs.count > rhs.count {
-//        return (lhs, rhs.repeated(to: lhs.bounds))
-//    } else {
-//        return (lhs.repeated(to: rhs.bounds), rhs)
-//    }
-//}
-
 //==============================================================================
 /// ServiceError
 /// platform errors
