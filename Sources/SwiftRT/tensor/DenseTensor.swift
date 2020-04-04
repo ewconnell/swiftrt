@@ -39,8 +39,6 @@ public struct DenseTensor<Shape, Element>: MutableTensor
     public let storageOrder: StorageOrder
     /// the dimensions of the element space
     public let shape: Shape
-    /// the strides used to compute logical positions within `shape`
-    public let shapeStrides: Shape
     /// The strided number of elements spanned by the shape
     public let spanCount: Int
     /// The distance to the next element along each dimension
@@ -73,35 +71,27 @@ public struct DenseTensor<Shape, Element>: MutableTensor
     @usableFromInline let increment: (Index) -> Index
 
     //--------------------------------------------------------------------------
-    /// init(lower:upper:storage:strides:share:order
+    // fully specified init
     @inlinable public init(
         shape: Shape,
-        storage: StorageBufferType<Element>? = nil,
-        offset: Int = 0,
-        strides: Shape? = nil,
-        share: Bool = false,
-        order: StorageOrder = .rowMajor
+        strides: Shape,
+        elementCount: Int,
+        spanCount: Int,
+        storage: StorageBufferType<Element>,
+        baseOffset: Int,
+        order: StorageOrder,
+        share: Bool,
+        isSequential: Bool
     ) {
         self.shape = shape
-        self.baseOffset = offset
-        self.shapeStrides = shape.sequentialStrides()
-        let count = shape.elementCount()
-        self.elementCount = count
+        self.strides = strides
+        self.elementCount = elementCount
+        self.spanCount = spanCount
+        self.storage = storage
+        self.baseOffset = baseOffset
         self.storageOrder = order
         self._isShared = share
-        self.storage = storage ?? StorageBufferType(count: count, name: Self.name)
-        
-        if let strides = strides {
-            self.strides = strides
-            self.spanCount = shape.spanCount(with: strides)
-            var sequentialStrides = self.shapeStrides
-            if shape[0] == 1 { sequentialStrides[0] = strides[0] }
-            self.isSequential = strides == sequentialStrides
-        } else {
-            self.isSequential = true
-            self.strides = self.shapeStrides
-            self.spanCount = elementCount
-        }
+        self.isSequential = isSequential
         self.startIndex = Index(Shape.zero, baseOffset)
         self.endIndex = Index(shape, baseOffset + elementCount)
 
@@ -111,8 +101,8 @@ public struct DenseTensor<Shape, Element>: MutableTensor
             linear = { $0.sequencePosition }
             increment = { Index(at: $0.sequencePosition + 1) }
         } else {
-            linear = { [offset = baseOffset, strides = self.strides] in
-                offset + $0.linearIndex(strides)
+            linear = { [strides = self.strides] in
+                $0.linearIndex(strides)
             }
             increment = { [start = self.startIndex, end = self.endIndex] in
                 $0.incremented(between: start, and: end)
@@ -124,6 +114,16 @@ public struct DenseTensor<Shape, Element>: MutableTensor
 //==============================================================================
 // DenseTensor collection and sub view extensions
 public extension DenseTensor {
+
+    /// makeIndex(position:
+    /// makes an index from a logical position within `shape`
+    /// - Parameters:
+    ///  - position: the n-dimensional coordinate position within `shape`
+    /// - Returns: the index
+    @inlinable func makeIndex(at position: Shape) -> Index {
+        Index(position, position.index(stridedBy: shapeStrides))
+    }
+
     /// index(i:
     @inlinable func index(after i: Index) -> Index { increment(i) }
 
@@ -194,10 +194,23 @@ public extension DenseTensor {
 //==============================================================================
 // DenseTensor initializer extensions
 public extension DenseTensor {
+    /// init(shape:order:
+    @inlinable init(_ shape: Shape, order: StorageOrder) {
+        let count = shape.elementCount()
+        self.init(shape: shape,
+                  strides: shape.sequentialStrides(),
+                  elementCount: count,
+                  spanCount: count,
+                  storage: StorageBufferType(count: count, name: Self.name),
+                  baseOffset: 0,
+                  order: order,
+                  share: false,
+                  isSequential: true)
+    }
 
-    /// init(shape:element:order:
+    /// init(element:shape:order:
     @inlinable init(_ element: Element, _ shape: Shape, order: StorageOrder) {
-        self.init(shape: shape, order: order)
+        self.init(shape, order: order)
 
         // initialize storage on the target device
         copy(from: RepeatedElement(shape, element: element), to: &self)
@@ -209,7 +222,7 @@ public extension DenseTensor {
         where C: Collection, C.Element == Element
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape: shape, order: order)
+        self.init(shape, order: order)
         _ = storage.hostBuffer.initialize(from: elements)
     }
     
@@ -219,7 +232,7 @@ public extension DenseTensor {
         where C: Collection, C.Element: BinaryInteger, Element: Numeric
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape: shape, order: order)
+        self.init(shape, order: order)
         let lazyElements = elements.lazy.map { value -> Element in
             assert(Element(exactly: value) != nil,
                    "Value cast \(Element.self)(\(value)) failed")
@@ -234,7 +247,7 @@ public extension DenseTensor {
         where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape: shape, order: order)
+        self.init(shape, order: order)
         let lazyElements = elements.lazy.map { Element($0) }
         _ = storage.hostBuffer.initialize(from: lazyElements)
     }
@@ -245,7 +258,7 @@ public extension DenseTensor {
         where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryFloatingPoint
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape: shape, order: order)
+        self.init(shape, order: order)
         let lazyElements = elements.lazy.map { Element($0) }
         _ = storage.hostBuffer.initialize(from: lazyElements)
     }

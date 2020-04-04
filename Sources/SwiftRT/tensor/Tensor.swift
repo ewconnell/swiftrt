@@ -29,16 +29,10 @@ public protocol Tensor: Collection, CustomStringConvertible, Logging
     //----------------------------------
     /// the number of elements described by `shape`
     var elementCount: Int { get }
-    
     /// a label for the type used as a default name in diagnostics
     static var name: String { get }
-    
     /// the dimensions of the collection
     var shape: Shape { get }
-    
-    /// the strides used to compute linear positions within `shape`
-    var shapeStrides: Shape { get }
-    
     /// the order in memory to store materialized Elements. Generator
     /// tensor types maintain this property as a template for dense
     /// result tensors.
@@ -56,6 +50,13 @@ public protocol Tensor: Collection, CustomStringConvertible, Logging
     var asDense: DenseTensor<Shape, Element> { get }
 
     //----------------------------------
+    /// makeIndex(position:
+    /// makes an index from a logical position within `shape`
+    /// - Parameters:
+    ///  - position: the n-dimensional coordinate position within `shape`
+    /// - Returns: the index
+    func makeIndex(at position: Shape) -> Index
+
     /// subscript
     /// - Parameters:
     ///  - lower: the lower bound of the slice
@@ -210,15 +211,5 @@ public extension Tensor {
     /// - Returns: the collection elements as a 1D Swift array
     @inlinable var flatArray: [Element] {
         [Element](self)
-    }
-    
-    //--------------------------------------------------------------------------
-    /// makeIndex(position:
-    /// makes an index from a logical position within `shape`
-    /// - Parameters:
-    ///  - position: the n-dimensional coordinate position within `shape`
-    /// - Returns: the index
-    @inlinable func makeIndex(at position: Shape) -> Index {
-        Index(position, position.index(stridedBy: shapeStrides))
     }
 }
