@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 /// DenseTensor
-public struct DenseTensor<Shape, Element>: MutableTensor, MutableCollection
+public struct DenseTensor<Shape, Element>: MutableTensor
     where Shape: TensorShape
 {
     // types
