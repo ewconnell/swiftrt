@@ -87,7 +87,18 @@ public protocol StorageBuffer: class, Logging {
     ///  - name: name used in diagnostic messages
     init(for element: Element, name: String)
     
-    /// `read(offset:count:
+    /// `element(offset:`
+    /// - Parameter offset: the linear storage index of the element
+    /// - Returns: a single element at the specified offset
+    func element(at offset: Int) -> Element
+    
+    /// `element(offset:value:`
+    /// - Parameters:
+    ///  - offset: the linear storage index of the element
+    ///  - value: the value to set
+    func element(at offset: Int, value: Element)
+    
+    /// `read(offset:count:`
     /// gets a buffer pointer blocking the calling thread until synchronized
     /// - Parameters:
     ///  - offset: the buffer base offset within storage

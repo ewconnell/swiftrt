@@ -101,8 +101,8 @@ public struct DenseTensor<Shape, Element>: MutableTensor
         if isSequential {
             linear = { $0.sequencePosition }
         } else {
-            linear = { [strides = self.strides] in
-                $0.linearIndex(strides)
+            linear = { [offset = baseOffset, strides = self.strides] in
+                offset + $0.linearIndex(strides)
             }
         }
     }
@@ -121,10 +121,10 @@ public extension DenseTensor {
     // elemment subscript
     @inlinable subscript(index: Index) -> Element {
         get {
-            storage.read(at: baseOffset, count: 1)[linear(index)]
+            storage.element(at: linear(index))
         }
         set {
-            storage.readWrite(at: baseOffset, count: 1)[linear(index)] = newValue
+            storage.element(at: linear(index), value: newValue)
         }
     }
 
