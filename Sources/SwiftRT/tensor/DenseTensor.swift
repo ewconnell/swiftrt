@@ -107,7 +107,7 @@ public struct DenseTensor<Shape, Element>: MutableTensor
         // element access functions depending on memory order
         if isSequential {
             linear = { $0.sequencePosition }
-            increment = { Index(at: $0.sequencePosition + 1) }
+            increment = { Index(at: $0.sequencePosition &+ 1) }
         } else {
             linear = { [strides = self.strides] in
                 $0.linearIndex(strides)

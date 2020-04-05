@@ -99,14 +99,14 @@ public extension TensorShape {
     @inlinable
     func incremented(between lower: Self, and upper: Self) -> Self {
         var next = self
-        var dim = Self.rank - 1
+        var dim = Self.rank &- 1
         while true {
-            next[dim] += 1
+            next[dim] &+= 1
             if next[dim] < upper[dim] {
                 break
             } else if dim > 0 {
                 next[dim] = lower[dim]
-                dim -= 1
+                dim &-= 1
             } else {
                 break
             }
@@ -128,7 +128,7 @@ public extension TensorShape {
 
     @inlinable
     func elementCount() -> Int {
-        self.reduce(into: 1, *=)
+        self.reduce(into: 1, &*=)
     }
     
     @inlinable func index(stridedBy strides: Self) -> Int {
@@ -136,7 +136,7 @@ public extension TensorShape {
     }
     
     @inlinable func spanCount(stridedBy strides: Self) -> Int {
-        ((self &- 1) &* strides).wrappedSum() + 1
+        ((self &- 1) &* strides).wrappedSum() &+ 1
     }
     
     //--------------------------------------------------------------------------
@@ -145,8 +145,8 @@ public extension TensorShape {
     @inlinable
     func sequentialStrides() -> Self {
         var strides = Self.one
-        for i in stride(from: Self.rank - 1, through: 1, by: -1) {
-            strides[i - 1] = self[i] * strides[i]
+        for i in stride(from: Self.rank &- 1, through: 1, by: -1) {
+            strides[i &- 1] = self[i] &* strides[i]
         }
         return strides
     }
@@ -183,7 +183,7 @@ extension SIMD1: TensorShape where Scalar == Int {
     public func incremented(between lower: Self, and upper: Self) -> Self {
         assert(self[0] >= lower[0])
         var next = self
-        next[0] += 1
+        next[0] &+= 1
         return next
     }
 }
@@ -210,7 +210,7 @@ extension SIMD2: TensorShape where Scalar == Int {
     
     @inlinable
     public func elementCount() -> Int {
-        self[0] * self[1]
+        self[0] &* self[1]
     }
 
     @inlinable
@@ -222,10 +222,10 @@ extension SIMD2: TensorShape where Scalar == Int {
     public func incremented(between lower: Self, and upper: Self) -> Self {
         assert(self[0] >= lower[0] && self[1] >= lower[1])
         var next = self
-        next[1] += 1
+        next[1] &+= 1
         if next[1] == upper[1] {
             next[1] = lower[1]
-            next[0] += 1
+            next[0] &+= 1
         }
         return next
     }
@@ -258,14 +258,14 @@ extension SIMD3: TensorShape where Scalar == Int {
             return true}())
         var next = self
 
-        next[2] += 1
+        next[2] &+= 1
         if next[2] == upper[2] {
             next[2] = lower[2]
-            next[1] += 1
+            next[1] &+= 1
             
             if next[1] == upper[1] {
                 next[1] = lower[1]
-                next[0] += 1
+                next[0] &+= 1
             }
         }
         return next
@@ -300,18 +300,18 @@ extension SIMD4: TensorShape where Scalar == Int {
             return true}())
         var next = self
 
-        next[3] += 1
+        next[3] &+= 1
         if next[3] == upper[3] {
             next[3] = lower[3]
-            next[2] += 1
+            next[2] &+= 1
             
             if next[2] == upper[2] {
                 next[2] = lower[2]
-                next[1] += 1
+                next[1] &+= 1
                 
                 if next[1] == upper[1] {
                     next[1] = lower[1]
-                    next[0] += 1
+                    next[0] &+= 1
                 }
             }
         }
@@ -348,22 +348,22 @@ extension SIMD5: TensorShape where Scalar == Int {
             return true}())
         var next = self
 
-        next[4] += 1
+        next[4] &+= 1
         if next[4] == upper[4] {
             next[4] = lower[4]
-            next[3] += 1
+            next[3] &+= 1
             
             if next[3] == upper[3] {
                 next[3] = lower[3]
-                next[2] += 1
+                next[2] &+= 1
                 
                 if next[2] == upper[2] {
                     next[2] = lower[2]
-                    next[1] += 1
+                    next[1] &+= 1
                     
                     if next[1] == upper[1] {
                         next[1] = lower[1]
-                        next[0] += 1
+                        next[0] &+= 1
                     }
                 }
             }
@@ -402,26 +402,26 @@ extension SIMD6: TensorShape where Scalar == Int {
             return true}())
         var next = self
 
-        next[5] += 1
+        next[5] &+= 1
         if next[5] == upper[4] {
             next[5] = lower[5]
-            next[4] += 1
+            next[4] &+= 1
             
             if next[4] == upper[4] {
                 next[4] = lower[4]
-                next[3] += 1
+                next[3] &+= 1
                 
                 if next[3] == upper[3] {
                     next[3] = lower[3]
-                    next[2] += 1
+                    next[2] &+= 1
                     
                     if next[2] == upper[2] {
                         next[2] = lower[2]
-                        next[1] += 1
+                        next[1] &+= 1
                         
                         if next[1] == upper[1] {
                             next[1] = lower[1]
-                            next[0] += 1
+                            next[0] &+= 1
                         }
                     }
                 }

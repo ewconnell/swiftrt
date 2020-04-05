@@ -46,12 +46,12 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_add
     func test_add() {
-        let m1 = array(flat: 0..<6, (3, 2))
+        let m1 = array([[0, 1], [2, 3], [4, 5]])
         let m2 = array(flat: 0..<6, (3, 2))
         let result = m1 + m2
         XCTAssert(result.array == [[0, 2], [4, 6], [8, 10]])
-//
-//        let ones = Matrix(repeating: 1, like: m1)
+
+//        let ones = repeating(like: m1, 1)
 //        let (g1, g2) = pullback(at: m1, m2, in: { $0 + $1 })(ones)
 //        XCTAssert(g1 == [1, 1, 1, 1, 1, 1])
 //        XCTAssert(g2 == [1, 1, 1, 1, 1, 1])
