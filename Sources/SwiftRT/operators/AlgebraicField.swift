@@ -35,7 +35,7 @@ import Numerics
     -> DenseTensor<T.Shape, T.Element>
     where T: Tensor, T.Element: AdditiveArithmetic
 {
-    add(lhs, repeating(like: lhs, rhs))
+    add(lhs, repeating(rhs, like: lhs))
 }
 
 //@differentiable(where T: DifferentiableTensor)
@@ -43,7 +43,7 @@ import Numerics
     -> DenseTensor<T.Shape, T.Element>
     where T: Tensor, T.Element: AdditiveArithmetic
 {
-    add(repeating(like: rhs, lhs), rhs)
+    add(repeating(lhs, like: rhs), rhs)
 }
 
 ////@derivative(of: add)

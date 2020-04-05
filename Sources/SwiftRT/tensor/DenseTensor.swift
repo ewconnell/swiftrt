@@ -218,7 +218,7 @@ public extension DenseTensor {
 // DenseTensor initializers
 public extension DenseTensor {
     /// init(shape:order:
-    @inlinable init(_ shape: Shape, order: StorageOrder) {
+    @inlinable init(_ shape: Shape, order: StorageOrder = .C) {
         let count = shape.elementCount()
         self.init(shape: shape,
                   strides: shape.sequentialStrides(),
@@ -232,7 +232,9 @@ public extension DenseTensor {
     }
 
     /// init(element:shape:order:
-    @inlinable init(_ element: Element, _ shape: Shape, order: StorageOrder) {
+    @inlinable init(_ element: Element, _ shape: Shape,
+                    order: StorageOrder = .C)
+    {
         self.init(shape, order: order)
 
         // initialize storage on the target device
