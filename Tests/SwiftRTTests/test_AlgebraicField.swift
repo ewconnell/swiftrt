@@ -49,7 +49,7 @@ class test_AlgebraicField: XCTestCase {
         let m1 = array(flat: 0..<6, (3, 2))
         let m2 = array(flat: 0..<6, (3, 2))
         let result = m1 + m2
-        XCTAssert(result.array == [[0, 2, 4], [6, 8, 10]])
+        XCTAssert(result.array == [[0, 2], [4, 6], [8, 10]])
 //
 //        let ones = Matrix(repeating: 1, like: m1)
 //        let (g1, g2) = pullback(at: m1, m2, in: { $0 + $1 })(ones)
