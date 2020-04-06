@@ -38,53 +38,53 @@ numShapes = 6
 ///  - order: { .C, .F }, optional, default .C
 ///    Whether to store multi-dimensional data in row-major (C-style)
 ///    or column-major (Fortran-style) order in memory.
-/// - Returns: Dense of uninitialized (arbitrary) data of the given shape,
+/// - Returns: Tensor of uninitialized (arbitrary) data of the given shape,
 ///   dtype, and order. Elements will not be initialized.
 
 //==============================================================================
 // Rank1 from a flat collection
 // same type
 @inlinable public func array<C>(flat elements: C)
-    -> Dense1<C.Element> where C: Collection
+    -> Tensor1<C.Element> where C: Collection
 {
-    Dense1(elements, Shape1(elements.count))
+    Tensor1(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C>(flat elements: C)
-    -> Dense1<DType> where C: Collection, C.Element: BinaryInteger
+    -> Tensor1<DType> where C: Collection, C.Element: BinaryInteger
 {
-    Dense1(elements, Shape1(elements.count))
+    Tensor1(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
     flat elements: C,
     dtype: Element.Type
-) -> Dense1<Element>
+) -> Tensor1<Element>
     where C: Collection, C.Element: BinaryInteger, Element: Numeric
 {
-    Dense1<Element>(elements, Shape1(elements.count))
+    Tensor1<Element>(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C, Element>(
     flat elements: C,
     dtype: Element.Type
-) -> Dense1<Element>
+) -> Tensor1<Element>
     where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
 {
-    Dense1<Element>(elements, Shape1(elements.count))
+    Tensor1<Element>(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C, Element>(
     flat elements: C,
     dtype: Element.Type
-) -> Dense1<Element>
+) -> Tensor1<Element>
     where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryFloatingPoint
 {
-    Dense1<Element>(elements, Shape1(elements.count))
+    Tensor1<Element>(elements, Shape1(elements.count))
 }
 
 %for n in range(2, numShapes + 1):
@@ -95,9 +95,9 @@ numShapes = 6
     flat elements: C,
     _ shape: Shape${n}.Tuple,
     order: StorageOrder = .C
-) -> Dense${n}<C.Element> where C: Collection
+) -> Tensor${n}<C.Element> where C: Collection
 {
-    Dense${n}(elements, Shape${n}(shape), order: order)
+    Tensor${n}(elements, Shape${n}(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
@@ -105,9 +105,9 @@ numShapes = 6
     flat elements: C,
     _ shape: Shape${n}.Tuple,
     order: StorageOrder = .C
-) -> Dense${n}<DType> where C: Collection, C.Element: BinaryInteger
+) -> Tensor${n}<DType> where C: Collection, C.Element: BinaryInteger
 {
-    Dense${n}(elements, Shape${n}(shape), order: order)
+    Tensor${n}(elements, Shape${n}(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
@@ -116,10 +116,10 @@ numShapes = 6
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense${n}<Element>
+) -> Tensor${n}<Element>
     where C: Collection, C.Element: BinaryInteger, Element: Numeric
 {
-    Dense${n}<Element>(elements, Shape${n}(shape), order: order)
+    Tensor${n}<Element>(elements, Shape${n}(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
@@ -128,10 +128,10 @@ numShapes = 6
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense${n}<Element>
+) -> Tensor${n}<Element>
     where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
 {
-    Dense${n}<Element>(elements, Shape${n}(shape), order: order)
+    Tensor${n}<Element>(elements, Shape${n}(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
@@ -140,10 +140,10 @@ numShapes = 6
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense${n}<Element>
+) -> Tensor${n}<Element>
     where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryFloatingPoint
 {
-    Dense${n}<Element>(elements, Shape${n}(shape), order: order)
+    Tensor${n}<Element>(elements, Shape${n}(shape), order: order)
 }
 
 %end
@@ -155,7 +155,7 @@ numShapes = 6
 @inlinable public func array<Element>(
     _ elements: ${''.join(['['* n])}Element${''.join([']'* n])},
     order: StorageOrder = .C
-) -> Dense${n}<Element>
+) -> Tensor${n}<Element>
 {
     let shape = Shape${n}(
 % for i in range(n):
@@ -163,14 +163,14 @@ numShapes = 6
 % end
 
     let flatElements = elements${"".join([".joined()" * (n - 1)])}
-    return Dense${n}<Element>(flatElements, shape, order: order)
+    return Tensor${n}<Element>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<ArrayElement>(
     _ elements: ${''.join(['['* n])}ArrayElement${''.join([']'* n])},
     order: StorageOrder = .C
-) -> Dense${n}<DType> where ArrayElement: BinaryInteger
+) -> Tensor${n}<DType> where ArrayElement: BinaryInteger
 {
     let shape = Shape${n}(
 % for i in range(n):
@@ -178,7 +178,7 @@ numShapes = 6
 % end
 
     let flatElements = elements${"".join([".joined()" * (n - 1)])}
-    return Dense${n}<DType>(flatElements, shape, order: order)
+    return Tensor${n}<DType>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
@@ -186,7 +186,7 @@ numShapes = 6
     _ elements: ${''.join(['['* n])}ArrayElement${''.join([']'* n])},
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense${n}<Element>
+) -> Tensor${n}<Element>
     where ArrayElement: BinaryInteger, Element: Numeric
 {
     let shape = Shape${n}(
@@ -195,7 +195,7 @@ numShapes = 6
 % end
 
     let flatElements = elements${"".join([".joined()" * (n - 1)])}
-    return Dense${n}<Element>(flatElements, shape, order: order)
+    return Tensor${n}<Element>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
@@ -203,7 +203,7 @@ numShapes = 6
     _ elements: ${''.join(['['* n])}ArrayElement${''.join([']'* n])},
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense${n}<Element>
+) -> Tensor${n}<Element>
     where ArrayElement: BinaryFloatingPoint, Element: BinaryInteger
 {
     let shape = Shape${n}(
@@ -212,7 +212,7 @@ numShapes = 6
 % end
 
     let flatElements = elements${"".join([".joined()" * (n - 1)])}
-    return Dense${n}<Element>(flatElements, shape, order: order)
+    return Tensor${n}<Element>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
@@ -220,7 +220,7 @@ numShapes = 6
     _ elements: ${''.join(['['* n])}ArrayElement${''.join([']'* n])},
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense${n}<Element>
+) -> Tensor${n}<Element>
     where ArrayElement: BinaryFloatingPoint, Element: BinaryFloatingPoint
 {
     let shape = Shape${n}(
@@ -229,7 +229,7 @@ numShapes = 6
 % end
 
     let flatElements = elements${"".join([".joined()" * (n - 1)])}
-    return Dense${n}<Element>(flatElements, shape, order: order)
+    return Tensor${n}<Element>(flatElements, shape, order: order)
 }
 
 %end

@@ -15,7 +15,7 @@
 //
 import Foundation
 
-public extension Tensor {
+public extension TensorType {
     @inlinable
     var description: String {
         let tab = 2

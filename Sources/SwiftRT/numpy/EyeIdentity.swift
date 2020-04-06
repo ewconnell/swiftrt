@@ -31,8 +31,8 @@ import Foundation
 ///    or column-major (Fortran-style) order in memory.
 /// - Returns: the identity tensor
 @inlinable
-public func identity(_ n: Int, order: StorageOrder = .C) -> EyeTensor<DType> {
-    EyeTensor<DType>(from: Shape2.zero, to: Shape2(n, n), k: 0, storage: order)
+public func identity(_ n: Int, order: StorageOrder = .C) -> Tensor2<DType> {
+    fatalError()
 }
 
 @inlinable
@@ -40,9 +40,9 @@ public func identity<Element>(
     _ n: Int,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> EyeTensor<Element> where Element: Numeric
+) -> Tensor2<Element> where Element: Numeric
 {
-    EyeTensor(from: Shape2.zero, to: Shape2(n, n), k: 0, storage: order)
+    fatalError()
 }
 
 //==============================================================================
@@ -64,10 +64,9 @@ public func identity<Element>(
 /// - Returns: the identity tensor
 @inlinable
 public func eye(_ N: Int, _ M: Int? = nil, k: Int = 0,
-                order: StorageOrder = .C) -> EyeTensor<DType>
+                order: StorageOrder = .C) -> Tensor2<DType>
 {
-    EyeTensor<DType>(from: Shape2.zero, to: Shape2(N, M ?? N),
-                     k: k, storage: order)
+    fatalError()
 }
 
 @inlinable
@@ -75,8 +74,7 @@ public func eye<Element>(
     _ N: Int, _ M: Int? = nil, k: Int = 0,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> EyeTensor<Element> where Element: Numeric
+) -> Tensor2<Element> where Element: Numeric
 {
-    EyeTensor<Element>(from: Shape2.zero, to: Shape2(N, M ?? N),
-                       k: k, storage: order)
+    fatalError()
 }

@@ -30,21 +30,13 @@ public typealias DType = Float
 
 //==============================================================================
 // ranked convenience types
-/// RepeatedElement
-public typealias RepeatedElement1<Element> = RepeatedElement<Shape1, Element>
-public typealias RepeatedElement2<Element> = RepeatedElement<Shape2, Element>
-public typealias RepeatedElement3<Element> = RepeatedElement<Shape3, Element>
-public typealias RepeatedElement4<Element> = RepeatedElement<Shape4, Element>
-public typealias RepeatedElement5<Element> = RepeatedElement<Shape5, Element>
-public typealias RepeatedElement6<Element> = RepeatedElement<Shape6, Element>
-
-/// DenseTensor
-public typealias Dense1<Element> = DenseTensor<Shape1, Element>
-public typealias Dense2<Element> = DenseTensor<Shape2, Element>
-public typealias Dense3<Element> = DenseTensor<Shape3, Element>
-public typealias Dense4<Element> = DenseTensor<Shape4, Element>
-public typealias Dense5<Element> = DenseTensor<Shape5, Element>
-public typealias Dense6<Element> = DenseTensor<Shape6, Element>
+/// Tensor
+public typealias Tensor1<Element> = Tensor<Shape1, Element>
+public typealias Tensor2<Element> = Tensor<Shape2, Element>
+public typealias Tensor3<Element> = Tensor<Shape3, Element>
+public typealias Tensor4<Element> = Tensor<Shape4, Element>
+public typealias Tensor5<Element> = Tensor<Shape5, Element>
+public typealias Tensor6<Element> = Tensor<Shape6, Element>
 
 //==============================================================================
 /// empty
@@ -57,14 +49,14 @@ public typealias Dense6<Element> = DenseTensor<Shape6, Element>
 ///  - order: { .C, .F }, optional, default .C
 ///    Whether to store multi-dimensional data in row-major (C-style)
 ///    or column-major (Fortran-style) order in memory.
-/// - Returns: Dense of uninitialized (arbitrary) data of the given shape,
+/// - Returns: Tensor of uninitialized (arbitrary) data of the given shape,
 ///   dtype, and order. Elements will not be initialized.
 @inlinable
 public func empty<Shape, Element>(
     _ shape: Shape.Tuple,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element> where Shape: TensorShape
+) -> Tensor<Shape, Element> where Shape: TensorShape
 {
     empty(Shape(shape), dtype, order)
 }
@@ -74,111 +66,111 @@ public func empty<Shape, Element>(
     _ shape: Shape,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element> where Shape: TensorShape
+) -> Tensor<Shape, Element> where Shape: TensorShape
 {
-    DenseTensor(shape, order: order)
+    Tensor(shape, order: order)
 }
 
 //---------------------------------------
 // Rank 0
 @inlinable
-public func empty() -> Dense1<DType> {
+public func empty() -> Tensor1<DType> {
     empty(Shape1(1), DType.self)
 }
 
 @inlinable
 public func empty<Element>(dtype: Element.Type)
-    -> Dense1<Element> { empty(Shape1(1), dtype) }
+    -> Tensor1<Element> { empty(Shape1(1), dtype) }
 
 //---------------------------------------
 // Rank1
 @inlinable
 public func empty(_ shape: Shape1.Tuple, order: StorageOrder = .C)
-    -> Dense1<DType> { empty(shape, DType.self, order) }
+    -> Tensor1<DType> { empty(shape, DType.self, order) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape1.Tuple, dtype: Element.Type)
-    -> Dense1<Element> { empty(shape, dtype) }
+    -> Tensor1<Element> { empty(shape, dtype) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape1.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
-    -> Dense1<Element> { empty(shape, dtype, order) }
+    -> Tensor1<Element> { empty(shape, dtype, order) }
     
 //---------------------------------------
 // Rank2
 @inlinable
 public func empty(_ shape: Shape2.Tuple, order: StorageOrder = .C)
-    -> Dense2<DType> { empty(shape, DType.self, order) }
+    -> Tensor2<DType> { empty(shape, DType.self, order) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape2.Tuple, dtype: Element.Type)
-    -> Dense2<Element> { empty(shape, dtype) }
+    -> Tensor2<Element> { empty(shape, dtype) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape2.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
-    -> Dense2<Element> { empty(shape, dtype, order) }
+    -> Tensor2<Element> { empty(shape, dtype, order) }
     
 //---------------------------------------
 // Rank3
 @inlinable
 public func empty(_ shape: Shape3.Tuple, order: StorageOrder = .C)
-    -> Dense3<DType> { empty(shape, DType.self, order) }
+    -> Tensor3<DType> { empty(shape, DType.self, order) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape3.Tuple, dtype: Element.Type)
-    -> Dense3<Element> { empty(shape, dtype) }
+    -> Tensor3<Element> { empty(shape, dtype) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape3.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
-    -> Dense3<Element> { empty(shape, dtype, order) }
+    -> Tensor3<Element> { empty(shape, dtype, order) }
     
 //---------------------------------------
 // Rank4
 @inlinable
 public func empty(_ shape: Shape4.Tuple, order: StorageOrder = .C)
-    -> Dense4<DType> { empty(shape, DType.self, order) }
+    -> Tensor4<DType> { empty(shape, DType.self, order) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape4.Tuple, dtype: Element.Type)
-    -> Dense4<Element> { empty(shape, dtype) }
+    -> Tensor4<Element> { empty(shape, dtype) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape4.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
-    -> Dense4<Element> { empty(shape, dtype, order) }
+    -> Tensor4<Element> { empty(shape, dtype, order) }
     
 //---------------------------------------
 // Rank5
 @inlinable
 public func empty(_ shape: Shape5.Tuple, order: StorageOrder = .C)
-    -> Dense5<DType> { empty(shape, DType.self, order) }
+    -> Tensor5<DType> { empty(shape, DType.self, order) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape5.Tuple, dtype: Element.Type)
-    -> Dense5<Element> { empty(shape, dtype) }
+    -> Tensor5<Element> { empty(shape, dtype) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape5.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
-    -> Dense5<Element> { empty(shape, dtype, order) }
+    -> Tensor5<Element> { empty(shape, dtype, order) }
     
 //---------------------------------------
 // Rank6
 @inlinable
 public func empty(_ shape: Shape6.Tuple, order: StorageOrder = .C)
-    -> Dense6<DType> { empty(shape, DType.self, order) }
+    -> Tensor6<DType> { empty(shape, DType.self, order) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape6.Tuple, dtype: Element.Type)
-    -> Dense6<Element> { empty(shape, dtype) }
+    -> Tensor6<Element> { empty(shape, dtype) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape6.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
-    -> Dense6<Element> { empty(shape, dtype, order) }
+    -> Tensor6<Element> { empty(shape, dtype, order) }
     
 
 //==============================================================================
@@ -193,7 +185,7 @@ public func empty<Element>(_ shape: Shape6.Tuple, dtype: Element.Type,
 ///    or column-major (Fortran-style) order in memory.
 ///  - shape: Int or tuple of Int
 ///    Shape of the empty array, e.g., (2, 3) or 2.
-/// - Returns: Dense of uninitialized (arbitrary) data of the given shape,
+/// - Returns: Tensor of uninitialized (arbitrary) data of the given shape,
 ///   dtype, and order. Elements will not be initialized.
 
 // same type and shape
@@ -201,7 +193,7 @@ public func empty<Element>(_ shape: Shape6.Tuple, dtype: Element.Type,
 public func empty<T>(
     like prototype: T,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, T.Element> where T: Tensor
+) -> Tensor<T.Shape, T.Element> where T: TensorType
 {
     empty(prototype.shape, T.Element.self, order ?? prototype.storageOrder)
 }
@@ -213,7 +205,7 @@ public func empty<T>(
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape1.Tuple
-) -> DenseTensor<Shape1, T.Element> where T: Tensor
+) -> Tensor<Shape1, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape1(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -223,7 +215,7 @@ public func empty<T>(
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape2.Tuple
-) -> DenseTensor<Shape2, T.Element> where T: Tensor
+) -> Tensor<Shape2, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape2(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -233,7 +225,7 @@ public func empty<T>(
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape3.Tuple
-) -> DenseTensor<Shape3, T.Element> where T: Tensor
+) -> Tensor<Shape3, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape3(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -243,7 +235,7 @@ public func empty<T>(
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape4.Tuple
-) -> DenseTensor<Shape4, T.Element> where T: Tensor
+) -> Tensor<Shape4, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape4(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -253,7 +245,7 @@ public func empty<T>(
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape5.Tuple
-) -> DenseTensor<Shape5, T.Element> where T: Tensor
+) -> Tensor<Shape5, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape5(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -263,7 +255,7 @@ public func empty<T>(
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape6.Tuple
-) -> DenseTensor<Shape6, T.Element> where T: Tensor
+) -> Tensor<Shape6, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape6(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -275,7 +267,7 @@ public func empty<T>(
     like prototype: T,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, Element> where T: Tensor
+) -> Tensor<T.Shape, Element> where T: TensorType
 {
     empty(prototype.shape, Element.self, order ?? prototype.storageOrder)
 }
@@ -288,7 +280,7 @@ public func empty<T>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape1.Tuple
-) -> DenseTensor<Shape1, Element> where T: Tensor
+) -> Tensor<Shape1, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape1(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
@@ -299,7 +291,7 @@ public func empty<T>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape2.Tuple
-) -> DenseTensor<Shape2, Element> where T: Tensor
+) -> Tensor<Shape2, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape2(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
@@ -310,7 +302,7 @@ public func empty<T>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape3.Tuple
-) -> DenseTensor<Shape3, Element> where T: Tensor
+) -> Tensor<Shape3, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape3(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
@@ -321,7 +313,7 @@ public func empty<T>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape4.Tuple
-) -> DenseTensor<Shape4, Element> where T: Tensor
+) -> Tensor<Shape4, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape4(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
@@ -332,7 +324,7 @@ public func empty<T>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape5.Tuple
-) -> DenseTensor<Shape5, Element> where T: Tensor
+) -> Tensor<Shape5, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape5(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
@@ -343,7 +335,7 @@ public func empty<T>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape6.Tuple
-) -> DenseTensor<Shape6, Element> where T: Tensor
+) -> Tensor<Shape6, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape6(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
@@ -368,7 +360,7 @@ public func repeating<Shape, Element>(
     _ shape: Shape.Tuple,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element> where Shape: TensorShape
+) -> Tensor<Shape, Element> where Shape: TensorShape
 {
     repeating(value, Shape(shape), dtype, order)
 }
@@ -379,21 +371,21 @@ public func repeating<Shape, Element>(
     _ shape: Shape,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element> where Shape: TensorShape
+) -> Tensor<Shape, Element> where Shape: TensorShape
 {
-    DenseTensor<Shape, Element>(value, shape, order: order)
+    Tensor<Shape, Element>(value, shape, order: order)
 }
 
 //---------------------------------------
 // Rank0
 @inlinable
-public func repeating(_ value: DType) -> Dense1<DType> {
+public func repeating(_ value: DType) -> Tensor1<DType> {
     repeating(value, Shape1(1), DType.self)
 }
 
 @inlinable
 public func repeating<Element>(_ value: Element, dtype: Element.Type)
-    -> Dense1<Element> { repeating(value, Shape1(1), dtype) }
+    -> Tensor1<Element> { repeating(value, Shape1(1), dtype) }
 
 //---------------------------------------
 // Rank1
@@ -402,14 +394,14 @@ public func repeating(
     _ value: DType,
     _ shape: Shape1.Tuple,
     order: StorageOrder = .C
-) -> Dense1<DType> { repeating(value, shape, DType.self, order) }
+) -> Tensor1<DType> { repeating(value, shape, DType.self, order) }
 
 @inlinable
 public func repeating<Element>(
     _ value: Element,
     _ shape: Shape1.Tuple,
     dtype: Element.Type
-) -> Dense1<Element> { repeating(value, shape, dtype) }
+) -> Tensor1<Element> { repeating(value, shape, dtype) }
 
 @inlinable
 public func repeating<Element>(
@@ -417,7 +409,7 @@ public func repeating<Element>(
     _ shape: Shape1.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense1<Element> { repeating(value, shape, dtype, order) }
+) -> Tensor1<Element> { repeating(value, shape, dtype, order) }
 
 //---------------------------------------
 // Rank2
@@ -426,14 +418,14 @@ public func repeating(
     _ value: DType,
     _ shape: Shape2.Tuple,
     order: StorageOrder = .C
-) -> Dense2<DType> { repeating(value, shape, DType.self, order) }
+) -> Tensor2<DType> { repeating(value, shape, DType.self, order) }
 
 @inlinable
 public func repeating<Element>(
     _ value: Element,
     _ shape: Shape2.Tuple,
     dtype: Element.Type
-) -> Dense2<Element> { repeating(value, shape, dtype) }
+) -> Tensor2<Element> { repeating(value, shape, dtype) }
 
 @inlinable
 public func repeating<Element>(
@@ -441,7 +433,7 @@ public func repeating<Element>(
     _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense2<Element> { repeating(value, shape, dtype, order) }
+) -> Tensor2<Element> { repeating(value, shape, dtype, order) }
 
 //---------------------------------------
 // Rank3
@@ -450,14 +442,14 @@ public func repeating(
     _ value: DType,
     _ shape: Shape3.Tuple,
     order: StorageOrder = .C
-) -> Dense3<DType> { repeating(value, shape, DType.self, order) }
+) -> Tensor3<DType> { repeating(value, shape, DType.self, order) }
 
 @inlinable
 public func repeating<Element>(
     _ value: Element,
     _ shape: Shape3.Tuple,
     dtype: Element.Type
-) -> Dense3<Element> { repeating(value, shape, dtype) }
+) -> Tensor3<Element> { repeating(value, shape, dtype) }
 
 @inlinable
 public func repeating<Element>(
@@ -465,7 +457,7 @@ public func repeating<Element>(
     _ shape: Shape3.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense3<Element> { repeating(value, shape, dtype, order) }
+) -> Tensor3<Element> { repeating(value, shape, dtype, order) }
 
 //---------------------------------------
 // Rank4
@@ -474,14 +466,14 @@ public func repeating(
     _ value: DType,
     _ shape: Shape4.Tuple,
     order: StorageOrder = .C
-) -> Dense4<DType> { repeating(value, shape, DType.self, order) }
+) -> Tensor4<DType> { repeating(value, shape, DType.self, order) }
 
 @inlinable
 public func repeating<Element>(
     _ value: Element,
     _ shape: Shape4.Tuple,
     dtype: Element.Type
-) -> Dense4<Element> { repeating(value, shape, dtype) }
+) -> Tensor4<Element> { repeating(value, shape, dtype) }
 
 @inlinable
 public func repeating<Element>(
@@ -489,7 +481,7 @@ public func repeating<Element>(
     _ shape: Shape4.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense4<Element> { repeating(value, shape, dtype, order) }
+) -> Tensor4<Element> { repeating(value, shape, dtype, order) }
 
 //---------------------------------------
 // Rank5
@@ -498,14 +490,14 @@ public func repeating(
     _ value: DType,
     _ shape: Shape5.Tuple,
     order: StorageOrder = .C
-) -> Dense5<DType> { repeating(value, shape, DType.self, order) }
+) -> Tensor5<DType> { repeating(value, shape, DType.self, order) }
 
 @inlinable
 public func repeating<Element>(
     _ value: Element,
     _ shape: Shape5.Tuple,
     dtype: Element.Type
-) -> Dense5<Element> { repeating(value, shape, dtype) }
+) -> Tensor5<Element> { repeating(value, shape, dtype) }
 
 @inlinable
 public func repeating<Element>(
@@ -513,7 +505,7 @@ public func repeating<Element>(
     _ shape: Shape5.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense5<Element> { repeating(value, shape, dtype, order) }
+) -> Tensor5<Element> { repeating(value, shape, dtype, order) }
 
 //---------------------------------------
 // Rank6
@@ -522,14 +514,14 @@ public func repeating(
     _ value: DType,
     _ shape: Shape6.Tuple,
     order: StorageOrder = .C
-) -> Dense6<DType> { repeating(value, shape, DType.self, order) }
+) -> Tensor6<DType> { repeating(value, shape, DType.self, order) }
 
 @inlinable
 public func repeating<Element>(
     _ value: Element,
     _ shape: Shape6.Tuple,
     dtype: Element.Type
-) -> Dense6<Element> { repeating(value, shape, dtype) }
+) -> Tensor6<Element> { repeating(value, shape, dtype) }
 
 @inlinable
 public func repeating<Element>(
@@ -537,7 +529,7 @@ public func repeating<Element>(
     _ shape: Shape6.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense6<Element> { repeating(value, shape, dtype, order) }
+) -> Tensor6<Element> { repeating(value, shape, dtype, order) }
 
 
 //==============================================================================
@@ -562,7 +554,7 @@ public func repeating<T>(
     _ value: T.Element,
     like prototype: T,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, T.Element> where T: Tensor
+) -> Tensor<T.Shape, T.Element> where T: TensorType
 {
     repeating(value, prototype.shape, T.Element.self, order ?? prototype.storageOrder)
 }
@@ -575,7 +567,7 @@ public func repeating<T>(
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape1.Tuple
-) -> DenseTensor<Shape1, T.Element> where T: Tensor
+) -> Tensor<Shape1, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape1(shape).elementCount())
     return repeating(value, shape, T.Element.self, order ?? prototype.storageOrder)
@@ -587,7 +579,7 @@ public func repeating<T>(
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape2.Tuple
-) -> DenseTensor<Shape2, T.Element> where T: Tensor
+) -> Tensor<Shape2, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape2(shape).elementCount())
     return repeating(value, shape, T.Element.self, order ?? prototype.storageOrder)
@@ -599,7 +591,7 @@ public func repeating<T>(
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape3.Tuple
-) -> DenseTensor<Shape3, T.Element> where T: Tensor
+) -> Tensor<Shape3, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape3(shape).elementCount())
     return repeating(value, shape, T.Element.self, order ?? prototype.storageOrder)
@@ -611,7 +603,7 @@ public func repeating<T>(
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape4.Tuple
-) -> DenseTensor<Shape4, T.Element> where T: Tensor
+) -> Tensor<Shape4, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape4(shape).elementCount())
     return repeating(value, shape, T.Element.self, order ?? prototype.storageOrder)
@@ -623,7 +615,7 @@ public func repeating<T>(
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape5.Tuple
-) -> DenseTensor<Shape5, T.Element> where T: Tensor
+) -> Tensor<Shape5, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape5(shape).elementCount())
     return repeating(value, shape, T.Element.self, order ?? prototype.storageOrder)
@@ -635,7 +627,7 @@ public func repeating<T>(
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape6.Tuple
-) -> DenseTensor<Shape6, T.Element> where T: Tensor
+) -> Tensor<Shape6, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape6(shape).elementCount())
     return repeating(value, shape, T.Element.self, order ?? prototype.storageOrder)
@@ -650,7 +642,7 @@ public func repeating<T, Element>(
     like prototype: T,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, Element> where T: Tensor
+) -> Tensor<T.Shape, Element> where T: TensorType
 {
     repeating(value, prototype.shape, Element.self, order ?? prototype.storageOrder)
 }
@@ -664,7 +656,7 @@ public func repeating<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape1.Tuple
-) -> DenseTensor<Shape1, Element> where T: Tensor
+) -> Tensor<Shape1, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape1(shape).elementCount())
     return repeating(value, shape, Element.self, order ?? prototype.storageOrder)
@@ -677,7 +669,7 @@ public func repeating<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape2.Tuple
-) -> DenseTensor<Shape2, Element> where T: Tensor
+) -> Tensor<Shape2, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape2(shape).elementCount())
     return repeating(value, shape, Element.self, order ?? prototype.storageOrder)
@@ -690,7 +682,7 @@ public func repeating<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape3.Tuple
-) -> DenseTensor<Shape3, Element> where T: Tensor
+) -> Tensor<Shape3, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape3(shape).elementCount())
     return repeating(value, shape, Element.self, order ?? prototype.storageOrder)
@@ -703,7 +695,7 @@ public func repeating<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape4.Tuple
-) -> DenseTensor<Shape4, Element> where T: Tensor
+) -> Tensor<Shape4, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape4(shape).elementCount())
     return repeating(value, shape, Element.self, order ?? prototype.storageOrder)
@@ -716,7 +708,7 @@ public func repeating<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape5.Tuple
-) -> DenseTensor<Shape5, Element> where T: Tensor
+) -> Tensor<Shape5, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape5(shape).elementCount())
     return repeating(value, shape, Element.self, order ?? prototype.storageOrder)
@@ -729,7 +721,7 @@ public func repeating<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape6.Tuple
-) -> DenseTensor<Shape6, Element> where T: Tensor
+) -> Tensor<Shape6, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape6(shape).elementCount())
     return repeating(value, shape, Element.self, order ?? prototype.storageOrder)
@@ -757,7 +749,7 @@ public func full<Shape, Element>(
     _ value: Element,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element> where Shape: TensorShape
+) -> Tensor<Shape, Element> where Shape: TensorShape
 {
     full(Shape(shape), value, dtype, order)
 }
@@ -768,21 +760,21 @@ public func full<Shape, Element>(
     _ value: Element,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element> where Shape: TensorShape
+) -> Tensor<Shape, Element> where Shape: TensorShape
 {
-    DenseTensor<Shape, Element>(value, shape, order: order)
+    Tensor<Shape, Element>(value, shape, order: order)
 }
 
 //---------------------------------------
 // Rank0
 @inlinable
-public func full(_ value: DType) -> Dense1<DType> {
+public func full(_ value: DType) -> Tensor1<DType> {
     full(Shape1(1), value, DType.self)
 }
 
 @inlinable
 public func full<Element>(_ value: Element, dtype: Element.Type)
-    -> Dense1<Element> { full(Shape1(1), value, dtype) }
+    -> Tensor1<Element> { full(Shape1(1), value, dtype) }
 
 //---------------------------------------
 // Rank1
@@ -791,14 +783,14 @@ public func full(
     _ shape: Shape1.Tuple,
     _ value: DType,
     order: StorageOrder = .C
-) -> Dense1<DType> { full(shape, value, DType.self, order) }
+) -> Tensor1<DType> { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape1.Tuple,
     _ value: Element,
     dtype: Element.Type
-) -> Dense1<Element> { full(shape, value, dtype) }
+) -> Tensor1<Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
@@ -806,7 +798,7 @@ public func full<Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense1<Element> { full(shape, value, dtype, order) }
+) -> Tensor1<Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank2
@@ -815,14 +807,14 @@ public func full(
     _ shape: Shape2.Tuple,
     _ value: DType,
     order: StorageOrder = .C
-) -> Dense2<DType> { full(shape, value, DType.self, order) }
+) -> Tensor2<DType> { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape2.Tuple,
     _ value: Element,
     dtype: Element.Type
-) -> Dense2<Element> { full(shape, value, dtype) }
+) -> Tensor2<Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
@@ -830,7 +822,7 @@ public func full<Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense2<Element> { full(shape, value, dtype, order) }
+) -> Tensor2<Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank3
@@ -839,14 +831,14 @@ public func full(
     _ shape: Shape3.Tuple,
     _ value: DType,
     order: StorageOrder = .C
-) -> Dense3<DType> { full(shape, value, DType.self, order) }
+) -> Tensor3<DType> { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape3.Tuple,
     _ value: Element,
     dtype: Element.Type
-) -> Dense3<Element> { full(shape, value, dtype) }
+) -> Tensor3<Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
@@ -854,7 +846,7 @@ public func full<Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense3<Element> { full(shape, value, dtype, order) }
+) -> Tensor3<Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank4
@@ -863,14 +855,14 @@ public func full(
     _ shape: Shape4.Tuple,
     _ value: DType,
     order: StorageOrder = .C
-) -> Dense4<DType> { full(shape, value, DType.self, order) }
+) -> Tensor4<DType> { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape4.Tuple,
     _ value: Element,
     dtype: Element.Type
-) -> Dense4<Element> { full(shape, value, dtype) }
+) -> Tensor4<Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
@@ -878,7 +870,7 @@ public func full<Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense4<Element> { full(shape, value, dtype, order) }
+) -> Tensor4<Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank5
@@ -887,14 +879,14 @@ public func full(
     _ shape: Shape5.Tuple,
     _ value: DType,
     order: StorageOrder = .C
-) -> Dense5<DType> { full(shape, value, DType.self, order) }
+) -> Tensor5<DType> { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape5.Tuple,
     _ value: Element,
     dtype: Element.Type
-) -> Dense5<Element> { full(shape, value, dtype) }
+) -> Tensor5<Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
@@ -902,7 +894,7 @@ public func full<Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense5<Element> { full(shape, value, dtype, order) }
+) -> Tensor5<Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank6
@@ -911,14 +903,14 @@ public func full(
     _ shape: Shape6.Tuple,
     _ value: DType,
     order: StorageOrder = .C
-) -> Dense6<DType> { full(shape, value, DType.self, order) }
+) -> Tensor6<DType> { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape6.Tuple,
     _ value: Element,
     dtype: Element.Type
-) -> Dense6<Element> { full(shape, value, dtype) }
+) -> Tensor6<Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
@@ -926,7 +918,7 @@ public func full<Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense6<Element> { full(shape, value, dtype, order) }
+) -> Tensor6<Element> { full(shape, value, dtype, order) }
 
 
 //==============================================================================
@@ -951,7 +943,7 @@ public func full<T>(
     like prototype: T,
     _ value: T.Element,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, T.Element> where T: Tensor
+) -> Tensor<T.Shape, T.Element> where T: TensorType
 {
     full(prototype.shape, value, T.Element.self, order ?? prototype.storageOrder)
 }
@@ -964,7 +956,7 @@ public func full<T>(
     _ value: T.Element,
     order: StorageOrder? = nil,
     shape: Shape1.Tuple
-) -> DenseTensor<Shape1, T.Element> where T: Tensor
+) -> Tensor<Shape1, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape1(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
@@ -976,7 +968,7 @@ public func full<T>(
     _ value: T.Element,
     order: StorageOrder? = nil,
     shape: Shape2.Tuple
-) -> DenseTensor<Shape2, T.Element> where T: Tensor
+) -> Tensor<Shape2, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape2(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
@@ -988,7 +980,7 @@ public func full<T>(
     _ value: T.Element,
     order: StorageOrder? = nil,
     shape: Shape3.Tuple
-) -> DenseTensor<Shape3, T.Element> where T: Tensor
+) -> Tensor<Shape3, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape3(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
@@ -1000,7 +992,7 @@ public func full<T>(
     _ value: T.Element,
     order: StorageOrder? = nil,
     shape: Shape4.Tuple
-) -> DenseTensor<Shape4, T.Element> where T: Tensor
+) -> Tensor<Shape4, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape4(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
@@ -1012,7 +1004,7 @@ public func full<T>(
     _ value: T.Element,
     order: StorageOrder? = nil,
     shape: Shape5.Tuple
-) -> DenseTensor<Shape5, T.Element> where T: Tensor
+) -> Tensor<Shape5, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape5(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
@@ -1024,7 +1016,7 @@ public func full<T>(
     _ value: T.Element,
     order: StorageOrder? = nil,
     shape: Shape6.Tuple
-) -> DenseTensor<Shape6, T.Element> where T: Tensor
+) -> Tensor<Shape6, T.Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape6(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
@@ -1039,7 +1031,7 @@ public func full<T, Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, Element> where T: Tensor
+) -> Tensor<T.Shape, Element> where T: TensorType
 {
     full(prototype.shape, value, Element.self, order ?? prototype.storageOrder)
 }
@@ -1053,7 +1045,7 @@ public func full<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape1.Tuple
-) -> DenseTensor<Shape1, Element> where T: Tensor
+) -> Tensor<Shape1, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape1(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
@@ -1066,7 +1058,7 @@ public func full<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape2.Tuple
-) -> DenseTensor<Shape2, Element> where T: Tensor
+) -> Tensor<Shape2, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape2(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
@@ -1079,7 +1071,7 @@ public func full<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape3.Tuple
-) -> DenseTensor<Shape3, Element> where T: Tensor
+) -> Tensor<Shape3, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape3(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
@@ -1092,7 +1084,7 @@ public func full<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape4.Tuple
-) -> DenseTensor<Shape4, Element> where T: Tensor
+) -> Tensor<Shape4, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape4(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
@@ -1105,7 +1097,7 @@ public func full<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape5.Tuple
-) -> DenseTensor<Shape5, Element> where T: Tensor
+) -> Tensor<Shape5, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape5(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
@@ -1118,7 +1110,7 @@ public func full<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape6.Tuple
-) -> DenseTensor<Shape6, Element> where T: Tensor
+) -> Tensor<Shape6, Element> where T: TensorType
 {
     assert(prototype.elementCount == Shape6(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
@@ -1143,7 +1135,7 @@ public func ones<Shape, Element>(
     _ shape: Shape.Tuple,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element>
+) -> Tensor<Shape, Element>
     where Shape: TensorShape, Element: Numeric
 {
     ones(Shape(shape), dtype, order)
@@ -1154,124 +1146,124 @@ public func ones<Shape, Element>(
     _ shape: Shape,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element>
+) -> Tensor<Shape, Element>
     where Shape: TensorShape, Element: Numeric
 {
-    DenseTensor<Shape, Element>(1, shape, order: order)
+    Tensor<Shape, Element>(1, shape, order: order)
 }
 
 //---------------------------------------
 // Rank0
 @inlinable
-public func ones() -> Dense1<DType> {
+public func ones() -> Tensor1<DType> {
     ones(Shape1(1), DType.self)
 }
 
 @inlinable
 public func ones<Element>(dtype: Element.Type)
-    -> Dense1<Element> where Element: Numeric { ones(Shape1(1), dtype) }
+    -> Tensor1<Element> where Element: Numeric { ones(Shape1(1), dtype) }
 
 //---------------------------------------
 // Rank1
 @inlinable
 public func ones(_ shape: Shape1.Tuple, order: StorageOrder = .C)
-    -> Dense1<DType> { ones(shape, DType.self, order) }
+    -> Tensor1<DType> { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape1.Tuple, dtype: Element.Type)
-    -> Dense1<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Tensor1<Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape1.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense1<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Tensor1<Element> where Element: Numeric { ones(shape, dtype, order) }
 
 //---------------------------------------
 // Rank2
 @inlinable
 public func ones(_ shape: Shape2.Tuple, order: StorageOrder = .C)
-    -> Dense2<DType> { ones(shape, DType.self, order) }
+    -> Tensor2<DType> { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape2.Tuple, dtype: Element.Type)
-    -> Dense2<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Tensor2<Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense2<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Tensor2<Element> where Element: Numeric { ones(shape, dtype, order) }
 
 //---------------------------------------
 // Rank3
 @inlinable
 public func ones(_ shape: Shape3.Tuple, order: StorageOrder = .C)
-    -> Dense3<DType> { ones(shape, DType.self, order) }
+    -> Tensor3<DType> { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape3.Tuple, dtype: Element.Type)
-    -> Dense3<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Tensor3<Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape3.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense3<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Tensor3<Element> where Element: Numeric { ones(shape, dtype, order) }
 
 //---------------------------------------
 // Rank4
 @inlinable
 public func ones(_ shape: Shape4.Tuple, order: StorageOrder = .C)
-    -> Dense4<DType> { ones(shape, DType.self, order) }
+    -> Tensor4<DType> { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape4.Tuple, dtype: Element.Type)
-    -> Dense4<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Tensor4<Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape4.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense4<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Tensor4<Element> where Element: Numeric { ones(shape, dtype, order) }
 
 //---------------------------------------
 // Rank5
 @inlinable
 public func ones(_ shape: Shape5.Tuple, order: StorageOrder = .C)
-    -> Dense5<DType> { ones(shape, DType.self, order) }
+    -> Tensor5<DType> { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape5.Tuple, dtype: Element.Type)
-    -> Dense5<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Tensor5<Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape5.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense5<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Tensor5<Element> where Element: Numeric { ones(shape, dtype, order) }
 
 //---------------------------------------
 // Rank6
 @inlinable
 public func ones(_ shape: Shape6.Tuple, order: StorageOrder = .C)
-    -> Dense6<DType> { ones(shape, DType.self, order) }
+    -> Tensor6<DType> { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape6.Tuple, dtype: Element.Type)
-    -> Dense6<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Tensor6<Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape6.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense6<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Tensor6<Element> where Element: Numeric { ones(shape, dtype, order) }
 
 
 //==============================================================================
@@ -1292,8 +1284,8 @@ public func ones<Element>(
 // same type and shape
 @inlinable
 public func ones<T>(like prototype: T, order: StorageOrder? = nil)
-    -> DenseTensor<T.Shape, T.Element>
-    where T: Tensor, T.Element: Numeric
+    -> Tensor<T.Shape, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     ones(prototype.shape, T.Element.self, order ?? prototype.storageOrder)
 }
@@ -1305,8 +1297,8 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape1.Tuple
-) -> DenseTensor<Shape1, T.Element>
-    where T: Tensor, T.Element: Numeric
+) -> Tensor<Shape1, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape1(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -1317,8 +1309,8 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape2.Tuple
-) -> DenseTensor<Shape2, T.Element>
-    where T: Tensor, T.Element: Numeric
+) -> Tensor<Shape2, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape2(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -1329,8 +1321,8 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape3.Tuple
-) -> DenseTensor<Shape3, T.Element>
-    where T: Tensor, T.Element: Numeric
+) -> Tensor<Shape3, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape3(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -1341,8 +1333,8 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape4.Tuple
-) -> DenseTensor<Shape4, T.Element>
-    where T: Tensor, T.Element: Numeric
+) -> Tensor<Shape4, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape4(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -1353,8 +1345,8 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape5.Tuple
-) -> DenseTensor<Shape5, T.Element>
-    where T: Tensor, T.Element: Numeric
+) -> Tensor<Shape5, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape5(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -1365,8 +1357,8 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape6.Tuple
-) -> DenseTensor<Shape6, T.Element>
-    where T: Tensor, T.Element: Numeric
+) -> Tensor<Shape6, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape6(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -1380,8 +1372,8 @@ public func ones<T, Element>(
     like prototype: T,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<T.Shape, Element>
+    where T: TensorType, Element: Numeric
 {
     ones(prototype.shape, Element.self, order ?? prototype.storageOrder)
 }
@@ -1394,8 +1386,8 @@ public func ones<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape1.Tuple
-) -> DenseTensor<Shape1, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<Shape1, Element>
+    where T: TensorType, Element: Numeric
 {
     assert(prototype.elementCount == Shape1(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
@@ -1407,8 +1399,8 @@ public func ones<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape2.Tuple
-) -> DenseTensor<Shape2, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<Shape2, Element>
+    where T: TensorType, Element: Numeric
 {
     assert(prototype.elementCount == Shape2(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
@@ -1420,8 +1412,8 @@ public func ones<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape3.Tuple
-) -> DenseTensor<Shape3, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<Shape3, Element>
+    where T: TensorType, Element: Numeric
 {
     assert(prototype.elementCount == Shape3(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
@@ -1433,8 +1425,8 @@ public func ones<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape4.Tuple
-) -> DenseTensor<Shape4, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<Shape4, Element>
+    where T: TensorType, Element: Numeric
 {
     assert(prototype.elementCount == Shape4(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
@@ -1446,8 +1438,8 @@ public func ones<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape5.Tuple
-) -> DenseTensor<Shape5, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<Shape5, Element>
+    where T: TensorType, Element: Numeric
 {
     assert(prototype.elementCount == Shape5(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
@@ -1459,8 +1451,8 @@ public func ones<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape6.Tuple
-) -> DenseTensor<Shape6, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<Shape6, Element>
+    where T: TensorType, Element: Numeric
 {
     assert(prototype.elementCount == Shape6(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
@@ -1485,7 +1477,7 @@ public func zeros<Shape, Element>(
     _ shape: Shape.Tuple,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element>
+) -> Tensor<Shape, Element>
     where Shape: TensorShape, Element: Numeric
 {
     zeros(Shape(shape), dtype, order)
@@ -1496,124 +1488,124 @@ public func zeros<Shape, Element>(
     _ shape: Shape,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> DenseTensor<Shape, Element>
+) -> Tensor<Shape, Element>
     where Shape: TensorShape, Element: Numeric
 {
-    DenseTensor<Shape, Element>(0, shape, order: order)
+    Tensor<Shape, Element>(0, shape, order: order)
 }
 
 //---------------------------------------
 // Rank0
 @inlinable
-public func zeros() -> Dense1<DType> {
+public func zeros() -> Tensor1<DType> {
     zeros(Shape1(1), DType.self)
 }
 
 @inlinable
 public func zeros<Element>(dtype: Element.Type)
-    -> Dense1<Element> where Element: Numeric { zeros(Shape1(1), dtype) }
+    -> Tensor1<Element> where Element: Numeric { zeros(Shape1(1), dtype) }
 
 //---------------------------------------
 // Rank1
 @inlinable
 public func zeros(_ shape: Shape1.Tuple, order: StorageOrder = .C)
-    -> Dense1<DType> { zeros(shape, DType.self, order) }
+    -> Tensor1<DType> { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape1.Tuple, dtype: Element.Type)
-    -> Dense1<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Tensor1<Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape1.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense1<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Tensor1<Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 //---------------------------------------
 // Rank2
 @inlinable
 public func zeros(_ shape: Shape2.Tuple, order: StorageOrder = .C)
-    -> Dense2<DType> { zeros(shape, DType.self, order) }
+    -> Tensor2<DType> { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape2.Tuple, dtype: Element.Type)
-    -> Dense2<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Tensor2<Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense2<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Tensor2<Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 //---------------------------------------
 // Rank3
 @inlinable
 public func zeros(_ shape: Shape3.Tuple, order: StorageOrder = .C)
-    -> Dense3<DType> { zeros(shape, DType.self, order) }
+    -> Tensor3<DType> { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape3.Tuple, dtype: Element.Type)
-    -> Dense3<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Tensor3<Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape3.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense3<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Tensor3<Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 //---------------------------------------
 // Rank4
 @inlinable
 public func zeros(_ shape: Shape4.Tuple, order: StorageOrder = .C)
-    -> Dense4<DType> { zeros(shape, DType.self, order) }
+    -> Tensor4<DType> { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape4.Tuple, dtype: Element.Type)
-    -> Dense4<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Tensor4<Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape4.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense4<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Tensor4<Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 //---------------------------------------
 // Rank5
 @inlinable
 public func zeros(_ shape: Shape5.Tuple, order: StorageOrder = .C)
-    -> Dense5<DType> { zeros(shape, DType.self, order) }
+    -> Tensor5<DType> { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape5.Tuple, dtype: Element.Type)
-    -> Dense5<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Tensor5<Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape5.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense5<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Tensor5<Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 //---------------------------------------
 // Rank6
 @inlinable
 public func zeros(_ shape: Shape6.Tuple, order: StorageOrder = .C)
-    -> Dense6<DType> { zeros(shape, DType.self, order) }
+    -> Tensor6<DType> { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape6.Tuple, dtype: Element.Type)
-    -> Dense6<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Tensor6<Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape6.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Dense6<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Tensor6<Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 
 //==============================================================================
@@ -1634,8 +1626,8 @@ public func zeros<Element>(
 // same type and shape
 @inlinable
 public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
-    -> DenseTensor<T.Shape, T.Element>
-    where T: Tensor, T.Element: Numeric
+    -> Tensor<T.Shape, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     zeros(prototype.shape, T.Element.self, order ?? prototype.storageOrder)
 }
@@ -1647,8 +1639,8 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape1.Tuple
-) -> DenseTensor<Shape1, T.Element>
-    where T: Tensor, T.Element: Numeric
+) -> Tensor<Shape1, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape1(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -1659,8 +1651,8 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape2.Tuple
-) -> DenseTensor<Shape2, T.Element>
-    where T: Tensor, T.Element: Numeric
+) -> Tensor<Shape2, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape2(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -1671,8 +1663,8 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape3.Tuple
-) -> DenseTensor<Shape3, T.Element>
-    where T: Tensor, T.Element: Numeric
+) -> Tensor<Shape3, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape3(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -1683,8 +1675,8 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape4.Tuple
-) -> DenseTensor<Shape4, T.Element>
-    where T: Tensor, T.Element: Numeric
+) -> Tensor<Shape4, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape4(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -1695,8 +1687,8 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape5.Tuple
-) -> DenseTensor<Shape5, T.Element>
-    where T: Tensor, T.Element: Numeric
+) -> Tensor<Shape5, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape5(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -1707,8 +1699,8 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
     like prototype: T,
     order: StorageOrder? = nil,
     shape: Shape6.Tuple
-) -> DenseTensor<Shape6, T.Element>
-    where T: Tensor, T.Element: Numeric
+) -> Tensor<Shape6, T.Element>
+    where T: TensorType, T.Element: Numeric
 {
     assert(prototype.elementCount == Shape6(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
@@ -1722,8 +1714,8 @@ public func zeros<T, Element>(
     like prototype: T,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> DenseTensor<T.Shape, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<T.Shape, Element>
+    where T: TensorType, Element: Numeric
 {
     zeros(prototype.shape, Element.self, order ?? prototype.storageOrder)
 }
@@ -1736,8 +1728,8 @@ public func zeros<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape1.Tuple
-) -> DenseTensor<Shape1, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<Shape1, Element>
+    where T: TensorType, Element: Numeric
 {
     assert(prototype.elementCount == Shape1(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)
@@ -1749,8 +1741,8 @@ public func zeros<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape2.Tuple
-) -> DenseTensor<Shape2, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<Shape2, Element>
+    where T: TensorType, Element: Numeric
 {
     assert(prototype.elementCount == Shape2(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)
@@ -1762,8 +1754,8 @@ public func zeros<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape3.Tuple
-) -> DenseTensor<Shape3, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<Shape3, Element>
+    where T: TensorType, Element: Numeric
 {
     assert(prototype.elementCount == Shape3(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)
@@ -1775,8 +1767,8 @@ public func zeros<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape4.Tuple
-) -> DenseTensor<Shape4, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<Shape4, Element>
+    where T: TensorType, Element: Numeric
 {
     assert(prototype.elementCount == Shape4(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)
@@ -1788,8 +1780,8 @@ public func zeros<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape5.Tuple
-) -> DenseTensor<Shape5, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<Shape5, Element>
+    where T: TensorType, Element: Numeric
 {
     assert(prototype.elementCount == Shape5(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)
@@ -1801,8 +1793,8 @@ public func zeros<T, Element>(
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape6.Tuple
-) -> DenseTensor<Shape6, Element>
-    where T: Tensor, Element: Numeric
+) -> Tensor<Shape6, Element>
+    where T: TensorType, Element: Numeric
 {
     assert(prototype.elementCount == Shape6(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)

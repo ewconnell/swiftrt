@@ -24,7 +24,7 @@ import Foundation
 //
 //******************************************************************************
 
-/// `Tensor Subscript Behavior`
+/// `TensorType Subscript Behavior`
 /// A tensor subscripted with a range returns a tensor slice.
 /// A tensor subscripted using `tensor.indices` or an index formed
 /// via the `ElementIndex` structure, will return the tensor's `Elements`
@@ -34,7 +34,7 @@ import Foundation
 
 //==============================================================================
 // Rank1
-public extension Tensor where Shape == Shape1 {
+public extension TensorType where Shape == Shape1 {
     /// - Returns: the element
     @inlinable
     subscript(d0: Int) -> Element {
@@ -55,7 +55,7 @@ public extension Tensor where Shape == Shape1 {
 
 //------------------------------------------------------------------------------
 
-public extension MutableTensor where Shape == Shape1 {
+public extension MutableTensorType where Shape == Shape1 {
     /// - Returns: the element
     @inlinable
     subscript(d0: Int) -> Element {
@@ -86,7 +86,7 @@ public extension MutableTensor where Shape == Shape1 {
 
 //==============================================================================
 // Rank2
-public extension Tensor where Shape == Shape2 {
+public extension TensorType where Shape == Shape2 {
     /// - Returns: the element
     @inlinable
     subscript(d0: Int, d1: Int) -> Element {
@@ -109,7 +109,7 @@ public extension Tensor where Shape == Shape2 {
 
 //------------------------------------------------------------------------------
 
-public extension MutableTensor where Shape == Shape2 {
+public extension MutableTensorType where Shape == Shape2 {
     /// - Returns: the element
     @inlinable
     subscript(d0: Int, d1: Int) -> Element {
@@ -143,7 +143,7 @@ public extension MutableTensor where Shape == Shape2 {
 
 //==============================================================================
 // Rank3
-public extension Tensor where Shape == Shape3 {
+public extension TensorType where Shape == Shape3 {
     /// - Returns: the element
     @inlinable
     subscript(d0: Int, d1: Int, d2: Int) -> Element {
@@ -168,7 +168,7 @@ public extension Tensor where Shape == Shape3 {
 
 //------------------------------------------------------------------------------
 
-public extension MutableTensor where Shape == Shape3 {
+public extension MutableTensorType where Shape == Shape3 {
     /// - Returns: the element
     @inlinable
     subscript(d0: Int, d1: Int, d2: Int) -> Element {
@@ -205,7 +205,7 @@ public extension MutableTensor where Shape == Shape3 {
 
 //==============================================================================
 // Rank4
-public extension Tensor where Shape == Shape4 {
+public extension TensorType where Shape == Shape4 {
     /// - Returns: the element
     @inlinable
     subscript(d0: Int, d1: Int, d2: Int, d3: Int) -> Element {
@@ -232,7 +232,7 @@ public extension Tensor where Shape == Shape4 {
 
 //------------------------------------------------------------------------------
 
-public extension MutableTensor where Shape == Shape4 {
+public extension MutableTensorType where Shape == Shape4 {
     /// - Returns: the element
     @inlinable
     subscript(d0: Int, d1: Int, d2: Int, d3: Int) -> Element {
@@ -272,7 +272,7 @@ public extension MutableTensor where Shape == Shape4 {
 
 //==============================================================================
 // Rank5
-public extension Tensor where Shape == Shape5 {
+public extension TensorType where Shape == Shape5 {
     /// - Returns: the element
     @inlinable
     subscript(d0: Int, d1: Int, d2: Int, d3: Int, d4: Int) -> Element {
@@ -301,7 +301,7 @@ public extension Tensor where Shape == Shape5 {
 
 //------------------------------------------------------------------------------
 
-public extension MutableTensor where Shape == Shape5 {
+public extension MutableTensorType where Shape == Shape5 {
     /// - Returns: the element
     @inlinable
     subscript(d0: Int, d1: Int, d2: Int, d3: Int, d4: Int) -> Element {
@@ -344,7 +344,7 @@ public extension MutableTensor where Shape == Shape5 {
 
 //==============================================================================
 // Rank6
-public extension Tensor where Shape == Shape6 {
+public extension TensorType where Shape == Shape6 {
     /// - Returns: the element
     @inlinable
     subscript(d0: Int, d1: Int, d2: Int, d3: Int, d4: Int, d5: Int) -> Element {
@@ -375,7 +375,7 @@ public extension Tensor where Shape == Shape6 {
 
 //------------------------------------------------------------------------------
 
-public extension MutableTensor where Shape == Shape6 {
+public extension MutableTensorType where Shape == Shape6 {
     /// - Returns: the element
     @inlinable
     subscript(d0: Int, d1: Int, d2: Int, d3: Int, d4: Int, d5: Int) -> Element {
@@ -427,31 +427,31 @@ public extension MutableTensor where Shape == Shape6 {
 
 //==============================================================================
 // Rank1
-public extension Tensor where Shape == Shape1 {
+public extension TensorType where Shape == Shape1 {
 
 }
 //==============================================================================
 // Rank2
-public extension Tensor where Shape == Shape2 {
+public extension TensorType where Shape == Shape2 {
 
 }
 //==============================================================================
 // Rank3
-public extension Tensor where Shape == Shape3 {
+public extension TensorType where Shape == Shape3 {
 
 }
 //==============================================================================
 // Rank4
-public extension Tensor where Shape == Shape4 {
+public extension TensorType where Shape == Shape4 {
 
 }
 //==============================================================================
 // Rank5
-public extension Tensor where Shape == Shape5 {
+public extension TensorType where Shape == Shape5 {
 
 }
 //==============================================================================
 // Rank6
-public extension Tensor where Shape == Shape6 {
+public extension TensorType where Shape == Shape6 {
 
 }

@@ -15,7 +15,7 @@
 //
 import Foundation
 
-/// `Tensor Subscript Behavior`
+/// `TensorType Subscript Behavior`
 /// A tensor subscripted with a range returns a tensor slice.
 /// A tensor subscripted using `tensor.indices` or an index formed
 /// via the `ElementIndex` structure, will return the tensor's `Elements`
@@ -25,7 +25,7 @@ import Foundation
 
 //==============================================================================
 // Rank2 array property and subscripts
-public extension Tensor where Shape == Shape2 {
+public extension TensorType where Shape == Shape2 {
     /// - Returns: an array of `Element`s
     @inlinable var array: [[Element]] {
         var array2 = [[Element]]()
@@ -52,7 +52,7 @@ public extension Tensor where Shape == Shape2 {
 
 //------------------------------------------------------------------------------
 
-public extension MutableTensor where Shape == Shape2 {
+public extension MutableTensorType where Shape == Shape2 {
 
     //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable subscript<R>(rows: R, cols: UnboundedRange) -> Self
@@ -71,7 +71,7 @@ public extension MutableTensor where Shape == Shape2 {
 
 //==============================================================================
 // Rank3 array property and subscripts
-public extension Tensor where Shape == Shape3 {
+public extension TensorType where Shape == Shape3 {
     //--------------------------------------------------------------------------
     /// return an array of elements
     @inlinable var array: [[[Element]]] {
@@ -133,7 +133,7 @@ public extension Tensor where Shape == Shape3 {
 
 //------------------------------------------------------------------------------
 
-public extension MutableTensor where Shape == Shape3 {
+public extension MutableTensorType where Shape == Shape3 {
 
     @inlinable
     //    @differentiable(where Self: DifferentiableTensorView)
@@ -181,7 +181,7 @@ public extension MutableTensor where Shape == Shape3 {
 //==============================================================================
 // These subscripts do a mutli-dimensional selection based on item indexes
 // from dimension 0
-public extension Tensor {
+public extension TensorType {
     @inlinable
     //    @differentiable(where Self: DifferentiableTensorView)
     subscript(range: UnboundedRange) -> Self { self }
@@ -211,7 +211,7 @@ public extension Tensor {
     }
 }
 
-public extension MutableTensor {
+public extension MutableTensorType {
     @inlinable
     //    @differentiable(where Self: DifferentiableTensorView)
     subscript<R>(range: R) -> Self
@@ -229,7 +229,7 @@ public extension MutableTensor {
 
 ////==============================================================================
 ///// Derivative registration
-//extension Tensor where Self: Differentiable {
+//extension TensorType where Self: Differentiable {
 //    // https://github.com/apple/swift/blob/37b507b31c77ef969151f385cd1902dd44fb3b7f/stdlib/public/core/Array.swift#L2091
 //    @inlinable
 //    @derivative(of: subscript)

@@ -18,7 +18,7 @@ import Foundation
 
 // REMOVE THIS HACK!!
 public func copy<T, U>(from src: T, to dest: inout U)
-    where T: Tensor, U: MutableTensor, T.Element == U.Element
+    where T: TensorType, U: MutableTensorType, T.Element == U.Element
 {
     zip(dest.indices, src).forEach { dest[$0] = $1 }
 }
