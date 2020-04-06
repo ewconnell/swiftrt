@@ -245,71 +245,48 @@ extension Tensor: Equatable where Element: Equatable {
     }
 }
 
-////==============================================================================
-///// elementsAlmostEqual
-///// Performs element-wise equality comparison within the tolerance range
-///// and returns a tensor of Bool values
-//@inlinable
-//public func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T,
-//                                   tolerance: T.Element) -> T.BoolView where
-//    S: TensorShape, E: SignedNumeric & Comparable
-//{
-//    Context.currentQueue.elementsAlmostEqual(lhs, rhs, tolerance: tolerance)
-//}
-//
-//public extension Platform {
-//    @inlinable
-//    func elementsAlmostEqual<T>(_ lhs: T, _ rhs: T,
-//                                tolerance: T.Element) -> T.BoolView
-//        where S: TensorShape, E: SignedNumeric & Comparable
-//    {
-//        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
-//        var result = lhs.createBoolTensor()
-//        var resultBuffer = write(&result)
-//        currentQueue.elementsAlmostEqual(read(lhs), read(rhs),
-//                                         tolerance, &resultBuffer)
-//        return result
-//    }
-//}
-//
-//public extension TensorView where Element: SignedNumeric & Comparable {
-//    @inlinable
-//    func elementsAlmostEqual(_ rhs: Self, tolerance: Element) -> BoolView {
-//        Context.currentQueue.elementsAlmostEqual(self, rhs, tolerance: tolerance)
-//    }
-//}
-//
-////==============================================================================
-///// notEqual
-///// Computes `lhs != rhs` element-wise and returns a `TensorView` of Boolean
-///// values.
-//@inlinable
-//public func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView
-//    where S: TensorShape, E: Equatable
-//{
-//    Context.currentQueue.notEqual(lhs, rhs)
-//}
-//
-//public extension Platform {
-//    @inlinable
-//    func notEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView
-//        where S: TensorShape, E: Equatable
-//    {
-//        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
-//        var result = lhs.createBoolTensor()
-//        var resultBuffer = write(&result)
-//        currentQueue.notEqual(read(lhs), read(rhs), &resultBuffer)
-//        return result
-//    }
-//}
-//
-//infix operator .!= : ComparisonPrecedence
-//
-//public extension TensorView where Element: Equatable {
-//    @inlinable
-//    static func .!=(_ lhs: Self, _ rhs: Self) -> BoolView { notEqual(lhs, rhs) }
-//}
-//
+//==============================================================================
+/// elementsAlmostEqual
+/// Performs element-wise equality comparison within the tolerance range
+/// and returns a tensor of Bool values
+@inlinable public func elementsAlmostEqual<S,E>(
+    _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
+    tolerance: E) -> Tensor<S,Bool>
+    where S: TensorShape, E: SignedNumeric & Comparable
+{
+    var result = empty(like: lhs, dtype: Bool.self)
+    Context.currentQueue.elementsAlmostEqual(lhs, rhs, tolerance, &result)
+    return result
+}
+
+public extension Tensor where Element: SignedNumeric & Comparable {
+    @inlinable func elementsAlmostEqual(_ rhs: Self, tolerance: Element)
+        -> Tensor<Shape,Bool>
+    {
+        SwiftRT.elementsAlmostEqual(self, rhs, tolerance: tolerance)
+    }
+}
+
+//==============================================================================
+/// notEqual
+/// Computes `lhs != rhs` element-wise and returns a `TensorView` of Boolean
+/// values.
+@inlinable public func notEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+    -> Tensor<S,Bool> where S: TensorShape, E: Equatable
+{
+    var result = empty(like: lhs, dtype: Bool.self)
+    Context.currentQueue.notEqual(lhs, rhs, &result)
+    return result
+}
+
+infix operator .!= : ComparisonPrecedence
+
+public extension Tensor where Element: Equatable {
+    @inlinable static func .!=(_ lhs: Self, _ rhs: Self) -> Tensor<Shape, Bool> {
+        SwiftRT.notEqual(lhs, rhs)
+    }
+}
+
 ////==============================================================================
 ///// greater
 ///// Computes `lhs .> rhs` element-wise and returns a tensor of Bool values
