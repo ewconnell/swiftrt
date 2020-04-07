@@ -762,10 +762,7 @@ public func full<Shape, Element>(
     _ order: StorageOrder = .C
 ) -> Tensor<Shape, Element> where Shape: TensorShape
 {
-    var t = Tensor<Shape, Element>(shape, order: order)
-    // fill on device
-    fill(&t, with: value)
-    return t
+    Tensor<Shape, Element>(shape, order: order).filled(with: value)
 }
 
 //---------------------------------------

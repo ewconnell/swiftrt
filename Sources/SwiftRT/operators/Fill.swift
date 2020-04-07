@@ -79,169 +79,105 @@ public extension Tensor {
 }
 
 //-------------------------------------
-@inlinable
-func fill<T>(randomNormal x: inout T,
-             mean: T.Element,
-             standardDeviation: T.Element,
-             seed: RandomSeed)
-    where S: TensorShape, T.Element: BinaryFloatingPoint
+@inlinable func fill<S,E>(
+    randomNormal x: inout Tensor<S,E>,
+    mean: E,
+    standardDeviation: E,
+    seed: RandomSeed
+)
+    where S: TensorShape, E: BinaryFloatingPoint
 {
-    var buffer = write(&x)
-    currentQueue.fill(randomNormal: &buffer, mean, standardDeviation, seed)
+    Context.currentQueue.fill(randomNormal: &x, mean, standardDeviation, seed)
 }
 
-@inlinable
-func fill<T>(randomNormal x: inout T,
-             mean: T,
-             standardDeviation: T,
-             seed: RandomSeed)
-    where S: TensorShape, T.Element: BinaryFloatingPoint
+@inlinable func fill<S,E>(
+    randomNormal x: inout Tensor<S,E>,
+    mean: Tensor<S,E>,
+    standardDeviation: Tensor<S,E>,
+    seed: RandomSeed)
+    where S: TensorShape, E: BinaryFloatingPoint
 {
-    var buffer = write(&x)
-    currentQueue.fill(randomNormal: &buffer, read(mean),
-                      read(standardDeviation), seed)
+    Context.currentQueue.fill(randomNormal: &x, mean, standardDeviation, seed)
 }
 
 //-------------------------------------
-@inlinable
-func fill<T>(randomTruncatedNormal x: inout T,
-             mean: T.Element, standardDeviation: T.Element,
-             seed: RandomSeed)
-    where S: TensorShape, T.Element: BinaryFloatingPoint
+@inlinable func fill<S,E>(
+    randomTruncatedNormal x: inout Tensor<S,E>,
+    mean: E, standardDeviation: E,
+    seed: RandomSeed
+) where S: TensorShape, E: BinaryFloatingPoint
 {
-    var buffer = write(&x)
-    currentQueue.fill(randomTruncatedNormal: &buffer, mean,
-                      standardDeviation, seed)
+    Context.currentQueue
+        .fill(randomTruncatedNormal: &x, mean, standardDeviation, seed)
 }
 
-@inlinable
-func fill<T>(randomTruncatedNormal x: inout T,
-             mean: T, standardDeviation: T,
-             seed: RandomSeed)
-    where S: TensorShape, T.Element: BinaryFloatingPoint
+@inlinable func fill<S,E>(
+    randomTruncatedNormal x: inout Tensor<S,E>,
+    mean: Tensor<S,E>,
+    standardDeviation: Tensor<S,E>,
+    seed: RandomSeed
+) where S: TensorShape, E: BinaryFloatingPoint
 {
-    var buffer = write(&x)
-    currentQueue.fill(randomTruncatedNormal: &buffer, read(mean),
-                      read(standardDeviation), seed)
+    Context.currentQueue
+        .fill(randomTruncatedNormal: &x, mean, standardDeviation, seed)
 }
-
 
 //==============================================================================
-/// fill<T>(result:value:
+/// fill<S,E>(x:value:
 /// fills the view with the specified value
-@inlinable
-public func fill<T>(_ result: inout T, with element: T.Element)
+@inlinable public func fill<S,E>(_ x: inout Tensor<S,E>, with element: E)
     where S: TensorShape
 {
-    Context.platform.fill(&result, with: element)
+    Context.currentQueue.fill(&x, with: element)
 }
 
 @inlinable
-public func fill<T, R>(_ result: inout T, with range: R) where
+public func fill<S,E,R>(_ x: inout Tensor<S,E>, with range: R) where
     S: TensorShape,
-    R: StridedRangeExpression & Collection, R.Element == T.Element
+    R: StridedRangeExpression & Collection,
+    R.Bound == E, R.Element == E
 {
-    Context.platform.fill(&result, with: range)
-}
-
-public extension Platform {
-    @inlinable
-    func fill<T>(_ result: inout T, with element: T.Element)
-        where S: TensorShape
-    {
-        var resultBuffer = write(&result)
-        currentQueue.fill(&resultBuffer, with: element)
-    }
-    
-    /// fill(result:with range:
-    /// fills the tensor with values formed by the specified range
-    @inlinable
-    func fill<T, R>(_ result: inout T, with range: R) where
-        S: TensorShape,
-        R: StridedRangeExpression & Collection, R.Element == T.Element
-    {
-        assert(result.count == range.stridedRange.count)
-        var resultBuffer = write(&result)
-        currentQueue.fill(&resultBuffer, with: range)
-    }
-}
-
-public extension Tensor {
-    /// filled
-    /// creates a tensor shaped like Self and fills on device
-    /// - Parameter element: the element value used to fill the tensor
-    @inlinable func filled(with element: Element) -> Self {
-        var result = createDense()
-        fill(&result, with: element)
-        return result
-    }
-    
-    /// creates a tensor shaped like Self and fills on device
-    /// - Parameter range: the range of values used to fill the tensor
-    @inlinable func filled<R>(with range: R) -> Self
-        where R: StridedRangeExpression & Collection, R.Element == Element
-    {
-        var result = createDense()
-        fill(&result, with: range)
-        return result
-    }
+    Context.currentQueue.fill(&x, with: range.stridedRange)
 }
 
 //==============================================================================
 /// fillWithIndex
 /// a convenience function to fill the tensor with index values from
 /// `0..<count`. If a different range is desired, use `fill(with range:`
-public extension Platform {
-    @inlinable
-    func fillWithIndex<T>(_ result: inout T)
-        where S: TensorShape, T.Element: RangeBound
-    {
-        let count = T.Element(exactly: result.count)!
-        let range = StridedRange(from: 0, to: count, by: 1)
-        fill(&result, with: range)
-    }
-}
-
-public extension TensorView where Element: RangeBound {
-    @inlinable
-    func filledWithIndex() -> Self {
-        var result = createDense()
-        let count = Element(exactly: result.count)!
-        let range = StridedRange(from: 0, to: count, by: 1)
-        fill(&result, with: range)
-        return result
-    }
+@inlinable func fillWithIndex<S,E>(_ x: inout Tensor<S,E>)
+    where S: TensorShape, E: RangeBound
+{
+    let count = E(exactly: x.count)!
+    let range = StridedRange(from: 0, to: count, by: 1)
+    fill(&x, with: range)
 }
 
 //==============================================================================
-/// replace<T>(x:with:result:
+/// replace(x:with:result:
 /// fills the view with the specified value
-@inlinable
-public func replace<T>(x: T, with y: T, where condition: T.BoolView) -> T
-    where S: TensorShape
+@inlinable public func replace<S,E>(
+    x: Tensor<S,E>,
+    with y: Tensor<S,E>,
+    where condition: Tensor<S,Bool>
+) -> Tensor<S,E> where S: TensorShape
 {
-    Context.platform.replace(x, with: y, where: condition)
+    var result = Tensor(like: x)
+    Context.currentQueue.replace(x, y, condition, &result)
+    return result
 }
 
-public extension Platform {
-    @inlinable
-    func replace<T>(_ x: T, with y: T, where condition: T.BoolView) -> T
-        where S: TensorShape
-    {
-        var (result, resultBuffer) = createResult(like: x)
-        currentQueue.replace(read(x), read(y), read(condition), &resultBuffer)
-        return result
-    }
-}
-
-public extension TensorView where Element: Comparable {
-    @inlinable
-    func replacing(with y: Self, where condition: BoolView) -> Self {
+public extension Tensor where Element: Comparable {
+    @inlinable func replacing(
+        with y: Self,
+        where condition: Tensor<Shape,Bool>
+    ) -> Self {
         replace(x: self, with: y, where: condition)
     }
     
-    @inlinable
-    func replacing(with value: Element, where condition: BoolView) -> Self {
-        replacing(with: Self(repeating: value, like: self), where: condition)
+    @inlinable func replacing(
+        with value: Element,
+        where condition: Tensor<Shape,Bool>
+    ) -> Self {
+        replacing(with: repeating(value, like: self), where: condition)
     }
 }

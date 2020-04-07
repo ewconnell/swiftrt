@@ -68,6 +68,7 @@ public protocol TensorShape: SIMD where Scalar == Int {
 //==============================================================================
 // TensorShape extensions
 public extension TensorShape {
+    //--------------------------------------------------------------------------
     /// init with optional tuple shape
     @inlinable @_transparent
     init?(_ shape: Tuple?) {
@@ -75,10 +76,12 @@ public extension TensorShape {
         self.init(shape)
     }
 
+    //--------------------------------------------------------------------------
     /// instance member access
     @inlinable @_transparent
     var count: Int { Self.rank }
     
+    //--------------------------------------------------------------------------
     /// conversion to DeviceIndex array to support marshalling to drivers
     @inlinable @_transparent
     var asDeviceIndex: [DeviceIndex] {
@@ -87,6 +90,7 @@ public extension TensorShape {
         return index
     }
 
+    //--------------------------------------------------------------------------
     /// helper
     @inlinable @_transparent
     mutating func swapAt(_ a: Int, _ b: Int) {
@@ -95,6 +99,7 @@ public extension TensorShape {
         self[b] = tmp
     }
     
+    //--------------------------------------------------------------------------
     // generic n-dimensional position increment function
     @inlinable
     func incremented(between lower: Self, and upper: Self) -> Self {
@@ -149,7 +154,7 @@ public extension TensorShape {
         }
         return strides
     }
-    
+
     //--------------------------------------------------------------------------
     /// joined
     /// - Parameters:

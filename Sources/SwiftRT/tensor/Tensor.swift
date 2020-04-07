@@ -22,7 +22,10 @@ import Foundation
 //    public typealias TangentVector = Self
 //}
 
-//extension Tensor: AdditiveArithmetic {}
+extension Tensor: AdditiveArithmetic where Element: Numeric {
+    @inlinable public static var zero: Self { Tensor(0) }
+    @inlinable public static var one: Self { Tensor(1) }
+}
 
 //==============================================================================
 /// Tensor
@@ -214,101 +217,6 @@ public extension Tensor {
     }
     
     @inlinable mutating func readWrite(using queue: DeviceQueue) {
-    }
-}
-
-//==============================================================================
-// Tensor initializers
-public extension Tensor {
-    /// init(shape:order:
-    @inlinable init(_ shape: Shape, order: StorageOrder = .C) {
-        let count = shape.elementCount()
-        self.init(shape: shape,
-                  strides: shape.sequentialStrides(),
-                  elementCount: count,
-                  spanCount: count,
-                  storage: StorageBufferType(count: count, name: Self.name),
-                  baseOffset: 0,
-                  order: order,
-                  share: false,
-                  isSequential: true)
-    }
-
-    /// init(like:order:
-    @inlinable init<T: TensorType>(like other: T, order: StorageOrder = .C)
-        where Shape == T.Shape, Element == T.Element
-    {
-        self.init(other.shape, order: order)
-    }
-    
-    /// init(like:order:
-    @inlinable init<T: TensorType>(like other: T, order: StorageOrder = .C)
-        where Shape == T.Shape
-    {
-        self.init(other.shape, order: order)
-    }
-    
-    /// init(repeating:shape:
-    @inlinable init(repeating: Self, _ shape: Shape) {
-        fatalError()
-    }
-    
-    /// init(shape:elements:order:
-    /// implicitly casts from C.Element integer -> Element
-    @inlinable init<C>(_ elements: C, _ shape: Shape, order: StorageOrder = .C)
-        where C: Collection, C.Element == Element
-    {
-        assert(shape.elementCount() == elements.count)
-        self.init(shape, order: order)
-        _ = storage.hostBuffer.initialize(from: elements)
-    }
-    
-    /// init(shape:elements:order:
-    /// implicitly casts from C.Element integer -> Element
-    @inlinable init<C>(_ elements: C, _ shape: Shape, order: StorageOrder = .C)
-        where C: Collection, C.Element: BinaryInteger, Element: Numeric
-    {
-        assert(shape.elementCount() == elements.count)
-        self.init(shape, order: order)
-        let lazyElements = elements.lazy.map { value -> Element in
-            assert(Element(exactly: value) != nil,
-                   "Value cast \(Element.self)(\(value)) failed")
-            return Element(exactly: value)!
-        }
-        _ = storage.hostBuffer.initialize(from: lazyElements)
-    }
-    
-    /// init(shape:order:elements:
-    /// implicitly casts from C.Element float -> Element integer
-    @inlinable init<C>(_ elements: C, _ shape: Shape, order: StorageOrder = .C)
-        where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
-    {
-        assert(shape.elementCount() == elements.count)
-        self.init(shape, order: order)
-        let lazyElements = elements.lazy.map { Element($0) }
-        _ = storage.hostBuffer.initialize(from: lazyElements)
-    }
-    
-    /// init(shape:order:elements:
-    /// implicitly casts from C.Element float -> Element integer
-    @inlinable init<C>(_ elements: C, _ shape: Shape, order: StorageOrder = .C)
-        where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryFloatingPoint
-    {
-        assert(shape.elementCount() == elements.count)
-        self.init(shape, order: order)
-        let lazyElements = elements.lazy.map { Element($0) }
-        _ = storage.hostBuffer.initialize(from: lazyElements)
-    }
-    
-    //--------------------------------------------------------------------------
-    /// reductionBounds
-    /// returns the upper bounds for a reduction result along the specified axes
-    @inlinable func reductionShape(alongAxes axes: Set<Int>?) -> Shape {
-        guard let axes = axes else { return Shape.one }
-        assert(axes.isSubset(of: 0..<Shape.rank), "axis is out of bounds")
-        var result = shape
-        axes.forEach { result[$0] = 1 }
-        return result
     }
 }
 
