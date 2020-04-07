@@ -234,6 +234,20 @@ public extension Tensor {
                   isSequential: true)
     }
 
+    /// init(like:order:
+    @inlinable init<T: TensorType>(like other: T, order: StorageOrder = .C)
+        where Shape == T.Shape, Element == T.Element
+    {
+        self.init(other.shape, order: order)
+    }
+    
+    /// init(like:order:
+    @inlinable init<T: TensorType>(like other: T, order: StorageOrder = .C)
+        where Shape == T.Shape
+    {
+        self.init(other.shape, order: order)
+    }
+    
     /// init(element:shape:order:
     @inlinable init(_ element: Element, _ shape: Shape,
                     order: StorageOrder = .C)

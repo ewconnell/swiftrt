@@ -23,8 +23,8 @@ func _vjpMinMax<S,E>(
     _ op: @escaping (E, E) -> Bool) -> (Tensor<S,E>, Tensor<S,E>)
     where S: TensorShape, E: Comparable & Numeric
 {
-    var resultTrue = empty(like: x)
-    var resultFalse = empty(like: x)
+    var resultTrue = Tensor(like: x)
+    var resultFalse = Tensor(like: x)
     Context.currentQueue.vjpMinMax(x, y, scale, op, &resultTrue, &resultFalse)
     return (resultTrue, resultFalse)
 }
@@ -35,7 +35,8 @@ func _vjpMinMax<S,E>(
 @inlinable public func and<S>(_ lhs: Tensor<S,Bool>, _ rhs: Tensor<S,Bool>)
     -> Tensor<S,Bool> where S: TensorShape
 {
-    var result = empty(like: lhs)
+    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
+    var result = Tensor(like: lhs)
     Context.currentQueue.and(lhs, rhs, &result)
     return result
 }
@@ -71,7 +72,8 @@ public extension Tensor where Element == Bool {
 @inlinable public func or<S>(_ lhs: Tensor<S,Bool>, _ rhs: Tensor<S,Bool>)
     -> Tensor<S,Bool> where S: TensorShape
 {
-    var result = empty(like: lhs)
+    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
+    var result = Tensor(like: lhs)
     Context.currentQueue.or(lhs, rhs, &result)
     return result
 }
@@ -111,7 +113,8 @@ public extension Tensor where Element == Bool {
 @inlinable public func max<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
 {
-    var result = empty(like: lhs)
+    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
+    var result = Tensor(like: lhs)
     Context.currentQueue.max(lhs, rhs, &result)
     return result
 }
@@ -164,7 +167,8 @@ public extension Tensor {
 @inlinable public func min<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
 {
-    var result = empty(like: lhs)
+    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
+    var result = Tensor(like: lhs)
     Context.currentQueue.min(lhs, rhs, &result)
     return result
 }
@@ -215,6 +219,7 @@ public extension Tensor {
 public func equal<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,Bool>
 where S: TensorShape, E: Equatable
 {
+    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
     var result = Tensor<S, Bool>(lhs.shape)
     Context.currentQueue.equal(lhs, rhs, &result)
     return result
@@ -254,7 +259,8 @@ extension Tensor: Equatable where Element: Equatable {
     tolerance: E) -> Tensor<S,Bool>
     where S: TensorShape, E: SignedNumeric & Comparable
 {
-    var result = empty(like: lhs, dtype: Bool.self)
+    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
+    var result = Tensor<S,Bool>(like: lhs)
     Context.currentQueue.elementsAlmostEqual(lhs, rhs, tolerance, &result)
     return result
 }
@@ -274,7 +280,8 @@ public extension Tensor where Element: SignedNumeric & Comparable {
 @inlinable public func notEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> Tensor<S,Bool> where S: TensorShape, E: Equatable
 {
-    var result = empty(like: lhs, dtype: Bool.self)
+    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
+    var result = Tensor<S,Bool>(like: lhs)
     Context.currentQueue.notEqual(lhs, rhs, &result)
     return result
 }
@@ -287,164 +294,102 @@ public extension Tensor where Element: Equatable {
     }
 }
 
-////==============================================================================
-///// greater
-///// Computes `lhs .> rhs` element-wise and returns a tensor of Bool values
-//@inlinable
-//public func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//    S: TensorShape, E: Comparable
-//{
-//    Context.currentQueue.greater(lhs, rhs)
-//}
-//
-//public extension Platform {
-//    @inlinable
-//    func greater<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//        S: TensorShape, E: Comparable
-//    {
-//        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
-//        var result = lhs.createBoolTensor()
-//        var resultBuffer = write(&result)
-//        currentQueue.greater(read(lhs), read(rhs), &resultBuffer)
-//        return result
-//    }
-//}
-//
-//infix operator .> : ComparisonPrecedence
-//
-//public extension TensorView where Element: Comparable {
-//    @inlinable
-//    static func .>(_ lhs: Self, _ rhs: Self) -> BoolView { greater(lhs, rhs) }
-//}
-//
-////==============================================================================
-///// greaterOrEqual
-///// Computes `lhs .>= rhs` element-wise and returns a tensor of Bool values
-//@inlinable
-//public func greaterOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//    S: TensorShape, E: Comparable
-//{
-//    Context.currentQueue.greaterOrEqual(lhs, rhs)
-//}
-//
-//public extension Platform {
-//    @inlinable
-//    func greaterOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//        S: TensorShape, E: Comparable
-//    {
-//        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
-//        var result = lhs.createBoolTensor()
-//        var resultBuffer = write(&result)
-//        currentQueue.greaterOrEqual(read(lhs), read(rhs), &resultBuffer)
-//        return result
-//    }
-//}
-//
-//infix operator .>= : ComparisonPrecedence
-//
-//public extension TensorView where Element: Comparable {
-//    @inlinable
-//    static func .>=(_ lhs: Self, _ rhs: Self) -> BoolView {
-//        greaterOrEqual(lhs, rhs)
-//    }
-//}
-//
-////==============================================================================
-///// less
-///// Computes `lhs .< rhs` element-wise and returns a tensor of Bool values
-//@inlinable
-//public func less<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//    S: TensorShape, E: Comparable
-//{
-//    Context.currentQueue.less(lhs, rhs)
-//}
-//
-//public extension Platform {
-//    @inlinable
-//    func less<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//        S: TensorShape, E: Comparable
-//    {
-//        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
-//        var result = lhs.createBoolTensor()
-//        var resultBuffer = write(&result)
-//        currentQueue.less(read(lhs), read(rhs), &resultBuffer)
-//        return result
-//    }
-//}
-//
-//infix operator .< : ComparisonPrecedence
-//
-//public extension TensorView where Element: Comparable {
-//    @inlinable
-//    static func .<(_ lhs: Self, _ rhs: Self) -> BoolView { less(lhs, rhs) }
-//}
-//
-////==============================================================================
-///// lessOrEqual
-///// Computes `lhs .<= rhs` element-wise and returns a tensor of Bool values
-//@inlinable
-//public func lessOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//    S: TensorShape, E: Comparable
-//{
-//    Context.currentQueue.lessOrEqual(lhs, rhs)
-//}
-//
-//@inlinable
-//public func lessOrEqual<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
-//    where S: TensorShape, E: Comparable
-//{
-//    lessOrEqual(lhs, T(repeating: rhs, like: lhs))
-//}
-//
-//@inlinable
-//public func lessOrEqual<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
-//    where S: TensorShape, E: Comparable
-//{
-//    lessOrEqual(T(repeating: lhs, like: rhs), rhs)
-//}
-//
-//public extension Platform {
-//    @inlinable
-//    func lessOrEqual<T>(_ lhs: T, _ rhs: T) -> T.BoolView where
-//        S: TensorShape, E: Comparable
-//    {
-//        assert(lhs.bounds == rhs.bounds, _messageTensorExtentsMismatch)
-//        var result = lhs.createBoolTensor()
-//        var resultBuffer = write(&result)
-//        currentQueue.lessOrEqual(read(lhs), read(rhs), &resultBuffer)
-//        return result
-//    }
-//
-//    @inlinable
-//    func lessOrEqual<T>(_ lhs: T, _ rhs: T.Element) -> T.BoolView
-//        where S: TensorShape, E: Comparable
-//    {
-//        lessOrEqual(lhs, T(repeating: rhs, like: lhs))
-//    }
-//
-//    @inlinable
-//    func lessOrEqual<T>(_ lhs: T.Element, _ rhs: T) -> T.BoolView
-//        where S: TensorShape, E: Comparable
-//    {
-//        lessOrEqual(T(repeating: lhs, like: rhs), rhs)
-//    }
-//}
-//
-//infix operator .<= : ComparisonPrecedence
-//
-//public extension TensorView where Element: Comparable {
-//    @inlinable
-//    static func .<=(_ lhs: Self, _ rhs: Self) -> BoolView {
-//        lessOrEqual(lhs, rhs)
-//    }
-//
-//    @inlinable
-//    static func .<=(_ lhs: Self, _ rhs: Element) -> BoolView {
-//        lessOrEqual(lhs, rhs)
-//    }
-//
-//    @inlinable
-//    static func .<=(_ lhs: Element, _ rhs: Self) -> BoolView {
-//        lessOrEqual(lhs, rhs)
-//    }
-//}
+//==============================================================================
+/// greater
+/// Computes `lhs .> rhs` element-wise and returns a tensor of Bool values
+@inlinable
+public func greater<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+    -> Tensor<S,Bool> where S: TensorShape, E: Comparable
+{
+    var result = Tensor<S,Bool>(like: lhs)
+    Context.currentQueue.greater(lhs, rhs, &result)
+    return result
+}
+
+infix operator .> : ComparisonPrecedence
+
+public extension Tensor where Element: Comparable {
+    @inlinable static func .>(_ lhs: Self, _ rhs: Self) -> Tensor<Shape,Bool> {
+        greater(lhs, rhs)
+    }
+}
+
+//==============================================================================
+/// greaterOrEqual
+/// Computes `lhs .>= rhs` element-wise and returns a tensor of Bool values
+@inlinable
+public func greaterOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+    -> Tensor<S, Bool> where S: TensorShape, E: Comparable
+{
+    var result = Tensor<S,Bool>(like: lhs)
+    Context.currentQueue.greaterOrEqual(lhs, rhs, &result)
+    return result
+}
+
+infix operator .>= : ComparisonPrecedence
+
+public extension Tensor where Element: Comparable {
+    @inlinable static func .>=(_ lhs: Self, _ rhs: Self) -> Tensor<Shape,Bool> {
+        greaterOrEqual(lhs, rhs)
+    }
+}
+
+//==============================================================================
+/// less
+/// Computes `lhs .< rhs` element-wise and returns a tensor of Bool values
+@inlinable public func less<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+    -> Tensor<S,Bool> where S: TensorShape, E: Comparable
+{
+    var result = Tensor<S,Bool>(like: lhs)
+    Context.currentQueue.less(lhs, rhs, &result)
+    return result
+}
+
+infix operator .< : ComparisonPrecedence
+
+public extension Tensor where Element: Comparable {
+    @inlinable static func .<(_ lhs: Self, _ rhs: Self) -> Tensor<Shape, Bool> {
+        less(lhs, rhs)
+    }
+}
+
+//==============================================================================
+/// lessOrEqual
+/// Computes `lhs .<= rhs` element-wise and returns a tensor of Bool values
+@inlinable public func lessOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+    -> Tensor<S,Bool> where S: TensorShape, E: Comparable
+{
+    var result = Tensor<S,Bool>(like: lhs)
+    Context.currentQueue.lessOrEqual(lhs, rhs, &result)
+    return result
+}
+
+@inlinable public func lessOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: E)
+    -> Tensor<S,Bool> where S: TensorShape, E: Comparable
+{
+    lessOrEqual(lhs, repeating(rhs, like: lhs))
+}
+
+@inlinable public func lessOrEqual<S,E>(_ lhs: E, _ rhs: Tensor<S,E>)
+    -> Tensor<S,Bool> where S: TensorShape, E: Comparable
+{
+    lessOrEqual(repeating(lhs, like: rhs), rhs)
+}
+
+infix operator .<= : ComparisonPrecedence
+
+public extension Tensor where Element: Comparable {
+    @inlinable static func .<=(_ lhs: Self, _ rhs: Self) -> Tensor<Shape,Bool> {
+        lessOrEqual(lhs, rhs)
+    }
+
+    @inlinable
+    static func .<=(_ lhs: Self, _ rhs: Element) -> Tensor<Shape,Bool> {
+        lessOrEqual(lhs, rhs)
+    }
+
+    @inlinable
+    static func .<=(_ lhs: Element, _ rhs: Self) -> Tensor<Shape,Bool> {
+        lessOrEqual(lhs, rhs)
+    }
+}
