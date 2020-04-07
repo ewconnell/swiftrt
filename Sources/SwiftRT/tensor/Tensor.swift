@@ -17,17 +17,6 @@ import Foundation
 
 
 //==============================================================================
-//
-//extension Tensor: Differentiable where Element: Differentiable {
-//    public typealias TangentVector = Self
-//}
-
-extension Tensor: AdditiveArithmetic where Element: Numeric {
-    @inlinable public static var zero: Self { Tensor(0) }
-    @inlinable public static var one: Self { Tensor(1) }
-}
-
-//==============================================================================
 /// Tensor
 public struct Tensor<Shape, Element>: MutableTensorType
     where Shape: TensorShape
@@ -123,6 +112,19 @@ public struct Tensor<Shape, Element>: MutableTensorType
             }
         }
     }
+}
+
+//==============================================================================
+// Differentiable conformance
+extension Tensor: Differentiable & DifferentiableTensor
+    where Element: DifferentiableElement
+{
+    public typealias TangentVector = Self
+}
+
+extension Tensor: AdditiveArithmetic where Element: Numeric {
+    @inlinable public static var zero: Self { Tensor(0) }
+    @inlinable public static var one: Self { Tensor(1) }
 }
 
 //==============================================================================

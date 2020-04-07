@@ -175,7 +175,8 @@ public extension Tensor {
     ///  - shape: the shape of the tensor
     ///  - order: the storage order
     @inlinable init<C>(_ elements: C, _ shape: Shape, order: StorageOrder = .C)
-        where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
+        where C: Collection,
+        C.Element: BinaryFloatingPoint, Element: BinaryInteger
     {
         assert(shape.elementCount() == elements.count)
         self.init(shape, order: order)
@@ -191,7 +192,8 @@ public extension Tensor {
     ///  - shape: the shape of the tensor
     ///  - order: the storage order
     @inlinable init<C>(_ elements: C, _ shape: Shape, order: StorageOrder = .C)
-        where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryFloatingPoint
+        where C: Collection,
+        C.Element: BinaryFloatingPoint, Element: BinaryFloatingPoint
     {
         assert(shape.elementCount() == elements.count)
         self.init(shape, order: order)
