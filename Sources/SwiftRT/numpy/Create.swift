@@ -373,7 +373,7 @@ public func repeating<Shape, Element>(
     _ order: StorageOrder = .C
 ) -> Tensor<Shape, Element> where Shape: TensorShape
 {
-    Tensor<Shape, Element>(repeating: value, shape, order: order)
+    Tensor<Shape, Element>(repeating: value, to: shape)
 }
 
 //---------------------------------------
@@ -762,7 +762,9 @@ public func full<Shape, Element>(
     _ order: StorageOrder = .C
 ) -> Tensor<Shape, Element> where Shape: TensorShape
 {
-    Tensor<Shape, Element>(shape, order: order).filled(with: value)
+    var tensor = Tensor<Shape, Element>(shape, order: order)
+    fill(&tensor, with: value)
+    return tensor
 }
 
 //---------------------------------------
@@ -1149,7 +1151,7 @@ public func ones<Shape, Element>(
 ) -> Tensor<Shape, Element>
     where Shape: TensorShape, Element: Numeric
 {
-    Tensor<Shape, Element>(1, shape, order: order)
+    Tensor<Shape, Element>(ones: shape, order: order)
 }
 
 //---------------------------------------
@@ -1491,7 +1493,7 @@ public func zeros<Shape, Element>(
 ) -> Tensor<Shape, Element>
     where Shape: TensorShape, Element: Numeric
 {
-    Tensor<Shape, Element>(0, shape, order: order)
+    Tensor<Shape, Element>(zeros: shape, order: order)
 }
 
 //---------------------------------------

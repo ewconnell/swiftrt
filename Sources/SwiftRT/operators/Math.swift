@@ -1057,6 +1057,7 @@ public extension Tensor where Element: Numeric {
 /// Numeric extension for scalar types
 public extension Numeric {
     @inlinable func squared() -> Self { self * self }
+    @inlinable static var one: Self { 1 }
 }
 //
 ////==============================================================================

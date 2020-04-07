@@ -36,7 +36,7 @@ public extension Tensor {
                   share: false,
                   isSequential: true)
     }
-
+    
     //--------------------------------------------------------------------------
     /// init(like:order:
     /// convenience initializer to initialize with the shape and type as `other`
@@ -213,3 +213,28 @@ public extension Tensor {
     }
 }
 
+//==============================================================================
+
+extension Tensor where Element: Numeric {
+    //--------------------------------------------------------------------------
+    /// init(zeros shape:order:
+    /// creates a dense shape filled with zeros
+    /// - Parameters:
+    ///  - shape: the n-dimensional shape of the tensor to be filled
+    ///  - order: the storage order of the elements
+    @inlinable init(zeros shape: Shape, order: StorageOrder = .C) {
+        self.init(shape, order: order)
+        fill(&self, with: 0)
+    }
+
+    //--------------------------------------------------------------------------
+    /// init(ones shape:order:
+    /// creates a dense shape filled with ones
+    /// - Parameters:
+    ///  - shape: the n-dimensional shape of the tensor to be filled
+    ///  - order: the storage order of the elements
+    @inlinable init(ones shape: Shape, order: StorageOrder = .C) {
+        self.init(shape, order: order)
+        fill(&self, with: 1)
+    }
+}
