@@ -656,98 +656,99 @@ open class DeviceQueue: Logging {
         mapOp(range, &result) { $0 }
     }
 
-//    //==========================================================================
-//    // fill with random functions
-//    // NOTE: **** These are just place holders
-//    // TODO: rework all of random numbers from S4TF!!
-//    //==========================================================================
-//    @inlinable
-//    func fill<R>(randomUniform result: inout R,
-//                 _ lowerBound: R.Element,
-//                 _ upperBound: R.Element,
-//                 _ seed: RandomSeed)
-//        where R: MutableShapedBuffer, R.Element: BinaryFloatingPoint
-//    {
-//        let scale = Double(upperBound - lowerBound) / Double(UInt64.max)
-//        var generator = Context.createRandomNumberGenerator(using: seed)
-//
-//        generatorOp(&result) {
-//            let a = Double(generator.next()) * scale
-//            return R.Element(a) + lowerBound
-//        }
-//    }
-//
-//    //-------------------------------------
-//    @inlinable
-//    func fill<R>(randomNormal result: inout R,
-//                 _ mean: R.Element, _ standardDeviation: R.Element,
-//                 _ seed: RandomSeed)
-//        where R: MutableShapedBuffer, R.Element: BinaryFloatingPoint
-//    {
-//        let scale = Double(standardDeviation) / Double(UInt64.max)
-//        var generator = Context.createRandomNumberGenerator(using: seed)
-//
-//        generatorOp(&result) {
-//            let a = Double(generator.next()) * scale
-//            return R.Element(a) + mean
-//        }
-//    }
-//
-//    @inlinable
-//    func fill<T, R>(randomNormal result: inout R,
-//                    _ mean: T, _ standardDeviation: T,
-//                    _ seed: RandomSeed) where
-//        T: ShapedBuffer, T.Element: BinaryFloatingPoint,
-//        R: MutableShapedBuffer, R.Element == T.Element
-//    {
-//        assert(standardDeviation.count == 1 && mean.count == 1)
-//        let scale = Double(standardDeviation.first!) / Double(UInt64.max)
-//        var generator = Context.createRandomNumberGenerator(using: seed)
-//
-//        generatorOp(&result) {
-//            let a = Double(generator.next()) * scale
-//            return R.Element(a) + mean.first!
-//        }
-//    }
-//
-//    //-------------------------------------
-//    @inlinable
-//    func fill<R>(randomTruncatedNormal result: inout R,
-//                 _ mean: R.Element, _ standardDeviation: R.Element,
-//                 _ seed: RandomSeed) where
-//        R: MutableShapedBuffer, R.Element: BinaryFloatingPoint
-//    {
-//        let std2x = standardDeviation * 2
-//        let scale = Double(standardDeviation) / Double(UInt64.max)
-//        var generator = Context.createRandomNumberGenerator(using: seed)
-//
-//        generatorOp(&result) {
-//            let a = Double(generator.next()) * scale
-//            return R.Element(a).clamped(to: -std2x...std2x) + mean
-//        }
-//    }
-//
-//    @inlinable
-//    func fill<T, R>(randomTruncatedNormal result: inout R,
-//                    _ mean: T, _ standardDeviation: T,
-//                    _ seed: RandomSeed) where
-//        T: ShapedBuffer, T.Element: BinaryFloatingPoint,
-//        R: MutableShapedBuffer, R.Element == T.Element
-//    {
-//        assert(standardDeviation.count == 1 && mean.count == 1)
-//        let std2x = standardDeviation.first! * 2
-//        let scale = Double(standardDeviation.first!) / Double(UInt64.max)
-//        var generator = Context.createRandomNumberGenerator(using: seed)
-//
-//        generatorOp(&result) {
-//            let a = Double(generator.next()) * scale
-//            return R.Element(a).clamped(to: -std2x...std2x) + mean.first!
-//        }
-//    }
-//
-//    //==========================================================================
-//    // Deep learning operators
-//    //==========================================================================
+    //==========================================================================
+    // fill with random functions
+    // NOTE: **** These are just place holders
+    // TODO: rework all of random numbers from S4TF!!
+    //==========================================================================
+    @inlinable func fill<S,E>(
+        randomUniform result: inout Tensor<S,E>,
+        _ lower: E,
+        _ upper: E,
+        _ seed: RandomSeed
+    ) where S: TensorShape, E: BinaryFloatingPoint
+    {
+        let scale = Double(upper - lower) / Double(UInt64.max)
+        var generator = Context.createRandomNumberGenerator(using: seed)
+
+        generatorOp(&result) {
+            E(Double(generator.next()) * scale) + lower
+        }
+    }
+
+    //-------------------------------------
+    @inlinable func fill<S,E>(
+        randomNormal result: inout Tensor<S,E>,
+        _ mean: E,
+        _ standardDeviation: E,
+        _ seed: RandomSeed
+    ) where S: TensorShape, E: BinaryFloatingPoint
+    {
+        let scale = Double(standardDeviation) / Double(UInt64.max)
+        var generator = Context.createRandomNumberGenerator(using: seed)
+
+        generatorOp(&result) {
+            E(Double(generator.next()) * scale) + mean
+        }
+    }
+
+    // case where the mean and stddev are not static scalars,
+    // but tensor results from previous ops
+    @inlinable func fill<S,E>(
+        randomNormal result: inout Tensor<S,E>,
+        _ mean: Tensor<S,E>,
+        _ standardDeviation: Tensor<S,E>,
+        _ seed: RandomSeed
+    ) where S: TensorShape, E: BinaryFloatingPoint
+    {
+        assert(standardDeviation.count == 1 && mean.count == 1)
+        let scale = Double(standardDeviation.element) / Double(UInt64.max)
+        var generator = Context.createRandomNumberGenerator(using: seed)
+
+        generatorOp(&result) {
+            E(Double(generator.next()) * scale) + mean.element
+        }
+    }
+
+    //-------------------------------------
+    @inlinable func fill<S,E>(
+        randomTruncatedNormal result: inout Tensor<S,E>,
+        _ mean: E,
+        _ standardDeviation: E,
+        _ seed: RandomSeed
+    ) where S: TensorShape, E: BinaryFloatingPoint
+    {
+        let std2x = standardDeviation * 2
+        let scale = Double(standardDeviation) / Double(UInt64.max)
+        var generator = Context.createRandomNumberGenerator(using: seed)
+
+        generatorOp(&result) {
+            let a = Double(generator.next()) * scale
+            return E(a).clamped(to: -std2x...std2x) + mean
+        }
+    }
+
+    @inlinable func fill<S,E>(
+        randomTruncatedNormal result: inout Tensor<S,E>,
+        _ mean: Tensor<S,E>,
+        _ standardDeviation: Tensor<S,E>,
+        _ seed: RandomSeed
+    ) where S: TensorShape, E: BinaryFloatingPoint
+    {
+        assert(standardDeviation.count == 1 && mean.count == 1)
+        let std2x = standardDeviation.element * 2
+        let scale = Double(standardDeviation.element) / Double(UInt64.max)
+        var generator = Context.createRandomNumberGenerator(using: seed)
+
+        generatorOp(&result) {
+            let a = Double(generator.next()) * scale
+            return E(a).clamped(to: -std2x...std2x) + mean.element
+        }
+    }
+
+    //==========================================================================
+    // Deep learning operators
+    //==========================================================================
 ////    public func createActivation<T>(
 ////        x: T,
 ////        y: inout T,

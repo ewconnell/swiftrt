@@ -108,37 +108,36 @@ public struct Context {
         defer { _ = Context.evaluationModeStack.popLast() }
         return try body()
     }
-//
-//    //--------------------------------------------------------------------------
-//    /// randomSeed
-//    /// - Note: Whenever obtained, the random seed is also updated so that
-//    /// future stateless random TensorFlow op executions will result
-//    /// in non-deterministic results.
-//    @inlinable
-//    public static var randomSeed: RandomSeed {
-//        get {
-//            let seed = _randomSeed
-//            _randomSeed = (seed.0, seed.1 + 1)
-//            return seed
-//        }
-//        set { _randomSeed = newValue }
-//    }
-//
-//    @usableFromInline
-//    static var _randomSeed: RandomSeed = generateRandomSeed()
-//
-//    @inlinable
-//    static func createRandomNumberGenerator(using seed: RandomSeed? = nil) ->
-//        AnyRandomNumberGenerator
-//    {
-//        let randomSeed = seed ?? Context.randomSeed
-//        let generatorSeed = UInt64(msb: UInt32(bitPattern: randomSeed.op),
-//                                   lsb: UInt32(bitPattern: randomSeed.graph))
-//        return AnyRandomNumberGenerator(
-//            PhiloxRandomNumberGenerator(uint64Seed: generatorSeed))
-//    }
 
-//
+    //--------------------------------------------------------------------------
+    /// randomSeed
+    /// - Note: Whenever obtained, the random seed is also updated so that
+    /// future stateless random TensorFlow op executions will result
+    /// in non-deterministic results.
+    @inlinable public static var randomSeed: RandomSeed {
+        get {
+            let seed = _randomSeed
+            _randomSeed = (seed.0, seed.1 + 1)
+            return seed
+        }
+        set { _randomSeed = newValue }
+    }
+
+    @usableFromInline
+    static var _randomSeed: RandomSeed = generateRandomSeed()
+
+    @inlinable
+    static func createRandomNumberGenerator(using seed: RandomSeed? = nil) ->
+        AnyRandomNumberGenerator
+    {
+        let randomSeed = seed ?? Context.randomSeed
+        let generatorSeed = UInt64(msb: UInt32(bitPattern: randomSeed.op),
+                                   lsb: UInt32(bitPattern: randomSeed.graph))
+        return AnyRandomNumberGenerator(
+            PhiloxRandomNumberGenerator(uint64Seed: generatorSeed))
+    }
+
+
 //    //--------------------------------------------------------------------------
 //    /// returns the thread local instance of the queues stack
 //    @usableFromInline

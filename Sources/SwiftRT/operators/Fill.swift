@@ -62,80 +62,69 @@ public extension Tensor {
 /// delayQueue
 /// adds a time delay into the current queue for testing purposes``
 /// - Parameter interval: the number of seconds to delay
-@inlinable
-public func delayQueue(atLeast interval: TimeInterval) {
-    Context.platform.delayQueue(atLeast: interval)
-}
-
-public extension Platform {
-    @inlinable
-    func delayQueue(atLeast interval: TimeInterval) {
-        currentQueue.delay(interval)
-    }
+@inlinable public func delayQueue(atLeast interval: TimeInterval) {
+    Context.currentQueue.delay(interval)
 }
 
 //==============================================================================
 // initializer extensions
-public extension Platform {
-    @inlinable
-    func fill<T>(randomUniform x: inout T,
-                 lowerBound: T.Element,
-                 upperBound: T.Element,
-                 seed: RandomSeed)
-        where S: TensorShape, T.Element: BinaryFloatingPoint
-    {
-        var buffer = write(&x)
-        currentQueue.fill(randomUniform: &buffer, lowerBound, upperBound, seed)
-    }
-
-    
-    //-------------------------------------
-    @inlinable
-    func fill<T>(randomNormal x: inout T,
-                 mean: T.Element,
-                 standardDeviation: T.Element,
-                 seed: RandomSeed)
-        where S: TensorShape, T.Element: BinaryFloatingPoint
-    {
-        var buffer = write(&x)
-        currentQueue.fill(randomNormal: &buffer, mean, standardDeviation, seed)
-    }
-
-    @inlinable
-    func fill<T>(randomNormal x: inout T,
-                 mean: T,
-                 standardDeviation: T,
-                 seed: RandomSeed)
-        where S: TensorShape, T.Element: BinaryFloatingPoint
-    {
-        var buffer = write(&x)
-        currentQueue.fill(randomNormal: &buffer, read(mean),
-                          read(standardDeviation), seed)
-    }
-
-    //-------------------------------------
-    @inlinable
-    func fill<T>(randomTruncatedNormal x: inout T,
-                    mean: T.Element, standardDeviation: T.Element,
-                    seed: RandomSeed)
-        where S: TensorShape, T.Element: BinaryFloatingPoint
-    {
-        var buffer = write(&x)
-        currentQueue.fill(randomTruncatedNormal: &buffer, mean,
-                          standardDeviation, seed)
-    }
-
-    @inlinable
-    func fill<T>(randomTruncatedNormal x: inout T,
-                 mean: T, standardDeviation: T,
-                 seed: RandomSeed)
-        where S: TensorShape, T.Element: BinaryFloatingPoint
-    {
-        var buffer = write(&x)
-        currentQueue.fill(randomTruncatedNormal: &buffer, read(mean),
-                          read(standardDeviation), seed)
-    }
+@inlinable func fill<S,E>(
+    randomUniform x: inout Tensor<S,E>,
+    from lower: E,
+    to upper: E,
+    seed: RandomSeed
+) where S: TensorShape, E: BinaryFloatingPoint
+{
+    Context.currentQueue.fill(randomUniform: &x, lower, upper, seed)
 }
+
+//-------------------------------------
+@inlinable
+func fill<T>(randomNormal x: inout T,
+             mean: T.Element,
+             standardDeviation: T.Element,
+             seed: RandomSeed)
+    where S: TensorShape, T.Element: BinaryFloatingPoint
+{
+    var buffer = write(&x)
+    currentQueue.fill(randomNormal: &buffer, mean, standardDeviation, seed)
+}
+
+@inlinable
+func fill<T>(randomNormal x: inout T,
+             mean: T,
+             standardDeviation: T,
+             seed: RandomSeed)
+    where S: TensorShape, T.Element: BinaryFloatingPoint
+{
+    var buffer = write(&x)
+    currentQueue.fill(randomNormal: &buffer, read(mean),
+                      read(standardDeviation), seed)
+}
+
+//-------------------------------------
+@inlinable
+func fill<T>(randomTruncatedNormal x: inout T,
+             mean: T.Element, standardDeviation: T.Element,
+             seed: RandomSeed)
+    where S: TensorShape, T.Element: BinaryFloatingPoint
+{
+    var buffer = write(&x)
+    currentQueue.fill(randomTruncatedNormal: &buffer, mean,
+                      standardDeviation, seed)
+}
+
+@inlinable
+func fill<T>(randomTruncatedNormal x: inout T,
+             mean: T, standardDeviation: T,
+             seed: RandomSeed)
+    where S: TensorShape, T.Element: BinaryFloatingPoint
+{
+    var buffer = write(&x)
+    currentQueue.fill(randomTruncatedNormal: &buffer, read(mean),
+                      read(standardDeviation), seed)
+}
+
 
 //==============================================================================
 /// fill<T>(result:value:
