@@ -248,13 +248,9 @@ public extension Tensor {
         self.init(other.shape, order: order)
     }
     
-    /// init(element:shape:order:
-    @inlinable init(_ element: Element, _ shape: Shape,
-                    order: StorageOrder = .C)
-    {
-        self.init(shape, order: order)
-        // TODO: this should be happening on device!
-        storage.hostBuffer.initialize(repeating: element)
+    /// init(repeating:shape:
+    @inlinable init(repeating: Self, _ shape: Shape) {
+        fatalError()
     }
     
     /// init(shape:elements:order:

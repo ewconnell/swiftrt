@@ -142,13 +142,24 @@ public extension TensorShape {
     //--------------------------------------------------------------------------
     /// `sequentialStrides`
     /// computes the row major sequential strides
-    @inlinable
-    func sequentialStrides() -> Self {
+    @inlinable func sequentialStrides() -> Self {
         var strides = Self.one
         for i in stride(from: Self.rank &- 1, through: 1, by: -1) {
             strides[i &- 1] = self[i] &* strides[i]
         }
         return strides
+    }
+    
+    //--------------------------------------------------------------------------
+    /// joined
+    /// - Parameters:
+    ///  - others: array of shapes to join
+    ///  - axis: the axis to join
+    /// - Returns: the joined shape
+    @inlinable func joined(with others: [Self], alongAxis axis: Int) -> Self {
+        var joinedShape = self
+        joinedShape[axis] += others.reduce(into: 0) { $0 += $1[axis] }
+        return joinedShape
     }
 }
 

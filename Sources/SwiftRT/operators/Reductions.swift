@@ -48,95 +48,74 @@ public extension Tensor where Element == Bool {
     @inlinable
     func all(alongAxes axes: Int...) -> Self { all(alongAxes: Set(axes)) }
 }
-//
-////==============================================================================
-///// any(x:along:)
-///// Returns `true` if any value is equal to `true` along the specified
-///// axes. Otherwise returns `false`. The result extent along the specified
-///// axes will be 1. Rank is not reduced.
-///// - Parameter x: value tensor
-///// - Parameter along: the axes to operate on
-///// - Returns: a new tensor containing the result
-//@inlinable
-//public func any<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
-//    where T: TensorView, T.Element == Bool
-//{
-//    Context.platform.any(x, alongAxes: axes)
-//}
-//
-//public extension Platform {
-//    @inlinable
-//    func any<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
-//        where T: TensorView, T.Element == Bool
-//    {
-//        let bounds = x.reductionBounds(alongAxes: axes)
-//        var result = x.createDense(with: bounds)
-//        copy(from: x.view(from: T.Bounds.zero, to: bounds), to: &result)
-//
-//        var resultBuffer = write(&result)
-//        currentQueue.reduce(read(x), &resultBuffer, .compare, { $0 || $1 }, nil)
-//        return result
-//    }
-//}
-//
-///// - Parameter along: the axes to operate on
-///// - Returns: a new tensor containing the result
-//public extension TensorView where Element == Bool {
-//    @inlinable
-//    func any(alongAxes axes: Set<Int>? = nil) -> Self {
-//        Context.platform.any(self, alongAxes: axes)
-//    }
-//
-//    @inlinable
-//    func any(alongAxes axes: Int...) -> Self { any(alongAxes: Set(axes)) }
-//}
-//
-////==============================================================================
-///// sum(x:along:
-///// Sums `x` along the specified axes
-///// - Parameter x: value tensor
-///// - Parameter along: the axes to operate on
-//@inlinable
-//public func sum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
-//    where T: TensorView, T.Element: Numeric
-//{
-//    Context.platform.sum(x, alongAxes: axes)
-//}
-//
-//public extension Platform {
-//    @inlinable
-//    func sum<T>(_ x: T, alongAxes axes: Set<Int>? = nil) -> T
-//        where T: TensorView, T.Element: Numeric
-//    {
-//        let bounds = x.reductionBounds(alongAxes: axes)
-//        var result = x.createDense(with: bounds).filled(with: T.Element.zero)
-//        var resultBuffer = write(&result)
-//        currentQueue.reduce(read(x), &resultBuffer, .add, +, nil)
-//        return result
-//    }
-//
-//    @derivative(of: sum)
-//    @inlinable
-//    func _vjpSum<T>(_ x: T, alongAxes axes: Set<Int>? = nil)
-//        -> (value: T, pullback: (T) -> T) where T: DifferentiableTensorView
-//    {
-//        let value = sum(x, alongAxes: axes)
-//        return (value, { [xext = x.bounds] in $0.repeated(to: xext) })
-//    }
-//}
-//
-//public extension TensorView where Element: Numeric {
+
+//==============================================================================
+/// any(x:along:)
+/// Returns `true` if any value is equal to `true` along the specified
+/// axes. Otherwise returns `false`. The result extent along the specified
+/// axes will be 1. Rank is not reduced.
+/// - Parameter x: value tensor
+/// - Parameter axes: the axes to operate on
+/// - Returns: a new tensor containing the result
+@inlinable
+public func any<S>(_ x: Tensor<S,Bool>, alongAxes axes: Set<Int>? = nil)
+    -> Tensor<S,Bool> where S: TensorShape
+{
+    let resultShape = x.reductionShape(alongAxes: axes)
+    var result = Tensor<S,Bool>(resultShape)
+    copy(from: x[S.zero, resultShape], to: &result)
+    Context.currentQueue.reduce(x, &result, .compare, { $0 || $1 }, nil)
+    return result
+}
+
+/// - Parameter axes: the axes to operate on
+/// - Returns: a new tensor containing the result
+public extension Tensor where Element == Bool {
+    @inlinable func any(alongAxes axes: Set<Int>? = nil) -> Self {
+        SwiftRT.any(self, alongAxes: axes)
+    }
+
+    @inlinable func any(alongAxes axes: Int...) -> Self {
+        any(alongAxes: Set(axes))
+    }
+}
+
+//==============================================================================
+/// sum(x:along:
+/// Sums `x` along the specified axes
+/// - Parameter x: value tensor
+/// - Parameter along: the axes to operate on
+@inlinable
+public func sum<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
+    -> Tensor<S,E> where S: TensorShape, E: Numeric
+{
+    let resultShape = x.reductionShape(alongAxes: axes)
+    var result = Tensor<S,E>(resultShape).filled(with: 0)
+    Context.currentQueue.reduce(x, &result, .add, +, nil)
+    return result
+}
+
+//@derivative(of: sum)
+@inlinable func _vjpSum<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
+    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+    where S: TensorShape, E: DifferentiableElement
+{
+    let value = sum(x, alongAxes: axes)
+    return (value, { [xshape = x.shape] in $0.repeated(to: xshape) })
+}
+
+public extension Tensor where Element: Numeric {
 //    @differentiable(where Self: DifferentiableTensorView)
-//    @inlinable
-//    func sum(alongAxes axes: Set<Int>? = nil) -> Self {
-//        Context.platform.sum(self, alongAxes: axes)
-//    }
-//
+    @inlinable func sum(alongAxes axes: Set<Int>? = nil) -> Self {
+        SwiftRT.sum(self, alongAxes: axes)
+    }
+
 //    @differentiable(where Self: DifferentiableTensorView)
-//    @inlinable
-//    func sum(alongAxes axes: Int...) -> Self { sum(alongAxes: Set(axes)) }
-//}
-//
+    @inlinable func sum(alongAxes axes: Int...) -> Self {
+        sum(alongAxes: Set(axes))        
+    }
+}
+
 ////==============================================================================
 ///// mean(x:along:
 ///// mean of `x` along the specified axes

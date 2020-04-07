@@ -15,15 +15,6 @@
 //
 import Foundation
 
-
-// REMOVE THIS HACK!!
-public func copy<T, U>(from src: T, to dest: inout U)
-    where T: TensorType, U: MutableTensorType, T.Element == U.Element
-{
-    zip(dest.indices, src).forEach { dest[$0] = $1 }
-}
-
-
 //==============================================================================
 /// Platform
 /// a platform represents a collection of installed devices on a
