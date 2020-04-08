@@ -308,358 +308,218 @@ public func cosh<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
     fatalError("Not implemented")
 }
 
-////==============================================================================
-///// exp(x)
-///// computes the exponential value of `x`
-///// - Parameter x: value tensor
-///// - Returns: result
-//@inlinable
-//public func exp<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
-//    SwiftRT.exp(x)
-//}
-//
-//@inlinable
-//@derivative(of: exp)
-//func _vjpExp<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT._vjpExp(x)
-//}
-//
-///// Returns two raised to the power of the specified tensor element-wise.
-//@inlinable
-//public func exp2<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
-//    SwiftRT.exp2(x)
-//}
-//
-///// Returns ten raised to the power of the specified tensor element-wise.
-//@inlinable
-//public func exp10<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
-//    SwiftRT.exp10(x)
-//}
-//
-//// Platform extension
-//public extension Platform {
-//    @inlinable
-//    func exp<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.exp(x, &result)
-//        return result
-//    }
-//
-//    @inlinable
-//    @derivative(of: exp)
-//    func _vjpExp<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//        where S: TensorShape, E: Real
-//    {
-//        let value = exp(x)
-//        return (value, { v in value * v } )
-//    }
-//
-//    /// Returns two raised to the power of the specified tensor element-wise.
-//    @inlinable
-//    func exp2<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.exp2(x, &result)
-//        return result
-//    }
-//
-//    /// Returns ten raised to the power of the specified tensor element-wise.
-//    @inlinable
-//    func exp10<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.exp10(x, &result)
-//        return result
-//    }
-//}
-//
-//// Tensor extension
-//public extension TensorView where Element: Real {
-//    // make glboal function visible for extension implementations
-//    @differentiable(where Element: DifferentiableElement)
-//    @inlinable
-//    func exp(_ x: Self) -> Self { SwiftRT.exp(x) }
-//
-//    @differentiable(where Element: DifferentiableElement)
-//    @inlinable
-//    func exp() -> Self { exp(self) }
-//}
-//
-////==============================================================================
-///// expMinusOne(x)
-///// computes the exponential minus one value of `x`
-///// - Parameter x: value tensor
-///// - Returns: result
-//@inlinable
-//public func expMinusOne<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT.expMinusOne(x)
-//}
-//
-//@inlinable
-//@derivative(of: expMinusOne)
-//func _vjpExpMinusOne<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT._vjpExpMinusOne(x)
-//}
-//
-//// Platform extension
-//public extension Platform {
-//    @inlinable
-//    func expMinusOne<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
-//        where S: TensorShape, E: Real
-//    {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.expMinusOne(x, &result)
-//        return result
-//    }
-//
-//    @inlinable
-//    @derivative(of: expMinusOne)
-//    func _vjpExpMinusOne<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//        where S: TensorShape, E: Real
-//    {
-//        let y = expMinusOne(x)
-//        return (y, { v in v * y })
-//    }
-//}
-//
-////==============================================================================
-///// gamma(x)
-///// computes the gamma of `x`
-///// - Parameter x: value tensor
-///// - Returns: result
-//@inlinable
-//public func gamma<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT.gamma(x)
-//}
-//
-//@inlinable
-//@derivative(of: gamma)
-//func _vjpGamma<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT._vjpGamma(x)
-//}
-//
-//// Platform extension
-//public extension Platform {
-//    @inlinable
-//    func gamma<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
-//        where S: TensorShape, E: Real
-//    {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.gamma(x, &result)
-//        return result
-//    }
-//
-//    @inlinable
-//    @derivative(of: gamma)
-//    func _vjpGamma<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//        where S: TensorShape, E: Real
-//    {
-//        fatalError("Not implemented")
-//    }
-//}
-//
-////==============================================================================
-///// hypot(x:y:
-///// calculate the length of the hypotenuse of a right triangle
-///// - Parameter x: value tensor
-///// - Parameter y: value tensor
-///// - Returns: result
-//@inlinable
-//public func hypot<S,E>(_ x: T, _ y: Tensor<S,E>) -> Tensor<S,E>
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT.hypot(x, y)
-//}
-//
-//@inlinable
-//@derivative(of: hypot)
-//func _vjpHypot<S,E>(x: T, y: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (T, T))
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT._vjpHypot(x, y)
-//}
-//
-//// Platform extension
-//public extension Platform {
-//    @inlinable
-//    func hypot<S,E>(_ x: T, _ y: Tensor<S,E>) -> Tensor<S,E>
-//        where S: TensorShape, E: Real
-//    {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.hypot(x, read(y), &result)
-//        return result
-//    }
-//
-//    @inlinable
-//    @derivative(of: hypot)
-//    func _vjpHypot<S,E>(_ x: T, _ y: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (T, T))
-//        where S: TensorShape, E: Real
-//    {
-//        // TODO
-//        fatalError("Not implemented")
-//    }
-//}
-//
-////==============================================================================
-///// log(x)
-///// computes the log of `x`
-///// - Parameter x: value tensor
-///// - Returns: result
-//@inlinable
-//public func log<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
-//    SwiftRT.log(x)
-//}
-//
-//@inlinable
-//@derivative(of: log(_:))
-//func _vjpLog<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT._vjpLog(x)
-//}
-//
-//@inlinable
-//public func log2<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
-//    SwiftRT.log2(x)
-//}
-//
-//@inlinable
-//public func log10<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
-//    SwiftRT.log10(x)
-//}
-//
-//// Platform extension
-//public extension Platform {
-//    @inlinable
-//    func log<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.log(x, &result)
-//        return result
-//    }
-//
-//    @inlinable
-//    @derivative(of: log(_:))
-//    func _vjpLog<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//        where S: TensorShape, E: Real
-//    {
-//        (log(x), { v in v / x })
-//    }
-//
-//    @inlinable
-//    func log2<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.log2(x, &result)
-//        return result
-//    }
-//
-//    @inlinable
-//    func log10<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.log10(x, &result)
-//        return result
-//    }
-//}
-//
-//// Tensor extension
-//public extension TensorView where Element: Real {
-//    // make glboal function visible for extension implementations
-//    @differentiable(where Element: DifferentiableElement)
-//    @inlinable
-//    func log(_ x: Self) -> Self { SwiftRT.log(x) }
-//
-//    @differentiable(where Element: DifferentiableElement)
-//    @inlinable
-//    func log() -> Self { log(self) }
-//}
-//
-////==============================================================================
-///// log(onePlus x:
-///// computes one plus the log of `x`
-///// - Parameter x: value tensor
-///// - Returns: result
-//@inlinable
-//public func log<S,E>(onePlus x: Tensor<S,E>) -> Tensor<S,E>
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT.log(onePlus: x)
-//}
-//
-//@inlinable
-//@derivative(of: log(onePlus:))
-//func _vjpLogOnePlus<S,E>(onePlus x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT._vjpLogOnePlus(onePlus: x)
-//}
-//
-//// Platform extension
-//public extension Platform {
-//    @inlinable
-//    func log<S,E>(onePlus x: Tensor<S,E>) -> Tensor<S,E>
-//        where S: TensorShape, E: Real
-//    {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.log(onePlus: x, &result)
-//        return result
-//    }
-//
-//    @inlinable
-//    @derivative(of: log(onePlus:))
-//    func _vjpLogOnePlus<S,E>(onePlus x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//        where S: TensorShape, E: Real
-//    {
-//        fatalError("Not implemented")
-//    }
-//}
-//
-////==============================================================================
-///// logGamma(x)
-///// computes the log gamma of `x`
-///// - Parameter x: value tensor
-///// - Returns: result
-//@inlinable
-//public func logGamma<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT.logGamma(x)
-//}
-//
-//@inlinable
-//@derivative(of: logGamma)
-//func _vjpLogGamma<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT._vjpLogGamma(x)
-//}
-//
-//// Platform extension
-//public extension Platform {
-//    @inlinable
-//    func logGamma<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
-//        where S: TensorShape, E: Real
-//    {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.logGamma(x, &result)
-//        return result
-//    }
-//
-//    @inlinable
-//    @derivative(of: logGamma)
-//    func _vjpLogGamma<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//        where S: TensorShape, E: Real
-//    {
-//        fatalError("Not implemented")
-//    }
-//}
-//
+//==============================================================================
+/// exp(x)
+/// computes the exponential value of `x`
+/// - Parameter x: value tensor
+/// - Returns: result
+@inlinable public func exp<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+    where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.exp(x, &result)
+    return result
+}
+
+@derivative(of: exp)
+@inlinable func _vjpExp<S,E>(_ x: Tensor<S,E>)
+    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+    where S: TensorShape, E: DifferentiableElement & Real
+{
+    let value = exp(x)
+    return (value, { v in value * v } )
+}
+
+// Tensor extension
+public extension Tensor where Element: Real {
+    // make glboal function visible for extension implementations
+    @differentiable(where Element: DifferentiableElement)
+    @inlinable func exp(_ x: Self) -> Self { SwiftRT.exp(x) }
+
+    @differentiable(where Element: DifferentiableElement)
+    @inlinable func exp() -> Self { exp(self) }
+}
+
+//==============================================================================
+/// exp2(x)
+/// Returns two raised to the power of the specified tensor element-wise.
+/// - Parameter x: value tensor
+/// - Returns: result
+@inlinable public func exp2<S,E>(_ x: Tensor<S,E>)
+    -> Tensor<S,E> where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.exp2(x, &result)
+    return result
+}
+
+//==============================================================================
+/// exp10(x)
+/// Returns 10 raised to the power of the specified tensor element-wise.
+/// - Parameter x: value tensor
+/// - Returns: result
+/// Returns ten raised to the power of the specified tensor element-wise.
+@inlinable public func exp10<S,E>(_ x: Tensor<S,E>)
+    -> Tensor<S,E> where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.exp10(x, &result)
+    return result
+}
+
+//==============================================================================
+/// expMinusOne(x)
+/// computes the exponential minus one value of `x`
+/// - Parameter x: value tensor
+/// - Returns: result
+@inlinable public func expMinusOne<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+    where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.expMinusOne(x, &result)
+    return result
+}
+
+@derivative(of: expMinusOne)
+@inlinable func _vjpExpMinusOne<S,E>(_ x: Tensor<S,E>)
+    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+    where S: TensorShape, E: DifferentiableElement & Real
+{
+    let y = expMinusOne(x)
+    return (y, { v in v * y })
+}
+
+//==============================================================================
+/// gamma(x)
+/// computes the gamma of `x`
+/// - Parameter x: value tensor
+/// - Returns: result
+@inlinable public func gamma<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+    where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.gamma(x, &result)
+    return result
+}
+
+@derivative(of: gamma)
+@inlinable func _vjpGamma<S,E>(_ x: Tensor<S,E>)
+    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+    where S: TensorShape, E: DifferentiableElement & Real
+{
+    fatalError("Not implemented")
+}
+
+//==============================================================================
+/// hypot(x:y:
+/// calculate the length of the hypotenuse of a right triangle
+/// - Parameter x: value tensor
+/// - Parameter y: value tensor
+/// - Returns: result
+@inlinable public func hypot<S,E>(_ x: Tensor<S,E>, _ y: Tensor<S,E>)
+    -> Tensor<S,E> where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.hypot(x, y, &result)
+    return result
+}
+
+@derivative(of: hypot)
+@inlinable func _vjpHypot<S,E>(x: Tensor<S,E>, y: Tensor<S,E>)
+    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
+    where S: TensorShape, E: DifferentiableElement & Real
+{
+    // TODO:
+    fatalError("Not implemented")
+}
+
+//==============================================================================
+/// log(x)
+/// computes the log of `x`
+/// - Parameter x: value tensor
+/// - Returns: result
+@inlinable public func log<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+    where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.log(x, &result)
+    return result
+}
+
+@inlinable
+@derivative(of: log(_:))
+func _vjpLog<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+    where S: TensorShape, E: DifferentiableElement & Real
+{
+    (log(x), { v in v / x })
+}
+
+@inlinable
+public func log2<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
+    var result = Tensor(like: x)
+    Context.currentQueue.log2(x, &result)
+    return result
+}
+
+@inlinable
+public func log10<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
+    var result = Tensor(like: x)
+    Context.currentQueue.log10(x, &result)
+    return result
+}
+
+// Tensor extension
+public extension Tensor where Element: Real {
+    // make glboal function visible for extension implementations
+    @differentiable(where Element: DifferentiableElement)
+    @inlinable func log(_ x: Self) -> Self { SwiftRT.log(x) }
+
+    @differentiable(where Element: DifferentiableElement)
+    @inlinable func log() -> Self { log(self) }
+}
+
+//==============================================================================
+/// log(onePlus x:
+/// computes one plus the log of `x`
+/// - Parameter x: value tensor
+/// - Returns: result
+@inlinable public func log<S,E>(onePlus x: Tensor<S,E>) -> Tensor<S,E>
+    where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.log(onePlus: x, &result)
+    return result
+}
+
+@derivative(of: log(onePlus:))
+@inlinable func _vjpLogOnePlus<S,E>(onePlus x: Tensor<S,E>)
+    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+    where S: TensorShape, E: DifferentiableElement & Real
+{
+    fatalError("Not implemented")
+}
+
+//==============================================================================
+/// logGamma(x)
+/// computes the log gamma of `x`
+/// - Parameter x: value tensor
+/// - Returns: result
+@inlinable public func logGamma<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+    where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.logGamma(x, &result)
+    return result
+}
+
+@derivative(of: logGamma)
+@inlinable func _vjpLogGamma<S,E>(_ x: Tensor<S,E>)
+    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+    where S: TensorShape, E: DifferentiableElement & Real
+{
+    fatalError("Not implemented")
+}
+
 //==============================================================================
 /// neg(x)
 /// computes the negated value of `x`
@@ -769,122 +629,75 @@ public extension Numeric {
     @inlinable func squared() -> Self { self * self }
     @inlinable static var one: Self { 1 }
 }
-//
-////==============================================================================
-///// pow(x)
-///// computes elementwise `x` to the power of `y`
-///// - Parameter x: value tensor
-///// - Parameter y: power tensor
-///// - Returns: result
-//@inlinable
-//public func pow<S,E>(_ x: T, _ y: Tensor<S,E>) -> Tensor<S,E>
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT.pow(x, y)
-//}
-//
-//@inlinable
-//@derivative(of: pow)
-//func _vjpPow<S,E>(_ x: T, _ y: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (T, T))
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT._vjpPow(x, y)
-//}
-//
-//@inlinable
-//public func pow<S,E>(_ x: T, _ n: Int) -> Tensor<S,E>
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT.pow(x, n)
-//}
-//
-//// Platform extension
-//public extension Platform {
-//    @inlinable
-//    func pow<S,E>(_ x: T, _ y: Tensor<S,E>) -> Tensor<S,E>
-//        where S: TensorShape, E: Real
-//    {
-//        assert(x.bounds == y.bounds, _messageTensorExtentsMismatch)
-//        var result = Tensor(like: x)
-//        Context.currentQueue.pow(x, read(y), &result)
-//        return result
-//    }
-//
-//    @inlinable
-//    @derivative(of: pow)
-//    func _vjpPow<S,E>(_ x: T, _ y: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (T, T))
-//        where S: TensorShape, E: Real
-//    {
-//        fatalError()
-//        //        let value = pow(x, y)
-//        //        return (value, { v in
-//        //            let safeX = x.replacing(with: 1, where: x .<= 0)
-//        //            let lhsGrad = v * y * pow(x, y - 1)
-//        //            let rhsGrad = value * v * log(safeX)
-//        //            return (T(repeating: lhsGrad.sum().element, like: x),
-//        //                    T(repeating: rhsGrad.sum().element, like: y))
-//        //        })
-//    }
-//
-//    @inlinable
-//    func pow<S,E>(_ x: T, _ n: Int) -> Tensor<S,E>
-//        where S: TensorShape, E: Real
-//    {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.pow(x, n, &result)
-//        return result
-//    }
-//}
-//
-//// Tensor extension
-//public extension TensorView where Element: Real {
-//    // make glboal function visible for extension implementations
-//    @inlinable
-//    @differentiable(where Element: DifferentiableElement)
-//    func pow(_ x: Self, _ y: Self) -> Self { SwiftRT.pow(x, y) }
-//}
-//
-////==============================================================================
-///// root(x:n:
-///// computes the nth root of `x`
-///// - Parameter x: value tensor
-///// - Parameter n: power
-///// - Returns: result
-//@inlinable
-//public func root<S,E>(_ x: T, _ n: Int) -> Tensor<S,E>
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT.root(x, n)
-//}
-//
-//@inlinable
-//@derivative(of: root)
-//func _vjpRoot<S,E>(_ x: T, _ n: Int) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (T))
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT._vjpRoot(x, n)
-//}
-//
-//// Platform extension
-//public extension Platform {
-//    @inlinable
-//    func root<S,E>(_ x: T, _ n: Int) -> Tensor<S,E>
-//        where S: TensorShape, E: Real
-//    {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.root(x, n, &result)
-//        return result
-//    }
-//
-//    @inlinable
-//    @derivative(of: root)
-//    func _vjpRoot<S,E>(_ x: T, _ n: Int) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (T))
-//        where S: TensorShape, E: Real
-//    {
-//        fatalError("Not implemented")
-//    }
-//}
-//
+
+//==============================================================================
+/// pow(x)
+/// computes elementwise `x` to the power of `y`
+/// - Parameter x: value tensor
+/// - Parameter y: power tensor
+/// - Returns: result
+@inlinable public func pow<S,E>(_ x: Tensor<S,E>, _ y: Tensor<S,E>)
+    -> Tensor<S,E> where S: TensorShape, E: Real
+{
+    assert(x.shape == y.shape, _messageTensorExtentsMismatch)
+    var result = Tensor(like: x)
+    Context.currentQueue.pow(x, y, &result)
+    return result
+}
+
+@derivative(of: pow)
+@inlinable func _vjpPow<S,E>(_ x: Tensor<S,E>, _ y: Tensor<S,E>)
+    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
+    where S: TensorShape, E: DifferentiableElement & Real
+{
+    fatalError()
+    //        let value = pow(x, y)
+    //        return (value, { v in
+    //            let safeX = x.replacing(with: 1, where: x .<= 0)
+    //            let lhsGrad = v * y * pow(x, y - 1)
+    //            let rhsGrad = value * v * log(safeX)
+    //            return (T(repeating: lhsGrad.sum().element, like: x),
+    //                    T(repeating: rhsGrad.sum().element, like: y))
+    //        })
+}
+
+@inlinable public func pow<S,E>(_ x: Tensor<S,E>, _ n: Int) -> Tensor<S,E>
+    where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.pow(x, n, &result)
+    return result
+}
+
+// Tensor extension
+public extension Tensor where Element: Real {
+    // make glboal function visible for extension implementations
+    @differentiable(where Element: DifferentiableElement)
+    @inlinable func pow(_ x: Self, _ y: Self) -> Self { SwiftRT.pow(x, y) }
+}
+
+//==============================================================================
+/// root(x:n:
+/// computes the nth root of `x`
+/// - Parameter x: value tensor
+/// - Parameter n: power
+/// - Returns: result
+@inlinable public func root<S,E>(_ x: Tensor<S,E>, _ n: Int) -> Tensor<S,E>
+    where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.root(x, n, &result)
+    return result
+}
+
+@derivative(of: root)
+@inlinable func _vjpRoot<S,E>(_ x: Tensor<S,E>, _ n: Int)
+    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>))
+    where S: TensorShape, E: DifferentiableElement & Real
+{
+    fatalError("Not implemented")
+}
+
 //==============================================================================
 /// sqrt(x)
 /// computes the square root of `x`
@@ -949,84 +762,46 @@ public extension Tensor where Element: Real {
     @inlinable func sign() -> Self { sign(self) }
 }
 
-////==============================================================================
-///// tan(x)
-///// computes the tangent of `x`
-///// - Parameter x: value tensor
-///// - Returns: result
-//@inlinable
-//public func tan<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT.tan(x)
-//}
-//
-//@inlinable
-//@derivative(of: tan)
-//func _vjpTan<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT._vjpTan(x)
-//}
-//
-//// Platform extension
-//public extension Platform {
-//    @inlinable
-//    func tan<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
-//        where S: TensorShape, E: Real
-//    {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.tan(x, &result)
-//        return result
-//    }
-//
-//    @inlinable
-//    @derivative(of: tan)
-//    func _vjpTan<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//        where S: TensorShape, E: Real
-//    {
-//        let value = tan(x)
-//        return (value, { v in v * (1 + value.squared()) })
-//    }
-//}
-//
-////==============================================================================
-///// tanh(x)
-///// computes the hyperbolic tangent of `x`
-///// - Parameter x: value tensor
-///// - Returns: result
-//@inlinable
-//public func tanh<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT.tanh(x)
-//}
-//
-//@inlinable
-//@derivative(of: tanh)
-//func _vjpTanh<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//    where S: TensorShape, E: Real
-//{
-//    SwiftRT._vjpTanh(x)
-//}
-//
-//// Platform extension
-//public extension Platform {
-//    @inlinable
-//    func tanh<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
-//        where S: TensorShape, E: Real
-//    {
-//        var result = Tensor(like: x)
-//        Context.currentQueue.tanh(x, &result)
-//        return result
-//    }
-//
-//    @inlinable
-//    @derivative(of: tanh)
-//    func _vjpTanh<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//        where S: TensorShape, E: Real
-//    {
-//        let value = tanh(x)
-//        return (value, { v in v * (1 - value.squared()) })
-//    }
-//}
+//==============================================================================
+/// tan(x)
+/// computes the tangent of `x`
+/// - Parameter x: value tensor
+/// - Returns: result
+@inlinable public func tan<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+    where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.tan(x, &result)
+    return result
+}
+
+@derivative(of: tan)
+@inlinable func _vjpTan<S,E>(_ x: Tensor<S,E>)
+    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+    where S: TensorShape, E: DifferentiableElement & Real
+{
+    let value = tan(x)
+    return (value, { v in v * (1 + value.squared()) })
+}
+
+//==============================================================================
+/// tanh(x)
+/// computes the hyperbolic tangent of `x`
+/// - Parameter x: value tensor
+/// - Returns: result
+@inlinable public func tanh<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+    where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.tanh(x, &result)
+    return result
+}
+
+@derivative(of: tanh)
+@inlinable func _vjpTanh<S,E>(_ x: Tensor<S,E>)
+    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+    where S: TensorShape, E: DifferentiableElement & Real
+{
+    let value = tanh(x)
+    return (value, { v in v * (1 - value.squared()) })
+}
