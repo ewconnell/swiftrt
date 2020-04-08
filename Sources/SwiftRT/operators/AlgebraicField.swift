@@ -43,7 +43,7 @@ public func add<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
     add(repeating(lhs, like: rhs), rhs)
 }
 
-//@derivative(of: add)
+@derivative(of: add)
 @inlinable public func _vjpAdd<S, E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>, Tensor<S,E>))
     where S: TensorShape, E: DifferentiableElement
@@ -52,24 +52,24 @@ public func add<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
 }
 
 public extension Tensor where Element: AdditiveArithmetic {
-//    @differentiable(where Self: DifferentiableTensor)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func +(lhs: Self, rhs: Self) -> Self {
         add(lhs, rhs)
     }
 
-//    @differentiable(where Self: DifferentiableTensor)
+//    @differentiable(where Element: DifferentiableElement)
     @inlinable static func +(lhs: Self, rhs: Element) -> Self {
         add(lhs, rhs)
     }
 
-//    @differentiable(where Self: DifferentiableTensor)
+//    @differentiable(where Element: DifferentiableElement)
     @inlinable static func +(lhs: Element, rhs: Self) -> Self {
         add(lhs, rhs)
     }
 
     // VectorProtocol
     
-//    @differentiable(where Self: DifferentiableTensor)
+//    @differentiable(where Element: DifferentiableElement)
     @inlinable func adding(_ x: Element) -> Self {
         self + x
     }
@@ -105,7 +105,7 @@ public func subtract<S,E>(_ lhs: Tensor<S,E>, _ rhs: E) -> Tensor<S,E>
     subtract(repeating(lhs, like: rhs), rhs)
 }
 
-//@derivative(of: add)
+@derivative(of: subtract)
 @inlinable public func _vjpSubtract<S, E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>, Tensor<S,E>))
     where S: TensorShape, E: DifferentiableElement
@@ -114,24 +114,24 @@ public func subtract<S,E>(_ lhs: Tensor<S,E>, _ rhs: E) -> Tensor<S,E>
 }
 
 public extension Tensor where Element: AdditiveArithmetic {
-//    @differentiable(where Self: DifferentiableTensor)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func -(lhs: Self, rhs: Self) -> Self {
         subtract(lhs, rhs)
     }
 
-//    @differentiable(where Self: DifferentiableTensor)
+//    @differentiable(where Element: DifferentiableElement)
     @inlinable static func -(lhs: Self, rhs: Element) -> Self {
         subtract(lhs, rhs)
     }
 
-//    @differentiable(where Self: DifferentiableTensor)
+//    @differentiable(where Element: DifferentiableElement)
     @inlinable static func -(lhs: Element, rhs: Self) -> Self {
         subtract(lhs, rhs)
     }
 
     // VectorProtocol
     
-//    @differentiable(where Self: DifferentiableTensor)
+//    @differentiable(where Element: DifferentiableElement)
     @inlinable func subtracting(_ x: Element) -> Self {
         self - x
     }
@@ -152,9 +152,8 @@ public func mul<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
     return result
 }
 
-@inlinable
-//@derivative(of: mul)
-func _vjpMultiply<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) ->
+@derivative(of: mul)
+@inlinable func _vjpMultiply<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) ->
     (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
     where S: TensorShape, E: DifferentiableElement
 {
@@ -163,7 +162,7 @@ func _vjpMultiply<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) ->
 
 public extension Tensor where Element: Numeric
 {
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func * (lhs: Self, rhs: Self) -> Self { mul(lhs, rhs) }
 
     @inlinable static func *= (lhs: inout Self, rhs: Element) {
@@ -212,9 +211,8 @@ public func div<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
     return result
 }
 
-@inlinable
-//@derivative(of: div)
-func _vjpDivide<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) ->
+@derivative(of: div)
+@inlinable func _vjpDivide<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) ->
     (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
     where S: TensorShape, E: DifferentiableElement & AlgebraicField
 {
@@ -223,7 +221,7 @@ func _vjpDivide<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) ->
 
 public extension Tensor where Element: AlgebraicField {
     
-//    @differentiable(where Self: DifferentiableTensor)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func / (lhs: Self, rhs: Self) -> Self { div(lhs, rhs) }
 
     @inlinable static func /= (lhs: inout Self, rhs: Element) {
@@ -232,18 +230,18 @@ public extension Tensor where Element: AlgebraicField {
 
     @inlinable static func /= (lhs: inout Self, rhs: Self) { lhs = lhs / rhs }
 
-//    @differentiable(where Self: DifferentiableTensor)
+//    @differentiable(where Element: DifferentiableElement)
     @inlinable static func / (lhs: Self, rhs: Element) -> Self {
-        div(lhs, repeating(rhs, like: lhs))
+        div(lhs, Self(repeating: rhs, to: lhs.shape))
     }
 
-//    @differentiable(where Self: DifferentiableTensor)
+//    @differentiable(where Element: DifferentiableElement)
     @inlinable static func / (lhs: Element, rhs: Self) -> Self {
-        div(repeating(lhs, like: rhs), rhs)
+        div(Self(repeating: lhs, to: rhs.shape), rhs)
     }
 
     // PointwiseMultiplicative
-//    @differentiable(where Self: DifferentiableTensor)
+//    @differentiable(where Element: DifferentiableElement)
     @inlinable var reciprocal: Self {
         1 / self
     }
