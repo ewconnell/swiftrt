@@ -120,9 +120,27 @@ public extension Platform {
 }
 
 //==============================================================================
+/// the type used for memory indexing on discreet devices
+public typealias DeviceIndex = Int32
+
+//==============================================================================
 /// NanPropagation
 public enum NanPropagation: Int, Codable {
     case propagate, noPropagate
+}
+
+//==============================================================================
+/// StorageOrder
+/// Specifies how to store multi-dimensional data in row-major (C-style)
+/// or column-major (Fortran-style) order in memory.
+/// These names are following the numpy naming convention
+public enum StorageOrder: Int, Codable {
+    /// C style row major memory layout
+    case C
+    /// Fortran style column major memory layout
+    case F
+    /// more expressive aliases
+    public static let rowMajor = C, colMajor = F
 }
 
 //==============================================================================

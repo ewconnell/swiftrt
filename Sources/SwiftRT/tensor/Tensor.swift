@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 import Foundation
-
+import Numerics
 
 //==============================================================================
 /// Tensor
@@ -115,6 +115,28 @@ public struct Tensor<Shape, Element>: MutableTensorType
 }
 
 //==============================================================================
+/// DifferentiableTensor
+///
+/// While these protocols are not strictly necessary, they are used
+/// to reduce the number of generic requirements when writing
+/// `@differentiable` attributes
+///
+public protocol DifferentiableTensor: TensorType & Differentiable
+    where Self == TangentVector, Element: DifferentiableElement {}
+
+/// DifferentiableElement
+public protocol DifferentiableElement:
+    Differentiable & Numeric where Self == TangentVector {}
+
+extension Float: DifferentiableElement {}
+extension Double: DifferentiableElement {}
+
+// this is defined with the typealias because of AD same file
+// compiler requirements. Hopefully fixed in the future
+extension Complex: DifferentiableElement {
+  public typealias TangentVector = Self
+}
+
 // Differentiable conformance
 extension Tensor: Differentiable & DifferentiableTensor
     where Element: DifferentiableElement
@@ -128,8 +150,63 @@ extension Tensor: AdditiveArithmetic where Element: Numeric {
 }
 
 //==============================================================================
+/// ElementIndex
+/// Common index type used to iterate through collection elements
+/// `position` is the index position in n-dimensional space
+/// `sequencePosition` is the linear sequence position when iterating
+/// and used for comparison
+public struct ElementIndex<Shape>: Comparable, Codable
+    where Shape: TensorShape
+{
+    /// the logical position along each axis
+    public let position: Shape
+    /// linear sequence position
+    public let sequencePosition: Int
+
+    // init(position:sequencePosition:
+    @inlinable public init(_ position: Shape, _ sequencePosition: Int) {
+        self.position = position
+        self.sequencePosition = sequencePosition
+    }
+
+    /// init(sequencePosition:
+    /// initializer for collections that ignore logical position
+    @inlinable public init(at sequencePosition: Int) {
+        self.position = Shape.zero
+        self.sequencePosition = sequencePosition
+    }
+
+    /// incremented(lower:upper:
+    /// increments `position` with the range `lower..<upper`
+    @inlinable
+    public func incremented(between lower: Self, and upper: Self) -> Self {
+        let pos = position.incremented(between: lower.position,
+                                       and: upper.position)
+        return ElementIndex(pos, sequencePosition + 1)
+    }
+    
+    @inlinable public func linearIndex(_ strides: Shape) -> Int {
+        position.index(stridedBy: strides)
+    }
+
+    // Equatable
+    @inlinable public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.sequencePosition == rhs.sequencePosition
+    }
+    
+    // Comparable
+    @inlinable public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.sequencePosition < rhs.sequencePosition
+    }
+}
+
+//==============================================================================
 // Tensor collection and sub view extensions
 public extension Tensor {
+    /// - Returns: the collection elements as a 1D Swift array
+    @inlinable var flatArray: [Element] {
+        [Element](self)
+    }
 
     /// makeIndex(position:
     /// makes an index from a logical position within `shape`
