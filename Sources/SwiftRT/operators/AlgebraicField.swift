@@ -24,6 +24,10 @@ import Numerics
 public func add<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
     where S: TensorShape, E: AdditiveArithmetic
 {
+    /// REMOVE THIS
+    let (lhs, rhs) = match(lhs, rhs)
+    assert(lhs.shape == rhs.shape)
+
     var result = Tensor(like: lhs)
     Context.currentQueue.add(lhs, rhs, &result)
     return result
@@ -63,6 +67,11 @@ public extension Tensor where Element: AdditiveArithmetic {
     }
 
 //    @differentiable(where Element: DifferentiableElement)
+    @inlinable static func +=(lhs: inout Self, rhs: Element) {
+        lhs = add(lhs, rhs)
+    }
+
+//    @differentiable(where Element: DifferentiableElement)
     @inlinable static func +(lhs: Element, rhs: Self) -> Self {
         add(lhs, rhs)
     }
@@ -86,6 +95,10 @@ public extension Tensor where Element: AdditiveArithmetic {
 public func subtract<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
     where S: TensorShape, E: AdditiveArithmetic
 {
+    /// REMOVE THIS
+    let (lhs, rhs) = match(lhs, rhs)
+    assert(lhs.shape == rhs.shape)
+
     var result = Tensor(like: lhs)
     Context.currentQueue.subtract(lhs, rhs, &result)
     return result
@@ -125,6 +138,11 @@ public extension Tensor where Element: AdditiveArithmetic {
     }
 
 //    @differentiable(where Element: DifferentiableElement)
+    @inlinable static func -=(lhs: inout Self, rhs: Element) {
+        lhs = subtract(lhs, rhs)
+    }
+
+//    @differentiable(where Element: DifferentiableElement)
     @inlinable static func -(lhs: Element, rhs: Self) -> Self {
         subtract(lhs, rhs)
     }
@@ -147,6 +165,10 @@ public extension Tensor where Element: AdditiveArithmetic {
 public func mul<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
     where S: TensorShape, E: Numeric
 {
+    /// REMOVE THIS
+    let (lhs, rhs) = match(lhs, rhs)
+    assert(lhs.shape == rhs.shape)
+
     var result = Tensor(like: lhs)
     Context.currentQueue.mul(lhs, rhs, &result)
     return result
@@ -206,6 +228,10 @@ public extension Tensor where Element: Numeric
 public func div<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
     where S: TensorShape, E: AlgebraicField
 {
+    /// REMOVE THIS
+    let (lhs, rhs) = match(lhs, rhs)
+    assert(lhs.shape == rhs.shape)
+
     var result = Tensor(like: lhs)
     Context.currentQueue.div(lhs, rhs, &result)
     return result

@@ -203,11 +203,13 @@ public struct ElementIndex<Shape>: Comparable, Codable
 //==============================================================================
 // Tensor collection and sub view extensions
 public extension Tensor {
+    //--------------------------------------------------------------------------
     /// - Returns: the collection elements as a 1D Swift array
     @inlinable var flatArray: [Element] {
         [Element](self)
     }
-
+    
+    //--------------------------------------------------------------------------
     /// makeIndex(position:
     /// makes an index from a logical position within `shape`
     /// - Parameters:
@@ -217,9 +219,11 @@ public extension Tensor {
         Index(position, position.index(stridedBy: shapeStrides))
     }
 
+    //--------------------------------------------------------------------------
     /// index(i:
     @inlinable func index(after i: Index) -> Index { increment(i) }
 
+    //--------------------------------------------------------------------------
     // elemment subscript
     @inlinable subscript(index: Index) -> Element {
         get {

@@ -26,6 +26,21 @@ public typealias Tensor5<Element> = Tensor<Shape5, Element>
 public typealias Tensor6<Element> = Tensor<Shape6, Element>
 
 //==============================================================================
+// parameter matching helper
+// TODO: THIS NEEDS TO BE REMOVED. IT'S A HACK FOR AD SUPPORT
+@inlinable public func match<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+    -> (Tensor<S,E>, Tensor<S,E>) where S: TensorShape
+{
+    if lhs.count == rhs.count {
+        return (lhs, rhs)
+    } else if lhs.count > rhs.count {
+        return (lhs, Tensor<S,E>(repeating: rhs, to: lhs.shape))
+    } else {
+        return (Tensor<S,E>(repeating: lhs, to: rhs.shape), rhs)
+    }
+}
+
+//==============================================================================
 // Tensor initializers
 public extension Tensor {
     //--------------------------------------------------------------------------
