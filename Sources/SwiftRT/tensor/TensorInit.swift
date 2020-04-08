@@ -16,114 +16,6 @@
 import Foundation
 
 //==============================================================================
-/// TensorType protocol
-/// an n-dimensional collection of elements
-/// Currently there is only one tensor type, so these protocols are not
-/// needed. They are kept in place for future experimentation.
-///
-public protocol TensorType: Collection, CustomStringConvertible, Logging
-    where Index == ElementIndex<Shape>
-{
-    /// the ranked short vector type that defines the collection's dimensions
-    associatedtype Shape: TensorShape
-    /// the type of element in the collection
-    associatedtype Element
-
-    //----------------------------------
-    /// the number of elements described by `shape`
-    var elementCount: Int { get }
-    /// a label for the type used as a default name in diagnostics
-    static var name: String { get }
-    /// the dimensions of the collection
-    var shape: Shape { get }
-    /// the order in memory to store materialized Elements. Generator
-    /// tensor types maintain this property as a template for dense
-    /// result tensors.
-    var storageOrder: StorageOrder { get }
-
-    //----------------------------------
-    // for guaranteed discreet device compatibility
-    /// - Returns: a value if the tensor can be represented as a
-    /// single element, and `nil` if it cannot.
-    var asElement: Element? { get }
-
-    //----------------------------------
-    /// makeIndex(position:
-    /// makes an index from a logical position within `shape`
-    /// - Parameters:
-    ///  - position: the n-dimensional coordinate position within `shape`
-    /// - Returns: the index
-    func makeIndex(at position: Shape) -> Index
-
-    /// subscript
-    /// - Parameters:
-    ///  - lower: the lower bound of the slice
-    ///  - upper: the upper bound of the slice
-    /// - Returns: the collection slice
-    subscript(lower: Shape, upper: Shape) -> Self { get }
-
-    //----------------------------------
-    /// `read`
-    /// Synchronizes a collection of materialized elements for reading.
-    /// This function blocks until the elements are available.
-    /// `Elements` are accessed by the application using `Collection`
-    /// enumeration via `indices` or subscripting.
-    func read()
-    
-    /// `read(queue:
-    /// Synchronizes a collection of materialized elements for reading
-    /// using the specified `queue`. This function is non blocking, and
-    /// the elements will be available when the request reaches the
-    /// head of the queue.
-    ///
-    /// - Parameter queue: the device queue to use for synchronization
-    func read(using queue: DeviceQueue)
-}
-
-//==============================================================================
-/// MutableTensorType
-/// an n-dimensional mutable collection of stored elements
-public protocol MutableTensorType: TensorType, MutableCollection
-{
-    /// `true` if the collection can be shared by multiple writers
-    /// without performing copy-on-write
-    var isShared: Bool { get }
-    
-    //----------------------------------
-    /// `shared`
-    /// returns a copy of `self` that does not perform copy-on-write to enable
-    /// multi-threaded writes. If the associated storage is not uniquely
-    /// referenced, then a copy will be made before returning the sharable
-    /// copy. Subscripted views inherit the `isShared` property
-    /// - Returns: a sharable copy of `self`
-    mutating func shared() -> Self
-
-    /// subscript
-    /// - Parameters:
-    ///  - lower: the lower bound of the slice
-    ///  - upper: the upper bound of the slice
-    /// - Returns: the collection slice
-    subscript(lower: Shape, upper: Shape) -> Self { get set }
-    
-    //----------------------------------
-    /// `readWrite`
-    /// Synchronizes a collection of materialized elements for read write.
-    /// This function blocks until the elements are available.
-    /// `Elements` are accessed by the application using `MutableCollection`
-    /// enumeration via `indices` or subscripting.
-    mutating func readWrite()
-
-    /// `readWrite(queue:`
-    /// Synchronizes a mutable collection of materialized elements
-    /// using the specified `queue`. This function is non blocking, and
-    /// the elements will be available when the request reaches the
-    /// head of the queue.
-    ///
-    /// - Parameter queue: the device queue to use for synchronization
-    mutating func readWrite(using queue: DeviceQueue)
-}
-
-//==============================================================================
 // Tensor initializers
 public extension Tensor {
     //--------------------------------------------------------------------------
@@ -322,7 +214,217 @@ public extension Tensor {
 }
 
 //==============================================================================
+// Rank transformations
+public extension Tensor {
+    //--------------------------------------------------------------------------
+    /// concatenated tensors
+    @inlinable init(concatenating tensors: Self..., alongAxis axis: Int = 0) {
+        self = Self(concatenating: tensors, alongAxis: axis)
+    }
+    
+    @inlinable init(concatenating tensors: [Self], alongAxis axis: Int = 0) {
+        self = SwiftRT.concat(tensors, alongAxis: axis)
+    }
 
+    //--------------------------------------------------------------------------
+    /// init(flattening:
+    /// - Parameter other: the shape to flatten
+    @inlinable init<S>(flattening other: Tensor<S,Element>)
+        where S: TensorShape
+    {
+        // TODO: consider special cases where this restriction might be lifted
+        assert(other.isSequential, "cannot flatten non sequential data")
+        let shape = Shape(flattening: other.shape)
+        self.init(shape: shape,
+                  strides: shape.sequentialStrides(),
+                  elementCount: other.elementCount,
+                  spanCount: other.elementCount,
+                  storage: other.storage,
+                  baseOffset: other.baseOffset,
+                  order: other.storageOrder,
+                  share: other.isShared,
+                  isSequential: true)
+    }
+
+    // noop flattening case
+    // this might be used when blindly flattening a parameter
+    @inlinable init(flattening other: Self) {
+        self = other
+    }
+
+    //--------------------------------------------------------------------------
+    /// init(expanding:
+    /// - Parameter other: the shape to expand
+    @inlinable init<S>(
+        expanding other: Tensor<S,Element>,
+        alongAxes axes: Set<Int>? = nil
+    ) where S: TensorShape
+    {
+        //-----------------------------------
+        assert(S.rank < Shape.rank, "can only expand lower ranked shapes")
+        var shape = Shape.zero
+        var strides = Shape.zero
+        let axesSet = axes == nil ?
+            Set(0..<Shape.rank - S.rank) :
+            Set(axes!.map { $0 < 0 ? $0 + Shape.rank : $0 })
+        assert(S.rank + axesSet.count == Shape.rank,
+               "`other.rank` plus number of specified axes " +
+            "must equal the `rank` of this shape")
+
+        var j = S.rank - 1
+        for i in (0..<Shape.rank).reversed() {
+            if axesSet.contains(i) {
+                // expanded axes are set to 1
+                shape[i] = 1
+                // repeat stride of next dimension or pad with 1
+                if i == Shape.rank - 1 {
+                    strides[i] = 1
+                } else {
+                    strides[i] = shape[i + 1] * strides[i + 1]
+                }
+            } else {
+                shape[i] = other.shape[j]
+                strides[i] = other.strides[j]
+                j -= 1
+            }
+        }
+
+        //-----------------------------------
+        self.init(shape: shape,
+                  strides: strides,
+                  elementCount: other.elementCount,
+                  spanCount: other.elementCount,
+                  storage: other.storage,
+                  baseOffset: other.baseOffset,
+                  order: other.storageOrder,
+                  share: other.isShared,
+                  isSequential: other.isSequential)
+    }
+    
+    @inlinable
+    init<S>(expanding other: Tensor<S,Element>, alongAxes axes: Int...)
+        where S: TensorShape
+    {
+        self.init(expanding: other, alongAxes: Set(axes))
+    }
+
+    //--------------------------------------------------------------------------
+    /// init(squeezing:
+    /// - Parameter other: the shape to expand
+    @inlinable init<S>(
+        squeezing other: Tensor<S,Element>,
+        alongAxes axes: Set<Int>? = nil
+    ) where S: TensorShape
+    {
+        //-----------------------------------
+        // make sure we have a positive set of axes to squeeze along
+        var shape = Shape.zero
+        var strides = Shape.zero
+        let axesSet = axes == nil ?
+            Set(0..<S.rank) :
+            Set(axes!.map { $0 < 0 ? S.rank + $0 : $0 })
+        
+        var axis = 0
+        for otherAxis in 0..<S.rank where
+            !(other.shape[otherAxis] == 1 && axesSet.contains(otherAxis))
+        {
+            assert(axis < Shape.rank,
+                   "Unsqueezed axes of `other` exceeds rank of this shape")
+            shape[axis] = other.shape[otherAxis]
+            strides[axis] = other.strides[otherAxis]
+            axis += 1
+        }
+        
+        //-----------------------------------
+        self.init(shape: shape,
+                  strides: strides,
+                  elementCount: other.elementCount,
+                  spanCount: other.elementCount,
+                  storage: other.storage,
+                  baseOffset: other.baseOffset,
+                  order: other.storageOrder,
+                  share: other.isShared,
+                  isSequential: other.isSequential)
+    }
+    
+    @inlinable
+    init<S>(squeezing other: Tensor<S,Element>, alongAxes axes: Int...)
+        where S: TensorShape
+    {
+        self.init(squeezing: other, alongAxes: Set(axes))
+    }
+
+    //--------------------------------------------------------------------------
+    /// init(stacking:
+    @inlinable init<S>(
+        stacking others: [Tensor<S,Element>],
+        alongAxis axis: Int = 0
+    ) where S: TensorShape
+    {
+        // verify that tensors are the correct rank and same shape
+        assert(others.count > 0 && S.rank == Shape.rank - 1,
+               "stacked tensors must be of rank \(Shape.rank - 1)")
+        assert({
+            let shape = others[0].shape
+            for i in 1..<others.count {
+                if others[i].shape != shape { return false }
+            }
+            return true
+        }(), "stacked tensors must all be the same size")
+        
+        // form stacked bounds and create dense stacked result
+        let expanded = others.map { Self(expanding: $0, alongAxes: axis) }
+        var stackedShape = expanded[0].shape
+        stackedShape[axis] = expanded.count
+        self = Self(stackedShape)
+        
+        // copy others into place
+        var lower = Shape.zero
+        for tensor in expanded {
+            self[lower, lower &+ tensor.shape] = tensor
+            lower[axis] += 1
+        }
+    }
+    
+    @inlinable
+    init<S>(stacking others: Tensor<S,Element>..., alongAxis axis: Int = 0) {
+        self.init(stacking: others, alongAxis: axis)
+    }
+
+    //--------------------------------------------------------------------------
+    // init(indenting:
+    @inlinable init<S>(indenting other: Tensor<S,Element>)
+        where S: TensorShape
+    {
+        assert(S.rank < Shape.rank, "can only indent lower ranked shapes")
+
+        // Self and other are different ranks so we append other's elements
+        let start = Shape.rank - S.rank
+        var shape = Shape.one
+        var strides = Shape.one
+        for (i, j) in zip(start..<Shape.rank, 0..<S.rank) {
+            shape[i] = other.shape[j]
+            strides[i] = other.strides[j]
+        }
+        for i in 0..<start {
+            strides[i] = other.strides[0]
+        }
+
+        //-----------------------------------
+        self.init(shape: shape,
+                  strides: strides,
+                  elementCount: other.elementCount,
+                  spanCount: other.elementCount,
+                  storage: other.storage,
+                  baseOffset: other.baseOffset,
+                  order: other.storageOrder,
+                  share: other.isShared,
+                  isSequential: other.isSequential)
+    }
+}
+
+//==============================================================================
+//
 extension Tensor where Element: Numeric {
     //--------------------------------------------------------------------------
     /// init(zeros shape:order:
@@ -345,4 +447,54 @@ extension Tensor where Element: Numeric {
         self.init(shape, order: order)
         fill(&self, with: 1)
     }
+}
+
+//==============================================================================
+// initializer derivatives
+extension Tensor where Element: DifferentiableElement
+{
+    //--------------------------------------------------------------------------
+    // TODO: THIS IS REALLY EXPENSIVE AND USELESS!!!!
+    @derivative(of: init(repeating:to:))
+    @inlinable static func _vjpInit(repeating value: Element, to shape: Shape)
+        -> (value: Self, pullback: (Self) -> (Element))
+    {
+        (Self(repeating: value, to: shape), { $0.sum().element })
+    }
+    
+    //--------------------------------------------------------------------------
+    @derivative(of: init(flattening:))
+    @inlinable static func _vjpInit<S>(flattening other: Tensor<S,Element>)
+        -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
+        where S: TensorShape
+    {
+        let axes = Set([Int](Shape.rank..<S.rank))
+        let value = Self(flattening: other)
+        return (value, { Tensor<S,Element>(expanding: $0, alongAxes: axes) })
+    }
+
+    //--------------------------------------------------------------------------
+    @derivative(of: init(expanding:alongAxes:))
+    @inlinable static func _vjpInit<S>(
+        expanding other: Tensor<S,Element>,
+        alongAxes axes: Set<Int>?
+    ) -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
+        where S: TensorShape
+    {
+        let value = Self(expanding: other, alongAxes: axes)
+        return (value, { Tensor<S,Element>(squeezing: $0, alongAxes: axes) })
+    }
+
+    //--------------------------------------------------------------------------
+    @derivative(of: init(squeezing:alongAxes:))
+    @inlinable static func _vjpInit<S>(
+        squeezing other: Tensor<S,Element>,
+        alongAxes axes: Set<Int>?
+    ) -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
+        where S: TensorShape
+    {
+        let value = Self(squeezing: other, alongAxes: axes)
+        return (value, { Tensor<S,Element>(expanding: $0, alongAxes: axes) })
+    }
+
 }

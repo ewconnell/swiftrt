@@ -32,7 +32,7 @@ import Foundation
     var result = Tensor<S,E>(joinedShape)
     var lower = S.zero
     for tensor in tensors {
-        copy(from: tensor, to: &result[lower, lower &+ tensor.shape])
+        result[lower, lower &+ tensor.shape] = tensor
         lower[axis] += tensor.shape[axis]
     }
     return result

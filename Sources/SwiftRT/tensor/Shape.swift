@@ -16,20 +16,6 @@
 import Foundation
 
 //==============================================================================
-// Shapes
-public typealias Shape1 = SIMD1<Int>
-public typealias Shape2 = SIMD2<Int>
-public typealias Shape3 = SIMD3<Int>
-public typealias Shape4 = SIMD4<Int>
-public typealias Shape5 = SIMD5<Int>
-public typealias Shape6 = SIMD6<Int>
-
-//==============================================================================
-// messages
-@usableFromInline
-let _messageInvalidShape = "shape dimensions must be greater than 0"
-
-//==============================================================================
 // TensorShape
 public protocol TensorShape: SIMD where Scalar == Int {
     // a ranked tuple convenience type used for api parameters
@@ -45,12 +31,13 @@ public protocol TensorShape: SIMD where Scalar == Int {
     static var zeroTuple: Tuple { get }
 
     //---------------------------------
-    // initializers
+    // convenience initializers
+    // the associated tuple type is used to make cleaner looking api arguments
     init(_ shape: Tuple)
     init?(_ shape: Tuple?)
 
     //---------------------------------
-    /// - Returns: the number of elements described by the bounded space,
+    /// - Returns: the number of elements described by the shape,
     /// which is the product of the dimensions
     func elementCount() -> Int
 
@@ -64,6 +51,20 @@ public protocol TensorShape: SIMD where Scalar == Int {
     /// - Returns: row major sequential srtides for the shape
     func sequentialStrides() -> Self
 }
+
+//==============================================================================
+// Shapes
+public typealias Shape1 = SIMD1<Int>
+public typealias Shape2 = SIMD2<Int>
+public typealias Shape3 = SIMD3<Int>
+public typealias Shape4 = SIMD4<Int>
+public typealias Shape5 = SIMD5<Int>
+public typealias Shape6 = SIMD6<Int>
+
+//==============================================================================
+// messages
+@usableFromInline
+let _messageInvalidShape = "shape dimensions must be greater than 0"
 
 //==============================================================================
 // TensorShape extensions
@@ -101,8 +102,7 @@ public extension TensorShape {
     
     //--------------------------------------------------------------------------
     // generic n-dimensional position increment function
-    @inlinable
-    func incremented(between lower: Self, and upper: Self) -> Self {
+    @inlinable func incremented(between lower: Self, and upper: Self) -> Self {
         var next = self
         var dim = Self.rank &- 1
         while true {
@@ -131,8 +131,7 @@ public extension TensorShape {
         }
     }
 
-    @inlinable
-    func elementCount() -> Int {
+    @inlinable func elementCount() -> Int {
         self.reduce(into: 1, &*=)
     }
     
@@ -165,6 +164,24 @@ public extension TensorShape {
         var joinedShape = self
         joinedShape[axis] += others.reduce(into: 0) { $0 += $1[axis] }
         return joinedShape
+    }
+
+    //--------------------------------------------------------------------------
+    /// init(flattening:
+    /// - Parameter other: the shape to flatten
+    @inlinable init<S>(flattening other: S) where S: TensorShape {
+        assert(S.rank >= Self.rank, "cannot flatten shape of lower rank")
+        
+        // copy the leading dimensions
+        self = Self.zero
+        for i in 0..<Self.rank {
+            self[i] = other[i]
+        }
+
+        // get product of the remaining dimensions
+        for j in Self.rank..<S.rank {
+            self[Self.rank-1] *= other[j]
+        }
     }
 }
 

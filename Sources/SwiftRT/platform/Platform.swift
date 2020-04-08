@@ -258,11 +258,8 @@ public struct QueueEventOptions: OptionSet {
     public static let timing       = QueueEventOptions(rawValue: 1 << 0)
     public static let interprocess = QueueEventOptions(rawValue: 1 << 1)
     
-    @inlinable
-    public init() { self.rawValue = 0 }
-    
-    @inlinable
-    public init(rawValue: Int) { self.rawValue = rawValue }
+    @inlinable public init() { self.rawValue = 0 }
+    @inlinable public init(rawValue: Int) { self.rawValue = rawValue }
 }
 
 public enum QueueEventError: Error {
@@ -283,8 +280,7 @@ public struct QueueId {
     public let device: Int
     public let queue: Int
     
-    @inlinable
-    public init(_ device: Int, _ queue: Int) {
+    @inlinable public init(_ device: Int, _ queue: Int) {
         self.device = device
         self.queue = queue
     }
@@ -302,5 +298,113 @@ public enum DeviceError : Error {
     case initializeFailed
     case queueError(idPath: [Int], message: String)
     case timeout(idPath: [Int], message: String)
+}
+
+//==============================================================================
+/// TensorType protocol
+/// an n-dimensional collection of elements
+/// Currently there is only one tensor type, so these protocols are not
+/// needed. They are kept in place for future experimentation.
+///
+public protocol TensorType: Collection, CustomStringConvertible, Logging
+    where Index == ElementIndex<Shape>
+{
+    /// the ranked short vector type that defines the collection's dimensions
+    associatedtype Shape: TensorShape
+    /// the type of element in the collection
+    associatedtype Element
+
+    //----------------------------------
+    /// the number of elements described by `shape`
+    var elementCount: Int { get }
+    /// a label for the type used as a default name in diagnostics
+    static var name: String { get }
+    /// the dimensions of the collection
+    var shape: Shape { get }
+    /// the order in memory to store materialized Elements. Generator
+    /// tensor types maintain this property as a template for dense
+    /// result tensors.
+    var storageOrder: StorageOrder { get }
+
+    //----------------------------------
+    // for guaranteed discreet device compatibility
+    /// - Returns: a value if the tensor can be represented as a
+    /// single element, and `nil` if it cannot.
+    var asElement: Element? { get }
+
+    //----------------------------------
+    /// makeIndex(position:
+    /// makes an index from a logical position within `shape`
+    /// - Parameters:
+    ///  - position: the n-dimensional coordinate position within `shape`
+    /// - Returns: the index
+    func makeIndex(at position: Shape) -> Index
+
+    /// subscript
+    /// - Parameters:
+    ///  - lower: the lower bound of the slice
+    ///  - upper: the upper bound of the slice
+    /// - Returns: the collection slice
+    subscript(lower: Shape, upper: Shape) -> Self { get }
+
+    //----------------------------------
+    /// `read`
+    /// Synchronizes a collection of materialized elements for reading.
+    /// This function blocks until the elements are available.
+    /// `Elements` are accessed by the application using `Collection`
+    /// enumeration via `indices` or subscripting.
+    func read()
+    
+    /// `read(queue:
+    /// Synchronizes a collection of materialized elements for reading
+    /// using the specified `queue`. This function is non blocking, and
+    /// the elements will be available when the request reaches the
+    /// head of the queue.
+    ///
+    /// - Parameter queue: the device queue to use for synchronization
+    func read(using queue: DeviceQueue)
+}
+
+//==============================================================================
+/// MutableTensorType
+/// an n-dimensional mutable collection of stored elements
+public protocol MutableTensorType: TensorType, MutableCollection
+{
+    /// `true` if the collection can be shared by multiple writers
+    /// without performing copy-on-write
+    var isShared: Bool { get }
+    
+    //----------------------------------
+    /// `shared`
+    /// returns a copy of `self` that does not perform copy-on-write to enable
+    /// multi-threaded writes. If the associated storage is not uniquely
+    /// referenced, then a copy will be made before returning the sharable
+    /// copy. Subscripted views inherit the `isShared` property
+    /// - Returns: a sharable copy of `self`
+    mutating func shared() -> Self
+
+    /// subscript
+    /// - Parameters:
+    ///  - lower: the lower bound of the slice
+    ///  - upper: the upper bound of the slice
+    /// - Returns: the collection slice
+    subscript(lower: Shape, upper: Shape) -> Self { get set }
+    
+    //----------------------------------
+    /// `readWrite`
+    /// Synchronizes a collection of materialized elements for read write.
+    /// This function blocks until the elements are available.
+    /// `Elements` are accessed by the application using `MutableCollection`
+    /// enumeration via `indices` or subscripting.
+    mutating func readWrite()
+
+    /// `readWrite(queue:`
+    /// Synchronizes a mutable collection of materialized elements
+    /// using the specified `queue`. This function is non blocking, and
+    /// the elements will be available when the request reaches the
+    /// head of the queue.
+    ///
+    /// - Parameter queue: the device queue to use for synchronization
+    mutating func readWrite(using queue: DeviceQueue)
 }
 
