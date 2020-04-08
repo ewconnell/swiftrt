@@ -32,13 +32,6 @@ numShapes = 6
 public typealias DType = Float
 
 //==============================================================================
-// ranked convenience types
-/// Tensor
-%for n in range(1, numShapes + 1):
-public typealias Tensor${n}<Element> = Tensor<Shape${n}, Element>
-%end
-
-//==============================================================================
 /// empty
 /// Return a new tensor of given shape and type, without initializing entries.
 /// - Parameters:

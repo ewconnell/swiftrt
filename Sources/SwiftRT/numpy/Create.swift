@@ -29,16 +29,6 @@
 public typealias DType = Float
 
 //==============================================================================
-// ranked convenience types
-/// Tensor
-public typealias Tensor1<Element> = Tensor<Shape1, Element>
-public typealias Tensor2<Element> = Tensor<Shape2, Element>
-public typealias Tensor3<Element> = Tensor<Shape3, Element>
-public typealias Tensor4<Element> = Tensor<Shape4, Element>
-public typealias Tensor5<Element> = Tensor<Shape5, Element>
-public typealias Tensor6<Element> = Tensor<Shape6, Element>
-
-//==============================================================================
 /// empty
 /// Return a new tensor of given shape and type, without initializing entries.
 /// - Parameters:
