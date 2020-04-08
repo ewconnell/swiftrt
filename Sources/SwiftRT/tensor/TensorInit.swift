@@ -392,7 +392,7 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
-    // init(indenting:
+    /// init(indenting:
     @inlinable init<S>(indenting other: Tensor<S,Element>)
         where S: TensorShape
     {
@@ -421,6 +421,55 @@ public extension Tensor {
                   share: other.isShared,
                   isSequential: other.isSequential)
     }
+    
+    //--------------------------------------------------------------------------
+    /// init(transposing:permutations:
+    /// Returns a new data shape where the bounds and strides are permuted
+    /// - Parameter permutations: the indice order mapping. `count` must
+    ///   equal `rank`
+    /// - Returns: transposed/permuted shape
+    /// - Precondition: Each value in `permutations` must be in the range
+    ///   `-rank..<rank`
+    @inlinable init(transposing other: Self, with permutations: Shape? = nil) {
+        assert(Shape.rank > 1, "can only transpose shapes greater than rank 1")
+
+        func makePositive(dims: Shape) -> Shape {
+            var positive = dims
+            for i in 0..<Shape.rank where positive[i] < 0 {
+                positive[i] += Shape.rank
+            }
+            return positive
+        }
+
+        // determine the new bounds and strides
+        var shape = other.shape
+        var strides = other.strides
+        if let perm = permutations {
+            let mapping = makePositive(dims: perm)
+            for index in 0..<Shape.rank {
+                shape[index] = other.shape[mapping[index]]
+                strides[index] = other.strides[mapping[index]]
+            }
+        } else {
+            // simple swap of last two dimensions
+            shape.swapAt(Shape.rank-1, Shape.rank-2)
+            strides.swapAt(Shape.rank-1, Shape.rank-2)
+        }
+
+        //-----------------------------------
+        self.init(shape: shape,
+                  strides: strides,
+                  elementCount: other.elementCount,
+                  spanCount: other.elementCount,
+                  storage: other.storage,
+                  baseOffset: other.baseOffset,
+                  order: other.storageOrder,
+                  share: other.isShared,
+                  isSequential: strides == shape.sequentialStrides())
+    }
+    
+    /// - Returns: transpose of self
+    @inlinable var t: Self { Self(transposing: self) }
 }
 
 //==============================================================================
