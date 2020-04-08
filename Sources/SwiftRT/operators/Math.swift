@@ -136,8 +136,7 @@ public extension Tensor where Element: Real {
 /// computes the inverse tangent of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
-@inlinable
-public func atan<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+@inlinable public func atan<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
     where S: TensorShape, E: Real
 {
     var result = Tensor(like: x)
@@ -145,9 +144,8 @@ public func atan<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
     return result
 }
 
-@inlinable
 @derivative(of: atan)
-func _vjpAtan<S,E>(_ x: Tensor<S,E>)
+@inlinable func _vjpAtan<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E: DifferentiableElement & Real
 {
@@ -159,8 +157,7 @@ func _vjpAtan<S,E>(_ x: Tensor<S,E>)
 /// computes the inverse hyperbolic tangent of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
-@inlinable
-public func atanh<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+@inlinable public func atanh<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
     where S: TensorShape, E: Real
 {
     var result = Tensor(like: x)
@@ -182,8 +179,8 @@ public func atanh<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
 /// - Parameter y: value tensor
 /// - Parameter x: value tensor
 /// - Returns: result
-@inlinable public func atan2<S,E>(y: Tensor<S,E>, x: Tensor<S,E>) -> Tensor<S,E>
-    where S: TensorShape, E: Real
+@inlinable public func atan2<S,E>(y: Tensor<S,E>, x: Tensor<S,E>)
+    -> Tensor<S,E> where S: TensorShape, E: Real
 {
     var result = Tensor(like: x)
     Context.currentQueue.atan2(y, x, &result)
@@ -204,8 +201,7 @@ public func atanh<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
 /// casts elements of `x` to the output type
 /// - Parameter other: value tensor
 /// - Returns: result
-@inlinable
-public func cast<S,E,OE>(_ other: Tensor<S,OE>) -> Tensor<S,E>
+@inlinable public func cast<S,E,OE>(_ other: Tensor<S,OE>) -> Tensor<S,E>
     where S: TensorShape, E: BinaryFloatingPoint, OE: BinaryInteger
 {
     var result = Tensor<S,E>(other.shape)
@@ -213,8 +209,7 @@ public func cast<S,E,OE>(_ other: Tensor<S,OE>) -> Tensor<S,E>
     return result
 }
 
-@inlinable
-public func cast<S,E,OE>(_ other: Tensor<S,OE>) -> Tensor<S,E>
+@inlinable public func cast<S,E,OE>(_ other: Tensor<S,OE>) -> Tensor<S,E>
     where S: TensorShape, E: BinaryInteger, OE: BinaryFloatingPoint
 {
     var result = Tensor<S,E>(other.shape)
@@ -235,9 +230,8 @@ public func cast<S,E,OE>(_ other: Tensor<S,OE>) -> Tensor<S,E>
     return result
 }
 
-@inlinable
 @derivative(of: cos)
-func _vjpCos<S,E>(_ x: Tensor<S,E>)
+@inlinable func _vjpCos<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E: DifferentiableElement & Real
 {
@@ -249,8 +243,7 @@ func _vjpCos<S,E>(_ x: Tensor<S,E>)
 /// computes the hyperbolic cosine of `x`
 /// - Parameter x: value tensor
 /// - Returns: result
-@inlinable
-public func cosh<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+@inlinable public func cosh<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
     where S: TensorShape, E: Real
 {
     var result = Tensor(like: x)
@@ -446,23 +439,25 @@ public extension Tensor where Element: Real {
     return result
 }
 
-@inlinable
 @derivative(of: log(_:))
-func _vjpLog<S,E>(_ x: Tensor<S,E>) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+@inlinable func _vjpLog<S,E>(_ x: Tensor<S,E>)
+    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E: DifferentiableElement & Real
 {
     (log(x), { v in v / x })
 }
 
-@inlinable
-public func log2<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
+@inlinable public func log2<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+    where S: TensorShape, E: Real
+{
     var result = Tensor(like: x)
     Context.currentQueue.log2(x, &result)
     return result
 }
 
-@inlinable
-public func log10<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E> where S: TensorShape, E: Real {
+@inlinable public func log10<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+    where S: TensorShape, E: Real
+{
     var result = Tensor(like: x)
     Context.currentQueue.log10(x, &result)
     return result
@@ -735,8 +730,7 @@ public extension Tensor where Element: Real {
 ///
 /// - Parameter x: value tensor
 /// - Returns: the signs of `x`. -1 for negative `x` values, 1 for positive
-@inlinable
-public func sign<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+@inlinable public func sign<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
     where S: TensorShape, E: Real
 {
     var result = Tensor(like: x)
