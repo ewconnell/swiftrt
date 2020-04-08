@@ -43,24 +43,10 @@ public extension Tensor {
     /// - Parameters:
     ///  - other: a tensor to copy attributes from
     ///  - order: the storage order of the elements
-    @inlinable init<T: TensorType>(like other: T, order: StorageOrder = .C)
-        where Shape == T.Shape, Element == T.Element
-    {
+    @inlinable init(like other: Self, order: StorageOrder = .C) {
         self.init(other.shape, order: order)
     }
     
-    //--------------------------------------------------------------------------
-    /// init(like:order:
-    /// convenience initializer to initialize with the shape as `other`.
-    /// - Parameters:
-    ///  - other: a tensor to copy attributes from
-    ///  - order: the storage order of the elements
-    @inlinable init<T: TensorType>(like other: T, order: StorageOrder = .C)
-        where Shape == T.Shape
-    {
-        self.init(other.shape, order: order)
-    }
-
     //--------------------------------------------------------------------------
     /// init(element:
     /// creates a tensor with a single scalar value

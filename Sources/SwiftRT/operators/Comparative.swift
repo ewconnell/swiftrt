@@ -265,7 +265,7 @@ extension Tensor: Equatable where Element: Equatable {
     where S: TensorShape, E: SignedNumeric & Comparable
 {
     assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
-    var result = Tensor<S,Bool>(like: lhs)
+    var result = Tensor<S,Bool>(lhs.shape)
     Context.currentQueue.elementsAlmostEqual(lhs, rhs, tolerance, &result)
     return result
 }
@@ -286,7 +286,7 @@ public extension Tensor where Element: SignedNumeric & Comparable {
     -> Tensor<S,Bool> where S: TensorShape, E: Equatable
 {
     assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
-    var result = Tensor<S,Bool>(like: lhs)
+    var result = Tensor<S,Bool>(lhs.shape)
     Context.currentQueue.notEqual(lhs, rhs, &result)
     return result
 }
@@ -306,7 +306,7 @@ public extension Tensor where Element: Equatable {
 public func greater<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> Tensor<S,Bool> where S: TensorShape, E: Comparable
 {
-    var result = Tensor<S,Bool>(like: lhs)
+    var result = Tensor<S,Bool>(lhs.shape)
     Context.currentQueue.greater(lhs, rhs, &result)
     return result
 }
@@ -326,7 +326,7 @@ public extension Tensor where Element: Comparable {
 public func greaterOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> Tensor<S, Bool> where S: TensorShape, E: Comparable
 {
-    var result = Tensor<S,Bool>(like: lhs)
+    var result = Tensor<S,Bool>(lhs.shape)
     Context.currentQueue.greaterOrEqual(lhs, rhs, &result)
     return result
 }
@@ -345,7 +345,7 @@ public extension Tensor where Element: Comparable {
 @inlinable public func less<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> Tensor<S,Bool> where S: TensorShape, E: Comparable
 {
-    var result = Tensor<S,Bool>(like: lhs)
+    var result = Tensor<S,Bool>(lhs.shape)
     Context.currentQueue.less(lhs, rhs, &result)
     return result
 }
@@ -364,7 +364,7 @@ public extension Tensor where Element: Comparable {
 @inlinable public func lessOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> Tensor<S,Bool> where S: TensorShape, E: Comparable
 {
-    var result = Tensor<S,Bool>(like: lhs)
+    var result = Tensor<S,Bool>(lhs.shape)
     Context.currentQueue.lessOrEqual(lhs, rhs, &result)
     return result
 }
