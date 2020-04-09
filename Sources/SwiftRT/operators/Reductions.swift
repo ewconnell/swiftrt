@@ -315,12 +315,12 @@ public extension Tensor where Element: Comparable
 {
     @differentiable(where Element: DifferentiableElement)
     @inlinable func max(alongAxes axes: Set<Int>? = nil) -> Self {
-        SwiftRT.min(self, alongAxes: axes)
+        SwiftRT.max(self, alongAxes: axes)
     }
 
     @differentiable(where Element: DifferentiableElement)
     @inlinable func max(alongAxes axes: Int...) -> Self {
-        min(alongAxes: Set(axes))
+        max(alongAxes: Set(axes))
     }
 }
 

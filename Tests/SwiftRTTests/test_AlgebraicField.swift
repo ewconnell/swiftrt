@@ -208,29 +208,28 @@ class test_AlgebraicField: XCTestCase {
 //        ]
 //        XCTAssert(result2 == expected2)
 //    }
-//
+
     //--------------------------------------------------------------------------
-//    // test_subtractAndAssign
-//    func test_subtractAndAssign() {
-//        var m1 = Matrix(3, 2, with: 1...6)
-//        m1 -= 1
-//        XCTAssert(m1 == [0, 1, 2, 3, 4, 5])
-//    }
-//
-//    //--------------------------------------------------------------------------
-//    // test_mul
-//    func test_mul() {
-//        let m1 = Matrix(3, 2, with: 0..<6)
-//        let m2 = Matrix(3, 2, with: 0..<6)
-//        let result = m1 * m2
-//        XCTAssert(result == [0, 1, 4, 9, 16, 25])
-//
-//        let ones = Matrix(repeating: 1, like: m1)
-//        let (g1, g2) = pullback(at: m1, m2, in: { $0 * $1 })(ones)
-//        XCTAssert(g1 == [0, 1, 2, 3, 4, 5])
-//        XCTAssert(g2 == [0, 1, 2, 3, 4, 5])
-//    }
-//
+    // test_subtractAndAssign
+    func test_subtractAndAssign() {
+        var a = array(flat: 1...6, (3, 2))
+        a -= 1
+        XCTAssert(a.array == [[0, 1], [2, 3], [4, 5]])
+    }
+
+    //--------------------------------------------------------------------------
+    // test_mul
+    func test_mul() {
+        let a = array(flat: 0..<6, (3, 2))
+        let b = array(flat: 0..<6, (3, 2))
+        let result = a * b
+        XCTAssert(result.array == [[0, 1], [4, 9], [16, 25]])
+
+        let (g1, g2) = pullback(at: a, b, in: { $0 * $1 })(ones(like: a))
+        XCTAssert(g1.array == [[0, 1], [2, 3], [4, 5]])
+        XCTAssert(g2.array == [[0, 1], [2, 3], [4, 5]])
+    }
+
 //    //--------------------------------------------------------------------------
 //    // test_mulScalar
 //    func test_mulScalar() {

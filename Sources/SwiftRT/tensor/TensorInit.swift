@@ -122,16 +122,16 @@ public extension Tensor {
         for i in 0..<Shape.rank where other.shape[i] == shape[i] {
             repeatedStrides[i] = other.strides[i]
         }
-        
+        let elementCount = shape.elementCount()
         self.init(shape: shape,
                   strides: repeatedStrides,
-                  elementCount: shape.elementCount(),
+                  elementCount: elementCount,
                   spanCount: shape.spanCount(stridedBy: repeatedStrides),
                   storage: other.storage,
                   baseOffset: other.baseOffset,
                   order: other.storageOrder,
                   share: other.isShared,
-                  isSequential: false)
+                  isSequential: elementCount == 1)
     }
     
     //--------------------------------------------------------------------------
