@@ -147,13 +147,36 @@ public extension TensorShape {
     /// `sequentialStrides`
     /// computes the row major sequential strides
     @inlinable func sequentialStrides() -> Self {
-        var strides = Self.one
-        for i in stride(from: Self.rank &- 1, through: 1, by: -1) {
-            strides[i &- 1] = self[i] &* strides[i]
+        // strides will be overwritten, but it needs an initial value
+        // so give it something that will already be in the cache
+        var strides = self
+        var dim = Self.rank - 1
+        var shapeStride = 1
+        while dim >= 0 {
+            strides[dim] = shapeStride
+            shapeStride &*= self[dim]
+            dim &-= 1
         }
         return strides
     }
 
+    //--------------------------------------------------------------------------
+    /// `areSequential`
+    /// - Parameter shape: the bounding shape for the strides
+    /// - Returns: `true` if `self` are sequential strides for the given shape
+    @inlinable func areSequential(for shape: Self) -> Bool {
+        var dim = Self.rank - 1
+        var shapeStride = 1
+        while dim >= 0 {
+            if self[dim] != shapeStride && shape[dim] > 1 {
+                return false
+            }
+            shapeStride &*= shape[dim]
+            dim &-= 1
+        }
+        return true
+    }
+    
     //--------------------------------------------------------------------------
     /// joined
     /// - Parameters:

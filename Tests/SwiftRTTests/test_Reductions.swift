@@ -21,37 +21,33 @@ class test_Reductions: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_sumVolumeAlongAxes", test_sumVolumeAlongAxes),
-        ("test_minVolumeAlongAxes", test_minVolumeAlongAxes),
-        ("test_maxVolumeAlongAxes", test_maxVolumeAlongAxes),
-        ("test_sumVector", test_sumVector),
-        ("test_sumMatrix", test_sumMatrix),
-        ("test_abssumMatrix", test_abssumMatrix),
-        ("test_allVector", test_allVector),
-        ("test_anyVector", test_anyVector),
-        ("test_meanMatrix", test_meanMatrix),
-        ("test_maxMatrix", test_maxMatrix),
-        ("test_minMatrix", test_minMatrix),
-        ("test_absmaxMatrix", test_absmaxMatrix),
-        ("test_sqrtSumSquaresMatrix", test_sqrtSumSquaresMatrix),
-        ("test_sqrtSumSquaresVolume", test_sqrtSumSquaresVolume),
+        ("test_sumTensor3AlongAxes", test_sumTensor3AlongAxes),
+        ("test_minTensor3AlongAxes", test_minTensor3AlongAxes),
+        ("test_maxTensor3AlongAxes", test_maxTensor3AlongAxes),
+        ("test_sumTensor1", test_sumTensor1),
+        ("test_sumTensor2", test_sumTensor2),
+        ("test_abssumTensor2", test_abssumTensor2),
+        ("test_allTensor1", test_allTensor1),
+        ("test_anyTensor1", test_anyTensor1),
+        ("test_meanTensor2", test_meanTensor2),
+        ("test_maxTensor2", test_maxTensor2),
+        ("test_minTensor2", test_minTensor2),
+        ("test_absmaxTensor2", test_absmaxTensor2),
+        ("test_sqrtSumSquaresTensor2", test_sqrtSumSquaresTensor2),
+        ("test_sqrtSumSquaresTensor3", test_sqrtSumSquaresTensor3),
     ]
 
     //--------------------------------------------------------------------------
-    // test_sumVolumeAlongAxes
-    func test_sumVolumeAlongAxes() {
-        let v = array([
-            [
-                [10,   2],
-                [ 3,   4],
-                [ 5,   6]
-            ],
-            [
-                [ 1,   2],
-                [ 3,   4],
-                [ 5,   6]
-            ]
-        ])
+    // test_sumTensor3AlongAxes
+    func test_sumTensor3AlongAxes() {
+        let v = array(
+            [[[10,   2],
+              [ 3,   4],
+              [ 5,   6]],
+             
+             [[ 1,   2],
+              [ 3,   4],
+              [ 5,   6]]])
 
         // sum depths
         XCTAssert(v.sum(alongAxes: 0).array == [
@@ -86,8 +82,8 @@ class test_Reductions: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_maxVolumeAlongAxes
-    func test_maxVolumeAlongAxes() {
+    // test_maxTensor3AlongAxes
+    func test_maxTensor3AlongAxes() {
         let v = array([
             [
                 [10,   2],
@@ -136,8 +132,8 @@ class test_Reductions: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_minVolumeAlongAxes
-    func test_minVolumeAlongAxes() {
+    // test_minTensor3AlongAxes
+    func test_minTensor3AlongAxes() {
         let v = array([
             [
                 [10,   2],
@@ -185,8 +181,8 @@ class test_Reductions: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_sumVector
-    func test_sumVector() {
+    // test_sumTensor1
+    func test_sumTensor1() {
         let m = array([0, 1, 2, 3])
         let result = m.sum()
         XCTAssert(result.shape == [1])
@@ -194,8 +190,8 @@ class test_Reductions: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_sumMatrix
-    func test_sumMatrix() {
+    // test_sumTensor2
+    func test_sumTensor2() {
         let m = array([
             [0, 1],
             [2, 3],
@@ -229,8 +225,8 @@ class test_Reductions: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_abssumMatrix
-    func test_abssumMatrix() {
+    // test_abssumTensor2
+    func test_abssumTensor2() {
         let m = array([
             [ 0, -1],
             [-2,  3],
@@ -264,8 +260,8 @@ class test_Reductions: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_allVector
-    func test_allVector() {
+    // test_allTensor1
+    func test_allTensor1() {
         let a = array([true, true, true])
         XCTAssert(a.all().element == true)
         
@@ -277,8 +273,8 @@ class test_Reductions: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_anyVector
-    func test_anyVector() {
+    // test_anyTensor1
+    func test_anyTensor1() {
         let a = array([true, true, true])
         XCTAssert(a.any().element == true)
         
@@ -290,8 +286,8 @@ class test_Reductions: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_maxMatrix
-    func test_maxMatrix() {
+    // test_maxTensor2
+    func test_maxTensor2() {
         let m = array([
             [-1, 3, -6],
             [1, -3,  6],
@@ -302,8 +298,8 @@ class test_Reductions: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_minMatrix
-    func test_minMatrix() {
+    // test_minTensor2
+    func test_minTensor2() {
         let m = array([
             [-1,  3, -6],
             [ 1, -3,  6],
@@ -314,8 +310,8 @@ class test_Reductions: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_absmaxMatrix
-    func test_absmaxMatrix() {
+    // test_absmaxTensor2
+    func test_absmaxTensor2() {
         let m = array([
             [-1,  3, -6],
             [ 1, -3,  6],
@@ -326,8 +322,8 @@ class test_Reductions: XCTestCase {
     }
         
     //----------------------------------------------------------------------
-    // test_meanMatrix
-    func test_meanMatrix() {
+    // test_meanTensor2
+    func test_meanTensor2() {
         let m = array([
             [0, 1],
             [2, 3],
@@ -361,8 +357,8 @@ class test_Reductions: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_sqrtSumSquaresMatrix
-    func test_sqrtSumSquaresMatrix() {
+    // test_sqrtSumSquaresTensor2
+    func test_sqrtSumSquaresTensor2() {
         let m = array([
             [0, 1],
             [2, 3],
@@ -402,8 +398,8 @@ class test_Reductions: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_sqrtSumSquaresVolume
-    func test_sqrtSumSquaresVolume() {
+    // test_sqrtSumSquaresTensor3
+    func test_sqrtSumSquaresTensor3() {
         let m = array([
             [
                 [ 0,  1],

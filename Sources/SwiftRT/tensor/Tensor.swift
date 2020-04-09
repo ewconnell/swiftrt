@@ -34,13 +34,15 @@ public struct Tensor<Shape, Element>: MutableTensorType
     /// the storage buffer base offset where this tensor's elements begin
     public let baseOffset: Int
     /// `true` if elements are in row major contiguous order
+    // this is a stored property, because it's used during
+    // gpu dispatch decision making
     public let isSequential: Bool
     /// Specifies whether data is stored in row-major (C-style)
     /// or column-major (Fortran-style) order in memory.
     public let storageOrder: StorageOrder
     /// the dimensions of the element space
     public let shape: Shape
-    // used for makeIndex
+    // used by makeIndex
     @usableFromInline var shapeStrides: Shape { shape.sequentialStrides() }
     /// The strided number of elements spanned by the shape
     public let spanCount: Int
@@ -104,7 +106,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
         //----------------------------------
         // element access functions depending on memory order
         if isSequential {
-            assert(strides == shape.sequentialStrides())
+            assert(strides.areSequential(for: shape))
             getElement = {
                 storage.element(at: $0.sequencePosition)
             }
@@ -115,6 +117,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
             increment = { Index(at: $0.sequencePosition &+ 1) }
             
         } else {
+            assert(!strides.areSequential(for: shape))
             getElement = {
                 storage.element(at: $0.linearIndex(strides))
             }
@@ -283,7 +286,7 @@ public extension Tensor {
                 baseOffset: lower.index(stridedBy: strides),
                 order: storageOrder,
                 share: isShared,
-                isSequential: strides == shapeStrides)
+                isSequential: strides.areSequential(for: shape))
         }
         set {
             let shape = upper &- lower
@@ -296,7 +299,7 @@ public extension Tensor {
                 baseOffset: lower.index(stridedBy: strides),
                 order: storageOrder,
                 share: isShared,
-                isSequential: strides == shapeStrides)
+                isSequential: strides.areSequential(for: shape))
             
             copy(from: newValue, to: &view)
         }
