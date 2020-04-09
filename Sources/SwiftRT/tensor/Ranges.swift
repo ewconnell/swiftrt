@@ -170,8 +170,8 @@ public struct RelativeRange: RangeExpression, PartialRangeExpression {
     public func relative<C>(to collection: C) -> Range<Int>
         where C : Collection, C.Index == Int
     {
-        let i = start < 0 ? start + collection.count : start
-        return Range(uncheckedBounds: (i, i + extent))
+        let i = start < 0 ? start &+ collection.count : start
+        return Range(uncheckedBounds: (i, i &+ extent))
     }
     
     @inlinable
@@ -182,8 +182,8 @@ public struct RelativeRange: RangeExpression, PartialRangeExpression {
     public func relativeTo<C>(_ collection: C) -> StridedRange<Bound>
         where C : Collection, Self.Bound == C.Index
     {
-        let i = start < 0 ? start + collection.count : start
-        return StridedRange(from: i, to: i + extent, by: step)
+        let i = start < 0 ? start &+ collection.count : start
+        return StridedRange(from: i, to: i &+ extent, by: step)
     }
     
     @inlinable
@@ -252,7 +252,7 @@ public struct StridedRange<Bound>: StridedRangeExpression, Collection
     }
 
     @inlinable
-    public func index(after i: Int) -> Int { i + 1 }
+    public func index(after i: Int) -> Int { i &+ 1 }
 }
 
 //==============================================================================
@@ -376,8 +376,8 @@ extension Int: PartialRangeExpression {
     public func relativeTo<C>(_ collection: C) -> StridedRange<Bound>
         where C : Collection, Self.Bound == C.Index
     {
-        let i = self < 0 ? self + collection.count : self
-        return StridedRange(from: i, to: i + 1, by: 1)
+        let i = self < 0 ? self &+ collection.count : self
+        return StridedRange(from: i, to: i &+ 1, by: 1)
     }
 }
 

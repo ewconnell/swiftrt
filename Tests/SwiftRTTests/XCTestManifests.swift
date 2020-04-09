@@ -18,8 +18,10 @@ import XCTest
 #if !canImport(ObjectiveC)
 public func allTests() -> [XCTestCaseEntry] {
     return [
-        testCase(test_npTensor.allTests),
+        testCase(test_npArray.allTests),
+        testCase(test_AlgebraicField.allTests),
         testCase(test_Initialize.allTests),
+        testCase(test_Reductions.allTests),
     ]
 }
 #endif

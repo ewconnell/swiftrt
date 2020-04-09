@@ -17,7 +17,7 @@ import XCTest
 import Foundation
 import SwiftRT
 
-class test_npTensor: XCTestCase {
+class test_npArray: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
