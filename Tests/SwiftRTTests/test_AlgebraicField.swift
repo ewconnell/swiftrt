@@ -22,19 +22,19 @@ class test_AlgebraicField: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-//        ("test_addSubMulDivComplex", test_addSubMulDivComplex),
+        ("test_addSubMulDivComplex", test_addSubMulDivComplex),
         ("test_add", test_add),
-//        ("test_addInt32", test_addInt32),
-//        ("test_addUInt8", test_addUInt8),
-//        ("test_addScalar", test_addScalar),
-//        ("test_addAndAssign", test_addAndAssign),
-//
-//        ("test_subtract", test_subtract),
-//        ("test_subtractScalar", test_subtractScalar),
+        ("test_addInt32", test_addInt32),
+        ("test_addUInt8", test_addUInt8),
+        ("test_addScalar", test_addScalar),
+        ("test_addAndAssign", test_addAndAssign),
+
+        ("test_subtract", test_subtract),
+        ("test_subtractScalar", test_subtractScalar),
 //        ("test_subtractVector", test_subtractVector),
-//        ("test_subtractAndAssign", test_subtractAndAssign),
-//
-//        ("test_mul", test_mul),
+        ("test_subtractAndAssign", test_subtractAndAssign),
+
+        ("test_mul", test_mul),
 //        ("test_mulScalar", test_mulScalar),
 //        ("test_mulAndAssign", test_mulAndAssign),
 //
