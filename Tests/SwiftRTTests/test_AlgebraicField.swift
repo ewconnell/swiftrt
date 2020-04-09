@@ -47,7 +47,7 @@ class test_AlgebraicField: XCTestCase {
     // test_add
     func test_add() {
         let a = array([[0, 1], [2, 3], [4, 5]])
-        let b = array(flat: 0..<6, (3, 2))
+        let b = array(0..<6, (3, 2))
         let result = a + b
         XCTAssert(result.array == [[0, 2], [4, 6], [8, 10]])
 
@@ -59,8 +59,8 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_addInt32
     func test_addInt32() {
-        let a = array(flat: 0..<6, (3, 2), dtype: Int32.self)
-        let b = array(flat: 0..<6, (3, 2), dtype: Int32.self)
+        let a = array(0..<6, (3, 2), dtype: Int32.self)
+        let b = array(0..<6, (3, 2), dtype: Int32.self)
         let result = a + b
         XCTAssert(result.array == [[0, 2], [4, 6], [8, 10]])
     }
@@ -68,8 +68,8 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_addUInt8
     func test_addUInt8() {
-        let a = array(flat: 0..<6, (3, 2), dtype: UInt8.self)
-        let b = array(flat: 0..<6, (3, 2), dtype: UInt8.self)
+        let a = array(0..<6, (3, 2), dtype: UInt8.self)
+        let b = array(0..<6, (3, 2), dtype: UInt8.self)
         let result = a + b
         XCTAssert(result.array == [[0, 2], [4, 6], [8, 10]])
     }
@@ -77,7 +77,7 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_addScalar
     func test_addScalar() {
-        let a = array(flat: 1...6, (3, 2))
+        let a = array(1...6, (3, 2))
         let result = a + 1
         let expected: [[Float]] = [[2, 3], [4, 5], [6, 7]]
         XCTAssert(result.array == expected)
@@ -89,7 +89,7 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_addAndAssign
     func test_addAndAssign() {
-        var a = array(flat: 0...5, (3, 2))
+        var a = array(0...5, (3, 2))
         a += 2
         XCTAssert(a.array == [[2, 3], [4, 5], [6, 7]])
     }
@@ -99,8 +99,8 @@ class test_AlgebraicField: XCTestCase {
     func test_addSubMulDivComplex() {
         typealias CF = Complex<Float>
         let data: [Complex<Float>] = [1, 2, 3, 4]
-        let a = array(flat: data, (2, 2))
-        let b = array(flat: data, (2, 2))
+        let a = array(data, (2, 2))
+        let b = array(data, (2, 2))
         let v = ones(like: a)
 
         // add a scalar
@@ -148,11 +148,11 @@ class test_AlgebraicField: XCTestCase {
         do {
             let (g1, g2) = pullback(at: a, b, in: { $0 / $1 })(v)
             let data = [1, 0.5, 0.333333343, 0.25].map { CF($0) }
-            let g1Expected = array(flat: data, (2, 2))
+            let g1Expected = array(data, (2, 2))
             let g1sumdiff = sum(g1 - g1Expected).element
             XCTAssert(abs(g1sumdiff.real) <= 1e-6 && g1sumdiff.imaginary == 0)
 
-            let g2Expected = -array(flat: data, (2, 2))
+            let g2Expected = -array(data, (2, 2))
             let g2sumdiff = sum(g2 - g2Expected).element
             XCTAssert(abs(g2sumdiff.real) <= 1e-6 && g2sumdiff.imaginary == 0)
         }
@@ -161,8 +161,8 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_subtract
     func test_subtract() {
-        let a = array(flat: 1..<7, (3, 2))
-        let b = array(flat: 0..<6, (3, 2))
+        let a = array(1..<7, (3, 2))
+        let b = array(0..<6, (3, 2))
         let result = a - b
         XCTAssert(result.flat == [1, 1, 1, 1, 1, 1])
 
@@ -174,7 +174,7 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_subtractScalar
     func test_subtractScalar() {
-        let a = array(flat: 1...6, (3, 2))
+        let a = array(1...6, (3, 2))
         let result = a - 1
         XCTAssert(result.array == [[0, 1], [2, 3], [4, 5]])
 
@@ -190,7 +190,7 @@ class test_AlgebraicField: XCTestCase {
 //            [3, 4],
 //            [5, 6]
 //        ])
-//        let col = repeating(array(flat: 0...2, (3, 1)), (3, 2))
+//        let col = repeating(array(0...2, (3, 1)), (3, 2))
 //
 //        let result = a - col
 //        let expected: [Float] = [
@@ -212,7 +212,7 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_subtractAndAssign
     func test_subtractAndAssign() {
-        var a = array(flat: 1...6, (3, 2))
+        var a = array(1...6, (3, 2))
         a -= 1
         XCTAssert(a.array == [[0, 1], [2, 3], [4, 5]])
     }
@@ -220,8 +220,8 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_mul
     func test_mul() {
-        let a = array(flat: 0..<6, (3, 2))
-        let b = array(flat: 0..<6, (3, 2))
+        let a = array(0..<6, (3, 2))
+        let b = array(0..<6, (3, 2))
         let result = a * b
         XCTAssert(result.array == [[0, 1], [4, 9], [16, 25]])
 

@@ -16,6 +16,46 @@
 import XCTest
 import Foundation
 import SwiftRT
+//
+///// implicitly casts from C.Element integer -> Element
+//@inlinable public func arr<C>(
+//    _ elements: C,
+//    order: StorageOrder = .C
+//) -> Tensor1<C.Element>
+//    where C: Collection
+//{
+//    let shape = Shape1(elements.count)
+//    let flatElements = elements
+//    return Tensor1<C.Element>(flatElements, shape, order: order)
+//}
+//
+///// implicitly casts from C.Element integer -> Element
+//@inlinable public func arr<C>(
+//    _ elements: C,
+//    _ shape: Shape2.Tuple,
+//    order: StorageOrder = .C
+//) -> Tensor2<C.Element>
+//    where C: Collection
+//{
+//    Tensor2<C.Element>(elements, Shape2(shape), order: order)
+//}
+//
+///// implicitly casts from C.Element integer -> Element
+//@inlinable public func arr<C>(
+//    _ elements: C,
+//    order: StorageOrder = .C
+//) -> Tensor2<DType>
+//    where
+//    C: Collection, C.Element: Collection,
+//    C.Element.Element: BinaryInteger
+//{
+//    let shape = Shape2(
+//        elements.count,
+//        elements.first!.count)
+//
+//    let flatElements = elements.joined()
+//    return Tensor2<DType>(flatElements, shape, order: order)
+//}
 
 class test_npArray: XCTestCase {
     //==========================================================================
@@ -55,10 +95,11 @@ class test_npArray: XCTestCase {
         let _ = array(d, dtype: Int32.self)
         
         let _ = array([[0, 1, 2], [3, 4, 5]])
-        let _ = array(flat: 0..<6, (2, 3))
+        let _ = array([0, 1, 2, 3, 4, 5], (2, 3))
+        let _ = array(0..<6, (2, 3))
         
 //        let a3 = array([[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]])
-        let af4 = array(flat: 0..<120, (2, 3, 4, 5))
+        let af4 = array(0..<120, (2, 3, 4, 5))
 
         print(af4.flat)
         
