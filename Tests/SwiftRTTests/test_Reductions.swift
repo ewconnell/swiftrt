@@ -50,7 +50,7 @@ class test_Reductions: XCTestCase {
               [ 5,   6]]])
 
         // sum depths
-        XCTAssert(v.sum(alongAxes: 0).array == [
+        XCTAssert(v.sum(alongAxes: 0) == [
             [
                 [11,  4],
                 [ 6,  8],
@@ -59,7 +59,7 @@ class test_Reductions: XCTestCase {
         ])
         
         // sum rows
-        XCTAssert(v.sum(alongAxes: 1).array == [
+        XCTAssert(v.sum(alongAxes: 1) == [
             [
                 [18, 12]
             ],
@@ -69,7 +69,7 @@ class test_Reductions: XCTestCase {
         ])
 
         // sum columns
-        XCTAssert(v.sum(alongAxes: 2).array == [
+        XCTAssert(v.sum(alongAxes: 2) == [
             [
                 [12],
                 [ 7],
@@ -99,7 +99,7 @@ class test_Reductions: XCTestCase {
         
         // max depths
         let vm = v.max(alongAxes: 0)
-        XCTAssert(vm.array == [
+        XCTAssert(vm == [
             [
                 [10,   2],
                 [ 3,   4],
@@ -108,7 +108,7 @@ class test_Reductions: XCTestCase {
         ])
 
         // max rows
-        XCTAssert(v.max(alongAxes: 1).array == [
+        XCTAssert(v.max(alongAxes: 1) == [
             [
                 [10, 4]
             ],
@@ -118,7 +118,7 @@ class test_Reductions: XCTestCase {
         ])
 
         // max columns
-        XCTAssert(v.max(alongAxes: 2).array == [
+        XCTAssert(v.max(alongAxes: 2) == [
             [
                 [10],
                 [ 4],
@@ -148,7 +148,7 @@ class test_Reductions: XCTestCase {
         ])
         
         // depths
-        XCTAssert(v.min(alongAxes: 0).array == [
+        XCTAssert(v.min(alongAxes: 0) == [
             [
                 [1,  2],
                 [3,  4],
@@ -157,7 +157,7 @@ class test_Reductions: XCTestCase {
         ])
         
         // rows
-        XCTAssert(v.min(alongAxes: 1).array == [
+        XCTAssert(v.min(alongAxes: 1) == [
             [
                 [3, -6]
             ],
@@ -167,7 +167,7 @@ class test_Reductions: XCTestCase {
         ])
         
         // columns
-        XCTAssert(v.min(alongAxes: 2).array == [
+        XCTAssert(v.min(alongAxes: 2) == [
             [
                 [ 2],
                 [ 3],
@@ -214,13 +214,13 @@ class test_Reductions: XCTestCase {
         // sum cols
         do {
             let result = m.sum(alongAxes: 1)
-            XCTAssert(result.array == [[1], [5], [9]])
+            XCTAssert(result == [[1], [5], [9]])
         }
 
         // sum rows
         do {
             let result = m.sum(alongAxes: 0)
-            XCTAssert(result.array == [[6, 9]])
+            XCTAssert(result == [[6, 9]])
         }
     }
 
@@ -249,13 +249,13 @@ class test_Reductions: XCTestCase {
         // sum cols
         do {
             let result = m.abssum(alongAxes: 1)
-            XCTAssert(result.array == [[1], [5], [9]])
+            XCTAssert(result == [[1], [5], [9]])
         }
 
         // sum rows
         do {
             let result = m.abssum(alongAxes: 0)
-            XCTAssert(result.array == [[6, 9]])
+            XCTAssert(result == [[6, 9]])
         }
     }
 
@@ -292,8 +292,8 @@ class test_Reductions: XCTestCase {
             [-1, 3, -6],
             [1, -3,  6],
         ])
-        XCTAssert(m.max(alongAxes: 0).array == [[1, 3, 6]])
-        XCTAssert(m.max(alongAxes: 1).array == [[3], [6]])
+        XCTAssert(m.max(alongAxes: 0) == [[1, 3, 6]])
+        XCTAssert(m.max(alongAxes: 1) == [[3], [6]])
         XCTAssert(m.max().element == 6)
     }
 
@@ -304,8 +304,8 @@ class test_Reductions: XCTestCase {
             [-1,  3, -6],
             [ 1, -3,  6],
         ])
-        XCTAssert(m.min(alongAxes: 0).array == [[-1, -3, -6]])
-        XCTAssert(m.min(alongAxes: 1).array == [[-6], [-3]])
+        XCTAssert(m.min(alongAxes: 0) == [[-1, -3, -6]])
+        XCTAssert(m.min(alongAxes: 1) == [[-6], [-3]])
         XCTAssert(m.min().element == -6)
     }
     
@@ -316,8 +316,8 @@ class test_Reductions: XCTestCase {
             [-1,  3, -6],
             [ 1, -3,  6],
         ])
-        XCTAssert(m.absmax(alongAxes: 0).array == [[1, 3, 6]])
-        XCTAssert(m.absmax(alongAxes: 1).array == [[6], [6]])
+        XCTAssert(m.absmax(alongAxes: 0) == [[1, 3, 6]])
+        XCTAssert(m.absmax(alongAxes: 1) == [[6], [6]])
         XCTAssert(m.absmax().element == 6)
     }
         
@@ -346,13 +346,13 @@ class test_Reductions: XCTestCase {
         // mean cols
         do {
             let result = m.mean(alongAxes: 1)
-            XCTAssert(result.array == [[0.5], [2.5], [4.5]])
+            XCTAssert(result == [[0.5], [2.5], [4.5]])
         }
         
         // mean rows
         do {
             let result = m.mean(alongAxes: 0)
-            XCTAssert(result.array == [[2, 3]])
+            XCTAssert(result == [[2, 3]])
         }
     }
     

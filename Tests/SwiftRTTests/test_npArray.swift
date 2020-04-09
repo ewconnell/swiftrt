@@ -188,7 +188,7 @@ class test_npArray: XCTestCase {
     func test_onesView() {
         let t1 = ones((4, 3), dtype: Int.self)
         let view = t1[1...2, ...]
-        XCTAssert(view.array == [[1, 1, 1], [1, 1, 1]])
+        XCTAssert(view == [[1, 1, 1], [1, 1, 1]])
     }
     
     //==========================================================================
@@ -280,28 +280,28 @@ class test_npArray: XCTestCase {
 //        let _ = eye(3, dtype: Int.self, order: .F)
         print(eye(3, k: 0, dtype: Int.self))
         // check plus
-        XCTAssert(eye(3, k: 1).array == [
+        XCTAssert(eye(3, k: 1) == [
             [0, 1, 0],
             [0, 0, 1],
             [0, 0, 0],
         ])
         
         // check subview plus
-        XCTAssert(eye(4, k: 1)[..<3, 1...].array == [
+        XCTAssert(eye(4, k: 1)[..<3, 1...] == [
             [0, 1, 0],
             [0, 0, 1],
             [0, 0, 0],
         ])
 
         // check minus
-        XCTAssert(eye(3, k: -1).array == [
+        XCTAssert(eye(3, k: -1) == [
             [0, 0, 0],
             [1, 0, 0],
             [0, 1, 0],
         ])
         
         // check subview minus
-        XCTAssert(eye(4, k: -1)[1..., ..<3].array == [
+        XCTAssert(eye(4, k: -1)[1..., ..<3] == [
             [0, 0, 0],
             [1, 0, 0],
             [0, 1, 0],

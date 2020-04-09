@@ -15,17 +15,19 @@
 //
 import Foundation
 
-/// `TensorType Subscript Behavior`
-/// A tensor subscripted with a range returns a tensor slice.
-/// A tensor subscripted using `tensor.indices` or an index formed
-/// via the `ElementIndex` structure, will return the tensor's `Elements`
+/// `Tensor Subscript Behavior`
+/// A tensor subscripted with a range returns a sub view.
+///
+/// A tensor subscripted using `tensor.indices` or an Index formed
+/// via the `ElementIndex` structure, will return an `Element`
+///
 /// A tensor subscripted with integers for each dimension is a convenience
-/// function for wrapping the values in a `ElementIndex` structure, and
-/// then returning the corresponding tensor `Element`
+/// function for wrapping the values in an `ElementIndex` structure, and
+/// then returning the corresponding tensor `Element` value
 
 //==============================================================================
 // Rank2 array property and subscripts
-public extension TensorType where Shape == Shape2 {
+public extension Tensor where Shape == Shape2 {
     /// - Returns: an array of `Element`s
     @inlinable var array: [[Element]] {
         var array2 = [[Element]]()
@@ -34,25 +36,6 @@ public extension TensorType where Shape == Shape2 {
         }
         return array2
     }
-
-    //    @differentiable(where Self: DifferentiableTensorView)
-    @inlinable subscript<R>(rows: R, cols: UnboundedRange) -> Self
-        where R: PartialRangeExpression, R.Bound == Int
-    {
-        self[rows, 0...]
-    }
-
-    //    @differentiable(where Self: DifferentiableTensorView)
-    @inlinable subscript<C>(rows: UnboundedRange, cols: C) -> Self
-        where C: PartialRangeExpression, C.Bound == Int
-    {
-        self[0..., cols]
-    }
-}
-
-//------------------------------------------------------------------------------
-
-public extension MutableTensorType where Shape == Shape2 {
 
     //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable subscript<R>(rows: R, cols: UnboundedRange) -> Self
@@ -69,9 +52,15 @@ public extension MutableTensorType where Shape == Shape2 {
     }
 }
 
+public extension Tensor where Shape == Shape2, Element: Equatable {
+    @inlinable static func == (lhs: Self, rhs: [[Element]]) -> Bool {
+        lhs.array == rhs
+    }
+}
+
 //==============================================================================
 // Rank3 array property and subscripts
-public extension TensorType where Shape == Shape3 {
+public extension Tensor where Shape == Shape3 {
     //--------------------------------------------------------------------------
     /// return an array of elements
     @inlinable var array: [[[Element]]] {
@@ -87,53 +76,6 @@ public extension TensorType where Shape == Shape3 {
         }
         return array3
     }
-
-    @inlinable
-    //    @differentiable(where Self: DifferentiableTensorView)
-    subscript<D>(deps: D, rows: UnboundedRange, cols: UnboundedRange) -> Self
-        where D: PartialRangeExpression, D.Bound == Int
-    {
-        self[deps, 0..., 0...]
-    }
-
-    @inlinable
-    //    @differentiable(where Self: DifferentiableTensorView)
-    subscript<D, R>(deps: D, rows: R, cols: UnboundedRange) -> Self where
-        D: PartialRangeExpression, D.Bound == Int,
-        R: PartialRangeExpression, R.Bound == Int
-    {
-        self[deps, rows, 0...]
-    }
-
-    @inlinable
-    //    @differentiable(where Self: DifferentiableTensorView)
-    subscript<D, C>(deps: D, rows: UnboundedRange, cols: C) -> Self where
-        D: PartialRangeExpression, D.Bound == Int,
-        C: PartialRangeExpression, C.Bound == Int
-    {
-        self[deps, 0..., cols]
-    }
-
-    @inlinable
-    //    @differentiable(where Self: DifferentiableTensorView)
-    subscript<R>(deps: UnboundedRange, rows: R, cols: UnboundedRange) -> Self
-        where R: PartialRangeExpression, R.Bound == Int
-    {
-        self[0..., rows, 0...]
-    }
-
-    @inlinable
-    //    @differentiable(where Self: DifferentiableTensorView)
-    subscript<C>(deps: UnboundedRange, rows: UnboundedRange, cols: C) -> Self
-        where C: PartialRangeExpression, C.Bound == Int
-    {
-        self[0..., 0..., cols]
-    }
-}
-
-//------------------------------------------------------------------------------
-
-public extension MutableTensorType where Shape == Shape3 {
 
     @inlinable
     //    @differentiable(where Self: DifferentiableTensorView)
@@ -175,6 +117,12 @@ public extension MutableTensorType where Shape == Shape3 {
         where C: PartialRangeExpression, C.Bound == Int {
         get { self[0..., 0..., cols] }
         set { self[0..., 0..., cols] = newValue }
+    }
+}
+
+public extension Tensor where Shape == Shape3, Element: Equatable {
+    @inlinable static func == (lhs: Self, rhs: [[[Element]]]) -> Bool {
+        lhs.array == rhs
     }
 }
 

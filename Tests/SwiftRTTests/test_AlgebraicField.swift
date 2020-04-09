@@ -49,7 +49,7 @@ class test_AlgebraicField: XCTestCase {
         let a = array([[0, 1], [2, 3], [4, 5]])
         let b = array(0..<6, (3, 2))
         let result = a + b
-        XCTAssert(result.array == [[0, 2], [4, 6], [8, 10]])
+        XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
 
         let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(ones(like: a))
         XCTAssert(g1.flat == [1, 1, 1, 1, 1, 1])
@@ -62,7 +62,7 @@ class test_AlgebraicField: XCTestCase {
         let a = array(0..<6, (3, 2), dtype: Int32.self)
         let b = array(0..<6, (3, 2), dtype: Int32.self)
         let result = a + b
-        XCTAssert(result.array == [[0, 2], [4, 6], [8, 10]])
+        XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
     }
 
     //--------------------------------------------------------------------------
@@ -71,7 +71,7 @@ class test_AlgebraicField: XCTestCase {
         let a = array(0..<6, (3, 2), dtype: UInt8.self)
         let b = array(0..<6, (3, 2), dtype: UInt8.self)
         let result = a + b
-        XCTAssert(result.array == [[0, 2], [4, 6], [8, 10]])
+        XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
     }
 
     //--------------------------------------------------------------------------
@@ -80,10 +80,10 @@ class test_AlgebraicField: XCTestCase {
         let a = array(1...6, (3, 2))
         let result = a + 1
         let expected: [[Float]] = [[2, 3], [4, 5], [6, 7]]
-        XCTAssert(result.array == expected)
+        XCTAssert(result == expected)
 
         let result2 = 1 + a
-        XCTAssert(result2.array == expected)
+        XCTAssert(result2 == expected)
     }
 
     //--------------------------------------------------------------------------
@@ -91,7 +91,7 @@ class test_AlgebraicField: XCTestCase {
     func test_addAndAssign() {
         var a = array(0...5, (3, 2))
         a += 2
-        XCTAssert(a.array == [[2, 3], [4, 5], [6, 7]])
+        XCTAssert(a == [[2, 3], [4, 5], [6, 7]])
     }
 
     //--------------------------------------------------------------------------
@@ -104,46 +104,46 @@ class test_AlgebraicField: XCTestCase {
         let v = ones(like: a)
 
         // add a scalar
-        XCTAssert((a + 1).array == [[2, 3], [4, 5]])
+        XCTAssert((a + 1) == [[2, 3], [4, 5]])
 
         // add tensors
-        XCTAssert((a + b).array == [[2, 4], [6, 8]])
+        XCTAssert((a + b) == [[2, 4], [6, 8]])
 
         // subtract a scalar
-        XCTAssert((a - 1).array == [[0, 1], [2, 3]])
+        XCTAssert((a - 1) == [[0, 1], [2, 3]])
 
         // subtract tensors
-        XCTAssert((a - b).array == [[0, 0], [0, 0]])
+        XCTAssert((a - b) == [[0, 0], [0, 0]])
 
         // mul a scalar
-        XCTAssert((a * 2).array == [[2, 4], [6, 8]])
+        XCTAssert((a * 2) == [[2, 4], [6, 8]])
 
         // mul tensors
-        XCTAssert((a * b).array == [[1, 4], [9, 16]])
+        XCTAssert((a * b) == [[1, 4], [9, 16]])
 
         // divide by a scalar
         let divExpected = [[CF(0.5), CF(1)], [CF(1.5), CF(2)]]
-        XCTAssert((a / 2).array == divExpected)
+        XCTAssert((a / 2) == divExpected)
 
         // divide by a tensor
-        XCTAssert((a / b).array == [[1, 1], [1, 1]])
+        XCTAssert((a / b) == [[1, 1], [1, 1]])
 
         // test add derivative
         do {
             let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(v)
-            XCTAssert(g1.array == [[1, 1], [1, 1]])
-            XCTAssert(g2.array == [[1, 1], [1, 1]])
+            XCTAssert(g1 == [[1, 1], [1, 1]])
+            XCTAssert(g2 == [[1, 1], [1, 1]])
         }
 
         do {
             let (g1, g2) = pullback(at: a, b, in: { $0 - $1 })(v)
-            XCTAssert(g1.array == [[1, 1], [1, 1]])
-            XCTAssert(g2.array == [[-1, -1], [-1, -1]])
+            XCTAssert(g1 == [[1, 1], [1, 1]])
+            XCTAssert(g2 == [[-1, -1], [-1, -1]])
         }
         do {
             let (g1, g2) = pullback(at: a, b, in: { $0 * $1 })(v)
-            XCTAssert(g1.array == [[1, 2], [3, 4]])
-            XCTAssert(g2.array == [[1, 2], [3, 4]])
+            XCTAssert(g1 == [[1, 2], [3, 4]])
+            XCTAssert(g2 == [[1, 2], [3, 4]])
         }
         do {
             let (g1, g2) = pullback(at: a, b, in: { $0 / $1 })(v)
@@ -176,10 +176,10 @@ class test_AlgebraicField: XCTestCase {
     func test_subtractScalar() {
         let a = array(1...6, (3, 2))
         let result = a - 1
-        XCTAssert(result.array == [[0, 1], [2, 3], [4, 5]])
+        XCTAssert(result == [[0, 1], [2, 3], [4, 5]])
 
         let result2 = 1 - a
-        XCTAssert(result2.array == [[0, -1], [-2, -3], [-4, -5]])
+        XCTAssert(result2 == [[0, -1], [-2, -3], [-4, -5]])
     }
 
 //    //--------------------------------------------------------------------------
@@ -214,7 +214,7 @@ class test_AlgebraicField: XCTestCase {
     func test_subtractAndAssign() {
         var a = array(1...6, (3, 2))
         a -= 1
-        XCTAssert(a.array == [[0, 1], [2, 3], [4, 5]])
+        XCTAssert(a == [[0, 1], [2, 3], [4, 5]])
     }
 
     //--------------------------------------------------------------------------
@@ -223,11 +223,11 @@ class test_AlgebraicField: XCTestCase {
         let a = array(0..<6, (3, 2))
         let b = array(0..<6, (3, 2))
         let result = a * b
-        XCTAssert(result.array == [[0, 1], [4, 9], [16, 25]])
+        XCTAssert(result == [[0, 1], [4, 9], [16, 25]])
 
         let (g1, g2) = pullback(at: a, b, in: { $0 * $1 })(ones(like: a))
-        XCTAssert(g1.array == [[0, 1], [2, 3], [4, 5]])
-        XCTAssert(g2.array == [[0, 1], [2, 3], [4, 5]])
+        XCTAssert(g1 == [[0, 1], [2, 3], [4, 5]])
+        XCTAssert(g2 == [[0, 1], [2, 3], [4, 5]])
     }
 
 //    //--------------------------------------------------------------------------

@@ -28,42 +28,19 @@ numShapes = 6
 //******************************************************************************
 
 /// `Tensor Subscript Behavior`
-/// A tensor subscripted with a range returns a tensor slice.
-/// A tensor subscripted using `tensor.indices` or an index formed
-/// via the `ElementIndex` structure, will return the tensor's `Elements`
+/// A tensor subscripted with a range returns a sub view.
+///
+/// A tensor subscripted using `tensor.indices` or an Index formed
+/// via the `ElementIndex` structure, will return an `Element`
+///
 /// A tensor subscripted with integers for each dimension is a convenience
-/// function for wrapping the values in a `ElementIndex` structure, and
-/// then returning the corresponding tensor `Element`
+/// function for wrapping the values in an `ElementIndex` structure, and
+/// then returning the corresponding tensor `Element` value
 
 %for n in range(1, numShapes + 1):
 //==============================================================================
 // Rank${n}
 public extension Tensor where Shape == Shape${n} {
-    /// - Returns: the element
-    @inlinable
-    subscript(${', '.join(['d' + str(i) + ': Int' for i in range(n)])}) -> Element {
-        self[makeIndex(at: Shape${n}(${', '.join(['d' + str(i) for i in range(n)])}))]
-    }
-
-    /// - Returns: the sub view defined by the range
-    @inlinable
-    subscript<${', '.join(['R' + str(i) for i in range(n)])}>(${', '.join(['r' + str(i) + ': R' + str(i) for i in range(n)])}) -> Self where
-% for i in range(n):
-        R${i}: PartialRangeExpression, R${i}.Bound == Int${',' if i < (n - 1) else ''}
-% end
-    {
-% for i in range(n):
-        let d${i} = r${i}.relativeTo(0..<shape[${i}])
-% end
-        let lower = Shape${n}(${', '.join(['d' + str(i) + '.start' for i in range(n)])})
-        let upper = Shape${n}(${', '.join(['d' + str(i) + '.end' for i in range(n)])})
-        return self[lower, upper]
-    }
-}
-
-//------------------------------------------------------------------------------
-
-public extension MutableTensor where Shape == Shape${n} {
     /// - Returns: the element
     @inlinable
     subscript(${', '.join(['d' + str(i) + ': Int' for i in range(n)])}) -> Element {
