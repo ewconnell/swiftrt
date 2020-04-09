@@ -68,13 +68,16 @@ public struct Tensor<Shape, Element>: MutableTensorType
     public let endIndex: Index
 
     //-----------------------------------
-    /// defined during init to compute a linear storage buffer index
-    @usableFromInline let linear: (Index) -> Int
+    /// defined during init to get elements from storage
+    @usableFromInline let getElement: (Index) -> Element
+    /// defined during init to get elements from storage
+    @usableFromInline let setElement: (Element, Index) -> Void
     /// defined during init to increment an index to the next position
     @usableFromInline let increment: (Index) -> Index
 
     //--------------------------------------------------------------------------
-    // fully specified init
+    /// init(
+    /// Used to initialize a collection of dense stored elements
     @inlinable public init(
         shape: Shape,
         strides: Shape,
@@ -101,16 +104,52 @@ public struct Tensor<Shape, Element>: MutableTensorType
         //----------------------------------
         // element access functions depending on memory order
         if isSequential {
-            linear = { $0.sequencePosition }
-            increment = { Index(at: $0.sequencePosition &+ 1) }
-        } else {
-            linear = { [strides = self.strides] in
-                $0.linearIndex(strides)
+            assert(strides == shape.sequentialStrides())
+            getElement = {
+                storage.element(at: $0.sequencePosition)
             }
+            setElement = {
+                storage.setElement(value: $0, at: $1.sequencePosition)
+            }
+
+            increment = { Index(at: $0.sequencePosition &+ 1) }
+            
+        } else {
+            getElement = {
+                storage.element(at: $0.linearIndex(strides))
+            }
+            setElement = {
+                storage.setElement(value: $0, at: $1.linearIndex(strides))
+            }
+
             increment = { [start = self.startIndex, end = self.endIndex] in
                 $0.incremented(between: start, and: end)
             }
         }
+    }
+    
+    //--------------------------------------------------------------------------
+    /// init(
+    /// Used to initialize a tensor with a single Element
+    @inlinable public init(constant value: Element, shape: Shape) {
+        self.shape = shape
+        strides = Shape.zero
+        elementCount = shape.elementCount()
+        spanCount = elementCount
+        baseOffset = 0
+        storageOrder = .C
+        _isShared = true
+        isSequential = true
+        startIndex = Index(Shape.zero, 0)
+        endIndex = Index(shape, elementCount)
+
+        // TODO: figure out how to get rid of this
+        // check optional perf
+        storage = StorageBufferType<Element>(count: 0, name: "")
+
+        getElement = { _ in value }
+        setElement = { _, _ in fatalError("cannot write to a constant") }
+        increment = { Index(at: $0.sequencePosition &+ 1) }
     }
 }
 
@@ -205,7 +244,7 @@ public struct ElementIndex<Shape>: Comparable, Codable
 public extension Tensor {
     //--------------------------------------------------------------------------
     /// - Returns: the collection elements as a 1D Swift array
-    @inlinable var flatArray: [Element] {
+    @inlinable var flat: [Element] {
         [Element](self)
     }
     
@@ -226,12 +265,8 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     // elemment subscript
     @inlinable subscript(index: Index) -> Element {
-        get {
-            storage.element(at: linear(index))
-        }
-        set {
-            storage.setElement(value: newValue, at: linear(index))
-        }
+        get { getElement(index) }
+        set { setElement(newValue, index) }
     }
 
     //--------------------------------------------------------------------------

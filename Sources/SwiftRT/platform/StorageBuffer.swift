@@ -74,19 +74,6 @@ public protocol StorageBuffer: class, Logging {
     init<S, Stream>(block shape: S, bufferedBlocks: Int, stream: Stream)
         where S: TensorShape, Stream: BufferStream
         
-    // ***** Note: This might be removed *****
-    /// `init(element:name:
-    /// initializes an element buffer for the specified `Element` value.
-    /// User expressions use a lot of constant scalar values
-    /// which are repeated. For example: `let m = matrix + 1`. These
-    /// expressions are frequently iterated thousands of times. This initializer
-    /// can access a cache of constant value buffers, which are likely to
-    /// already be present on a discreet accelerator device.
-    /// - Parameters:
-    ///  - element: the element value
-    ///  - name: name used in diagnostic messages
-    init(for element: Element, name: String)
-    
     /// `element(offset:`
     /// - Parameter offset: the linear storage index of the element
     /// - Returns: a single element at the specified offset

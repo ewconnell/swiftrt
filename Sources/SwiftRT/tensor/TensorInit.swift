@@ -96,16 +96,7 @@ public extension Tensor {
     ///  - element: the element value to repeat while indexing
     ///  - shape: the shape of the tensor
     @inlinable init(repeating element: Element, to shape: Shape) {
-        self.init(shape: shape,
-                  strides: Shape.zero,
-                  elementCount: shape.elementCount(),
-                  spanCount: 1,
-                  storage: StorageBufferType(count: 1, name: Self.name),
-                  baseOffset: 0,
-                  order: .C,
-                  share: false,
-                  isSequential: true)
-        storage.setElement(value: element, at: 0)
+        self.init(constant: element, shape: shape)
     }
 
     //--------------------------------------------------------------------------

@@ -32,7 +32,7 @@ class test_Initialize: XCTestCase {
 //        let i = array(0..<24, (2, 3, 4), dtype: Int.self)
 ////        print(i.array)
 //        print(i[1, 0, ...])
-//        print(i[1, 0, ...].flatArray)
+//        print(i[1, 0, ...].flat)
 //        print(i[1, 0, ...].array)
     }
 

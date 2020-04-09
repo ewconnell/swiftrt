@@ -52,8 +52,8 @@ class test_AlgebraicField: XCTestCase {
         XCTAssert(result.array == [[0, 2], [4, 6], [8, 10]])
 
         let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(ones(like: a))
-        XCTAssert(g1.flatArray == [1, 1, 1, 1, 1, 1])
-        XCTAssert(g2.flatArray == [1, 1, 1, 1, 1, 1])
+        XCTAssert(g1.flat == [1, 1, 1, 1, 1, 1])
+        XCTAssert(g2.flat == [1, 1, 1, 1, 1, 1])
     }
 
     //--------------------------------------------------------------------------
@@ -164,11 +164,11 @@ class test_AlgebraicField: XCTestCase {
         let a = array(flat: 1..<7, (3, 2))
         let b = array(flat: 0..<6, (3, 2))
         let result = a - b
-        XCTAssert(result.flatArray == [1, 1, 1, 1, 1, 1])
+        XCTAssert(result.flat == [1, 1, 1, 1, 1, 1])
 
         let (g1, g2) = pullback(at: a, b, in: { $0 - $1 })(ones(like: a))
-        XCTAssert(g1.flatArray == [1, 1, 1, 1, 1, 1])
-        XCTAssert(g2.flatArray == [-1, -1, -1, -1, -1, -1])
+        XCTAssert(g1.flat == [1, 1, 1, 1, 1, 1])
+        XCTAssert(g2.flat == [-1, -1, -1, -1, -1, -1])
     }
 
     //--------------------------------------------------------------------------

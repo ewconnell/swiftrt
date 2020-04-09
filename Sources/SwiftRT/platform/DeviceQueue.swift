@@ -601,28 +601,24 @@ open class DeviceQueue: Logging {
         mapOp(x, &result) { $0 * $0 }
     }
 
-    @inlinable
-    func reduce<S,E>(_ x: Tensor<S,E>,
-                     _ result: inout Tensor<S,E>,
-                     _ opId: ReductionOp,
-                     _ opNext: @escaping (E, E) -> E,
-                     _ opFinal: ReduceOpFinal<Tensor<S,E>>?)
-    {
-        // need to implement Tensor init(repeating for tensors
-        fatalError()
-//        // created a repeated shape for the initial results to match `x`
-//        let repeatedShape = result.shape.repeated(to: x.shape.bounds)
-//
-//        // create a new elements collection to iterate using the `result`
-//        // buffer and the new repeated shape.
-//        var repeatedBuffer = MutableBufferElements(repeatedShape, result.pointer)
-//
-//        // do the reductions
-//        reductionOp(x, &repeatedBuffer, opNext)
-//
-//        if let op = opFinal {
-//            inPlaceOp(&result, op)
-//        }
+    @inlinable func reduce<S,E>(
+        _ x: Tensor<S,E>,
+        _ result: inout Tensor<S,E>,
+        _ opId: ReductionOp,
+        _ opNext: @escaping (E, E) -> E,
+        _ opFinal: ReduceOpFinal<Tensor<S,E>>?
+    ) {
+        // repeat result to match `x`
+        // this is unusual because we intentionally are writing to
+        // repeated storage for result accumulation
+        var repeatedResult = Tensor<S,E>(repeating: result, to: x.shape)
+        
+        // do the reductions
+        reductionOp(x, &repeatedResult, opNext)
+
+        if let op = opFinal {
+            inPlaceOp(&result, op)
+        }
     }
 
     @inlinable

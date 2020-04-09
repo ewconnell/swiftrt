@@ -20,7 +20,6 @@
 public final class CpuBuffer<Element>: StorageBuffer
 {
     public let hostBuffer: UnsafeMutableBufferPointer<Element>
-    public var element: Element
     public let id: Int
     public let isReadOnly: Bool
     public let isReference: Bool
@@ -31,7 +30,6 @@ public final class CpuBuffer<Element>: StorageBuffer
     @inlinable
     public init(count: Int, name: String) {
         self.hostBuffer = UnsafeMutableBufferPointer.allocate(capacity: count)
-        self.element = hostBuffer[0]
         self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = false
@@ -47,7 +45,6 @@ public final class CpuBuffer<Element>: StorageBuffer
     // init(elements:name:
     @inlinable
     public init(copying other: CpuBuffer) {
-        self.element = other.element
         self.id = other.id
         self.isReadOnly = other.isReadOnly
         self.isReference = other.isReference
@@ -66,7 +63,6 @@ public final class CpuBuffer<Element>: StorageBuffer
     @inlinable
     public init(referenceTo buffer: UnsafeBufferPointer<Element>, name: String) {
         self.hostBuffer = UnsafeMutableBufferPointer(mutating: buffer)
-        self.element = buffer[0]
         self.id = Context.nextBufferId
         self.isReadOnly = true
         self.isReference = true
@@ -85,7 +81,6 @@ public final class CpuBuffer<Element>: StorageBuffer
                 name: String)
     {
         self.hostBuffer = buffer
-        self.element = buffer[0]
         self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = true
@@ -104,26 +99,6 @@ public final class CpuBuffer<Element>: StorageBuffer
         where S: TensorShape, Stream: BufferStream
     {
         fatalError()
-    }
-    
-    //--------------------------------------------------------------------------
-    // single element
-    @inlinable
-    public init(for element: Element, name: String)
-    {
-        self.element = element
-        self.id = Context.nextBufferId
-        self.isReadOnly = false
-        self.isReference = true
-        self.name = name
-        self.hostBuffer = withUnsafeMutablePointer(to: &self.element) {
-            UnsafeMutableBufferPointer(start: $0, count: 1)
-        }
-        
-        #if DEBUG
-        diagnostic("\(createString) \(name)(\(id)) " +
-            "\(Element.self)[\(1)]", categories: .dataAlloc)
-        #endif
     }
     
     //--------------------------------------------------------------------------
