@@ -82,9 +82,8 @@ public extension Tensor where Shape == Shape${n} {
 //
 //==============================================================================
 
-%for n in range(1, numShapes + 1):
+//%for n in range(1, numShapes + 1):
 //==============================================================================
 // Rank${n}
-public extension Tensor where Shape == Shape${n} {
 
-}
+//%end

@@ -25,6 +25,17 @@ import Foundation
 /// function for wrapping the values in an `ElementIndex` structure, and
 /// then returning the corresponding tensor `Element` value
 
+public extension Tensor where Shape == Shape1, Element: Equatable {
+    /// - Returns: an array of `Element`s
+    @inlinable var array: [Element] {
+        [Element](self)
+    }
+
+    @inlinable static func == (lhs: Self, rhs: [Element]) -> Bool {
+        lhs.array == rhs
+    }
+}
+
 //==============================================================================
 // Rank2 array property and subscripts
 public extension Tensor where Shape == Shape2 {

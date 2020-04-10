@@ -16,46 +16,6 @@
 import XCTest
 import Foundation
 import SwiftRT
-//
-///// implicitly casts from C.Element integer -> Element
-//@inlinable public func arr<C>(
-//    _ elements: C,
-//    order: StorageOrder = .C
-//) -> Tensor1<C.Element>
-//    where C: Collection
-//{
-//    let shape = Shape1(elements.count)
-//    let flatElements = elements
-//    return Tensor1<C.Element>(flatElements, shape, order: order)
-//}
-//
-///// implicitly casts from C.Element integer -> Element
-//@inlinable public func arr<C>(
-//    _ elements: C,
-//    _ shape: Shape2.Tuple,
-//    order: StorageOrder = .C
-//) -> Tensor2<C.Element>
-//    where C: Collection
-//{
-//    Tensor2<C.Element>(elements, Shape2(shape), order: order)
-//}
-//
-///// implicitly casts from C.Element integer -> Element
-//@inlinable public func arr<C>(
-//    _ elements: C,
-//    order: StorageOrder = .C
-//) -> Tensor2<DType>
-//    where
-//    C: Collection, C.Element: Collection,
-//    C.Element.Element: BinaryInteger
-//{
-//    let shape = Shape2(
-//        elements.count,
-//        elements.first!.count)
-//
-//    let flatElements = elements.joined()
-//    return Tensor2<DType>(flatElements, shape, order: order)
-//}
 
 class test_npArray: XCTestCase {
     //==========================================================================
