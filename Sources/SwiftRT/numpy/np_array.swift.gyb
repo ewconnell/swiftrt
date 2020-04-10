@@ -32,7 +32,7 @@ numShapes = 6
 /// array
 //------------------------------------------------------------------------------
 // Rank1 to Swift Array
-extension Tensor where Shape == Shape1 {
+public extension Tensor where Shape == Shape1 {
     @inlinable var array: [Element] {
         [Element](self)
     }
@@ -41,7 +41,7 @@ extension Tensor where Shape == Shape1 {
 %for n in range(2, numShapes + 1):
 //------------------------------------------------------------------------------
 // Rank${n} to Swift Array
-extension Tensor where Shape == Shape${n} {
+public extension Tensor where Shape == Shape${n} {
     @inlinable var array: ${'[' * n}Element${']' * n} {
 % for i in range(n - 1):
 %  indent = '    ' * i

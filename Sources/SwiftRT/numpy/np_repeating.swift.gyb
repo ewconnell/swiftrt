@@ -30,72 +30,29 @@ numShapes = 6
 /// repeating
 /// Return a new tensor of given shape and type repeating `value`
 /// - Parameters:
-///  - value: Fill value
+///  - value: element or other lower order tensor to repeat
 ///  - shape: Int or tuple of Int. Shape of the array, e.g., (2, 3) or 2.
 ///  - dtype: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
-///  - order: { .C, .F }, optional, default .C
-///    Whether to store multi-dimensional data in row-major (C-style)
-///    or column-major (Fortran-style) order in memory.
-/// - Returns: Fill of uninitialized (arbitrary) data of the given shape,
-///   dtype, and order. Elements will not be initialized.
-@inlinable
-public func repeating<Shape, Element>(
-    _ value: Element,
-    _ shape: Shape.Tuple,
-    _ dtype: Element.Type,
-    _ order: StorageOrder = .C
-) -> Tensor<Shape, Element> where Shape: TensorShape
-{
-    repeating(value, Shape(shape), dtype, order)
-}
-
-@inlinable
-public func repeating<Shape, Element>(
-    _ value: Element,
-    _ shape: Shape,
-    _ dtype: Element.Type,
-    _ order: StorageOrder = .C
-) -> Tensor<Shape, Element> where Shape: TensorShape
-{
-    Tensor<Shape, Element>(repeating: value, to: shape)
-}
-
-//---------------------------------------
-// Rank0
-@inlinable
-public func repeating(_ value: DType) -> Tensor1<DType> {
-    repeating(value, Shape1(1), DType.self)
-}
-
-@inlinable
-public func repeating<Element>(_ value: Element, dtype: Element.Type)
-    -> Tensor1<Element> { repeating(value, Shape1(1), dtype) }
+/// - Returns: read only broadcasted element or other lower order tensor
 
 %for n in range(1, numShapes + 1):
 //---------------------------------------
 // Rank${n}
-@inlinable
-public func repeating(
+@inlinable public func repeating(
     _ value: DType,
-    _ shape: Shape${n}.Tuple,
-    order: StorageOrder = .C
-) -> Tensor${n}<DType> { repeating(value, shape, DType.self, order) }
+    _ shape: Shape${n}.Tuple
+) -> Tensor${n}<DType> {
+   Tensor${n}<DType>(repeating: value, to: Shape${n}(shape))
+}
 
-@inlinable
-public func repeating<Element>(
+@inlinable public func repeating<Element>(
     _ value: Element,
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type
-) -> Tensor${n}<Element> { repeating(value, shape, dtype) }
-
-@inlinable
-public func repeating<Element>(
-    _ value: Element,
-    _ shape: Shape${n}.Tuple,
-    dtype: Element.Type,
-    order: StorageOrder = .C
-) -> Tensor${n}<Element> { repeating(value, shape, dtype, order) }
+) -> Tensor${n}<Element> {
+    Tensor${n}<Element>(repeating: value, to: Shape${n}(shape))
+}
 
 %end
 
@@ -103,73 +60,61 @@ public func repeating<Element>(
 /// repeating(value:like:
 /// Return a new tensor of given shape and type repeating `value`
 /// - Parameters:
-///  - value: Fill value.
+///  - value: element or other lower order tensor to repeat
 ///  - prototype: unspecified attributes are copied from this tensor
 ///  - dtype: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
-///  - order: { .C, .F }, optional, default .C
-///    Whether to store multi-dimensional data in row-major (C-style)
-///    or column-major (Fortran-style) order in memory.
-///  - shape: Int or tuple of Int
-///    Shape of the repeated value, e.g., (2, 3) or 2.
-/// - Returns: Fill of uninitialized (arbitrary) data of the given shape,
-///   dtype, and order. Elements will not be initialized.
+///  - shape: Int or tuple of Int. Shape of the array, e.g., (2, 3) or 2.
+/// - Returns: read only broadcasted element or other lower order tensor
 
 // same type and shape
-@inlinable
-public func repeating<T>(
-    _ value: T.Element,
-    like prototype: T,
-    order: StorageOrder? = nil
-) -> Tensor<T.Shape, T.Element> where T: TensorType
+@inlinable public func repeating<S,E>(
+    _ value: E,
+    like prototype: Tensor<S,E>
+) -> Tensor<S,E> where S: TensorShape
 {
-    repeating(value, prototype.shape, T.Element.self, order ?? prototype.storageOrder)
+    Tensor<S,E>(repeating: value, to: prototype.shape)
+}
+
+// different type same shape
+@inlinable public func repeating<S,E, Element>(
+    _ value: Element,
+    like prototype: Tensor<S,E>,
+    dtype: Element.Type
+) -> Tensor<S, Element> where S: TensorShape
+{
+    Tensor<S, Element>(repeating: value, to: prototype.shape)
 }
 
 //------------------------------------------------------------------------------
 // same type different shape
 %for n in range(1, numShapes + 1):
 // Rank${n}
-@inlinable public func repeating<T>(
-    _ value: T.Element,
-    like prototype: T,
-    order: StorageOrder? = nil,
+@inlinable public func repeating<S,E>(
+    _ value: E,
+    like prototype: Tensor<S,E>,
     shape: Shape${n}.Tuple
-) -> Tensor<Shape${n}, T.Element> where T: TensorType
+) -> Tensor<Shape${n}, E> where S: TensorShape
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
-    return repeating(value, shape, T.Element.self, order ?? prototype.storageOrder)
+    return Tensor<Shape${n}, E>(repeating: value, to: Shape${n}(shape))
 }
 
 %end
 
 //------------------------------------------------------------------------------
-// different type same shape
-@inlinable
-public func repeating<T, Element>(
-    _ value: Element,
-    like prototype: T,
-    dtype: Element.Type,
-    order: StorageOrder? = nil
-) -> Tensor<T.Shape, Element> where T: TensorType
-{
-    repeating(value, prototype.shape, Element.self, order ?? prototype.storageOrder)
-}
-
-//------------------------------------------------------------------------------
 // different type, different shape
 %for n in range(1, numShapes + 1):
 // Rank${n}
-@inlinable public func repeating<T, Element>(
+@inlinable public func repeating<S,E,Element>(
     _ value: Element,
-    like prototype: T,
+    like prototype: Tensor<S,E>,
     dtype: Element.Type,
-    order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> Tensor<Shape${n}, Element> where T: TensorType
+) -> Tensor<Shape${n}, Element> where S: TensorShape
 {
     assert(prototype.elementCount == Shape${n}(shape).elementCount())
-    return repeating(value, shape, Element.self, order ?? prototype.storageOrder)
+    return Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape))
 }
 
 %end

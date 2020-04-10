@@ -29,7 +29,7 @@ import Foundation
 /// array
 //------------------------------------------------------------------------------
 // Rank1 to Swift Array
-extension Tensor where Shape == Shape1 {
+public extension Tensor where Shape == Shape1 {
     @inlinable var array: [Element] {
         [Element](self)
     }
@@ -37,7 +37,7 @@ extension Tensor where Shape == Shape1 {
 
 //------------------------------------------------------------------------------
 // Rank2 to Swift Array
-extension Tensor where Shape == Shape2 {
+public extension Tensor where Shape == Shape2 {
     @inlinable var array: [[Element]] {
         var array2 = [[Element]]()
         for d0 in 0..<shape[0] {
@@ -50,7 +50,7 @@ extension Tensor where Shape == Shape2 {
 
 //------------------------------------------------------------------------------
 // Rank3 to Swift Array
-extension Tensor where Shape == Shape3 {
+public extension Tensor where Shape == Shape3 {
     @inlinable var array: [[[Element]]] {
         var array3 = [[[Element]]]()
         for d0 in 0..<shape[0] {
@@ -67,7 +67,7 @@ extension Tensor where Shape == Shape3 {
 
 //------------------------------------------------------------------------------
 // Rank4 to Swift Array
-extension Tensor where Shape == Shape4 {
+public extension Tensor where Shape == Shape4 {
     @inlinable var array: [[[[Element]]]] {
         var array4 = [[[[Element]]]]()
         for d0 in 0..<shape[0] {
@@ -88,7 +88,7 @@ extension Tensor where Shape == Shape4 {
 
 //------------------------------------------------------------------------------
 // Rank5 to Swift Array
-extension Tensor where Shape == Shape5 {
+public extension Tensor where Shape == Shape5 {
     @inlinable var array: [[[[[Element]]]]] {
         var array5 = [[[[[Element]]]]]()
         for d0 in 0..<shape[0] {
@@ -113,7 +113,7 @@ extension Tensor where Shape == Shape5 {
 
 //------------------------------------------------------------------------------
 // Rank6 to Swift Array
-extension Tensor where Shape == Shape6 {
+public extension Tensor where Shape == Shape6 {
     @inlinable var array: [[[[[[Element]]]]]] {
         var array6 = [[[[[[Element]]]]]]()
         for d0 in 0..<shape[0] {
