@@ -33,6 +33,8 @@ public struct Tensor<Shape, Element>: MutableTensorType
     public let elementCount: Int
     /// the storage buffer base offset where this tensor's elements begin
     public let baseOffset: Int
+    /// `true` if the tensor represents a single constant Element
+    public let isConstant: Bool
     /// `true` if elements are in row major contiguous order
     // this is a stored property, because it's used during
     // gpu dispatch decision making
@@ -69,14 +71,6 @@ public struct Tensor<Shape, Element>: MutableTensorType
     /// the ending index zero relative to the storage buffer
     public let endIndex: Index
 
-    //-----------------------------------
-    /// defined during init to get elements from storage
-    @usableFromInline let getElement: (Index) -> Element
-    /// defined during init to get elements from storage
-    @usableFromInline let setElement: (Element, Index) -> Void
-    /// defined during init to increment an index to the next position
-    @usableFromInline let increment: (Index) -> Index
-
     //--------------------------------------------------------------------------
     /// init(
     /// Used to initialize a collection of dense stored elements
@@ -99,60 +93,28 @@ public struct Tensor<Shape, Element>: MutableTensorType
         self.baseOffset = baseOffset
         self.storageOrder = order
         self._isShared = share
+        self.isConstant = false
         self.isSequential = isSequential
         self.startIndex = Index(Shape.zero, baseOffset)
         self.endIndex = Index(shape, baseOffset + elementCount)
-
-        //----------------------------------
-        // element access functions depending on memory order
-        if isSequential {
-            assert(strides.areSequential(for: shape))
-            getElement = {
-                storage.element(at: $0.sequencePosition)
-            }
-            setElement = {
-                storage.setElement(value: $0, at: $1.sequencePosition)
-            }
-
-            increment = { Index(at: $0.sequencePosition &+ 1) }
-            
-        } else {
-            assert(!strides.areSequential(for: shape))
-            getElement = {
-                storage.element(at: $0.linearIndex(strides))
-            }
-            setElement = {
-                storage.setElement(value: $0, at: $1.linearIndex(strides))
-            }
-
-            increment = { [start = self.startIndex, end = self.endIndex] in
-                $0.incremented(between: start, and: end)
-            }
-        }
     }
     
     //--------------------------------------------------------------------------
-    /// init(
+    /// init(element:shape:
     /// Used to initialize a tensor with a single Element
-    @inlinable public init(constant value: Element, shape: Shape) {
+    @inlinable public init(single element: Element, shape: Shape) {
         self.shape = shape
         strides = Shape.zero
         elementCount = shape.elementCount()
-        spanCount = elementCount
+        spanCount = 1
         baseOffset = 0
         storageOrder = .C
         _isShared = true
+        isConstant = true
         isSequential = true
         startIndex = Index(Shape.zero, 0)
         endIndex = Index(shape, elementCount)
-
-        // TODO: figure out how to get rid of this
-        // check optional perf
-        storage = StorageBufferType<Element>(count: 0, name: "")
-
-        getElement = { _ in value }
-        setElement = { _, _ in fatalError("cannot write to a constant") }
-        increment = { Index(at: $0.sequencePosition &+ 1) }
+        storage = StorageBufferType<Element>(element, name: "")
     }
 }
 
@@ -263,13 +225,35 @@ public extension Tensor {
 
     //--------------------------------------------------------------------------
     /// index(i:
-    @inlinable func index(after i: Index) -> Index { increment(i) }
+    @inlinable func index(after i: Index) -> Index {
+        if isSequential {
+            return Index(at: i.sequencePosition &+ 1)
+        } else {
+            return i.incremented(between: startIndex, and: endIndex)
+        }
+    }
 
     //--------------------------------------------------------------------------
     // elemment subscript
     @inlinable subscript(index: Index) -> Element {
-        get { getElement(index) }
-        set { setElement(newValue, index) }
+        get {
+            if isConstant {
+                return storage.element(at: 0)
+            } else if isSequential {
+                return storage.element(at: index.sequencePosition)
+            } else {
+                return storage.element(at: index.linearIndex(strides))
+            }
+        }
+        set {
+            if isConstant {
+                return storage.setElement(value: newValue, at: 0)
+            } else if isSequential {
+                storage.setElement(value: newValue, at: index.sequencePosition)
+            } else {
+                storage.setElement(value: newValue, at: index.linearIndex(strides))
+            }
+        }
     }
 
     //--------------------------------------------------------------------------

@@ -24,23 +24,44 @@ public final class CpuBuffer<Element>: StorageBuffer
     public let isReadOnly: Bool
     public let isReference: Bool
     public var name: String
+    @usableFromInline var element: Element
     
     //--------------------------------------------------------------------------
     // init(count:name:
-    @inlinable
-    public init(count: Int, name: String) {
+    @inlinable public init(count: Int, name: String) {
         self.hostBuffer = UnsafeMutableBufferPointer.allocate(capacity: count)
         self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = false
         self.name = name
-        
+        self.element = hostBuffer[0]
+
         #if DEBUG
         diagnostic("\(createString) \(name)(\(id)) " +
             "\(Element.self)[\(count)]", categories: .dataAlloc)
         #endif
     }
-    
+
+    //--------------------------------------------------------------------------
+    // init(element:
+    @inlinable public init(_ element: Element, name: String) {
+        self.element = element
+        self.id = Context.nextBufferId
+        self.isReadOnly = false
+        self.isReference = true
+        self.name = name
+
+        // point buffer to `element` member variable
+        // this should be safe since this is a class
+        let p = withUnsafeMutablePointer(to: &self.element) { $0 }
+        self.hostBuffer = UnsafeMutableBufferPointer(start: p, count: 1)
+
+        #if DEBUG
+        diagnostic("\(createString) \(name)(\(id)) " +
+            "\(Element.self)[1]", categories: .dataAlloc)
+        #endif
+    }
+
     //--------------------------------------------------------------------------
     // init(elements:name:
     @inlinable
@@ -56,6 +77,7 @@ public final class CpuBuffer<Element>: StorageBuffer
                 .allocate(capacity: other.hostBuffer.count)
             _ = hostBuffer.initialize(from: other.hostBuffer)
         }
+        element = hostBuffer[0]
     }
 
     //--------------------------------------------------------------------------
@@ -67,7 +89,8 @@ public final class CpuBuffer<Element>: StorageBuffer
         self.isReadOnly = true
         self.isReference = true
         self.name = name
-        
+        self.element = hostBuffer[0]
+
         #if DEBUG
         diagnostic("\(createString) Reference \(name)(\(id)) " +
             "\(Element.self)[\(hostBuffer.count)]", categories: .dataAlloc)
@@ -85,7 +108,8 @@ public final class CpuBuffer<Element>: StorageBuffer
         self.isReadOnly = false
         self.isReference = true
         self.name = name
-        
+        self.element = hostBuffer[0]
+
         #if DEBUG
         diagnostic("\(createString) Reference \(name)(\(id)) " +
             "\(Element.self)[\(hostBuffer.count)]", categories: .dataAlloc)

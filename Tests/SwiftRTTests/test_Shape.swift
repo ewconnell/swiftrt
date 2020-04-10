@@ -32,14 +32,25 @@ class test_Shape: XCTestCase {
         let a = ones(1024 * 1024)
         var count: DType = 0
         self.measure {
-            for _ in 0..<10 {
-                for value in a {
-                    count += value
-                }
+            for value in a {
+                count += value
             }
         }
         XCTAssert(count > 0)
 //        #endif
+    }
+
+    func test_perfRepeatedTensor3() {
+        //        #if !DEBUG
+        let a = repeating(1, (64, 128, 128))
+        var count: DType = 0
+        self.measure {
+            for value in a {
+                count += value
+            }
+        }
+        XCTAssert(count > 0)
+        //        #endif
     }
 
     func test_perfIndexShape2() {
@@ -47,10 +58,8 @@ class test_Shape: XCTestCase {
         let a = ones((1024, 1024))
         var count: DType = 0
         self.measure {
-            for _ in 0..<10 {
-                for value in a {
-                    count += value
-                }
+            for value in a {
+                count += value
             }
         }
         XCTAssert(count > 0)
@@ -62,10 +71,8 @@ class test_Shape: XCTestCase {
         let a = ones((64, 128, 128))
         var count: DType = 0
         self.measure {
-            for _ in 0..<10 {
-                for value in a {
-                    count += value
-                }
+            for value in a {
+                count += value
             }
         }
         XCTAssert(count > 0)
@@ -77,10 +84,8 @@ class test_Shape: XCTestCase {
         let a = ones((2, 32, 128, 128))
         var count: DType = 0
         self.measure {
-            for _ in 0..<10 {
-                for value in a {
-                    count += value
-                }
+            for value in a {
+                count += value
             }
         }
         XCTAssert(count > 0)
@@ -92,10 +97,8 @@ class test_Shape: XCTestCase {
         let a = ones((2, 2, 16, 128, 128))
         var count: DType = 0
         self.measure {
-            for _ in 0..<10 {
-                for value in a {
-                    count += value
-                }
+            for value in a {
+                count += value
             }
         }
         XCTAssert(count > 0)
@@ -114,10 +117,10 @@ class test_Shape: XCTestCase {
         var total = 0
         measure {
             for _ in 0..<simdPerfIterations {
-                let span = ((bounds &- 1) &* strides).wrappedSum() + 1
-                let count = bounds.indices.reduce(1) { $0 * bounds[$1] }
+                let span = ((bounds &- 1) &* strides).wrappedSum() &+ 1
+                let count = bounds.indices.reduce(1) { $0 &* bounds[$1] }
                 let linear = (pos &* strides).wrappedSum()
-                total += span + count + linear
+                total += span &+ count &+ linear
             }
         }
         XCTAssert(total > 0)
