@@ -24,6 +24,123 @@ import Foundation
 //
 //******************************************************************************
 
+
+//==============================================================================
+/// array
+//------------------------------------------------------------------------------
+// Rank1 to Swift Array
+extension Tensor where Shape == Shape1 {
+    @inlinable var array: [Element] {
+        [Element](self)
+    }
+}
+
+//------------------------------------------------------------------------------
+// Rank2 to Swift Array
+extension Tensor where Shape == Shape2 {
+    @inlinable var array: [[Element]] {
+        var array2 = [[Element]]()
+        for d0 in 0..<shape[0] {
+            let row = [Element](self[d0, 0...])
+            array2.append(row)
+        }
+        return array2
+    }
+}
+
+//------------------------------------------------------------------------------
+// Rank3 to Swift Array
+extension Tensor where Shape == Shape3 {
+    @inlinable var array: [[[Element]]] {
+        var array3 = [[[Element]]]()
+        for d0 in 0..<shape[0] {
+            var array2 = [[Element]]()
+            for d1 in 0..<shape[1] {
+                let row = [Element](self[d0, d1, 0...])
+                array2.append(row)
+            }
+            array3.append(array2)
+        }
+        return array3
+    }
+}
+
+//------------------------------------------------------------------------------
+// Rank4 to Swift Array
+extension Tensor where Shape == Shape4 {
+    @inlinable var array: [[[[Element]]]] {
+        var array4 = [[[[Element]]]]()
+        for d0 in 0..<shape[0] {
+            var array3 = [[[Element]]]()
+            for d1 in 0..<shape[1] {
+                var array2 = [[Element]]()
+                for d2 in 0..<shape[2] {
+                    let row = [Element](self[d0, d1, d2, 0...])
+                    array2.append(row)
+                }
+                array3.append(array2)
+            }
+            array4.append(array3)
+        }
+        return array4
+    }
+}
+
+//------------------------------------------------------------------------------
+// Rank5 to Swift Array
+extension Tensor where Shape == Shape5 {
+    @inlinable var array: [[[[[Element]]]]] {
+        var array5 = [[[[[Element]]]]]()
+        for d0 in 0..<shape[0] {
+            var array4 = [[[[Element]]]]()
+            for d1 in 0..<shape[1] {
+                var array3 = [[[Element]]]()
+                for d2 in 0..<shape[2] {
+                    var array2 = [[Element]]()
+                    for d3 in 0..<shape[3] {
+                        let row = [Element](self[d0, d1, d2, d3, 0...])
+                        array2.append(row)
+                    }
+                    array3.append(array2)
+                }
+                array4.append(array3)
+            }
+            array5.append(array4)
+        }
+        return array5
+    }
+}
+
+//------------------------------------------------------------------------------
+// Rank6 to Swift Array
+extension Tensor where Shape == Shape6 {
+    @inlinable var array: [[[[[[Element]]]]]] {
+        var array6 = [[[[[[Element]]]]]]()
+        for d0 in 0..<shape[0] {
+            var array5 = [[[[[Element]]]]]()
+            for d1 in 0..<shape[1] {
+                var array4 = [[[[Element]]]]()
+                for d2 in 0..<shape[2] {
+                    var array3 = [[[Element]]]()
+                    for d3 in 0..<shape[3] {
+                        var array2 = [[Element]]()
+                        for d4 in 0..<shape[4] {
+                            let row = [Element](self[d0, d1, d2, d3, d4, 0...])
+                            array2.append(row)
+                        }
+                        array3.append(array2)
+                    }
+                    array4.append(array3)
+                }
+                array5.append(array4)
+            }
+            array6.append(array5)
+        }
+        return array6
+    }
+}
+
+
 //==============================================================================
 /// array
 /// Return a new tensor of given shape and type, without initializing entries.

@@ -27,6 +27,39 @@ numShapes = 6
 //
 //******************************************************************************
 
+
+//==============================================================================
+/// array
+//------------------------------------------------------------------------------
+// Rank1 to Swift Array
+extension Tensor where Shape == Shape1 {
+    @inlinable var array: [Element] {
+        [Element](self)
+    }
+}
+
+%for n in range(2, numShapes + 1):
+//------------------------------------------------------------------------------
+// Rank${n} to Swift Array
+extension Tensor where Shape == Shape${n} {
+    @inlinable var array: ${'[' * n}Element${']' * n} {
+% for i in range(n - 1):
+%  indent = '    ' * i
+        ${indent}var array${n - i} = ${'[' * (n - i)}Element${']' * (n - i)}()
+        ${indent}for d${i} in 0..<shape[${i}] {
+% end
+        ${'    ' * (i + 1)}let row = [Element](self[${', '.join(['d' + str(j) for j in range(n - 1)])}, 0...])
+        ${'    ' * (i + 1)}array${n - i}.append(row)
+% for i in reversed(range(n - 1)):
+%  indent = '    ' * i
+        ${indent}}
+        ${indent}${'array' + str(n - i + 1) + '.append(array' + str(n - i) + ')' if i > 0 else 'return array' + str(n - i)}
+% end
+    }
+}
+
+%end
+
 //==============================================================================
 /// array
 /// Return a new tensor of given shape and type, without initializing entries.
@@ -163,19 +196,19 @@ numShapes = 6
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor${n}<C${''.join(['.Element' * n])}>
+) -> Tensor${n}<C${'.Element' * n}>
     where
 % for i in range(n):
-    C${''.join(['.Element' * i])}: Collection${',' if i < n - 1 else ''}
+    C${'.Element' * i}: Collection${',' if i < n - 1 else ''}
 % end
 {
     let shape = Shape${n}(
 % for i in range(n):
-        elements${"".join([".first!" * i])}.count${")" if i == n - 1 else ","}
+        elements${'.first!' * i}.count${')' if i == n - 1 else ','}
 % end
 
-    let flatElements = elements${"".join([".joined()" * (n - 1)])}
-    return Tensor${n}<C${''.join(['.Element' * n])}>(
+    let flatElements = elements${'.joined()' * (n - 1)}
+    return Tensor${n}<C${'.Element' * n}>(
         flatElements, shape, order: order)
 }
 
@@ -186,16 +219,16 @@ numShapes = 6
 ) -> Tensor${n}<DType>
     where
 % for i in range(n):
-    C${''.join(['.Element' * i])}: Collection,
+    C${'.Element' * i}: Collection,
 % end
-    C${''.join(['.Element' * n])}: BinaryInteger
+    C${'.Element' * n}: BinaryInteger
 {
     let shape = Shape${n}(
 % for i in range(n):
-        elements${"".join([".first!" * i])}.count${")" if i == n - 1 else ","}
+        elements${'.first!' * i}.count${")" if i == n - 1 else ","}
 % end
 
-    let flatElements = elements${"".join([".joined()" * (n - 1)])}
+    let flatElements = elements${'.joined()' * (n - 1)}
     return Tensor${n}<DType>(flatElements, shape, order: order)
 }
 
@@ -207,16 +240,16 @@ numShapes = 6
 ) -> Tensor${n}<Element>
     where
 % for i in range(n):
-    C${''.join(['.Element' * i])}: Collection,
+    C${'.Element' * i}: Collection,
 % end
-    C${''.join(['.Element' * n])}: BinaryInteger, Element: Numeric
+    C${'.Element' * n}: BinaryInteger, Element: Numeric
 {
     let shape = Shape${n}(
 % for i in range(n):
-        elements${"".join([".first!" * i])}.count${")" if i == n - 1 else ","}
+        elements${'.first!' * i}.count${")" if i == n - 1 else ","}
 % end
 
-    let flatElements = elements${"".join([".joined()" * (n - 1)])}
+    let flatElements = elements${'.joined()' * (n - 1)}
     return Tensor${n}<Element>(flatElements, shape, order: order)
 }
 
@@ -228,16 +261,16 @@ numShapes = 6
 ) -> Tensor${n}<Element>
     where
 % for i in range(n):
-    C${''.join(['.Element' * i])}: Collection,
+    C${'.Element' * i}: Collection,
 % end
-    C${''.join(['.Element' * n])}: BinaryFloatingPoint, Element: BinaryInteger
+    C${'.Element' * n}: BinaryFloatingPoint, Element: BinaryInteger
 {
     let shape = Shape${n}(
 % for i in range(n):
-        elements${"".join([".first!" * i])}.count${")" if i == n - 1 else ","}
+        elements${'.first!' * i}.count${")" if i == n - 1 else ","}
 % end
 
-    let flatElements = elements${"".join([".joined()" * (n - 1)])}
+    let flatElements = elements${'.joined()' * (n - 1)}
     return Tensor${n}<Element>(flatElements, shape, order: order)
 }
 
@@ -249,17 +282,17 @@ numShapes = 6
 ) -> Tensor${n}<Element>
     where
 % for i in range(n):
-    C${''.join(['.Element' * i])}: Collection,
+    C${'.Element' * i}: Collection,
 % end
-    C${''.join(['.Element' * n])}: BinaryFloatingPoint,
+    C${'.Element' * n}: BinaryFloatingPoint,
     Element: BinaryFloatingPoint
 {
     let shape = Shape${n}(
 % for i in range(n):
-        elements${"".join([".first!" * i])}.count${")" if i == n - 1 else ","}
+        elements${'.first!' * i}.count${")" if i == n - 1 else ","}
 % end
 
-    let flatElements = elements${"".join([".joined()" * (n - 1)])}
+    let flatElements = elements${'.joined()' * (n - 1)}
     return Tensor${n}<Element>(flatElements, shape, order: order)
 }
 

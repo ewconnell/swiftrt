@@ -27,9 +27,9 @@ import Foundation
 
 public extension Tensor where Shape == Shape1, Element: Equatable {
     /// - Returns: an array of `Element`s
-    @inlinable var array: [Element] {
-        [Element](self)
-    }
+//    @inlinable var array: [Element] {
+//        [Element](self)
+//    }
 
     @inlinable static func == (lhs: Self, rhs: [Element]) -> Bool {
         lhs.array == rhs
@@ -39,14 +39,14 @@ public extension Tensor where Shape == Shape1, Element: Equatable {
 //==============================================================================
 // Rank2 array property and subscripts
 public extension Tensor where Shape == Shape2 {
-    /// - Returns: an array of `Element`s
-    @inlinable var array: [[Element]] {
-        var array2 = [[Element]]()
-        for row in 0..<shape[0] {
-            array2.append([Element](self[row, ...]))
-        }
-        return array2
-    }
+//    /// - Returns: an array of `Element`s
+//    @inlinable var array: [[Element]] {
+//        var array2 = [[Element]]()
+//        for row in 0..<shape[0] {
+//            array2.append([Element](self[row, ...]))
+//        }
+//        return array2
+//    }
 
     //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable subscript<R>(rows: R, cols: UnboundedRange) -> Self
@@ -72,21 +72,21 @@ public extension Tensor where Shape == Shape2, Element: Equatable {
 //==============================================================================
 // Rank3 array property and subscripts
 public extension Tensor where Shape == Shape3 {
-    //--------------------------------------------------------------------------
-    /// return an array of elements
-    @inlinable var array: [[[Element]]] {
-        var array3 = [[[Element]]]()
-        for depth in 0..<shape[0] {
-            var array2 = [[Element]]()
-
-            for row in 0..<shape[1] {
-                let v = [Element](self[depth, row, ...])
-                array2.append(v)
-            }
-            array3.append(array2)
-        }
-        return array3
-    }
+//    //--------------------------------------------------------------------------
+//    /// return an array of elements
+//    @inlinable var array: [[[Element]]] {
+//        var array3 = [[[Element]]]()
+//        for depth in 0..<shape[0] {
+//            var array2 = [[Element]]()
+//
+//            for row in 0..<shape[1] {
+//                let v = [Element](self[depth, row, ...])
+//                array2.append(v)
+//            }
+//            array3.append(array2)
+//        }
+//        return array3
+//    }
 
     @inlinable
     //    @differentiable(where Self: DifferentiableTensorView)
