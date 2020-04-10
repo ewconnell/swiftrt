@@ -30,15 +30,16 @@ numShapes = 6
 /// repeating
 /// Return a new tensor of given shape and type repeating `value`
 /// - Parameters:
-///  - value: element or other lower order tensor to repeat
+///  - value: to repeat
 ///  - shape: Int or tuple of Int. Shape of the array, e.g., (2, 3) or 2.
 ///  - dtype: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
-/// - Returns: read only broadcasted element or other lower order tensor
+/// - Returns: read only repeated element
 
 %for n in range(1, numShapes + 1):
 //---------------------------------------
 // Rank${n}
+// default type
 @inlinable public func repeating(
     _ value: DType,
     _ shape: Shape${n}.Tuple
@@ -46,6 +47,7 @@ numShapes = 6
    Tensor${n}<DType>(repeating: value, to: Shape${n}(shape))
 }
 
+// specifying type
 @inlinable public func repeating<Element>(
     _ value: Element,
     _ shape: Shape${n}.Tuple,
@@ -60,12 +62,12 @@ numShapes = 6
 /// repeating(value:like:
 /// Return a new tensor of given shape and type repeating `value`
 /// - Parameters:
-///  - value: element or other lower order tensor to repeat
-///  - prototype: unspecified attributes are copied from this tensor
+///  - value: to repeat
+///  - prototype: attributes are copied from this tensor when not specified
 ///  - dtype: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
 ///  - shape: Int or tuple of Int. Shape of the array, e.g., (2, 3) or 2.
-/// - Returns: read only broadcasted element or other lower order tensor
+/// - Returns: read only repeated element
 
 // same type and shape
 @inlinable public func repeating<S,E>(
@@ -119,3 +121,21 @@ numShapes = 6
 
 %end
 
+//==============================================================================
+// repeating(other:shape:
+/// - Parameters:
+///  - other: the tensor to repeat
+///  - shape: Int or tuple of Int. Shape of the array, e.g., (2, 3) or 2.
+/// - Returns: read only tensor with `other` spatially repeated
+%for n in range(1, numShapes + 1):
+//---------------------------------------
+// Rank${n}
+// default type
+@inlinable public func repeating<E>(
+    _ other: Tensor${n}<E>,
+    _ shape: Shape${n}.Tuple
+) -> Tensor${n}<E> {
+   Tensor${n}<E>(repeating: other, to: Shape${n}(shape))
+}
+
+%end
