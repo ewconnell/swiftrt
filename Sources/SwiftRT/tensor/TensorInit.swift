@@ -432,7 +432,10 @@ public extension Tensor {
     /// - Returns: transposed/permuted shape
     /// - Precondition: Each value in `permutations` must be in the range
     ///   `-rank..<rank`
-    @inlinable init(transposing other: Self, with permutations: Shape? = nil) {
+    @inlinable init(
+        transposing other: Self,
+        permutatedBy permutations: Shape? = nil)
+    {
         assert(Shape.rank > 1, "can only transpose shapes greater than rank 1")
 
         func makePositive(dims: Shape) -> Shape {
@@ -472,6 +475,10 @@ public extension Tensor {
     
     /// - Returns: transpose of self
     @inlinable var t: Self { Self(transposing: self) }
+    
+    @inlinable func transposed(permutatedBy permutations: Shape.Tuple) -> Self {
+        Self(transposing: self, permutatedBy: Shape(permutations))
+    }
 }
 
 //==============================================================================

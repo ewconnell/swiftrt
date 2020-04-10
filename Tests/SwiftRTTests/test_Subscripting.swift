@@ -24,14 +24,14 @@ class test_Subscripting: XCTestCase {
         ("test_perfTensor1Add", test_perfTensor1Add),
         ("test_perfTensor1AddRange", test_perfTensor1AddRange),
         ("test_negativeIndexRelativeRange", test_negativeIndexRelativeRange),
-        ("test_AssignDataToVolumeItem", test_AssignDataToVolumeItem),
-        ("test_AssignDataToVolumeRange", test_AssignDataToVolumeRange),
+        ("test_AssignDataToTensor3Item", test_AssignDataToTensor3Item),
+        ("test_AssignDataToTensor3Range", test_AssignDataToTensor3Range),
         ("test_Tensor1Range", test_Tensor1Range),
         ("test_StridedRangeInForLoop", test_StridedRangeInForLoop),
         ("test_Tensor1RangeGradient", test_Tensor1RangeGradient),
         ("test_Tensor1SteppedRange", test_Tensor1SteppedRange),
         ("test_Tensor1WriteRange", test_Tensor1WriteRange),
-        ("test_MatrixRange", test_MatrixRange),
+        ("test_Tensor2Range", test_Tensor2Range),
     ]
 
     //==========================================================================
@@ -83,8 +83,8 @@ class test_Subscripting: XCTestCase {
     }
     
     //==========================================================================
-    // test_AssignDataToVolumeItem
-    func test_AssignDataToVolumeItem() {
+    // test_AssignDataToTensor3Item
+    func test_AssignDataToTensor3Item() {
         var volume = array(0..<24, (2, 3, 4))
         
         // assign a volume depth to item 0
@@ -109,8 +109,8 @@ class test_Subscripting: XCTestCase {
     }
     
     //==========================================================================
-    // test_AssignDataToVolumeRange
-    func test_AssignDataToVolumeRange() {
+    // test_AssignDataToTensor3Range
+    func test_AssignDataToTensor3Range() {
         var volume = array(0..<24, (2, 3, 4))
 
         // assign a volume depth to item 0
@@ -207,8 +207,8 @@ class test_Subscripting: XCTestCase {
     }
 
     //==========================================================================
-    // test_MatrixRange
-    func test_MatrixRange() {
+    // test_Tensor2Range
+    func test_Tensor2Range() {
         let m1 = array([
             0, 1,  2,  3,
             4, 5,  6,  7,
