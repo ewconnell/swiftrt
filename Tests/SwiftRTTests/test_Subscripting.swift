@@ -215,11 +215,11 @@ class test_Subscripting: XCTestCase {
             8, 9, 10, 11
         ], (3, 4))
         
-        let v1 = m1[1..<-1, ...3]
-        XCTAssert(v1 == array(4...6))
+        let v1 = m1[1..<-1, ..<3]
+        XCTAssert(v1 == [[4, 5, 6]])
 
         // use negative row value to work from end and select row 1
-        XCTAssert(m1[-2..<2, 1..<4] == array(5...7))
+        XCTAssert(m1[-2..<2, 1..<4] == [[5, 6, 7]])
         
         // sliding window starting at 0 and extending 2
         XCTAssert(m1[0..|2, ...] == [
