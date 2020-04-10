@@ -142,6 +142,45 @@ public extension Tensor where Shape == Shape6 {
 
 
 //==============================================================================
+/// Equatable
+public extension Tensor where Shape == Shape1, Element: Equatable {
+    @inlinable static func == (lhs: Self, rhs: [Element]) -> Bool {
+        lhs.array == rhs
+    }
+}
+
+public extension Tensor where Shape == Shape2, Element: Equatable {
+    @inlinable static func == (lhs: Self, rhs: [[Element]]) -> Bool {
+        lhs.array == rhs
+    }
+}
+
+public extension Tensor where Shape == Shape3, Element: Equatable {
+    @inlinable static func == (lhs: Self, rhs: [[[Element]]]) -> Bool {
+        lhs.array == rhs
+    }
+}
+
+public extension Tensor where Shape == Shape4, Element: Equatable {
+    @inlinable static func == (lhs: Self, rhs: [[[[Element]]]]) -> Bool {
+        lhs.array == rhs
+    }
+}
+
+public extension Tensor where Shape == Shape5, Element: Equatable {
+    @inlinable static func == (lhs: Self, rhs: [[[[[Element]]]]]) -> Bool {
+        lhs.array == rhs
+    }
+}
+
+public extension Tensor where Shape == Shape6, Element: Equatable {
+    @inlinable static func == (lhs: Self, rhs: [[[[[[Element]]]]]]) -> Bool {
+        lhs.array == rhs
+    }
+}
+
+
+//==============================================================================
 /// array
 /// Return a new tensor of given shape and type, without initializing entries.
 /// - Parameters:

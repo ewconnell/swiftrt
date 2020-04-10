@@ -61,6 +61,16 @@ public extension Tensor where Shape == Shape${n} {
 %end
 
 //==============================================================================
+/// Equatable
+%for n in range(1, numShapes + 1):
+public extension Tensor where Shape == Shape${n}, Element: Equatable {
+    @inlinable static func == (lhs: Self, rhs: ${'[' * n}Element${']' * n}) -> Bool {
+        lhs.array == rhs
+    }
+}
+
+%end
+//==============================================================================
 /// array
 /// Return a new tensor of given shape and type, without initializing entries.
 /// - Parameters:
