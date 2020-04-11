@@ -40,6 +40,32 @@ class test_Shape: XCTestCase {
 //        #endif
     }
 
+    func test_initRepeating() {
+        //        #if !DEBUG
+        var count: DType = 0
+        self.measure {
+            for _ in 0..<100000 {
+                let a = Tensor1<Float>(repeating: 1, to: Shape1(1))
+                count += a.element
+            }
+        }
+        XCTAssert(count > 0)
+        //        #endif
+    }
+    
+    func test_initSingle() {
+        //        #if !DEBUG
+        var count: DType = 0
+        self.measure {
+            for _ in 0..<100000 {
+                let a = Tensor1<Float>(1)
+                count += a.element
+            }
+        }
+        XCTAssert(count > 0)
+        //        #endif
+    }
+
     func test_perfRepeatedTensor3() {
         //        #if !DEBUG
         let a = repeating(1, (64, 128, 128))

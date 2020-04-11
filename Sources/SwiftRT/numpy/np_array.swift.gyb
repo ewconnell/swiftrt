@@ -201,7 +201,7 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
 
 %for n in range(2, numShapes + 1):
 //------------------------------------------------------------------------------
-// Rank${n} shaped array from a flat collection
+// Rank${n} shaped array from Swift Array
 // same type
 @inlinable public func array<C>(
     _ elements: C,
@@ -241,6 +241,27 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
     let flatElements = elements${'.joined()' * (n - 1)}
     return Tensor${n}<DType>(flatElements, shape, order: order)
 }
+
+/// implicitly casts from C.Element floating point -> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor${n}<DType>
+    where
+% for i in range(n):
+    C${'.Element' * i}: Collection,
+% end
+    C${'.Element' * n}: BinaryFloatingPoint
+{
+    let shape = Shape${n}(
+% for i in range(n):
+        elements${'.first!' * i}.count${")" if i == n - 1 else ","}
+% end
+
+    let flatElements = elements${'.joined()' * (n - 1)}
+    return Tensor${n}<DType>(flatElements, shape, order: order)
+}
+
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(

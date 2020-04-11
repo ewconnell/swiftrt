@@ -31,7 +31,7 @@ class test_AlgebraicField: XCTestCase {
 
         ("test_subtract", test_subtract),
         ("test_subtractScalar", test_subtractScalar),
-//        ("test_subtractVector", test_subtractVector),
+        ("test_subtractVector", test_subtractVector),
         ("test_subtractAndAssign", test_subtractAndAssign),
 
         ("test_mul", test_mul),
@@ -182,32 +182,32 @@ class test_AlgebraicField: XCTestCase {
         XCTAssert(result2 == [[0, -1], [-2, -3], [-4, -5]])
     }
 
-//    //--------------------------------------------------------------------------
-//    // test_subtractVector
-//    func test_subtractVector() {
-//        let a = array([
-//            [1, 2],
-//            [3, 4],
-//            [5, 6]
-//        ])
-//        let col = repeating(array(0...2, (3, 1)), (3, 2))
-//
-//        let result = a - col
-//        let expected: [Float] = [
-//            1, 2,
-//            2, 3,
-//            3, 4
-//        ]
-//        XCTAssert(result == expected)
-//
-//        let result2 = col - a
-//        let expected2: [Float] = [
-//            -1, -2,
-//            -2, -3,
-//            -3, -4
-//        ]
-//        XCTAssert(result2 == expected2)
-//    }
+    //--------------------------------------------------------------------------
+    // test_subtractVector
+    func test_subtractVector() {
+        let a = array([
+            [1, 2],
+            [3, 4],
+            [5, 6]
+        ])
+        let col = repeating(array(0...2, (3, 1)), (3, 2))
+
+        let result = a - col
+        let expected: [[Float]] = [
+            [1, 2],
+            [2, 3],
+            [3, 4]
+        ]
+        XCTAssert(result == expected)
+
+        let result2 = col - a
+        let expected2: [[Float]] = [
+            [-1, -2],
+            [-2, -3],
+            [-3, -4]
+        ]
+        XCTAssert(result2 == expected2)
+    }
 
     //--------------------------------------------------------------------------
     // test_subtractAndAssign
@@ -230,53 +230,51 @@ class test_AlgebraicField: XCTestCase {
         XCTAssert(g2 == [[0, 1], [2, 3], [4, 5]])
     }
 
-//    //--------------------------------------------------------------------------
-//    // test_mulScalar
-//    func test_mulScalar() {
-//        let m1 = Matrix(3, 2, with: 1...6)
-//        let result = m1 * 2
-//        XCTAssert(result == [2, 4, 6, 8, 10, 12])
-//    }
-//
-//    //--------------------------------------------------------------------------
-//    // test_mulAndAssign
-//    func test_mulAndAssign() {
-//        var m1 = Matrix(3, 2, with: 1...6)
-//        m1 *= 2
-//        XCTAssert(m1 == [2, 4, 6, 8, 10, 12])
-//    }
-//
-//    //--------------------------------------------------------------------------
-//    // test_div
-//    func test_div() {
-//        let m1 = Matrix(3, 2, with: [1, 4, 9, 16, 25, 36])
-//        let m2 = Matrix(3, 2, with: 1...6)
-//        let result = m1 / m2
-//        XCTAssert(result == [1, 2, 3, 4, 5, 6])
-//
-//        do {
-//            let ones = Matrix(repeating: 1, like: m1)
-//            let (g1, g2) = pullback(at: m1, m2, in: { $0 / $1 })(ones)
-//            let g1Expected = Matrix(3, 2, with:
-//                [1, 0.5, 0.3333333, 0.25, 0.2, 0.1666666])
-//            XCTAssert(abssum(g1 - g1Expected).element <= 1e-6)
-//            XCTAssert(g2 == [-1, -1, -1, -1, -1, -1])
-//        }
-//    }
-//
-//    //--------------------------------------------------------------------------
-//    // test_divScalar
-//    func test_divScalar() {
-//        let m1 = Matrix(3, 2, with: 1...6)
-//        let result = m1 / 2
-//        XCTAssert(result == [0.5, 1, 1.5, 2, 2.5, 3])
-//    }
-//
-//    //--------------------------------------------------------------------------
-//    // test_divAndAssign
-//    func test_divAndAssign() {
-//        var m1 = Matrix(3, 2, with: 1...6)
-//        m1 /= 2
-//        XCTAssert(m1 == [0.5, 1, 1.5, 2, 2.5, 3])
-//    }
+    //--------------------------------------------------------------------------
+    // test_mulScalar
+    func test_mulScalar() {
+        let a = array(1...6, (3, 2))
+        let result = a * 2
+        XCTAssert(result == [[2, 4], [6, 8], [10, 12]])
+    }
+
+    //--------------------------------------------------------------------------
+    // test_mulAndAssign
+    func test_mulAndAssign() {
+        var a = array(1...6, (3, 2))
+        a *= 2
+        XCTAssert(a == [[2, 4], [6, 8], [10, 12]])
+    }
+
+    //--------------------------------------------------------------------------
+    // test_div
+    func test_div() {
+        let a = array([[1, 4], [9, 16], [25, 36]])
+        let b = array(1...6, (3, 2))
+        let result = a / b
+        XCTAssert(result == [[1, 2], [3, 4], [5, 6]])
+
+        do {
+            let (g1, g2) = pullback(at: a, b, in: { $0 / $1 })(ones(like: a))
+            let g1Expected = array([[1, 0.5], [0.3333333, 0.25], [0.2, 0.1666666]])
+            XCTAssert(abssum(g1 - g1Expected).element <= 1e-6)
+            XCTAssert(g2.array == [[-1, -1], [-1, -1], [-1, -1]])
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    // test_divScalar
+    func test_divScalar() {
+        let a = array(1...6, (3, 2))
+        let result = a / 2
+        XCTAssert(result == [[0.5, 1], [1.5, 2], [2.5, 3]])
+    }
+
+    //--------------------------------------------------------------------------
+    // test_divAndAssign
+    func test_divAndAssign() {
+        var a = array(1...6, (3, 2))
+        a /= 2
+        XCTAssert(a == [[0.5, 1], [1.5, 2], [2.5, 3]])
+    }
 }

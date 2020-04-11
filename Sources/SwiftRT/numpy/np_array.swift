@@ -179,7 +179,6 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     }
 }
 
-
 //==============================================================================
 /// array
 /// Return a new tensor of given shape and type, without initializing entries.
@@ -544,7 +543,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 
 
 //------------------------------------------------------------------------------
-// Rank2 shaped array from a flat collection
+// Rank2 shaped array from Swift Array
 // same type
 @inlinable public func array<C>(
     _ elements: C,
@@ -580,6 +579,25 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     let flatElements = elements.joined()
     return Tensor2<DType>(flatElements, shape, order: order)
 }
+
+/// implicitly casts from C.Element floating point -> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor2<DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: BinaryFloatingPoint
+{
+    let shape = Shape2(
+        elements.count,
+        elements.first!.count)
+
+    let flatElements = elements.joined()
+    return Tensor2<DType>(flatElements, shape, order: order)
+}
+
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
@@ -640,7 +658,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 }
 
 //------------------------------------------------------------------------------
-// Rank3 shaped array from a flat collection
+// Rank3 shaped array from Swift Array
 // same type
 @inlinable public func array<C>(
     _ elements: C,
@@ -680,6 +698,27 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     let flatElements = elements.joined().joined()
     return Tensor3<DType>(flatElements, shape, order: order)
 }
+
+/// implicitly casts from C.Element floating point -> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor3<DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: BinaryFloatingPoint
+{
+    let shape = Shape3(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count)
+
+    let flatElements = elements.joined().joined()
+    return Tensor3<DType>(flatElements, shape, order: order)
+}
+
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
@@ -746,7 +785,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 }
 
 //------------------------------------------------------------------------------
-// Rank4 shaped array from a flat collection
+// Rank4 shaped array from Swift Array
 // same type
 @inlinable public func array<C>(
     _ elements: C,
@@ -790,6 +829,29 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     let flatElements = elements.joined().joined().joined()
     return Tensor4<DType>(flatElements, shape, order: order)
 }
+
+/// implicitly casts from C.Element floating point -> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor4<DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element: BinaryFloatingPoint
+{
+    let shape = Shape4(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined()
+    return Tensor4<DType>(flatElements, shape, order: order)
+}
+
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
@@ -862,7 +924,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 }
 
 //------------------------------------------------------------------------------
-// Rank5 shaped array from a flat collection
+// Rank5 shaped array from Swift Array
 // same type
 @inlinable public func array<C>(
     _ elements: C,
@@ -910,6 +972,31 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     let flatElements = elements.joined().joined().joined().joined()
     return Tensor5<DType>(flatElements, shape, order: order)
 }
+
+/// implicitly casts from C.Element floating point -> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor5<DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element: BinaryFloatingPoint
+{
+    let shape = Shape5(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined().joined()
+    return Tensor5<DType>(flatElements, shape, order: order)
+}
+
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
@@ -988,7 +1075,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 }
 
 //------------------------------------------------------------------------------
-// Rank6 shaped array from a flat collection
+// Rank6 shaped array from Swift Array
 // same type
 @inlinable public func array<C>(
     _ elements: C,
@@ -1040,6 +1127,33 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     let flatElements = elements.joined().joined().joined().joined().joined()
     return Tensor6<DType>(flatElements, shape, order: order)
 }
+
+/// implicitly casts from C.Element floating point -> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor6<DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element.Element: BinaryFloatingPoint
+{
+    let shape = Shape6(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined().joined().joined()
+    return Tensor6<DType>(flatElements, shape, order: order)
+}
+
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
