@@ -165,11 +165,11 @@ class test_Shape: XCTestCase {
         
         self.measure {
             //--------------------------
-            // Case 1
+            // Case 1   1.658s  ~36X slower
             // It seems like this shouldn't be. The Add code inside the
             // module should optimize, hmm??
-            // 1.658s  ~36X slower
-            //            result = a + b
+            // Cross module indexing is currently really fast
+//            result = a + b
             
             //--------------------------
             // Case 2
@@ -181,7 +181,7 @@ class test_Shape: XCTestCase {
             //--------------------------
             // Case 3
             // 0.0457s
-            mapOp(a, b, &result, +)
+//            mapOp(a, b, &result, +)
             
             // keep things from being optimized away
             count += result.first
