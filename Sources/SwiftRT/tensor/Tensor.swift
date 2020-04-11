@@ -226,23 +226,24 @@ public extension Tensor {
 
     //--------------------------------------------------------------------------
     // elemment subscript
-    @inlinable subscript(index: Index) -> Element {
+    @inlinable subscript(i: Index) -> Element {
         get {
             if isSingleElement {
                 return storage.element(at: 0)
             } else if isSequential {
-                return storage.element(at: index.sequencePosition)
+                return storage.element(at: i.sequencePosition)
             } else {
-                return storage.element(at: index.linearIndex(strides))
+                return storage.element(at: baseOffset + i.linearIndex(strides))
             }
         }
         set {
             if isSingleElement {
                 return storage.setElement(value: newValue, at: 0)
             } else if isSequential {
-                storage.setElement(value: newValue, at: index.sequencePosition)
+                storage.setElement(value: newValue, at: i.sequencePosition)
             } else {
-                storage.setElement(value: newValue, at: index.linearIndex(strides))
+                storage.setElement(value: newValue,
+                                   at: baseOffset + i.linearIndex(strides))
             }
         }
     }
@@ -252,30 +253,36 @@ public extension Tensor {
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
         get {
             let shape = upper &- lower
+            let isSeq = strides.areSequential(for: shape)
+            let count = shape.elementCount()
+            let span = isSeq ? count : shape.spanCount(stridedBy: strides)
             return Tensor(
                 shape: shape,
                 strides: strides,
-                elementCount: shape.elementCount(),
-                spanCount: shape.spanCount(stridedBy: strides),
+                elementCount: count,
+                spanCount: span,
                 storage: storage,
                 baseOffset: lower.index(stridedBy: strides),
                 order: storageOrder,
                 share: isShared,
-                isSequential: strides.areSequential(for: shape))
+                isSequential: isSeq)
         }
         set {
             let shape = upper &- lower
+            let isSeq = strides.areSequential(for: shape)
+            let count = shape.elementCount()
+            let span = isSeq ? count : shape.spanCount(stridedBy: strides)
             var view = Tensor(
                 shape: shape,
                 strides: strides,
-                elementCount: shape.elementCount(),
-                spanCount: shape.spanCount(stridedBy: strides),
+                elementCount: count,
+                spanCount: span,
                 storage: storage,
                 baseOffset: lower.index(stridedBy: strides),
                 order: storageOrder,
                 share: isShared,
-                isSequential: strides.areSequential(for: shape))
-            
+                isSequential: isSeq)
+
             copy(from: newValue, to: &view)
         }
     }
