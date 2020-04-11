@@ -22,6 +22,8 @@ public func allTests() -> [XCTestCaseEntry] {
         testCase(test_AlgebraicField.allTests),
         testCase(test_Initialize.allTests),
         testCase(test_Reductions.allTests),
+        testCase(test_Subscripting.allTests),
+        testCase(test_Shape.allTests),
     ]
 }
 #endif

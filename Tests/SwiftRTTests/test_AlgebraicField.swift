@@ -35,12 +35,12 @@ class test_AlgebraicField: XCTestCase {
         ("test_subtractAndAssign", test_subtractAndAssign),
 
         ("test_mul", test_mul),
-//        ("test_mulScalar", test_mulScalar),
-//        ("test_mulAndAssign", test_mulAndAssign),
-//
-//        ("test_div", test_div),
-//        ("test_divScalar", test_divScalar),
-//        ("test_divAndAssign", test_divAndAssign),
+        ("test_mulScalar", test_mulScalar),
+        ("test_mulAndAssign", test_mulAndAssign),
+
+        ("test_div", test_div),
+        ("test_divScalar", test_divScalar),
+        ("test_divAndAssign", test_divAndAssign),
     ]
     
     //--------------------------------------------------------------------------
