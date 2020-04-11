@@ -44,7 +44,7 @@ public final class CpuBuffer<Element>: StorageBuffer
 
     //--------------------------------------------------------------------------
     // init(element:
-    @inlinable public init(_ element: Element, name: String) {
+    @inlinable public init(single element: Element, name: String) {
         self.element = element
         self.id = Context.nextBufferId
         self.isReadOnly = false

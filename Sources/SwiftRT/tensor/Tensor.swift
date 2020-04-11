@@ -34,7 +34,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
     /// the storage buffer base offset where this tensor's elements begin
     public let baseOffset: Int
     /// `true` if the tensor represents a single constant Element
-    public let isConstant: Bool
+    public let isSingleElement: Bool
     /// `true` if elements are in row major contiguous order
     // this is a stored property, because it's used during
     // gpu dispatch decision making
@@ -50,15 +50,6 @@ public struct Tensor<Shape, Element>: MutableTensorType
     public let spanCount: Int
     /// The distance to the next element along each dimension
     public let strides: Shape
-
-    //-----------------------------------
-    // device compatibility properties
-    @inlinable public var asElement: Element? {
-        elementCount == 1 ? storage.element(at: 0) : nil
-    }
-    
-    @inlinable @_transparent
-    public var asDense: Tensor<Shape, Element> { self }
 
     //-----------------------------------
     /// `true` if the view will be shared by by multiple writers
@@ -93,7 +84,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
         self.baseOffset = baseOffset
         self.storageOrder = order
         self._isShared = share
-        self.isConstant = false
+        self.isSingleElement = false
         self.isSequential = isSequential
         self.startIndex = Index(Shape.zero, baseOffset)
         self.endIndex = Index(shape, baseOffset + elementCount)
@@ -110,11 +101,11 @@ public struct Tensor<Shape, Element>: MutableTensorType
         baseOffset = 0
         storageOrder = .C
         _isShared = true
-        isConstant = true
+        isSingleElement = true
         isSequential = true
         startIndex = Index(Shape.zero, 0)
         endIndex = Index(shape, elementCount)
-        storage = StorageBufferType<Element>(element, name: "")
+        storage = StorageBufferType<Element>(single: element, name: "")
     }
 }
 
@@ -237,7 +228,7 @@ public extension Tensor {
     // elemment subscript
     @inlinable subscript(index: Index) -> Element {
         get {
-            if isConstant {
+            if isSingleElement {
                 return storage.element(at: 0)
             } else if isSequential {
                 return storage.element(at: index.sequencePosition)
@@ -246,7 +237,7 @@ public extension Tensor {
             }
         }
         set {
-            if isConstant {
+            if isSingleElement {
                 return storage.setElement(value: newValue, at: 0)
             } else if isSequential {
                 storage.setElement(value: newValue, at: index.sequencePosition)

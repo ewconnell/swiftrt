@@ -38,6 +38,13 @@ public protocol StorageBuffer: class, Logging {
     ///  - name: name used in diagnostic messages
     init(count: Int, name: String)
     
+    /// `init(element:name:
+    /// creates a storage buffer with a single element
+    /// - Parameters:
+    ///  - element: the initial element value
+    ///  - name: name used in diagnostic messages
+    init(single element: Element, name: String)
+    
     /// `init(copying other:`
     /// copy constructor
     init(copying other: Self)

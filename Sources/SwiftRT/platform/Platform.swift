@@ -317,6 +317,8 @@ public protocol TensorType: Collection, CustomStringConvertible, Logging
     //----------------------------------
     /// the number of elements described by `shape`
     var elementCount: Int { get }
+    /// `true` if the tensor represents a single constant Element
+    var isSingleElement: Bool { get }
     /// a label for the type used as a default name in diagnostics
     static var name: String { get }
     /// the dimensions of the collection
@@ -325,12 +327,6 @@ public protocol TensorType: Collection, CustomStringConvertible, Logging
     /// tensor types maintain this property as a template for dense
     /// result tensors.
     var storageOrder: StorageOrder { get }
-
-    //----------------------------------
-    // for guaranteed discreet device compatibility
-    /// - Returns: a value if the tensor can be represented as a
-    /// single element, and `nil` if it cannot.
-    var asElement: Element? { get }
 
     //----------------------------------
     /// makeIndex(position:
