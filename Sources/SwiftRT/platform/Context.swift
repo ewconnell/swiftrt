@@ -77,8 +77,7 @@ public struct Context {
     }
     /// the currently active queue that platform functions will use
     /// - Returns: the current device queue
-    @inlinable
-    public static var currentQueue: DeviceQueue {
+    @inlinable public static var currentQueue: DeviceQueue {
         Context.platform.currentQueue
     }
 
