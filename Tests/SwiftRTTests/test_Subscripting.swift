@@ -21,7 +21,6 @@ class test_Subscripting: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_perfTensor1Add", test_perfTensor1Add),
         ("test_perfTensor1AddRange", test_perfTensor1AddRange),
         ("test_negativeIndexRelativeRange", test_negativeIndexRelativeRange),
         ("test_AssignDataToTensor3Item", test_AssignDataToTensor3Item),
@@ -35,17 +34,16 @@ class test_Subscripting: XCTestCase {
     ]
 
     //==========================================================================
-    // test_perfTensor1Add
-    func test_perfTensor1Add() {
+    // test_perfTensorSubview
+    func test_perfTensorSubview() {
         #if !DEBUG
-        let a = array(1...20)
-        let b = array(1...20)
+        let a = array(0..<6, (2, 3))
         var count: Float = 0
         
         measure {
-            for _ in 0..<1000 {
-                let r = a + b
-                count += r.first
+            for _ in 0..<100000 {
+                let view = a[1, ...]
+                count += view.first
             }
         }
         XCTAssert(count > 0)
@@ -81,23 +79,6 @@ class test_Subscripting: XCTestCase {
 //        let m1 = array(0..<15, (5, 3))
 //        let v1 = m1[-4..|3..2, ...]
 //        XCTAssert(v1 == [[3, 4, 5], [9, 10, 11]])
-    }
-    
-    //==========================================================================
-    // test_perfTensorSubview
-    func test_perfTensorSubview() {
-        #if !DEBUG
-        let a = array(0..<6, (2, 3))
-        var count: Float = 0
-        
-        measure {
-            for _ in 0..<100000 {
-                let view = a[1, ...]
-                count += view.first
-            }
-        }
-        XCTAssert(count > 0)
-        #endif
     }
     
     //==========================================================================
