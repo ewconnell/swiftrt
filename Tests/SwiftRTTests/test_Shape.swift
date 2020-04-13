@@ -28,7 +28,16 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_expanding
     func test_expanding() {
-        XCTFail("not done yet")
+        let a = array(0..<4)
+        let b = Tensor2(expanding: a)
+        XCTAssert(b.shape == [1, 4])
+        XCTAssert(b.strides == [4, 1])
+        XCTAssert(b == [[0, 1, 2, 3]])
+        
+        let c = Tensor4(expanding: b, alongAxes: 3, 0)
+        XCTAssert(c.shape == [1, 1, 4, 1])
+        XCTAssert(c.strides == [4, 4, 1, 1])
+        XCTAssert(c == [[[[0], [1], [2], [3]]]])
     }
     
     //--------------------------------------------------------------------------

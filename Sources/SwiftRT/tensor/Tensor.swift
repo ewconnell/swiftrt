@@ -216,6 +216,9 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     /// index(i:
     @inlinable func index(after i: Index) -> Index {
+        // If the storage is a single broadcast element or many, the index
+        // still has to be incremented to satisfy reaching the end of
+        // the collection
         if isSequential {
             return Index(at: i.sequencePosition &+ 1)
         } else {
@@ -227,17 +230,24 @@ public extension Tensor {
     // elemment subscript
     @inlinable subscript(i: Index) -> Element {
         get {
+            // a single element can skip doing the buffer linear address
+            // calculation. This is beneficial ranked higher ranked
+            // repeated scalars. In perf, the cost of the branch appears
+            // to be undetectable
             if isSingleElement {
-                return storage.element(at: 0)
+                return storage.element(at: baseOffset)
             } else if isSequential {
+                // most tensors are layed out sequentially, so it is much
+                // cheaper to use the sequencePosition
                 return storage.element(at: i.sequencePosition)
             } else {
+                // perform a full strided buffer index calculation
                 return storage.element(at: baseOffset + i.linearIndex(strides))
             }
         }
         set {
             if isSingleElement {
-                return storage.setElement(value: newValue, at: 0)
+                return storage.setElement(value: newValue, at: baseOffset)
             } else if isSequential {
                 storage.setElement(value: newValue, at: i.sequencePosition)
             } else {

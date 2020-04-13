@@ -267,28 +267,38 @@ public extension Tensor {
         var strides = Shape.zero
         if let axes = axes {
             assert(Shape.rank == S.rank + axes.count, "rank mismatch")
+            // set 1 in expanded dimensions making sure axes are positive
+            // and keeping in mind the axes could be in any order
             for axis in axes {
-                // make sure axis positive
                 shape[axis >= 0 ? axis : axis + S.rank] = 1
             }
             
             var axis = Shape.rank - 1
             var otherAxis = S.rank - 1
-            while axis > 0 {
-                strides[axis] = other.strides[otherAxis]
+            while axis >= 0 {
                 if shape[axis] == 1 {
-                    otherAxis -= 1
+                    if axis == Shape.rank - 1 {
+                        // if the last dimension is expanded, then stride is 1
+                        strides[axis] = 1
+                    } else {
+                        // if inserted, then compute stride
+                        strides[axis] = shape[axis + 1] * strides[axis + 1]
+                    }
                 } else {
+                    // simply copy stride
                     shape[axis] = other.shape[otherAxis]
+                    strides[axis] = other.strides[otherAxis]
+                    otherAxis -= 1
                 }
                 axis -= 1
             }
         } else {
+            // default case indents by 1
             shape[0] = 1
-            strides[0] = other.strides[0]
-            for i in 0..<S.rank {
-                shape[i+1] = other.shape[i]
-                strides[i+1] = other.strides[i]
+            strides[0] = other.shape[0] * other.strides[0]
+            for (i, j) in zip(1..<Shape.rank, 0..<S.rank) {
+                shape[i] = other.shape[j]
+                strides[i] = other.strides[j]
             }
         }
         
