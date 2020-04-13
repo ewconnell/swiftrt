@@ -271,7 +271,7 @@ public extension Tensor {
                 elementCount: count,
                 spanCount: span,
                 storage: storage,
-                baseOffset: lower.index(stridedBy: strides),
+                baseOffset: baseOffset + lower.index(stridedBy: strides),
                 order: storageOrder,
                 share: isShared,
                 isSequential: isSeq)
@@ -287,7 +287,7 @@ public extension Tensor {
                 elementCount: count,
                 spanCount: span,
                 storage: storage,
-                baseOffset: lower.index(stridedBy: strides),
+                baseOffset: baseOffset + lower.index(stridedBy: strides),
                 order: storageOrder,
                 share: isShared,
                 isSequential: isSeq)
