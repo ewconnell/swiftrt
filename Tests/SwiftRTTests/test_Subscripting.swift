@@ -29,7 +29,7 @@ class test_Subscripting: XCTestCase {
         ("test_Tensor1Range", test_Tensor1Range),
         ("test_StridedRangeInForLoop", test_StridedRangeCollection),
         ("test_Tensor1RangeGradient", test_Tensor1RangeGradient),
-        ("test_Tensor1SteppedRange", test_Tensor1SteppedRange),
+//        ("test_Tensor1SteppedRange", test_Tensor1SteppedRange),
         ("test_Tensor1WriteRange", test_Tensor1WriteRange),
         ("test_Tensor2Range", test_Tensor2Range),
     ]
@@ -76,16 +76,17 @@ class test_Subscripting: XCTestCase {
         let m = array(0..<9, (3, 3))
         let v = m[-2..|1, ...]
         XCTAssert(v == [[3, 4, 5]])
-        
-        let m1 = array(0..<15, (5, 3))
-        let v1 = m1[-4..|3..2, ...]
-        XCTAssert(v1 == [[3, 4, 5], [9, 10, 11]])
+
+        // STEPPED RANGE TEST
+//        let m1 = array(0..<15, (5, 3))
+//        let v1 = m1[-4..|3..2, ...]
+//        XCTAssert(v1 == [[3, 4, 5], [9, 10, 11]])
     }
     
     //==========================================================================
     // test_perfTensorSubview
     func test_perfTensorSubview() {
-//        #if !DEBUG
+        #if !DEBUG
         let a = array(0..<6, (2, 3))
         var count: Float = 0
         
@@ -96,7 +97,7 @@ class test_Subscripting: XCTestCase {
             }
         }
         XCTAssert(count > 0)
-//        #endif
+        #endif
     }
     
     //==========================================================================
@@ -170,15 +171,16 @@ class test_Subscripting: XCTestCase {
         // between 4 and 2 back from the end
         XCTAssert(vector[-4..<-2] == array(6...7))
 
-        // the whole range stepping by 2
-        XCTAssert(vector[(...)..2] == array(0..<10..2))
-        XCTAssert(vector[.....2] == array(0..<10..2))
-
         // sliding window starting at 2 and extending 3 (i.e 2 + 3)
         XCTAssert(vector[2..|3] == array(2...4))
 
-        // sliding window starting at 2 and extending 5, stepped
-        XCTAssert(vector[2..|5..2] == array([2, 4]))
+        // STEPPED RANGE TEST
+        // the whole range stepping by 2
+//        XCTAssert(vector[(...)..2] == array(0..<10..2))
+//        XCTAssert(vector[.....2] == array(0..<10..2))
+//
+//        // sliding window starting at 2 and extending 5, stepped
+//        XCTAssert(vector[2..|5..2] == array([2, 4]))
     }
 
     //==========================================================================
@@ -209,19 +211,19 @@ class test_Subscripting: XCTestCase {
 
     //==========================================================================
     // test_Tensor1SteppedRange
-    func test_Tensor1SteppedRange() {
-        let vector = array(0...9, dtype: Int.self)
-        XCTAssert(vector[1..<2..2] == [1])
-        XCTAssert(vector[1..<4..2] == [1, 3])
-        XCTAssert(vector[..<4..2] == [0, 2])
-        XCTAssert(vector[1...4..2] == [1, 3])
-        XCTAssert(vector[1..<5..3] == [1, 4])
-        XCTAssert(vector[1..<6..3] == [1, 4])
-        XCTAssert(vector[..<8..3] == [0, 3, 6])
-        XCTAssert(vector[1..<8..3] == [1, 4, 7])
-        XCTAssert(vector[(...)..3] == [0, 3, 6, 9])
-        XCTAssert(vector[(1...)..3] == [1, 4, 7])
-    }
+//    func test_Tensor1SteppedRange() {
+//        let vector = array(0...9, dtype: Int.self)
+//        XCTAssert(vector[1..<2..2] == [1])
+//        XCTAssert(vector[1..<4..2] == [1, 3])
+//        XCTAssert(vector[..<4..2] == [0, 2])
+//        XCTAssert(vector[1...4..2] == [1, 3])
+//        XCTAssert(vector[1..<5..3] == [1, 4])
+//        XCTAssert(vector[1..<6..3] == [1, 4])
+//        XCTAssert(vector[..<8..3] == [0, 3, 6])
+//        XCTAssert(vector[1..<8..3] == [1, 4, 7])
+//        XCTAssert(vector[(...)..3] == [0, 3, 6, 9])
+//        XCTAssert(vector[(1...)..3] == [1, 4, 7])
+//    }
 
     //==========================================================================
     // test_Tensor2Range
