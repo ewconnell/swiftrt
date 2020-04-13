@@ -33,8 +33,6 @@ public struct Tensor<Shape, Element>: MutableTensorType
     public let elementCount: Int
     /// the storage buffer base offset where this tensor's elements begin
     public let baseOffset: Int
-    /// `true` if the tensor represents a single constant Element
-    public let isSingleElement: Bool
     /// `true` if elements are in row major contiguous order
     // this is a stored property, because it's used during
     // gpu dispatch decision making
@@ -62,6 +60,9 @@ public struct Tensor<Shape, Element>: MutableTensorType
     /// the ending index zero relative to the storage buffer
     public let endIndex: Index
 
+    /// `true` if the tensor represents a single constant Element
+    @inlinable public var isSingleElement: Bool { spanCount == 1 }
+
     //--------------------------------------------------------------------------
     /// init(
     /// Used to initialize a collection of dense stored elements
@@ -84,7 +85,6 @@ public struct Tensor<Shape, Element>: MutableTensorType
         self.baseOffset = baseOffset
         self.storageOrder = order
         self._isShared = share
-        self.isSingleElement = false
         self.isSequential = isSequential
         self.startIndex = Index(Shape.zero, baseOffset)
         self.endIndex = Index(shape, baseOffset + elementCount)
@@ -101,7 +101,6 @@ public struct Tensor<Shape, Element>: MutableTensorType
         baseOffset = 0
         storageOrder = .C
         _isShared = true
-        isSingleElement = true
         isSequential = true
         startIndex = Index(Shape.zero, 0)
         endIndex = Index(shape, elementCount)

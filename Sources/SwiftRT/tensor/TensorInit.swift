@@ -259,43 +259,44 @@ public extension Tensor {
     /// - Parameter other: the shape to expand
     @inlinable init<S>(
         expanding other: Tensor<S,Element>,
-        alongAxes axes: Set<Int>? = nil
+        alongAxes axes: [Int]? = nil
     ) where S: TensorShape
     {
-        //-----------------------------------
-        assert(S.rank < Shape.rank, "can only expand lower ranked shapes")
+        // set the expanded axes
         var shape = Shape.zero
         var strides = Shape.zero
-        let axesSet = axes == nil ?
-            Set(0..<Shape.rank - S.rank) :
-            Set(axes!.map { $0 < 0 ? $0 + Shape.rank : $0 })
-        assert(S.rank + axesSet.count == Shape.rank,
-               "`other.rank` plus number of specified axes " +
-            "must equal the `rank` of this shape")
-
-        var j = S.rank - 1
-        for i in (0..<Shape.rank).reversed() {
-            if axesSet.contains(i) {
-                // expanded axes are set to 1
-                shape[i] = 1
-                // repeat stride of next dimension or pad with 1
-                if i == Shape.rank - 1 {
-                    strides[i] = 1
+        if let axes = axes {
+            assert(Shape.rank == S.rank + axes.count, "rank mismatch")
+            for axis in axes {
+                // make sure axis positive
+                shape[axis >= 0 ? axis : axis + S.rank] = 1
+            }
+            
+            var axis = Shape.rank - 1
+            var otherAxis = S.rank - 1
+            while axis > 0 {
+                strides[axis] = other.strides[otherAxis]
+                if shape[axis] == 1 {
+                    otherAxis -= 1
                 } else {
-                    strides[i] = shape[i + 1] * strides[i + 1]
+                    shape[axis] = other.shape[otherAxis]
                 }
-            } else {
-                shape[i] = other.shape[j]
-                strides[i] = other.strides[j]
-                j -= 1
+                axis -= 1
+            }
+        } else {
+            shape[0] = 1
+            strides[0] = other.strides[0]
+            for i in 0..<S.rank {
+                shape[i+1] = other.shape[i]
+                strides[i+1] = other.strides[i]
             }
         }
-
+        
         //-----------------------------------
         self.init(shape: shape,
                   strides: strides,
                   elementCount: other.elementCount,
-                  spanCount: other.elementCount,
+                  spanCount: other.spanCount,
                   storage: other.storage,
                   baseOffset: other.baseOffset,
                   order: other.storageOrder,
@@ -307,33 +308,40 @@ public extension Tensor {
     init<S>(expanding other: Tensor<S,Element>, alongAxes axes: Int...)
         where S: TensorShape
     {
-        self.init(expanding: other, alongAxes: Set(axes))
+        self.init(expanding: other, alongAxes: axes)
     }
 
     //--------------------------------------------------------------------------
     /// init(squeezing:
-    /// - Parameter other: the shape to expand
+    /// - Parameters:
+    ///  - other: the collection to squeeze
+    ///  - axes: a list of axes to squeeze
     @inlinable init<S>(
         squeezing other: Tensor<S,Element>,
-        alongAxes axes: Set<Int>? = nil
+        alongAxes axes: [Int]? = nil
     ) where S: TensorShape
     {
-        //-----------------------------------
-        // make sure we have a positive set of axes to squeeze along
-        var shape = Shape.zero
-        var strides = Shape.zero
-        let axesSet = axes == nil ?
-            Set(0..<S.rank) :
-            Set(axes!.map { $0 < 0 ? S.rank + $0 : $0 })
+        // zero the axes to squeeze
+        var otherShape = other.shape
+        var filter = 1
+        if let axes = axes {
+            assert(Shape.rank == S.rank - axes.count, "rank mismatch")
+            filter = 0
+            for axis in axes {
+                // make sure axis positive
+                otherShape[axis >= 0 ? axis : axis + S.rank] = 0
+            }
+        }
         
         var axis = 0
-        for otherAxis in 0..<S.rank where
-            !(other.shape[otherAxis] == 1 && axesSet.contains(otherAxis))
-        {
+        var shape = Shape.zero
+        var strides = Shape.zero
+
+        for i in 0..<S.rank where otherShape[i] > filter {
             assert(axis < Shape.rank,
                    "Unsqueezed axes of `other` exceeds rank of this shape")
-            shape[axis] = other.shape[otherAxis]
-            strides[axis] = other.strides[otherAxis]
+            shape[axis] = otherShape[i]
+            strides[axis] = other.strides[i]
             axis += 1
         }
         
@@ -353,7 +361,7 @@ public extension Tensor {
     init<S>(squeezing other: Tensor<S,Element>, alongAxes axes: Int...)
         where S: TensorShape
     {
-        self.init(squeezing: other, alongAxes: Set(axes))
+        self.init(squeezing: other, alongAxes: axes)
     }
 
     //--------------------------------------------------------------------------
@@ -526,7 +534,7 @@ extension Tensor where Element: DifferentiableElement
         -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
         where S: TensorShape
     {
-        let axes = Set([Int](Shape.rank..<S.rank))
+        let axes = [Int](Shape.rank..<S.rank)
         let value = Self(flattening: other)
         return (value, { Tensor<S,Element>(expanding: $0, alongAxes: axes) })
     }
@@ -535,7 +543,7 @@ extension Tensor where Element: DifferentiableElement
     @derivative(of: init(expanding:alongAxes:))
     @inlinable static func _vjpInit<S>(
         expanding other: Tensor<S,Element>,
-        alongAxes axes: Set<Int>?
+        alongAxes axes: [Int]?
     ) -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
         where S: TensorShape
     {
@@ -547,7 +555,7 @@ extension Tensor where Element: DifferentiableElement
     @derivative(of: init(squeezing:alongAxes:))
     @inlinable static func _vjpInit<S>(
         squeezing other: Tensor<S,Element>,
-        alongAxes axes: Set<Int>?
+        alongAxes axes: [Int]?
     ) -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
         where S: TensorShape
     {

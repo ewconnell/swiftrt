@@ -24,6 +24,12 @@ class test_Shape: XCTestCase {
         ("test_SequentialViews", test_SequentialViews),
         ("test_transposed", test_transposed),
     ]
+
+    //--------------------------------------------------------------------------
+    // test_expanding
+    func test_expanding() {
+        XCTFail("not done yet")
+    }
     
     //--------------------------------------------------------------------------
     // test_perfIndexTensor1

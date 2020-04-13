@@ -27,7 +27,7 @@ class test_Subscripting: XCTestCase {
         ("test_AssignDataToTensor3Item", test_AssignDataToTensor3Item),
         ("test_AssignDataToTensor3Range", test_AssignDataToTensor3Range),
         ("test_Tensor1Range", test_Tensor1Range),
-        ("test_StridedRangeInForLoop", test_StridedRangeInForLoop),
+        ("test_StridedRangeInForLoop", test_StridedRangeCollection),
         ("test_Tensor1RangeGradient", test_Tensor1RangeGradient),
         ("test_Tensor1SteppedRange", test_Tensor1SteppedRange),
         ("test_Tensor1WriteRange", test_Tensor1WriteRange),
@@ -104,7 +104,7 @@ class test_Subscripting: XCTestCase {
         do {
             let g = pullback(at: repeating(7, (3, 4)),
                              in: { Tensor3(expanding: $0) })(ones((1, 3, 4)))
-            XCTAssert(g.flat == [Float](repeating: 1, count: 24))
+            XCTAssert(g.flat == [Float](repeating: 1, count: 12))
         }
     }
     
@@ -165,8 +165,8 @@ class test_Subscripting: XCTestCase {
     }
 
     //==========================================================================
-    // test_StridedRangeInForLoop
-    func test_StridedRangeInForLoop() {
+    // test_StridedRangeCollection
+    func test_StridedRangeCollection() {
         XCTAssert([Int](0..<12..3) == [0, 3, 6, 9])
         XCTAssert((0..<8..2).count == 4)
         XCTAssert((0.0..<2.0..0.5).count == 4)
