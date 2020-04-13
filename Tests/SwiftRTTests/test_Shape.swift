@@ -41,8 +41,8 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_perfIndexTensor1
-    func test_perfIndexTensor1() {
+    // test_perfTensor1
+    func test_perfTensor1() {
         #if !DEBUG
         let a = ones(1024 * 1024)
         var count: DType = 0
@@ -54,13 +54,15 @@ class test_Shape: XCTestCase {
         XCTAssert(count > 0)
         #endif
     }
-    
+        
     //--------------------------------------------------------------------------
-    // test_perfRepeatedTensor3
-    func test_perfRepeatedTensor3() {
+    // test_perfTensor2
+    func test_perfTensor2() {
         #if !DEBUG
-        let a = repeating(1, (64, 128, 128))
+        let a = ones((1024, 1024))
         var count: DType = 0
+        
+        // 0.001s
         self.measure {
             for value in a {
                 count += value
@@ -69,12 +71,12 @@ class test_Shape: XCTestCase {
         XCTAssert(count > 0)
         #endif
     }
-    
+
     //--------------------------------------------------------------------------
-    // test_perfTensor2
-    func test_perfTensor2() {
+    // test_perfRepeatedTensor3
+    func test_perfRepeatedTensor3() {
         #if !DEBUG
-        let a = ones((1024, 1024))
+        let a = repeating(1, (64, 128, 128))
         var count: DType = 0
         self.measure {
             for value in a {
@@ -155,51 +157,6 @@ class test_Shape: XCTestCase {
                 let a = Tensor1<Float>(1)
                 count += a.element
             }
-        }
-        XCTAssert(count > 0)
-        #endif
-    }
-
-    //--------------------------------------------------------------------------
-    // test_perfTensor2
-    func test_perfAddTensor2() {
-        #if !DEBUG
-        let a = ones((1024, 1024))
-        let b = ones((1024, 1024))
-        var count: DType = 0
-        
-        func mapOp<LHS, RHS, R>(
-            _ lhs: LHS, _ rhs: RHS, _ r: inout R,
-            _ op: @escaping (LHS.Element, RHS.Element) -> R.Element) where
-            LHS: Collection, RHS: Collection, R: MutableCollection
-        {
-            zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = op($1.0, $1.1) }
-        }
-        
-        var result = empty(like: a)
-        
-        self.measure {
-            //--------------------------
-            // Case 1   1.658s  ~36X slower
-            // It seems like this shouldn't be. The Add code inside the
-            // module should optimize, hmm??
-            // Cross module indexing is currently really fast
-//            result = a + b
-            
-            //--------------------------
-            // Case 2
-            // 0.0471s
-            //            zip(result.indices, zip(a, b)).forEach {
-            //                result[$0] = $1.0 + $1.1
-            //            }
-            
-            //--------------------------
-            // Case 3
-            // 0.0457s
-//            mapOp(a, b, &result, +)
-            
-            // keep things from being optimized away
-            count += result.first
         }
         XCTAssert(count > 0)
         #endif
