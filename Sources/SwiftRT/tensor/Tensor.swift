@@ -339,7 +339,7 @@ public extension Tensor {
     /// - Returns: the first element in the tensor
     @_semantics("autodiff.nonvarying")
     @inlinable var first: Element {
-        storage.element(at: 0)
+        storage.element(at: baseOffset)
     }
 
     /// element
@@ -350,12 +350,12 @@ public extension Tensor {
         get {
             assert(elementCount == 1, "the `element` property expects " +
                 "the tensor to have a single Element. Use `first` for sets")
-            return storage.element(at: 0)
+            return storage.element(at: baseOffset)
         }
         set {
             assert(elementCount == 1, "the `element` property expects " +
                 "the tensor to have a single Element")
-            storage.setElement(value: newValue, at: 0)
+            storage.setElement(value: newValue, at: baseOffset)
         }
     }
 }

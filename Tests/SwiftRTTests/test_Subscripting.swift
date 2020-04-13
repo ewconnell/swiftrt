@@ -83,6 +83,23 @@ class test_Subscripting: XCTestCase {
     }
     
     //==========================================================================
+    // test_perfTensorSubview
+    func test_perfTensorSubview() {
+//        #if !DEBUG
+        let a = array(0..<6, (2, 3))
+        var count: Float = 0
+        
+        measure {
+            for _ in 0..<100000 {
+                let view = a[1, ...]
+                count += view.first
+            }
+        }
+        XCTAssert(count > 0)
+//        #endif
+    }
+    
+    //==========================================================================
     // test_AssignDataToTensor3Item
     func test_AssignDataToTensor3Item() {
         var volume = array(0..<24, (2, 3, 4))
