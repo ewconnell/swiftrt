@@ -307,6 +307,23 @@ public extension Tensor {
 }
 
 //==============================================================================
+/// Derivative registration
+extension Tensor where Element: DifferentiableElement {
+    // https://github.com/apple/swift/blob/37b507b31c77ef969151f385cd1902dd44fb3b7f/stdlib/public/core/Array.swift#L2091
+    
+    @derivative(of: subscript)
+    @inlinable func _vjpSubscript(lower: Shape, upper: Shape)
+        -> (value: Self, pullback: (Self) -> Self)
+    {
+        return (self[lower, upper], { v in
+            var result = zeros(like: self)
+            result[lower, upper] = v
+            return result
+        })
+    }
+}
+
+//==============================================================================
 // Tensor read write extensions
 public extension Tensor {
     @inlinable func read() {
