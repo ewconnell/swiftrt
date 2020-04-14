@@ -228,12 +228,15 @@ public extension Tensor {
 
     //--------------------------------------------------------------------------
     // elemment subscript
+    // NOTE: with only a single tensor type allowed, lifting the branch out
+    // of this per index function turned out to have worse performance
+    // because it prevented inlining cross module. As is, the branches
+    // don't appear to affect perf numbers.
     @inlinable subscript(i: Index) -> Element {
         get {
             // a single element can skip doing the buffer linear address
             // calculation. This is beneficial ranked higher ranked
-            // repeated scalars. In perf, the cost of the branch appears
-            // to be undetectable
+            // repeated scalars.
             if isSingleElement {
                 return storage.element(at: baseOffset)
             } else if isSequential {
@@ -258,7 +261,7 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
-    // view subscript
+    // sub view subscript
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
         get { createView(lower, upper) }
         set {
@@ -283,46 +286,6 @@ public extension Tensor {
             share: isShared,
             isSequential: isSeq)
     }
-    
-//    //--------------------------------------------------------------------------
-//    // stepped view subscript
-//    @inlinable subscript(lower: Shape, upper: Shape, steps: Shape) -> Self {
-//        get {
-//            (steps == Shape.one) ?
-//                createView(lower, upper) :
-//                createView(lower, upper, steps)
-//        }
-//        set {
-//            var view = (steps == Shape.one) ?
-//                createView(lower, upper) :
-//                createView(lower, upper, steps)
-//            copy(from: newValue, to: &view)
-//        }
-//    }
-//
-//    @inlinable
-//    func createView(_ lower: Shape, _ upper: Shape, _ steps: Shape) -> Self {
-//        let isSeq = false
-//        var absSteps = steps
-//        for i in 0..<Shape.rank { absSteps[i] = Swift.abs(absSteps[i]) }
-//        var shape = upper &- lower
-//        shape = ((shape &- 1 &+ absSteps) / absSteps) &+ lower
-//        let strides = self.strides &* steps
-//        let count = shape.elementCount()
-//        let span = isSeq ? count : shape.spanCount(stridedBy: strides)
-//        assert(shape.min() > 0, _messageInvalidShape)
-//
-//        return Tensor(
-//            shape: shape,
-//            strides: strides,
-//            elementCount: count,
-//            spanCount: span,
-//            storage: storage,
-//            baseOffset: baseOffset + lower.index(stridedBy: strides),
-//            order: storageOrder,
-//            share: isShared,
-//            isSequential: isSeq)
-//    }
 
     //--------------------------------------------------------------------------
     /// shared(
