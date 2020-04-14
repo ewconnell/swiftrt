@@ -25,9 +25,8 @@ import Glibc
 // Hashing
 //==============================================================================
 
-internal extension FixedWidthInteger {
-    @usableFromInline
-    init(bytes: ArraySlice<UInt8>, startingAt index: Int) {
+public extension FixedWidthInteger {
+    @inlinable init(bytes: ArraySlice<UInt8>, startingAt index: Int) {
         if bytes.isEmpty { self.init(0); return }
         let count = bytes.count
         self.init(0)
@@ -37,7 +36,7 @@ internal extension FixedWidthInteger {
         }
     }
 
-    @usableFromInline
+    @inlinable
     func bytes(count byteCount: Int = MemoryLayout<Self>.size) -> [UInt8] {
         let actualByteCount = Swift.min(MemoryLayout<Self>.size, byteCount)
         var littleEndianValue = littleEndian
@@ -54,11 +53,10 @@ internal extension FixedWidthInteger {
     }
 }
 
-internal extension Array where Element == UInt8 {
+public extension Array where Element == UInt8 {
     /// - Note: The SHA1 hash is only 20 bytes long and so only
     /// the first 20 bytes of the returned `SIMD32<UInt8>` are non-zero.
-    @usableFromInline
-    func sha1() -> SIMD32<UInt8> {
+    @inlinable func sha1() -> SIMD32<UInt8> {
         let blockSize = 64
         var accumulated = self
         let lengthInBits = accumulated.count * 8
@@ -157,8 +155,7 @@ internal extension Array where Element == UInt8 {
         return result
     }
 
-    @usableFromInline
-    func sha512() -> SIMD64<UInt8> {
+    @inlinable func sha512() -> SIMD64<UInt8> {
         // First we define some useful constants.
         let blockSize = 128
         let k: [UInt64] = [

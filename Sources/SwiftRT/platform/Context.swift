@@ -37,20 +37,15 @@ public typealias StorageBufferType<Element> = CpuBuffer<Element>
 public struct Context {
     /// specifies whether operators in the current scope are
     /// evaluated for inferring or training
-    @usableFromInline
-    static var evaluationModeStack: [EvaluationMode] = [.inferring]
+    public static var evaluationModeStack: [EvaluationMode] = [.inferring]
     /// the time that the platform was first accessed
-    @usableFromInline
-    static var startTime = Date()
+    public static var startTime = Date()
     /// the log output object
-    @usableFromInline
-    static var logWriter: Log = Log()
+    public static var logWriter: Log = Log()
     /// a platform instance unique id for queue events
-    @usableFromInline
-    static var queueEventCounter: Int = 0
+    public static var queueEventCounter: Int = 0
     /// counter for unique buffer ids
-    @usableFromInline
-    static var bufferIdCounter: Int = 0
+    public static var bufferIdCounter: Int = 0
 
     /// a static instance of the compute platform
     /// The platform type is specified in Types.swift and selected
@@ -122,8 +117,7 @@ public struct Context {
         set { _randomSeed = newValue }
     }
 
-    @usableFromInline
-    static var _randomSeed: RandomSeed = generateRandomSeed()
+    public static var _randomSeed: RandomSeed = generateRandomSeed()
 
     @inlinable
     static func createRandomNumberGenerator(using seed: RandomSeed? = nil) ->
@@ -139,7 +133,7 @@ public struct Context {
 
 //    //--------------------------------------------------------------------------
 //    /// returns the thread local instance of the queues stack
-//    @usableFromInline
+//    @inlinable public
 //    static var threadLocal: Platform {
 //        // try to get an existing state
 //        if let state = pthread_getspecific(key) {
@@ -154,7 +148,7 @@ public struct Context {
 //
 //    //--------------------------------------------------------------------------
 //    /// thread data key
-//    @usableFromInline
+//    @inlinable public
 //    static let key: pthread_key_t = {
 //        var key = pthread_key_t()
 //        pthread_key_create(&key) {

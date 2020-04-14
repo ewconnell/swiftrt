@@ -288,8 +288,7 @@ public struct QueueId {
 
 //==============================================================================
 // assert messages
-@usableFromInline
-let _messageQueueThreadViolation =
+public let _messageQueueThreadViolation =
 "a queue can only be accessed by the thread that created it"
 
 //==============================================================================

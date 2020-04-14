@@ -21,14 +21,14 @@ class test_perfAdd: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_perfTensor2", test_perfTensor2),
+        ("test_sumTensor2", test_sumTensor2),
         ("test_perfAddInApp", test_perfAddInApp),
         ("test_perfAddInModule", test_perfAddInModule),
     ]
     
     //--------------------------------------------------------------------------
-    // test_perfTensor2
-    func test_perfTensor2() {
+    // test_sumTensor2
+    func test_sumTensor2() {
         #if !DEBUG
         let a = ones((1024, 1024))
         var count: DType = 0
@@ -73,6 +73,7 @@ class test_perfAdd: XCTestCase {
     
     //--------------------------------------------------------------------------
     // test_perfAddInModule
+    // 30X slower than test_perfAddInApp!!
     func test_perfAddInModule() {
         #if !DEBUG
         let a = ones((1024, 1024))

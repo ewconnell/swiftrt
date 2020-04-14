@@ -24,7 +24,7 @@ public final class CpuBuffer<Element>: StorageBuffer
     public let isReadOnly: Bool
     public let isReference: Bool
     public var name: String
-    @usableFromInline var element: Element
+    public var element: Element
     
     //--------------------------------------------------------------------------
     // init(count:name:

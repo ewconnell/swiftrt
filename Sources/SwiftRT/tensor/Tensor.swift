@@ -28,7 +28,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
     /// the diagnostic name for the collection
     @inlinable public static var name: String { "Tensor\(Shape.rank)" }
     /// the element storage buffer.
-    @usableFromInline var storage: StorageBufferType<Element>
+    public var storage: StorageBufferType<Element>
     /// the dense number of elements in the shape
     public let elementCount: Int
     /// the storage buffer base offset where this tensor's elements begin
@@ -43,7 +43,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
     /// the dimensions of the element space
     public let shape: Shape
     // used by makeIndex
-    @usableFromInline var shapeStrides: Shape { shape.sequentialStrides() }
+    @inlinable public var shapeStrides: Shape { shape.sequentialStrides() }
     /// The strided number of elements spanned by the shape
     public let spanCount: Int
     /// The distance to the next element along each dimension
@@ -52,7 +52,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
     //-----------------------------------
     /// `true` if the view will be shared by by multiple writers
     @inlinable public var isShared: Bool { _isShared }
-    @usableFromInline var _isShared: Bool
+    public var _isShared: Bool
 
     //-----------------------------------
     /// the starting index zero relative to the storage buffer
