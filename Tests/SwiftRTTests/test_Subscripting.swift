@@ -36,7 +36,7 @@ class test_Subscripting: XCTestCase {
     //==========================================================================
     // test_perfTensorSubview
     func test_perfTensorSubview() {
-        #if !DEBUG
+//        #if !DEBUG
         let a = array(0..<6, (2, 3))
         var count: Float = 0
         
@@ -47,7 +47,7 @@ class test_Subscripting: XCTestCase {
             }
         }
         XCTAssert(count > 0)
-        #endif
+//        #endif
     }
     
     //==========================================================================

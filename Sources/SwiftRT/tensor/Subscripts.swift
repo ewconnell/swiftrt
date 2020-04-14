@@ -53,14 +53,16 @@ public extension Tensor where Shape == Shape1 {
             let d0 = r0.relativeTo(0..<shape[0])
             let lower = Shape1(d0.start)
             let upper = Shape1(d0.end)
-            return self[lower, upper]
+            let steps = Shape1(d0.step)
+            return self[lower, upper, steps]
         }
         
         set {
             let d0 = r0.relativeTo(0..<shape[0])
             let lower = Shape1(d0.start)
             let upper = Shape1(d0.end)
-            self[lower, upper] = newValue
+            let steps = Shape1(d0.step)
+            self[lower, upper, steps] = newValue
         }
     }
 }
@@ -86,7 +88,8 @@ public extension Tensor where Shape == Shape2 {
             let d1 = r1.relativeTo(0..<shape[1])
             let lower = Shape2(d0.start, d1.start)
             let upper = Shape2(d0.end, d1.end)
-            return self[lower, upper]
+            let steps = Shape2(d0.step, d1.step)
+            return self[lower, upper, steps]
         }
         
         set {
@@ -94,7 +97,8 @@ public extension Tensor where Shape == Shape2 {
             let d1 = r1.relativeTo(0..<shape[1])
             let lower = Shape2(d0.start, d1.start)
             let upper = Shape2(d0.end, d1.end)
-            self[lower, upper] = newValue
+            let steps = Shape2(d0.step, d1.step)
+            self[lower, upper, steps] = newValue
         }
     }
 }
@@ -122,7 +126,8 @@ public extension Tensor where Shape == Shape3 {
             let d2 = r2.relativeTo(0..<shape[2])
             let lower = Shape3(d0.start, d1.start, d2.start)
             let upper = Shape3(d0.end, d1.end, d2.end)
-            return self[lower, upper]
+            let steps = Shape3(d0.step, d1.step, d2.step)
+            return self[lower, upper, steps]
         }
         
         set {
@@ -131,7 +136,8 @@ public extension Tensor where Shape == Shape3 {
             let d2 = r2.relativeTo(0..<shape[2])
             let lower = Shape3(d0.start, d1.start, d2.start)
             let upper = Shape3(d0.end, d1.end, d2.end)
-            self[lower, upper] = newValue
+            let steps = Shape3(d0.step, d1.step, d2.step)
+            self[lower, upper, steps] = newValue
         }
     }
 }
@@ -161,7 +167,8 @@ public extension Tensor where Shape == Shape4 {
             let d3 = r3.relativeTo(0..<shape[3])
             let lower = Shape4(d0.start, d1.start, d2.start, d3.start)
             let upper = Shape4(d0.end, d1.end, d2.end, d3.end)
-            return self[lower, upper]
+            let steps = Shape4(d0.step, d1.step, d2.step, d3.step)
+            return self[lower, upper, steps]
         }
         
         set {
@@ -171,7 +178,8 @@ public extension Tensor where Shape == Shape4 {
             let d3 = r3.relativeTo(0..<shape[3])
             let lower = Shape4(d0.start, d1.start, d2.start, d3.start)
             let upper = Shape4(d0.end, d1.end, d2.end, d3.end)
-            self[lower, upper] = newValue
+            let steps = Shape4(d0.step, d1.step, d2.step, d3.step)
+            self[lower, upper, steps] = newValue
         }
     }
 }
@@ -203,7 +211,8 @@ public extension Tensor where Shape == Shape5 {
             let d4 = r4.relativeTo(0..<shape[4])
             let lower = Shape5(d0.start, d1.start, d2.start, d3.start, d4.start)
             let upper = Shape5(d0.end, d1.end, d2.end, d3.end, d4.end)
-            return self[lower, upper]
+            let steps = Shape5(d0.step, d1.step, d2.step, d3.step, d4.step)
+            return self[lower, upper, steps]
         }
         
         set {
@@ -214,7 +223,8 @@ public extension Tensor where Shape == Shape5 {
             let d4 = r4.relativeTo(0..<shape[4])
             let lower = Shape5(d0.start, d1.start, d2.start, d3.start, d4.start)
             let upper = Shape5(d0.end, d1.end, d2.end, d3.end, d4.end)
-            self[lower, upper] = newValue
+            let steps = Shape5(d0.step, d1.step, d2.step, d3.step, d4.step)
+            self[lower, upper, steps] = newValue
         }
     }
 }
@@ -248,7 +258,8 @@ public extension Tensor where Shape == Shape6 {
             let d5 = r5.relativeTo(0..<shape[5])
             let lower = Shape6(d0.start, d1.start, d2.start, d3.start, d4.start, d5.start)
             let upper = Shape6(d0.end, d1.end, d2.end, d3.end, d4.end, d5.end)
-            return self[lower, upper]
+            let steps = Shape6(d0.step, d1.step, d2.step, d3.step, d4.step, d5.step)
+            return self[lower, upper, steps]
         }
         
         set {
@@ -260,7 +271,8 @@ public extension Tensor where Shape == Shape6 {
             let d5 = r5.relativeTo(0..<shape[5])
             let lower = Shape6(d0.start, d1.start, d2.start, d3.start, d4.start, d5.start)
             let upper = Shape6(d0.end, d1.end, d2.end, d3.end, d4.end, d5.end)
-            self[lower, upper] = newValue
+            let steps = Shape6(d0.step, d1.step, d2.step, d3.step, d4.step, d5.step)
+            self[lower, upper, steps] = newValue
         }
     }
 }
@@ -271,33 +283,8 @@ public extension Tensor where Shape == Shape6 {
 //
 //==============================================================================
 
-//==============================================================================
-// Rank1
-public extension Tensor where Shape == Shape1 {
-
-}
-//==============================================================================
-// Rank2
-public extension Tensor where Shape == Shape2 {
-
-}
-//==============================================================================
-// Rank3
-public extension Tensor where Shape == Shape3 {
-
-}
-//==============================================================================
-// Rank4
-public extension Tensor where Shape == Shape4 {
-
-}
-//==============================================================================
-// Rank5
-public extension Tensor where Shape == Shape5 {
-
-}
+//%for n in range(1, numShapes + 1):
 //==============================================================================
 // Rank6
-public extension Tensor where Shape == Shape6 {
 
-}
+//%end

@@ -63,8 +63,7 @@ public typealias Shape6 = SIMD6<Int>
 
 //==============================================================================
 // messages
-@usableFromInline
-let _messageInvalidShape = "shape dimensions must be greater than 0"
+public let _messageInvalidShape = "shape dimensions must be greater than 0"
 
 //==============================================================================
 // TensorShape extensions
