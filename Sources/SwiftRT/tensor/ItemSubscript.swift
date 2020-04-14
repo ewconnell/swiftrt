@@ -108,11 +108,11 @@ public extension TensorType
     }
     
     @_semantics("autodiff.nonvarying")
-    @inlinable func getItemRange(_ range: SignedRange) -> (Shape, Shape) {
+    @inlinable func getItemRange(_ range: Range<Int>) -> (Shape, Shape) {
         var lower = Shape.zero
         var upper = self.shape
-        lower[0] = range.lower
-        upper[0] = range.upper
+        lower[0] = range.lowerBound
+        upper[0] = range.upperBound
         return (lower, upper)
     }
 }

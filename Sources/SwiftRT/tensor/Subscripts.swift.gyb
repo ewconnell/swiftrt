@@ -59,8 +59,8 @@ public extension Tensor where Shape == Shape${n} {
 % for i in range(n):
             let d${i} = r${i}.relativeTo(0..<shape[${i}])
 % end
-            let lower = Shape${n}(${', '.join(['d' + str(i) + '.lower' for i in range(n)])})
-            let upper = Shape${n}(${', '.join(['d' + str(i) + '.upper' for i in range(n)])})
+            let lower = Shape${n}(${', '.join(['d' + str(i) + '.lowerBound' for i in range(n)])})
+            let upper = Shape${n}(${', '.join(['d' + str(i) + '.upperBound' for i in range(n)])})
             return self[lower, upper]
         }
         
@@ -68,8 +68,8 @@ public extension Tensor where Shape == Shape${n} {
 % for i in range(n):
             let d${i} = r${i}.relativeTo(0..<shape[${i}])
 % end
-            let lower = Shape${n}(${', '.join(['d' + str(i) + '.lower' for i in range(n)])})
-            let upper = Shape${n}(${', '.join(['d' + str(i) + '.upper' for i in range(n)])})
+            let lower = Shape${n}(${', '.join(['d' + str(i) + '.lowerBound' for i in range(n)])})
+            let upper = Shape${n}(${', '.join(['d' + str(i) + '.upperBound' for i in range(n)])})
             self[lower, upper] = newValue
         }
     }

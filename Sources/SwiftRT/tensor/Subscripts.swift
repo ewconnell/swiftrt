@@ -51,15 +51,15 @@ public extension Tensor where Shape == Shape1 {
     {
         get {
             let d0 = r0.relativeTo(0..<shape[0])
-            let lower = Shape1(d0.lower)
-            let upper = Shape1(d0.upper)
+            let lower = Shape1(d0.lowerBound)
+            let upper = Shape1(d0.upperBound)
             return self[lower, upper]
         }
         
         set {
             let d0 = r0.relativeTo(0..<shape[0])
-            let lower = Shape1(d0.lower)
-            let upper = Shape1(d0.upper)
+            let lower = Shape1(d0.lowerBound)
+            let upper = Shape1(d0.upperBound)
             self[lower, upper] = newValue
         }
     }
@@ -84,16 +84,16 @@ public extension Tensor where Shape == Shape2 {
         get {
             let d0 = r0.relativeTo(0..<shape[0])
             let d1 = r1.relativeTo(0..<shape[1])
-            let lower = Shape2(d0.lower, d1.lower)
-            let upper = Shape2(d0.upper, d1.upper)
+            let lower = Shape2(d0.lowerBound, d1.lowerBound)
+            let upper = Shape2(d0.upperBound, d1.upperBound)
             return self[lower, upper]
         }
         
         set {
             let d0 = r0.relativeTo(0..<shape[0])
             let d1 = r1.relativeTo(0..<shape[1])
-            let lower = Shape2(d0.lower, d1.lower)
-            let upper = Shape2(d0.upper, d1.upper)
+            let lower = Shape2(d0.lowerBound, d1.lowerBound)
+            let upper = Shape2(d0.upperBound, d1.upperBound)
             self[lower, upper] = newValue
         }
     }
@@ -120,8 +120,8 @@ public extension Tensor where Shape == Shape3 {
             let d0 = r0.relativeTo(0..<shape[0])
             let d1 = r1.relativeTo(0..<shape[1])
             let d2 = r2.relativeTo(0..<shape[2])
-            let lower = Shape3(d0.lower, d1.lower, d2.lower)
-            let upper = Shape3(d0.upper, d1.upper, d2.upper)
+            let lower = Shape3(d0.lowerBound, d1.lowerBound, d2.lowerBound)
+            let upper = Shape3(d0.upperBound, d1.upperBound, d2.upperBound)
             return self[lower, upper]
         }
         
@@ -129,8 +129,8 @@ public extension Tensor where Shape == Shape3 {
             let d0 = r0.relativeTo(0..<shape[0])
             let d1 = r1.relativeTo(0..<shape[1])
             let d2 = r2.relativeTo(0..<shape[2])
-            let lower = Shape3(d0.lower, d1.lower, d2.lower)
-            let upper = Shape3(d0.upper, d1.upper, d2.upper)
+            let lower = Shape3(d0.lowerBound, d1.lowerBound, d2.lowerBound)
+            let upper = Shape3(d0.upperBound, d1.upperBound, d2.upperBound)
             self[lower, upper] = newValue
         }
     }
@@ -159,8 +159,8 @@ public extension Tensor where Shape == Shape4 {
             let d1 = r1.relativeTo(0..<shape[1])
             let d2 = r2.relativeTo(0..<shape[2])
             let d3 = r3.relativeTo(0..<shape[3])
-            let lower = Shape4(d0.lower, d1.lower, d2.lower, d3.lower)
-            let upper = Shape4(d0.upper, d1.upper, d2.upper, d3.upper)
+            let lower = Shape4(d0.lowerBound, d1.lowerBound, d2.lowerBound, d3.lowerBound)
+            let upper = Shape4(d0.upperBound, d1.upperBound, d2.upperBound, d3.upperBound)
             return self[lower, upper]
         }
         
@@ -169,8 +169,8 @@ public extension Tensor where Shape == Shape4 {
             let d1 = r1.relativeTo(0..<shape[1])
             let d2 = r2.relativeTo(0..<shape[2])
             let d3 = r3.relativeTo(0..<shape[3])
-            let lower = Shape4(d0.lower, d1.lower, d2.lower, d3.lower)
-            let upper = Shape4(d0.upper, d1.upper, d2.upper, d3.upper)
+            let lower = Shape4(d0.lowerBound, d1.lowerBound, d2.lowerBound, d3.lowerBound)
+            let upper = Shape4(d0.upperBound, d1.upperBound, d2.upperBound, d3.upperBound)
             self[lower, upper] = newValue
         }
     }
@@ -201,8 +201,8 @@ public extension Tensor where Shape == Shape5 {
             let d2 = r2.relativeTo(0..<shape[2])
             let d3 = r3.relativeTo(0..<shape[3])
             let d4 = r4.relativeTo(0..<shape[4])
-            let lower = Shape5(d0.lower, d1.lower, d2.lower, d3.lower, d4.lower)
-            let upper = Shape5(d0.upper, d1.upper, d2.upper, d3.upper, d4.upper)
+            let lower = Shape5(d0.lowerBound, d1.lowerBound, d2.lowerBound, d3.lowerBound, d4.lowerBound)
+            let upper = Shape5(d0.upperBound, d1.upperBound, d2.upperBound, d3.upperBound, d4.upperBound)
             return self[lower, upper]
         }
         
@@ -212,8 +212,8 @@ public extension Tensor where Shape == Shape5 {
             let d2 = r2.relativeTo(0..<shape[2])
             let d3 = r3.relativeTo(0..<shape[3])
             let d4 = r4.relativeTo(0..<shape[4])
-            let lower = Shape5(d0.lower, d1.lower, d2.lower, d3.lower, d4.lower)
-            let upper = Shape5(d0.upper, d1.upper, d2.upper, d3.upper, d4.upper)
+            let lower = Shape5(d0.lowerBound, d1.lowerBound, d2.lowerBound, d3.lowerBound, d4.lowerBound)
+            let upper = Shape5(d0.upperBound, d1.upperBound, d2.upperBound, d3.upperBound, d4.upperBound)
             self[lower, upper] = newValue
         }
     }
@@ -246,8 +246,8 @@ public extension Tensor where Shape == Shape6 {
             let d3 = r3.relativeTo(0..<shape[3])
             let d4 = r4.relativeTo(0..<shape[4])
             let d5 = r5.relativeTo(0..<shape[5])
-            let lower = Shape6(d0.lower, d1.lower, d2.lower, d3.lower, d4.lower, d5.lower)
-            let upper = Shape6(d0.upper, d1.upper, d2.upper, d3.upper, d4.upper, d5.upper)
+            let lower = Shape6(d0.lowerBound, d1.lowerBound, d2.lowerBound, d3.lowerBound, d4.lowerBound, d5.lowerBound)
+            let upper = Shape6(d0.upperBound, d1.upperBound, d2.upperBound, d3.upperBound, d4.upperBound, d5.upperBound)
             return self[lower, upper]
         }
         
@@ -258,8 +258,8 @@ public extension Tensor where Shape == Shape6 {
             let d3 = r3.relativeTo(0..<shape[3])
             let d4 = r4.relativeTo(0..<shape[4])
             let d5 = r5.relativeTo(0..<shape[5])
-            let lower = Shape6(d0.lower, d1.lower, d2.lower, d3.lower, d4.lower, d5.lower)
-            let upper = Shape6(d0.upper, d1.upper, d2.upper, d3.upper, d4.upper, d5.upper)
+            let lower = Shape6(d0.lowerBound, d1.lowerBound, d2.lowerBound, d3.lowerBound, d4.lowerBound, d5.lowerBound)
+            let upper = Shape6(d0.upperBound, d1.upperBound, d2.upperBound, d3.upperBound, d4.upperBound, d5.upperBound)
             self[lower, upper] = newValue
         }
     }

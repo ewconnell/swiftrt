@@ -24,19 +24,8 @@ import Foundation
 /// relative ranges.
 public protocol SignedRangeExpression {
     @_semantics("autodiff.nonvarying")
-    func relativeTo<C>(_ collection: C) -> SignedRange
+    func relativeTo<C>(_ collection: C) -> Range<Int>
         where C : Collection, C.Index == Int
-}
-
-//==============================================================================
-/// SignedRange
-public struct SignedRange {
-    public var lower: Int
-    public var upper: Int
-    @inlinable public init(_ lower: Int, _ upper: Int) {
-        self.lower = lower
-        self.upper = upper
-    }
 }
 
 //==============================================================================
@@ -44,71 +33,71 @@ public struct SignedRange {
 extension Range: SignedRangeExpression where Bound == Int
 {
     @_semantics("autodiff.nonvarying")
-    @inlinable public func relativeTo<C>(_ collection: C) -> SignedRange
+    @inlinable public func relativeTo<C>(_ collection: C) -> Range
         where C : Collection, C.Index == Int
     {
         let count = collection.count
         let lower = lowerBound < 0 ? lowerBound + count : lowerBound
         let upper = upperBound < 0 ? upperBound + count : upperBound
-        return SignedRange(lower, upper)
+        return Range(uncheckedBounds: (lower, upper))
     }
 }
 
 extension ClosedRange: SignedRangeExpression where Bound == Int
 {
     @_semantics("autodiff.nonvarying")
-    @inlinable public func relativeTo<C>(_ collection: C) -> SignedRange
+    @inlinable public func relativeTo<C>(_ collection: C) -> Range<Int>
         where C : Collection, C.Index == Int
     {
         let count = collection.count
         let lower = lowerBound < 0 ? lowerBound + count : lowerBound
         let upper = (upperBound < 0 ? upperBound + count : upperBound) + 1
-        return SignedRange(lower, upper)
+        return Range(uncheckedBounds: (lower, upper))
     }
 }
 
 extension PartialRangeFrom: SignedRangeExpression where Bound == Int
 {
     @_semantics("autodiff.nonvarying")
-    @inlinable public func relativeTo<C>(_ collection: C) -> SignedRange
+    @inlinable public func relativeTo<C>(_ collection: C) -> Range<Int>
         where C : Collection, C.Index == Int
     {
         let lower = lowerBound < 0 ? lowerBound + collection.count : lowerBound
-        return SignedRange(lower, collection.count)
+        return Range(uncheckedBounds: (lower, collection.count))
     }
 }
 
 extension PartialRangeUpTo: SignedRangeExpression where Bound == Int
 {
     @_semantics("autodiff.nonvarying")
-    @inlinable public func relativeTo<C>(_ collection: C) -> SignedRange
+    @inlinable public func relativeTo<C>(_ collection: C) -> Range<Int>
         where C : Collection, C.Index == Int
     {
         let upper = upperBound < 0 ? upperBound + collection.count : upperBound
-        return SignedRange(0, upper)
+        return Range(uncheckedBounds: (0, upper))
     }
 }
 
 extension PartialRangeThrough: SignedRangeExpression where Bound == Int
 {
     @_semantics("autodiff.nonvarying")
-    @inlinable public func relativeTo<C>(_ collection: C) -> SignedRange
+    @inlinable public func relativeTo<C>(_ collection: C) -> Range<Int>
         where C : Collection, C.Index == Int
     {
         let count = collection.count
         let upper = (upperBound < 0 ? upperBound + count : upperBound) + 1
-        return SignedRange(0, upper)
+        return Range(uncheckedBounds: (0, upper))
     }
 }
 
 extension Int: SignedRangeExpression
 {
     @_semantics("autodiff.nonvarying")
-    @inlinable public func relativeTo<C>(_ collection: C) -> SignedRange
+    @inlinable public func relativeTo<C>(_ collection: C) -> Range<Int>
         where C : Collection, C.Index == Int
     {
         let i = self < 0 ? self &+ collection.count : self
-        return SignedRange(i, i + 1)
+        return Range(uncheckedBounds: (i, i + 1))
     }
 }
 
