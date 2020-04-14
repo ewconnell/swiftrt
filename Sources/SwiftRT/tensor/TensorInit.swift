@@ -551,7 +551,7 @@ extension Tensor where Element: DifferentiableElement
 
     //--------------------------------------------------------------------------
     @derivative(of: init(expanding:alongAxes:))
-    @inlinable static func _vjpInit<S>(
+    @inlinable public static func _vjpInit<S>(
         expanding other: Tensor<S,Element>,
         alongAxes axes: [Int]?
     ) -> (value: Self, pullback: (Self) -> Tensor<S,Element>)

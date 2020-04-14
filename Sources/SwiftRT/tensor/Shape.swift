@@ -68,6 +68,7 @@ public let _messageInvalidShape = "shape dimensions must be greater than 0"
 //==============================================================================
 // TensorShape extensions
 public extension TensorShape {
+    
     //--------------------------------------------------------------------------
     /// init with optional tuple shape
     @inlinable @_transparent
@@ -80,6 +81,15 @@ public extension TensorShape {
     /// instance member access
     @inlinable @_transparent
     var count: Int { Self.rank }
+
+    //--------------------------------------------------------------------------
+    /// copy to Swift Array
+    @inlinable @_transparent
+    var array: [Scalar] {
+        var a = [Scalar]()
+        indices.forEach { a.append(self[$0]) }
+        return a
+    }
     
     //--------------------------------------------------------------------------
     /// conversion to DeviceIndex array to support marshalling to drivers
