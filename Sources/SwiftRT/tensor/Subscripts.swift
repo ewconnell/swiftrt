@@ -47,22 +47,20 @@ public extension Tensor where Shape == Shape1 {
     /// - Returns: the sub view defined by the range
     @inlinable
     subscript<R0>(r0: R0) -> Self where
-        R0: PartialRangeExpression, R0.Bound == Int
+        R0: SignedRangeExpression
     {
         get {
             let d0 = r0.relativeTo(0..<shape[0])
-            let lower = Shape1(d0.start)
-            let upper = Shape1(d0.end)
-            let steps = Shape1(d0.step)
-            return self[lower, upper, steps]
+            let lower = Shape1(d0.lower)
+            let upper = Shape1(d0.upper)
+            return self[lower, upper]
         }
         
         set {
             let d0 = r0.relativeTo(0..<shape[0])
-            let lower = Shape1(d0.start)
-            let upper = Shape1(d0.end)
-            let steps = Shape1(d0.step)
-            self[lower, upper, steps] = newValue
+            let lower = Shape1(d0.lower)
+            let upper = Shape1(d0.upper)
+            self[lower, upper] = newValue
         }
     }
 }
@@ -80,25 +78,23 @@ public extension Tensor where Shape == Shape2 {
     /// - Returns: the sub view defined by the range
     @inlinable
     subscript<R0, R1>(r0: R0, r1: R1) -> Self where
-        R0: PartialRangeExpression, R0.Bound == Int,
-        R1: PartialRangeExpression, R1.Bound == Int
+        R0: SignedRangeExpression,
+        R1: SignedRangeExpression
     {
         get {
             let d0 = r0.relativeTo(0..<shape[0])
             let d1 = r1.relativeTo(0..<shape[1])
-            let lower = Shape2(d0.start, d1.start)
-            let upper = Shape2(d0.end, d1.end)
-            let steps = Shape2(d0.step, d1.step)
-            return self[lower, upper, steps]
+            let lower = Shape2(d0.lower, d1.lower)
+            let upper = Shape2(d0.upper, d1.upper)
+            return self[lower, upper]
         }
         
         set {
             let d0 = r0.relativeTo(0..<shape[0])
             let d1 = r1.relativeTo(0..<shape[1])
-            let lower = Shape2(d0.start, d1.start)
-            let upper = Shape2(d0.end, d1.end)
-            let steps = Shape2(d0.step, d1.step)
-            self[lower, upper, steps] = newValue
+            let lower = Shape2(d0.lower, d1.lower)
+            let upper = Shape2(d0.upper, d1.upper)
+            self[lower, upper] = newValue
         }
     }
 }
@@ -116,28 +112,26 @@ public extension Tensor where Shape == Shape3 {
     /// - Returns: the sub view defined by the range
     @inlinable
     subscript<R0, R1, R2>(r0: R0, r1: R1, r2: R2) -> Self where
-        R0: PartialRangeExpression, R0.Bound == Int,
-        R1: PartialRangeExpression, R1.Bound == Int,
-        R2: PartialRangeExpression, R2.Bound == Int
+        R0: SignedRangeExpression,
+        R1: SignedRangeExpression,
+        R2: SignedRangeExpression
     {
         get {
             let d0 = r0.relativeTo(0..<shape[0])
             let d1 = r1.relativeTo(0..<shape[1])
             let d2 = r2.relativeTo(0..<shape[2])
-            let lower = Shape3(d0.start, d1.start, d2.start)
-            let upper = Shape3(d0.end, d1.end, d2.end)
-            let steps = Shape3(d0.step, d1.step, d2.step)
-            return self[lower, upper, steps]
+            let lower = Shape3(d0.lower, d1.lower, d2.lower)
+            let upper = Shape3(d0.upper, d1.upper, d2.upper)
+            return self[lower, upper]
         }
         
         set {
             let d0 = r0.relativeTo(0..<shape[0])
             let d1 = r1.relativeTo(0..<shape[1])
             let d2 = r2.relativeTo(0..<shape[2])
-            let lower = Shape3(d0.start, d1.start, d2.start)
-            let upper = Shape3(d0.end, d1.end, d2.end)
-            let steps = Shape3(d0.step, d1.step, d2.step)
-            self[lower, upper, steps] = newValue
+            let lower = Shape3(d0.lower, d1.lower, d2.lower)
+            let upper = Shape3(d0.upper, d1.upper, d2.upper)
+            self[lower, upper] = newValue
         }
     }
 }
@@ -155,20 +149,19 @@ public extension Tensor where Shape == Shape4 {
     /// - Returns: the sub view defined by the range
     @inlinable
     subscript<R0, R1, R2, R3>(r0: R0, r1: R1, r2: R2, r3: R3) -> Self where
-        R0: PartialRangeExpression, R0.Bound == Int,
-        R1: PartialRangeExpression, R1.Bound == Int,
-        R2: PartialRangeExpression, R2.Bound == Int,
-        R3: PartialRangeExpression, R3.Bound == Int
+        R0: SignedRangeExpression,
+        R1: SignedRangeExpression,
+        R2: SignedRangeExpression,
+        R3: SignedRangeExpression
     {
         get {
             let d0 = r0.relativeTo(0..<shape[0])
             let d1 = r1.relativeTo(0..<shape[1])
             let d2 = r2.relativeTo(0..<shape[2])
             let d3 = r3.relativeTo(0..<shape[3])
-            let lower = Shape4(d0.start, d1.start, d2.start, d3.start)
-            let upper = Shape4(d0.end, d1.end, d2.end, d3.end)
-            let steps = Shape4(d0.step, d1.step, d2.step, d3.step)
-            return self[lower, upper, steps]
+            let lower = Shape4(d0.lower, d1.lower, d2.lower, d3.lower)
+            let upper = Shape4(d0.upper, d1.upper, d2.upper, d3.upper)
+            return self[lower, upper]
         }
         
         set {
@@ -176,10 +169,9 @@ public extension Tensor where Shape == Shape4 {
             let d1 = r1.relativeTo(0..<shape[1])
             let d2 = r2.relativeTo(0..<shape[2])
             let d3 = r3.relativeTo(0..<shape[3])
-            let lower = Shape4(d0.start, d1.start, d2.start, d3.start)
-            let upper = Shape4(d0.end, d1.end, d2.end, d3.end)
-            let steps = Shape4(d0.step, d1.step, d2.step, d3.step)
-            self[lower, upper, steps] = newValue
+            let lower = Shape4(d0.lower, d1.lower, d2.lower, d3.lower)
+            let upper = Shape4(d0.upper, d1.upper, d2.upper, d3.upper)
+            self[lower, upper] = newValue
         }
     }
 }
@@ -197,11 +189,11 @@ public extension Tensor where Shape == Shape5 {
     /// - Returns: the sub view defined by the range
     @inlinable
     subscript<R0, R1, R2, R3, R4>(r0: R0, r1: R1, r2: R2, r3: R3, r4: R4) -> Self where
-        R0: PartialRangeExpression, R0.Bound == Int,
-        R1: PartialRangeExpression, R1.Bound == Int,
-        R2: PartialRangeExpression, R2.Bound == Int,
-        R3: PartialRangeExpression, R3.Bound == Int,
-        R4: PartialRangeExpression, R4.Bound == Int
+        R0: SignedRangeExpression,
+        R1: SignedRangeExpression,
+        R2: SignedRangeExpression,
+        R3: SignedRangeExpression,
+        R4: SignedRangeExpression
     {
         get {
             let d0 = r0.relativeTo(0..<shape[0])
@@ -209,10 +201,9 @@ public extension Tensor where Shape == Shape5 {
             let d2 = r2.relativeTo(0..<shape[2])
             let d3 = r3.relativeTo(0..<shape[3])
             let d4 = r4.relativeTo(0..<shape[4])
-            let lower = Shape5(d0.start, d1.start, d2.start, d3.start, d4.start)
-            let upper = Shape5(d0.end, d1.end, d2.end, d3.end, d4.end)
-            let steps = Shape5(d0.step, d1.step, d2.step, d3.step, d4.step)
-            return self[lower, upper, steps]
+            let lower = Shape5(d0.lower, d1.lower, d2.lower, d3.lower, d4.lower)
+            let upper = Shape5(d0.upper, d1.upper, d2.upper, d3.upper, d4.upper)
+            return self[lower, upper]
         }
         
         set {
@@ -221,10 +212,9 @@ public extension Tensor where Shape == Shape5 {
             let d2 = r2.relativeTo(0..<shape[2])
             let d3 = r3.relativeTo(0..<shape[3])
             let d4 = r4.relativeTo(0..<shape[4])
-            let lower = Shape5(d0.start, d1.start, d2.start, d3.start, d4.start)
-            let upper = Shape5(d0.end, d1.end, d2.end, d3.end, d4.end)
-            let steps = Shape5(d0.step, d1.step, d2.step, d3.step, d4.step)
-            self[lower, upper, steps] = newValue
+            let lower = Shape5(d0.lower, d1.lower, d2.lower, d3.lower, d4.lower)
+            let upper = Shape5(d0.upper, d1.upper, d2.upper, d3.upper, d4.upper)
+            self[lower, upper] = newValue
         }
     }
 }
@@ -242,12 +232,12 @@ public extension Tensor where Shape == Shape6 {
     /// - Returns: the sub view defined by the range
     @inlinable
     subscript<R0, R1, R2, R3, R4, R5>(r0: R0, r1: R1, r2: R2, r3: R3, r4: R4, r5: R5) -> Self where
-        R0: PartialRangeExpression, R0.Bound == Int,
-        R1: PartialRangeExpression, R1.Bound == Int,
-        R2: PartialRangeExpression, R2.Bound == Int,
-        R3: PartialRangeExpression, R3.Bound == Int,
-        R4: PartialRangeExpression, R4.Bound == Int,
-        R5: PartialRangeExpression, R5.Bound == Int
+        R0: SignedRangeExpression,
+        R1: SignedRangeExpression,
+        R2: SignedRangeExpression,
+        R3: SignedRangeExpression,
+        R4: SignedRangeExpression,
+        R5: SignedRangeExpression
     {
         get {
             let d0 = r0.relativeTo(0..<shape[0])
@@ -256,10 +246,9 @@ public extension Tensor where Shape == Shape6 {
             let d3 = r3.relativeTo(0..<shape[3])
             let d4 = r4.relativeTo(0..<shape[4])
             let d5 = r5.relativeTo(0..<shape[5])
-            let lower = Shape6(d0.start, d1.start, d2.start, d3.start, d4.start, d5.start)
-            let upper = Shape6(d0.end, d1.end, d2.end, d3.end, d4.end, d5.end)
-            let steps = Shape6(d0.step, d1.step, d2.step, d3.step, d4.step, d5.step)
-            return self[lower, upper, steps]
+            let lower = Shape6(d0.lower, d1.lower, d2.lower, d3.lower, d4.lower, d5.lower)
+            let upper = Shape6(d0.upper, d1.upper, d2.upper, d3.upper, d4.upper, d5.upper)
+            return self[lower, upper]
         }
         
         set {
@@ -269,10 +258,9 @@ public extension Tensor where Shape == Shape6 {
             let d3 = r3.relativeTo(0..<shape[3])
             let d4 = r4.relativeTo(0..<shape[4])
             let d5 = r5.relativeTo(0..<shape[5])
-            let lower = Shape6(d0.start, d1.start, d2.start, d3.start, d4.start, d5.start)
-            let upper = Shape6(d0.end, d1.end, d2.end, d3.end, d4.end, d5.end)
-            let steps = Shape6(d0.step, d1.step, d2.step, d3.step, d4.step, d5.step)
-            self[lower, upper, steps] = newValue
+            let lower = Shape6(d0.lower, d1.lower, d2.lower, d3.lower, d4.lower, d5.lower)
+            let upper = Shape6(d0.upper, d1.upper, d2.upper, d3.upper, d4.upper, d5.upper)
+            self[lower, upper] = newValue
         }
     }
 }

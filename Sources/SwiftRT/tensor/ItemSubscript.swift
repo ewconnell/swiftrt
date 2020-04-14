@@ -24,21 +24,21 @@ import Foundation
 /// A tensor subscripted with integers for each dimension is a convenience
 /// function for wrapping the values in an `ElementIndex` structure, and
 /// then returning the corresponding tensor `Element` value
-
+//
 //==============================================================================
 // Rank2 array property and subscripts
 public extension Tensor where Shape == Shape2 {
 
     //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable subscript<R>(rows: R, cols: UnboundedRange) -> Self
-        where R: PartialRangeExpression, R.Bound == Int {
+        where R: SignedRangeExpression {
         get { self[rows, 0...] }
         set { self[rows, 0...] = newValue }
     }
 
     //    @differentiable(where Self: DifferentiableTensorView)
     @inlinable subscript<C>(rows: UnboundedRange, cols: C) -> Self
-        where C: PartialRangeExpression, C.Bound == Int {
+        where C: SignedRangeExpression {
         get { self[0..., cols] }
         set { self[0..., cols] = newValue }
     }
@@ -51,7 +51,7 @@ public extension Tensor where Shape == Shape3 {
     @inlinable
     //    @differentiable(where Self: DifferentiableTensorView)
     subscript<D>(deps: D, rows: UnboundedRange, cols: UnboundedRange) -> Self
-        where D: PartialRangeExpression, D.Bound == Int {
+        where D: SignedRangeExpression {
         get { self[deps, 0..., 0...] }
         set { self[deps, 0..., 0...] = newValue }
     }
@@ -59,8 +59,8 @@ public extension Tensor where Shape == Shape3 {
     @inlinable
     //    @differentiable(where Self: DifferentiableTensorView)
     subscript<D, R>(deps: D, rows: R, cols: UnboundedRange) -> Self where
-        D: PartialRangeExpression, D.Bound == Int,
-        R: PartialRangeExpression, R.Bound == Int {
+        D: SignedRangeExpression,
+        R: SignedRangeExpression {
         get { self[deps, rows, 0...] }
         set { self[deps, rows, 0...] = newValue }
     }
@@ -68,8 +68,8 @@ public extension Tensor where Shape == Shape3 {
     @inlinable
     //    @differentiable(where Self: DifferentiableTensorView)
     subscript<D, C>(deps: D, rows: UnboundedRange, cols: C) -> Self where
-        D: PartialRangeExpression, D.Bound == Int,
-        C: PartialRangeExpression, C.Bound == Int {
+        D: SignedRangeExpression,
+        C: SignedRangeExpression {
         get { self[deps, 0..., cols] }
         set { self[deps, 0..., cols] = newValue }
     }
@@ -77,7 +77,7 @@ public extension Tensor where Shape == Shape3 {
     @inlinable
     //    @differentiable(where Self: DifferentiableTensorView)
     subscript<R>(deps: UnboundedRange, rows: R, cols: UnboundedRange) -> Self
-        where R: PartialRangeExpression, R.Bound == Int {
+        where R: SignedRangeExpression {
         get { self[0..., rows, 0...] }
         set { self[0..., rows, 0...] = newValue }
     }
@@ -85,7 +85,7 @@ public extension Tensor where Shape == Shape3 {
     @inlinable
     //    @differentiable(where Self: DifferentiableTensorView)
     subscript<C>(deps: UnboundedRange, rows: UnboundedRange, cols: C) -> Self
-        where C: PartialRangeExpression, C.Bound == Int {
+        where C: SignedRangeExpression {
         get { self[0..., 0..., cols] }
         set { self[0..., 0..., cols] = newValue }
     }
@@ -94,47 +94,39 @@ public extension Tensor where Shape == Shape3 {
 //==============================================================================
 // These subscripts do a mutli-dimensional selection based on item indexes
 // from dimension 0
-public extension TensorType {
-    @inlinable
+public extension TensorType
+{
     //    @differentiable(where Self: DifferentiableTensorView)
-    subscript(range: UnboundedRange) -> Self { self }
+    @inlinable subscript(range: UnboundedRange) -> Self { self }
     
-    @inlinable
     //    @differentiable(where Self: DifferentiableTensorView)
-    subscript<R>(range: R) -> Self
-        where R: PartialRangeExpression, R.Bound == Int {
+    @inlinable subscript<R>(range: R) -> Self where R: SignedRangeExpression {
         get {
-            let (start, end, _) = getItemRange(range.relativeTo(0..<shape[0]))
+            let (start, end) = getItemRange(range.relativeTo(0..<shape[0]))
             return self[start, end]
         }
     }
     
-    @usableFromInline
     @_semantics("autodiff.nonvarying")
-    internal func getItemRange(_ range: StridedRange<Int>) ->
-        (Shape, Shape, Shape)
-    {
-        var start = Shape.zero
-        var end = self.shape
-        var steps = Shape.one
-        start[0] = range.start
-        end[0] = range.end
-        steps[0] = range.step
-        return (start, end, steps)
+    @inlinable func getItemRange(_ range: SignedRange) -> (Shape, Shape) {
+        var lower = Shape.zero
+        var upper = self.shape
+        lower[0] = range.lower
+        upper[0] = range.upper
+        return (lower, upper)
     }
 }
 
-public extension MutableTensorType {
-    @inlinable
+public extension MutableTensorType
+{
     //    @differentiable(where Self: DifferentiableTensorView)
-    subscript<R>(range: R) -> Self
-        where R: PartialRangeExpression, R.Bound == Int {
+    @inlinable subscript<R>(range: R) -> Self where R: SignedRangeExpression {
         get {
-            let (start, end, _) = getItemRange(range.relativeTo(0..<shape[0]))
+            let (start, end) = getItemRange(range.relativeTo(0..<shape[0]))
             return self[start, end]
         }
         set {
-            let (start, end, _) = getItemRange(range.relativeTo(0..<shape[0]))
+            let (start, end) = getItemRange(range.relativeTo(0..<shape[0]))
             self[start, end] = newValue
         }
     }

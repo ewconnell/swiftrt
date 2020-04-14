@@ -132,12 +132,11 @@ public extension Tensor {
 }
 
 @inlinable
-public func fill<S,E,R>(_ x: inout Tensor<S,E>, with range: R) where
-    S: TensorShape,
-    R: StridedRangeExpression & Collection,
-    R.Bound == E, R.Element == E
+public func fill<S,E,B>(_ x: inout Tensor<S,E>, with range: Range<B>)
+    where S: TensorShape, E: Numeric,
+    B: SignedInteger, B.Stride: SignedInteger
 {
-    Context.currentQueue.fill(&x, with: range.stridedRange)
+    Context.currentQueue.fill(&x, with: range)
 }
 
 //==============================================================================
@@ -145,11 +144,9 @@ public func fill<S,E,R>(_ x: inout Tensor<S,E>, with range: R) where
 /// a convenience function to fill the tensor with index values from
 /// `0..<count`. If a different range is desired, use `fill(with range:`
 @inlinable func fillWithIndex<S,E>(_ x: inout Tensor<S,E>)
-    where S: TensorShape, E: RangeBound
+    where S: TensorShape, E: Comparable & Numeric
 {
-    let count = E(exactly: x.count)!
-    let range = StridedRange(from: 0, to: count, by: 1)
-    fill(&x, with: range)
+    fill(&x, with: 0..<x.count)
 }
 
 //==============================================================================

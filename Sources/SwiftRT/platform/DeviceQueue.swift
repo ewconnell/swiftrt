@@ -646,10 +646,11 @@ open class DeviceQueue: Logging {
     }
 
     @inlinable
-    func fill<S,E>(_ result: inout Tensor<S,E>, with range: StridedRange<E>)
-        where S: TensorShape
+    func fill<S,E,B>(_ result: inout Tensor<S,E>, with range: Range<B>)
+        where S: TensorShape, E: Numeric,
+        B: SignedInteger, B.Stride: SignedInteger
     {
-        mapOp(range, &result) { $0 }
+        mapOp(range.lazy.map { E(exactly: $0)! }, &result) { $0 }
     }
 
     //==========================================================================

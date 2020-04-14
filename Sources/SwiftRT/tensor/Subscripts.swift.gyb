@@ -52,27 +52,25 @@ public extension Tensor where Shape == Shape${n} {
     @inlinable
     subscript<${', '.join(['R' + str(i) for i in range(n)])}>(${', '.join(['r' + str(i) + ': R' + str(i) for i in range(n)])}) -> Self where
 % for i in range(n):
-        R${i}: PartialRangeExpression, R${i}.Bound == Int${',' if i < (n - 1) else ''}
+        R${i}: SignedRangeExpression${',' if i < (n - 1) else ''}
 % end
     {
         get {
 % for i in range(n):
             let d${i} = r${i}.relativeTo(0..<shape[${i}])
 % end
-            let lower = Shape${n}(${', '.join(['d' + str(i) + '.start' for i in range(n)])})
-            let upper = Shape${n}(${', '.join(['d' + str(i) + '.end' for i in range(n)])})
-            let steps = Shape${n}(${', '.join(['d' + str(i) + '.step' for i in range(n)])})
-            return self[lower, upper, steps]
+            let lower = Shape${n}(${', '.join(['d' + str(i) + '.lower' for i in range(n)])})
+            let upper = Shape${n}(${', '.join(['d' + str(i) + '.upper' for i in range(n)])})
+            return self[lower, upper]
         }
         
         set {
 % for i in range(n):
             let d${i} = r${i}.relativeTo(0..<shape[${i}])
 % end
-            let lower = Shape${n}(${', '.join(['d' + str(i) + '.start' for i in range(n)])})
-            let upper = Shape${n}(${', '.join(['d' + str(i) + '.end' for i in range(n)])})
-            let steps = Shape${n}(${', '.join(['d' + str(i) + '.step' for i in range(n)])})
-            self[lower, upper, steps] = newValue
+            let lower = Shape${n}(${', '.join(['d' + str(i) + '.lower' for i in range(n)])})
+            let upper = Shape${n}(${', '.join(['d' + str(i) + '.upper' for i in range(n)])})
+            self[lower, upper] = newValue
         }
     }
 }
