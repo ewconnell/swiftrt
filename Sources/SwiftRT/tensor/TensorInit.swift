@@ -261,7 +261,9 @@ public extension Tensor {
                    "incompatible dimensions")
             shape[i] = other.elementCount / specifiedCount
         }
-
+        assert(shape.elementCount() == other.elementCount,
+               "the new shape must have the same number of elements as other")
+        
         // determine storage order
         let order: StorageOrder = newOrder == .F ||
             (newOrder == .A &&
@@ -565,7 +567,7 @@ extension Tensor where Element: Numeric {
 extension Tensor where Element: DifferentiableElement
 {
     //--------------------------------------------------------------------------
-    // TODO: THIS IS REALLY EXPENSIVE AND USELESS!!!!
+    // TODO: Is this really necessary!!?? It's expensive
     @derivative(of: init(repeating:to:))
     @inlinable static func _vjpInit(repeating value: Element, to shape: Shape)
         -> (value: Self, pullback: (Self) -> (Element))
@@ -574,21 +576,20 @@ extension Tensor where Element: DifferentiableElement
     }
     
     //--------------------------------------------------------------------------
-//    @derivative(of: init(reshaping:to:order:))
-//    @inlinable static func _vjpInit<S>(
-//        reshaping other: Tensor<S,Element>,
-//        to newShape: Shape,
-//        order newOrder: StorageOrder
-//    ) -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
-//        where S: TensorShape
-//    {
-//        let value = Self(reshaping: other, to: newShape, order: newOrder)
-//        return (value, {
-//            var vshape = other.shape
-//            return Tensor<S,Element>(reshaping: $0, to: vshape,
-//                                     order: $0.storageOrder)
-//        })
-//    }
+    @derivative(of: init(reshaping:to:order:))
+    @inlinable static func _vjpInit<S>(
+        reshaping other: Tensor<S,Element>,
+        to newShape: Shape,
+        order newOrder: StorageOrder
+    ) -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
+        where S: TensorShape
+    {
+        let value = Self(reshaping: other, to: newShape, order: newOrder)
+        return (value, {
+            Tensor<S,Element>(reshaping: $0, to: other.shape,
+                              order: other.storageOrder)
+        })
+    }
 
     //--------------------------------------------------------------------------
     @derivative(of: init(expanding:axes:))

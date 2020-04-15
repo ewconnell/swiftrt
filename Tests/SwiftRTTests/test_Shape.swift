@@ -21,10 +21,30 @@ class test_Shape: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_reshape", test_reshape),
         ("test_SequentialViews", test_SequentialViews),
         ("test_transposed", test_transposed),
     ]
 
+    //--------------------------------------------------------------------------
+    // test_reshape
+    func test_reshape() {
+        let a3 = array(0..<12, (2, 3, 2))
+        let a2 = reshape(a3, (2, -1))
+        XCTAssert(a2.shape == [2, 6])
+        XCTAssert(a2 == [[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10, 11]])
+        
+        let a1 = reshape(a3, -1)
+        XCTAssert(a1 == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+        
+        let b2 = reshape(a1, (2, -1))
+        XCTAssert(b2 == [[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10, 11]])
+
+        let b3 = reshape(a1, (2, 2, 3))
+//        XCTAssert(b2
+
+    }
+    
     //--------------------------------------------------------------------------
     // test_expanding
     func test_expanding() {
