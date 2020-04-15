@@ -36,85 +36,85 @@ import Foundation
 // Rank1
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor1<E>, axis: Int) -> Tensor2<E> {
-    Tensor2<E>(expanding: a, alongAxes: [axis])
+    Tensor2<E>(expanding: a, axes: Shape1(axis))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor1<E>, axes: Shape2.Tuple) -> Tensor3<E> {
-    Tensor3<E>(expanding: a, alongAxes: Shape2(axes).array)
+    Tensor3<E>(expanding: a, axes: Shape2(axes))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor1<E>, axes: Shape3.Tuple) -> Tensor4<E> {
-    Tensor4<E>(expanding: a, alongAxes: Shape3(axes).array)
+    Tensor4<E>(expanding: a, axes: Shape3(axes))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor1<E>, axes: Shape4.Tuple) -> Tensor5<E> {
-    Tensor5<E>(expanding: a, alongAxes: Shape4(axes).array)
+    Tensor5<E>(expanding: a, axes: Shape4(axes))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor1<E>, axes: Shape5.Tuple) -> Tensor6<E> {
-    Tensor6<E>(expanding: a, alongAxes: Shape5(axes).array)
+    Tensor6<E>(expanding: a, axes: Shape5(axes))
 }
 
 //==============================================================================
 // Rank2
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor2<E>, axis: Int) -> Tensor3<E> {
-    Tensor3<E>(expanding: a, alongAxes: [axis])
+    Tensor3<E>(expanding: a, axes: Shape1(axis))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor2<E>, axes: Shape2.Tuple) -> Tensor4<E> {
-    Tensor4<E>(expanding: a, alongAxes: Shape2(axes).array)
+    Tensor4<E>(expanding: a, axes: Shape2(axes))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor2<E>, axes: Shape3.Tuple) -> Tensor5<E> {
-    Tensor5<E>(expanding: a, alongAxes: Shape3(axes).array)
+    Tensor5<E>(expanding: a, axes: Shape3(axes))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor2<E>, axes: Shape4.Tuple) -> Tensor6<E> {
-    Tensor6<E>(expanding: a, alongAxes: Shape4(axes).array)
+    Tensor6<E>(expanding: a, axes: Shape4(axes))
 }
 
 //==============================================================================
 // Rank3
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor3<E>, axis: Int) -> Tensor4<E> {
-    Tensor4<E>(expanding: a, alongAxes: [axis])
+    Tensor4<E>(expanding: a, axes: Shape1(axis))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor3<E>, axes: Shape2.Tuple) -> Tensor5<E> {
-    Tensor5<E>(expanding: a, alongAxes: Shape2(axes).array)
+    Tensor5<E>(expanding: a, axes: Shape2(axes))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor3<E>, axes: Shape3.Tuple) -> Tensor6<E> {
-    Tensor6<E>(expanding: a, alongAxes: Shape3(axes).array)
+    Tensor6<E>(expanding: a, axes: Shape3(axes))
 }
 
 //==============================================================================
 // Rank4
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor4<E>, axis: Int) -> Tensor5<E> {
-    Tensor5<E>(expanding: a, alongAxes: [axis])
+    Tensor5<E>(expanding: a, axes: Shape1(axis))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor4<E>, axes: Shape2.Tuple) -> Tensor6<E> {
-    Tensor6<E>(expanding: a, alongAxes: Shape2(axes).array)
+    Tensor6<E>(expanding: a, axes: Shape2(axes))
 }
 
 //==============================================================================
 // Rank5
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor5<E>, axis: Int) -> Tensor6<E> {
-    Tensor6<E>(expanding: a, alongAxes: [axis])
+    Tensor6<E>(expanding: a, axes: Shape1(axis))
 }
 
 
@@ -128,84 +128,84 @@ import Foundation
 // Rank2
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor2<E>, axis: Int) -> Tensor1<E> {
-    Tensor1<E>(squeezing: a, alongAxes: [axis])
+    Tensor1<E>(squeezing: a, axes: Shape1(axis))
 }
 
 //==============================================================================
 // Rank3
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor3<E>, axis: Int) -> Tensor2<E> {
-    Tensor2<E>(squeezing: a, alongAxes: [axis])
+    Tensor2<E>(squeezing: a, axes: Shape1(axis))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor3<E>, axes: Shape2.Tuple) -> Tensor1<E> {
-    Tensor1<E>(squeezing: a, alongAxes: Shape2(axes).array)
+    Tensor1<E>(squeezing: a, axes: Shape2(axes))
 }
 
 //==============================================================================
 // Rank4
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor4<E>, axis: Int) -> Tensor3<E> {
-    Tensor3<E>(squeezing: a, alongAxes: [axis])
+    Tensor3<E>(squeezing: a, axes: Shape1(axis))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor4<E>, axes: Shape2.Tuple) -> Tensor2<E> {
-    Tensor2<E>(squeezing: a, alongAxes: Shape2(axes).array)
+    Tensor2<E>(squeezing: a, axes: Shape2(axes))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor4<E>, axes: Shape3.Tuple) -> Tensor1<E> {
-    Tensor1<E>(squeezing: a, alongAxes: Shape3(axes).array)
+    Tensor1<E>(squeezing: a, axes: Shape3(axes))
 }
 
 //==============================================================================
 // Rank5
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor5<E>, axis: Int) -> Tensor4<E> {
-    Tensor4<E>(squeezing: a, alongAxes: [axis])
+    Tensor4<E>(squeezing: a, axes: Shape1(axis))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor5<E>, axes: Shape2.Tuple) -> Tensor3<E> {
-    Tensor3<E>(squeezing: a, alongAxes: Shape2(axes).array)
+    Tensor3<E>(squeezing: a, axes: Shape2(axes))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor5<E>, axes: Shape3.Tuple) -> Tensor2<E> {
-    Tensor2<E>(squeezing: a, alongAxes: Shape3(axes).array)
+    Tensor2<E>(squeezing: a, axes: Shape3(axes))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor5<E>, axes: Shape4.Tuple) -> Tensor1<E> {
-    Tensor1<E>(squeezing: a, alongAxes: Shape4(axes).array)
+    Tensor1<E>(squeezing: a, axes: Shape4(axes))
 }
 
 //==============================================================================
 // Rank6
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor6<E>, axis: Int) -> Tensor5<E> {
-    Tensor5<E>(squeezing: a, alongAxes: [axis])
+    Tensor5<E>(squeezing: a, axes: Shape1(axis))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor6<E>, axes: Shape2.Tuple) -> Tensor4<E> {
-    Tensor4<E>(squeezing: a, alongAxes: Shape2(axes).array)
+    Tensor4<E>(squeezing: a, axes: Shape2(axes))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor6<E>, axes: Shape3.Tuple) -> Tensor3<E> {
-    Tensor3<E>(squeezing: a, alongAxes: Shape3(axes).array)
+    Tensor3<E>(squeezing: a, axes: Shape3(axes))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor6<E>, axes: Shape4.Tuple) -> Tensor2<E> {
-    Tensor2<E>(squeezing: a, alongAxes: Shape4(axes).array)
+    Tensor2<E>(squeezing: a, axes: Shape4(axes))
 }
 
 //@differentiable(where E: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor6<E>, axes: Shape5.Tuple) -> Tensor1<E> {
-    Tensor1<E>(squeezing: a, alongAxes: Shape5(axes).array)
+    Tensor1<E>(squeezing: a, axes: Shape5(axes))
 }
 

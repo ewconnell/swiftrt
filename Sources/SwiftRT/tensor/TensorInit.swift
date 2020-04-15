@@ -255,22 +255,31 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
-    /// init(expanding:
-    /// - Parameter other: the shape to expand
-    @inlinable init<S>(
-        expanding other: Tensor<S,Element>,
-        alongAxes axes: [Int]? = nil
-    ) where S: TensorShape
+    /// init(expanding other:axes:
+    /// - Parameters:
+    ///  - other: the tensor to expand
+    ///  - axes: the list of axes to expand
+    @inlinable init<S, Axes>(expanding other: Tensor<S,Element>, axes: Axes)
+        where S: TensorShape, Axes: TensorShape
     {
         // set the expanded axes
         var shape = Shape.zero
         var strides = Shape.zero
-        if let axes = axes {
+
+        // default case indents by 1
+        if axes.count == 1 && axes[0] == 0 {
+            shape[0] = 1
+            strides[0] = other.shape[0] * other.strides[0]
+            for (i, j) in zip(1..<Shape.rank, 0..<S.rank) {
+                shape[i] = other.shape[j]
+                strides[i] = other.strides[j]
+            }
+        } else {
             assert(Shape.rank == S.rank + axes.count, "rank mismatch")
             // set 1 in expanded dimensions making sure axes are positive
             // and keeping in mind the axes could be in any order
-            for axis in axes {
-                shape[axis >= 0 ? axis : axis + S.rank] = 1
+            for i in 0..<axes.count {
+                shape[axes[i] >= 0 ? axes[i] : axes[i] + S.rank] = 1
             }
             
             var axis = Shape.rank - 1
@@ -292,17 +301,8 @@ public extension Tensor {
                 }
                 axis -= 1
             }
-        } else {
-            // default case indents by 1
-            shape[0] = 1
-            strides[0] = other.shape[0] * other.strides[0]
-            for (i, j) in zip(1..<Shape.rank, 0..<S.rank) {
-                shape[i] = other.shape[j]
-                strides[i] = other.strides[j]
-            }
         }
         
-        //-----------------------------------
         self.init(shape: shape,
                   strides: strides,
                   elementCount: other.elementCount,
@@ -314,11 +314,10 @@ public extension Tensor {
                   isSequential: other.isSequential)
     }
     
-    @inlinable
-    init<S>(expanding other: Tensor<S,Element>, alongAxes axes: Int...)
+    @inlinable init<S>(expanding other: Tensor<S,Element>, axes: Int...)
         where S: TensorShape
     {
-        self.init(expanding: other, alongAxes: axes)
+        self.init(expanding: other, axes: Shape(axes))
     }
 
     //--------------------------------------------------------------------------
@@ -326,36 +325,27 @@ public extension Tensor {
     /// - Parameters:
     ///  - other: the collection to squeeze
     ///  - axes: a list of axes to squeeze
-    @inlinable init<S>(
-        squeezing other: Tensor<S,Element>,
-        alongAxes axes: [Int]? = nil
-    ) where S: TensorShape
+    @inlinable init<S,Axes>(squeezing other: Tensor<S,Element>, axes: Axes)
+        where S: TensorShape, Axes: TensorShape
     {
-        // zero the axes to squeeze
-        var otherShape = other.shape
-        var filter = 1
-        if let axes = axes {
-            assert(Shape.rank == S.rank - axes.count, "rank mismatch")
-            filter = 0
-            for axis in axes {
-                // make sure axis positive
-                otherShape[axis >= 0 ? axis : axis + S.rank] = 0
-            }
-        }
-        
+        assert(Shape.rank == S.rank - Axes.rank, "rank mismatch")
         var axis = 0
         var shape = Shape.zero
         var strides = Shape.zero
+        var otherShape = other.shape
 
-        for i in 0..<S.rank where otherShape[i] > filter {
-            assert(axis < Shape.rank,
-                   "Unsqueezed axes of `other` exceeds rank of this shape")
+        // zero the axes to squeeze. These are done in two loops
+        // because the axes list could be in any order
+        for i in 0..<axes.count {
+            otherShape[axes[i] >= 0 ? axes[i] : axes[i] + S.rank] = 0
+        }
+        
+        for i in 0..<S.rank where otherShape[i] == 0 {
             shape[axis] = otherShape[i]
             strides[axis] = other.strides[i]
             axis += 1
         }
         
-        //-----------------------------------
         self.init(shape: shape,
                   strides: strides,
                   elementCount: other.elementCount,
@@ -367,19 +357,16 @@ public extension Tensor {
                   isSequential: other.isSequential)
     }
     
-    @inlinable
-    init<S>(squeezing other: Tensor<S,Element>, alongAxes axes: Int...)
+    @inlinable init<S>(squeezing other: Tensor<S,Element>, axes: Int...)
         where S: TensorShape
     {
-        self.init(squeezing: other, alongAxes: axes)
+        self.init(squeezing: other, axes: Shape(axes))
     }
 
     //--------------------------------------------------------------------------
-    /// init(stacking:
-    @inlinable init<S>(
-        stacking others: [Tensor<S,Element>],
-        alongAxis axis: Int = 0
-    ) where S: TensorShape
+    /// init(stacking:axis:
+    @inlinable init<S>(stacking others: [Tensor<S,Element>], axis: Int = 0)
+        where S: TensorShape
     {
         // verify that tensors are the correct rank and same shape
         assert(others.count > 0 && S.rank == Shape.rank - 1,
@@ -393,7 +380,7 @@ public extension Tensor {
         }(), "stacked tensors must all be the same size")
         
         // form stacked bounds and create dense stacked result
-        let expanded = others.map { Self(expanding: $0, alongAxes: axis) }
+        let expanded = others.map { Self(expanding: $0, axes: Shape1(axis)) }
         var stackedShape = expanded[0].shape
         stackedShape[axis] = expanded.count
         self = Self(stackedShape)
@@ -407,8 +394,8 @@ public extension Tensor {
     }
     
     @inlinable
-    init<S>(stacking others: Tensor<S,Element>..., alongAxis axis: Int = 0) {
-        self.init(stacking: others, alongAxis: axis)
+    init<S>(stacking others: Tensor<S,Element>..., axis: Int = 0) {
+        self.init(stacking: others, axis: axis)
     }
 
     //--------------------------------------------------------------------------
@@ -538,39 +525,39 @@ extension Tensor where Element: DifferentiableElement
         (Self(repeating: value, to: shape), { $0.sum().element })
     }
     
-    //--------------------------------------------------------------------------
-    @derivative(of: init(flattening:))
-    @inlinable static func _vjpInit<S>(flattening other: Tensor<S,Element>)
-        -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
-        where S: TensorShape
-    {
-        let axes = [Int](Shape.rank..<S.rank)
-        let value = Self(flattening: other)
-        return (value, { Tensor<S,Element>(expanding: $0, alongAxes: axes) })
-    }
+//    //--------------------------------------------------------------------------
+//    @derivative(of: init(flattening:))
+//    @inlinable static func _vjpInit<S>(flattening other: Tensor<S,Element>)
+//        -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
+//        where S: TensorShape
+//    {
+//        let axes = [Int](Shape.rank..<S.rank)
+//        let value = Self(flattening: other)
+//        return (value, { Tensor<S,Element>(expanding: $0, axes: axes) })
+//    }
 
     //--------------------------------------------------------------------------
-    @derivative(of: init(expanding:alongAxes:))
-    @inlinable public static func _vjpInit<S>(
+    @derivative(of: init(expanding:axes:))
+    @inlinable public static func _vjpInit<S, Axes>(
         expanding other: Tensor<S,Element>,
-        alongAxes axes: [Int]?
+        axes: Axes
     ) -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
-        where S: TensorShape
+        where S: TensorShape, Axes: TensorShape
     {
-        let value = Self(expanding: other, alongAxes: axes)
-        return (value, { Tensor<S,Element>(squeezing: $0, alongAxes: axes) })
+        let value = Self(expanding: other, axes: axes)
+        return (value, { Tensor<S,Element>(squeezing: $0, axes: axes) })
     }
 
     //--------------------------------------------------------------------------
-    @derivative(of: init(squeezing:alongAxes:))
-    @inlinable static func _vjpInit<S>(
+    @derivative(of: init(squeezing:axes:))
+    @inlinable static func _vjpInit<S, Axes>(
         squeezing other: Tensor<S,Element>,
-        alongAxes axes: [Int]?
+        axes: Axes
     ) -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
-        where S: TensorShape
+        where S: TensorShape, Axes: TensorShape
     {
-        let value = Self(squeezing: other, alongAxes: axes)
-        return (value, { Tensor<S,Element>(expanding: $0, alongAxes: axes) })
+        let value = Self(squeezing: other, axes: axes)
+        return (value, { Tensor<S,Element>(expanding: $0, axes: axes) })
     }
 
 }
