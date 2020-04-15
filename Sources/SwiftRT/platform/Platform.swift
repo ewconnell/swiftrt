@@ -135,6 +135,8 @@ public enum NanPropagation: Int, Codable {
 /// or column-major (Fortran-style) order in memory.
 /// These names are following the numpy naming convention
 public enum StorageOrder: Int, Codable {
+    /// dynamic decision based on api
+    case A
     /// C style row major memory layout
     case C
     /// Fortran style column major memory layout

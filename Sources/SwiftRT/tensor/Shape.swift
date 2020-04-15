@@ -129,9 +129,11 @@ public extension TensorShape {
     }
     
     //--------------------------------------------------------------------------
-    /// `reduce`
-    @inlinable
-    func reduce(
+    /// `reduce
+    /// - Parameters:
+    ///  - initialResult: the initial result value
+    ///  - updateAccumulatingResult: accumulation functions
+    @inlinable func reduce(
         into initialResult: Scalar,
         _ updateAccumulatingResult: (inout Scalar, Scalar) -> ()) -> Scalar
     {
@@ -140,14 +142,28 @@ public extension TensorShape {
         }
     }
 
+    //--------------------------------------------------------------------------
+    /// elementCount
+    /// - Returns: the number of spatial elements bounded by the shape
     @inlinable func elementCount() -> Int {
         self.reduce(into: 1, &*=)
     }
     
+    //--------------------------------------------------------------------------
+    /// index
+    /// - Parameters:
+    ///  - strides: the strides for shape
+    /// - Returns: linear strided index
     @inlinable func index(stridedBy strides: Self) -> Int {
         (self &* strides).wrappedSum()
     }
     
+    //--------------------------------------------------------------------------
+    /// spanCount
+    /// - Parameters:
+    ///  - strides: the strides for shape
+    /// - Returns: the distance from the first element's linear storage index
+    ///   to the last
     @inlinable func spanCount(stridedBy strides: Self) -> Int {
         ((self &- 1) &* strides).wrappedSum() &+ 1
     }
@@ -166,6 +182,28 @@ public extension TensorShape {
             shapeStride &*= self[dim]
             dim &-= 1
         }
+        return strides
+    }
+
+    //--------------------------------------------------------------------------
+    /// `strides(order:`
+    /// computes the strides needed to index the specified storage order
+    @inlinable func strides(for order: StorageOrder) -> Self {
+        // strides will be overwritten, but it needs an initial value
+        // so give it something that will already be in the cache
+        var strides = self
+        var dim = Self.rank - 1
+        var shapeStride = 1
+        while dim >= 0 {
+            strides[dim] = shapeStride
+            shapeStride &*= self[dim]
+            dim &-= 1
+        }
+        
+        if order == .colMajor && Self.rank > 1 {
+            strides.swapAt(Self.rank - 1, Self.rank - 2)
+        }
+
         return strides
     }
 

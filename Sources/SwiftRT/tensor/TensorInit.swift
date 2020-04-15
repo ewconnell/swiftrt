@@ -229,29 +229,77 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
-    /// init(flattening:
-    /// - Parameter other: the shape to flatten
-    @inlinable init<S>(flattening other: Tensor<S,Element>)
-        where S: TensorShape
+    /// init(reshaping:shape:order:
+    /// - Parameters:
+    ///  - other: the tensor to reshape
+    ///  - newShape: the shape of the new tensor
+    ///  - order: the storage order of the new tensor
+    @inlinable init<S>(
+        reshaping other: Tensor<S,Element>,
+        to newShape: Shape,
+        order newOrder: StorageOrder = .C
+    ) where S: TensorShape
     {
-        // TODO: consider special cases where this restriction might be lifted
-        assert(other.isSequential, "cannot flatten non sequential data")
-        let shape = Shape(flattening: other.shape)
+        // TODO: consider special cases where this restriction can be lifted
+        assert(other.isSequential, "cannot reshape non sequential data")
+        assert(
+            {
+                var found = false
+                for i in 0..<Shape.rank where newShape[i] == -1 {
+                    if found { return false }
+                    found = true
+                }
+                return true
+            }(), "There can only be one instance of -1 in the shape")
+
+        // resolve an implied dimension if it exists
+        var shape = newShape
+        for i in 0..<shape.count where newShape[i] == -1 {
+            shape[i] = 1
+            let specifiedCount = shape.elementCount()
+            assert(other.elementCount % specifiedCount == 0,
+                   "incompatible dimensions")
+            shape[i] = other.elementCount / specifiedCount
+        }
+
+        // determine storage order
+        let order: StorageOrder = newOrder == .F ||
+            (newOrder == .A &&
+            other.storageOrder == .F &&
+            other.isSequential) ? .F : .C
+
+        // create new tensor, which is a shaped reference to other's storage
         self.init(shape: shape,
-                  strides: shape.sequentialStrides(),
+                  strides: shape.strides(for: order),
                   elementCount: other.elementCount,
-                  spanCount: other.elementCount,
+                  spanCount: other.spanCount,
                   storage: other.storage,
                   baseOffset: other.baseOffset,
-                  order: other.storageOrder,
+                  order: order,
                   share: other.isShared,
                   isSequential: true)
-    }
 
-    // noop flattening case
-    // this might be used when blindly flattening a parameter
-    @inlinable init(flattening other: Self) {
-        self = other
+        // reorder elements if needed
+        if order != other.storageOrder {
+            // create other with the new shape retaining it's original order
+            let reshapedOther =
+                Self(shape: shape,
+                     strides: shape.strides(for: other.storageOrder),
+                     elementCount: other.elementCount,
+                     spanCount: other.spanCount,
+                     storage: other.storage,
+                     baseOffset: other.baseOffset,
+                     order: other.storageOrder,
+                     share: other.isShared,
+                     isSequential: true)
+            
+            // create a new empty storage buffer for self
+            self.storage = StorageBufferType<Element>(count: elementCount,
+                                                      name: storage.name)
+            
+            // performs an indexed copy which reorders the elements
+            copy(from: reshapedOther, to: &self)
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -525,15 +573,21 @@ extension Tensor where Element: DifferentiableElement
         (Self(repeating: value, to: shape), { $0.sum().element })
     }
     
-//    //--------------------------------------------------------------------------
-//    @derivative(of: init(flattening:))
-//    @inlinable static func _vjpInit<S>(flattening other: Tensor<S,Element>)
-//        -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
+    //--------------------------------------------------------------------------
+//    @derivative(of: init(reshaping:to:order:))
+//    @inlinable static func _vjpInit<S>(
+//        reshaping other: Tensor<S,Element>,
+//        to newShape: Shape,
+//        order newOrder: StorageOrder
+//    ) -> (value: Self, pullback: (Self) -> Tensor<S,Element>)
 //        where S: TensorShape
 //    {
-//        let axes = [Int](Shape.rank..<S.rank)
-//        let value = Self(flattening: other)
-//        return (value, { Tensor<S,Element>(expanding: $0, axes: axes) })
+//        let value = Self(reshaping: other, to: newShape, order: newOrder)
+//        return (value, {
+//            var vshape = other.shape
+//            return Tensor<S,Element>(reshaping: $0, to: vshape,
+//                                     order: $0.storageOrder)
+//        })
 //    }
 
     //--------------------------------------------------------------------------
