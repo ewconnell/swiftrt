@@ -51,11 +51,12 @@ public extension Tensor {
     ///  - order: the storage order of the elements
     @inlinable init(_ shape: Shape, order: StorageOrder = .C) {
         let count = shape.elementCount()
+        let name = Self.defaultName
         self.init(shape: shape,
                   strides: shape.strides(for: order),
                   elementCount: count,
                   spanCount: count,
-                  storage: StorageBufferType(count: count, name: Self.name),
+                  storage: StorageBufferType(count: count, name: name),
                   baseOffset: 0,
                   order: order,
                   share: false,
@@ -81,7 +82,7 @@ public extension Tensor {
                   strides: Shape.one,
                   elementCount: 1,
                   spanCount: 1,
-                  storage: StorageBufferType(count: 1, name: Self.name),
+                  storage: StorageBufferType(count: 1, name: Self.defaultName),
                   baseOffset: 0,
                   order: .C,
                   share: false,
@@ -588,11 +589,12 @@ extension Tensor where Element: Numeric {
         order: StorageOrder = .C
     ) {
         let count = shape.elementCount()
+        let name = Self.defaultName
         self.init(shape: shape,
                   strides: shape.strides(for: order),
                   elementCount: count,
                   spanCount: count,
-                  storage: StorageBufferType(count: count, name: Self.name),
+                  storage: StorageBufferType(count: count, name: name),
                   baseOffset: 0,
                   order: order,
                   share: false,

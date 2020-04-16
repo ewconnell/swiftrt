@@ -21,45 +21,44 @@ class test_Codable: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_vector", test_vector),
-        ("test_matrix", test_matrix),
+        ("test_Tensor1", test_Tensor1),
+        ("test_Tensor2", test_Tensor2),
         ("test_RGBImage", test_RGBImage),
         ("test_RGBAImage", test_RGBAImage),
     ]
     
     //==========================================================================
-    // test_vector
+    // test_Tensor1
     // encodes and decodes
-    func test_vector() {
+    func test_Tensor1() {
         do {
             let jsonEncoder = JSONEncoder()
             let expected: [Float] = [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2]
-            let vector = Vector(expected)
-            let jsonData = try jsonEncoder.encode(vector)
-//            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
-//            print(jsonVectorString)
+            let a = array(expected)
+            let jsonData = try jsonEncoder.encode(a)
+            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
+            print(jsonVectorString)
             let decoder = JSONDecoder()
-            let vector2 = try decoder.decode(Vector.self, from: jsonData)
-            XCTAssert(vector2 == expected)
+            let b = try decoder.decode(Tensor1<Float>.self, from: jsonData)
+            XCTAssert(b == expected)
         } catch {
             XCTFail(String(describing: error))
         }
     }
 
     //==========================================================================
-    // test_matrix
+    // test_Tensor2
     // encodes and decodes
-    func test_matrix() {
+    func test_Tensor2() {
         do {
             let jsonEncoder = JSONEncoder()
-            let expected = (0..<10).map { Float($0) }
-            let matrix = Matrix(2, 5, with: expected)
-            let jsonData = try jsonEncoder.encode(matrix)
+            let a = array([[0, 1, 2, 3, 4], [5, 6, 7, 8, 9]])
+            let jsonData = try jsonEncoder.encode(a)
 //            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
 //            print(jsonVectorString)
             let decoder = JSONDecoder()
-            let matrix2 = try decoder.decode(Matrix.self, from: jsonData)
-            XCTAssert(matrix2 == expected)
+            let b = try decoder.decode(Tensor2<Float>.self, from: jsonData)
+            XCTAssert(b == [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9]])
         } catch {
             XCTFail(String(describing: error))
         }
@@ -71,10 +70,10 @@ class test_Codable: XCTestCase {
     func test_RGBImage() {
         do {
             typealias Pixel = RGB<Float>
-            typealias Image = SwiftRT.Matrix<Pixel>
+            typealias Image = Tensor2<Pixel>
             let jsonEncoder = JSONEncoder()
-            let pixels = [Pixel(0, 0.5, 1), Pixel(0.25, 0.5, 0.75)]
-            var image = Image(1, 2, with: pixels)
+            let pixels = [[Pixel(0, 0.5, 1), Pixel(0.25, 0.5, 0.75)]]
+            var image = array(pixels)
             image.name = "pixels"
             let jsonData = try jsonEncoder.encode(image)
 //            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
@@ -93,10 +92,10 @@ class test_Codable: XCTestCase {
     func test_RGBAImage() {
         do {
             typealias Pixel = RGBA<Float>
-            typealias Image = SwiftRT.Matrix<Pixel>
+            typealias Image = Tensor2<Pixel>
             let jsonEncoder = JSONEncoder()
-            let pixels = [Pixel(0, 0.25, 0.5, 1), Pixel(0.25, 0.5, 0.75, 1)]
-            var image = Image(1, 2, with: pixels)
+            let pixels = [[Pixel(0, 0.25, 0.5, 1), Pixel(0.25, 0.5, 0.75, 1)]]
+            var image = array(pixels)
             image.name = "pixels"
             let jsonData = try jsonEncoder.encode(image)
 //            let jsonVectorString = String(data: jsonData, encoding: .utf8)!

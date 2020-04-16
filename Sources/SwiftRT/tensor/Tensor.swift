@@ -25,8 +25,9 @@ public struct Tensor<Shape, Element>: MutableTensorType
     public typealias Index = ElementIndex<Shape>
 
     // properties
-    /// the diagnostic name for the collection
-    @inlinable public static var name: String { "Tensor\(Shape.rank)" }
+    /// the default name used for diagnostic messages if the user
+    /// has not assigned one
+    @inlinable public static var defaultName: String { "Tensor\(Shape.rank)" }
     /// the element storage buffer.
     public var storage: StorageBufferType<Element>
     /// the dense number of elements in the shape
@@ -62,6 +63,12 @@ public struct Tensor<Shape, Element>: MutableTensorType
 
     /// `true` if the tensor represents a single constant Element
     @inlinable public var isSingleElement: Bool { spanCount == 1 }
+    
+    /// the name of the collection
+    @inlinable public var name: String {
+        get { storage.name }
+        set { storage.name = newValue }
+    }
 
     //--------------------------------------------------------------------------
     /// init(
@@ -143,6 +150,37 @@ extension Tensor: Differentiable & DifferentiableTensor
 extension Tensor: AdditiveArithmetic where Element: Numeric {
     @inlinable public static var zero: Self { Tensor(0) }
     @inlinable public static var one: Self { Tensor(1) }
+}
+
+//==============================================================================
+// Tensor Codable
+public enum TensorCodingKeys: String, CodingKey { case data, shape, name }
+
+extension Tensor: Codable where Element: Codable {
+    /// encodes the contents of the array
+    @inlinable public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: TensorCodingKeys.self)
+        try container.encode(storage.name, forKey: .name)
+        try container.encode(shape, forKey: .shape)
+        var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
+        try self.forEach {
+            try dataContainer.encode($0)
+        }
+    }
+    
+    @inlinable public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: TensorCodingKeys.self)
+        let name = try container.decode(String.self, forKey: .name)
+        let shape = try container.decode(Shape.self, forKey: .shape)
+        var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
+        self = Self(shape)
+        self.name = name
+
+        assert(self.count == dataContainer.count)
+        for i in self.indices {
+            self[i] = try dataContainer.decode(Element.self)
+        }
+    }
 }
 
 //==============================================================================
