@@ -201,7 +201,7 @@ public struct ElementIndex<Shape>: Comparable, Codable
 public extension Tensor {
     //--------------------------------------------------------------------------
     /// - Returns: the collection elements as a 1D Swift array
-    @inlinable var flat: [Element] {
+    @inlinable var flatArray: [Element] {
         [Element](self)
     }
     

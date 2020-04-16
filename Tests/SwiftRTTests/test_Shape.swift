@@ -59,9 +59,9 @@ class test_Shape: XCTestCase {
         var cm = reshape(rm, (2, 3), order: .F)
         print(cm)
         cm = array(0..<6, (2, 3), order: .F)
-        print(cm.flat)
+        print(cm.flatArray)
         rm = reshape(cm, (2, 3), order: .C)
-        print(rm.flat)
+        print(rm.flatArray)
     }
     
     //--------------------------------------------------------------------------

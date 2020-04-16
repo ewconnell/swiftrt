@@ -196,7 +196,7 @@ class test_Subscripting: XCTestCase {
         var v1 = array(0...6)
         let sevens = repeating(7, (3))
         v1[2...4] = sevens
-        XCTAssert(v1.flat == [0, 1, 7, 7, 7, 5, 6])
+        XCTAssert(v1.flatArray == [0, 1, 7, 7, 7, 5, 6])
         
         let v2 = array(1...6)
         let g = pullback(at: v2, in: { exp($0) })(ones(like: v2))
