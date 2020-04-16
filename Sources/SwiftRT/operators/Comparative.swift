@@ -94,13 +94,13 @@ infix operator .|| : LogicalConjunctionPrecedence
 
 public extension Tensor where Element == Bool {
     @inlinable
-    static func .||(_ lhs: Self, _ rhs: Self) -> Self { and(lhs, rhs) }
+    static func .||(_ lhs: Self, _ rhs: Self) -> Self { or(lhs, rhs) }
 
     @inlinable
-    static func .||(_ lhs: Self, _ rhs: Element) -> Self { and(lhs, rhs) }
+    static func .||(_ lhs: Self, _ rhs: Element) -> Self { or(lhs, rhs) }
 
     @inlinable
-    static func .||(_ lhs: Element, _ rhs: Self) -> Self { and(lhs, rhs) }
+    static func .||(_ lhs: Element, _ rhs: Self) -> Self { or(lhs, rhs) }
 }
 
 //==============================================================================
