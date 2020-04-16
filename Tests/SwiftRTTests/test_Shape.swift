@@ -22,6 +22,8 @@ class test_Shape: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_reshape", test_reshape),
+        ("test_reshapeOrder", test_reshapeOrder),
+        ("test_expanding", test_expanding),
         ("test_SequentialViews", test_SequentialViews),
         ("test_transposed", test_transposed),
     ]
@@ -30,19 +32,36 @@ class test_Shape: XCTestCase {
     // test_reshape
     func test_reshape() {
         let a3 = array(0..<12, (2, 3, 2))
+
+        // R3 -> R2
         let a2 = reshape(a3, (2, -1))
         XCTAssert(a2.shape == [2, 6])
         XCTAssert(a2 == [[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10, 11]])
         
+        // R3 -> R1
         let a1 = reshape(a3, -1)
         XCTAssert(a1 == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
         
+        // R1 -> R2
         let b2 = reshape(a1, (2, -1))
         XCTAssert(b2 == [[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10, 11]])
 
+        // R1 -> R3
         let b3 = reshape(a1, (2, 2, 3))
-//        XCTAssert(b2
-
+        XCTAssert(b3 == [[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]])
+    }
+    
+    //--------------------------------------------------------------------------
+    // test_reshapeOrder
+    func test_reshapeOrder() {
+        var rm = array(0..<6, (2, 3))
+        print(rm)
+        var cm = reshape(rm, (2, 3), order: .F)
+        print(cm)
+        cm = array(0..<6, (2, 3), order: .F)
+        print(cm.flat)
+        rm = reshape(cm, (2, 3), order: .C)
+        print(rm.flat)
     }
     
     //--------------------------------------------------------------------------
