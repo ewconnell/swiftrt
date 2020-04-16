@@ -95,6 +95,7 @@ public extension Tensor {
     /// - Parameters:
     ///  - element: the element value to repeat while indexing
     ///  - shape: the shape of the tensor
+    @differentiable(where Element: DifferentiableElement)
     @inlinable init(repeating element: Element, to shape: Shape) {
         self.init(single: element, shape: shape)
     }
@@ -105,6 +106,7 @@ public extension Tensor {
     /// - Parameters:
     ///  - other: the tensor to repeat
     ///  - shape: the shape of the tensor
+    @differentiable(where Element: DifferentiableElement)
     @inlinable init(repeating other: Self, to shape: Shape) {
         // make sure the bounds are compatible
         assert({
@@ -234,6 +236,7 @@ public extension Tensor {
     ///  - other: the tensor to reshape
     ///  - newShape: the shape of the new tensor
     ///  - order: the storage order of the new tensor
+    @differentiable(where Element: DifferentiableElement)
     @inlinable init<S>(
         reshaping other: Tensor<S,Element>,
         to newShape: Shape,
@@ -309,8 +312,11 @@ public extension Tensor {
     /// - Parameters:
     ///  - other: the tensor to expand
     ///  - axes: the list of axes to expand
-    @inlinable init<S, Axes>(expanding other: Tensor<S,Element>, axes: Axes)
-        where S: TensorShape, Axes: TensorShape
+    @differentiable(where Element: DifferentiableElement)
+    @inlinable init<S, Axes>(
+        expanding other: Tensor<S,Element>,
+        axes: Axes
+    ) where S: TensorShape, Axes: TensorShape
     {
         // set the expanded axes
         var shape = Shape.zero
@@ -364,6 +370,7 @@ public extension Tensor {
                   isSequential: other.isSequential)
     }
     
+    @differentiable(where Element: DifferentiableElement)
     @inlinable init<S>(expanding other: Tensor<S,Element>, axes: Int...)
         where S: TensorShape
     {
@@ -375,8 +382,11 @@ public extension Tensor {
     /// - Parameters:
     ///  - other: the collection to squeeze
     ///  - axes: a list of axes to squeeze
-    @inlinable init<S,Axes>(squeezing other: Tensor<S,Element>, axes: Axes)
-        where S: TensorShape, Axes: TensorShape
+    @differentiable(where Element: DifferentiableElement)
+    @inlinable init<S,Axes>(
+        squeezing other: Tensor<S,Element>,
+        axes: Axes
+    ) where S: TensorShape, Axes: TensorShape
     {
         assert(Shape.rank == S.rank - Axes.rank, "rank mismatch")
         var axis = 0
@@ -407,6 +417,7 @@ public extension Tensor {
                   isSequential: other.isSequential)
     }
     
+    @differentiable(where Element: DifferentiableElement)
     @inlinable init<S>(squeezing other: Tensor<S,Element>, axes: Int...)
         where S: TensorShape
     {
@@ -415,8 +426,11 @@ public extension Tensor {
 
     //--------------------------------------------------------------------------
     /// init(stacking:axis:
-    @inlinable init<S>(stacking others: [Tensor<S,Element>], axis: Int = 0)
-        where S: TensorShape
+//    @differentiable(where Element: DifferentiableElement)
+    @inlinable init<S>(
+        stacking others: [Tensor<S,Element>],
+        axis: Int = 0
+    ) where S: TensorShape
     {
         // verify that tensors are the correct rank and same shape
         assert(others.count > 0 && S.rank == Shape.rank - 1,
@@ -443,8 +457,8 @@ public extension Tensor {
         }
     }
     
-    @inlinable
-    init<S>(stacking others: Tensor<S,Element>..., axis: Int = 0) {
+//    @differentiable(where Element: DifferentiableElement)
+    @inlinable init<S>(stacking others: Tensor<S,Element>..., axis: Int = 0) {
         self.init(stacking: others, axis: axis)
     }
 
@@ -595,12 +609,20 @@ extension Tensor where Element: Numeric {
 extension Tensor where Element: DifferentiableElement
 {
     //--------------------------------------------------------------------------
-    // TODO: Is this really necessary!!?? It's expensive
     @derivative(of: init(repeating:to:))
     @inlinable static func _vjpInit(repeating value: Element, to shape: Shape)
         -> (value: Self, pullback: (Self) -> (Element))
     {
         (Self(repeating: value, to: shape), { $0.sum().element })
+    }
+    
+    //--------------------------------------------------------------------------
+    @derivative(of: init(repeating:to:))
+    @inlinable static func _vjpInit(repeating other: Self, to shape: Shape)
+        -> (value: Self, pullback: (Self) -> (Self))
+    {
+        // TODO: this is probably wrong. Test this
+        (Self(repeating: other, to: shape), { $0 })
     }
     
     //--------------------------------------------------------------------------
