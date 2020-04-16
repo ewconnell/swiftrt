@@ -77,28 +77,25 @@ class test_Subscripting: XCTestCase {
     //==========================================================================
     // test_AssignDataToTensor3Item
     func test_AssignDataToTensor3Item() {
-        var volume = array(0..<24, (2, 3, 4))
+        var a3 = array(0..<24, (2, 3, 4))
         
         // assign a volume depth to item 0
-        volume[0] = repeating(3, (1, 3, 4))
-        XCTAssert(volume == [
+        a3[0] = repeating(3, (1, 3, 4))
+        XCTAssert(a3 == [
             [[ 3, 3, 3, 3], [ 3, 3, 3, 3], [ 3, 3, 3, 3]],
             [[12,13,14,15], [16,17,18,19], [20,21,22,23]],
         ])
 
         // assign via type expansion to item 1
-        volume[1] = expand(dims: repeating(7, (3, 4)), axis: 0)
-        XCTAssert(volume.array == [
+        a3[1] = expand(dims: repeating(7, (3, 4)), axis: 0)
+        XCTAssert(a3.array == [
             [[3,3,3,3], [3,3,3,3], [3,3,3,3]],
             [[7,7,7,7], [7,7,7,7], [7,7,7,7]],
         ])
 
-        // TODO: uncomment after new toolchain
-//        do {
-//            let g = pullback(at: repeating(7, (3, 4)),
-//                             in: { expand(dims: $0, axis: 0) })(ones((1, 3, 4)))
-//            XCTAssert(g.flat == [Float](repeating: 1, count: 12))
-//        }
+        let g = pullback(at: repeating(7, (3, 4)),
+                         in: { expand(dims: $0, axis: 0) })(ones((1, 3, 4)))
+        XCTAssert(g.flatArray == [Float](repeating: 1, count: 12))
     }
     
     //==========================================================================
