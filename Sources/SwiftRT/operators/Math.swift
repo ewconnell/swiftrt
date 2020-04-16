@@ -528,7 +528,7 @@ public extension Tensor where Element: Real {
     return result
 }
 
-//@derivative(of: neg)
+@derivative(of: neg)
 @inlinable func _vjpNeg<S,E>(_ x: Tensor<S,E>) ->
     (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E: DifferentiableElement & SignedNumeric
@@ -539,10 +539,10 @@ public extension Tensor where Element: Real {
 // Tensor extension
 public extension Tensor where Element: SignedNumeric {
     // make glboal function visible for extension implementations
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static prefix func - (x: Self) -> Self { SwiftRT.neg(x) }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable func neg() -> Self { -self }
 }
 

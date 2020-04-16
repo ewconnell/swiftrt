@@ -213,6 +213,15 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     Tensor1(elements, Shape1(elements.count), order: order)
 }
 
+/// implicitly casts from C.Element integer -> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor1<DType> where C: Collection, C.Element: BinaryFloatingPoint
+{
+    Tensor1(elements, Shape1(elements.count), order: order)
+}
+
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
     _ elements: C,
