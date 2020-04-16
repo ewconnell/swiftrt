@@ -666,3 +666,24 @@ extension Tensor where Element: DifferentiableElement
     }
 
 }
+
+//==============================================================================
+// casting for convertible types
+public extension Tensor {
+    //--------------------------------------------------------------------------
+    /// casting
+    /// - Parameter other: a tensor of the same shape whose elements are
+    /// to be cast
+    @inlinable init<E>(_ other: Tensor<Shape,E>)
+    where Element: BinaryFloatingPoint, E: BinaryInteger
+    {
+        self = cast(other)
+    }
+
+    @inlinable init<E>(_ other: Tensor<Shape,E>)
+    where Element: BinaryInteger, E: BinaryFloatingPoint
+    {
+        self = cast(other)
+    }
+}
+

@@ -26,6 +26,9 @@ class test_Shape: XCTestCase {
         ("test_expanding", test_expanding),
         ("test_SequentialViews", test_SequentialViews),
         ("test_transposed", test_transposed),
+        ("test_squeezing", test_squeezing),
+        ("test_stacking", test_stacking),
+        ("test_stackingExpression", test_stackingExpression),
     ]
 
     //--------------------------------------------------------------------------
@@ -77,6 +80,79 @@ class test_Shape: XCTestCase {
         XCTAssert(c.shape == [1, 1, 4, 1])
         XCTAssert(c.strides == [4, 4, 1, 1])
         XCTAssert(c == [[[[0], [1], [2], [3]]]])
+    }
+    
+    //--------------------------------------------------------------------------
+    // test_squeezing
+    func test_squeezing() {
+//        let volume = Volume(2, 3, 4, with: 0..<24)
+//
+//        let sumVolumeCols = volume.sum(alongAxes: 2)
+//        XCTAssert(sumVolumeCols.bounds == [2, 3, 1])
+//        let m0 = Matrix(squeezing: sumVolumeCols)
+//        XCTAssert(m0.bounds == [2, 3])
+//
+//        let sumVolumeRows = volume.sum(alongAxes: 1)
+//        XCTAssert(sumVolumeRows.bounds == [2, 1, 4])
+//        let m2 = Matrix(squeezing: sumVolumeRows, alongAxes: 1)
+//        XCTAssert(m2.bounds == [2, 4])
+//
+//        // test negative axes
+//        let m3 = Matrix(squeezing: sumVolumeRows, alongAxes: -2)
+//        XCTAssert(m3.bounds == [2, 4])
+//
+//        do {
+//            let ones = Matrix(repeating: 1, to: 2, 12)
+//            let g = pullback(at: sumVolumeRows,
+//                             in: { Matrix(squeezing: $0, alongAxes: 1) })(ones)
+//            XCTAssert(g == [Float](repeating: 1, count: 24))
+//        }
+    }
+
+    //--------------------------------------------------------------------------
+    // test_stacking
+    func test_stacking() {
+        let a = array(0..<6, (2, 3))
+        let b = array(6..<12, (2, 3))
+
+        let v0 = Tensor3(stacking: a, b)
+        XCTAssert(v0 == [[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]])
+
+        let v1 = Tensor3<Float>(stacking: a, b, axis: 1)
+        XCTAssert(v1 == [
+            [[0, 1, 2], [6,  7,  8]],
+            [[3, 4, 5], [9, 10, 11]]])
+
+        let v2 = Tensor3<Float>(stacking: a, b, axis: 2)
+        XCTAssert(v2 ==
+            [[[0, 6],
+              [1, 7],
+              [2, 8]],
+             
+             [[3, 9],
+              [4, 10],
+              [5, 11]]])
+    }
+    
+    //--------------------------------------------------------------------------
+    // test_stackingExpression
+    func test_stackingExpression() {
+        let i = 3
+        let j = 3
+        let maxK: Float = 16
+        
+        let k1 = array(0..<30, (5, 6))
+        let mask = squeeze(Tensor3<Float>(stacking: [
+            k1[0...j  , 1...i  ],
+            k1[0...j  , 2...i+1],
+            k1[1...j+1, 1...i  ],
+            k1[1...j+1, 2...i+1]
+        ]).max(alongAxes: 0), axis: 0) .<= maxK
+
+        XCTAssert(mask.array == [[true, true, true],
+                                 [true, true, true],
+                                 [false, false, false],
+                                 [false, false, false]])
     }
     
     //--------------------------------------------------------------------------
