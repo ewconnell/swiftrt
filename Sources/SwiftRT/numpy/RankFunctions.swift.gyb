@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+import Foundation
 
 // gyb utility docs
 // https://nshipster.com/swift-gyb/
@@ -25,6 +26,99 @@ numShapes = 6
 // DO NOT EDIT. THIS FILE IS GENERATED FROM .swift.gyb file
 //
 //******************************************************************************
+
+/// reshape
+/// Gives a new shape to an array without changing its data.
+/// - Parameters:
+///  - a: Array to be reshaped
+///  - newShape:
+///    The new shape should be compatible with the original shape.
+///    If an integer, then the result will be a 1-D array of that length.
+///    One shape dimension can be -1. In this case, the value is inferred
+///    from the length of the array and remaining dimensions.
+///  - order: {‘C’, ‘F’, ‘A’}, optional
+///    Read the elements of a using this index order, and place the elements
+///    into the reshaped array using this index order. ‘C’ means to
+///    read / write the elements using C-like index order, with the
+///    last axis index changing fastest, back to the first axis index
+///    changing slowest. ‘F’ means to read / write the elements using
+///    Fortran-like index order, with the first index changing fastest,
+///    and the last index changing slowest. Note that the ‘C’ and ‘F’
+///    options take no account of the memory layout of the underlying
+///    array, and only refer to the order of indexing. ‘A’ means to
+///    read / write the elements in Fortran-like index order if a is
+///    Fortran contiguous in memory, C-like order otherwise.
+/// - Returns: This will be a new view object if possible; otherwise,
+///   it will be a copy. Note there is no guarantee of the memory
+///   layout (C- or Fortran- contiguous) of the returned array.
+
+%for n in range(1, numShapes + 1):
+//==============================================================================
+// Rank${n}
+% for i in range(1, numShapes + 1):
+%  if not(n == 1 and i == 1):
+%   shapeType = 'Int' if i == 1 else ('Shape' + str(i) + '.Tuple')
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func reshape<E>(
+    _ a: Tensor${n}<E>,
+    _ newShape: ${shapeType},
+    order: StorageOrder = .C
+) -> Tensor${i}<E> {
+    Tensor${i}<E>(reshaping: a, to: Shape${i}(newShape), order: order)
+}
+
+%  end
+% end
+%end
+
+//==============================================================================
+/// expand
+/// Expands the shape of a tensor by inserting a new axis that will
+/// appear at the axis position in the expanded array shape
+/// - Parameters:
+///  - dims a: input array
+///  - axis: the set of axes to expand in the new shape
+///
+%for n in range(1, numShapes):
+//==============================================================================
+// Rank${n}
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func expand<E>(dims a: Tensor${n}<E>, axis: Int) -> Tensor${n + 1}<E> {
+    Tensor${n + 1}<E>(expanding: a, axes: Shape1(axis))
+}
+
+% for i in range(2, numShapes + 1 - n):
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func expand<E>(dims a: Tensor${n}<E>, axes: Shape${i}.Tuple) -> Tensor${n + i}<E> {
+    Tensor${n + i}<E>(expanding: a, axes: Shape${i}(axes))
+}
+
+% end
+%end
+
+//==============================================================================
+/// squeeze
+/// Remove length one entries from the shape of a tensor
+/// - Parameters:
+///  - a: input array
+///  - axis: the set of axes to squeeze in the shape
+///
+%for n in range(2, numShapes + 1):
+//==============================================================================
+// Rank${n}
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func squeeze<E>(_ a: Tensor${n}<E>, axis: Int) -> Tensor${n - 1}<E> {
+    Tensor${n - 1}<E>(squeezing: a, axes: Shape1(axis))
+}
+
+% for i in range(2, n):
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func squeeze<E>(_ a: Tensor${n}<E>, axes: Shape${i}.Tuple) -> Tensor${n - i}<E> {
+    Tensor${n - i}<E>(squeezing: a, axes: Shape${i}(axes))
+}
+
+% end
+%end
 
 //==============================================================================
 /// repeating

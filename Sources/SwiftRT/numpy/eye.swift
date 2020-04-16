@@ -30,19 +30,20 @@ import Foundation
 ///    Whether to store multi-dimensional data in row-major (C-style)
 ///    or column-major (Fortran-style) order in memory.
 /// - Returns: the identity tensor
-@inlinable
-public func identity(_ n: Int, order: StorageOrder = .C) -> Tensor2<DType> {
-    fatalError()
+@inlinable public func identity(
+    _ n: Int,
+    order: StorageOrder = .C
+) -> Tensor2<DType> {
+    eye(n, n, order: order)
 }
 
-@inlinable
-public func identity<Element>(
+@inlinable public func identity<Element>(
     _ n: Int,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor2<Element> where Element: Numeric
 {
-    fatalError()
+    eye(n, n, dtype: dtype, order: order)
 }
 
 //==============================================================================
@@ -62,19 +63,19 @@ public func identity<Element>(
 ///    Whether to store multi-dimensional data in row-major (C-style)
 ///    or column-major (Fortran-style) order in memory.
 /// - Returns: the identity tensor
-@inlinable
-public func eye(_ N: Int, _ M: Int? = nil, k: Int = 0,
-                order: StorageOrder = .C) -> Tensor2<DType>
+@inlinable public func eye(
+    _ N: Int, _ M: Int? = nil, k: Int = 0,
+    order: StorageOrder = .C
+) -> Tensor2<DType>
 {
-    fatalError()
+    Tensor2<DType>(eye: Shape2(N, M ?? N), offset: k, order: order)
 }
 
-@inlinable
-public func eye<Element>(
+@inlinable public func eye<Element>(
     _ N: Int, _ M: Int? = nil, k: Int = 0,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor2<Element> where Element: Numeric
 {
-    fatalError()
+    Tensor2<Element>(eye: Shape2(N, M ?? N), offset: k, order: order)
 }

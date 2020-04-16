@@ -534,6 +534,17 @@ public extension Tensor {
     @inlinable func transposed(permutatedBy permutations: Shape.Tuple) -> Self {
         Self(transposing: self, permutatedBy: Shape(permutations))
     }
+    
+    //--------------------------------------------------------------------------
+    /// init(eye:offset:
+    /// Returns a new data shape where the bounds and strides are permuted
+    /// - Parameters:
+    ///  - shape: the shape of the array
+    ///  - offset: the offset of the diagonal
+    ///  - order: the storage order of the new tensor
+    @inlinable init(eye shape: Shape2, offset: Int, order: StorageOrder = .C) {
+        fatalError("Not implemented yet")
+    }
 }
 
 //==============================================================================
