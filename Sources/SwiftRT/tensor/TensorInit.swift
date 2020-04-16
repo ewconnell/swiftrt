@@ -52,7 +52,7 @@ public extension Tensor {
     @inlinable init(_ shape: Shape, order: StorageOrder = .C) {
         let count = shape.elementCount()
         self.init(shape: shape,
-                  strides: shape.sequentialStrides(),
+                  strides: shape.strides(for: order),
                   elementCount: count,
                   spanCount: count,
                   storage: StorageBufferType(count: count, name: Self.name),
@@ -525,7 +525,7 @@ public extension Tensor {
                   baseOffset: other.baseOffset,
                   order: other.storageOrder,
                   share: other.isShared,
-                  isSequential: strides == shape.sequentialStrides())
+                  isSequential: strides.areSequential(for: shape))
     }
     
     /// - Returns: transpose of self
@@ -533,17 +533,6 @@ public extension Tensor {
     
     @inlinable func transposed(permutatedBy permutations: Shape.Tuple) -> Self {
         Self(transposing: self, permutatedBy: Shape(permutations))
-    }
-    
-    //--------------------------------------------------------------------------
-    /// init(eye:offset:
-    /// Returns a new data shape where the bounds and strides are permuted
-    /// - Parameters:
-    ///  - shape: the shape of the array
-    ///  - offset: the offset of the diagonal
-    ///  - order: the storage order of the new tensor
-    @inlinable init(eye shape: Shape2, offset: Int, order: StorageOrder = .C) {
-        fatalError("Not implemented yet")
     }
 }
 
@@ -570,6 +559,34 @@ extension Tensor where Element: Numeric {
     @inlinable init(ones shape: Shape, order: StorageOrder = .C) {
         self.init(shape, order: order)
         fill(&self, with: 1)
+    }
+    
+    //--------------------------------------------------------------------------
+    /// init(eye:offset:
+    /// Returns a new data shape where the bounds and strides are permuted
+    /// - Parameters:
+    ///  - shape: the shape of the array
+    ///  - offset: the offset of the diagonal
+    ///  - order: the storage order of the new tensor
+    @inlinable init(
+        eye shape: Shape,
+        offset: Int = 0,
+        order: StorageOrder = .C
+    ) {
+        let count = shape.elementCount()
+        self.init(shape: shape,
+                  strides: shape.strides(for: order),
+                  elementCount: count,
+                  spanCount: count,
+                  storage: StorageBufferType(count: count, name: Self.name),
+                  baseOffset: 0,
+                  order: order,
+                  share: false,
+                  // set to `false` to force spatial indexing, which
+                  // is needed by the driver function to generate the pattern
+                  isSequential: false)
+
+        Context.currentQueue.eye(&self, offset: offset)
     }
 }
 

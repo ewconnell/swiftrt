@@ -638,8 +638,7 @@ open class DeviceQueue: Logging {
     //==========================================================================
     // fill with value functions
     //==========================================================================
-    @inlinable
-    func fill<S,E>(_ result: inout Tensor<S,E>, with element: E)
+    @inlinable func fill<S,E>(_ result: inout Tensor<S,E>, with element: E)
         where S: TensorShape
     {
         generatorOp(&result) { element }
@@ -651,6 +650,13 @@ open class DeviceQueue: Logging {
         B: SignedInteger, B.Stride: SignedInteger
     {
         mapOp(range.lazy.map { E(exactly: $0)! }, &result) { $0 }
+    }
+
+    @inlinable func eye<S,E>(_ result: inout Tensor<S,E>, offset: Int)
+        where S: TensorShape, E: Numeric
+    {
+        assert(!result.isSequential)
+        generatorOp(&result) { 0 }
     }
 
     //==========================================================================

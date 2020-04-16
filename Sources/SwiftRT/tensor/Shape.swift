@@ -48,8 +48,8 @@ public protocol TensorShape: SIMD where Scalar == Int {
     ///  - upper: the upper bound of the iteration range
     func incremented(between lower: Self, and upper: Self) -> Self
     
-    /// - Returns: row major sequential srtides for the shape
-    func sequentialStrides() -> Self
+    /// - Returns: srtides for the shape and given storage order
+    func strides(for order: StorageOrder) -> Self
 }
 
 //==============================================================================
@@ -168,23 +168,6 @@ public extension TensorShape {
         ((self &- 1) &* strides).wrappedSum() &+ 1
     }
     
-    //--------------------------------------------------------------------------
-    /// `sequentialStrides`
-    /// computes the row major sequential strides
-    @inlinable func sequentialStrides() -> Self {
-        // strides will be overwritten, but it needs an initial value
-        // so give it something that will already be in the cache
-        var strides = self
-        var dim = Self.rank - 1
-        var shapeStride = 1
-        while dim >= 0 {
-            strides[dim] = shapeStride
-            shapeStride &*= self[dim]
-            dim &-= 1
-        }
-        return strides
-    }
-
     //--------------------------------------------------------------------------
     /// `strides(order:`
     /// computes the strides needed to index the specified storage order

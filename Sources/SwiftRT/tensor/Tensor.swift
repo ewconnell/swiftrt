@@ -43,7 +43,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
     /// the dimensions of the element space
     public let shape: Shape
     // used by makeIndex
-    @inlinable public var shapeStrides: Shape { shape.sequentialStrides() }
+    public let shapeStrides: Shape
     /// The strided number of elements spanned by the shape
     public let spanCount: Int
     /// The distance to the next element along each dimension
@@ -88,6 +88,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
         self.isSequential = isSequential
         self.startIndex = Index(Shape.zero, baseOffset)
         self.endIndex = Index(shape, baseOffset + elementCount)
+        self.shapeStrides = shape.strides(for: order)
     }
     
     //--------------------------------------------------------------------------
@@ -105,6 +106,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
         startIndex = Index(Shape.zero, 0)
         endIndex = Index(shape, elementCount)
         storage = StorageBufferType<Element>(single: element, name: "")
+        shapeStrides = Shape.zero
     }
 }
 
