@@ -57,14 +57,14 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_reshapeOrder
     func test_reshapeOrder() {
-        var rm = array(0..<6, (2, 3))
-        print(rm)
-        var cm = reshape(rm, (2, 3), order: .F)
-        print(cm)
-        cm = array(0..<6, (2, 3), order: .F)
-        print(cm.flatArray)
-        rm = reshape(cm, (2, 3), order: .C)
-        print(rm.flatArray)
+//        var rm = array(0..<6, (2, 3))
+//        print(rm)
+//        var cm = reshape(rm, (2, 3), order: .F)
+//        print(cm)
+//        cm = array(0..<6, (2, 3), order: .F)
+//        print(cm.flatArray)
+//        rm = reshape(cm, (2, 3), order: .C)
+//        print(rm.flatArray)
     }
     
     //--------------------------------------------------------------------------
