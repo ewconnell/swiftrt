@@ -21,12 +21,12 @@ import Foundation
 extension String {
     @inlinable
     public init(timeInterval: TimeInterval, precision: Int = 2) {
-        let remainder = timeInterval.truncatingRemainder(dividingBy: 1.0)
+        let remainder = modf(timeInterval).1
         let interval = Int(timeInterval)
         let seconds = interval % 60
         let minutes = (interval / 60) % 60
         let hours = (interval / 3600)
-        let remStr = String(format: "%.\(precision)f", remainder).dropFirst(2)
+        let remStr = String(format: "%.\(precision)f", remainder)
         self = String(format: "%0.2d:%0.2d:%0.2d.\(remStr)",
                       hours, minutes, seconds)
     }

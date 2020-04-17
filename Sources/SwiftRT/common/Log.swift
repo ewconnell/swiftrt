@@ -260,7 +260,10 @@ public extension LogWriter {
             
             // create fixed width string for level column
             let messageStr = message()
-            let messageTime = Date().timeIntervalSince(Context.startTime)
+            // keep this on a separate line so that the start time
+            // is initialized before we take the current time
+            let startTime = Context.startTime
+            let messageTime = Date().timeIntervalSince(startTime)
             let levelStr = String(timeInterval: messageTime)
             let indent = String(repeating: " ",
                                 count: nestingLevel * self._tabSize)

@@ -137,7 +137,7 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_stackingExpression
     func test_stackingExpression() {
-        Context.log.level = .diagnostic
+//        Context.log.level = .diagnostic
         let i = 3
         let j = 3
         let maxK: Float = 16
@@ -166,7 +166,7 @@ class test_Shape: XCTestCase {
 //
 //        XCTAssert(m == [[true, true, true],
 //                        [true, true, true],
-//                        [true, true, true],
+//                        [false, false, false],
 //                        [false, false, false]])
     }
     

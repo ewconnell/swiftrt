@@ -53,7 +53,7 @@ public extension Tensor {
     ///  - order: the storage order of the elements
     @inlinable init(_ shape: Shape, order: StorageOrder = .C) {
         let count = shape.elementCount()
-        let name = Self.defaultName
+        let name = "Tensor\(Shape.rank)"
         self.init(shape: shape,
                   strides: shape.strides(for: order),
                   elementCount: count,
@@ -80,16 +80,7 @@ public extension Tensor {
     /// creates a tensor with a single scalar value
     /// - Parameter element: the single element value for the tensor
     @inlinable init(_ element: Element) {
-        self.init(shape: Shape.one,
-                  strides: Shape.one,
-                  elementCount: 1,
-                  spanCount: 1,
-                  storage: StorageBufferType(count: 1, name: Self.defaultName),
-                  baseOffset: 0,
-                  order: .C,
-                  share: false,
-                  isSequential: true)
-        storage.setElement(value: element, at: 0)
+        self.init(single: element, shape: Shape.one)
     }
 
     //--------------------------------------------------------------------------

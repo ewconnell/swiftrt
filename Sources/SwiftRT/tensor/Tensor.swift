@@ -24,10 +24,6 @@ public struct Tensor<Shape, Element>: MutableTensorType
     // types
     public typealias Index = ElementIndex<Shape>
 
-    // properties
-    /// the default name used for diagnostic messages if the user
-    /// has not assigned one
-    @inlinable public static var defaultName: String { "Tensor\(Shape.rank)" }
     /// the element storage buffer.
     public var storage: StorageBufferType<Element>
     /// the dense number of elements in the shape
@@ -112,7 +108,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
         isSequential = true
         startIndex = Index(Shape.zero, 0)
         endIndex = Index(shape, elementCount)
-        storage = StorageBufferType<Element>(single: element, name: "")
+        storage = StorageBufferType<Element>(single: element, name: "Element")
         shapeStrides = Shape.zero
     }
 }

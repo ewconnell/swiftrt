@@ -320,8 +320,6 @@ public protocol TensorType: Collection, CustomStringConvertible, Logging
     var elementCount: Int { get }
     /// `true` if the tensor represents a single constant Element
     var isSingleElement: Bool { get }
-    /// a label for the type used as a default name in diagnostics
-    static var defaultName: String { get }
     /// the dimensions of the collection
     var shape: Shape { get }
     /// the order in memory to store materialized Elements. Generator
