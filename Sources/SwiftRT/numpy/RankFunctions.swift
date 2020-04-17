@@ -472,6 +472,113 @@ import Foundation
 
 
 //==============================================================================
+/// stack
+/// Join a sequence of arrays along a new axis.
+/// - Parameters:
+///  - arrays: the arrays to stack. Each array must have the same shape
+///  - axis: The axis in the result array along which the input
+///    arrays are stacked.
+///  - out: If provided, the destination to place the result.
+///    The shape must be correct, matching that of what stack would have
+///    returned if no out argument were specified.
+///
+//==============================================================================
+// Rank1
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<E>(_ arrays: [Tensor1<E>], axis: Int = 0)
+    -> Tensor2<E>
+{
+    Tensor2<E>(stacking: arrays, axis: axis)
+}
+
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<E>(
+    _ arrays: [Tensor1<E>],
+    axis: Int = 0,
+    out: inout Tensor2<E>
+) -> Tensor2<E> {
+    stack(arrays, axis: axis, into: &out)
+    return out
+}
+
+//==============================================================================
+// Rank2
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<E>(_ arrays: [Tensor2<E>], axis: Int = 0)
+    -> Tensor3<E>
+{
+    Tensor3<E>(stacking: arrays, axis: axis)
+}
+
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<E>(
+    _ arrays: [Tensor2<E>],
+    axis: Int = 0,
+    out: inout Tensor3<E>
+) -> Tensor3<E> {
+    stack(arrays, axis: axis, into: &out)
+    return out
+}
+
+//==============================================================================
+// Rank3
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<E>(_ arrays: [Tensor3<E>], axis: Int = 0)
+    -> Tensor4<E>
+{
+    Tensor4<E>(stacking: arrays, axis: axis)
+}
+
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<E>(
+    _ arrays: [Tensor3<E>],
+    axis: Int = 0,
+    out: inout Tensor4<E>
+) -> Tensor4<E> {
+    stack(arrays, axis: axis, into: &out)
+    return out
+}
+
+//==============================================================================
+// Rank4
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<E>(_ arrays: [Tensor4<E>], axis: Int = 0)
+    -> Tensor5<E>
+{
+    Tensor5<E>(stacking: arrays, axis: axis)
+}
+
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<E>(
+    _ arrays: [Tensor4<E>],
+    axis: Int = 0,
+    out: inout Tensor5<E>
+) -> Tensor5<E> {
+    stack(arrays, axis: axis, into: &out)
+    return out
+}
+
+//==============================================================================
+// Rank5
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<E>(_ arrays: [Tensor5<E>], axis: Int = 0)
+    -> Tensor6<E>
+{
+    Tensor6<E>(stacking: arrays, axis: axis)
+}
+
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<E>(
+    _ arrays: [Tensor5<E>],
+    axis: Int = 0,
+    out: inout Tensor6<E>
+) -> Tensor6<E> {
+    stack(arrays, axis: axis, into: &out)
+    return out
+}
+
+
+//==============================================================================
 /// squeeze
 /// Remove length one entries from the shape of a tensor
 /// - Parameters:

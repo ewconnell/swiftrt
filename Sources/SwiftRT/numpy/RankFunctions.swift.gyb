@@ -97,6 +97,39 @@ numShapes = 6
 %end
 
 //==============================================================================
+/// stack
+/// Join a sequence of arrays along a new axis.
+/// - Parameters:
+///  - arrays: the arrays to stack. Each array must have the same shape
+///  - axis: The axis in the result array along which the input
+///    arrays are stacked.
+///  - out: If provided, the destination to place the result.
+///    The shape must be correct, matching that of what stack would have
+///    returned if no out argument were specified.
+///
+%for n in range(1, numShapes):
+//==============================================================================
+// Rank${n}
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<E>(_ arrays: [Tensor${n}<E>], axis: Int = 0)
+    -> Tensor${n + 1}<E>
+{
+    Tensor${n + 1}<E>(stacking: arrays, axis: axis)
+}
+
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<E>(
+    _ arrays: [Tensor${n}<E>],
+    axis: Int = 0,
+    out: inout Tensor${n + 1}<E>
+) -> Tensor${n + 1}<E> {
+    stack(arrays, axis: axis, into: &out)
+    return out
+}
+
+%end
+
+//==============================================================================
 /// squeeze
 /// Remove length one entries from the shape of a tensor
 /// - Parameters:
