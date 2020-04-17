@@ -99,8 +99,8 @@ class test_Initialize: XCTestCase {
         var count = 0
         measure {
             for i in 1...iterations {
-                let matrix = Matrix(1, i)
-                count = matrix.count
+                let a = ones((1, i))
+                count = a.count
             }
         }
         XCTAssert(count == iterations)
@@ -113,11 +113,11 @@ class test_Initialize: XCTestCase {
         #if !DEBUG
         let iterations = 100000
         var value: Float = 0
-        let matrix = Matrix(2, 2, with: 1...4)
+        let a = array(1...4, (2, 2))
         
         measure {
             for _ in 1...iterations {
-                value += matrix.first
+                value += a[0, 0]
             }
         }
         XCTAssert(value > 0)
@@ -130,14 +130,14 @@ class test_Initialize: XCTestCase {
         #if !DEBUG
         let iterations = 100000
         let value: Float = 1
-        var matrix = Matrix(2, 2, with: 1...4)
-        
+        var a = array(1...4, (2, 2))
+
         measure {
             for _ in 1...iterations {
-                matrix[0, 0] += value
+                a[0, 0] += value
             }
         }
-        XCTAssert(matrix[0, 0] > 0)
+        XCTAssert(a[0, 0] > 0)
         #endif
     }
 
