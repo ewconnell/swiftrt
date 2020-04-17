@@ -159,8 +159,8 @@ class test_Shape: XCTestCase {
 //        let s1 = k1[0...j, 2...i+1]
 //        let s2 = k1[1...j+1, 1...i]
 //        let s3 = k1[1...j+1, 2...i+1]
-//        let stack = Tensor3<Float>(stacking: s0, s1, s2, s3)
-//        let maxStack = stack.max(alongAxes: 0)
+//        let stacked = stack(s0, s1, s2, s3)
+//        let maxStack = stacked.max(alongAxes: 0)
 //        let sq = squeeze(maxStack, axis: 0)
 //        let m = sq .<= maxK
 //
