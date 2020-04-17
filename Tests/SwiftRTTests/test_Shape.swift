@@ -137,6 +137,7 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_stackingExpression
     func test_stackingExpression() {
+        Context.log.level = .diagnostic
         let i = 3
         let j = 3
         let maxK: Float = 16
@@ -151,8 +152,22 @@ class test_Shape: XCTestCase {
 
         XCTAssert(mask.array == [[true, true, true],
                                  [true, true, true],
-                                 [true, true, true],
+                                 [false, false, false],
                                  [false, false, false]])
+        
+//        let s0 = k1[0...j, 1...i]
+//        let s1 = k1[0...j, 2...i+1]
+//        let s2 = k1[1...j+1, 1...i]
+//        let s3 = k1[1...j+1, 2...i+1]
+//        let stack = Tensor3<Float>(stacking: s0, s1, s2, s3)
+//        let maxStack = stack.max(alongAxes: 0)
+//        let sq = squeeze(maxStack, axis: 0)
+//        let m = sq .<= maxK
+//
+//        XCTAssert(m == [[true, true, true],
+//                        [true, true, true],
+//                        [true, true, true],
+//                        [false, false, false]])
     }
     
     //--------------------------------------------------------------------------

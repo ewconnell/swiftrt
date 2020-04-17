@@ -36,6 +36,9 @@ numShapes = 6
 /// A tensor subscripted with integers for each dimension is a convenience
 /// function for wrapping the values in an `ElementIndex` structure, and
 /// then returning the corresponding tensor `Element` value
+///
+/// Accessing a collection element value using an integer index calls
+/// `read` or `readWrite` to synchronize with the calling thread
 
 %for n in range(1, numShapes + 1):
 //==============================================================================
@@ -44,8 +47,14 @@ public extension Tensor where Shape == Shape${n} {
     /// - Returns: the element
     @inlinable
     subscript(${', '.join(['d' + str(i) + ': Int' for i in range(n)])}) -> Element {
-        get { self[makeIndex(at: Shape${n}(${', '.join(['d' + str(i) for i in range(n)])}))] }
-        set { self[makeIndex(at: Shape${n}(${', '.join(['d' + str(i) for i in range(n)])}))] = newValue }
+        get {
+            read()
+            return self[makeIndex(at: Shape${n}(${', '.join(['d' + str(i) for i in range(n)])}))]
+        }
+        set {
+            readWrite()
+            return self[makeIndex(at: Shape${n}(${', '.join(['d' + str(i) for i in range(n)])}))] = newValue
+        }
     }
 
     /// - Returns: the sub view defined by the range

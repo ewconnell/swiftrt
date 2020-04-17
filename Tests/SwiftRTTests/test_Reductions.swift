@@ -40,6 +40,7 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_sumTensor3AlongAxes
     func test_sumTensor3AlongAxes() {
+        Context.log.level = .diagnostic
         let v = array(
             [[[10,   2],
               [ 3,   4],

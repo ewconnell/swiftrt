@@ -290,9 +290,6 @@ public extension Tensor {
         }
         
         set {
-            // perform copy-on-write if needed
-            prepareStorage()
-            
             if isSingleElement {
                 return storage.setElement(value: newValue, at: baseOffset)
             } else if isSequential {
@@ -307,17 +304,15 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     // sub view subscript
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
-        get { createView(lower, upper, isShared) }
+        get { createView(lower, upper) }
         set {
-            // perform copy-on-write if needed
-            prepareStorage()
-            var view = createView(lower, upper, true)
+            ensureStorageIsUnique()
+            var view = createView(lower, upper)
             copy(from: newValue, to: &view)
         }
     }
 
-    @inlinable
-    func createView(_ lower: Shape, _ upper: Shape, _ share: Bool) -> Self {
+    @inlinable func createView(_ lower: Shape, _ upper: Shape) -> Self {
         let shape = upper &- lower
         let isSeq = strides.areSequential(for: shape)
         let count = shape.elementCount()
@@ -330,7 +325,7 @@ public extension Tensor {
             storage: storage,
             baseOffset: baseOffset + lower.index(stridedBy: strides),
             order: storageOrder,
-            share: share,
+            share: isShared,
             isSequential: isSeq)
     }
 
@@ -344,10 +339,10 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
-    /// `prepareStorage`
+    /// `ensureStorageIsUnique`
     /// called before a write operation to ensure that the storage buffer
-    /// contents are in a valid state
-    @inlinable mutating func prepareStorage() {
+    /// is unique for this tensor unless it `isShared`
+    @inlinable mutating func ensureStorageIsUnique() {
         // if not uniquely held then copy before creating the shared view
         if !(isKnownUniquelyReferenced(&storage) || isShared) {
             diagnostic("\(mutationString) \(storage.name)(\(storage.id)) " +
@@ -377,19 +372,49 @@ extension Tensor where Element: DifferentiableElement {
 }
 
 //==============================================================================
-// Tensor read write extensions
+// Tensor read write access
 public extension Tensor {
+    //--------------------------------------------------------------------------
+    /// `read`
+    /// Synchronizes the collection of materialized elements for reading.
+    /// This function blocks until the elements are available.
+    /// `Elements` are accessed by the application using `Collection`
+    /// enumeration via `indices` or integer subscripting.
     @inlinable func read() {
         
     }
     
+    //--------------------------------------------------------------------------
+    /// `read(queue:
+    /// Synchronizes a collection of materialized elements for reading
+    /// using the specified `queue`. This function is non blocking, and
+    /// the elements will be available when the request reaches the
+    /// head of the queue.
+    ///
+    /// - Parameter queue: the device queue to use for synchronization
     @inlinable func read(using queue: DeviceQueue) {
     }
 
+    //--------------------------------------------------------------------------
+    /// `readWrite`
+    /// Synchronizes a collection of materialized elements for read write.
+    /// This function blocks until the elements are available.
+    /// `Elements` are accessed by the application using `MutableCollection`
+    /// enumeration via `indices` or subscripting.
     @inlinable mutating func readWrite() {
+        ensureStorageIsUnique()
     }
     
+    //--------------------------------------------------------------------------
+    /// `readWrite(queue:`
+    /// Synchronizes a mutable collection of materialized elements
+    /// using the specified `queue`. This function is non blocking, and
+    /// the elements will be available when the request reaches the
+    /// head of the queue.
+    ///
+    /// - Parameter queue: the device queue to use for synchronization
     @inlinable mutating func readWrite(using queue: DeviceQueue) {
+        ensureStorageIsUnique()
     }
 }
 
