@@ -140,8 +140,8 @@ class test_Shape: XCTestCase {
         let i = 3
         let j = 3
         let maxK: Float = 16
-        
         let k1 = array(0..<30, (5, 6))
+
         let mask = squeeze(Tensor3<Float>(stacking: [
             k1[0...j  , 1...i  ],
             k1[0...j  , 2...i+1],
@@ -151,7 +151,7 @@ class test_Shape: XCTestCase {
 
         XCTAssert(mask.array == [[true, true, true],
                                  [true, true, true],
-                                 [false, false, false],
+                                 [true, true, true],
                                  [false, false, false]])
     }
     

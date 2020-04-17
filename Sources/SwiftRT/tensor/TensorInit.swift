@@ -401,7 +401,7 @@ public extension Tensor {
             otherShape[axes[i] >= 0 ? axes[i] : axes[i] + S.rank] = 0
         }
         
-        for i in 0..<S.rank where otherShape[i] == 0 {
+        for i in 0..<S.rank where otherShape[i] > 0 {
             shape[axis] = otherShape[i]
             strides[axis] = other.strides[i]
             axis += 1
