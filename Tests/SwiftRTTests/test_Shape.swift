@@ -115,15 +115,15 @@ class test_Shape: XCTestCase {
         let a = array(0..<6, (2, 3))
         let b = array(6..<12, (2, 3))
 
-        let v0 = Tensor3(stacking: a, b)
+        let v0 = stack(a, b)
         XCTAssert(v0 == [[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]])
 
-        let v1 = Tensor3<Float>(stacking: a, b, axis: 1)
+        let v1 = stack(a, b, axis: 1)
         XCTAssert(v1 == [
             [[0, 1, 2], [6,  7,  8]],
             [[3, 4, 5], [9, 10, 11]]])
 
-        let v2 = Tensor3<Float>(stacking: a, b, axis: 2)
+        let v2 = stack(a, b, axis: 2)
         XCTAssert(v2 ==
             [[[0, 6],
               [1, 7],

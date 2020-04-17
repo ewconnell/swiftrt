@@ -118,6 +118,13 @@ numShapes = 6
 }
 
 //@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<E>(_ arrays: Tensor${n}<E>..., axis: Int = 0)
+    -> Tensor${n + 1}<E>
+{
+    Tensor${n + 1}<E>(stacking: arrays, axis: axis)
+}
+
+//@differentiable(where E: DifferentiableElement)
 @inlinable public func stack<E>(
     _ arrays: [Tensor${n}<E>],
     axis: Int = 0,
