@@ -172,22 +172,33 @@ public extension TensorShape {
     /// `strides(order:`
     /// computes the strides needed to index the specified storage order
     @inlinable func strides(for order: StorageOrder) -> Self {
-        // strides will be overwritten, but it needs an initial value
-        // so give it something that will already be in the cache
-        var strides = self
-        var dim = Self.rank - 1
-        var shapeStride = 1
-        while dim >= 0 {
-            strides[dim] = shapeStride
-            shapeStride &*= self[dim]
-            dim &-= 1
-        }
+        guard Self.rank > 1 else { return Self.one }
         
-        if order == .colMajor && Self.rank > 1 {
-            strides.swapAt(Self.rank - 1, Self.rank - 2)
+        func computeStrides(for shape: Self) -> Self {
+            // just use shape to reserve some storage space for strides
+            var strides = shape
+            var dim = Self.rank - 1
+            var shapeStride = 1
+            while dim >= 0 {
+                strides[dim] = shapeStride
+                shapeStride &*= shape[dim]
+                dim &-= 1
+            }
+            return strides
         }
 
-        return strides
+        if order == .C {
+            // row major
+            return computeStrides(for: self)
+            
+        } else {
+            // col major
+            var shape = self
+            shape.swapAt(Self.rank - 1, Self.rank - 2)
+            var strides = computeStrides(for: shape)
+            strides.swapAt(Self.rank - 1, Self.rank - 2)
+            return strides
+        }
     }
 
     //--------------------------------------------------------------------------

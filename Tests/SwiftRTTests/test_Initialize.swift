@@ -57,17 +57,16 @@ class test_Initialize: XCTestCase {
     
     //--------------------------------------------------------------------------
     // test_copyOnWrite
-    // NOTE: uses the default queue
     func test_copyOnWrite() {
-//        Platform.log.level = .diagnostic
+//        Context.log.level = .diagnostic
         let a = array(0..<6, (3, 2))
         XCTAssert(a[1, 1] == 3)
         
-        // copy view sharing the same tensor array
+        // copy shares the same storage
         var b = a
         XCTAssert(b[1, 1] == 3)
         
-        // mutate m2
+        // mutate b
         b[1, 1] = 7
         // m1's data should be unchanged
         XCTAssert(a[1, 1] == 3)
@@ -80,7 +79,7 @@ class test_Initialize: XCTestCase {
     //   2, 3,
     //   4, 5
     func test_columnMajorDataView() {
-        let cm = array([0, 2, 4, 1, 3, 5], (3, 2), order: .F)
+        let cm = array([0, 2, 4, 1, 3, 5], (3, 2), dtype: Int.self, order: .F)
         XCTAssert(cm == [[0, 1], [2, 3], [4, 5]])
     }
 
@@ -181,7 +180,7 @@ class test_Initialize: XCTestCase {
     func test_concatMatrixRows() {
         let a = array(1...6, (2, 3))
         let b = array(7...12, (2, 3))
-        let c = Tensor2<Float>(concatenating: a, b)
+        let c = Tensor2<DType>(concatenating: a, b)
         XCTAssert(c.shape == [4, 3])
         XCTAssert(c == [
             [1,  2,  3],
@@ -196,7 +195,7 @@ class test_Initialize: XCTestCase {
     func test_concatMatrixCols() {
         let a = array(1...6, (2, 3))
         let b = array(7...12, (2, 3))
-        let c = Tensor2<Float>(concatenating: a, b, alongAxis: 1)
+        let c = Tensor2<DType>(concatenating: a, b, alongAxis: 1)
         XCTAssert(c.shape == [2, 6])
         XCTAssert(c == [
             [1,  2,  3, 7,  8,  9],

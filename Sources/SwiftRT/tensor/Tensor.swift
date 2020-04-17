@@ -288,7 +288,11 @@ public extension Tensor {
                 return storage.element(at: baseOffset + i.linearIndex(strides))
             }
         }
+        
         set {
+            // perform copy-on-write if needed
+            prepareStorage()
+            
             if isSingleElement {
                 return storage.setElement(value: newValue, at: baseOffset)
             } else if isSequential {
@@ -303,14 +307,17 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     // sub view subscript
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
-        get { createView(lower, upper) }
+        get { createView(lower, upper, isShared) }
         set {
-            var view = createView(lower, upper)
+            // perform copy-on-write if needed
+            prepareStorage()
+            var view = createView(lower, upper, true)
             copy(from: newValue, to: &view)
         }
     }
 
-    @inlinable func createView(_ lower: Shape, _ upper: Shape) -> Self {
+    @inlinable
+    func createView(_ lower: Shape, _ upper: Shape, _ share: Bool) -> Self {
         let shape = upper &- lower
         let isSeq = strides.areSequential(for: shape)
         let count = shape.elementCount()
@@ -323,26 +330,32 @@ public extension Tensor {
             storage: storage,
             baseOffset: baseOffset + lower.index(stridedBy: strides),
             order: storageOrder,
-            share: isShared,
+            share: share,
             isSequential: isSeq)
     }
 
     //--------------------------------------------------------------------------
     /// shared(
     @inlinable mutating func shared() -> Self {
+        // copy self and set the isShared flag to true
+        var sharedDense = self
+        sharedDense._isShared = true
+        return sharedDense
+    }
+
+    //--------------------------------------------------------------------------
+    /// `prepareStorage`
+    /// called before a write operation to ensure that the storage buffer
+    /// contents are in a valid state
+    @inlinable mutating func prepareStorage() {
         // if not uniquely held then copy before creating the shared view
-        if !isKnownUniquelyReferenced(&storage) {
+        if !(isKnownUniquelyReferenced(&storage) || isShared) {
             diagnostic("\(mutationString) \(storage.name)(\(storage.id)) " +
                 "\(Element.self)[\(elementCount)]",
                 categories: [.dataCopy, .dataMutation])
 
             storage = StorageBufferType(copying: storage)
         }
-        
-        // copy self and set the isShared flag to true
-        var sharedDense = self
-        sharedDense._isShared = true
-        return sharedDense
     }
 }
 

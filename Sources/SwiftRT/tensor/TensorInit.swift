@@ -588,20 +588,7 @@ extension Tensor where Element: Numeric {
         offset: Int = 0,
         order: StorageOrder = .C
     ) {
-        let count = shape.elementCount()
-        let name = Self.defaultName
-        self.init(shape: shape,
-                  strides: shape.strides(for: order),
-                  elementCount: count,
-                  spanCount: count,
-                  storage: StorageBufferType(count: count, name: name),
-                  baseOffset: 0,
-                  order: order,
-                  share: false,
-                  // set to `false` to force spatial indexing, which
-                  // is needed by the driver function to generate the pattern
-                  isSequential: false)
-
+        self.init(shape, order: order)
         Context.currentQueue.eye(&self, offset: offset)
     }
 }
