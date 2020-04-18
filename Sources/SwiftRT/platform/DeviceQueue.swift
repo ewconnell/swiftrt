@@ -302,7 +302,7 @@ open class DeviceQueue: Logging {
     func copy<S,E>(from x: Tensor<S,E>, to result: inout Tensor<S,E>)
         where S: TensorShape
     {
-        zip(result.indices, x).forEach { result[$0] = $1 }
+        mapOp(x, &result) { $0 }
     }
 
     @inlinable

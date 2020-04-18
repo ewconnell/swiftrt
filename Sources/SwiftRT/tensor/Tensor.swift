@@ -302,7 +302,7 @@ public extension Tensor {
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
         get { createView(lower, upper) }
         set {
-            ensureStorageIsUnique()
+            ensureValidStorage()
             var view = createView(lower, upper)
             copy(from: newValue, to: &view)
         }
@@ -335,16 +335,32 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
-    /// `ensureStorageIsUnique`
+    /// `ensureValidStorage`
     /// called before a write operation to ensure that the storage buffer
     /// is unique for this tensor unless it `isShared`
-    @inlinable mutating func ensureStorageIsUnique() {
-        // if not uniquely held then copy before creating the shared view
-        if !(isKnownUniquelyReferenced(&storage) || isShared) {
-            diagnostic("\(mutationString) \(storage.name)(\(storage.id)) " +
-                "\(Element.self)[\(elementCount)]",
-                categories: [.dataCopy, .dataMutation])
+    /// It also expands repeated tensors to a full dense storage
+    /// representation for write, which most often happens via element
+    /// subscripting.
+    @inlinable mutating func ensureValidStorage() {
+        // if repeated then expand to full dense tensor
+        if spanCount < elementCount {
+            var expanded = Tensor(like: self)
 
+            diagnostic("\(expandingString) \(storage.name)(\(storage.id)) " +
+                        "\(Element.self)[\(spanCount)] " +
+                        "to: \(expanded.storage.name)(\(expanded.storage.id)) \(Element.self)[\(expanded.elementCount)]",
+                       categories: [.dataCopy, .dataExpanding])
+
+            // do an indexed copy
+            copy(from: self, to: &expanded)
+            self = expanded
+
+        } else if !(isKnownUniquelyReferenced(&storage) || isShared) {
+            // if not uniquely held then copy before creating the shared view
+            diagnostic("\(mutationString) \(storage.name)(\(storage.id)) " +
+                        "\(Element.self)[\(elementCount)]",
+                       categories: [.dataCopy, .dataMutation])
+            
             storage = StorageBufferType(copying: storage)
         }
     }
@@ -398,7 +414,7 @@ public extension Tensor {
     /// `Elements` are accessed by the application using `MutableCollection`
     /// enumeration via `indices` or subscripting.
     @inlinable mutating func readWrite() {
-        ensureStorageIsUnique()
+        ensureValidStorage()
     }
     
     //--------------------------------------------------------------------------
@@ -410,7 +426,7 @@ public extension Tensor {
     ///
     /// - Parameter queue: the device queue to use for synchronization
     @inlinable mutating func readWrite(using queue: DeviceQueue) {
-        ensureStorageIsUnique()
+        ensureValidStorage()
     }
 }
 

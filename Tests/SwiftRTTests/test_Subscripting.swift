@@ -65,6 +65,21 @@ class test_Subscripting: XCTestCase {
         XCTAssert(count > 0)
         #endif
     }
+
+    //==========================================================================
+    // test_writeToRepeated
+    func test_writeToRepeated() {
+        Context.log.level = .diagnostic
+        // test through subscript
+        var a = repeating(1, (2, 3))
+        a[1..<2, ...] = repeating(2, (1, 3))
+        XCTAssert(a == [[1, 1, 1], [2, 2, 2]])
+        
+        // test through op
+        var b = repeating(1, (2, 3))
+        SwiftRT.copy(from: repeating(2, (1, 3)), to: &b)
+        XCTAssert(b == [[1, 1, 1], [2, 2, 2]])
+    }
     
     //==========================================================================
     // test_negativeIndexRelativeRange
