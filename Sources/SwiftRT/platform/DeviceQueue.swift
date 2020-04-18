@@ -236,6 +236,9 @@ open class DeviceQueue: Logging {
                   _ result: inout Tensor<S,E>)
         where S: TensorShape, E: AdditiveArithmetic
     {
+        lhs.read(using: self)
+        rhs.read(using: self)
+        result.readWrite(using: self)
         mapOp(lhs, rhs, &result, +)
     }
 
@@ -302,6 +305,8 @@ open class DeviceQueue: Logging {
     func copy<S,E>(from x: Tensor<S,E>, to result: inout Tensor<S,E>)
         where S: TensorShape
     {
+        x.read(using: self)
+        result.readWrite(using: self)
         mapOp(x, &result) { $0 }
     }
 

@@ -23,20 +23,16 @@ public struct Tensor<Shape, Element>: MutableTensorType
 {
     // types
     public typealias Index = ElementIndex<Shape>
-
-    /// the element storage buffer.
-    public var storage: StorageBufferType<Element>
-    /// the dense number of elements in the shape
-    public let elementCount: Int
     /// the storage buffer base offset where this tensor's elements begin
     public let baseOffset: Int
+    /// the dense number of elements in the shape
+    public let elementCount: Int
+    /// the unique storage id
+    @inlinable public var id: Int { storage.id }
     /// `true` if elements are in row major contiguous order
     // this is a stored property, because it's used during
     // gpu dispatch decision making
     public let isSequential: Bool
-    /// Specifies whether data is stored in row-major (C-style)
-    /// or column-major (Fortran-style) order in memory.
-    public let storageOrder: StorageOrder
     /// the dimensions of the element space
     public let shape: Shape
     // used by makeIndex
@@ -45,6 +41,11 @@ public struct Tensor<Shape, Element>: MutableTensorType
     public let spanCount: Int
     /// The distance to the next element along each dimension
     public let strides: Shape
+    /// the element storage buffer.
+    public var storage: StorageBufferType<Element>
+    /// Specifies whether data is stored in row-major (C-style)
+    /// or column-major (Fortran-style) order in memory.
+    public let storageOrder: StorageOrder
 
     //-----------------------------------
     /// `true` if the view will be shared by by multiple writers
@@ -65,6 +66,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
         get { storage.name }
         set { storage.name = newValue }
     }
+
 
     //--------------------------------------------------------------------------
     /// init(
@@ -300,15 +302,16 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     // sub view subscript
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
-        get { createView(lower, upper) }
+        get { createView(lower, upper, isShared) }
         set {
             ensureValidStorage()
-            var view = createView(lower, upper)
+            var view = createView(lower, upper, true)
             copy(from: newValue, to: &view)
         }
     }
 
-    @inlinable func createView(_ lower: Shape, _ upper: Shape) -> Self {
+    @inlinable
+    func createView(_ lower: Shape, _ upper: Shape, _ share: Bool) -> Self {
         let shape = upper &- lower
         let isSeq = strides.areSequential(for: shape)
         let count = shape.elementCount()
@@ -321,7 +324,7 @@ public extension Tensor {
             storage: storage,
             baseOffset: baseOffset + lower.index(stridedBy: strides),
             order: storageOrder,
-            share: isShared,
+            share: share,
             isSequential: isSeq)
     }
 
@@ -346,10 +349,11 @@ public extension Tensor {
         if spanCount < elementCount {
             var expanded = Tensor(like: self)
 
-            diagnostic("\(expandingString) \(storage.name)(\(storage.id)) " +
-                        "\(Element.self)[\(spanCount)] " +
-                        "to: \(expanded.storage.name)(\(expanded.storage.id)) \(Element.self)[\(expanded.elementCount)]",
-                       categories: [.dataCopy, .dataExpanding])
+            diagnostic(
+                "\(expandingString) \(name)(\(id)) " +
+                    "\(Element.self)[\(spanCount)] to: \(expanded.name)" +
+                    "(\(expanded.id)) \(Element.self)[\(expanded.elementCount)]",
+                categories: [.dataCopy, .dataExpanding])
 
             // do an indexed copy
             copy(from: self, to: &expanded)

@@ -33,7 +33,7 @@ class test_perfAdd: XCTestCase {
         let a = ones((1024, 1024))
         var count: DType = 0
         
-        // 0.001s
+        // 0.001s --> 0.00238
         self.measure {
             for value in a {
                 count += value
@@ -60,7 +60,7 @@ class test_perfAdd: XCTestCase {
             zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = op($1.0, $1.1) }
         }
         
-        // 0.0470s
+        // 0.0470 --> 0.00409
         self.measure {
             var result = empty(like: a)
             mapOp(a, b, &result, +)
@@ -80,7 +80,7 @@ class test_perfAdd: XCTestCase {
         let b = ones((1024, 1024))
         var count: DType = 0
         
-        // 1.678s
+        // 1.678 --> 1.463
         self.measure {
             let result = a + b
             count += result.first
