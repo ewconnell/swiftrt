@@ -128,7 +128,7 @@ public func empty<T>(
     shape: Shape${n}.Tuple
 ) -> Tensor<Shape${n}, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    assert(prototype.count == Shape${n}(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 %end
@@ -155,7 +155,7 @@ public func empty<T>(
     shape: Shape${n}.Tuple
 ) -> Tensor<Shape${n}, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    assert(prototype.count == Shape${n}(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
 }
 %end
@@ -274,7 +274,7 @@ public func full<T>(
     shape: Shape${n}.Tuple
 ) -> Tensor<Shape${n}, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    assert(prototype.count == Shape${n}(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -305,7 +305,7 @@ public func full<T, Element>(
     shape: Shape${n}.Tuple
 ) -> Tensor<Shape${n}, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    assert(prototype.count == Shape${n}(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -412,7 +412,7 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape${n}, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    assert(prototype.count == Shape${n}(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -443,7 +443,7 @@ public func ones<T, Element>(
 ) -> Tensor<Shape${n}, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    assert(prototype.count == Shape${n}(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -550,7 +550,7 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape${n}, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    assert(prototype.count == Shape${n}(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -581,7 +581,7 @@ public func zeros<T, Element>(
 ) -> Tensor<Shape${n}, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    assert(prototype.count == Shape${n}(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)
 }
 

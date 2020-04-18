@@ -886,7 +886,7 @@ import Foundation
     shape: Shape1.Tuple
 ) -> Tensor<Shape1, E> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape1(shape).elementCount())
+    assert(prototype.count == Shape1(shape).elementCount())
     return Tensor<Shape1, E>(repeating: value, to: Shape1(shape))
 }
 
@@ -898,7 +898,7 @@ import Foundation
     shape: Shape2.Tuple
 ) -> Tensor<Shape2, E> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape2(shape).elementCount())
+    assert(prototype.count == Shape2(shape).elementCount())
     return Tensor<Shape2, E>(repeating: value, to: Shape2(shape))
 }
 
@@ -910,7 +910,7 @@ import Foundation
     shape: Shape3.Tuple
 ) -> Tensor<Shape3, E> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape3(shape).elementCount())
+    assert(prototype.count == Shape3(shape).elementCount())
     return Tensor<Shape3, E>(repeating: value, to: Shape3(shape))
 }
 
@@ -922,7 +922,7 @@ import Foundation
     shape: Shape4.Tuple
 ) -> Tensor<Shape4, E> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape4(shape).elementCount())
+    assert(prototype.count == Shape4(shape).elementCount())
     return Tensor<Shape4, E>(repeating: value, to: Shape4(shape))
 }
 
@@ -934,7 +934,7 @@ import Foundation
     shape: Shape5.Tuple
 ) -> Tensor<Shape5, E> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape5(shape).elementCount())
+    assert(prototype.count == Shape5(shape).elementCount())
     return Tensor<Shape5, E>(repeating: value, to: Shape5(shape))
 }
 
@@ -946,7 +946,7 @@ import Foundation
     shape: Shape6.Tuple
 ) -> Tensor<Shape6, E> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape6(shape).elementCount())
+    assert(prototype.count == Shape6(shape).elementCount())
     return Tensor<Shape6, E>(repeating: value, to: Shape6(shape))
 }
 
@@ -962,7 +962,7 @@ import Foundation
     shape: Shape1.Tuple
 ) -> Tensor<Shape1, Element> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape1(shape).elementCount())
+    assert(prototype.count == Shape1(shape).elementCount())
     return Tensor<Shape1, Element>(repeating: value, to: Shape1(shape))
 }
 
@@ -975,7 +975,7 @@ import Foundation
     shape: Shape2.Tuple
 ) -> Tensor<Shape2, Element> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape2(shape).elementCount())
+    assert(prototype.count == Shape2(shape).elementCount())
     return Tensor<Shape2, Element>(repeating: value, to: Shape2(shape))
 }
 
@@ -988,7 +988,7 @@ import Foundation
     shape: Shape3.Tuple
 ) -> Tensor<Shape3, Element> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape3(shape).elementCount())
+    assert(prototype.count == Shape3(shape).elementCount())
     return Tensor<Shape3, Element>(repeating: value, to: Shape3(shape))
 }
 
@@ -1001,7 +1001,7 @@ import Foundation
     shape: Shape4.Tuple
 ) -> Tensor<Shape4, Element> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape4(shape).elementCount())
+    assert(prototype.count == Shape4(shape).elementCount())
     return Tensor<Shape4, Element>(repeating: value, to: Shape4(shape))
 }
 
@@ -1014,7 +1014,7 @@ import Foundation
     shape: Shape5.Tuple
 ) -> Tensor<Shape5, Element> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape5(shape).elementCount())
+    assert(prototype.count == Shape5(shape).elementCount())
     return Tensor<Shape5, Element>(repeating: value, to: Shape5(shape))
 }
 
@@ -1027,7 +1027,7 @@ import Foundation
     shape: Shape6.Tuple
 ) -> Tensor<Shape6, Element> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape6(shape).elementCount())
+    assert(prototype.count == Shape6(shape).elementCount())
     return Tensor<Shape6, Element>(repeating: value, to: Shape6(shape))
 }
 

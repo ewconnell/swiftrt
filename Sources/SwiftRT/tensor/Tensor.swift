@@ -26,7 +26,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
     /// the storage buffer base offset where this tensor's elements begin
     public let baseOffset: Int
     /// the dense number of elements in the shape
-    public let elementCount: Int
+    public let count: Int
     /// the unique storage id
     @inlinable public var id: Int { storage.id }
     /// `true` if elements are in row major contiguous order
@@ -74,7 +74,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
     @inlinable public init(
         shape: Shape,
         strides: Shape,
-        elementCount: Int,
+        count: Int,
         spanCount: Int,
         storage: StorageBufferType<Element>,
         baseOffset: Int,
@@ -84,7 +84,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
     ) {
         self.shape = shape
         self.strides = strides
-        self.elementCount = elementCount
+        self.count = count
         self.spanCount = spanCount
         self.storage = storage
         self.baseOffset = baseOffset
@@ -92,7 +92,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
         self._isShared = share
         self.isSequential = isSequential
         self.startIndex = Index(Shape.zero, baseOffset)
-        self.endIndex = Index(shape, baseOffset + elementCount)
+        self.endIndex = Index(shape, baseOffset + count)
         self.shapeStrides = shape.strides(for: order)
     }
     
@@ -102,14 +102,14 @@ public struct Tensor<Shape, Element>: MutableTensorType
     @inlinable public init(single element: Element, shape: Shape) {
         self.shape = shape
         strides = Shape.zero
-        elementCount = shape.elementCount()
+        count = shape.elementCount()
         spanCount = 1
         baseOffset = 0
         storageOrder = .C
         _isShared = true
         isSequential = true
         startIndex = Index(Shape.zero, 0)
-        endIndex = Index(shape, elementCount)
+        endIndex = Index(shape, count)
         storage = StorageBufferType<Element>(single: element, name: "Element")
         shapeStrides = Shape.zero
     }
@@ -319,7 +319,7 @@ public extension Tensor {
         return Tensor(
             shape: shape,
             strides: strides,
-            elementCount: count,
+            count: count,
             spanCount: span,
             storage: storage,
             baseOffset: baseOffset + lower.index(stridedBy: strides),
@@ -346,13 +346,13 @@ public extension Tensor {
     /// subscripting.
     @inlinable mutating func ensureValidStorage() {
         // if repeated then expand to full dense tensor
-        if spanCount < elementCount {
+        if spanCount < count {
             var expanded = Tensor(like: self)
 
             diagnostic(
                 "\(expandingString) \(name)(\(id)) " +
                     "\(Element.self)[\(spanCount)] to: \(expanded.name)" +
-                    "(\(expanded.id)) \(Element.self)[\(expanded.elementCount)]",
+                    "(\(expanded.id)) \(Element.self)[\(expanded.count)]",
                 categories: [.dataCopy, .dataExpanding])
 
             // do an indexed copy
@@ -362,7 +362,7 @@ public extension Tensor {
         } else if !(isKnownUniquelyReferenced(&storage) || isShared) {
             // if not uniquely held then copy before creating the shared view
             diagnostic("\(mutationString) \(storage.name)(\(storage.id)) " +
-                        "\(Element.self)[\(elementCount)]",
+                        "\(Element.self)[\(count)]",
                        categories: [.dataCopy, .dataMutation])
             
             storage = StorageBufferType(copying: storage)
@@ -450,12 +450,12 @@ public extension Tensor {
     @_semantics("autodiff.nonvarying")
     @inlinable var element: Element {
         get {
-            assert(elementCount == 1, "the `element` property expects " +
+            assert(count == 1, "the `element` property expects " +
                 "the tensor to have a single Element. Use `first` for sets")
             return storage.element(at: baseOffset)
         }
         set {
-            assert(elementCount == 1, "the `element` property expects " +
+            assert(count == 1, "the `element` property expects " +
                 "the tensor to have a single Element")
             storage.setElement(value: newValue, at: baseOffset)
         }

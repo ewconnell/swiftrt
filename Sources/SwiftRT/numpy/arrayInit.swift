@@ -197,7 +197,7 @@ public func empty<T>(
     shape: Shape1.Tuple
 ) -> Tensor<Shape1, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape1(shape).elementCount())
+    assert(prototype.count == Shape1(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 // Rank2
@@ -207,7 +207,7 @@ public func empty<T>(
     shape: Shape2.Tuple
 ) -> Tensor<Shape2, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape2(shape).elementCount())
+    assert(prototype.count == Shape2(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 // Rank3
@@ -217,7 +217,7 @@ public func empty<T>(
     shape: Shape3.Tuple
 ) -> Tensor<Shape3, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape3(shape).elementCount())
+    assert(prototype.count == Shape3(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 // Rank4
@@ -227,7 +227,7 @@ public func empty<T>(
     shape: Shape4.Tuple
 ) -> Tensor<Shape4, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape4(shape).elementCount())
+    assert(prototype.count == Shape4(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 // Rank5
@@ -237,7 +237,7 @@ public func empty<T>(
     shape: Shape5.Tuple
 ) -> Tensor<Shape5, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape5(shape).elementCount())
+    assert(prototype.count == Shape5(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 // Rank6
@@ -247,7 +247,7 @@ public func empty<T>(
     shape: Shape6.Tuple
 ) -> Tensor<Shape6, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape6(shape).elementCount())
+    assert(prototype.count == Shape6(shape).elementCount())
     return empty(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -272,7 +272,7 @@ public func empty<T>(
     shape: Shape1.Tuple
 ) -> Tensor<Shape1, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape1(shape).elementCount())
+    assert(prototype.count == Shape1(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
 }
 // Rank2
@@ -283,7 +283,7 @@ public func empty<T>(
     shape: Shape2.Tuple
 ) -> Tensor<Shape2, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape2(shape).elementCount())
+    assert(prototype.count == Shape2(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
 }
 // Rank3
@@ -294,7 +294,7 @@ public func empty<T>(
     shape: Shape3.Tuple
 ) -> Tensor<Shape3, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape3(shape).elementCount())
+    assert(prototype.count == Shape3(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
 }
 // Rank4
@@ -305,7 +305,7 @@ public func empty<T>(
     shape: Shape4.Tuple
 ) -> Tensor<Shape4, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape4(shape).elementCount())
+    assert(prototype.count == Shape4(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
 }
 // Rank5
@@ -316,7 +316,7 @@ public func empty<T>(
     shape: Shape5.Tuple
 ) -> Tensor<Shape5, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape5(shape).elementCount())
+    assert(prototype.count == Shape5(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
 }
 // Rank6
@@ -327,7 +327,7 @@ public func empty<T>(
     shape: Shape6.Tuple
 ) -> Tensor<Shape6, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape6(shape).elementCount())
+    assert(prototype.count == Shape6(shape).elementCount())
     return empty(shape, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -562,7 +562,7 @@ public func full<T>(
     shape: Shape1.Tuple
 ) -> Tensor<Shape1, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape1(shape).elementCount())
+    assert(prototype.count == Shape1(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -574,7 +574,7 @@ public func full<T>(
     shape: Shape2.Tuple
 ) -> Tensor<Shape2, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape2(shape).elementCount())
+    assert(prototype.count == Shape2(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -586,7 +586,7 @@ public func full<T>(
     shape: Shape3.Tuple
 ) -> Tensor<Shape3, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape3(shape).elementCount())
+    assert(prototype.count == Shape3(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -598,7 +598,7 @@ public func full<T>(
     shape: Shape4.Tuple
 ) -> Tensor<Shape4, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape4(shape).elementCount())
+    assert(prototype.count == Shape4(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -610,7 +610,7 @@ public func full<T>(
     shape: Shape5.Tuple
 ) -> Tensor<Shape5, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape5(shape).elementCount())
+    assert(prototype.count == Shape5(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -622,7 +622,7 @@ public func full<T>(
     shape: Shape6.Tuple
 ) -> Tensor<Shape6, T.Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape6(shape).elementCount())
+    assert(prototype.count == Shape6(shape).elementCount())
     return full(shape, value, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -651,7 +651,7 @@ public func full<T, Element>(
     shape: Shape1.Tuple
 ) -> Tensor<Shape1, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape1(shape).elementCount())
+    assert(prototype.count == Shape1(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -664,7 +664,7 @@ public func full<T, Element>(
     shape: Shape2.Tuple
 ) -> Tensor<Shape2, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape2(shape).elementCount())
+    assert(prototype.count == Shape2(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -677,7 +677,7 @@ public func full<T, Element>(
     shape: Shape3.Tuple
 ) -> Tensor<Shape3, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape3(shape).elementCount())
+    assert(prototype.count == Shape3(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -690,7 +690,7 @@ public func full<T, Element>(
     shape: Shape4.Tuple
 ) -> Tensor<Shape4, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape4(shape).elementCount())
+    assert(prototype.count == Shape4(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -703,7 +703,7 @@ public func full<T, Element>(
     shape: Shape5.Tuple
 ) -> Tensor<Shape5, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape5(shape).elementCount())
+    assert(prototype.count == Shape5(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -716,7 +716,7 @@ public func full<T, Element>(
     shape: Shape6.Tuple
 ) -> Tensor<Shape6, Element> where T: TensorType
 {
-    assert(prototype.elementCount == Shape6(shape).elementCount())
+    assert(prototype.count == Shape6(shape).elementCount())
     return full(shape, value, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -904,7 +904,7 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape1, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape1(shape).elementCount())
+    assert(prototype.count == Shape1(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -916,7 +916,7 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape2, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape2(shape).elementCount())
+    assert(prototype.count == Shape2(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -928,7 +928,7 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape3, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape3(shape).elementCount())
+    assert(prototype.count == Shape3(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -940,7 +940,7 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape4, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape4(shape).elementCount())
+    assert(prototype.count == Shape4(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -952,7 +952,7 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape5, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape5(shape).elementCount())
+    assert(prototype.count == Shape5(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -964,7 +964,7 @@ public func ones<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape6, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape6(shape).elementCount())
+    assert(prototype.count == Shape6(shape).elementCount())
     return ones(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -993,7 +993,7 @@ public func ones<T, Element>(
 ) -> Tensor<Shape1, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape1(shape).elementCount())
+    assert(prototype.count == Shape1(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1006,7 +1006,7 @@ public func ones<T, Element>(
 ) -> Tensor<Shape2, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape2(shape).elementCount())
+    assert(prototype.count == Shape2(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1019,7 +1019,7 @@ public func ones<T, Element>(
 ) -> Tensor<Shape3, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape3(shape).elementCount())
+    assert(prototype.count == Shape3(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1032,7 +1032,7 @@ public func ones<T, Element>(
 ) -> Tensor<Shape4, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape4(shape).elementCount())
+    assert(prototype.count == Shape4(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1045,7 +1045,7 @@ public func ones<T, Element>(
 ) -> Tensor<Shape5, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape5(shape).elementCount())
+    assert(prototype.count == Shape5(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1058,7 +1058,7 @@ public func ones<T, Element>(
 ) -> Tensor<Shape6, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape6(shape).elementCount())
+    assert(prototype.count == Shape6(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1246,7 +1246,7 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape1, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape1(shape).elementCount())
+    assert(prototype.count == Shape1(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1258,7 +1258,7 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape2, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape2(shape).elementCount())
+    assert(prototype.count == Shape2(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1270,7 +1270,7 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape3, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape3(shape).elementCount())
+    assert(prototype.count == Shape3(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1282,7 +1282,7 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape4, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape4(shape).elementCount())
+    assert(prototype.count == Shape4(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1294,7 +1294,7 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape5, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape5(shape).elementCount())
+    assert(prototype.count == Shape5(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1306,7 +1306,7 @@ public func zeros<T>(like prototype: T, order: StorageOrder? = nil)
 ) -> Tensor<Shape6, T.Element>
     where T: TensorType, T.Element: Numeric
 {
-    assert(prototype.elementCount == Shape6(shape).elementCount())
+    assert(prototype.count == Shape6(shape).elementCount())
     return zeros(shape, T.Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1335,7 +1335,7 @@ public func zeros<T, Element>(
 ) -> Tensor<Shape1, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape1(shape).elementCount())
+    assert(prototype.count == Shape1(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1348,7 +1348,7 @@ public func zeros<T, Element>(
 ) -> Tensor<Shape2, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape2(shape).elementCount())
+    assert(prototype.count == Shape2(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1361,7 +1361,7 @@ public func zeros<T, Element>(
 ) -> Tensor<Shape3, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape3(shape).elementCount())
+    assert(prototype.count == Shape3(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1374,7 +1374,7 @@ public func zeros<T, Element>(
 ) -> Tensor<Shape4, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape4(shape).elementCount())
+    assert(prototype.count == Shape4(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1387,7 +1387,7 @@ public func zeros<T, Element>(
 ) -> Tensor<Shape5, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape5(shape).elementCount())
+    assert(prototype.count == Shape5(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)
 }
 
@@ -1400,7 +1400,7 @@ public func zeros<T, Element>(
 ) -> Tensor<Shape6, Element>
     where T: TensorType, Element: Numeric
 {
-    assert(prototype.elementCount == Shape6(shape).elementCount())
+    assert(prototype.count == Shape6(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storageOrder)
 }
 

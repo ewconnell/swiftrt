@@ -317,7 +317,7 @@ public protocol TensorType: Collection, CustomStringConvertible, Logging
 
     //----------------------------------
     /// the number of elements described by `shape`
-    var elementCount: Int { get }
+    var count: Int { get }
     /// `true` if the tensor represents a single constant Element
     var isSingleElement: Bool { get }
     /// the dimensions of the collection

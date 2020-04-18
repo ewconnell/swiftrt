@@ -56,7 +56,7 @@ public extension Tensor {
         let name = "Tensor\(Shape.rank)"
         self.init(shape: shape,
                   strides: shape.strides(for: order),
-                  elementCount: count,
+                  count: count,
                   spanCount: count,
                   storage: StorageBufferType(count: count, name: name),
                   baseOffset: 0,
@@ -118,16 +118,16 @@ public extension Tensor {
         for i in 0..<Shape.rank where other.shape[i] == shape[i] {
             repeatedStrides[i] = other.strides[i]
         }
-        let elementCount = shape.elementCount()
+        let count = shape.elementCount()
         self.init(shape: shape,
                   strides: repeatedStrides,
-                  elementCount: elementCount,
+                  count: count,
                   spanCount: shape.spanCount(stridedBy: repeatedStrides),
                   storage: other.storage,
                   baseOffset: other.baseOffset,
                   order: other.storageOrder,
                   share: other.isShared,
-                  isSequential: elementCount == 1)
+                  isSequential: count == 1)
     }
     
     //--------------------------------------------------------------------------
@@ -276,11 +276,11 @@ public extension Tensor {
         for i in 0..<shape.count where newShape[i] == -1 {
             shape[i] = 1
             let specifiedCount = shape.elementCount()
-            assert(other.elementCount % specifiedCount == 0,
+            assert(other.count % specifiedCount == 0,
                    "incompatible dimensions")
-            shape[i] = other.elementCount / specifiedCount
+            shape[i] = other.count / specifiedCount
         }
-        assert(shape.elementCount() == other.elementCount,
+        assert(shape.elementCount() == other.count,
                "the new shape must have the same number of elements as other")
         
         // determine storage order
@@ -292,7 +292,7 @@ public extension Tensor {
         // create new tensor, which is a shaped reference to other's storage
         self.init(shape: shape,
                   strides: shape.strides(for: order),
-                  elementCount: other.elementCount,
+                  count: other.count,
                   spanCount: other.spanCount,
                   storage: other.storage,
                   baseOffset: other.baseOffset,
@@ -306,7 +306,7 @@ public extension Tensor {
             let reshapedOther =
                 Self(shape: shape,
                      strides: shape.strides(for: other.storageOrder),
-                     elementCount: other.elementCount,
+                     count: other.count,
                      spanCount: other.spanCount,
                      storage: other.storage,
                      baseOffset: other.baseOffset,
@@ -315,7 +315,7 @@ public extension Tensor {
                      isSequential: true)
             
             // create a new empty storage buffer for self
-            self.storage = StorageBufferType<Element>(count: elementCount,
+            self.storage = StorageBufferType<Element>(count: count,
                                                       name: storage.name)
             
             // performs an indexed copy which reorders the elements
@@ -399,7 +399,7 @@ public extension Tensor {
         
         self.init(shape: shape,
                   strides: strides,
-                  elementCount: other.elementCount,
+                  count: other.count,
                   spanCount: other.spanCount,
                   storage: other.storage,
                   baseOffset: other.baseOffset,
@@ -463,8 +463,8 @@ public extension Tensor {
         
         self.init(shape: shape,
                   strides: strides,
-                  elementCount: other.elementCount,
-                  spanCount: other.elementCount,
+                  count: other.count,
+                  spanCount: other.count,
                   storage: other.storage,
                   baseOffset: other.baseOffset,
                   order: other.storageOrder,
@@ -599,8 +599,8 @@ public extension Tensor {
         //-----------------------------------
         self.init(shape: shape,
                   strides: strides,
-                  elementCount: other.elementCount,
-                  spanCount: other.elementCount,
+                  count: other.count,
+                  spanCount: other.count,
                   storage: other.storage,
                   baseOffset: other.baseOffset,
                   order: other.storageOrder,
@@ -651,8 +651,8 @@ public extension Tensor {
         //-----------------------------------
         self.init(shape: shape,
                   strides: strides,
-                  elementCount: other.elementCount,
-                  spanCount: other.elementCount,
+                  count: other.count,
+                  spanCount: other.count,
                   storage: other.storage,
                   baseOffset: other.baseOffset,
                   order: other.storageOrder,

@@ -238,7 +238,7 @@ numShapes = 6
     shape: Shape${n}.Tuple
 ) -> Tensor<Shape${n}, E> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    assert(prototype.count == Shape${n}(shape).elementCount())
     return Tensor<Shape${n}, E>(repeating: value, to: Shape${n}(shape))
 }
 
@@ -256,7 +256,7 @@ numShapes = 6
     shape: Shape${n}.Tuple
 ) -> Tensor<Shape${n}, Element> where S: TensorShape
 {
-    assert(prototype.elementCount == Shape${n}(shape).elementCount())
+    assert(prototype.count == Shape${n}(shape).elementCount())
     return Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape))
 }
 
