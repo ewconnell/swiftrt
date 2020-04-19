@@ -232,8 +232,8 @@ open class DeviceQueue: Logging {
     }
 
     @inlinable
-    func add<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
-                  _ result: inout Tensor<S,E>)
+    public func add<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
+                         _ result: inout Tensor<S,E>)
         where S: TensorShape, E: AdditiveArithmetic
     {
         lhs.read(using: self)

@@ -42,7 +42,7 @@ public extension Platform {
     /// the currently active queue that platform functions will use
     /// - Returns: the current device queue
     @inlinable @_transparent
-    var currentQueue: DeviceQueue {
+    var currentQueue: Device.Queue {
         let queueId = currentQueueId
         return devices[queueId.device].queues[queueId.queue]
     }
@@ -183,12 +183,13 @@ public enum EvaluationMode {
 /// a compute device represents a physical service device installed
 /// on the platform
 public protocol PlatformDevice: class, Logger {
+    associatedtype Queue
     /// the id of the device for example dev:0, dev:1, ...
     var id: Int { get }
     /// name used logging
     var name: String { get }
     /// a collection of device queues for scheduling work
-    var queues: [DeviceQueue] { get }
+    var queues: [Queue] { get }
     /// specifies the type of device memory for data transfer
     var memoryType: MemoryType { get }
 }

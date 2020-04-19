@@ -23,7 +23,7 @@ public final class CpuDevice: PlatformDevice {
     public let logInfo: LogInfo
     public let memoryType: MemoryType
     public let name: String
-    public let queues: [DeviceQueue]
+    public let queues: [CpuQueue]
 
     @inlinable
     public init(parent logInfo: LogInfo, memoryType: MemoryType, id: Int)

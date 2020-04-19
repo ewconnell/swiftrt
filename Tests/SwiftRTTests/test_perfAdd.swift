@@ -22,8 +22,7 @@ class test_perfAdd: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_sumTensor2", test_sumTensor2),
-        ("test_perfAddInApp", test_perfAddInApp),
-        ("test_perfAddInModule", test_perfAddInModule),
+        ("test_addTensor2", test_addTensor2),
     ]
     
     //--------------------------------------------------------------------------
@@ -33,56 +32,67 @@ class test_perfAdd: XCTestCase {
         let a = ones((1024, 1024))
         var count: DType = 0
         
-        // 0.001s --> 0.00238
+        // 0.00116s
         self.measure {
-            for value in a {
-                count += value
-            }
+            // llvm.experimental.vector.reduce.fadd
+            count += a.indices.reduce(into: 0) { $0 += a[$1] }
         }
-        XCTAssert(count > 0)
-        #endif
-    }
 
-    //--------------------------------------------------------------------------
-    // test_perfAddInApp
-    func test_perfAddInApp() {
-        #if !DEBUG
-        let a = ones((1024, 1024))
-        let b = ones((1024, 1024))
-        var count: DType = 0
-
-        // THIS IS THE SAME CODE copied from DeviceQueue implementation
-        func mapOp<T, U, R>(
-            _ lhs: T, _ rhs: U, _ r: inout R,
-            _ op: @escaping (T.Element, U.Element) -> R.Element)
-            where T: Collection, U: Collection, R: MutableCollection
-        {
-            zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = op($1.0, $1.1) }
-        }
-        
-        // 0.0470 --> 0.00409
-        self.measure {
-            var result = empty(like: a)
-            mapOp(a, b, &result, +)
-            // keep things from being optimized away
-            count += result.first
-        }
         XCTAssert(count > 0)
         #endif
     }
     
     //--------------------------------------------------------------------------
-    // test_perfAddInModule
+    // test_addTensor2
     // 30X slower than test_perfAddInApp!!
-    func test_perfAddInModule() {
+    func test_addTensor2() {
         #if !DEBUG
         let a = ones((1024, 1024))
         let b = ones((1024, 1024))
         var count: DType = 0
         
-        // 1.678 --> 1.463
+        // 1.678 --> 0.00412  ~400X improvement
         self.measure {
-            let result = a + b
+            count = (a + b).first
+        }
+        XCTAssert(count == 2)
+        #endif
+    }
+
+    //--------------------------------------------------------------------------
+    // test_perfAddScalarInApp
+    func test_perfAddScalarInApp() {
+        #if !DEBUG
+        let a = ones((1024, 1024))
+        let b = repeating(1, (1024, 1024))
+        var count: DType = 0
+        
+        func mapOp1<S,E>(
+            _ lhs: Tensor<S,E>, _ rhs: E,
+            _ r: inout Tensor<S,E>, _ op: (E, E) -> E)
+        where S: TensorShape, E: AdditiveArithmetic
+        {
+            zip(r.indices, lhs).forEach { r[$0] = $1 + rhs }
+        }
+
+        func mapOp2<S,E>(
+            _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
+            _ r: inout Tensor<S,E>, _ op: (E, E) -> E)
+        where S: TensorShape, E: AdditiveArithmetic
+        {
+            zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = $1.0 + $1.1 }
+        }
+        
+        // 0.0470 --> 0.00409
+        self.measure {
+            var result = empty(like: a)
+//            if b.isSingleElement {
+//                mapOp1(a, b[b.startIndex], &result, +)
+//            } else {
+                mapOp2(a, b, &result, +)
+//            }
+
+            // keep things from being optimized away
             count += result.first
         }
         XCTAssert(count > 0)
