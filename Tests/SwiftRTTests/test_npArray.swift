@@ -88,7 +88,7 @@ class test_npArray: XCTestCase {
         let _ = empty((2, 3), dtype: Int.self)
         let _ = empty((2, 3), dtype: Int.self, order: .F)
         
-        print(empty((2, 3), dtype: Int.self))
+//        print(empty((2, 3), dtype: Int.self))
     }
 
     //==========================================================================

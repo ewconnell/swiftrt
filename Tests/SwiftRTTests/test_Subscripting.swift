@@ -69,7 +69,7 @@ class test_Subscripting: XCTestCase {
     //==========================================================================
     // test_writeToRepeated
     func test_writeToRepeated() {
-        Context.log.level = .diagnostic
+//        Context.log.level = .diagnostic
         // test through subscript
         var a = repeating(1, (2, 3))
         a[1, 1] = 42

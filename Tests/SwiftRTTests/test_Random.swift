@@ -36,20 +36,20 @@ class test_Random: XCTestCase {
     //--------------------------------------------------------------------------
     // test_randomNormal
     func test_randomNormal() {
-        let v = Tensor1<Float>(randomNormal: 100)
-        print(v.array)
+        let _ = Tensor1<Float>(randomNormal: 100)
+//        print(v.array)
 
         let someData = array(0..<100)
         let dataMean = mean(someData)
         let dataStd = dataMean //standardDeviation(someData)
-        let weights = Tensor1<Float>(randomNormal: 100, mean: dataMean, standardDeviation: dataStd)
-        print(weights)
+        let _ = Tensor1<Float>(randomNormal: 100, mean: dataMean, standardDeviation: dataStd)
+//        print(weights)
     }
 
     //--------------------------------------------------------------------------
     // test_randomTruncatedNormal
     func test_randomTruncatedNormal() {
-        let v = Tensor1<Float>(randomTruncatedNormal: 100)
-        print(v.array)
+        let _ = Tensor1<Float>(randomTruncatedNormal: 100)
+//        print(v.array)
     }
 }
