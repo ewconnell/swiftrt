@@ -17,7 +17,7 @@ import XCTest
 import Foundation
 import SwiftRT
 
-class test_perfAdd: XCTestCase {
+class test_Vectorizing: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
