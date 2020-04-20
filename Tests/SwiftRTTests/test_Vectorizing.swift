@@ -113,11 +113,10 @@ class test_Vectorizing: XCTestCase {
         var count: DType = 0
         
         // 0.00412
-        var result = Tensor2<Float>()
         self.measure {
-            result = a + b
+            let result = a + b
+            count = result.first
         }
-        count = result.sum().element
         XCTAssert(count > 0)
         #endif
     }
