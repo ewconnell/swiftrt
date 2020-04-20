@@ -17,7 +17,7 @@
 //==============================================================================
 /// SyncStorage
 /// A synchronous host memory element storage buffer
-public final class SyncStorage<Element>: StorageBuffer
+public final class CpuStorage<Element>: StorageBuffer
 {
     public let hostBuffer: UnsafeMutableBufferPointer<Element>
     public let id: Int
@@ -65,7 +65,7 @@ public final class SyncStorage<Element>: StorageBuffer
     //--------------------------------------------------------------------------
     // init(elements:name:
     @inlinable
-    public init(copying other: SyncStorage) {
+    public init(copying other: CpuStorage) {
         self.id = other.id
         self.isReadOnly = other.isReadOnly
         self.isReference = other.isReference

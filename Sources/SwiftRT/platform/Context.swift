@@ -28,7 +28,7 @@ public typealias PlatformType = CudaService
 public typealias StorageBufferType<Element> = ReplicatedBuffer<Element>
 #else
 public typealias PlatformType = CpuService
-public typealias StorageBufferType<Element> = SyncStorage<Element>
+public typealias StorageBufferType<Element> = CpuStorage<Element>
 #endif
 
 //==============================================================================
