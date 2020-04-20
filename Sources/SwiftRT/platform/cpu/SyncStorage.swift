@@ -15,9 +15,9 @@
 //
 
 //==============================================================================
-/// CpuBuffer
-/// Used to manage a host memory buffer
-public final class CpuBuffer<Element>: StorageBuffer
+/// SyncStorage
+/// A synchronous host memory element storage buffer
+public final class SyncStorage<Element>: StorageBuffer
 {
     public let hostBuffer: UnsafeMutableBufferPointer<Element>
     public let id: Int
@@ -65,7 +65,7 @@ public final class CpuBuffer<Element>: StorageBuffer
     //--------------------------------------------------------------------------
     // init(elements:name:
     @inlinable
-    public init(copying other: CpuBuffer) {
+    public init(copying other: SyncStorage) {
         self.id = other.id
         self.isReadOnly = other.isReadOnly
         self.isReference = other.isReference
