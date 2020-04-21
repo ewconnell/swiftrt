@@ -22,7 +22,7 @@ class test_Vectorizing: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_sumTensor2", test_reduceSumAll),
-        ("test_addTensor2", test_sumABSequential),
+        ("test_addTensor2", test_AplusBSequential),
     ]
     
     //--------------------------------------------------------------------------
@@ -105,8 +105,8 @@ class test_Vectorizing: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_sumABSequential
-    func test_sumABSequential() {
+    // test_AplusBSequential
+    func test_AplusBSequential() {
         #if !DEBUG
         let a = ones((1024, 1024))
         let b = ones((1024, 1024))
@@ -121,6 +121,24 @@ class test_Vectorizing: XCTestCase {
         #endif
     }
 
+    //--------------------------------------------------------------------------
+    // test_AplusBSequential
+    func test_AplusB_NonSequential() {
+//        #if !DEBUG
+        let size = 3
+        let a = array(1...(size * size), (size, size))
+        let b = array(1...(size * size), (size, size), order: .F)
+        var count: DType = 0
+        
+        // 0.00412
+        self.measure {
+            let result = a + b
+            count = result.first
+        }
+        XCTAssert(count > 0)
+//        #endif
+    }
+    
     //--------------------------------------------------------------------------
     // test_multiplyAdd
     func test_multiplyAdd() {

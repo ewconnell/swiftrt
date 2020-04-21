@@ -62,7 +62,7 @@ public extension Tensor {
                   baseOffset: 0,
                   order: order,
                   share: false,
-                  isSequential: true)
+                  isSequential: order == .C)
     }
     
     //--------------------------------------------------------------------------
