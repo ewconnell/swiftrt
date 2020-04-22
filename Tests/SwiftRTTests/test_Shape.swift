@@ -85,28 +85,34 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_squeezing
     func test_squeezing() {
-//        let volume = Volume(2, 3, 4, with: 0..<24)
-//
-//        let sumVolumeCols = volume.sum(alongAxes: 2)
-//        XCTAssert(sumVolumeCols.bounds == [2, 3, 1])
-//        let m0 = Matrix(squeezing: sumVolumeCols)
-//        XCTAssert(m0.bounds == [2, 3])
-//
-//        let sumVolumeRows = volume.sum(alongAxes: 1)
-//        XCTAssert(sumVolumeRows.bounds == [2, 1, 4])
-//        let m2 = Matrix(squeezing: sumVolumeRows, alongAxes: 1)
-//        XCTAssert(m2.bounds == [2, 4])
-//
-//        // test negative axes
-//        let m3 = Matrix(squeezing: sumVolumeRows, alongAxes: -2)
-//        XCTAssert(m3.bounds == [2, 4])
-//
-//        do {
-//            let ones = Matrix(repeating: 1, to: 2, 12)
-//            let g = pullback(at: sumVolumeRows,
-//                             in: { Matrix(squeezing: $0, alongAxes: 1) })(ones)
-//            XCTAssert(g == [Float](repeating: 1, count: 24))
-//        }
+        let a = array(0..<24, (2, 3, 4))
+
+        let sumCols = a.sum(alongAxes: 2)
+        XCTAssert(sumCols.shape == [2, 3, 1])
+        let b = squeeze(sumCols, axis: -1)
+        XCTAssert(b == [
+            [6.0, 22.0, 38.0],
+            [54.0, 70.0, 86.0]
+        ])
+
+        let sumRows = a.sum(alongAxes: 1)
+        XCTAssert(sumRows.shape == [2, 1, 4])
+        let c = squeeze(sumRows, axis: 1)
+        XCTAssert(c == [
+            [12.0, 15.0, 18.0, 21.0],
+            [48.0, 51.0, 54.0, 57.0]
+        ])
+        
+
+        // test negative axes
+        let d = squeeze(sumRows, axis: -2)
+        XCTAssert(d == [
+            [12.0, 15.0, 18.0, 21.0],
+            [48.0, 51.0, 54.0, 57.0]
+        ])
+
+        let g = pullback(at: sumRows, in: { squeeze($0, axis: 1) })(ones(like: c))
+        XCTAssert(g == ones(like: sumRows))
     }
 
     //--------------------------------------------------------------------------
@@ -154,20 +160,6 @@ class test_Shape: XCTestCase {
                                  [true, true, true],
                                  [false, false, false],
                                  [false, false, false]])
-        
-//        let s0 = k1[0...j, 1...i]
-//        let s1 = k1[0...j, 2...i+1]
-//        let s2 = k1[1...j+1, 1...i]
-//        let s3 = k1[1...j+1, 2...i+1]
-//        let stacked = stack(s0, s1, s2, s3)
-//        let maxStack = stacked.max(alongAxes: 0)
-//        let sq = squeeze(maxStack, axis: 0)
-//        let m = sq .<= maxK
-//
-//        XCTAssert(m == [[true, true, true],
-//                        [true, true, true],
-//                        [false, false, false],
-//                        [false, false, false]])
     }
     
     //--------------------------------------------------------------------------
