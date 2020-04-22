@@ -80,6 +80,12 @@ class test_Shape: XCTestCase {
         XCTAssert(c.shape == [1, 1, 4, 1])
         XCTAssert(c.strides == [4, 4, 1, 1])
         XCTAssert(c == [[[[0], [1], [2], [3]]]])
+
+        // test derivatives
+        func f1(a: Tensor1<Float>) -> Tensor2<Float> { expand(dims: a, axis: 0).squared() }
+        func f2(a: Tensor1<Float>) -> Tensor2<Float> { expand(dims: a.squared(), axis: 0) }
+        XCTAssert(pullback(at: array([3, 5]), in: f1)(array([[1, 1]])) == [6, 10])
+        XCTAssert(pullback(at: array([3, 5]), in: f2)(array([[1, 1]])) == [6, 10])
     }
     
     //--------------------------------------------------------------------------
