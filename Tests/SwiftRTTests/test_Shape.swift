@@ -111,8 +111,11 @@ class test_Shape: XCTestCase {
             [48.0, 51.0, 54.0, 57.0]
         ])
 
-        let g = pullback(at: sumRows, in: { squeeze($0, axis: 1) })(ones(like: c))
-        XCTAssert(g == ones(like: sumRows))
+        // test derivatives
+        func f1(a: Tensor2<Float>) -> Tensor1<Float> { squeeze(a, axis: 0).squared() }
+        func f2(a: Tensor2<Float>) -> Tensor1<Float> { squeeze(a.squared(), axis: 0) }
+        XCTAssert(pullback(at: array([[3, 5]]), in: f1)(array([1, 1])) == [[6, 10]])
+        XCTAssert(pullback(at: array([[3, 5]]), in: f2)(array([1, 1])) == [[6, 10]])
     }
 
     //--------------------------------------------------------------------------
