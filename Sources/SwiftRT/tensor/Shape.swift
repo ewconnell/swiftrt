@@ -268,13 +268,9 @@ extension SIMD1: TensorShape where Scalar == Int {
     @inlinable @_transparent
     public static var rank: Int { 1 }
     
-    @inlinable public func elementCount() -> Int {
-        self[0]
-    }
+    @inlinable public func elementCount() -> Int { self[0] }
     
-    @inlinable public func sequentialStrides() -> Self {
-        Self(1)
-    }
+    @inlinable public func sequentialStrides() -> Self { Self(1) }
     
     @inlinable
     public func incremented(between lower: Self, and upper: Self) -> Self {
