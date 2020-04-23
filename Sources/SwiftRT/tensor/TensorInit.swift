@@ -516,28 +516,13 @@ public extension Tensor {
         // make positive
         let positiveAxis = axis < 0 ? axis + S.rank : axis
         // create tensor of stacked shape and copy
-        self = Self(stackedShape(of: others, along: positiveAxis))
+        self = withoutDerivative(at: Self(stackedShape(of: others, along: positiveAxis)))
         stack(others, axis: positiveAxis, into: &self)
     }
     
     @differentiable(where Element: DifferentiableElement)
     @inlinable init<S>(stacking others: Tensor<S,Element>..., axis: Int = 0) {
         self.init(stacking: others, axis: axis)
-    }
-}
-
-extension Tensor where Element: DifferentiableElement
-{
-    @derivative(of: init(stacking:axis:))
-    @inlinable static func _vjpInit<S>(
-        stacking others: [Tensor<S,Element>],
-        axis: Int = 0
-    ) -> (value: Self, pullback: (Self) -> Array<Tensor<S,Element>>.TangentVector)
-    where S: TensorShape
-    {
-        fatalError()
-//        let value = Self(stacking: others, axis: axis)
-//        return (value, { Tensor<S,Element>(expanding: $0, axes: axes) })
     }
 }
 
@@ -611,13 +596,12 @@ func vjpStack<S,SR,E>(
         -> Array<Tensor<S, E>>.TangentVector)
 where S: TensorShape, SR: TensorShape
 {
-//    let tensorShapes = tensors.map { $0.shape }
     let tensorCount = tensors.count
     func pullback(_ resultTangent: inout Tensor<SR, E>.TangentVector)
     -> Array<Tensor<S, E>>.TangentVector
     {
-        // fill `tensorTangents` with slices of `resultTangent`
-        // of shape `tensorShapes[0]`, `tensorShapes[1]`, etc.
+        // Fill `tensorTangents` with slices of `resultTangent` of shape
+        // `tensorShapes[0]`, `tensorShapes[1]`, etc.
         var tensorTangents: [Tensor<S, E>] = []
         var lower = SR.zero
         var upper = resultTangent.shape
@@ -630,8 +614,17 @@ where S: TensorShape, SR: TensorShape
             upper[axis] += 1
         }
 
-        // set `resultTangent` to zero
-        fill(&resultTangent, with: 0)
+        // Set `resultTangent` to zero.
+        // Note: We can't use `fill(_:with:)` because `resultTangent` aliases
+        // `tensorTangents`.
+        // Note: https://bugs.swift.org/browse/TF-1250 will allow us to make
+        // this pullback more efficient. How:
+        // - Set the wrt parameters and results to
+        //     @differentiable(wrt: (tensors), results: (result))
+        // - This makes `resultTangent` not be inout, so we don't need to set
+        //   it any more.
+        resultTangent = zeros(like: resultTangent)
+
         return Array.DifferentiableView(tensorTangents)
     }
     return (stack(tensors, axis: axis, into: &result), pullback)

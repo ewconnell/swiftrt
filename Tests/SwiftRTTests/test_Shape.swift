@@ -160,16 +160,15 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_stackingGradients
     func test_stackingGradients() {
-//        let a1 = array([1, 2, 3, 4, 5])
-//        let b1 = array([6, 7, 8, 9, 10])
-//        let a2 = array([1, 1, 1, 1, 1])
-//        let b2 = array([1, 1, 1, 1, 1])
-//        let grads = gradient(at: a2, b2) { a, b in
-//            stack(a1 * a, b1 * b, axis: -1).sum().element
-//        }
-        // TODO: this fails due to an AD bug
-//        XCTAssertEqual(a1, grads.0)
-//        XCTAssertEqual(b1, grads.1)
+        let a1 = array([1, 2, 3, 4, 5])
+        let b1 = array([6, 7, 8, 9, 10])
+        let a2 = array([1, 1, 1, 1, 1])
+        let b2 = array([1, 1, 1, 1, 1])
+        let grads = gradient(at: a2, b2) { a, b in
+            stack(a1 * a, b1 * b, axis: -1).sum().element
+        }
+        XCTAssertEqual(a1, grads.0)
+        XCTAssertEqual(b1, grads.1)
     }
 
     //--------------------------------------------------------------------------
