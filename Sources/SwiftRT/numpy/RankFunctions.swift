@@ -855,8 +855,7 @@ import Foundation
 /// - Returns: read only repeated element
 
 // same type and shape
-// TODO: get help fixing AD error
-// @differentiable(where Element: DifferentiableElement)
+@differentiable(where Element: DifferentiableElement)
 @inlinable public func repeating<S,Element>(
     _ value: Element,
     like prototype: Tensor<S,Element>
