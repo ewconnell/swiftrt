@@ -34,7 +34,7 @@ public struct Tensor<Shape, Element>: MutableTensorType
     // gpu dispatch decision making
     public let isSequential: Bool
     /// the dimensions of the element space
-    public let shape: Shape
+    @noDerivative public let shape: Shape
     // used by makeIndex
     public let shapeStrides: Shape
     /// The strided number of elements spanned by the shape
@@ -301,6 +301,7 @@ public extension Tensor {
 
     //--------------------------------------------------------------------------
     // sub view subscript
+    @differentiable(where Element: DifferentiableElement)
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
         get { createView(lower, upper, isShared) }
         set {

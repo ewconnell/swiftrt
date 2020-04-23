@@ -607,18 +607,24 @@ func vjpStack<S,SR,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0,
     into result: inout Tensor<SR,E>
-) -> (value: (), pullback: (inout Tensor<SR, E>.TangentVector) -> Array<Tensor<S, E>>.TangentVector)
+) -> (value: (), pullback: (inout Tensor<SR, E>.TangentVector)
+        -> Array<Tensor<S, E>>.TangentVector)
 where S: TensorShape, SR: TensorShape
 {
 //    let tensorShapes = tensors.map { $0.shape }
-    func pullback(_ resultTangent: inout Tensor<SR, E>.TangentVector) -> Array<Tensor<S, E>>.TangentVector {
-        // fill `tensorTangents` with slices of `resultTangent` of shape `tensorShapes[0]`, `tensorShapes[1]`, etc.
+    let tensorCount = tensors.count
+    func pullback(_ resultTangent: inout Tensor<SR, E>.TangentVector)
+    -> Array<Tensor<S, E>>.TangentVector
+    {
+        // fill `tensorTangents` with slices of `resultTangent`
+        // of shape `tensorShapes[0]`, `tensorShapes[1]`, etc.
         var tensorTangents: [Tensor<S, E>] = []
         var lower = SR.zero
         var upper = resultTangent.shape
         upper[axis] = 1
-        for _ in 0..<tensors.count {
-            let slice = Tensor<S,E>(squeezing: resultTangent[lower, upper], axes: Shape1(axis))
+        for _ in 0..<tensorCount {
+            let slice = Tensor<S,E>(squeezing: resultTangent[lower, upper],
+                                    axes: Shape1(axis))
             tensorTangents.append(slice)
             lower[axis] += 1
             upper[axis] += 1
