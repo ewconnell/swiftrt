@@ -612,9 +612,20 @@ where S: TensorShape, SR: TensorShape
 {
 //    let tensorShapes = tensors.map { $0.shape }
     func pullback(_ resultTangent: inout Tensor<SR, E>.TangentVector) -> Array<Tensor<S, E>>.TangentVector {
-        let tensorTangents: [Tensor<S, E>] = []
         // fill `tensorTangents` with slices of `resultTangent` of shape `tensorShapes[0]`, `tensorShapes[1]`, etc.
+        var tensorTangents: [Tensor<S, E>] = []
+        var lower = SR.zero
+        var upper = resultTangent.shape
+        upper[axis] = 1
+        for _ in 0..<tensors.count {
+            let slice = Tensor<S,E>(squeezing: resultTangent[lower, upper], axes: Shape1(axis))
+            tensorTangents.append(slice)
+            lower[axis] += 1
+            upper[axis] += 1
+        }
+
         // set `resultTangent` to zero
+        fill(&resultTangent, with: 0)
         return Array.DifferentiableView(tensorTangents)
     }
     return (stack(tensors, axis: axis, into: &result), pullback)
