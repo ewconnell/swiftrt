@@ -125,7 +125,7 @@ class test_Vectorizing: XCTestCase {
     // test_AplusBSequential
     func test_AplusB_NonSequential() {
 //        #if !DEBUG
-        let size = 3
+        let size = 1024
         let a = array(1...(size * size), (size, size))
         let b = array(1...(size * size), (size, size), order: .F)
         var count: DType = 0

@@ -15,16 +15,18 @@
 //
 import Foundation
 
-public extension TensorType {
-    @inlinable
-    var description: String {
+public extension Tensor {
+    /// - Returns: a formatted String description of the tensor elements
+    @inlinable var description: String {
         let tab = 2
         var string = ""
 
         switch Shape.rank {
+        // as a vector
         case 1:
             string += "\([Element](self))"
             
+        // as a matrix
         case 2:
             // set row range
             var lower = Shape.zero
@@ -40,7 +42,8 @@ public extension TensorType {
             }
             string = String(string.dropLast(2))
             string += "\n]"
-            
+        
+        // as all higher ranked tensors
         default:
             var pos = Shape.zero
 

@@ -603,16 +603,16 @@ extension Tensor where Element: DifferentiableElement
 }
 
 @derivative(of: stack)
-@inlinable func _vjpStack<S,SR,E>(
+func vjpStack<S,SR,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0,
     into result: inout Tensor<SR,E>
-) -> (value: Tensor<SR,E>, pullback: (Array<Tensor<SR,E>>) -> Array<Tensor<S,E>>.TangentVector)
-where S: TensorShape, SR: TensorShape, E: DifferentiableElement
+) -> (value: (), pullback: (inout Tensor<SR, E>.TangentVector) -> Array<Tensor<S, E>>.TangentVector)
+where S: TensorShape, SR: TensorShape
 {
-    stack(tensors, axis: axis, into: &result)
-    return (result, {
-        fatalError()
+    return (stack(tensors, axis: axis, into: &result), {
+        // write some split logic here
+        [Tensor<S,E>]()
     })
 }
 

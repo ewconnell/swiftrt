@@ -125,23 +125,25 @@ prefix operator ..<-
 prefix operator ...-
 
 public extension Int {
-    @inlinable
-    prefix static func ..<- (upper: Int) -> PartialRangeUpTo<Int> {
+    @inlinable prefix static func ..<- (upper: Int) -> PartialRangeUpTo<Int> {
         ..<(-upper)
     }
     
-    @inlinable
-    prefix static func ...- (upper: Int) -> PartialRangeThrough<Int> {
+    @inlinable prefix static func ...- (upper: Int) -> PartialRangeThrough<Int>{
         ...(-upper)
     }
 }
 
 //==============================================================================
-/// ..+ operator
-/// specifies range and relative upper bound to do windowed operations
 infix operator ..+: RangeFormationPrecedence
 
 public extension Int {
+    /// ..+ operator
+    /// specifies range with relative upper bound
+    /// - Parameters:
+    ///  - lower: the absolute lower bound of the range
+    ///  - extent: the extent of the range, where `upper = lower + extent`
+    /// - Returns: the specified range
     @inlinable static func ..+ (lower: Int, extent: Int) -> Range<Int> {
         lower..<(lower + extent)
     }
