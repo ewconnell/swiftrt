@@ -611,10 +611,11 @@ func vjpStack<S,SR,E>(
 ) -> (value: (), pullback: (inout Tensor<SR, E>.TangentVector) -> Array<Tensor<S, E>>.TangentVector)
     where S: TensorShape, SR: TensorShape
 {
-    return (stack(tensors, axis: axis, into: &result), {
-        // write some split logic here
-        [Tensor<S,E>]()
-    })
+    fatalError()
+//    return (stack(tensors, axis: axis, into: &result), {
+//        // write some split logic here
+//        [Tensor<S,E>]()
+//    })
 }
 
 //==============================================================================
