@@ -124,7 +124,7 @@ class test_Vectorizing: XCTestCase {
     //--------------------------------------------------------------------------
     // test_AplusBSequential
     func test_AplusB_NonSequential() {
-//        #if !DEBUG
+        #if !DEBUG
         let size = 1024
         let a = array(1...(size * size), (size, size))
         let b = array(1...(size * size), (size, size), order: .F)
@@ -136,7 +136,7 @@ class test_Vectorizing: XCTestCase {
             count = result.first
         }
         XCTAssert(count > 0)
-//        #endif
+        #endif
     }
     
     //--------------------------------------------------------------------------
