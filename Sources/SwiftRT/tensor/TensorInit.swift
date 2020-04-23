@@ -603,19 +603,19 @@ extension Tensor where Element: DifferentiableElement
     }
 }
 
-// TODO: get help from Dan for inout functions
-//@derivative(of: stack)
-//@inlinable func _vjpStack<S,SR,E>(
-//    _ tensors: [Tensor<S,E>],
-//    axis: Int = 0,
-//    into result: inout Tensor<SR,E>
-//) -> (value: Self, pullback: (Self) -> Array<Tensor<S,Element>>.TangentVector)
-//where S: TensorShape, SR: TensorShape, E: DifferentiableElement
-//{
-//    fatalError()
-//    //        let value = Self(stacking: others, axis: axis)
-//    //        return (value, { Tensor<S,Element>(expanding: $0, axes: axes) })
-//}
+@derivative(of: stack)
+func vjpStack<S,SR,E>(
+    _ tensors: [Tensor<S,E>],
+    axis: Int = 0,
+    into result: inout Tensor<SR,E>
+) -> (value: (), pullback: (inout Tensor<SR, E>.TangentVector) -> Array<Tensor<S, E>>.TangentVector)
+    where S: TensorShape, SR: TensorShape
+{
+    return (stack(tensors, axis: axis, into: &result), {
+        // write some split logic here
+        [Tensor<S,E>]()
+    })
+}
 
 //==============================================================================
 /// init(indenting:
