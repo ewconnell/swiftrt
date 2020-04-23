@@ -507,20 +507,37 @@ extension Tensor where Element: DifferentiableElement
 ///  - axis: the axis to stack along
 public extension Tensor {
 
-    //    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable init<S>(
         stacking others: [Tensor<S,Element>],
         axis: Int = 0
     ) where S: TensorShape
     {
+        // make positive
+        let positiveAxis = axis < 0 ? axis + S.rank : axis
         // create tensor of stacked shape and copy
-        self = Self(stackedShape(of: others, along: axis))
-        stack(others, axis: axis, into: &self)
+        self = Self(stackedShape(of: others, along: positiveAxis))
+        stack(others, axis: positiveAxis, into: &self)
     }
     
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable init<S>(stacking others: Tensor<S,Element>..., axis: Int = 0) {
         self.init(stacking: others, axis: axis)
+    }
+}
+
+extension Tensor where Element: DifferentiableElement
+{
+    @derivative(of: init(stacking:axis:))
+    @inlinable static func _vjpInit<S>(
+        stacking others: [Tensor<S,Element>],
+        axis: Int = 0
+    ) -> (value: Self, pullback: (Self) -> Array<Tensor<S,Element>>.TangentVector)
+    where S: TensorShape
+    {
+        fatalError()
+//        let value = Self(stacking: others, axis: axis)
+//        return (value, { Tensor<S,Element>(expanding: $0, axes: axes) })
     }
 }
 
@@ -532,6 +549,7 @@ public extension Tensor {
     along axis: Int = 0
 ) -> SR where S: TensorShape, SR: TensorShape
 {
+    assert(axis >= 0)
     var j = 0
     var stackedShape = SR.zero
     stackedShape[axis] = tensors.count
@@ -548,12 +566,17 @@ public extension Tensor {
 ///  - others: the collection to squeeze
 ///  - axis: the axis to stack along
 ///  - result: the output tensor
-@inlinable func stack<S,SR,E>(
+// TODO
+//@differentiable(where E: DifferentiableElement)
+@inlinable public func stack<S,SR,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0,
     into result: inout Tensor<SR,E>
 ) where S: TensorShape, SR: TensorShape
 {
+    // make positive
+    let axis = axis < 0 ? axis + SR.rank : axis
+
     // verify that tensors are the correct rank and same shape
     assert(tensors.count > 0 && S.rank == SR.rank - 1,
            "stacked tensors must be one less than result rank \(S.rank - 1)")
@@ -579,6 +602,20 @@ public extension Tensor {
         lower[axis] += 1
     }
 }
+
+// TODO: get help from Dan for inout functions
+//@derivative(of: stack)
+//@inlinable func _vjpStack<S,SR,E>(
+//    _ tensors: [Tensor<S,E>],
+//    axis: Int = 0,
+//    into result: inout Tensor<SR,E>
+//) -> (value: Self, pullback: (Self) -> Array<Tensor<S,Element>>.TangentVector)
+//where S: TensorShape, SR: TensorShape, E: DifferentiableElement
+//{
+//    fatalError()
+//    //        let value = Self(stacking: others, axis: axis)
+//    //        return (value, { Tensor<S,Element>(expanding: $0, axes: axes) })
+//}
 
 //==============================================================================
 /// init(indenting:
@@ -625,6 +662,7 @@ public extension Tensor {
 ///   `-rank..<rank`
 public extension Tensor {
 
+    @differentiable(where Element: DifferentiableElement)
     @inlinable init(
         transposing other: Self,
         permutatedBy permutations: Shape? = nil)
@@ -667,10 +705,35 @@ public extension Tensor {
     }
     
     /// - Returns: transpose of self
+    @differentiable(where Element: DifferentiableElement)
     @inlinable var t: Self { Self(transposing: self) }
     
+    @differentiable(where Element: DifferentiableElement)
     @inlinable func transposed(permutatedBy permutations: Shape.Tuple) -> Self {
         Self(transposing: self, permutatedBy: Shape(permutations))
+    }
+}
+
+extension Tensor where Element: DifferentiableElement {
+    
+    @derivative(of: init(transposing:permutatedBy:))
+    @inlinable static func _vjpInit(
+        transposing other: Self,
+        permutatedBy permutations: Shape?
+    ) -> (value: Self, pullback: (Self) -> Self)
+    {
+        let value = Self(transposing: other, permutatedBy: permutations)
+        return (value, {
+            Self(shape: other.shape,
+                 strides: other.strides,
+                 count: other.count,
+                 spanCount: other.count,
+                 storage: $0.storage,
+                 baseOffset: $0.baseOffset,
+                 order: $0.storageOrder,
+                 share: $0.isShared,
+                 isSequential: other.isSequential)
+        })
     }
 }
 

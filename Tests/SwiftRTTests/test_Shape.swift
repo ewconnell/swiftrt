@@ -28,7 +28,9 @@ class test_Shape: XCTestCase {
         ("test_transposed", test_transposed),
         ("test_squeezing", test_squeezing),
         ("test_stacking", test_stacking),
+        ("test_stackingGradients", test_stackingGradients),
         ("test_stackingExpression", test_stackingExpression),
+        ("testTransposedPullback", testTransposedPullback),
     ]
 
     //--------------------------------------------------------------------------
@@ -52,6 +54,13 @@ class test_Shape: XCTestCase {
         // R1 -> R3
         let b3 = reshape(a1, (2, 2, 3))
         XCTAssert(b3 == [[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]])
+        
+        let input = ones((2, 4))
+        let reshapedPullback = pullback(at: input) {
+            reshape($0, (2, 2, 2))
+        }
+        let reshaped = ones((2, 2, 2))
+        XCTAssertEqual(input, reshapedPullback(reshaped))
     }
     
     //--------------------------------------------------------------------------
@@ -109,7 +118,6 @@ class test_Shape: XCTestCase {
             [48.0, 51.0, 54.0, 57.0]
         ])
         
-
         // test negative axes
         let d = squeeze(sumRows, axis: -2)
         XCTAssert(d == [
@@ -149,6 +157,20 @@ class test_Shape: XCTestCase {
               [5, 11]]])
     }
     
+    //--------------------------------------------------------------------------
+    // test_stackingGradients
+    func test_stackingGradients() {
+        let a1 = array([1, 2, 3, 4, 5])
+        let b1 = array([6, 7, 8, 9, 10])
+        let a2 = array([1, 1, 1, 1, 1])
+        let b2 = array([1, 1, 1, 1, 1])
+        let grads = gradient(at: a2, b2) { a, b in
+            stack(a1 * a, b1 * b, axis: -1).sum().element
+        }
+        XCTAssertEqual(a1, grads.0)
+        XCTAssertEqual(b1, grads.1)
+    }
+
     //--------------------------------------------------------------------------
     // test_stackingExpression
     func test_stackingExpression() {
@@ -335,5 +357,23 @@ class test_Shape: XCTestCase {
                              [[ 3.0, 15.0],
                               [ 7.0, 19.0],
                               [11.0, 23.0]]])
+    }
+    
+    //--------------------------------------------------------------------------
+    // testTransposedPullback
+    func testTransposedPullback() {
+        let input = ones((2, 3))
+        let transposed = ones((3, 2))
+        let transposedPullback = pullback(at: input) { $0.t }
+        let transposedPermutationsPullback = pullback(at: input) {
+            $0.transposed(permutatedBy: (1, 0))
+        }
+        let transposedVariadicsPullback = pullback(at: input) {
+            $0.transposed(permutatedBy: (1, 0))
+        }
+        
+        XCTAssertEqual(input, transposedPullback(transposed))
+        XCTAssertEqual(input, transposedPermutationsPullback(transposed))
+        XCTAssertEqual(input, transposedVariadicsPullback(transposed))
     }
 }
