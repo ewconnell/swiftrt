@@ -566,8 +566,7 @@ extension Tensor where Element: DifferentiableElement
 ///  - others: the collection to squeeze
 ///  - axis: the axis to stack along
 ///  - result: the output tensor
-// TODO
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func stack<S,SR,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0,
@@ -603,19 +602,19 @@ extension Tensor where Element: DifferentiableElement
     }
 }
 
-// TODO: get help from Dan for inout functions
-//@derivative(of: stack)
-//@inlinable func _vjpStack<S,SR,E>(
-//    _ tensors: [Tensor<S,E>],
-//    axis: Int = 0,
-//    into result: inout Tensor<SR,E>
-//) -> (value: Self, pullback: (Self) -> Array<Tensor<S,Element>>.TangentVector)
-//where S: TensorShape, SR: TensorShape, E: DifferentiableElement
-//{
-//    fatalError()
-//    //        let value = Self(stacking: others, axis: axis)
-//    //        return (value, { Tensor<S,Element>(expanding: $0, axes: axes) })
-//}
+@derivative(of: stack)
+@inlinable func _vjpStack<S,SR,E>(
+    _ tensors: [Tensor<S,E>],
+    axis: Int = 0,
+    into result: inout Tensor<SR,E>
+) -> (value: Tensor<SR,E>, pullback: (Array<Tensor<SR,E>>) -> Array<Tensor<S,E>>.TangentVector)
+where S: TensorShape, SR: TensorShape, E: DifferentiableElement
+{
+    stack(tensors, axis: axis, into: &result)
+    return (result, {
+        fatalError()
+    })
+}
 
 //==============================================================================
 /// init(indenting:
