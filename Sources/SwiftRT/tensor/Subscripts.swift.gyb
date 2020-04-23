@@ -59,6 +59,7 @@ public extension Tensor where Shape == Shape${n} {
 
     /// - Returns: the sub view defined by the range
     @inlinable
+    @differentiable(where Element: DifferentiableElement)
     subscript<${', '.join(['R' + str(i) for i in range(n)])}>(${', '.join(['r' + str(i) + ': R' + str(i) for i in range(n)])}) -> Self where
 % for i in range(n):
         R${i}: SignedRangeExpression${',' if i < (n - 1) else ''}

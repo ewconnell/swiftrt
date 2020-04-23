@@ -167,6 +167,7 @@ class test_Shape: XCTestCase {
 //        let grads = gradient(at: a2, b2) { a, b in
 //            stack(a1 * a, b1 * b, axis: -1).sum().element
 //        }
+        // TODO: this fails due to an AD bug
 //        XCTAssertEqual(a1, grads.0)
 //        XCTAssertEqual(b1, grads.1)
     }

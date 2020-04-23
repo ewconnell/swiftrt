@@ -166,6 +166,7 @@ public extension Tensor where Element: Comparable {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
+@differentiable(where E: DifferentiableElement)
 @inlinable public func min<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
 {
@@ -183,14 +184,14 @@ public extension Tensor where Element: Comparable {
     (value: min(lhs, rhs), { _vjpMinMax(lhs, rhs, $0, <=) })
 }
 
-//@differentiable(where T: DifferentiableTensorView)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func min<S,E>(_ lhs: Tensor<S,E>, _ rhs: E)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
 {
     min(lhs, repeating(rhs, like: lhs))
 }
 
-//@differentiable(where T: DifferentiableTensorView)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func min<S,E>(_ lhs: E, _ rhs: Tensor<S,E>)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
 {
@@ -205,12 +206,12 @@ public extension Tensor where Element: Comparable {
         SwiftRT.min(lhs, rhs)
     }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable func min(_ lhs: Self, _ rhs: Element) -> Self {
         min(lhs, repeating(rhs, like: lhs))
     }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable func min(_ lhs: Element, _ rhs: Self) -> Self {
         min(repeating(lhs, like: rhs), rhs)
     }

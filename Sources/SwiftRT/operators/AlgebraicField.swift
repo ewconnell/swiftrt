@@ -20,9 +20,11 @@ import Numerics
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
-@inlinable
-public func add<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
-    where S: TensorShape, E: AdditiveArithmetic
+@differentiable(where E: DifferentiableElement)
+@inlinable public func add<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: Tensor<S,E>
+) -> Tensor<S,E> where S: TensorShape, E: AdditiveArithmetic
 {
     /// REMOVE THIS
     let (lhs, rhs) = match(lhs, rhs)
@@ -33,14 +35,14 @@ public func add<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
     return result
 }
 
-//@differentiable(where T: DifferentiableTensor)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func add<S,E>(_ lhs: Tensor<S,E>, _ rhs: E) -> Tensor<S,E>
     where S: TensorShape, E: AdditiveArithmetic
 {
     add(lhs, repeating(rhs, like: lhs))
 }
 
-//@differentiable(where T: DifferentiableTensor)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func add<S, E>(_ lhs: E, _ rhs: Tensor<S,E>) -> Tensor<S,E>
     where S: TensorShape, E: AdditiveArithmetic
 {
@@ -61,24 +63,23 @@ public extension Tensor where Element: AdditiveArithmetic {
         add(lhs, rhs)
     }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func +(lhs: Self, rhs: Element) -> Self {
         add(lhs, rhs)
     }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func +=(lhs: inout Self, rhs: Element) {
         lhs = add(lhs, rhs)
     }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func +(lhs: Element, rhs: Self) -> Self {
         add(lhs, rhs)
     }
 
     // VectorProtocol
-    
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable func adding(_ x: Element) -> Self {
         self + x
     }
@@ -90,10 +91,11 @@ public extension Tensor where Element: AdditiveArithmetic {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
-@inlinable
-//@differentiable(where T: DifferentiableTensor)
-public func subtract<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
-    where S: TensorShape, E: AdditiveArithmetic
+@differentiable(where E: DifferentiableElement)
+@inlinable public func subtract<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: Tensor<S,E>
+) -> Tensor<S,E> where S: TensorShape, E: AdditiveArithmetic
 {
     /// REMOVE THIS
     let (lhs, rhs) = match(lhs, rhs)
@@ -104,15 +106,15 @@ public func subtract<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
     return result
 }
 
-@inlinable
-public func subtract<S,E>(_ lhs: Tensor<S,E>, _ rhs: E) -> Tensor<S,E>
+@differentiable(where E: DifferentiableElement)
+@inlinable public func subtract<S,E>(_ lhs: Tensor<S,E>, _ rhs: E) -> Tensor<S,E>
     where S: TensorShape, E: AdditiveArithmetic
 {
     subtract(lhs, repeating(rhs, like: lhs))
 }
 
-//@differentiable(where T: DifferentiableTensor)
-@inlinable public func subtract<S, E>(_ lhs: E, _ rhs: Tensor<S,E>) -> Tensor<S,E>
+@differentiable(where E: DifferentiableElement)
+@inlinable public func subtract<S,E>(_ lhs: E, _ rhs: Tensor<S,E>) -> Tensor<S,E>
     where S: TensorShape, E: AdditiveArithmetic
 {
     subtract(repeating(lhs, like: rhs), rhs)
@@ -132,24 +134,23 @@ public extension Tensor where Element: AdditiveArithmetic {
         subtract(lhs, rhs)
     }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func -(lhs: Self, rhs: Element) -> Self {
         subtract(lhs, rhs)
     }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func -=(lhs: inout Self, rhs: Element) {
         lhs = subtract(lhs, rhs)
     }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func -(lhs: Element, rhs: Self) -> Self {
         subtract(lhs, rhs)
     }
 
     // VectorProtocol
-    
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable func subtracting(_ x: Element) -> Self {
         self - x
     }
@@ -161,9 +162,11 @@ public extension Tensor where Element: AdditiveArithmetic {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor.
 /// - Returns: a new tensor containing the result
-@inlinable
-public func mul<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
-    where S: TensorShape, E: Numeric
+@differentiable(where E: DifferentiableElement)
+@inlinable public func mul<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: Tensor<S,E>
+) -> Tensor<S,E> where S: TensorShape, E: Numeric
 {
     /// REMOVE THIS
     let (lhs, rhs) = match(lhs, rhs)
@@ -172,6 +175,20 @@ public func mul<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
     var result = Tensor(like: lhs)
     Context.currentQueue.mul(lhs, rhs, &result)
     return result
+}
+
+@differentiable(where E: DifferentiableElement)
+@inlinable public func mul<S,E>(_ lhs: Tensor<S,E>, _ rhs: E) -> Tensor<S,E>
+where S: TensorShape, E: Numeric
+{
+    mul(lhs, repeating(rhs, like: lhs))
+}
+
+@differentiable(where E: DifferentiableElement)
+@inlinable public func mul<S,E>(_ lhs: E, _ rhs: Tensor<S,E>) -> Tensor<S,E>
+where S: TensorShape, E: Numeric
+{
+    mul(repeating(lhs, like: rhs), rhs)
 }
 
 @derivative(of: mul)
@@ -195,24 +212,24 @@ public extension Tensor where Element: Numeric
         lhs = lhs * rhs
     }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func * (lhs: Self, rhs: Element) -> Self {
         mul(lhs, repeating(rhs, like: lhs))
     }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func * (lhs: Element, rhs: Self) -> Self {
         mul(repeating(lhs, like: rhs), rhs)
     }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable func scaled(by scalar: Element) -> Self {
         self * scalar
     }
 
     // TODO: this syntax is incorrect and is only here to conform to
     // PointwiseMultiplicative and should be removed
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func .* (lhs: Self, rhs: Self) -> Self {
         lhs * rhs
     }
@@ -224,9 +241,11 @@ public extension Tensor where Element: Numeric
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor.
 /// - Returns: a new tensor containing the result
-@inlinable
-public func div<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,E>
-    where S: TensorShape, E: AlgebraicField
+@differentiable(where E: DifferentiableElement)
+@inlinable public func div<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: Tensor<S,E>
+) -> Tensor<S,E> where S: TensorShape, E: AlgebraicField
 {
     /// REMOVE THIS
     let (lhs, rhs) = match(lhs, rhs)
@@ -256,18 +275,18 @@ public extension Tensor where Element: AlgebraicField {
 
     @inlinable static func /= (lhs: inout Self, rhs: Self) { lhs = lhs / rhs }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func / (lhs: Self, rhs: Element) -> Self {
         div(lhs, Self(repeating: rhs, to: lhs.shape))
     }
 
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable static func / (lhs: Element, rhs: Self) -> Self {
         div(Self(repeating: lhs, to: rhs.shape), rhs)
     }
 
     // PointwiseMultiplicative
-//    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     @inlinable var reciprocal: Self {
         1 / self
     }

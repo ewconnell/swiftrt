@@ -566,8 +566,7 @@ extension Tensor where Element: DifferentiableElement
 ///  - others: the collection to squeeze
 ///  - axis: the axis to stack along
 ///  - result: the output tensor
-// TODO
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func stack<S,SR,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0,
@@ -608,14 +607,34 @@ func vjpStack<S,SR,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0,
     into result: inout Tensor<SR,E>
-) -> (value: (), pullback: (inout Tensor<SR, E>.TangentVector) -> Array<Tensor<S, E>>.TangentVector)
-    where S: TensorShape, SR: TensorShape
+) -> (value: (), pullback: (inout Tensor<SR, E>.TangentVector)
+        -> Array<Tensor<S, E>>.TangentVector)
+where S: TensorShape, SR: TensorShape
 {
-    fatalError()
-//    return (stack(tensors, axis: axis, into: &result), {
-//        // write some split logic here
-//        [Tensor<S,E>]()
-//    })
+//    let tensorShapes = tensors.map { $0.shape }
+    let tensorCount = tensors.count
+    func pullback(_ resultTangent: inout Tensor<SR, E>.TangentVector)
+    -> Array<Tensor<S, E>>.TangentVector
+    {
+        // fill `tensorTangents` with slices of `resultTangent`
+        // of shape `tensorShapes[0]`, `tensorShapes[1]`, etc.
+        var tensorTangents: [Tensor<S, E>] = []
+        var lower = SR.zero
+        var upper = resultTangent.shape
+        upper[axis] = 1
+        for _ in 0..<tensorCount {
+            let slice = Tensor<S,E>(squeezing: resultTangent[lower, upper],
+                                    axes: Shape1(axis))
+            tensorTangents.append(slice)
+            lower[axis] += 1
+            upper[axis] += 1
+        }
+
+        // set `resultTangent` to zero
+        fill(&resultTangent, with: 0)
+        return Array.DifferentiableView(tensorTangents)
+    }
+    return (stack(tensors, axis: axis, into: &result), pullback)
 }
 
 //==============================================================================
