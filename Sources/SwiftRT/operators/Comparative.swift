@@ -17,8 +17,7 @@ import Numerics
 
 //==============================================================================
 // utilities
-@inlinable
-func _vjpMinMax<S,E>(
+@inlinable func _vjpMinMax<S,E>(
     _ x: Tensor<S,E>, _ y: Tensor<S,E>, _ scale: Tensor<S,E>,
     _ op: @escaping (E, E) -> Bool) -> (Tensor<S,E>, Tensor<S,E>)
     where S: TensorShape, E: Comparable & Numeric

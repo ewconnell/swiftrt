@@ -516,7 +516,8 @@ public extension Tensor {
         // make positive
         let positiveAxis = axis < 0 ? axis + S.rank : axis
         // create tensor of stacked shape and copy
-        self = withoutDerivative(at: Self(stackedShape(of: others, along: positiveAxis)))
+        self = withoutDerivative(
+            at: Self(stackedShape(of: others, along: positiveAxis)))
         stack(others, axis: positiveAxis, into: &self)
     }
     
