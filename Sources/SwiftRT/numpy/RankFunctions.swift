@@ -484,14 +484,14 @@ import Foundation
 ///
 //==============================================================================
 // Rank1
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: [Tensor1<E>], axis: Int = 0)
     -> Tensor2<E>
 {
     Tensor2<E>(stacking: arrays, axis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: Tensor1<E>..., axis: Int = 0)
     -> Tensor2<E>
 {
@@ -510,14 +510,14 @@ import Foundation
 
 //==============================================================================
 // Rank2
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: [Tensor2<E>], axis: Int = 0)
     -> Tensor3<E>
 {
     Tensor3<E>(stacking: arrays, axis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: Tensor2<E>..., axis: Int = 0)
     -> Tensor3<E>
 {
@@ -536,14 +536,14 @@ import Foundation
 
 //==============================================================================
 // Rank3
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: [Tensor3<E>], axis: Int = 0)
     -> Tensor4<E>
 {
     Tensor4<E>(stacking: arrays, axis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: Tensor3<E>..., axis: Int = 0)
     -> Tensor4<E>
 {
@@ -562,14 +562,14 @@ import Foundation
 
 //==============================================================================
 // Rank4
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: [Tensor4<E>], axis: Int = 0)
     -> Tensor5<E>
 {
     Tensor5<E>(stacking: arrays, axis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: Tensor4<E>..., axis: Int = 0)
     -> Tensor5<E>
 {
@@ -588,14 +588,14 @@ import Foundation
 
 //==============================================================================
 // Rank5
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: [Tensor5<E>], axis: Int = 0)
     -> Tensor6<E>
 {
     Tensor6<E>(stacking: arrays, axis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: Tensor5<E>..., axis: Int = 0)
     -> Tensor6<E>
 {
