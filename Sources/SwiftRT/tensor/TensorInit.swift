@@ -618,6 +618,7 @@ where S: TensorShape, SR: TensorShape
         // Set `resultTangent` to zero.
         // Note: We can't use `fill(_:with:)` because `resultTangent` aliases
         // `tensorTangents`.
+        // TODO: track and fix
         // Note: https://bugs.swift.org/browse/TF-1250 will allow us to make
         // this pullback more efficient. How:
         // - Set the wrt parameters and results to
