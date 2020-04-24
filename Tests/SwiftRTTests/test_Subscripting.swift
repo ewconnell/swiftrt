@@ -33,24 +33,6 @@ class test_Subscripting: XCTestCase {
 
     //==========================================================================
     // test_perfTensorSubview
-    func test_perfTensor2Subscript() {
-//        #if !DEBUG
-        let a = array(0..<(10 * 1024), (10, 1024)).t
-        var count: Float = 0
-        
-        measure {
-            for _ in 0..<1000 {
-                for i in a.indices {
-                    count += a[i]
-                }
-            }
-        }
-        XCTAssert(count > 0)
-//        #endif
-    }
-    
-    //==========================================================================
-    // test_perfTensorSubview
     func test_perfTensorSubview() {
         #if !DEBUG
         let a = array(0..<6, (2, 3))
