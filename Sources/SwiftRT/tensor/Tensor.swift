@@ -91,8 +91,8 @@ public struct Tensor<Shape, Element>: MutableTensorType
         self.storageOrder = order
         self._isShared = share
         self.isSequential = isSequential
-        self.startIndex = Index(Shape.zero, baseOffset)
-        self.endIndex = Index(shape, baseOffset + count)
+        self.startIndex = Index(Shape.zero, 0)
+        self.endIndex = Index(shape, count)
         self.shapeStrides = shape.strides(for: order)
     }
     
@@ -280,10 +280,10 @@ public extension Tensor {
             } else if isSequential {
                 // most tensors are layed out sequentially, so it is much
                 // cheaper to use the sequencePosition
-                return storage.element(at: i.sequencePosition)
+                return storage.element(at: baseOffset &+ i.sequencePosition)
             } else {
                 // perform a full strided buffer index calculation
-                return storage.element(at: baseOffset + i.linearIndex(strides))
+                return storage.element(at: baseOffset &+ i.linearIndex(strides))
             }
         }
         
@@ -291,10 +291,11 @@ public extension Tensor {
             if isSingleElement {
                 return storage.setElement(value: newValue, at: baseOffset)
             } else if isSequential {
-                storage.setElement(value: newValue, at: i.sequencePosition)
+                storage.setElement(value: newValue,
+                                   at: baseOffset &+ i.sequencePosition)
             } else {
                 storage.setElement(value: newValue,
-                                   at: baseOffset + i.linearIndex(strides))
+                                   at: baseOffset &+ i.linearIndex(strides))
             }
         }
     }
