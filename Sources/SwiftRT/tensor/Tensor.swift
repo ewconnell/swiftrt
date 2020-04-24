@@ -440,7 +440,6 @@ public extension Tensor {
 public extension Tensor {
     /// first
     /// - Returns: the first element in the tensor
-    @_semantics("autodiff.nonvarying")
     @inlinable var first: Element {
         storage.element(at: baseOffset)
     }
@@ -448,7 +447,7 @@ public extension Tensor {
     /// element
     /// can get and set the value of a single element tensor.
     /// - Returns: the only element in the tensor
-    @_semantics("autodiff.nonvarying")
+    @differentiable(where Element: DifferentiableElement)
     @inlinable var element: Element {
         get {
             assert(count == 1, "the `element` property expects " +
@@ -460,6 +459,18 @@ public extension Tensor {
                 "the tensor to have a single Element")
             storage.setElement(value: newValue, at: baseOffset)
         }
+    }
+
+    @derivative(of: element)
+    @inlinable func vjpElement() -> (
+      value: Element,
+      pullback: (Element) -> Self
+    ) where Element: DifferentiableElement {
+      (element, { v in
+        var result = zeros(like: self)
+        result.element = v
+        return result
+      })
     }
 }
 
