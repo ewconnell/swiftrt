@@ -599,6 +599,7 @@ open class DeviceQueue: Logging {
         mapOp(x, &result) { .sqrt($0) }
     }
 
+    //--------------------------------------------------------------------------
     @inlinable
     func squared<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
         where S: TensorShape, E: Numeric
@@ -606,6 +607,16 @@ open class DeviceQueue: Logging {
         mapOp(x, &result) { $0 * $0 }
     }
 
+    //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    @inlinable
+    public func reduceSumAll<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
+    where E: AdditiveArithmetic
+    {
+        result[result.startIndex] = x.indices.reduce(into: E.zero) { $0 += x[$1] }
+    }
+
+    //--------------------------------------------------------------------------
     @inlinable func reduce<S,E>(
         _ x: Tensor<S,E>,
         _ result: inout Tensor<S,E>,
@@ -798,4 +809,13 @@ open class DeviceQueue: Logging {
             op($0, $1) ? ($2, E.zero) : (E.zero, $2)
         }
     }
+}
+
+// TODO: remove
+@inlinable public func globalReduceSumAll<S,E>(
+    _ x: Tensor<S,E>,
+    _ result: inout Tensor<S,E>
+) where S: TensorShape, E: AdditiveArithmetic
+{
+    result[result.startIndex] = x.indices.reduce(into: E.zero) { $0 += x[$1] }
 }

@@ -91,8 +91,8 @@ public struct Tensor<Shape, Element>: MutableTensorType
         self.storageOrder = order
         self._isShared = share
         self.isSequential = isSequential
-        self.startIndex = Index(Shape.zero, 0)
-        self.endIndex = Index(shape, count)
+        self.startIndex = Index(Shape.zero, baseOffset)
+        self.endIndex = Index(shape, baseOffset + count)
         self.shapeStrides = shape.strides(for: order)
     }
     
@@ -248,7 +248,7 @@ public extension Tensor {
     ///  - position: the n-dimensional coordinate position within `shape`
     /// - Returns: the index
     @inlinable func makeIndex(at position: Shape) -> Index {
-        Index(position, position.index(stridedBy: shapeStrides))
+        Index(position, baseOffset + position.index(stridedBy: shapeStrides))
     }
 
     //--------------------------------------------------------------------------
@@ -279,8 +279,9 @@ public extension Tensor {
                 return storage.element(at: baseOffset)
             } else if isSequential {
                 // most tensors are layed out sequentially, so it is much
-                // cheaper to use the sequencePosition
-                return storage.element(at: baseOffset &+ i.sequencePosition)
+                // cheaper to use the sequencePosition. The `baseOffset`
+                // is included during index initialization
+                return storage.element(at: i.sequencePosition)
             } else {
                 // perform a full strided buffer index calculation
                 return storage.element(at: baseOffset &+ i.linearIndex(strides))
@@ -291,8 +292,7 @@ public extension Tensor {
             if isSingleElement {
                 return storage.setElement(value: newValue, at: baseOffset)
             } else if isSequential {
-                storage.setElement(value: newValue,
-                                   at: baseOffset &+ i.sequencePosition)
+                storage.setElement(value: newValue, at: i.sequencePosition)
             } else {
                 storage.setElement(value: newValue,
                                    at: baseOffset &+ i.linearIndex(strides))

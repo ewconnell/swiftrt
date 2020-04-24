@@ -89,10 +89,16 @@ public extension Tensor where Element == Bool {
 public func sum<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
     -> Tensor<S,E> where S: TensorShape, E: Numeric
 {
-    let resultShape = x.reductionShape(alongAxes: axes)
-    var result = Tensor<S,E>(zeros: resultShape)
-    Context.currentQueue.reduce(x, &result, .add, +, nil)
-    return result
+    if let axes = axes {
+        let resultShape = x.reductionShape(alongAxes: axes)
+        var result = Tensor<S,E>(zeros: resultShape)
+        Context.currentQueue.reduce(x, &result, .add, +, nil)
+        return result
+    } else {
+        var result = Tensor<S,E>(S.one)
+        Context.currentQueue.reduceSumAll(x, &result)
+        return result
+    }
 }
 
 @derivative(of: sum)

@@ -29,19 +29,26 @@ class test_Vectorizing: XCTestCase {
     // test_reduceSumAll
     func test_reduceSumAll() {
         #if !DEBUG
-        let a = ones((1024, 1024))
-        var count: DType = 0
-        
+        let size = 1024
+        let x = array(1...(size * size), (size, size))
+        var value: DType = 0
+        var result = Tensor2<DType>(0)
+        let q = Context.currentQueue
+
         // 0.00140s
         self.measure {
-//            for value in a {
-//                count += value
-//            }
-            // llvm.experimental.vector.reduce.fadd
-            count = a.indices.reduce(into: 0) { $0 += a[$1] }
+            for _ in 0..<10 {
+                // llvm.experimental.vector.reduce.fadd
+//                result[result.startIndex] = x.indices.reduce(into: 0) { $0 += x[$1] }
+//                result.storage.hostBuffer[0] = x.indices.reduce(into: 0) { $0 += x[$1] }
+                Context.currentQueue.reduceSumAll(x, &result)
+//                globalReduceSumAll(x, &result)
+                value = result.element
+            }
         }
 
-        XCTAssert(count > 0)
+        XCTAssert(value > 0)
+        print(value)
         #endif
     }
 
@@ -55,8 +62,11 @@ class test_Vectorizing: XCTestCase {
         
         // 0.00192s
         self.measure {
-            // llvm.experimental.vector.reduce.min
-            value = a.indices.reduce(into: a[a.startIndex]) { $0 = Swift.min($0, a[$1]) }
+            for _ in 0..<10 {
+                // llvm.experimental.vector.reduce.min
+//                value = a.indices.reduce(into: a[a.startIndex]) { $0 = Swift.min($0, a[$1]) }
+                value = min(a).element
+            }
         }
         
         XCTAssert(value == 1)
@@ -112,10 +122,12 @@ class test_Vectorizing: XCTestCase {
         let b = ones((1024, 1024))
         var count: DType = 0
         
-        // 0.00412
+        // 0.0378
         self.measure {
-            let result = a + b
-            count = result.first
+            for _ in 0..<10 {
+                let result = a + b
+                count = result.first
+            }
         }
         XCTAssert(count > 0)
         #endif
@@ -130,10 +142,12 @@ class test_Vectorizing: XCTestCase {
         let b = array(1...(size * size), (size, size), order: .F)
         var count: DType = 0
         
-        // 0.00412
+        // 0.107
         self.measure {
-            let result = a + b
-            count = result.first
+            for _ in 0..<10 {
+                let result = a + b
+                count = result.first
+            }
         }
         XCTAssert(count > 0)
         #endif
