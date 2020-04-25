@@ -57,7 +57,7 @@ class test_Vectorizing: XCTestCase {
                 
                 // 0.0665
 //                result = x.sum()
-                value = result.element
+                value += result.element
             }
         }
 
