@@ -34,10 +34,13 @@ public typealias StorageBufferType<Element> = CpuStorage<Element>
 //==============================================================================
 /// Context
 /// Manages the scope for the current devices, log, and error handlers
-public struct Context {
+public final class Context {
+    /// TODO: evaluate perf of making thread local
+    public static let local: Context = Context()
+    
     /// specifies whether operators in the current scope are
     /// evaluated for inferring or training
-    public static var evaluationModeStack: [EvaluationMode] = [.inferring]
+    public var evaluationModeStack: [EvaluationMode]
     /// the time that the platform was first accessed
     public static var startTime = Date()
     /// the log output object
@@ -51,7 +54,13 @@ public struct Context {
     /// The platform type is specified in Types.swift and selected
     /// via build settings
     // maybe make this thread local
-    public static var platform = PlatformType()
+    public let platform: PlatformType
+
+    //--------------------------------------------------------------------------
+    @inlinable public init() {
+        platform = PlatformType()
+        evaluationModeStack = [.inferring]
+    }
     
     //--------------------------------------------------------------------------
     /// the Platform log writing object
@@ -73,33 +82,33 @@ public struct Context {
     /// the currently active queue that platform functions will use
     /// - Returns: the current device queue
     @inlinable public static var currentQueue: PlatformType.Device.Queue {
-        Context.platform.currentQueue
+        Context.local.platform.currentQueue
     }
 
     //--------------------------------------------------------------------------
     /// a convenience property. `true` if the context is inferring
     @inlinable
     public static var isInferring: Bool {
-        Context.evaluationModeStack.last! == .inferring
+        Context.local.evaluationModeStack.last! == .inferring
     }
 
     /// a convenience property. `true` if the context is training
     @inlinable
     public static var isTraining: Bool {
-        Context.evaluationModeStack.last! == .training
+        Context.local.evaluationModeStack.last! == .training
     }
 
     @inlinable
     public static func whileInferring<R>(_ body: () throws -> R) rethrows -> R {
-        Context.evaluationModeStack.append(.inferring)
-        defer { _ = Context.evaluationModeStack.popLast() }
+        Context.local.evaluationModeStack.append(.inferring)
+        defer { _ = Context.local.evaluationModeStack.popLast() }
         return try body()
     }
 
     @inlinable
     public static func whileTraining<R>(_ body: () throws -> R) rethrows -> R {
-        Context.evaluationModeStack.append(.training)
-        defer { _ = Context.evaluationModeStack.popLast() }
+        Context.local.evaluationModeStack.append(.training)
+        defer { _ = Context.local.evaluationModeStack.popLast() }
         return try body()
     }
 
@@ -161,3 +170,4 @@ public struct Context {
 //        return key
 //    }()
 }
+

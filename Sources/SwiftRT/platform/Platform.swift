@@ -27,49 +27,36 @@ public protocol Platform: class, Logger {
     var devices: [Device] { get }
     /// name used for logging
     var name: String { get }
-    /// the current device and queue to direct work
-    var queueStack: [QueueId] { get set }
+    /// the current device queue to direct work
+    var queueStack: [Device.Queue] { get set }
 }
 
 public extension Platform {
-    /// the currently active device that platform functions will use
-    /// - Returns: the current device
-    @inlinable @_transparent
-    var currentDevice: Device {
-        devices[currentQueueId.device]
-    }
-
     /// the currently active queue that platform functions will use
     /// - Returns: the current device queue
     @inlinable @_transparent
     var currentQueue: Device.Queue {
-        let queueId = currentQueueId
-        return devices[queueId.device].queues[queueId.queue]
+        queueStack.last!
     }
-
-    /// the currently active queue that platform functions will use
-    /// - Returns: the current device queue
-    @inlinable @_transparent
-    var currentQueueId: QueueId { queueStack.last! }
 }
 
 //==============================================================================
 // queue API
 @inlinable public func useCpu() {
-    Context.platform.useCpu()
+    Context.local.platform.useCpu()
 }
 
 @inlinable public func use(device: Int, queue: Int = 0) {
-    Context.platform.use(device: device, queue: queue)
+    Context.local.platform.use(device: device, queue: queue)
 }
 
 @inlinable public func using<R>(device: Int, queue: Int = 0,
                                 _ body: () -> R) -> R {
-    Context.platform.using(device: device, queue: queue, body)
+    Context.local.platform.using(device: device, queue: queue, body)
 }
 
 @inlinable public func using<R>(queue: Int, _ body: () -> R) -> R {
-    Context.platform.using(queue: queue, body)
+    Context.local.platform.using(queue: queue, body)
 }
 
 // Platform extensions
@@ -77,14 +64,14 @@ public extension Platform {
     /// changes the current device/queue to use cpu:0
     @inlinable
     func useCpu() {
-        queueStack[queueStack.count - 1] = QueueId(0, 0)
+        queueStack[queueStack.count - 1] = validQueue(0, 0)
     }
     /// selects the specified device queue for output
     /// - Parameter device: the device to use. Device 0 is the cpu
     /// - Parameter queue: the queue on the device to use
     @inlinable
     func use(device: Int, queue: Int = 0) {
-        queueStack[queueStack.count - 1] = ensureValidId(device, queue)
+        queueStack[queueStack.count - 1] = validQueue(device, queue)
     }
     /// selects the specified device queue for output within the scope of
     /// the body
@@ -94,7 +81,7 @@ public extension Platform {
     @inlinable
     func using<R>(device: Int, queue: Int = 0, _ body: () -> R) -> R {
         // push the selection onto the queue stack
-        queueStack.append(ensureValidId(device, queue))
+        queueStack.append(validQueue(device, queue))
         defer { _ = queueStack.popLast() }
         return body()
     }
@@ -105,17 +92,18 @@ public extension Platform {
     @inlinable
     func using<R>(queue: Int, _ body: () -> R) -> R {
         // push the selection onto the queue stack
-        let current = queueStack.last!
-        queueStack.append(ensureValidId(current.device, queue))
+        queueStack.append(validQueue(currentQueue.deviceId, queue))
         defer { _ = queueStack.popLast() }
         return body()
     }
+    
     // peforms a mod on the indexes to guarantee they are mapped into bounds
-    @inlinable
-    func ensureValidId(_ deviceId: Int, _ queueId: Int) -> QueueId {
-        let device = deviceId % devices.count
-        let queue = queueId % devices[device].queues.count
-        return QueueId(device, queue)
+    @inlinable func validQueue(
+        _ deviceId: Int,
+        _ queueId: Int
+    ) -> Device.Queue {
+        let device = devices[deviceId % devices.count]
+        return device.queues[queueId % device.queues.count]
     }
 }
 
@@ -183,7 +171,8 @@ public enum EvaluationMode {
 /// a compute device represents a physical service device installed
 /// on the platform
 public protocol PlatformDevice: class, Logger {
-    associatedtype Queue
+    associatedtype Queue: PlatformDeviceQueue
+    
     /// the id of the device for example dev:0, dev:1, ...
     var id: Int { get }
     /// name used logging
@@ -192,6 +181,10 @@ public protocol PlatformDevice: class, Logger {
     var queues: [Queue] { get }
     /// specifies the type of device memory for data transfer
     var memoryType: MemoryType { get }
+}
+
+public protocol PlatformDeviceQueue: class {
+    var deviceId: Int { get }
 }
 
 //==============================================================================

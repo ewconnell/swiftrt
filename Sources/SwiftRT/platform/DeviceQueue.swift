@@ -21,7 +21,7 @@ import Numerics
 /// a base class for creating custom device queues. The default implementation
 /// synchronously executes all functions on the cpu. Developers can override
 /// functions to delegate to accelerator devices.
-open class DeviceQueue: Logging {
+open class DeviceQueue: PlatformDeviceQueue, Logging {
     // properties
     public let creatorThread: Thread
     public var defaultQueueEventOptions: QueueEventOptions

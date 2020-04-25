@@ -33,16 +33,30 @@ class test_Vectorizing: XCTestCase {
         let x = array(1...(size * size), (size, size))
         var value: DType = 0
         var result = Tensor2<DType>(0)
-        let q = Context.currentQueue
-
+        
+        // make sure everything is lazy initialized
+        Context.currentQueue.reduceSumAll(x, &result)
+        
         // 0.00140s
         self.measure {
+            var q = Context.currentQueue
+            
+            // getting it 10 times makes no difference
+//            for _ in 0..<10 {
+//                q = Context.currentQueue
+//            }
             for _ in 0..<10 {
-                // llvm.experimental.vector.reduce.fadd
-//                result[result.startIndex] = x.indices.reduce(into: 0) { $0 += x[$1] }
-//                result.storage.hostBuffer[0] = x.indices.reduce(into: 0) { $0 += x[$1] }
-                Context.currentQueue.reduceSumAll(x, &result)
+                // UNCOMMENT THIS AND ITS 4X SLOWER
+//                q = Context.currentQueue
+                
+                // 0.0123
+                q.reduceSumAll(x, &result)
+
+                // 0.00971
 //                globalReduceSumAll(x, &result)
+                
+                // 0.0665
+//                result = x.sum()
                 value = result.element
             }
         }
@@ -121,11 +135,15 @@ class test_Vectorizing: XCTestCase {
         let a = ones((1024, 1024))
         let b = ones((1024, 1024))
         var count: DType = 0
+        var result = empty(like: a)
         
-        // 0.0378
         self.measure {
             for _ in 0..<10 {
-                let result = a + b
+                // 0.0388
+                result = a + b
+                
+                // 0.0292  24% better
+//                zip(result.indices, zip(a, b)).forEach { result[$0] = $1.0 + $1.1 }
                 count = result.first
             }
         }

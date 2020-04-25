@@ -23,7 +23,7 @@ public class CpuService: Platform {
     public let devices: [CpuDevice]
     public let logInfo: LogInfo
     public let name: String
-    public var queueStack: [QueueId]
+    public var queueStack: [Device.Queue]
 
     //--------------------------------------------------------------------------
     @inlinable
@@ -37,6 +37,6 @@ public class CpuService: Platform {
         
         // select device 0 queue 0 by default
         queueStack = []
-        queueStack = [ensureValidId(0, 0)]
+        queueStack = [validQueue(0, 0)]
     }
 }
