@@ -39,7 +39,7 @@ class test_Vectorizing: XCTestCase {
         
         // 0.00140s
         self.measure {
-            var q = Context.currentQueue
+            let q = Context.currentQueue
             
             // getting it 10 times makes no difference
 //            for _ in 0..<10 {
