@@ -35,6 +35,13 @@ public extension Platform {
     /// the currently active queue that platform functions will use
     /// - Returns: the current device queue
     @inlinable @_transparent
+    var currentDevice: Device {
+        devices[queueStack.last!.deviceId]
+    }
+
+    /// the currently active queue that platform functions will use
+    /// - Returns: the current device queue
+    @inlinable @_transparent
     var currentQueue: Device.Queue {
         queueStack.last!
     }
@@ -395,5 +402,48 @@ public protocol MutableTensorType: TensorType, MutableCollection
     ///
     /// - Parameter queue: the device queue to use for synchronization
     mutating func readWrite(using queue: DeviceQueue)
+}
+
+//==============================================================================
+/// ScalarType
+/// Used primarily for serialization, C APIs, and Cuda kernels
+// TODO: maybe remove this after Cuda integration if not used
+public enum ScalarType: Int {
+    // integers
+    case real8U, real8I, real16U, real16I, real32U, real32I, real64U, real64I
+    // floats
+    case real16F, real32F, real64F
+    // non numeric
+    case bool
+}
+
+public protocol ScalarElement {
+    static var type: ScalarType { get }
+    static var zeroPointer: UnsafeRawPointer { get }
+    static var onePointer: UnsafeRawPointer { get }
+}
+
+extension Float: ScalarElement {
+    @inlinable public static var type: ScalarType { .real32F }
+    
+    public static var zero: Self = 0
+    @inlinable public
+    static var zeroPointer: UnsafeRawPointer { UnsafeRawPointer(&zero) }
+    
+    public static var one: Self = 1
+    @inlinable public
+    static var onePointer: UnsafeRawPointer { UnsafeRawPointer(&one) }
+}
+
+extension Double: ScalarElement {
+    @inlinable public static var type: ScalarType { .real64F }
+    
+    public static var zero: Self = 0
+    @inlinable public
+    static var zeroPointer: UnsafeRawPointer { UnsafeRawPointer(&zero) }
+    
+    public static var one: Self = 1
+    @inlinable public
+    static var onePointer: UnsafeRawPointer { UnsafeRawPointer(&one) }
 }
 

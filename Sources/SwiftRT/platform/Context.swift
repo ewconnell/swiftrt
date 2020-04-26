@@ -79,7 +79,14 @@ public final class Context {
         bufferIdCounter += 1
         return bufferIdCounter
     }
-    /// the currently active queue that platform functions will use
+
+    /// the currently scoped device that platform functions will use
+    /// - Returns: the current device queue
+    @inlinable public static var currentDevice: PlatformType.Device {
+        Context.local.platform.currentDevice
+    }
+
+    /// the currently scoped queue that platform functions will use
     /// - Returns: the current device queue
     @inlinable public static var currentQueue: PlatformType.Device.Queue {
         Context.local.platform.currentQueue

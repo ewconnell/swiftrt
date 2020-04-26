@@ -768,32 +768,30 @@ open class DeviceQueue: PlatformDeviceQueue, Logging {
     //==========================================================================
     // Deep learning operators
     //==========================================================================
-////    public func createActivation<T>(
-////        x: T,
-////        y: inout T,
-////        mode: ActivationType,
-////        nan: NanPropagation,
-////        reluCeiling: Double = 0) throws -> ActivationInferring<T>
-////        where T: TensorView, T.Element: ScalarElement & FloatingPoint
-////    {
-////        fatalError("cpu not implemented")
-////    }
-//    #if canImport(CCuda)
-//    public func convolution<T, F>(
-//        activation: ActivationType,
-//        strides: T.Bounds,
-//        padding: Padding,
-//        dilations: T.Bounds,
-//        properties: ConvolutionProperties,
-//        device: PlatformDevice,
-//        filterBiasBackpropQueueIndex: Int) throws -> CudaConvolution<T, F>
-//        where
-//        T: DifferentiableTensorView, T.Element: ScalarElement,
-//        F: TensorView, F.Bounds == T.Bounds, F.Element: ScalarElement
+//    public func createActivation<T>(
+//        x: T,
+//        y: inout T,
+//        mode: ActivationType,
+//        nan: NanPropagation,
+//        reluCeiling: Double = 0) throws -> ActivationInferring<T>
+//        where T: TensorView, T.Element: ScalarElement & FloatingPoint
 //    {
-//        fatalError("cpu convolution not implemented")
+//        fatalError("cpu not implemented")
 //    }
-//    #endif
+    public func convolution<Shape,E,FE>(
+        activation: ActivationType,
+        strides: Shape,
+        padding: Padding,
+        dilations: Shape,
+        properties: ConvolutionProperties,
+        deviceId: Int,
+        filterBiasBackpropQueueIndex: Int
+    ) -> DeviceConvolution<Shape,E,FE>
+    where Shape: TensorShape,
+          E: ScalarElement, FE: ScalarElement & BinaryFloatingPoint
+    {
+        fatalError("cpu convolution not implemented")
+    }
 
     //==========================================================================
     // specialized derivative implementations

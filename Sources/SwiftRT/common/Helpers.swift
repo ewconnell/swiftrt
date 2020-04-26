@@ -46,14 +46,10 @@ public extension UInt64 {
 //==============================================================================
 // Memory sizes
 extension Int {
-    @inlinable
-    var KB: Int { self * 1024 }
-    @inlinable
-    var MB: Int { self * 1024 * 1024 }
-    @inlinable
-    var GB: Int { self * 1024 * 1024 * 1024 }
-    @inlinable
-    var TB: Int { self * 1024 * 1024 * 1024 * 1024 }
+    @inlinable public var KB: Int { self * 1024 }
+    @inlinable public var MB: Int { self * 1024 * 1024 }
+    @inlinable public var GB: Int { self * 1024 * 1024 * 1024 }
+    @inlinable public var TB: Int { self * 1024 * 1024 * 1024 * 1024 }
 }
 
 //==============================================================================

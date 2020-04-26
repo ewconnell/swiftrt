@@ -761,7 +761,7 @@ extension Tensor where Element: Numeric {
     /// - Parameters:
     ///  - shape: the n-dimensional shape of the tensor to be filled
     ///  - order: the storage order of the elements
-    @inlinable init(zeros shape: Shape, order: StorageOrder = .C) {
+    @inlinable public init(zeros shape: Shape, order: StorageOrder = .C) {
         self.init(shape, order: order)
         fill(&self, with: 0)
     }
@@ -772,7 +772,7 @@ extension Tensor where Element: Numeric {
     /// - Parameters:
     ///  - shape: the n-dimensional shape of the tensor to be filled
     ///  - order: the storage order of the elements
-    @inlinable init(ones shape: Shape, order: StorageOrder = .C) {
+    @inlinable public init(ones shape: Shape, order: StorageOrder = .C) {
         self.init(shape, order: order)
         fill(&self, with: 1)
     }
@@ -784,7 +784,7 @@ extension Tensor where Element: Numeric {
     ///  - shape: the shape of the array
     ///  - offset: the offset of the diagonal
     ///  - order: the storage order of the new tensor
-    @inlinable init(
+    @inlinable public init(
         eye shape: Shape,
         offset: Int = 0,
         order: StorageOrder = .C
