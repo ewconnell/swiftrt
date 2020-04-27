@@ -15,7 +15,7 @@
 //
 import Foundation
 import Numerics
-import SwiftRT
+import SwiftRTCore
 
 public typealias ParameterInitializer<S,E> = (S) -> Tensor<S,E>
     where S: TensorShape

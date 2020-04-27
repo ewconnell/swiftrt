@@ -103,8 +103,6 @@ extension Int: SignedRangeExpression
 
 //==============================================================================
 // Open Range with negative bounds
-infix operator ..<-: RangeFormationPrecedence
-
 @inlinable public func ..<- (lower: Int, upper: Int) -> Range<Int>
 {
     Range(uncheckedBounds: (lower, -upper))
@@ -112,8 +110,6 @@ infix operator ..<-: RangeFormationPrecedence
 
 //==============================================================================
 // Closed Range with negative bounds
-infix operator ...-: RangeFormationPrecedence
-
 @inlinable public func ...- (lower: Int, upper: Int) -> ClosedRange<Int>
 {
     ClosedRange(uncheckedBounds: (lower, -upper))
@@ -121,9 +117,6 @@ infix operator ...-: RangeFormationPrecedence
 
 //==============================================================================
 // PartialRangeUpTo/PartialRangeThrough negative
-prefix operator ..<-
-prefix operator ...-
-
 public extension Int {
     @inlinable prefix static func ..<- (upper: Int) -> PartialRangeUpTo<Int> {
         ..<(-upper)
@@ -135,8 +128,6 @@ public extension Int {
 }
 
 //==============================================================================
-infix operator ..+: RangeFormationPrecedence
-
 public extension Int {
     /// ..+ operator
     /// specifies range with relative upper bound

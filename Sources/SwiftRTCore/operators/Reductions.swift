@@ -42,7 +42,7 @@ public func all<S>(_ x: Tensor<S,Bool>, alongAxes axes: Set<Int>? = nil)
 /// - Returns: a new tensor containing the result
 public extension Tensor where Element == Bool {
     @inlinable func all(alongAxes axes: Set<Int>? = nil) -> Self {
-        SwiftRT.all(self, alongAxes: axes)
+        SwiftRTCore.all(self, alongAxes: axes)
     }
     
     @inlinable
@@ -72,7 +72,7 @@ public func any<S>(_ x: Tensor<S,Bool>, alongAxes axes: Set<Int>? = nil)
 /// - Returns: a new tensor containing the result
 public extension Tensor where Element == Bool {
     @inlinable func any(alongAxes axes: Set<Int>? = nil) -> Self {
-        SwiftRT.any(self, alongAxes: axes)
+        SwiftRTCore.any(self, alongAxes: axes)
     }
 
     @inlinable func any(alongAxes axes: Int...) -> Self {
@@ -115,7 +115,7 @@ public func sum<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
 public extension Tensor where Element: Numeric {
     @differentiable(where Element: DifferentiableElement)
     @inlinable func sum(alongAxes axes: Set<Int>? = nil) -> Self {
-        SwiftRT.sum(self, alongAxes: axes)
+        SwiftRTCore.sum(self, alongAxes: axes)
     }
 
     @differentiable(where Element: DifferentiableElement)
@@ -162,7 +162,7 @@ public extension Tensor where Element: Numeric {
 public extension Tensor where Element: AlgebraicField {
     @differentiable(where Element: DifferentiableElement)
     @inlinable func mean(alongAxes axes: Set<Int>? = nil) -> Self {
-        SwiftRT.mean(self, alongAxes: axes)
+        SwiftRTCore.mean(self, alongAxes: axes)
     }
 
     @differentiable(where Element: DifferentiableElement)
@@ -202,7 +202,7 @@ public extension Tensor where Element: AlgebraicField {
 public extension Tensor where Element: Numeric {
     @differentiable(where Element: DifferentiableElement)
     @inlinable func prod(alongAxes axes: Set<Int>? = nil) -> Self {
-        SwiftRT.prod(self, alongAxes: axes)
+        SwiftRTCore.prod(self, alongAxes: axes)
     }
 
     @differentiable(where Element: DifferentiableElement)
@@ -244,7 +244,7 @@ public extension Tensor where Element: Numeric {
 public extension Tensor where Element: Numeric {
     @differentiable(where Element: DifferentiableElement)
     @inlinable func prodNonZeros(alongAxes axes: Set<Int>? = nil) -> Self {
-        SwiftRT.prodNonZeros(self, alongAxes: axes)
+        SwiftRTCore.prodNonZeros(self, alongAxes: axes)
     }
 
     @differentiable(where Element: DifferentiableElement)
@@ -283,7 +283,7 @@ public extension Tensor where Element: Comparable
 {
     @differentiable(where Element: DifferentiableElement)
     @inlinable func min(alongAxes axes: Set<Int>? = nil) -> Self {
-        SwiftRT.min(self, alongAxes: axes)
+        SwiftRTCore.min(self, alongAxes: axes)
     }
 
     @differentiable(where Element: DifferentiableElement)
@@ -321,7 +321,7 @@ public extension Tensor where Element: Comparable
 {
     @differentiable(where Element: DifferentiableElement)
     @inlinable func max(alongAxes axes: Set<Int>? = nil) -> Self {
-        SwiftRT.max(self, alongAxes: axes)
+        SwiftRTCore.max(self, alongAxes: axes)
     }
 
     @differentiable(where Element: DifferentiableElement)
@@ -361,7 +361,7 @@ public extension Tensor where Element: SignedNumeric & Comparable
 {
     @differentiable(where Element: DifferentiableElement)
     @inlinable func absmax(alongAxes axes: Set<Int>? = nil) -> Self {
-        SwiftRT.absmax(self, alongAxes: axes)
+        SwiftRTCore.absmax(self, alongAxes: axes)
     }
 
     @differentiable(where Element: DifferentiableElement)
@@ -396,7 +396,7 @@ public extension Tensor where Element: SignedNumeric & Comparable
 public extension Tensor where Element: SignedNumeric & Comparable {
     @differentiable(where Element: DifferentiableElement)
     @inlinable func abssum(alongAxes axes: Set<Int>? = nil) -> Self {
-        SwiftRT.abssum(self, alongAxes: axes)
+        SwiftRTCore.abssum(self, alongAxes: axes)
     }
 
     @differentiable(where Element: DifferentiableElement)
@@ -434,7 +434,7 @@ public extension Tensor where Element: SignedNumeric & Comparable {
 public extension Tensor where Element: Real {
     @differentiable(where Element: DifferentiableElement)
     @inlinable func sqrtSumSquares(alongAxes axes: Set<Int>? = nil) -> Self {
-        SwiftRT.sqrtSumSquares(self, alongAxes: axes)
+        SwiftRTCore.sqrtSumSquares(self, alongAxes: axes)
     }
 
     @differentiable(where Element: DifferentiableElement)

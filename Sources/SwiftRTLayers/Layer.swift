@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-import SwiftRT
+import SwiftRTCore
 
 // Note: `Module` and `Layer` protocol definitions are adapted and simplified from:
 // https://github.com/tensorflow/swift-apis/blob/master/Sources/TensorFlow/Layer.swift

@@ -15,7 +15,7 @@
 //
 import Foundation
 //import Numerics
-import SwiftRT
+import SwiftRTCore
 
 //==============================================================================
 /// Convolution

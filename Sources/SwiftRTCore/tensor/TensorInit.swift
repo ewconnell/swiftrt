@@ -246,7 +246,7 @@ public extension Tensor {
     }
     
     @inlinable init(concatenating tensors: [Self], alongAxis axis: Int = 0) {
-        self = SwiftRT.concat(tensors, alongAxis: axis)
+        self = SwiftRTCore.concat(tensors, alongAxis: axis)
     }
 }
 

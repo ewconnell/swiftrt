@@ -1,7 +1,8 @@
 import XCTest
-
-import SwiftRTTests
+import SwiftRTCoreTests
+import SwiftRTLayerTests
 
 var tests = [XCTestCaseEntry]()
-tests += SwiftRTTests.allTests()
+tests += SwiftRTCoreTests.allTests()
+tests += SwiftRTLayerTests.allTests()
 XCTMain(tests)

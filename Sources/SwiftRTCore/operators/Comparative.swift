@@ -52,17 +52,15 @@ import Numerics
     and(repeating(lhs, like: rhs), rhs)
 }
 
-infix operator .&& : LogicalConjunctionPrecedence
-
-public extension Tensor where Element == Bool {
+extension Tensor where Element == Bool {
     @inlinable
-    static func .&&(_ lhs: Self, _ rhs: Self) -> Self { and(lhs, rhs) }
+    public static func .&&(_ lhs: Self, _ rhs: Self) -> Self { and(lhs, rhs) }
 
     @inlinable
-    static func .&&(_ lhs: Self, _ rhs: Element) -> Self { and(lhs, rhs) }
+    public static func .&&(_ lhs: Self, _ rhs: Element) -> Self { and(lhs, rhs) }
 
     @inlinable
-    static func .&&(_ lhs: Element, _ rhs: Self) -> Self { and(lhs, rhs) }
+    public static func .&&(_ lhs: Element, _ rhs: Self) -> Self { and(lhs, rhs) }
 }
 
 //==============================================================================
@@ -88,8 +86,6 @@ public extension Tensor where Element == Bool {
 {
     or(repeating(lhs, like: rhs), rhs)
 }
-
-infix operator .|| : LogicalConjunctionPrecedence
 
 public extension Tensor where Element == Bool {
     @inlinable
@@ -145,7 +141,7 @@ public extension Tensor where Element == Bool {
 public extension Tensor where Element: Comparable {
     @differentiable(where Element: DifferentiableElement)
     @inlinable func max(_ lhs: Self, _ rhs: Self) -> Self {
-        SwiftRT.max(lhs, rhs)
+        SwiftRTCore.max(lhs, rhs)
     }
 
     @differentiable(where Element: DifferentiableElement)
@@ -202,7 +198,7 @@ public extension Tensor where Element: Comparable {
 public extension Tensor where Element: Comparable {
     @differentiable(where Element: DifferentiableElement)
     @inlinable func min(_ lhs: Self, _ rhs: Self) -> Self {
-        SwiftRT.min(lhs, rhs)
+        SwiftRTCore.min(lhs, rhs)
     }
 
     @differentiable(where Element: DifferentiableElement)
@@ -229,8 +225,6 @@ where S: TensorShape, E: Equatable
     Context.currentQueue.equal(lhs, rhs, &result)
     return result
 }
-
-infix operator .== : ComparisonPrecedence
 
 extension Tensor: Equatable where Element: Equatable {
     @inlinable
@@ -274,7 +268,7 @@ public extension Tensor where Element: SignedNumeric & Comparable {
     @inlinable func elementsAlmostEqual(_ rhs: Self, tolerance: Element)
         -> Tensor<Shape,Bool>
     {
-        SwiftRT.elementsAlmostEqual(self, rhs, tolerance: tolerance)
+        SwiftRTCore.elementsAlmostEqual(self, rhs, tolerance: tolerance)
     }
 }
 
@@ -291,11 +285,9 @@ public extension Tensor where Element: SignedNumeric & Comparable {
     return result
 }
 
-infix operator .!= : ComparisonPrecedence
-
 public extension Tensor where Element: Equatable {
     @inlinable static func .!=(_ lhs: Self, _ rhs: Self) -> Tensor<Shape, Bool> {
-        SwiftRT.notEqual(lhs, rhs)
+        notEqual(lhs, rhs)
     }
 }
 
@@ -310,8 +302,6 @@ public func greater<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     Context.currentQueue.greater(lhs, rhs, &result)
     return result
 }
-
-infix operator .> : ComparisonPrecedence
 
 public extension Tensor where Element: Comparable {
     @inlinable static func .>(_ lhs: Self, _ rhs: Self) -> Tensor<Shape,Bool> {
@@ -331,8 +321,6 @@ public func greaterOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     return result
 }
 
-infix operator .>= : ComparisonPrecedence
-
 public extension Tensor where Element: Comparable {
     @inlinable static func .>=(_ lhs: Self, _ rhs: Self) -> Tensor<Shape,Bool> {
         greaterOrEqual(lhs, rhs)
@@ -349,8 +337,6 @@ public extension Tensor where Element: Comparable {
     Context.currentQueue.less(lhs, rhs, &result)
     return result
 }
-
-infix operator .< : ComparisonPrecedence
 
 public extension Tensor where Element: Comparable {
     @inlinable static func .<(_ lhs: Self, _ rhs: Self) -> Tensor<Shape, Bool> {
@@ -380,8 +366,6 @@ public extension Tensor where Element: Comparable {
 {
     lessOrEqual(repeating(lhs, like: rhs), rhs)
 }
-
-infix operator .<= : ComparisonPrecedence
 
 public extension Tensor where Element: Comparable {
     @inlinable static func .<=(_ lhs: Self, _ rhs: Self) -> Tensor<Shape,Bool> {

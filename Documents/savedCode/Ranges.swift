@@ -58,16 +58,6 @@ import Foundation
 
 
 //==============================================================================
-/// .. operator
-infix operator ..: StridedRangeFormationPrecedence
-
-precedencegroup StridedRangeFormationPrecedence {
-    associativity: left
-    higherThan: CastingPrecedence
-    lowerThan: RangeFormationPrecedence
-}
-
-//==============================================================================
 /// RangeBound
 public protocol RangeBound: Comparable, Numeric {
     func steps(dividedBy step: Self) -> Int

@@ -41,7 +41,7 @@ import Foundation
 public extension Tensor {
     @inlinable func concat(_ others: Self..., alongAxis axis: Int = 0) -> Self {
         guard others.count > 1 else { return self }
-        return SwiftRT.concat([self] + others, alongAxis: axis)
+        return SwiftRTCore.concat([self] + others, alongAxis: axis)
     }
 }
 

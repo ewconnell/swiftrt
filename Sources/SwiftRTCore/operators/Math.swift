@@ -41,7 +41,7 @@ import Numerics
 public extension Tensor where Element: Real {
     // make glboal function visible for extension implementations
     @differentiable(where Element: DifferentiableElement)
-    @inlinable func abs(_ x: Self) -> Self { SwiftRT.abs(x) }
+    @inlinable func abs(_ x: Self) -> Self { SwiftRTCore.abs(x) }
 
     @differentiable(where Element: DifferentiableElement)
     @inlinable func abs() -> Self { abs(self) }
@@ -327,7 +327,7 @@ public extension Tensor where Element: Real {
 public extension Tensor where Element: Real {
     // make glboal function visible for extension implementations
     @differentiable(where Element: DifferentiableElement)
-    @inlinable func exp(_ x: Self) -> Self { SwiftRT.exp(x) }
+    @inlinable func exp(_ x: Self) -> Self { SwiftRTCore.exp(x) }
 
     @differentiable(where Element: DifferentiableElement)
     @inlinable func exp() -> Self { exp(self) }
@@ -467,7 +467,7 @@ public extension Tensor where Element: Real {
 public extension Tensor where Element: Real {
     // make glboal function visible for extension implementations
     @differentiable(where Element: DifferentiableElement)
-    @inlinable func log(_ x: Self) -> Self { SwiftRT.log(x) }
+    @inlinable func log(_ x: Self) -> Self { SwiftRTCore.log(x) }
 
     @differentiable(where Element: DifferentiableElement)
     @inlinable func log() -> Self { log(self) }
@@ -540,7 +540,7 @@ public extension Tensor where Element: Real {
 public extension Tensor where Element: SignedNumeric {
     // make glboal function visible for extension implementations
     @differentiable(where Element: DifferentiableElement)
-    @inlinable static prefix func - (x: Self) -> Self { SwiftRT.neg(x) }
+    @inlinable static prefix func - (x: Self) -> Self { SwiftRTCore.neg(x) }
 
     @differentiable(where Element: DifferentiableElement)
     @inlinable func neg() -> Self { -self }
@@ -613,7 +613,7 @@ public extension Tensor where Element: SignedNumeric {
 public extension Tensor where Element: Numeric {
     // make glboal function visible for extension implementations
     @differentiable(where Element: DifferentiableElement)
-    @inlinable func squared(_ x: Self) -> Self { SwiftRT.squared(x) }
+    @inlinable func squared(_ x: Self) -> Self { SwiftRTCore.squared(x) }
     
     @differentiable(where Element: DifferentiableElement)
     @inlinable func squared() -> Self { squared(self) }
@@ -668,7 +668,7 @@ public extension Numeric {
 public extension Tensor where Element: Real {
     // make glboal function visible for extension implementations
     @differentiable(where Element: DifferentiableElement)
-    @inlinable func pow(_ x: Self, _ y: Self) -> Self { SwiftRT.pow(x, y) }
+    @inlinable func pow(_ x: Self, _ y: Self) -> Self { SwiftRTCore.pow(x, y) }
 }
 
 //==============================================================================
@@ -719,7 +719,7 @@ public extension Tensor where Element: Real {
 public extension Tensor where Element: Real {
     // make glboal function visible for extension implementations
     @differentiable(where Element: DifferentiableElement)
-    @inlinable func sqrt(_ x: Self) -> Self { SwiftRT.sqrt(x) }
+    @inlinable func sqrt(_ x: Self) -> Self { SwiftRTCore.sqrt(x) }
 
     @differentiable(where Element: DifferentiableElement)
     @inlinable func sqrt() -> Self { sqrt(self) }
@@ -750,7 +750,7 @@ public extension Tensor where Element: Real {
 public extension Tensor where Element: Real {
     // make glboal function visible for extension implementations
     @differentiable(where Element: DifferentiableElement)
-    @inlinable func sign(_ x: Self) -> Self { SwiftRT.sign(x) }
+    @inlinable func sign(_ x: Self) -> Self { SwiftRTCore.sign(x) }
 
     @differentiable(where Element: DifferentiableElement)
     @inlinable func sign() -> Self { sign(self) }
