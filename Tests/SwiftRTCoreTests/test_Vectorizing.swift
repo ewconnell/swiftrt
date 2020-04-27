@@ -26,6 +26,29 @@ class test_Vectorizing: XCTestCase {
     ]
     
     //--------------------------------------------------------------------------
+    // test_AplusBSequential
+    func test_AplusBSequential() {
+        #if !DEBUG
+        let a = ones((1024, 1024))
+        let b = ones((1024, 1024))
+        var count: DType = 0
+        var result = empty(like: a)
+        
+        self.measure {
+            for _ in 0..<10 {
+                // 0.0388
+                result = a + b
+                
+                // 0.0292  24% better
+                //                zip(result.indices, zip(a, b)).forEach { result[$0] = $1.0 + $1.1 }
+                count = result.first
+            }
+        }
+        XCTAssert(count > 0)
+        #endif
+    }
+    
+    //--------------------------------------------------------------------------
     // test_reduceSumAll
     func test_reduceSumAll() {
         #if !DEBUG
@@ -128,29 +151,6 @@ class test_Vectorizing: XCTestCase {
         #endif
     }
     
-    //--------------------------------------------------------------------------
-    // test_AplusBSequential
-    func test_AplusBSequential() {
-        #if !DEBUG
-        let a = ones((1024, 1024))
-        let b = ones((1024, 1024))
-        var count: DType = 0
-        var result = empty(like: a)
-        
-        self.measure {
-            for _ in 0..<10 {
-                // 0.0388
-                result = a + b
-                
-                // 0.0292  24% better
-//                zip(result.indices, zip(a, b)).forEach { result[$0] = $1.0 + $1.1 }
-                count = result.first
-            }
-        }
-        XCTAssert(count > 0)
-        #endif
-    }
-
     //--------------------------------------------------------------------------
     // test_AplusBSequential
     func test_AplusB_NonSequential() {
