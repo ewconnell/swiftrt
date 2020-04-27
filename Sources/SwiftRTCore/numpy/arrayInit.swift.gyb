@@ -31,6 +31,10 @@ numShapes = 6
 /// the implicit tensor Element type
 public typealias DType = Float
 
+%for n in range(1, numShapes + 1):
+public typealias Tensor${n} = Tensor<Shape${n},DType>
+%end
+
 //==============================================================================
 /// empty
 /// Return a new tensor of given shape and type, without initializing entries.
@@ -67,29 +71,29 @@ public func empty<Shape, Element>(
 //---------------------------------------
 // Rank 0
 @inlinable
-public func empty() -> Tensor1<DType> {
+public func empty() -> Tensor<Shape1, DType> {
     empty(Shape1(1), DType.self)
 }
 
 @inlinable
 public func empty<Element>(dtype: Element.Type)
-    -> Tensor1<Element> { empty(Shape1(1), dtype) }
+    -> Tensor<Shape1, Element> { empty(Shape1(1), dtype) }
 
 %for n in range(1, numShapes + 1):
 //---------------------------------------
 // Rank${n}
 @inlinable
 public func empty(_ shape: Shape${n}.Tuple, order: StorageOrder = .C)
-    -> Tensor${n}<DType> { empty(shape, DType.self, order) }
+    -> Tensor<Shape${n}, DType> { empty(shape, DType.self, order) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape${n}.Tuple, dtype: Element.Type)
-    -> Tensor${n}<Element> { empty(shape, dtype) }
+    -> Tensor<Shape${n}, Element> { empty(shape, dtype) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape${n}.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
-    -> Tensor${n}<Element> { empty(shape, dtype, order) }
+    -> Tensor<Shape${n}, Element> { empty(shape, dtype, order) }
     
 %end
 
@@ -201,13 +205,13 @@ public func full<Shape, Element>(
 //---------------------------------------
 // Rank0
 @inlinable
-public func full(_ value: DType) -> Tensor1<DType> {
+public func full(_ value: DType) -> Tensor<Shape1, DType> {
     full(Shape1(1), value, DType.self)
 }
 
 @inlinable
 public func full<Element>(_ value: Element, dtype: Element.Type)
-    -> Tensor1<Element> { full(Shape1(1), value, dtype) }
+    -> Tensor<Shape1, Element> { full(Shape1(1), value, dtype) }
 
 %for n in range(1, numShapes + 1):
 //---------------------------------------
@@ -217,14 +221,14 @@ public func full(
     _ shape: Shape${n}.Tuple,
     _ value: DType,
     order: StorageOrder = .C
-) -> Tensor${n}<DType> { full(shape, value, DType.self, order) }
+) -> Tensor${n} { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape${n}.Tuple,
     _ value: Element,
     dtype: Element.Type
-) -> Tensor${n}<Element> { full(shape, value, dtype) }
+) -> Tensor<Shape${n}, Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
@@ -232,7 +236,7 @@ public func full<Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor${n}<Element> { full(shape, value, dtype, order) }
+) -> Tensor<Shape${n}, Element> { full(shape, value, dtype, order) }
 
 %end
 
@@ -349,31 +353,31 @@ public func ones<Shape, Element>(
 //---------------------------------------
 // Rank0
 @inlinable
-public func ones() -> Tensor1<DType> {
+public func ones() -> Tensor<Shape1, DType> {
     ones(Shape1(1), DType.self)
 }
 
 @inlinable
 public func ones<Element>(dtype: Element.Type)
-    -> Tensor1<Element> where Element: Numeric { ones(Shape1(1), dtype) }
+    -> Tensor<Shape1, Element> where Element: Numeric { ones(Shape1(1), dtype) }
 
 %for n in range(1, numShapes + 1):
 //---------------------------------------
 // Rank${n}
 @inlinable
 public func ones(_ shape: Shape${n}.Tuple, order: StorageOrder = .C)
-    -> Tensor${n}<DType> { ones(shape, DType.self, order) }
+    -> Tensor${n} { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape${n}.Tuple, dtype: Element.Type)
-    -> Tensor${n}<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Tensor<Shape${n}, Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor${n}<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Tensor<Shape${n}, Element> where Element: Numeric { ones(shape, dtype, order) }
 
 %end
 
@@ -487,31 +491,31 @@ public func zeros<Shape, Element>(
 //---------------------------------------
 // Rank0
 @inlinable
-public func zeros() -> Tensor1<DType> {
+public func zeros() -> Tensor<Shape1, DType> {
     zeros(Shape1(1), DType.self)
 }
 
 @inlinable
 public func zeros<Element>(dtype: Element.Type)
-    -> Tensor1<Element> where Element: Numeric { zeros(Shape1(1), dtype) }
+    -> Tensor<Shape1, Element> where Element: Numeric { zeros(Shape1(1), dtype) }
 
 %for n in range(1, numShapes + 1):
 //---------------------------------------
 // Rank${n}
 @inlinable
 public func zeros(_ shape: Shape${n}.Tuple, order: StorageOrder = .C)
-    -> Tensor${n}<DType> { zeros(shape, DType.self, order) }
+    -> Tensor${n} { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape${n}.Tuple, dtype: Element.Type)
-    -> Tensor${n}<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Tensor<Shape${n}, Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor${n}<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Tensor<Shape${n}, Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 %end
 

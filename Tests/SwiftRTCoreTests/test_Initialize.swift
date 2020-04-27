@@ -41,7 +41,7 @@ class test_Initialize: XCTestCase {
     // test_castElements
     func test_castElements() {
         let fMatrix = array(0..<6, (3, 2))
-        let iMatrix = Tensor2<Int32>(fMatrix)
+        let iMatrix = TensorR2<Int32>(fMatrix)
         XCTAssert(iMatrix == [[0, 1], [2, 3], [4, 5]])
     }
 
@@ -87,7 +87,7 @@ class test_Initialize: XCTestCase {
     // test_indenting
     func test_indenting() {
         let a = array(0..<4)
-        let b = Tensor2<Float>(indenting: a)
+        let b = Tensor2(indenting: a)
         XCTAssert(b.shape == [1, a.count])
     }
     
@@ -180,7 +180,7 @@ class test_Initialize: XCTestCase {
     func test_concatMatrixRows() {
         let a = array(1...6, (2, 3))
         let b = array(7...12, (2, 3))
-        let c = Tensor2<DType>(concatenating: a, b)
+        let c = Tensor2(concatenating: a, b)
         XCTAssert(c.shape == [4, 3])
         XCTAssert(c == [
             [1,  2,  3],
@@ -195,7 +195,7 @@ class test_Initialize: XCTestCase {
     func test_concatMatrixCols() {
         let a = array(1...6, (2, 3))
         let b = array(7...12, (2, 3))
-        let c = Tensor2<DType>(concatenating: a, b, alongAxis: 1)
+        let c = Tensor2(concatenating: a, b, alongAxis: 1)
         XCTAssert(c.shape == [2, 6])
         XCTAssert(c == [
             [1,  2,  3, 7,  8,  9],

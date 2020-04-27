@@ -24,7 +24,7 @@ public struct Convolution<Shape,E,FE> where
     E: ScalarElement, FE: ScalarElement & BinaryFloatingPoint
 {
     public typealias Filter = Tensor<Shape, FE>
-    public typealias BiasVector = Tensor1<FE>
+    public typealias BiasVector = TensorR1<FE>
     /// The convolution filter
     public var filter: Filter
     /// The bias vector

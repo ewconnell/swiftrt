@@ -29,27 +29,27 @@ class test_Random: XCTestCase {
     //--------------------------------------------------------------------------
     // test_randomUniform
     func test_randomUniform() {
-        let v = Tensor1<Float>(randomUniform: 10)
+        let v = Tensor1(randomUniform: 10)
         XCTAssert(v.count > 0)
     }
 
     //--------------------------------------------------------------------------
     // test_randomNormal
     func test_randomNormal() {
-        let _ = Tensor1<Float>(randomNormal: 100)
+        let _ = Tensor1(randomNormal: 100)
 //        print(v.array)
 
         let someData = array(0..<100)
         let dataMean = mean(someData)
         let dataStd = dataMean //standardDeviation(someData)
-        let _ = Tensor1<Float>(randomNormal: 100, mean: dataMean, standardDeviation: dataStd)
+        let _ = Tensor1(randomNormal: 100, mean: dataMean, standardDeviation: dataStd)
 //        print(weights)
     }
 
     //--------------------------------------------------------------------------
     // test_randomTruncatedNormal
     func test_randomTruncatedNormal() {
-        let _ = Tensor1<Float>(randomTruncatedNormal: 100)
+        let _ = Tensor1(randomTruncatedNormal: 100)
 //        print(v.array)
     }
 }

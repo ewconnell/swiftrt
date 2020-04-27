@@ -91,8 +91,8 @@ class test_Shape: XCTestCase {
         XCTAssert(c == [[[[0], [1], [2], [3]]]])
 
         // test derivatives
-        func f1(a: Tensor1<Float>) -> Tensor2<Float> { expand(dims: a, axis: 0).squared() }
-        func f2(a: Tensor1<Float>) -> Tensor2<Float> { expand(dims: a.squared(), axis: 0) }
+        func f1(a: Tensor1) -> Tensor2 { expand(dims: a, axis: 0).squared() }
+        func f2(a: Tensor1) -> Tensor2 { expand(dims: a.squared(), axis: 0) }
         XCTAssert(pullback(at: array([3, 5]), in: f1)(array([[1, 1]])) == [6, 10])
         XCTAssert(pullback(at: array([3, 5]), in: f2)(array([[1, 1]])) == [6, 10])
     }
@@ -126,8 +126,8 @@ class test_Shape: XCTestCase {
         ])
 
         // test derivatives
-        func f1(a: Tensor2<Float>) -> Tensor1<Float> { squeeze(a, axis: 0).squared() }
-        func f2(a: Tensor2<Float>) -> Tensor1<Float> { squeeze(a.squared(), axis: 0) }
+        func f1(a: Tensor2) -> Tensor1 { squeeze(a, axis: 0).squared() }
+        func f2(a: Tensor2) -> Tensor1 { squeeze(a.squared(), axis: 0) }
         XCTAssert(pullback(at: array([[3, 5]]), in: f1)(array([1, 1])) == [[6, 10]])
         XCTAssert(pullback(at: array([[3, 5]]), in: f2)(array([1, 1])) == [[6, 10]])
     }
@@ -292,7 +292,7 @@ class test_Shape: XCTestCase {
         var count: DType = 0
         self.measure {
             for _ in 0..<100000 {
-                let a = Tensor1<Float>(repeating: 1, to: Shape1(1))
+                let a = Tensor1(repeating: 1, to: Shape1(1))
                 count += a.element
             }
         }
@@ -307,7 +307,7 @@ class test_Shape: XCTestCase {
         var count: DType = 0
         self.measure {
             for _ in 0..<100000 {
-                let a = Tensor1<Float>(1)
+                let a = Tensor1(1)
                 count += a.element
             }
         }

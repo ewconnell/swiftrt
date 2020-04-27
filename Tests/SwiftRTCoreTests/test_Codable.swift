@@ -39,7 +39,7 @@ class test_Codable: XCTestCase {
 //            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
 //            print(jsonVectorString)
             let decoder = JSONDecoder()
-            let b = try decoder.decode(Tensor1<Float>.self, from: jsonData)
+            let b = try decoder.decode(Tensor1.self, from: jsonData)
             XCTAssert(b == expected)
         } catch {
             XCTFail(String(describing: error))
@@ -57,7 +57,7 @@ class test_Codable: XCTestCase {
 //            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
 //            print(jsonVectorString)
             let decoder = JSONDecoder()
-            let b = try decoder.decode(Tensor2<Float>.self, from: jsonData)
+            let b = try decoder.decode(Tensor2.self, from: jsonData)
             XCTAssert(b == [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9]])
         } catch {
             XCTFail(String(describing: error))
@@ -70,7 +70,7 @@ class test_Codable: XCTestCase {
     func test_RGBImage() {
         do {
             typealias Pixel = RGB<Float>
-            typealias Image = Tensor2<Pixel>
+            typealias Image = TensorR2<Pixel>
             let jsonEncoder = JSONEncoder()
             let pixels = [[Pixel(0, 0.5, 1), Pixel(0.25, 0.5, 0.75)]]
             var image = array(pixels)
@@ -92,7 +92,7 @@ class test_Codable: XCTestCase {
     func test_RGBAImage() {
         do {
             typealias Pixel = RGBA<Float>
-            typealias Image = Tensor2<Pixel>
+            typealias Image = TensorR2<Pixel>
             let jsonEncoder = JSONEncoder()
             let pixels = [[Pixel(0, 0.25, 0.5, 1), Pixel(0.25, 0.5, 0.75, 1)]]
             var image = array(pixels)

@@ -199,27 +199,27 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor1<C.Element> where C: Collection
+) -> Tensor<Shape1,C.Element> where C: Collection
 {
-    Tensor1(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1,C.Element>(elements, Shape1(elements.count), order: order)
 }
 
 /// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor1<DType> where C: Collection, C.Element: BinaryInteger
+) -> Tensor<Shape1,DType> where C: Collection, C.Element: BinaryInteger
 {
-    Tensor1(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1,DType>(elements, Shape1(elements.count), order: order)
 }
 
 /// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor1<DType> where C: Collection, C.Element: BinaryFloatingPoint
+) -> Tensor<Shape1, DType> where C: Collection, C.Element: BinaryFloatingPoint
 {
-    Tensor1(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1, DType>(elements, Shape1(elements.count), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
@@ -227,10 +227,10 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor1<Element>
+) -> Tensor<Shape1,Element>
     where C: Collection, C.Element: BinaryInteger, Element: Numeric
 {
-    Tensor1<Element>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1, Element>(elements, Shape1(elements.count), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
@@ -238,10 +238,10 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor1<Element>
+) -> Tensor<Shape1,Element>
     where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
 {
-    Tensor1<Element>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1,Element>(elements, Shape1(elements.count), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
@@ -249,10 +249,10 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor1<Element>
+) -> Tensor<Shape1,Element>
     where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryFloatingPoint
 {
-    Tensor1<Element>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1, Element>(elements, Shape1(elements.count), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -262,9 +262,9 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     _ shape: Shape2.Tuple,
     order: StorageOrder = .C
-) -> Tensor2<C.Element> where C: Collection
+) -> Tensor<Shape2,C.Element> where C: Collection
 {
-    Tensor2(elements, Shape2(shape), order: order)
+    Tensor<Shape2,C.Element>(elements, Shape2(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> DType
@@ -272,9 +272,9 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     _ shape: Shape2.Tuple,
     order: StorageOrder = .C
-) -> Tensor2<DType> where C: Collection, C.Element: BinaryInteger
+) -> Tensor<Shape2,DType> where C: Collection, C.Element: BinaryInteger
 {
-    Tensor2(elements, Shape2(shape), order: order)
+    Tensor<Shape2,DType>(elements, Shape2(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
@@ -283,10 +283,10 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor2<Element>
+) -> Tensor<Shape2,Element>
     where C: Collection, C.Element: BinaryInteger, Element: Numeric
 {
-    Tensor2<Element>(elements, Shape2(shape), order: order)
+    Tensor<Shape2,Element>(elements, Shape2(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
@@ -295,10 +295,10 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor2<Element>
+) -> Tensor<Shape2,Element>
     where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
 {
-    Tensor2<Element>(elements, Shape2(shape), order: order)
+    Tensor<Shape2,Element>(elements, Shape2(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
@@ -307,11 +307,11 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor2<Element>
+) -> Tensor<Shape2,Element>
     where C: Collection, C.Element: BinaryFloatingPoint,
     Element: BinaryFloatingPoint
 {
-    Tensor2<Element>(elements, Shape2(shape), order: order)
+    Tensor<Shape2,Element>(elements, Shape2(shape), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -321,9 +321,9 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     _ shape: Shape3.Tuple,
     order: StorageOrder = .C
-) -> Tensor3<C.Element> where C: Collection
+) -> Tensor<Shape3,C.Element> where C: Collection
 {
-    Tensor3(elements, Shape3(shape), order: order)
+    Tensor<Shape3,C.Element>(elements, Shape3(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> DType
@@ -331,9 +331,9 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     _ shape: Shape3.Tuple,
     order: StorageOrder = .C
-) -> Tensor3<DType> where C: Collection, C.Element: BinaryInteger
+) -> Tensor<Shape3,DType> where C: Collection, C.Element: BinaryInteger
 {
-    Tensor3(elements, Shape3(shape), order: order)
+    Tensor<Shape3,DType>(elements, Shape3(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
@@ -342,10 +342,10 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape3.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor3<Element>
+) -> Tensor<Shape3,Element>
     where C: Collection, C.Element: BinaryInteger, Element: Numeric
 {
-    Tensor3<Element>(elements, Shape3(shape), order: order)
+    Tensor<Shape3,Element>(elements, Shape3(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
@@ -354,10 +354,10 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape3.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor3<Element>
+) -> Tensor<Shape3,Element>
     where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
 {
-    Tensor3<Element>(elements, Shape3(shape), order: order)
+    Tensor<Shape3,Element>(elements, Shape3(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
@@ -366,11 +366,11 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape3.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor3<Element>
+) -> Tensor<Shape3,Element>
     where C: Collection, C.Element: BinaryFloatingPoint,
     Element: BinaryFloatingPoint
 {
-    Tensor3<Element>(elements, Shape3(shape), order: order)
+    Tensor<Shape3,Element>(elements, Shape3(shape), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -380,9 +380,9 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     _ shape: Shape4.Tuple,
     order: StorageOrder = .C
-) -> Tensor4<C.Element> where C: Collection
+) -> Tensor<Shape4,C.Element> where C: Collection
 {
-    Tensor4(elements, Shape4(shape), order: order)
+    Tensor<Shape4,C.Element>(elements, Shape4(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> DType
@@ -390,9 +390,9 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     _ shape: Shape4.Tuple,
     order: StorageOrder = .C
-) -> Tensor4<DType> where C: Collection, C.Element: BinaryInteger
+) -> Tensor<Shape4,DType> where C: Collection, C.Element: BinaryInteger
 {
-    Tensor4(elements, Shape4(shape), order: order)
+    Tensor<Shape4,DType>(elements, Shape4(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
@@ -401,10 +401,10 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape4.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor4<Element>
+) -> Tensor<Shape4,Element>
     where C: Collection, C.Element: BinaryInteger, Element: Numeric
 {
-    Tensor4<Element>(elements, Shape4(shape), order: order)
+    Tensor<Shape4,Element>(elements, Shape4(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
@@ -413,10 +413,10 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape4.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor4<Element>
+) -> Tensor<Shape4,Element>
     where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
 {
-    Tensor4<Element>(elements, Shape4(shape), order: order)
+    Tensor<Shape4,Element>(elements, Shape4(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
@@ -425,11 +425,11 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape4.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor4<Element>
+) -> Tensor<Shape4,Element>
     where C: Collection, C.Element: BinaryFloatingPoint,
     Element: BinaryFloatingPoint
 {
-    Tensor4<Element>(elements, Shape4(shape), order: order)
+    Tensor<Shape4,Element>(elements, Shape4(shape), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -439,9 +439,9 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     _ shape: Shape5.Tuple,
     order: StorageOrder = .C
-) -> Tensor5<C.Element> where C: Collection
+) -> Tensor<Shape5,C.Element> where C: Collection
 {
-    Tensor5(elements, Shape5(shape), order: order)
+    Tensor<Shape5,C.Element>(elements, Shape5(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> DType
@@ -449,9 +449,9 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     _ shape: Shape5.Tuple,
     order: StorageOrder = .C
-) -> Tensor5<DType> where C: Collection, C.Element: BinaryInteger
+) -> Tensor<Shape5,DType> where C: Collection, C.Element: BinaryInteger
 {
-    Tensor5(elements, Shape5(shape), order: order)
+    Tensor<Shape5,DType>(elements, Shape5(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
@@ -460,10 +460,10 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape5.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor5<Element>
+) -> Tensor<Shape5,Element>
     where C: Collection, C.Element: BinaryInteger, Element: Numeric
 {
-    Tensor5<Element>(elements, Shape5(shape), order: order)
+    Tensor<Shape5,Element>(elements, Shape5(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
@@ -472,10 +472,10 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape5.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor5<Element>
+) -> Tensor<Shape5,Element>
     where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
 {
-    Tensor5<Element>(elements, Shape5(shape), order: order)
+    Tensor<Shape5,Element>(elements, Shape5(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
@@ -484,11 +484,11 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape5.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor5<Element>
+) -> Tensor<Shape5,Element>
     where C: Collection, C.Element: BinaryFloatingPoint,
     Element: BinaryFloatingPoint
 {
-    Tensor5<Element>(elements, Shape5(shape), order: order)
+    Tensor<Shape5,Element>(elements, Shape5(shape), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -498,9 +498,9 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     _ shape: Shape6.Tuple,
     order: StorageOrder = .C
-) -> Tensor6<C.Element> where C: Collection
+) -> Tensor<Shape6,C.Element> where C: Collection
 {
-    Tensor6(elements, Shape6(shape), order: order)
+    Tensor<Shape6,C.Element>(elements, Shape6(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> DType
@@ -508,9 +508,9 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     _ shape: Shape6.Tuple,
     order: StorageOrder = .C
-) -> Tensor6<DType> where C: Collection, C.Element: BinaryInteger
+) -> Tensor<Shape6,DType> where C: Collection, C.Element: BinaryInteger
 {
-    Tensor6(elements, Shape6(shape), order: order)
+    Tensor<Shape6,DType>(elements, Shape6(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
@@ -519,10 +519,10 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape6.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor6<Element>
+) -> Tensor<Shape6,Element>
     where C: Collection, C.Element: BinaryInteger, Element: Numeric
 {
-    Tensor6<Element>(elements, Shape6(shape), order: order)
+    Tensor<Shape6,Element>(elements, Shape6(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
@@ -531,10 +531,10 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape6.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor6<Element>
+) -> Tensor<Shape6,Element>
     where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
 {
-    Tensor6<Element>(elements, Shape6(shape), order: order)
+    Tensor<Shape6,Element>(elements, Shape6(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
@@ -543,11 +543,11 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ shape: Shape6.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor6<Element>
+) -> Tensor<Shape6,Element>
     where C: Collection, C.Element: BinaryFloatingPoint,
     Element: BinaryFloatingPoint
 {
-    Tensor6<Element>(elements, Shape6(shape), order: order)
+    Tensor<Shape6,Element>(elements, Shape6(shape), order: order)
 }
 
 
@@ -557,7 +557,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor2<C.Element.Element>
+) -> Tensor<Shape2,C.Element.Element>
     where
     C: Collection,
     C.Element: Collection
@@ -567,7 +567,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.count)
 
     let flatElements = elements.joined()
-    return Tensor2<C.Element.Element>(
+    return Tensor<Shape2,C.Element.Element>(
         flatElements, shape, order: order)
 }
 
@@ -575,7 +575,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor2<DType>
+) -> Tensor<Shape2,DType>
     where
     C: Collection,
     C.Element: Collection,
@@ -586,14 +586,14 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.count)
 
     let flatElements = elements.joined()
-    return Tensor2<DType>(flatElements, shape, order: order)
+    return Tensor<Shape2,DType>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element floating point -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor2<DType>
+) -> Tensor<Shape2,DType>
     where
     C: Collection,
     C.Element: Collection,
@@ -604,7 +604,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.count)
 
     let flatElements = elements.joined()
-    return Tensor2<DType>(flatElements, shape, order: order)
+    return Tensor<Shape2,DType>(flatElements, shape, order: order)
 }
 
 
@@ -613,7 +613,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor2<Element>
+) -> Tensor<Shape2,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -624,7 +624,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.count)
 
     let flatElements = elements.joined()
-    return Tensor2<Element>(flatElements, shape, order: order)
+    return Tensor<Shape2,Element>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
@@ -632,7 +632,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor2<Element>
+) -> Tensor<Shape2,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -643,7 +643,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.count)
 
     let flatElements = elements.joined()
-    return Tensor2<Element>(flatElements, shape, order: order)
+    return Tensor<Shape2,Element>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
@@ -651,7 +651,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor2<Element>
+) -> Tensor<Shape2,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -663,7 +663,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.count)
 
     let flatElements = elements.joined()
-    return Tensor2<Element>(flatElements, shape, order: order)
+    return Tensor<Shape2,Element>(flatElements, shape, order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -672,7 +672,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor3<C.Element.Element.Element>
+) -> Tensor<Shape3,C.Element.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -684,7 +684,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.count)
 
     let flatElements = elements.joined().joined()
-    return Tensor3<C.Element.Element.Element>(
+    return Tensor<Shape3,C.Element.Element.Element>(
         flatElements, shape, order: order)
 }
 
@@ -692,7 +692,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor3<DType>
+) -> Tensor<Shape3,DType>
     where
     C: Collection,
     C.Element: Collection,
@@ -705,14 +705,14 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.count)
 
     let flatElements = elements.joined().joined()
-    return Tensor3<DType>(flatElements, shape, order: order)
+    return Tensor<Shape3,DType>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element floating point -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor3<DType>
+) -> Tensor<Shape3,DType>
     where
     C: Collection,
     C.Element: Collection,
@@ -725,7 +725,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.count)
 
     let flatElements = elements.joined().joined()
-    return Tensor3<DType>(flatElements, shape, order: order)
+    return Tensor<Shape3,DType>(flatElements, shape, order: order)
 }
 
 
@@ -734,7 +734,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor3<Element>
+) -> Tensor<Shape3,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -747,7 +747,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.count)
 
     let flatElements = elements.joined().joined()
-    return Tensor3<Element>(flatElements, shape, order: order)
+    return Tensor<Shape3,Element>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
@@ -755,7 +755,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor3<Element>
+) -> Tensor<Shape3,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -768,7 +768,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.count)
 
     let flatElements = elements.joined().joined()
-    return Tensor3<Element>(flatElements, shape, order: order)
+    return Tensor<Shape3,Element>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
@@ -776,7 +776,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor3<Element>
+) -> Tensor<Shape3,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -790,7 +790,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.count)
 
     let flatElements = elements.joined().joined()
-    return Tensor3<Element>(flatElements, shape, order: order)
+    return Tensor<Shape3,Element>(flatElements, shape, order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -799,7 +799,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor4<C.Element.Element.Element.Element>
+) -> Tensor<Shape4,C.Element.Element.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -813,7 +813,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined()
-    return Tensor4<C.Element.Element.Element.Element>(
+    return Tensor<Shape4,C.Element.Element.Element.Element>(
         flatElements, shape, order: order)
 }
 
@@ -821,7 +821,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor4<DType>
+) -> Tensor<Shape4,DType>
     where
     C: Collection,
     C.Element: Collection,
@@ -836,14 +836,14 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined()
-    return Tensor4<DType>(flatElements, shape, order: order)
+    return Tensor<Shape4,DType>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element floating point -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor4<DType>
+) -> Tensor<Shape4,DType>
     where
     C: Collection,
     C.Element: Collection,
@@ -858,7 +858,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined()
-    return Tensor4<DType>(flatElements, shape, order: order)
+    return Tensor<Shape4,DType>(flatElements, shape, order: order)
 }
 
 
@@ -867,7 +867,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor4<Element>
+) -> Tensor<Shape4,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -882,7 +882,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined()
-    return Tensor4<Element>(flatElements, shape, order: order)
+    return Tensor<Shape4,Element>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
@@ -890,7 +890,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor4<Element>
+) -> Tensor<Shape4,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -905,7 +905,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined()
-    return Tensor4<Element>(flatElements, shape, order: order)
+    return Tensor<Shape4,Element>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
@@ -913,7 +913,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor4<Element>
+) -> Tensor<Shape4,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -929,7 +929,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined()
-    return Tensor4<Element>(flatElements, shape, order: order)
+    return Tensor<Shape4,Element>(flatElements, shape, order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -938,7 +938,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor5<C.Element.Element.Element.Element.Element>
+) -> Tensor<Shape5,C.Element.Element.Element.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -954,7 +954,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined()
-    return Tensor5<C.Element.Element.Element.Element.Element>(
+    return Tensor<Shape5,C.Element.Element.Element.Element.Element>(
         flatElements, shape, order: order)
 }
 
@@ -962,7 +962,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor5<DType>
+) -> Tensor<Shape5,DType>
     where
     C: Collection,
     C.Element: Collection,
@@ -979,14 +979,14 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined()
-    return Tensor5<DType>(flatElements, shape, order: order)
+    return Tensor<Shape5,DType>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element floating point -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor5<DType>
+) -> Tensor<Shape5,DType>
     where
     C: Collection,
     C.Element: Collection,
@@ -1003,7 +1003,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined()
-    return Tensor5<DType>(flatElements, shape, order: order)
+    return Tensor<Shape5,DType>(flatElements, shape, order: order)
 }
 
 
@@ -1012,7 +1012,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor5<Element>
+) -> Tensor<Shape5,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -1029,7 +1029,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined()
-    return Tensor5<Element>(flatElements, shape, order: order)
+    return Tensor<Shape5,Element>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
@@ -1037,7 +1037,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor5<Element>
+) -> Tensor<Shape5,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -1054,7 +1054,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined()
-    return Tensor5<Element>(flatElements, shape, order: order)
+    return Tensor<Shape5,Element>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
@@ -1062,7 +1062,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor5<Element>
+) -> Tensor<Shape5,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -1080,7 +1080,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined()
-    return Tensor5<Element>(flatElements, shape, order: order)
+    return Tensor<Shape5,Element>(flatElements, shape, order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -1089,7 +1089,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor6<C.Element.Element.Element.Element.Element.Element>
+) -> Tensor<Shape6,C.Element.Element.Element.Element.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -1107,7 +1107,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor6<C.Element.Element.Element.Element.Element.Element>(
+    return Tensor<Shape6,C.Element.Element.Element.Element.Element.Element>(
         flatElements, shape, order: order)
 }
 
@@ -1115,7 +1115,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor6<DType>
+) -> Tensor<Shape6,DType>
     where
     C: Collection,
     C.Element: Collection,
@@ -1134,14 +1134,14 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor6<DType>(flatElements, shape, order: order)
+    return Tensor<Shape6,DType>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element floating point -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor6<DType>
+) -> Tensor<Shape6,DType>
     where
     C: Collection,
     C.Element: Collection,
@@ -1160,7 +1160,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor6<DType>(flatElements, shape, order: order)
+    return Tensor<Shape6,DType>(flatElements, shape, order: order)
 }
 
 
@@ -1169,7 +1169,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor6<Element>
+) -> Tensor<Shape6,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -1188,7 +1188,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor6<Element>(flatElements, shape, order: order)
+    return Tensor<Shape6,Element>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
@@ -1196,7 +1196,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor6<Element>
+) -> Tensor<Shape6,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -1215,7 +1215,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor6<Element>(flatElements, shape, order: order)
+    return Tensor<Shape6,Element>(flatElements, shape, order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
@@ -1223,7 +1223,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor6<Element>
+) -> Tensor<Shape6,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -1243,6 +1243,6 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         elements.first!.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor6<Element>(flatElements, shape, order: order)
+    return Tensor<Shape6,Element>(flatElements, shape, order: order)
 }
 

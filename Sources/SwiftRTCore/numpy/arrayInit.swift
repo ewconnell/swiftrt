@@ -28,6 +28,13 @@
 /// the implicit tensor Element type
 public typealias DType = Float
 
+public typealias Tensor1 = Tensor<Shape1,DType>
+public typealias Tensor2 = Tensor<Shape2,DType>
+public typealias Tensor3 = Tensor<Shape3,DType>
+public typealias Tensor4 = Tensor<Shape4,DType>
+public typealias Tensor5 = Tensor<Shape5,DType>
+public typealias Tensor6 = Tensor<Shape6,DType>
+
 //==============================================================================
 /// empty
 /// Return a new tensor of given shape and type, without initializing entries.
@@ -64,103 +71,103 @@ public func empty<Shape, Element>(
 //---------------------------------------
 // Rank 0
 @inlinable
-public func empty() -> Tensor1<DType> {
+public func empty() -> Tensor<Shape1, DType> {
     empty(Shape1(1), DType.self)
 }
 
 @inlinable
 public func empty<Element>(dtype: Element.Type)
-    -> Tensor1<Element> { empty(Shape1(1), dtype) }
+    -> Tensor<Shape1, Element> { empty(Shape1(1), dtype) }
 
 //---------------------------------------
 // Rank1
 @inlinable
 public func empty(_ shape: Shape1.Tuple, order: StorageOrder = .C)
-    -> Tensor1<DType> { empty(shape, DType.self, order) }
+    -> Tensor<Shape1, DType> { empty(shape, DType.self, order) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape1.Tuple, dtype: Element.Type)
-    -> Tensor1<Element> { empty(shape, dtype) }
+    -> Tensor<Shape1, Element> { empty(shape, dtype) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape1.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
-    -> Tensor1<Element> { empty(shape, dtype, order) }
+    -> Tensor<Shape1, Element> { empty(shape, dtype, order) }
     
 //---------------------------------------
 // Rank2
 @inlinable
 public func empty(_ shape: Shape2.Tuple, order: StorageOrder = .C)
-    -> Tensor2<DType> { empty(shape, DType.self, order) }
+    -> Tensor<Shape2, DType> { empty(shape, DType.self, order) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape2.Tuple, dtype: Element.Type)
-    -> Tensor2<Element> { empty(shape, dtype) }
+    -> Tensor<Shape2, Element> { empty(shape, dtype) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape2.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
-    -> Tensor2<Element> { empty(shape, dtype, order) }
+    -> Tensor<Shape2, Element> { empty(shape, dtype, order) }
     
 //---------------------------------------
 // Rank3
 @inlinable
 public func empty(_ shape: Shape3.Tuple, order: StorageOrder = .C)
-    -> Tensor3<DType> { empty(shape, DType.self, order) }
+    -> Tensor<Shape3, DType> { empty(shape, DType.self, order) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape3.Tuple, dtype: Element.Type)
-    -> Tensor3<Element> { empty(shape, dtype) }
+    -> Tensor<Shape3, Element> { empty(shape, dtype) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape3.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
-    -> Tensor3<Element> { empty(shape, dtype, order) }
+    -> Tensor<Shape3, Element> { empty(shape, dtype, order) }
     
 //---------------------------------------
 // Rank4
 @inlinable
 public func empty(_ shape: Shape4.Tuple, order: StorageOrder = .C)
-    -> Tensor4<DType> { empty(shape, DType.self, order) }
+    -> Tensor<Shape4, DType> { empty(shape, DType.self, order) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape4.Tuple, dtype: Element.Type)
-    -> Tensor4<Element> { empty(shape, dtype) }
+    -> Tensor<Shape4, Element> { empty(shape, dtype) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape4.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
-    -> Tensor4<Element> { empty(shape, dtype, order) }
+    -> Tensor<Shape4, Element> { empty(shape, dtype, order) }
     
 //---------------------------------------
 // Rank5
 @inlinable
 public func empty(_ shape: Shape5.Tuple, order: StorageOrder = .C)
-    -> Tensor5<DType> { empty(shape, DType.self, order) }
+    -> Tensor<Shape5, DType> { empty(shape, DType.self, order) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape5.Tuple, dtype: Element.Type)
-    -> Tensor5<Element> { empty(shape, dtype) }
+    -> Tensor<Shape5, Element> { empty(shape, dtype) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape5.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
-    -> Tensor5<Element> { empty(shape, dtype, order) }
+    -> Tensor<Shape5, Element> { empty(shape, dtype, order) }
     
 //---------------------------------------
 // Rank6
 @inlinable
 public func empty(_ shape: Shape6.Tuple, order: StorageOrder = .C)
-    -> Tensor6<DType> { empty(shape, DType.self, order) }
+    -> Tensor<Shape6, DType> { empty(shape, DType.self, order) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape6.Tuple, dtype: Element.Type)
-    -> Tensor6<Element> { empty(shape, dtype) }
+    -> Tensor<Shape6, Element> { empty(shape, dtype) }
 
 @inlinable
 public func empty<Element>(_ shape: Shape6.Tuple, dtype: Element.Type,
                            order: StorageOrder = .C)
-    -> Tensor6<Element> { empty(shape, dtype, order) }
+    -> Tensor<Shape6, Element> { empty(shape, dtype, order) }
     
 
 //==============================================================================
@@ -372,13 +379,13 @@ public func full<Shape, Element>(
 //---------------------------------------
 // Rank0
 @inlinable
-public func full(_ value: DType) -> Tensor1<DType> {
+public func full(_ value: DType) -> Tensor<Shape1, DType> {
     full(Shape1(1), value, DType.self)
 }
 
 @inlinable
 public func full<Element>(_ value: Element, dtype: Element.Type)
-    -> Tensor1<Element> { full(Shape1(1), value, dtype) }
+    -> Tensor<Shape1, Element> { full(Shape1(1), value, dtype) }
 
 //---------------------------------------
 // Rank1
@@ -387,14 +394,14 @@ public func full(
     _ shape: Shape1.Tuple,
     _ value: DType,
     order: StorageOrder = .C
-) -> Tensor1<DType> { full(shape, value, DType.self, order) }
+) -> Tensor1 { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape1.Tuple,
     _ value: Element,
     dtype: Element.Type
-) -> Tensor1<Element> { full(shape, value, dtype) }
+) -> Tensor<Shape1, Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
@@ -402,7 +409,7 @@ public func full<Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor1<Element> { full(shape, value, dtype, order) }
+) -> Tensor<Shape1, Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank2
@@ -411,14 +418,14 @@ public func full(
     _ shape: Shape2.Tuple,
     _ value: DType,
     order: StorageOrder = .C
-) -> Tensor2<DType> { full(shape, value, DType.self, order) }
+) -> Tensor2 { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape2.Tuple,
     _ value: Element,
     dtype: Element.Type
-) -> Tensor2<Element> { full(shape, value, dtype) }
+) -> Tensor<Shape2, Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
@@ -426,7 +433,7 @@ public func full<Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor2<Element> { full(shape, value, dtype, order) }
+) -> Tensor<Shape2, Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank3
@@ -435,14 +442,14 @@ public func full(
     _ shape: Shape3.Tuple,
     _ value: DType,
     order: StorageOrder = .C
-) -> Tensor3<DType> { full(shape, value, DType.self, order) }
+) -> Tensor3 { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape3.Tuple,
     _ value: Element,
     dtype: Element.Type
-) -> Tensor3<Element> { full(shape, value, dtype) }
+) -> Tensor<Shape3, Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
@@ -450,7 +457,7 @@ public func full<Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor3<Element> { full(shape, value, dtype, order) }
+) -> Tensor<Shape3, Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank4
@@ -459,14 +466,14 @@ public func full(
     _ shape: Shape4.Tuple,
     _ value: DType,
     order: StorageOrder = .C
-) -> Tensor4<DType> { full(shape, value, DType.self, order) }
+) -> Tensor4 { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape4.Tuple,
     _ value: Element,
     dtype: Element.Type
-) -> Tensor4<Element> { full(shape, value, dtype) }
+) -> Tensor<Shape4, Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
@@ -474,7 +481,7 @@ public func full<Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor4<Element> { full(shape, value, dtype, order) }
+) -> Tensor<Shape4, Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank5
@@ -483,14 +490,14 @@ public func full(
     _ shape: Shape5.Tuple,
     _ value: DType,
     order: StorageOrder = .C
-) -> Tensor5<DType> { full(shape, value, DType.self, order) }
+) -> Tensor5 { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape5.Tuple,
     _ value: Element,
     dtype: Element.Type
-) -> Tensor5<Element> { full(shape, value, dtype) }
+) -> Tensor<Shape5, Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
@@ -498,7 +505,7 @@ public func full<Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor5<Element> { full(shape, value, dtype, order) }
+) -> Tensor<Shape5, Element> { full(shape, value, dtype, order) }
 
 //---------------------------------------
 // Rank6
@@ -507,14 +514,14 @@ public func full(
     _ shape: Shape6.Tuple,
     _ value: DType,
     order: StorageOrder = .C
-) -> Tensor6<DType> { full(shape, value, DType.self, order) }
+) -> Tensor6 { full(shape, value, DType.self, order) }
 
 @inlinable
 public func full<Element>(
     _ shape: Shape6.Tuple,
     _ value: Element,
     dtype: Element.Type
-) -> Tensor6<Element> { full(shape, value, dtype) }
+) -> Tensor<Shape6, Element> { full(shape, value, dtype) }
 
 @inlinable
 public func full<Element>(
@@ -522,7 +529,7 @@ public func full<Element>(
     _ value: Element,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor6<Element> { full(shape, value, dtype, order) }
+) -> Tensor<Shape6, Element> { full(shape, value, dtype, order) }
 
 
 //==============================================================================
@@ -759,115 +766,115 @@ public func ones<Shape, Element>(
 //---------------------------------------
 // Rank0
 @inlinable
-public func ones() -> Tensor1<DType> {
+public func ones() -> Tensor<Shape1, DType> {
     ones(Shape1(1), DType.self)
 }
 
 @inlinable
 public func ones<Element>(dtype: Element.Type)
-    -> Tensor1<Element> where Element: Numeric { ones(Shape1(1), dtype) }
+    -> Tensor<Shape1, Element> where Element: Numeric { ones(Shape1(1), dtype) }
 
 //---------------------------------------
 // Rank1
 @inlinable
 public func ones(_ shape: Shape1.Tuple, order: StorageOrder = .C)
-    -> Tensor1<DType> { ones(shape, DType.self, order) }
+    -> Tensor1 { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape1.Tuple, dtype: Element.Type)
-    -> Tensor1<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Tensor<Shape1, Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape1.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor1<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Tensor<Shape1, Element> where Element: Numeric { ones(shape, dtype, order) }
 
 //---------------------------------------
 // Rank2
 @inlinable
 public func ones(_ shape: Shape2.Tuple, order: StorageOrder = .C)
-    -> Tensor2<DType> { ones(shape, DType.self, order) }
+    -> Tensor2 { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape2.Tuple, dtype: Element.Type)
-    -> Tensor2<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Tensor<Shape2, Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor2<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Tensor<Shape2, Element> where Element: Numeric { ones(shape, dtype, order) }
 
 //---------------------------------------
 // Rank3
 @inlinable
 public func ones(_ shape: Shape3.Tuple, order: StorageOrder = .C)
-    -> Tensor3<DType> { ones(shape, DType.self, order) }
+    -> Tensor3 { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape3.Tuple, dtype: Element.Type)
-    -> Tensor3<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Tensor<Shape3, Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape3.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor3<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Tensor<Shape3, Element> where Element: Numeric { ones(shape, dtype, order) }
 
 //---------------------------------------
 // Rank4
 @inlinable
 public func ones(_ shape: Shape4.Tuple, order: StorageOrder = .C)
-    -> Tensor4<DType> { ones(shape, DType.self, order) }
+    -> Tensor4 { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape4.Tuple, dtype: Element.Type)
-    -> Tensor4<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Tensor<Shape4, Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape4.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor4<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Tensor<Shape4, Element> where Element: Numeric { ones(shape, dtype, order) }
 
 //---------------------------------------
 // Rank5
 @inlinable
 public func ones(_ shape: Shape5.Tuple, order: StorageOrder = .C)
-    -> Tensor5<DType> { ones(shape, DType.self, order) }
+    -> Tensor5 { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape5.Tuple, dtype: Element.Type)
-    -> Tensor5<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Tensor<Shape5, Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape5.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor5<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Tensor<Shape5, Element> where Element: Numeric { ones(shape, dtype, order) }
 
 //---------------------------------------
 // Rank6
 @inlinable
 public func ones(_ shape: Shape6.Tuple, order: StorageOrder = .C)
-    -> Tensor6<DType> { ones(shape, DType.self, order) }
+    -> Tensor6 { ones(shape, DType.self, order) }
 
 @inlinable
 public func ones<Element>(_ shape: Shape6.Tuple, dtype: Element.Type)
-    -> Tensor6<Element> where Element: Numeric { ones(shape, dtype) }
+    -> Tensor<Shape6, Element> where Element: Numeric { ones(shape, dtype) }
 
 @inlinable
 public func ones<Element>(
     _ shape: Shape6.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor6<Element> where Element: Numeric { ones(shape, dtype, order) }
+) -> Tensor<Shape6, Element> where Element: Numeric { ones(shape, dtype, order) }
 
 
 //==============================================================================
@@ -1101,115 +1108,115 @@ public func zeros<Shape, Element>(
 //---------------------------------------
 // Rank0
 @inlinable
-public func zeros() -> Tensor1<DType> {
+public func zeros() -> Tensor<Shape1, DType> {
     zeros(Shape1(1), DType.self)
 }
 
 @inlinable
 public func zeros<Element>(dtype: Element.Type)
-    -> Tensor1<Element> where Element: Numeric { zeros(Shape1(1), dtype) }
+    -> Tensor<Shape1, Element> where Element: Numeric { zeros(Shape1(1), dtype) }
 
 //---------------------------------------
 // Rank1
 @inlinable
 public func zeros(_ shape: Shape1.Tuple, order: StorageOrder = .C)
-    -> Tensor1<DType> { zeros(shape, DType.self, order) }
+    -> Tensor1 { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape1.Tuple, dtype: Element.Type)
-    -> Tensor1<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Tensor<Shape1, Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape1.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor1<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Tensor<Shape1, Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 //---------------------------------------
 // Rank2
 @inlinable
 public func zeros(_ shape: Shape2.Tuple, order: StorageOrder = .C)
-    -> Tensor2<DType> { zeros(shape, DType.self, order) }
+    -> Tensor2 { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape2.Tuple, dtype: Element.Type)
-    -> Tensor2<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Tensor<Shape2, Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor2<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Tensor<Shape2, Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 //---------------------------------------
 // Rank3
 @inlinable
 public func zeros(_ shape: Shape3.Tuple, order: StorageOrder = .C)
-    -> Tensor3<DType> { zeros(shape, DType.self, order) }
+    -> Tensor3 { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape3.Tuple, dtype: Element.Type)
-    -> Tensor3<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Tensor<Shape3, Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape3.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor3<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Tensor<Shape3, Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 //---------------------------------------
 // Rank4
 @inlinable
 public func zeros(_ shape: Shape4.Tuple, order: StorageOrder = .C)
-    -> Tensor4<DType> { zeros(shape, DType.self, order) }
+    -> Tensor4 { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape4.Tuple, dtype: Element.Type)
-    -> Tensor4<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Tensor<Shape4, Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape4.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor4<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Tensor<Shape4, Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 //---------------------------------------
 // Rank5
 @inlinable
 public func zeros(_ shape: Shape5.Tuple, order: StorageOrder = .C)
-    -> Tensor5<DType> { zeros(shape, DType.self, order) }
+    -> Tensor5 { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape5.Tuple, dtype: Element.Type)
-    -> Tensor5<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Tensor<Shape5, Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape5.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor5<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Tensor<Shape5, Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 //---------------------------------------
 // Rank6
 @inlinable
 public func zeros(_ shape: Shape6.Tuple, order: StorageOrder = .C)
-    -> Tensor6<DType> { zeros(shape, DType.self, order) }
+    -> Tensor6 { zeros(shape, DType.self, order) }
 
 @inlinable
 public func zeros<Element>(_ shape: Shape6.Tuple, dtype: Element.Type)
-    -> Tensor6<Element> where Element: Numeric { zeros(shape, dtype) }
+    -> Tensor<Shape6, Element> where Element: Numeric { zeros(shape, dtype) }
 
 @inlinable
 public func zeros<Element>(
     _ shape: Shape6.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor6<Element> where Element: Numeric { zeros(shape, dtype, order) }
+) -> Tensor<Shape6, Element> where Element: Numeric { zeros(shape, dtype, order) }
 
 
 //==============================================================================

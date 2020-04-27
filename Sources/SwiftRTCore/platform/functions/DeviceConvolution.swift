@@ -86,7 +86,7 @@ where Shape: TensorShape,
 {
     public typealias Data = Tensor<Shape,E>
     public typealias Filter = Tensor<Shape,FE>
-    public typealias Bias = Tensor1<FE>
+    public typealias Bias = TensorR1<FE>
     
     public init() {}
     

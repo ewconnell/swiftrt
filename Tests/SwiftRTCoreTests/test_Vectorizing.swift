@@ -55,7 +55,7 @@ class test_Vectorizing: XCTestCase {
         let size = 1024
         let x = array(1...(size * size), (size, size))
         var value: DType = 0
-        var result = Tensor2<DType>(0)
+        var result = Tensor2.zero
         
         // make sure everything is lazy initialized
         Context.currentQueue.reduceSumAll(x, &result)
