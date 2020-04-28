@@ -67,49 +67,46 @@ public extension Tensor {
     return shape
 }
 
+//==============================================================================
+// vjpConcat
 @derivative(of: concat)
 func vjpConcat<S,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0,
     into result: inout Tensor<S,E>
 ) -> (value: (), pullback: (inout Tensor<S, E>.TangentVector)
-        -> Array<Tensor<S, E>>.TangentVector)
+        -> Array<Tensor<S,E>>.TangentVector)
 where S: TensorShape
 {
-    fatalError()
-//    let tensorCount = tensors.count
-//    func pullback(_ resultTangent: inout Tensor<SR, E>.TangentVector)
-//    -> Array<Tensor<S, E>>.TangentVector
-//    {
-//        // Fill `tensorTangents` with slices of `resultTangent` of shape
-//        // `tensorShapes[0]`, `tensorShapes[1]`, etc.
-//        var tensorTangents: [Tensor<S, E>] = []
-//        var lower = SR.zero
-//        var upper = resultTangent.shape
-//        upper[axis] = 1
-//        for _ in 0..<tensorCount {
-//            let slice = Tensor<S,E>(squeezing: resultTangent[lower, upper],
-//                                    axes: Shape1(axis))
-//            tensorTangents.append(slice)
-//            lower[axis] += 1
-//            upper[axis] += 1
-//        }
-//
-//        // Set `resultTangent` to zero.
-//        // Note: We can't use `fill(_:with:)` because `resultTangent` aliases
-//        // `tensorTangents`.
-//        // TODO: track and fix
-//        // Note: https://bugs.swift.org/browse/TF-1250 will allow us to make
-//        // this pullback more efficient. How:
-//        // - Set the wrt parameters and results to
-//        //     @differentiable(wrt: (tensors), results: (result))
-//        // - This makes `resultTangent` not be inout, so we don't need to set
-//        //   it any more.
-//        resultTangent = zeros(like: resultTangent)
-//
-//        return Array.DifferentiableView(tensorTangents)
-//    }
-//    return (stack(tensors, axis: axis, into: &result), pullback)
+    let shapes = tensors.map { $0.shape }
+    func pullback(_ resultTangent: inout Tensor<S,E>.TangentVector)
+    -> Array<Tensor<S, E>>.TangentVector
+    {
+        // Fill `tensorTangents` with slices of `resultTangent` of shape
+        // `tensorShapes[0]`, `tensorShapes[1]`, etc.
+        var tensorTangents: [Tensor<S,E>] = []
+        var lower = S.zero
+        for shape in shapes {
+            let upper = lower &+ shape
+            tensorTangents.append(resultTangent[lower, upper])
+            lower[axis] += upper[axis]
+        }
+
+        // Set `resultTangent` to zero.
+        // Note: We can't use `fill(_:with:)` because `resultTangent` aliases
+        // `tensorTangents`.
+        // TODO: track and fix
+        // Note: https://bugs.swift.org/browse/TF-1250 will allow us to make
+        // this pullback more efficient. How:
+        // - Set the wrt parameters and results to
+        //     @differentiable(wrt: (tensors), results: (result))
+        // - This makes `resultTangent` not be inout, so we don't need to set
+        //   it any more.
+        resultTangent = zeros(like: resultTangent)
+
+        return Array.DifferentiableView(tensorTangents)
+    }
+    return (concat(tensors, alongAxis: axis, into: &result), pullback)
 }
 
 //==============================================================================
