@@ -180,7 +180,7 @@ class test_Initialize: XCTestCase {
     func test_concatMatrixRows() {
         let a = array(1...6, (2, 3))
         let b = array(7...12, (2, 3))
-        let c = Tensor2(concatenating: a, b)
+        let c = concatenate(a, b)
         XCTAssert(c.shape == [4, 3])
         XCTAssert(c == [
             [1,  2,  3],
@@ -188,6 +188,8 @@ class test_Initialize: XCTestCase {
             [7,  8,  9],
             [10, 11, 12],
         ])
+        
+        
     }
 
     //--------------------------------------------------------------------------
@@ -195,7 +197,7 @@ class test_Initialize: XCTestCase {
     func test_concatMatrixCols() {
         let a = array(1...6, (2, 3))
         let b = array(7...12, (2, 3))
-        let c = Tensor2(concatenating: a, b, alongAxis: 1)
+        let c = concatenate(a, b, axis: 1)
         XCTAssert(c.shape == [2, 6])
         XCTAssert(c == [
             [1,  2,  3, 7,  8,  9],

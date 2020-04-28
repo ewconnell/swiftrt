@@ -28,46 +28,6 @@ numShapes = 6
 //******************************************************************************
 
 //==============================================================================
-/// concatenate
-/// Join a sequence of arrays along an existing axis.
-/// - Parameters:
-///  - arrays: the arrays to concatenate. The arrays must have the same shape,
-///    except in the dimension corresponding to axis (the first, by default).
-///  - axis: The axis along which the arrays will be joined.
-///    If axis is None, arrays are flattened before use. Default is 0.
-///  - out: If provided, the destination to place the result. The shape
-///    must be correct, matching that of what concatenate would have
-///    returned if no out argument were specified.
-///
-%for n in range(1, numShapes):
-//==============================================================================
-// Rank${n}
-@differentiable(where E: DifferentiableElement)
-@inlinable public func concatenate<E>(_ arrays: [Tensor<Shape${n}, E>], axis: Int = 0)
-    -> Tensor<Shape${n}, E>
-{
-    concat(arrays, alongAxis: axis)
-}
-
-@differentiable(where E: DifferentiableElement)
-@inlinable public func concatenate<E>(_ arrays: Tensor<Shape${n}, E>..., axis: Int = 0)
-    -> Tensor<Shape${n}, E>
-{
-    concat(arrays, alongAxis: axis)
-}
-
-@differentiable(where E: DifferentiableElement)
-@inlinable public func concatenate<E>(
-    _ arrays: [Tensor<Shape${n}, E>],
-    axis: Int = 0,
-    out: inout Tensor<Shape${n}, E>
-) {
-    concat(arrays, alongAxis: axis, into: &out)
-}
-
-%end
-
-//==============================================================================
 /// reshape
 /// Gives a new shape to an array without changing its data.
 /// - Parameters:

@@ -16,13 +16,18 @@
 import Foundation
 
 //==============================================================================
-/// concat
-/// - Parameter tensors: array of tensors whose elements will be joined
-/// - Parameter axis: dimension to append the elements
+/// concatenate(_:axis:into:
+/// Join a sequence of arrays along an existing axis.
+/// - Parameters:
+///  - tensors: the tensors to concatenate. The tensors must have the same shape,
+///    except in the dimension corresponding to axis (the first, by default).
+///  - axis: The axis along which the tensors will be joined.
+///  - into: the destination to place the result. The shape must be correct.
+///
 @differentiable(where E: DifferentiableElement)
-@inlinable public func concat<S,E>(
+@inlinable public func concatenate<S,E>(
     _ tensors: [Tensor<S,E>],
-    alongAxis axis: Int = 0,
+    axis: Int = 0,
     into result: inout Tensor<S,E>
 ) where S: TensorShape
 {
@@ -38,21 +43,30 @@ import Foundation
 }
 
 @differentiable(where E: DifferentiableElement)
-@inlinable public func concat<S,E>(
+@inlinable public func concatenate<S,E>(
     _ tensors: [Tensor<S,E>],
-    alongAxis axis: Int = 0
+    axis: Int = 0
 ) -> Tensor<S,E> where S: TensorShape
 {
     var result = withoutDerivative(at: Tensor<S,E>(joinedShape(tensors,axis)))
-    concat(tensors, alongAxis: axis, into: &result)
+    concatenate(tensors, axis: axis, into: &result)
     return result
+}
+
+@differentiable(where E: DifferentiableElement)
+@inlinable public func concatenate<S,E>(
+    _ tensors: Tensor<S,E>...,
+    axis: Int = 0
+) -> Tensor<S,E> where S: TensorShape
+{
+    concatenate(tensors, axis: axis)
 }
 
 public extension Tensor {
     @differentiable(where Element: DifferentiableElement)
-    @inlinable func concat(_ others: Self..., alongAxis axis: Int = 0) -> Self {
+    @inlinable func concatenate(_ others: Self..., alongAxis axis: Int = 0) -> Self {
         guard others.count > 1 else { return self }
-        return SwiftRTCore.concat([self] + others, alongAxis: axis)
+        return SwiftRTCore.concatenate([self] + others, axis: axis)
     }
 }
 
@@ -69,7 +83,7 @@ public extension Tensor {
 
 //==============================================================================
 // vjpConcat
-@derivative(of: concat)
+@derivative(of: concatenate)
 func vjpConcat<S,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0,
@@ -106,7 +120,7 @@ where S: TensorShape
 
         return Array.DifferentiableView(tensorTangents)
     }
-    return (concat(tensors, alongAxis: axis, into: &result), pullback)
+    return (concatenate(tensors, axis: axis, into: &result), pullback)
 }
 
 //==============================================================================

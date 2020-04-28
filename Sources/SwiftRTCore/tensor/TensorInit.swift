@@ -241,12 +241,12 @@ extension Tensor where Element: DifferentiableElement
 // Rank transformations
 public extension Tensor {
     /// concatenated tensors
-    @inlinable init(concatenating tensors: Self..., alongAxis axis: Int = 0) {
-        self = Self(concatenating: tensors, alongAxis: axis)
+    @inlinable init(concatenating tensors: Self..., axis: Int = 0) {
+        self = Self(concatenating: tensors, axis: axis)
     }
     
-    @inlinable init(concatenating tensors: [Self], alongAxis axis: Int = 0) {
-        self = SwiftRTCore.concat(tensors, alongAxis: axis)
+    @inlinable init(concatenating tensors: [Self], axis: Int = 0) {
+        self = SwiftRTCore.concatenate(tensors, axis: axis)
     }
 }
 
