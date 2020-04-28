@@ -31,8 +31,9 @@ import Foundation
     into result: inout Tensor<S,E>
 ) where S: TensorShape
 {
+    let axis = axis < 0 ? axis + S.rank : axis
     assert(tensors.count > 1)
-    assert(result.shape == joinedShape(tensors,axis),
+    assert(result.shape == concatenatedShape(tensors,axis),
            "result shape does not match expected shape")
     
     var lower = S.zero
@@ -48,7 +49,9 @@ import Foundation
     axis: Int = 0
 ) -> Tensor<S,E> where S: TensorShape
 {
-    var result = withoutDerivative(at: Tensor<S,E>(joinedShape(tensors,axis)))
+    let axis = axis < 0 ? axis + S.rank : axis
+    var result = withoutDerivative(
+            at: Tensor<S,E>(concatenatedShape(tensors,axis)))
     concatenate(tensors, axis: axis, into: &result)
     return result
 }
@@ -64,16 +67,20 @@ import Foundation
 
 public extension Tensor {
     @differentiable(where Element: DifferentiableElement)
-    @inlinable func concatenate(_ others: Self..., alongAxis axis: Int = 0) -> Self {
+    @inlinable func concatenate(_ others: Self...,
+                                alongAxis axis: Int = 0) -> Self
+    {
         guard others.count > 1 else { return self }
         return SwiftRTCore.concatenate([self] + others, axis: axis)
     }
 }
 
-@inlinable public func joinedShape<S,E>(
+@inlinable public func concatenatedShape<S,E>(
     _ tensors: [Tensor<S,E>],
     _ axis: Int
-) -> S {
+) -> S
+{
+    assert(axis >= 0)
     var shape = tensors[0].shape
     for i in 1..<tensors.count {
         shape[axis] += tensors[i].shape[axis]

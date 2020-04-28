@@ -29,8 +29,9 @@ class test_Initialize: XCTestCase {
         ("test_perfCreateMatrix", test_perfCreateMatrix),
         ("test_perfReadOnlyAccess", test_perfReadOnlyAccess),
         ("test_perfReadWriteAccess", test_perfReadWriteAccess),
-        ("test_concatMatrixRows", test_concatMatrixRows),
-        ("test_concatMatrixCols", test_concatMatrixCols),
+        ("test_concatenateMatrixRows", test_concatenateMatrixRows),
+        ("test_concatenateMatrixCols", test_concatenateMatrixCols),
+        ("test_concatenateGradients", test_concatenateGradients),
         ("test_repeatElement", test_repeatElement),
         ("test_repeatRowVector", test_repeatRowVector),
         ("test_repeatColVector", test_repeatColVector),
@@ -177,7 +178,7 @@ class test_Initialize: XCTestCase {
     
     //--------------------------------------------------------------------------
     // test_concatMatrixRows
-    func test_concatMatrixRows() {
+    func test_concatenateMatrixRows() {
         let a = array(1...6, (2, 3))
         let b = array(7...12, (2, 3))
         let c = concatenate(a, b)
@@ -193,8 +194,22 @@ class test_Initialize: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
+    // test_concatenateGradients
+    func test_concatenateGradients() {
+        let a1 = array([1, 2, 3, 4, 5])
+        let b1 = array([6, 7, 8, 9, 10])
+        let a2 = array([1, 1, 1, 1, 1])
+        let b2 = array([1, 1, 1, 1, 1])
+        let (g1, g2) = gradient(at: a2, b2) { a, b in
+            concatenate(a1 * a, b1 * b, axis: -1).sum().element
+        }
+        XCTAssertEqual(a1, g1)
+        XCTAssertEqual(b1, g2)
+    }
+    
+    //--------------------------------------------------------------------------
     // test_concatMatrixCols
-    func test_concatMatrixCols() {
+    func test_concatenateMatrixCols() {
         let a = array(1...6, (2, 3))
         let b = array(7...12, (2, 3))
         let c = concatenate(a, b, axis: 1)

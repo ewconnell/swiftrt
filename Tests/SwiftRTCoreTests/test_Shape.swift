@@ -26,8 +26,8 @@ class test_Shape: XCTestCase {
         ("test_expanding", test_expanding),
         ("test_SequentialViews", test_SequentialViews),
         ("test_transposed", test_transposed),
-        ("test_squeezing", test_squeezing),
-        ("test_stacking", test_stacking),
+        ("test_squeeze", test_squeeze),
+        ("test_stack", test_stack),
         ("test_stackingGradients", test_stackingGradients),
         ("test_stackingExpression", test_stackingExpression),
         ("testTransposedPullback", testTransposedPullback),
@@ -98,8 +98,8 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_squeezing
-    func test_squeezing() {
+    // test_squeeze
+    func test_squeeze() {
         let a = array(0..<24, (2, 3, 4))
 
         let sumCols = a.sum(alongAxes: 2)
@@ -133,8 +133,8 @@ class test_Shape: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_stacking
-    func test_stacking() {
+    // test_stack
+    func test_stack() {
         let a = array(0..<6, (2, 3))
         let b = array(6..<12, (2, 3))
 
