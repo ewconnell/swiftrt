@@ -219,18 +219,6 @@ public extension TensorShape {
     }
     
     //--------------------------------------------------------------------------
-    /// joined
-    /// - Parameters:
-    ///  - others: array of shapes to join
-    ///  - axis: the axis to join
-    /// - Returns: the joined shape
-    @inlinable func joined(with others: [Self], alongAxis axis: Int) -> Self {
-        var joinedShape = self
-        joinedShape[axis] += others.reduce(into: 0) { $0 += $1[axis] }
-        return joinedShape
-    }
-
-    //--------------------------------------------------------------------------
     /// init(flattening:
     /// - Parameter other: the shape to flatten
     @inlinable init<S>(flattening other: S) where S: TensorShape {

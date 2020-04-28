@@ -42,32 +42,30 @@ numShapes = 6
 %for n in range(1, numShapes):
 //==============================================================================
 // Rank${n}
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func concatenate<E>(_ arrays: [Tensor<Shape${n}, E>], axis: Int = 0)
     -> Tensor<Shape${n}, E>
 {
-    Tensor<Shape${n}, E>(concatenating: arrays, alongAxis: axis)
+    concat(arrays, alongAxis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func concatenate<E>(_ arrays: Tensor<Shape${n}, E>..., axis: Int = 0)
     -> Tensor<Shape${n}, E>
 {
-    Tensor<Shape${n}, E>(concatenating: arrays, alongAxis: axis)
+    concat(arrays, alongAxis: axis)
+}
+
+@differentiable(where E: DifferentiableElement)
+@inlinable public func concatenate<E>(
+    _ arrays: [Tensor<Shape${n}, E>],
+    axis: Int = 0,
+    out: inout Tensor<Shape${n}, E>
+) {
+    concat(arrays, alongAxis: axis, into: &out)
 }
 
 %end
-
-// TODO
-//@differentiable(where E: DifferentiableElement)
-//@inlinable public func concatenate<E>(
-//    _ arrays: [Tensor<Shape${n}, E>],
-//    axis: Int = 0,
-//    out: inout Tensor<Shape${n}, E>
-//) -> Tensor<Shape${n}, E> {
-//    concatenate(arrays, axis: axis, into: &out)
-//    return out
-//}
 
 //==============================================================================
 /// reshape

@@ -38,95 +38,129 @@ import Foundation
 ///
 //==============================================================================
 // Rank1
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func concatenate<E>(_ arrays: [Tensor<Shape1, E>], axis: Int = 0)
     -> Tensor<Shape1, E>
 {
-    Tensor<Shape1, E>(concatenating: arrays, alongAxis: axis)
+    concat(arrays, alongAxis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func concatenate<E>(_ arrays: Tensor<Shape1, E>..., axis: Int = 0)
     -> Tensor<Shape1, E>
 {
-    Tensor<Shape1, E>(concatenating: arrays, alongAxis: axis)
+    concat(arrays, alongAxis: axis)
+}
+
+@differentiable(where E: DifferentiableElement)
+@inlinable public func concatenate<E>(
+    _ arrays: [Tensor<Shape1, E>],
+    axis: Int = 0,
+    out: inout Tensor<Shape1, E>
+) {
+    concat(arrays, alongAxis: axis, into: &out)
 }
 
 //==============================================================================
 // Rank2
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func concatenate<E>(_ arrays: [Tensor<Shape2, E>], axis: Int = 0)
     -> Tensor<Shape2, E>
 {
-    Tensor<Shape2, E>(concatenating: arrays, alongAxis: axis)
+    concat(arrays, alongAxis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func concatenate<E>(_ arrays: Tensor<Shape2, E>..., axis: Int = 0)
     -> Tensor<Shape2, E>
 {
-    Tensor<Shape2, E>(concatenating: arrays, alongAxis: axis)
+    concat(arrays, alongAxis: axis)
+}
+
+@differentiable(where E: DifferentiableElement)
+@inlinable public func concatenate<E>(
+    _ arrays: [Tensor<Shape2, E>],
+    axis: Int = 0,
+    out: inout Tensor<Shape2, E>
+) {
+    concat(arrays, alongAxis: axis, into: &out)
 }
 
 //==============================================================================
 // Rank3
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func concatenate<E>(_ arrays: [Tensor<Shape3, E>], axis: Int = 0)
     -> Tensor<Shape3, E>
 {
-    Tensor<Shape3, E>(concatenating: arrays, alongAxis: axis)
+    concat(arrays, alongAxis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func concatenate<E>(_ arrays: Tensor<Shape3, E>..., axis: Int = 0)
     -> Tensor<Shape3, E>
 {
-    Tensor<Shape3, E>(concatenating: arrays, alongAxis: axis)
+    concat(arrays, alongAxis: axis)
+}
+
+@differentiable(where E: DifferentiableElement)
+@inlinable public func concatenate<E>(
+    _ arrays: [Tensor<Shape3, E>],
+    axis: Int = 0,
+    out: inout Tensor<Shape3, E>
+) {
+    concat(arrays, alongAxis: axis, into: &out)
 }
 
 //==============================================================================
 // Rank4
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func concatenate<E>(_ arrays: [Tensor<Shape4, E>], axis: Int = 0)
     -> Tensor<Shape4, E>
 {
-    Tensor<Shape4, E>(concatenating: arrays, alongAxis: axis)
+    concat(arrays, alongAxis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func concatenate<E>(_ arrays: Tensor<Shape4, E>..., axis: Int = 0)
     -> Tensor<Shape4, E>
 {
-    Tensor<Shape4, E>(concatenating: arrays, alongAxis: axis)
+    concat(arrays, alongAxis: axis)
+}
+
+@differentiable(where E: DifferentiableElement)
+@inlinable public func concatenate<E>(
+    _ arrays: [Tensor<Shape4, E>],
+    axis: Int = 0,
+    out: inout Tensor<Shape4, E>
+) {
+    concat(arrays, alongAxis: axis, into: &out)
 }
 
 //==============================================================================
 // Rank5
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func concatenate<E>(_ arrays: [Tensor<Shape5, E>], axis: Int = 0)
     -> Tensor<Shape5, E>
 {
-    Tensor<Shape5, E>(concatenating: arrays, alongAxis: axis)
+    concat(arrays, alongAxis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @inlinable public func concatenate<E>(_ arrays: Tensor<Shape5, E>..., axis: Int = 0)
     -> Tensor<Shape5, E>
 {
-    Tensor<Shape5, E>(concatenating: arrays, alongAxis: axis)
+    concat(arrays, alongAxis: axis)
 }
 
+@differentiable(where E: DifferentiableElement)
+@inlinable public func concatenate<E>(
+    _ arrays: [Tensor<Shape5, E>],
+    axis: Int = 0,
+    out: inout Tensor<Shape5, E>
+) {
+    concat(arrays, alongAxis: axis, into: &out)
+}
 
-// TODO
-//@differentiable(where E: DifferentiableElement)
-//@inlinable public func concatenate<E>(
-//    _ arrays: [Tensor<Shape5, E>],
-//    axis: Int = 0,
-//    out: inout Tensor<Shape5, E>
-//) -> Tensor<Shape5, E> {
-//    concatenate(arrays, axis: axis, into: &out)
-//    return out
-//}
 
 //==============================================================================
 /// reshape
