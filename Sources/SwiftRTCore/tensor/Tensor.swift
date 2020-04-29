@@ -61,12 +61,14 @@ public struct Tensor<Shape, Element>: MutableTensorType
     /// `true` if the tensor represents a single constant Element
     @inlinable public var isSingleElement: Bool { spanCount == 1 }
     
+    /// `true` if the tensor elements are densely packed
+    @inlinable public var isContiguous: Bool { count == spanCount }
+
     /// the name of the collection
     @inlinable public var name: String {
         get { storage.name }
         set { storage.name = newValue }
     }
-
 
     //--------------------------------------------------------------------------
     /// init(
@@ -110,7 +112,8 @@ public struct Tensor<Shape, Element>: MutableTensorType
         isSequential = true
         startIndex = Index(Shape.zero, 0)
         endIndex = Index(shape, count)
-        storage = StorageBufferType<Element>(single: element, name: "Element")
+        storage = StorageBufferType<Element>(single: element)
+        storage.name = "Element"
         shapeStrides = Shape.zero
     }
 }

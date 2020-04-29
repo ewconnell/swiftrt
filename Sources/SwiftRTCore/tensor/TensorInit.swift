@@ -45,6 +45,10 @@ public typealias TensorR6<Element> = Tensor<Shape6, Element>
 //==============================================================================
 
 public extension Tensor {
+    @inlinable var diagnosticName: String {
+        "\(name)R\(Shape.rank)_(\(storage.id))"
+    }
+
     //--------------------------------------------------------------------------
     /// init(shape:order:
     /// creates a dense shape
@@ -53,12 +57,11 @@ public extension Tensor {
     ///  - order: the storage order of the elements
     @inlinable init(_ shape: Shape, order: StorageOrder = .C) {
         let count = shape.elementCount()
-        let name = "Tensor\(Shape.rank)"
         self.init(shape: shape,
                   strides: shape.strides(for: order),
                   count: count,
                   spanCount: count,
-                  storage: StorageBufferType(count: count, name: name),
+                  storage: StorageBufferType(count: count),
                   baseOffset: 0,
                   order: order,
                   share: false,
@@ -265,8 +268,7 @@ public extension Tensor {
         order newOrder: StorageOrder = .C
     ) where S: TensorShape
     {
-        // TODO: consider special cases where this restriction can be lifted
-        assert(other.isSequential, "cannot reshape non sequential data")
+        assert(other.isContiguous, "cannot reshape non contiguous data")
         assert(
             {
                 var found = false
@@ -295,38 +297,41 @@ public extension Tensor {
             other.storageOrder == .F &&
             other.isSequential) ? .F : .C
 
-        // create new tensor, which is a shaped reference to other's storage
-        self.init(shape: shape,
-                  strides: shape.strides(for: order),
-                  count: other.count,
-                  spanCount: other.spanCount,
-                  storage: other.storage,
-                  baseOffset: other.baseOffset,
-                  order: order,
-                  share: other.isShared,
-                  isSequential: true)
-
-        // reorder elements if needed
+        // reorder other's elements if needed
+        var source = other
         if order != other.storageOrder {
-            // create other with the new shape retaining it's original order
-            let reshapedOther =
-                Self(shape: shape,
-                     strides: shape.strides(for: other.storageOrder),
-                     count: other.count,
-                     spanCount: other.spanCount,
-                     storage: other.storage,
-                     baseOffset: other.baseOffset,
-                     order: other.storageOrder,
-                     share: other.isShared,
-                     isSequential: true)
-            
-            // create a new empty storage buffer for self
-            self.storage = StorageBufferType<Element>(count: count,
-                                                      name: storage.name)
+            // change the source to have the new storage order and copy
+            let strides = other.shape.strides(for: order)
+            source = Tensor<S,Element>(
+                shape: other.shape,
+                strides: strides,
+                count: other.count,
+                spanCount: other.spanCount,
+                storage: StorageBufferType<Element>(count: source.count),
+                baseOffset: 0,
+                order: other.storageOrder,
+                share: other.isShared,
+                isSequential: strides.areSequential(for: other.shape))
             
             // performs an indexed copy which reorders the elements
-            copy(from: reshapedOther, to: &self)
+            Context.local.platform.diagnostic(
+                "\(reorderString) copying \(other.diagnosticName) --> " +
+                    "\(source.diagnosticName) \(Element.self)[\(source.count)]",
+                categories: [.dataCopy, .dataReorder])
+            
+            copy(from: other, to: &source)
         }
+        
+        // init with new shape in the corrected order
+        self.init(shape: shape,
+                  strides: shape.strides(for: order),
+                  count: source.count,
+                  spanCount: source.spanCount,
+                  storage: source.storage,
+                  baseOffset: source.baseOffset,
+                  order: order,
+                  share: source.isShared,
+                  isSequential: source.isSequential)
     }
 }
 

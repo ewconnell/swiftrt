@@ -33,19 +33,17 @@ public protocol StorageBuffer: class, Logging {
     /// the buffer name used in diagnostic messages
     var name: String { get set }
     
-    /// `init(count:name:
+    /// `init(count:
     /// creates an uninitialized lazily allocated element buffer
     /// - Parameters:
     ///  - count: size of the buffer in `Element` units
-    ///  - name: name used in diagnostic messages
-    init(count: Int, name: String)
+    init(count: Int)
     
-    /// `init(element:name:
+    /// `init(element:
     /// creates a storage buffer with a single element
     /// - Parameters:
     ///  - element: the initial element value
-    ///  - name: name used in diagnostic messages
-    init(single element: Element, name: String)
+    init(single element: Element)
     
     /// `init(copying other:`
     /// copy constructor
@@ -59,16 +57,14 @@ public protocol StorageBuffer: class, Logging {
     /// requiring an additional copy operation.
     /// - Parameters:
     ///  - buffer: a buffer pointer to the data
-    ///  - name: name used in diagnostic messages
-    init(referenceTo buffer: UnsafeBufferPointer<Element>, name: String)
+    init(referenceTo buffer: UnsafeBufferPointer<Element>)
     
     /// `init(buffer:`
     /// creates an element buffer whose data is managed by the application.
     /// No memory is allocated, so the buffer must point to valid data space.
     /// - Parameters:
     ///  - buffer: a mutable buffer pointer to application data
-    ///  - name: name used in diagnostic messages
-    init(referenceTo buffer: UnsafeMutableBufferPointer<Element>, name: String)
+    init(referenceTo buffer: UnsafeMutableBufferPointer<Element>)
     
     /// `init(blockSize:bufferedBlocks:sequence:`
     /// initializes a streaming device buffer to be used with `stream`
@@ -134,6 +130,10 @@ public protocol StorageBuffer: class, Logging {
     func readWrite(at offset: Int, count: Int,
                    willOverwrite: Bool, using queue: DeviceQueue)
         -> UnsafeMutableBufferPointer<Element>
+}
+
+public extension StorageBuffer {
+    @inlinable var diagnosticName: String { "\(name)(\(id))" }
 }
 
 //==============================================================================

@@ -28,28 +28,28 @@ public final class CpuStorage<Element>: StorageBuffer
     
     //--------------------------------------------------------------------------
     // init(count:name:
-    @inlinable public init(count: Int, name: String) {
+    @inlinable public init(count: Int) {
         self.hostBuffer = UnsafeMutableBufferPointer.allocate(capacity: count)
         self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = false
-        self.name = name
+        self.name = "Tensor"
         self.element = hostBuffer[0]
 
         #if DEBUG
-        diagnostic("\(createString) \(name)(\(id)) " +
+        diagnostic("\(createString) \(diagnosticName) " +
             "\(Element.self)[\(count)]", categories: .dataAlloc)
         #endif
     }
 
     //--------------------------------------------------------------------------
     // init(element:
-    @inlinable public init(single element: Element, name: String) {
+    @inlinable public init(single element: Element) {
         self.element = element
         self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = true
-        self.name = name
+        self.name = "Tensor"
 
         // point buffer to `element` member variable
         // this should be safe since this is a class
@@ -57,13 +57,13 @@ public final class CpuStorage<Element>: StorageBuffer
         self.hostBuffer = UnsafeMutableBufferPointer(start: p, count: 1)
 
         #if DEBUG
-        diagnostic("\(createString) \(name)(\(id)) " +
+        diagnostic("\(createString) \(diagnosticName) " +
             "\(Element.self)[1]", categories: .dataAlloc)
         #endif
     }
 
     //--------------------------------------------------------------------------
-    // init(elements:name:
+    // init(elements:
     @inlinable
     public init(copying other: CpuStorage) {
         self.id = other.id
@@ -81,37 +81,36 @@ public final class CpuStorage<Element>: StorageBuffer
     }
 
     //--------------------------------------------------------------------------
-    // init(buffer:name:
+    // init(buffer:
     @inlinable
-    public init(referenceTo buffer: UnsafeBufferPointer<Element>, name: String) {
+    public init(referenceTo buffer: UnsafeBufferPointer<Element>) {
         self.hostBuffer = UnsafeMutableBufferPointer(mutating: buffer)
         self.id = Context.nextBufferId
         self.isReadOnly = true
         self.isReference = true
-        self.name = name
+        self.name = "Tensor"
         self.element = hostBuffer[0]
 
         #if DEBUG
-        diagnostic("\(createString) Reference \(name)(\(id)) " +
+        diagnostic("\(createString) Reference \(diagnosticName) " +
             "\(Element.self)[\(hostBuffer.count)]", categories: .dataAlloc)
         #endif
     }
     
     //--------------------------------------------------------------------------
-    // init(buffer:name:
+    // init(buffer:
     @inlinable
-    public init(referenceTo buffer: UnsafeMutableBufferPointer<Element>,
-                name: String)
+    public init(referenceTo buffer: UnsafeMutableBufferPointer<Element>)
     {
         self.hostBuffer = buffer
         self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = true
-        self.name = name
+        self.name = "Tensor"
         self.element = hostBuffer[0]
 
         #if DEBUG
-        diagnostic("\(createString) Reference \(name)(\(id)) " +
+        diagnostic("\(createString) Reference \(diagnosticName) " +
             "\(Element.self)[\(hostBuffer.count)]", categories: .dataAlloc)
         #endif
     }
@@ -132,7 +131,7 @@ public final class CpuStorage<Element>: StorageBuffer
         if !isReference {
             hostBuffer.deallocate()
             #if DEBUG
-            diagnostic("\(releaseString) \(name)(\(id)) ",
+            diagnostic("\(releaseString) \(diagnosticName) ",
                 categories: .dataAlloc)
             #endif
         }

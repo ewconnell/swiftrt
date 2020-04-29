@@ -386,13 +386,14 @@ public struct LogCategories: OptionSet {
     public let rawValue: Int
     public static let dataAlloc     = LogCategories(rawValue: 1 << 0)
     public static let dataCopy      = LogCategories(rawValue: 1 << 1)
-    public static let dataMutation  = LogCategories(rawValue: 1 << 2)
-    public static let dataExpanding = LogCategories(rawValue: 1 << 3)
-    public static let initialize    = LogCategories(rawValue: 1 << 4)
-    public static let properties    = LogCategories(rawValue: 1 << 5)
-    public static let queueAlloc    = LogCategories(rawValue: 1 << 6)
-    public static let queueSync     = LogCategories(rawValue: 1 << 7)
-    public static let scheduling    = LogCategories(rawValue: 1 << 8)
+    public static let dataExpanding = LogCategories(rawValue: 1 << 2)
+    public static let dataMutation  = LogCategories(rawValue: 1 << 3)
+    public static let dataReorder   = LogCategories(rawValue: 1 << 4)
+    public static let initialize    = LogCategories(rawValue: 1 << 5)
+    public static let properties    = LogCategories(rawValue: 1 << 6)
+    public static let queueAlloc    = LogCategories(rawValue: 1 << 7)
+    public static let queueSync     = LogCategories(rawValue: 1 << 8)
+    public static let scheduling    = LogCategories(rawValue: 1 << 9)
 }
 
 // strings
@@ -405,6 +406,7 @@ public let expandingString  = "[\(setText("EXPANDING", color: .cyan))]"
 public let recordString     = "[\(setText("RECORD   ", color: .cyan))]"
 public let referenceString  = "[\(setText("REFERENCE", color: .cyan))]"
 public let releaseString    = "[\(setText("RELEASE  ", color: .cyan))]"
+public let reorderString    = "[\(setText("REORDER  ", color: .blue))]"
 public let schedulingString = "\(setText("~~scheduling", color: .yellow))"
 public let signaledString   = "[\(setText("SIGNALED ", color: .green))]"
 public let syncString       = "[\(setText("SYNC     ", color: .yellow))]"
