@@ -66,13 +66,13 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_reshapeOrder
     func test_reshapeOrder() {
-        let a = array([[0, 1, 2], [3, 4, 5]])
-        XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])
-        
-        let b = reshape(a, (2, 3), order: .colMajor)
-        XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
-        print(b.flatArray)
-        XCTAssert(b.flatArray == [0, 3, 1, 4, 2 ,5])
+//        let a = array([[0, 1, 2], [3, 4, 5]])
+//        XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])
+//
+//        let b = reshape(a, (2, 3), order: .colMajor)
+//        XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
+//        print(b.flatArray)
+//        XCTAssert(b.flatArray == [0, 3, 1, 4, 2 ,5])
         
 //        cm = array(0..<6, (2, 3), order: .F)
 //        print(cm.flatArray)
