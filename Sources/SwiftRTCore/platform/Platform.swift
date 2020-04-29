@@ -407,7 +407,6 @@ public protocol MutableTensorType: TensorType, MutableCollection
 //==============================================================================
 /// ScalarType
 /// Used primarily for serialization, C APIs, and Cuda kernels
-// TODO: maybe remove this after Cuda integration if not used
 public enum ScalarType: Int {
     // integers
     case real8U, real8I, real16U, real16I, real32U, real32I, real64U, real64I
