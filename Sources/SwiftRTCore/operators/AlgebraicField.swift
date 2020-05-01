@@ -17,8 +17,9 @@ import Numerics
 //==============================================================================
 /// add
 /// performs an elementwise add
-/// - Parameter lhs: left hand tensor
-/// - Parameter rhs: right hand tensor
+/// - Parameters:
+///  - lhs: left hand tensor
+///  - rhs: right hand tensor
 /// - Returns: result
 @differentiable(where E: DifferentiableElement)
 @inlinable public func add<S,E>(
@@ -88,8 +89,9 @@ public extension Tensor where Element: AdditiveArithmetic {
 //==============================================================================
 /// subtract
 /// performs an elementwise subtract
-/// - Parameter lhs: left hand tensor
-/// - Parameter rhs: right hand tensor
+/// - Parameters:
+///  - lhs: left hand tensor
+///  - rhs: right hand tensor
 /// - Returns: result
 @differentiable(where E: DifferentiableElement)
 @inlinable public func subtract<S,E>(
@@ -159,8 +161,9 @@ public extension Tensor where Element: AdditiveArithmetic {
 //==============================================================================
 /// mul
 /// performs an elementwise multiply
-/// - Parameter lhs: left hand tensor
-/// - Parameter rhs: right hand tensor.
+/// - Parameters:
+///  - lhs: left hand tensor
+///  - rhs: right hand tensor.
 /// - Returns: a new tensor containing the result
 @differentiable(where E: DifferentiableElement)
 @inlinable public func mul<S,E>(
@@ -233,6 +236,75 @@ public extension Tensor where Element: Numeric
     @inlinable static func .* (lhs: Self, rhs: Self) -> Self {
         lhs * rhs
     }
+}
+
+//==============================================================================
+/// matmul
+/// performs a matrix cross product
+/// - Parameters:
+///  - lhs: left hand tensor
+///  - transposeLhs: `true` to transpose `lhs`, default is `false`
+///  - rhs: right hand tensor.
+///  - transposeRhs: `true` to transpose `rhs`, default is `false`
+/// - Returns: a new tensor containing the result
+// https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
+@differentiable(where E: DifferentiableElement)
+@inlinable public func matmul<S,E>(
+    _ lhs: Tensor<S,E>,
+    transposed transposeLhs: Bool = false,
+    _ rhs: Tensor<S,E>,
+    transposed transposeRhs: Bool = false
+) -> Tensor<S,E> where S: TensorShape, E: Numeric
+{
+    assert(S.rank > 1 && lhs.shape[S.rank-1] == rhs.shape[S.rank-2])
+    let result = Tensor<S,E>(S.one)
+    if S.rank == 2 {
+        //    Context.currentQueue.matmul(lhs, rhs, &result)
+    } else {
+        //    Context.currentQueue.batchMatmul(lhs, rhs, &result)
+    }
+    return result
+}
+
+@derivative(of: matmul)
+@inlinable public func _vjpMatmul<S,E>(
+    _ lhs: Tensor<S,E>,
+    transposed transposeLhs: Bool,
+    _ rhs: Tensor<S,E>,
+    transposed transposeRhs: Bool
+) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
+where S: TensorShape, E: DifferentiableElement
+{
+//    let value = matmul(lhs, transposed: transposeLhs,
+//                       rhs, transposed: transposeRhs)
+//    return (value, { [lhsShape = lhs.shape, rhsShape = rhs.shape] v in
+//        let (lhsGrad, rhsGrad): (Tensor<S,E>, Tensor<S,E>)
+//        switch (transposeLhs, transposeRhs) {
+//        case (false, false):
+//            lhsGrad = matmul(v, transposed: false, rhs, transposed: true)
+//            rhsGrad = matmul(lhs, transposed: true, v, transposed: false)
+//        case (false, true):
+//            lhsGrad = matmul(v, rhs)
+//            rhsGrad = matmul(lhs, transposed: true, v, transposed: false)
+//        case (true, false):
+//            lhsGrad = matmul(v, transposed: false, rhs, transposed: true)
+//            rhsGrad = matmul(lhs, v)
+//        case (true, true):
+//            lhsGrad = matmul(v, transposed: true, rhs, transposed: true)
+//            rhsGrad = matmul(lhs, transposed: true, v, transposed: true)
+//        }
+        
+//        let lhsRank = lhsShape.rank - 2
+//        let rhsRank = rhsShape.rank - 2
+//        let (lhsAxes, rhsAxes) = _Raw.broadcastGradientArgs(
+//                s0: Tensor<Int32>(lhsShape.dimensions[..<lhsRank].map { Int32($0) } ),
+//                s1: Tensor<Int32>(rhsShape.dimensions[..<rhsRank].map { Int32($0) } ))
+//        let lhsShapeTensor = Tensor<Int32>(lhsShape.dimensions.map { Int32($0) })
+//        let rhsShapeTensor = Tensor<Int32>(rhsShape.dimensions.map { Int32($0) })
+//        return (lhsGrad.sum(squeezingAxes: lhsAxes).reshaped(toShape: lhsShapeTensor),
+//                rhsGrad.sum(squeezingAxes: rhsAxes).reshaped(toShape: rhsShapeTensor))
+//    })
+    fatalError()
 }
 
 //==============================================================================

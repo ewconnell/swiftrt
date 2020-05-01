@@ -67,9 +67,10 @@ import Foundation
 
 public extension Tensor {
     @differentiable(where Element: DifferentiableElement)
-    @inlinable func concatenate(_ others: Self...,
-                                alongAxis axis: Int = 0) -> Self
-    {
+    @inlinable func concatenated(
+        with others: Self...,
+        alongAxis axis: Int = 0
+    ) -> Self {
         guard others.count > 1 else { return self }
         return SwiftRTCore.concatenate([self] + others, axis: axis)
     }
