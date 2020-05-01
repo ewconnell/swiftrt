@@ -56,8 +56,7 @@ where Element: DifferentiableElement & BinaryFloatingPoint
     ///   - input: The indices that will be mapped to their vector representations.
     /// - Returns: The tensor created by replacing input indices with their vector representations.
     @differentiable(wrt: self)
-    public func callAsFunction(_ input: TensorR2<Element>) -> TensorR2<Element> {
-        input  // input is Int32
-//        embeddings[input]
+    public func callAsFunction(_ input: TensorR1<DeviceIndex>) -> TensorR2<Element> {
+        embeddings.gathering(indices: input)
     }
 }

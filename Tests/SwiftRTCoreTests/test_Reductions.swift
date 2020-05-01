@@ -38,6 +38,48 @@ class test_Reductions: XCTestCase {
     ]
 
     //--------------------------------------------------------------------------
+    // test_gather
+    // TODO: get this verified
+    func test_gather() {
+        let a = array([
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8]
+        ])
+        let ai = array([0, 2], dtype: DeviceIndex.self)
+        let b = gather(from: a, indices: ai)
+        XCTAssert(b == [
+            [0, 1, 2],
+            [6, 7, 8]
+        ])
+        
+        let c = gather(from: a, indices: ai, axis: 1)
+        XCTAssert(c == [
+            [0, 2],
+            [3, 5],
+            [6, 8]
+        ])
+
+        let g0 = gradient(at: ones(like: a)) {
+            gather(from: $0 * a, indices: ai).sum().element
+        }
+        XCTAssert(g0 == [
+            [0, 1, 2],
+            [0, 0, 0],
+            [6, 7, 8]
+        ])
+
+        let g1 = gradient(at: ones(like: a)) {
+            gather(from: $0 * a, indices: ai, axis: -1).sum().element
+        }
+        XCTAssert(g1 == [
+            [0, 0, 2],
+            [3, 0, 5],
+            [6, 0, 8]
+        ])
+    }
+    
+    //--------------------------------------------------------------------------
     // test_sumTensor3AlongAxes
     func test_sumTensor3AlongAxes() {
 //        Context.log.level = .diagnostic
