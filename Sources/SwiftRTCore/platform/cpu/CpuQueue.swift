@@ -50,3 +50,8 @@ public final class CpuQueue: DeviceQueue, CpuFunctions, CpuMapOps {
                    categories: .queueAlloc)
     }
 }
+
+//==============================================================================
+/// CpuFunctions
+public protocol CpuFunctions { }
+
