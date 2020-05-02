@@ -178,7 +178,7 @@ public enum EvaluationMode {
 /// a compute device represents a physical service device installed
 /// on the platform
 public protocol PlatformDevice: class, Logger {
-    associatedtype Queue: PlatformDeviceQueue
+    associatedtype Queue: DeviceQueue
     
     /// the id of the device for example dev:0, dev:1, ...
     var id: Int { get }
@@ -188,10 +188,6 @@ public protocol PlatformDevice: class, Logger {
     var queues: [Queue] { get }
     /// specifies the type of device memory for data transfer
     var memoryType: MemoryType { get }
-}
-
-public protocol PlatformDeviceQueue: class {
-    var deviceId: Int { get }
 }
 
 //==============================================================================

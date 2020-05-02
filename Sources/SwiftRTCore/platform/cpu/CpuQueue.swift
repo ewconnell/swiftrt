@@ -16,29 +16,37 @@
 import Foundation
 
 //==============================================================================
-/// CpuDevice
-public final class CpuDevice: PlatformDevice {
+/// CpuQueue
+/// a final version of the default device queue which executes functions
+/// synchronously on the cpu
+public final class CpuQueue: DeviceQueue, CpuFunctions, CpuMapOps {
     // properties
+    public let creatorThread: Thread
+    public var defaultQueueEventOptions: QueueEventOptions
+    public let deviceId: Int
+    public let deviceName: String
     public let id: Int
     public let logInfo: LogInfo
     public let memoryType: MemoryType
     public let name: String
-    public let queues: [CpuQueue]
-
-    @inlinable public init(
-        parent logInfo: LogInfo,
-        memoryType: MemoryType,
-        id: Int
-    ) {
+    
+    //--------------------------------------------------------------------------
+    // initializers
+    @inlinable
+    public init(id: Int, parent logInfo: LogInfo,
+                deviceId: Int, deviceName: String,
+                memoryType: MemoryType)
+    {
         self.id = id
-        self.name = "cpu:\(id)"
+        self.name = "q\(id)"
         self.logInfo = logInfo.flat(name)
+        self.deviceId = deviceId
+        self.deviceName = deviceName
+        self.creatorThread = Thread.current
+        self.defaultQueueEventOptions = QueueEventOptions()
         self.memoryType = memoryType
-        self.queues = [CpuQueue(id: 0,
-                                parent: self.logInfo,
-                                deviceId: id,
-                                deviceName: name,
-                                memoryType: memoryType)]
+        
+        diagnostic("\(createString) \(Self.self): \(deviceName)_\(name)",
+                   categories: .queueAlloc)
     }
 }
-
