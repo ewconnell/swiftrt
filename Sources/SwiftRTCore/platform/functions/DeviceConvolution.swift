@@ -16,61 +16,6 @@
 import Foundation
 
 //==============================================================================
-// ConvolutionFwdAlgorithm
-public enum ConvolutionFwdAlgorithm: Int, Codable, CaseIterable {
-    case implicitGEMM
-    case implicitPrecompGEMM
-    case gemm
-    case direct
-    case fft
-    case fftTiling
-    case winograd
-    case winogradNonFused
-    case deterministic
-    case fastest
-    case noWorkspace
-    case workspaceLimit
-}
-
-//==============================================================================
-// ConvolutionBwdDataAlgorithm
-public enum ConvolutionBwdDataAlgorithm: Int, Codable, CaseIterable {
-    case algo0
-    case algo1
-    case fft
-    case fftTiling
-    case winograd
-    case winogradNonFused
-    case deterministic
-    case fastest
-    case noWorkspace
-    case workspaceLimit
-}
-
-//==============================================================================
-// ConvolutionBwdFilterAlgorithm
-public enum ConvolutionBwdFilterAlgorithm: Int, Codable, CaseIterable {
-    case algo0
-    case algo1
-    case algo3
-    case fft
-    case winograd
-    case winogradNonFused
-    case numAlgorithms
-    case deterministic
-    case fastest
-    case noWorkspace
-    case workspaceLimit
-}
-
-//==============================================================================
-// ConvolutionMode
-public enum ConvolutionMode: Int, Codable, CaseIterable {
-    case convolution
-    case crossCorrelation
-}
-
-//==============================================================================
 /// DeviceConvolution
 /// an abstract base class used to manage device dependent
 /// convolution implementations
@@ -146,32 +91,5 @@ where Shape: TensorShape,
     ) throws
     {
         fatalError("not implemented")
-    }
-}
-
-//==============================================================================
-// ConvolutionProperties
-public struct ConvolutionProperties: Codable {
-    public var activationNan: NanPropagation
-    public var activationReluCeiling: Double
-    public var backwardDataAlgorithm: ConvolutionBwdDataAlgorithm
-    public var backwardDataWorkspaceLimit: Int
-    public var backwardFilterAlgorithm: ConvolutionBwdFilterAlgorithm
-    public var backwardFilterWorkspaceLimit: Int
-    public var forwardAlgorithm: ConvolutionFwdAlgorithm
-    public var forwardWorkspaceLimit: Int
-    public var mode: ConvolutionMode
-    
-    @inlinable
-    public init() {
-        activationNan = .noPropagate
-        activationReluCeiling = 0
-        backwardDataAlgorithm = .fastest
-        backwardDataWorkspaceLimit = 10.MB
-        backwardFilterAlgorithm = .fastest
-        backwardFilterWorkspaceLimit = 10.MB
-        forwardAlgorithm = .fastest
-        forwardWorkspaceLimit = 10.MB
-        mode = .crossCorrelation
     }
 }
