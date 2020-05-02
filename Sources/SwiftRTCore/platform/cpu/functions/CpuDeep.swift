@@ -15,6 +15,32 @@
 //
 import Foundation
 
+//==============================================================================
+// DeviceQueue functions with default cpu delegation
+extension DeviceQueue where Self: CpuFunctions & CpuMapOps
+{
+    public func convolution<Shape,E,FE>(
+        activation: ActivationType,
+        strides: Shape,
+        padding: Padding,
+        dilations: Shape,
+        properties: ConvolutionProperties,
+        deviceId: Int,
+        filterBiasBackpropQueueIndex: Int
+    ) -> DeviceConvolution<Shape,E,FE>
+    where Shape: TensorShape,
+          E: ScalarElement, FE: ScalarElement & BinaryFloatingPoint
+    {
+        cpu_convolution(
+            activation: activation, strides: strides,
+            padding: padding, dilations: dilations,
+            properties: properties, deviceId: deviceId,
+            filterBiasBackpropQueueIndex: filterBiasBackpropQueueIndex)
+    }
+}
+
+//==============================================================================
+// Cpu device queue function implementations
 extension CpuFunctions {
     //==========================================================================
 //    public func activation<S,E>(
@@ -27,7 +53,7 @@ extension CpuFunctions {
 //    }
 
     //==========================================================================
-    public func convolution<Shape,E,FE>(
+    public func cpu_convolution<Shape,E,FE>(
         activation: ActivationType,
         strides: Shape,
         padding: Padding,

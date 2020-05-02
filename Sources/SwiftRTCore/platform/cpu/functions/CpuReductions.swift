@@ -15,17 +15,37 @@
 //
 import Foundation
 
+//==============================================================================
+// DeviceQueue functions with default cpu delegation
+extension DeviceQueue where Self: CpuFunctions & CpuMapOps
+{
+    //--------------------------------------------------------------------------
+    @inlinable public func reduceSumAll<S,E>(_ x: Tensor<S,E>,
+                                             _ result: inout Tensor<S,E>)
+    where E: AdditiveArithmetic { cpu_reduceSumAll(x, &result) }
+    //--------------------------------------------------------------------------
+    @inlinable func reduce<S,E>(
+        _ x: Tensor<S,E>,
+        _ result: inout Tensor<S,E>,
+        _ opId: ReductionOp,
+        _ opNext: @escaping (E, E) -> E,
+        _ opFinal: ReduceOpFinal<Tensor<S,E>>?
+    ) { cpu_reduce(x, &result, opId, opNext, opFinal) }
+}
+
+//==============================================================================
+// Cpu device queue function implementations
 extension CpuFunctions where Self: CpuMapOps {
     //--------------------------------------------------------------------------
-    @inlinable
-    public func reduceSumAll<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
-    where E: AdditiveArithmetic
-    {
+    @inlinable public func cpu_reduceSumAll<S,E>(
+        _ x: Tensor<S,E>,
+        _ result: inout Tensor<S,E>
+    ) where E: AdditiveArithmetic {
         result[result.startIndex] = x.indices.reduce(into: E.zero) { $0 += x[$1] }
     }
     
     //--------------------------------------------------------------------------
-    @inlinable func reduce<S,E>(
+    @inlinable func cpu_reduce<S,E>(
         _ x: Tensor<S,E>,
         _ result: inout Tensor<S,E>,
         _ opId: ReductionOp,
@@ -44,6 +64,4 @@ extension CpuFunctions where Self: CpuMapOps {
             inPlaceOp(&result, op)
         }
     }
-    
-
 }

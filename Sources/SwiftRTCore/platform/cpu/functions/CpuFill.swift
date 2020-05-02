@@ -15,16 +15,80 @@
 //
 import Foundation
 
-extension CpuFunctions where Self: CpuMapOps {
+//==============================================================================
+// DeviceQueue functions with default cpu delegation
+extension DeviceQueue where Self: CpuFunctions & CpuMapOps
+{
     //--------------------------------------------------------------------------
     @inlinable func fill<S,E>(_ result: inout Tensor<S,E>, with element: E)
-    where S: TensorShape
-    {
+    where S: TensorShape { cpu_fill(&result, with: element) }
+    //--------------------------------------------------------------------------
+    @inlinable func fill<S,E,B>(
+        _ result: inout Tensor<S,E>,
+        with range: Range<B>
+    ) where S: TensorShape, E: Numeric,
+            B: SignedInteger, B.Stride: SignedInteger
+    { cpu_fill(&result, with: range) }
+    //--------------------------------------------------------------------------
+    @inlinable func eye<S,E>(_ result: inout Tensor<S,E>, offset: Int)
+    where S: TensorShape, E: Numeric { cpu_eye(&result, offset: offset) }
+    //--------------------------------------------------------------------------
+    @inlinable func fill<S,E>(
+        randomUniform result: inout Tensor<S,E>,
+        _ lower: E,
+        _ upper: E,
+        _ seed: RandomSeed
+    ) where S: TensorShape, E: BinaryFloatingPoint
+    { cpu_fill(randomUniform: &result, lower, upper, seed) }
+    //--------------------------------------------------------------------------
+    @inlinable func fill<S,E>(
+        randomNormal result: inout Tensor<S,E>,
+        _ mean: E,
+        _ standardDeviation: E,
+        _ seed: RandomSeed
+    ) where S: TensorShape, E: BinaryFloatingPoint
+    { cpu_fill(randomNormal: &result, mean, standardDeviation, seed) }
+    //--------------------------------------------------------------------------
+    // case where the mean and stddev are not static scalars,
+    // but tensor results from previous ops
+    @inlinable func fill<S,E>(
+        randomNormal result: inout Tensor<S,E>,
+        _ mean: Tensor<S,E>,
+        _ standardDeviation: Tensor<S,E>,
+        _ seed: RandomSeed
+    ) where S: TensorShape, E: BinaryFloatingPoint
+    { cpu_fill(randomNormal: &result, mean, standardDeviation, seed) }
+    //--------------------------------------------------------------------------
+    @inlinable func fill<S,E>(
+        randomTruncatedNormal result: inout Tensor<S,E>,
+        _ mean: E,
+        _ standardDeviation: E,
+        _ seed: RandomSeed
+    ) where S: TensorShape, E: BinaryFloatingPoint
+    { cpu_fill(randomTruncatedNormal: &result, mean, standardDeviation, seed) }
+    //--------------------------------------------------------------------------
+    @inlinable func fill<S,E>(
+        randomTruncatedNormal result: inout Tensor<S,E>,
+        _ mean: Tensor<S,E>,
+        _ standardDeviation: Tensor<S,E>,
+        _ seed: RandomSeed
+    ) where S: TensorShape, E: BinaryFloatingPoint
+    { cpu_fill(randomTruncatedNormal: &result, mean, standardDeviation, seed) }
+}
+
+//==============================================================================
+// Cpu device queue function implementations
+extension CpuFunctions where Self: CpuMapOps {
+    //--------------------------------------------------------------------------
+    @inlinable func cpu_fill<S,E>(
+        _ result: inout Tensor<S,E>,
+        with element: E
+    ) where S: TensorShape {
         generatorOp(&result) { element }
     }
     
     //--------------------------------------------------------------------------
-    @inlinable func fill<S,E,B>(
+    @inlinable func cpu_fill<S,E,B>(
         _ result: inout Tensor<S,E>,
         with range: Range<B>
     ) where S: TensorShape, E: Numeric,
@@ -34,15 +98,16 @@ extension CpuFunctions where Self: CpuMapOps {
     }
     
     //--------------------------------------------------------------------------
-    @inlinable func eye<S,E>(_ result: inout Tensor<S,E>, offset: Int)
-    where S: TensorShape, E: Numeric
-    {
+    @inlinable func cpu_eye<S,E>(
+        _ result: inout Tensor<S,E>,
+        offset: Int
+    ) where S: TensorShape, E: Numeric {
         assert(!result.isSequential)
         generatorOp(&result) { 0 }
     }
 
     //--------------------------------------------------------------------------
-    @inlinable func fill<S,E>(
+    @inlinable func cpu_fill<S,E>(
         randomUniform result: inout Tensor<S,E>,
         _ lower: E,
         _ upper: E,
@@ -58,7 +123,7 @@ extension CpuFunctions where Self: CpuMapOps {
     }
     
     //--------------------------------------------------------------------------
-    @inlinable func fill<S,E>(
+    @inlinable func cpu_fill<S,E>(
         randomNormal result: inout Tensor<S,E>,
         _ mean: E,
         _ standardDeviation: E,
@@ -76,7 +141,7 @@ extension CpuFunctions where Self: CpuMapOps {
     //--------------------------------------------------------------------------
     // case where the mean and stddev are not static scalars,
     // but tensor results from previous ops
-    @inlinable func fill<S,E>(
+    @inlinable func cpu_fill<S,E>(
         randomNormal result: inout Tensor<S,E>,
         _ mean: Tensor<S,E>,
         _ standardDeviation: Tensor<S,E>,
@@ -93,7 +158,7 @@ extension CpuFunctions where Self: CpuMapOps {
     }
     
     //--------------------------------------------------------------------------
-    @inlinable func fill<S,E>(
+    @inlinable func cpu_fill<S,E>(
         randomTruncatedNormal result: inout Tensor<S,E>,
         _ mean: E,
         _ standardDeviation: E,
@@ -111,7 +176,7 @@ extension CpuFunctions where Self: CpuMapOps {
     }
     
     //--------------------------------------------------------------------------
-    @inlinable func fill<S,E>(
+    @inlinable func cpu_fill<S,E>(
         randomTruncatedNormal result: inout Tensor<S,E>,
         _ mean: Tensor<S,E>,
         _ standardDeviation: Tensor<S,E>,
