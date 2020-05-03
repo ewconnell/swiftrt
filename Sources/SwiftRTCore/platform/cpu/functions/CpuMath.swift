@@ -54,6 +54,14 @@ extension DeviceQueue where Self: CpuFunctions & CpuMapOps
     @inlinable func atanh<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E: Real { cpu_atanh(x, &result) }
     //--------------------------------------------------------------------------
+    @inlinable func batchMatmul<S,E>(
+        _ lhs: Tensor<S,E>, _ transposeLhs: Bool,
+        _ rhs: Tensor<S,E>, _ transposeRhs: Bool,
+        _ result: inout Tensor<S,E>
+    ) where S: TensorShape, E: Numeric {
+        cpu_batchMatmul(lhs, transposeLhs, rhs, transposeRhs, &result)
+    }
+    //--------------------------------------------------------------------------
     @inlinable func cast<S, E, RE>(from buffer: Tensor<S,E>,
                                    to result: inout Tensor<S,RE>)
     where S: TensorShape, E: BinaryFloatingPoint, RE: BinaryInteger
@@ -144,6 +152,14 @@ extension DeviceQueue where Self: CpuFunctions & CpuMapOps
     //--------------------------------------------------------------------------
     @inlinable func logGamma<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E: Real { cpu_logGamma(x, &result) }
+    //--------------------------------------------------------------------------
+    @inlinable func matmul<S,E>(
+        _ lhs: Tensor<S,E>, _ transposeLhs: Bool,
+        _ rhs: Tensor<S,E>, _ transposeRhs: Bool,
+        _ result: inout Tensor<S,E>
+    ) where S: TensorShape, E: Numeric {
+        cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
+    }
     //--------------------------------------------------------------------------
     @inlinable func max<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                              _ result: inout Tensor<S,E>)
@@ -291,6 +307,15 @@ extension CpuFunctions where Self: DeviceQueue & CpuMapOps
                                    _ result: inout Tensor<S,E>)
     where S: TensorShape, E: Real {
         mapOp(y, x, &result) { .atan2(y: $0, x: $1) }
+    }
+    
+    //--------------------------------------------------------------------------
+    @inlinable func cpu_batchMatmul<S,E>(
+        _ lhs: Tensor<S,E>, _ transposeLhs: Bool,
+        _ rhs: Tensor<S,E>, _ transposeRhs: Bool,
+        _ result: inout Tensor<S,E>
+    ) where S: TensorShape, E: Numeric {
+        fatalError("TODO")
     }
     
     //--------------------------------------------------------------------------
@@ -471,6 +496,15 @@ extension CpuFunctions where Self: DeviceQueue & CpuMapOps
         mapOp(x, &result) { .logGamma($0) }
     }
     
+    //--------------------------------------------------------------------------
+    @inlinable func cpu_matmul<S,E>(
+        _ lhs: Tensor<S,E>, _ transposeLhs: Bool,
+        _ rhs: Tensor<S,E>, _ transposeRhs: Bool,
+        _ result: inout Tensor<S,E>
+    ) where S: TensorShape, E: Numeric {
+        fatalError("TODO")
+    }
+
     //--------------------------------------------------------------------------
     @inlinable func cpu_max<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                  _ result: inout Tensor<S,E>)

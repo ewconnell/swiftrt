@@ -257,11 +257,18 @@ public extension Tensor where Element: Numeric
 ) -> Tensor<S,E> where S: TensorShape, E: Numeric
 {
     assert(S.rank > 1 && lhs.shape[S.rank-1] == rhs.shape[S.rank-2])
-    let result = Tensor<S,E>(S.one)
+    let M = lhs.shape[S.rank - 2]
+    let N = rhs.shape[S.rank - 1]
+    var resultShape = lhs.shape
+    resultShape[S.rank - 2] = M
+    resultShape[S.rank - 1] = N
+    var result = Tensor<S,E>(resultShape)
+    let queue = Context.currentQueue
+    
     if S.rank == 2 {
-        //    Context.currentQueue.matmul(lhs, rhs, &result)
+        queue.matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
     } else {
-        //    Context.currentQueue.batchMatmul(lhs, rhs, &result)
+        queue.batchMatmul(lhs, transposeLhs, rhs, transposeRhs, &result)
     }
     return result
 }
