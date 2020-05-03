@@ -66,7 +66,7 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_reshapeOrder
     func test_reshapeOrder() {
-        Context.log.level = .diagnostic
+//        Context.log.level = .diagnostic
         let a = array([[0, 1, 2], [3, 4, 5]])
         XCTAssert(Array(a.storage.hostBuffer) == [0, 1, 2, 3, 4, 5])
 
