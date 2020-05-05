@@ -22,6 +22,11 @@ class test_AlgebraicField: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_matmul", test_matmul),
+        ("test_batchMatmul", test_batchMatmul),
+        ("test_leftBatchMatmul", test_leftBatchMatmul),
+        ("test_rightBatchMatmul", test_rightBatchMatmul),
+
         ("test_addSubMulDivComplex", test_addSubMulDivComplex),
         ("test_add", test_add),
         ("test_addInt32", test_addInt32),
@@ -42,6 +47,104 @@ class test_AlgebraicField: XCTestCase {
         ("test_divScalar", test_divScalar),
         ("test_divAndAssign", test_divAndAssign),
     ]
+
+    //--------------------------------------------------------------------------
+    // test_matmul
+    func test_matmul() {
+        let a = array(0..<6, (3, 2))
+        let b = array(0..<8, (2, 4))
+        let c = matmul(a, b)
+        XCTAssert(c == [[ 4,  5,  6,  7],
+                        [12, 17, 22, 27],
+                        [20, 29, 38, 47]])
+        
+        let (g0, g1) = pullback(at: a, b, in: { matmul($0, $1) } )(ones(like: c))
+        XCTAssert(g0 == [[ 6.0, 22.0],
+                         [ 6.0, 22.0],
+                         [ 6.0, 22.0]])
+        
+        XCTAssert(g1 == [[6.0, 6.0, 6.0, 6.0],
+                         [9.0, 9.0, 9.0, 9.0]])
+    }
+    
+    //--------------------------------------------------------------------------
+    // test_batchMatmul
+    func test_batchMatmul() {
+        let a = array(0..<12, (2, 3, 2))
+        let b = array(0..<16, (2, 2, 4))
+        let c = matmul(a, b)
+        XCTAssert(c == [[[  4.0,   5.0,   6.0,   7.0],
+                         [ 12.0,  17.0,  22.0,  27.0],
+                         [ 20.0,  29.0,  38.0,  47.0]],
+                        
+                        [[132.0, 145.0, 158.0, 171.0],
+                         [172.0, 189.0, 206.0, 223.0],
+                         [212.0, 233.0, 254.0, 275.0]]])
+        
+        let (g0, g1) = pullback(at: a, b, in: { matmul($0, $1) } )(ones(like: c))
+        XCTAssert(g0 == [[[ 6.0, 22.0],
+                          [ 6.0, 22.0],
+                          [ 6.0, 22.0]],
+                         
+                         [[38.0, 54.0],
+                          [38.0, 54.0],
+                          [38.0, 54.0]]])
+        
+        XCTAssert(g1 == [[[ 6.0,  6.0,  6.0,  6.0],
+                          [ 9.0,  9.0,  9.0,  9.0]],
+                         
+                         [[24.0, 24.0, 24.0, 24.0],
+                          [27.0, 27.0, 27.0, 27.0]]])
+    }
+
+    //--------------------------------------------------------------------------
+    // test_leftBatchMatmul
+    func test_leftBatchMatmul() {
+        let a = array(0..<12, (2, 3, 2))
+        let b = array(0..<8, (2, 4))
+        let c = matmul(a, b)
+        XCTAssert(c == [[[ 4,  5,  6,  7],
+                         [12, 17, 22, 27],
+                         [20, 29, 38, 47]]])
+        
+        let (g0, g1) = pullback(at: a, b, in: { matmul($0, $1) } )(ones(like: c))
+        XCTAssert(g0 == [[[ 6.0, 22.0],
+                          [ 6.0, 22.0],
+                          [ 6.0, 22.0]],
+                         
+                         [[ 6.0, 22.0],
+                          [ 6.0, 22.0],
+                          [ 6.0, 22.0]]])
+        
+        XCTAssert(g1 == [[30.0, 30.0, 30.0, 30.0],
+                         [36.0, 36.0, 36.0, 36.0]])
+    }
+
+    //--------------------------------------------------------------------------
+    // test_rightBatchMatmul
+    func test_rightBatchMatmul() {
+        let a = array(0..<6, (3, 2))
+        let b = array(0..<16, (2, 2, 4))
+        let c = matmul(a, b)
+        XCTAssert(c == [[[  4.0,   5.0,   6.0,   7.0],
+                         [ 12.0,  17.0,  22.0,  27.0],
+                         [ 20.0,  29.0,  38.0,  47.0]],
+                        
+                        [[ 12.0,  13.0,  14.0,  15.0],
+                         [ 52.0,  57.0,  62.0,  67.0],
+                         [ 92.0, 101.0, 110.0, 119.0]]])
+        
+        let (g0, g1) = pullback(at: a, b, in: { matmul($0, $1) } )(ones(like: c))
+        XCTAssert(g0 == [[44.0, 76.0],
+                         [44.0, 76.0],
+                         [44.0, 76.0]])
+        
+        XCTAssert(g1 == [[[6.0, 6.0, 6.0, 6.0],
+                          [9.0, 9.0, 9.0, 9.0]],
+                         
+                         [[6.0, 6.0, 6.0, 6.0],
+                          [9.0, 9.0, 9.0, 9.0]]])
+    }
     
     //--------------------------------------------------------------------------
     // test_add

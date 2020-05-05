@@ -83,6 +83,15 @@ public extension TensorShape {
     var count: Int { Self.rank }
 
     //--------------------------------------------------------------------------
+    /// transpose last two dimensions
+    @inlinable @_transparent
+    var t: Self {
+        var transposed = self
+        transposed.swapAt(Self.rank-1, Self.rank-2)
+        return transposed
+    }
+    
+    //--------------------------------------------------------------------------
     /// copy to Swift Array
     @inlinable @_transparent
     var array: [Scalar] {
@@ -111,9 +120,13 @@ public extension TensorShape {
     
     //--------------------------------------------------------------------------
     // generic n-dimensional position increment function
-    @inlinable func incremented(between lower: Self, and upper: Self) -> Self {
+    @inlinable func incremented(
+        between lower: Self,
+        and upper: Self,
+        axis: Int = Self.rank - 1
+    ) -> Self {
         var next = self
-        var dim = Self.rank &- 1
+        var dim = axis
         while true {
             next[dim] &+= 1
             if next[dim] < upper[dim] {
