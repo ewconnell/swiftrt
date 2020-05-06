@@ -22,7 +22,7 @@ public typealias ParameterInitializer<S,E> = (S) -> Tensor<S,E>
 
 /// Returns a function that creates a tensor by initializing
 /// all its values to zeros.
-@inlinable public func pzeros<S,E>() -> ParameterInitializer<S,E>
+@inlinable public func zeros<S,E>() -> ParameterInitializer<S,E>
 where S: TensorShape, E: Numeric
 {
     { Tensor<S,E>(zeros: $0) }

@@ -241,7 +241,7 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
     ///   - inputSize: The number of features in 2-D input tensors.
     ///   - hiddenSize: The number of features in 2-D hidden states.
     public init(inputSize: Int, hiddenSize: Int) {
-        self.fusedWeight = Tensor(glorotUniform: [inputSize + hiddenSize, 4 * hiddenSize])
+        self.fusedWeight = Tensor(glorotUniform: (inputSize + hiddenSize, 4 * hiddenSize))
         self.fusedBias = Tensor(zeros: [4 * hiddenSize])
     }
     
@@ -291,8 +291,7 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
         _ input: Input
     ) -> Output {
         let gateInput = input.input.concatenated(with: input.state.hidden, alongAxis: 1)
-        
-        let fused = matmul(gateInput, fusedWeight) + fusedBias
+        let fused = matmul(gateInput, fusedWeight, bias: fusedBias)
         let batchSize = fused.shape[0]
         let hiddenSize = fused.shape[1] / 4
         let inputGate = sigmoid(fused[(0, 0), (batchSize, hiddenSize)])
@@ -317,21 +316,27 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
 
 //==============================================================================
 /// An GRU cell.
-public struct GRUCell<Scalar: TensorFlowFloatingPoint>: RecurrentLayerCell {
-    public var updateWeight1, updateWeight2: Tensor<Scalar>
-    public var resetWeight1, resetWeight2: Tensor<Scalar>
-    public var outputWeight1, outputWeight2: Tensor<Scalar>
-    public var updateBias, outputBias, resetBias: Tensor<Scalar>
+public struct GRUCell<Element>: RecurrentLayerCell
+where Element: DifferentiableElement & Real & BinaryFloatingPoint
+{
+    public var updateWeight1, updateWeight2: TensorR2<Element>
+    public var resetWeight1, resetWeight2: TensorR2<Element>
+    public var outputWeight1, outputWeight2: TensorR2<Element>
+    public var updateBias, outputBias, resetBias: TensorR1<Element>
     
-    @noDerivative public var stateShape: TensorShape {
-        [1, updateWeight1.shape[0]]
+    @noDerivative public var stateShape: Shape2 {
+        Shape2(1, updateWeight1.shape[0])
     }
     
-    public func zeroState(for input: Tensor<Scalar>) -> State {
-        return State(hidden: Tensor(zeros: stateShape, on: input.device))
+    //--------------------------------------------------------------------------
+    /// Returns a zero-valued state with shape compatible with the provided input.
+    public func zeroState(
+        for input: TensorR2<Element>
+    ) -> State {
+        State(hidden: TensorR2<Element>(zeros: stateShape))
     }
     
-    public typealias TimeStepInput = Tensor<Scalar>
+    public typealias TimeStepInput = TensorR2<Element>
     public typealias TimeStepOutput = State
     public typealias Input = RNNCellInput<TimeStepInput, State>
     public typealias Output = RNNCellOutput<TimeStepOutput, State>
@@ -344,11 +349,11 @@ public struct GRUCell<Scalar: TensorFlowFloatingPoint>: RecurrentLayerCell {
     public init(
         inputSize: Int,
         hiddenSize: Int,
-        weightInitializer: ParameterInitializer<Scalar> = glorotUniform(),
-        biasInitializer: ParameterInitializer<Scalar> = zeros()
+        weightInitializer: ParameterInitializer<Shape2,Element> = glorotUniform(),
+        biasInitializer: ParameterInitializer<Shape1,Element> = zeros()
     ) {
-        let gateWeightShape = TensorShape([inputSize, 1])
-        let gateBiasShape = TensorShape([hiddenSize])
+        let gateWeightShape = Shape2(inputSize, 1)
+        let gateBiasShape = Shape1(hiddenSize)
         self.updateWeight1 = weightInitializer(gateWeightShape)
         self.updateWeight2 = weightInitializer(gateWeightShape)
         self.updateBias = biasInitializer(gateBiasShape)
@@ -363,10 +368,23 @@ public struct GRUCell<Scalar: TensorFlowFloatingPoint>: RecurrentLayerCell {
     // TODO(TF-507): Revert to `typealias State = Tensor<Scalar>` after
     // SR-10697 is fixed.
     public struct State: Equatable, Differentiable, VectorProtocol, KeyPathIterable {
-        public var hidden: Tensor<Scalar>
+        public func adding(_ x: Element) -> Self {
+            State(hidden: hidden + x)
+        }
+        
+        public func subtracting(_ x: Element) -> Self {
+            State(hidden: hidden - x)
+        }
+        
+        public func scaled(by scalar: Element) -> Self {
+            State(hidden: hidden * scalar)
+        }
+        
+        public typealias VectorSpaceScalar = Element
+        public var hidden: TensorR2<Element>
         
         @differentiable
-        public init(hidden: Tensor<Scalar>) {
+        public init(hidden: TensorR2<Element>) {
             self.hidden = hidden
         }
     }
@@ -378,14 +396,17 @@ public struct GRUCell<Scalar: TensorFlowFloatingPoint>: RecurrentLayerCell {
     @differentiable
     public func callAsFunction(_ input: Input) -> Output {
         let resetGate = sigmoid(
-            matmul(input.input, resetWeight1) + matmul(input.state.hidden, resetWeight2) + resetBias
-        )
+            matmul(input.input, resetWeight1) +
+                matmul(input.state.hidden, resetWeight2, bias: resetBias))
+        
         let updateGate = sigmoid(
-                matmul(input.input, updateWeight1) + matmul(input.state.hidden, updateWeight2)
-                    + updateBias)
+                matmul(input.input, updateWeight1) +
+                    matmul(input.state.hidden, updateWeight2, bias: updateBias))
+        
         let outputGate = tanh(
-                matmul(input.input, outputWeight1)
-                    + matmul(resetGate * input.state.hidden, outputWeight2) + outputBias)
+                matmul(input.input, outputWeight1, bias: outputBias) +
+                    matmul(resetGate * input.state.hidden, outputWeight2))
+        
         let updateHidden = (1 - updateGate) * input.state.hidden
         let updateOutput = (1 - updateGate) * outputGate
         let newState = State(hidden: updateHidden + updateOutput)
@@ -503,4 +524,7 @@ public typealias BasicRNN<Element> = RecurrentLayer<BasicRNNCell<Element>>
     where Element: Real & BinaryFloatingPoint & DifferentiableElement
 
 public typealias LSTM<Element> = RecurrentLayer<LSTMCell<Element>>
+    where Element: Real & BinaryFloatingPoint & DifferentiableElement
+
 public typealias GRU<Element> = RecurrentLayer<GRUCell<Element>>
+    where Element: Real & BinaryFloatingPoint & DifferentiableElement

@@ -225,6 +225,12 @@ public extension Tensor where Element: Real & BinaryFloatingPoint {
                   seed: seed)
     }
 
+    init(glorotUniform shape: Shape.Tuple,
+         seed: RandomSeed = Context.randomSeed)
+    {
+        self.init(glorotUniform: Shape(shape), seed: seed)
+    }
+    
     //--------------------------------------------------------------------------
     /// Creates a tensor with the specified shape by performing
     /// Glorot (Xavier) normal initialization.
