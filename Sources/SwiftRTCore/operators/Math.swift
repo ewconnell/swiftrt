@@ -757,6 +757,40 @@ public extension Tensor where Element: Real {
 }
 
 //==============================================================================
+/// sigmoid(x)
+/// Returns the sigmoid of the specified tensor element-wise.
+/// Specifically, computes `1 / (1 + exp(-x))`.
+/// - Parameter x: value tensor
+/// - Returns: the signs of `x`. -1 for negative `x` values, 1 for positive
+@inlinable public func sigmoid<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
+where S: TensorShape, E: Real
+{
+    var result = Tensor(like: x)
+    Context.currentQueue.sigmoid(x, &result)
+    return result
+}
+
+@derivative(of: sigmoid)
+@inlinable func _vjpSigmoid<S,E>(_ x: Tensor<S,E>)
+-> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+where S: TensorShape, E: DifferentiableElement & Real
+{
+    (sigmoid(x), { v in
+        fatalError()
+    })
+}
+
+// Tensor extension
+public extension Tensor where Element: Real {
+    // make glboal function visible for extension implementations
+    @differentiable(where Element: DifferentiableElement)
+    @inlinable func sigmoid(_ x: Self) -> Self { SwiftRTCore.sigmoid(x) }
+    
+    @differentiable(where Element: DifferentiableElement)
+    @inlinable func sigmoid() -> Self { sign(self) }
+}
+
+//==============================================================================
 /// tan(x)
 /// computes the tangent of `x`
 /// - Parameter x: value tensor

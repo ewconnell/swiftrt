@@ -315,6 +315,12 @@ public extension Tensor {
         }
     }
 
+    @differentiable(where Element: DifferentiableElement)
+    @inlinable subscript(lower: Shape.Tuple, upper: Shape.Tuple) -> Self {
+        get { self[Shape(lower), Shape(upper)] }
+        set { self[Shape(lower), Shape(upper)] = newValue }
+    }
+    
     @inlinable
     func createView(_ lower: Shape, _ upper: Shape, _ share: Bool) -> Self {
         let shape = upper &- lower

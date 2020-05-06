@@ -202,6 +202,9 @@ extension DeviceQueue where Self: CpuFunctions & CpuMapOps
                               _ result: inout Tensor<S,E>)
     where S: TensorShape, E: Real { cpu_root(x, n, &result) }
     //--------------------------------------------------------------------------
+    @inlinable func sigmoid<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
+    where S: TensorShape, E: Real { cpu_sigmoid(x, &result) }
+    //--------------------------------------------------------------------------
     @inlinable func sign<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E: Real { cpu_sign(x, &result) }
     //--------------------------------------------------------------------------
@@ -597,6 +600,12 @@ extension CpuFunctions where Self: DeviceQueue & CpuMapOps
                                   _ result: inout Tensor<S,E>)
     where S: TensorShape, E: Real {
         mapOp(x, &result) { .root($0, n) }
+    }
+    
+    //--------------------------------------------------------------------------
+    @inlinable func cpu_sigmoid<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
+    where S: TensorShape, E: Real {
+        mapOp(x, &result) { 1 / (1 + .exp(-$0)) }
     }
     
     //--------------------------------------------------------------------------
