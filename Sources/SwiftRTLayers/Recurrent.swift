@@ -185,54 +185,49 @@ public struct LSTMCell<Element>: RecurrentLayerCell
 where Element: DifferentiableElement & Real & BinaryFloatingPoint
 {
     public var fusedWeight: TensorR2<Element>
-    public var fusedBias: TensorR2<Element>
+    public var fusedBias: TensorR1<Element>
     
     public var inputWeight: TensorR2<Element> {
         let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedWeight.slice(
-            lowerBounds: [0, 0],
-            upperBounds: [fusedWeight.shape[0], hiddenSize])
+        return fusedWeight[(0, 0), (fusedWeight.shape[0], hiddenSize)]
     }
     
     public var updateWeight: TensorR2<Element> {
         let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedWeight.slice(
-            lowerBounds: [0, hiddenSize],
-            upperBounds: [fusedWeight.shape[0], 2 * hiddenSize])
+        return fusedWeight[(0, hiddenSize),
+                           (fusedWeight.shape[0], 2 * hiddenSize)]
     }
     
     public var forgetWeight: TensorR2<Element> {
         let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedWeight.slice(
-            lowerBounds: [0, 2 * hiddenSize],
-            upperBounds: [fusedWeight.shape[0], 3 * hiddenSize])
+        return fusedWeight[(0, 2 * hiddenSize),
+                           (fusedWeight.shape[0], 3 * hiddenSize)]
     }
     
     public var outputWeight: TensorR2<Element> {
         let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedWeight.slice(
-            lowerBounds: [0, 3 * hiddenSize],
-            upperBounds: [fusedWeight.shape[0], 4 * hiddenSize])
+        return fusedWeight[(0, 3 * hiddenSize),
+                           (fusedWeight.shape[0], 4 * hiddenSize)]
     }
     
-    public var inputBias: TensorR2<Element> {
+    public var inputBias: TensorR1<Element> {
         let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedBias.slice(lowerBounds: [0], upperBounds: [hiddenSize])
+        return fusedBias[(0), (hiddenSize)]
     }
     
-    public var updateBias: TensorR2<Element> {
+    public var updateBias: TensorR1<Element> {
         let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedBias.slice(lowerBounds: [hiddenSize], upperBounds: [2 * hiddenSize])
+        return fusedBias[(hiddenSize), (2 * hiddenSize)]
     }
     
-    public var forgetBias: TensorR2<Element> {
+    public var forgetBias: TensorR1<Element> {
         let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedBias.slice(lowerBounds: [2 * hiddenSize], upperBounds: [3 * hiddenSize])
+        return fusedBias[(2 * hiddenSize), (3 * hiddenSize)]
     }
     
-    public var outputBias: TensorR2<Element> {
+    public var outputBias: TensorR1<Element> {
         let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedBias.slice(lowerBounds: [3 * hiddenSize], upperBounds: [4 * hiddenSize])
+        return fusedBias[(3 * hiddenSize), (4 * hiddenSize)]
     }
     
     public typealias TimeStepInput = TensorR2<Element>
@@ -251,6 +246,21 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
     }
     
     public struct State: Equatable, Differentiable, VectorProtocol, KeyPathIterable {
+        
+        // TODO: Verify that is is correct and find out why I had to implement it
+        public func adding(_ x: Element) -> Self {
+            State(cell: cell + x, hidden: hidden + x)
+        }
+        
+        public func subtracting(_ x: Element) -> Self {
+            State(cell: cell - x, hidden: hidden - x)
+        }
+        
+        public func scaled(by scalar: Element) -> Self {
+            State(cell: cell * scalar, hidden: hidden * scalar)
+        }        
+        
+        public typealias VectorSpaceScalar = Element
         public var cell: TensorR2<Element>
         public var hidden: TensorR2<Element>
         
