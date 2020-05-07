@@ -54,6 +54,8 @@ where E: DifferentiableElement
 /// - Returns: a new tensor containing the result
 // https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
 @differentiable(where E: DifferentiableElement)
+@differentiable(wrt: lhs where E: DifferentiableElement)
+@differentiable(wrt: rhs where E: DifferentiableElement)
 @inlinable public func matmul<E>(
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
@@ -78,6 +80,28 @@ where E: DifferentiableElement
      { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
 }
 
+@derivative(of: matmul, wrt: lhs)
+@inlinable public func _vjpMatmulWrtLhs<E>(
+    _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
+    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
+) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
+where E: DifferentiableElement
+{
+    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
+     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).0 })
+}
+
+@derivative(of: matmul, wrt: rhs)
+@inlinable public func _vjpMatmulWrtRhs<E>(
+    _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
+    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
+) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
+where E: DifferentiableElement
+{
+    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
+     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).1 })
+}
+
 //==============================================================================
 /// matmul
 /// performs a matrix cross product
@@ -89,6 +113,8 @@ where E: DifferentiableElement
 /// - Returns: a new tensor containing the result
 // https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
 @differentiable(where E: DifferentiableElement)
+@differentiable(wrt: (lhs, bias) where E: DifferentiableElement)
+@differentiable(wrt: (rhs, bias) where E: DifferentiableElement)
 @inlinable public func matmul<E>(
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
@@ -116,6 +142,31 @@ where E: DifferentiableElement
 //     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
 }
 
+@derivative(of: matmul, wrt: (lhs, bias))
+@inlinable public func _vjpMatmulWrtLhsBias<E>(
+    _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
+    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
+    bias: TensorR1<E>
+) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR1<E>))
+where E: DifferentiableElement
+{
+    fatalError()
+//    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
+//     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
+}
+
+@derivative(of: matmul, wrt: (rhs, bias))
+@inlinable public func _vjpMatmulWrtRhsBias<E>(
+    _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
+    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
+    bias: TensorR1<E>
+) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR1<E>))
+where E: DifferentiableElement
+{
+    fatalError()
+//    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
+//     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
+}
 
 //==============================================================================
 /// matmul
