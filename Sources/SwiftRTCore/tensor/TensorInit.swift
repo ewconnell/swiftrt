@@ -771,6 +771,10 @@ extension Tensor where Element: Numeric {
         fill(&self, with: 0)
     }
 
+    @inlinable public init(zeros shape: Shape.Tuple, order: StorageOrder = .C) {
+        self.init(zeros: Shape(shape), order: order)
+    }
+    
     //--------------------------------------------------------------------------
     /// init(ones shape:order:
     /// creates a dense shape filled with ones
@@ -781,7 +785,11 @@ extension Tensor where Element: Numeric {
         self.init(shape, order: order)
         fill(&self, with: 1)
     }
-    
+
+    @inlinable public init(ones shape: Shape.Tuple, order: StorageOrder = .C) {
+        self.init(ones: Shape(shape), order: order)
+    }
+
     //--------------------------------------------------------------------------
     /// init(eye:offset:
     /// Returns a new data shape where the bounds and strides are permuted
@@ -796,6 +804,14 @@ extension Tensor where Element: Numeric {
     ) {
         self.init(shape, order: order)
         Context.currentQueue.eye(&self, offset: offset)
+    }
+
+    @inlinable public init(
+        eye shape: Shape.Tuple,
+        offset: Int = 0,
+        order: StorageOrder = .C
+    ) {
+        self.init(eye: Shape(shape), offset: offset, order: order)
     }
 }
 
