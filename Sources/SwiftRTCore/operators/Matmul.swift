@@ -53,7 +53,7 @@ where E: DifferentiableElement
 ///  - transposeRhs: `true` to transpose `rhs`, default is `false`
 /// - Returns: a new tensor containing the result
 // https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
-//@differentiable(where E: DifferentiableElement)
+@differentiable(where E: DifferentiableElement)
 @differentiable(wrt: lhs where E: DifferentiableElement)
 @differentiable(wrt: rhs where E: DifferentiableElement)
 @inlinable public func matmul<E>(

@@ -36,13 +36,50 @@ import Numerics
     return result
 }
 
+@derivative(of: add)
+@inlinable public func _vjpAdd<S, E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+-> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>, Tensor<S,E>))
+where S: TensorShape, E: DifferentiableElement
+{
+    print("calling _vjpAdd both")
+    return (lhs + rhs, { v in (v, v) })
+}
+
+@derivative(of: add, wrt: lhs)
+@inlinable public func _vjpAdd<S, E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+-> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>))
+where S: TensorShape, E: DifferentiableElement
+{
+    print("calling _vjpAdd wrt lhs")
+    return (lhs, {
+        print("calling _vjpAdd pullback wrt lhs")
+        return $0
+    })
+}
+
+
+//------------------------------------------------------------------------------
 @differentiable(where E: DifferentiableElement)
 @inlinable public func add<S,E>(_ lhs: Tensor<S,E>, _ rhs: E) -> Tensor<S,E>
     where S: TensorShape, E: AdditiveArithmetic
 {
-    add(lhs, repeating(rhs, like: lhs))
+    print("calling add lhs + scalar")
+    return add(lhs, repeating(rhs, like: lhs))
 }
 
+@derivative(of: add, wrt: lhs)
+@inlinable public func _vjpAdd<S, E>(_ lhs: Tensor<S,E>, _ rhs: E)
+-> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>))
+where S: TensorShape, E: DifferentiableElement
+{
+    print("calling _vjpAdd wrt lhs")
+    return (lhs, {
+        print("calling _vjpAdd pullback wrt lhs")
+        return $0
+    })
+}
+
+//------------------------------------------------------------------------------
 @differentiable(where E: DifferentiableElement)
 @inlinable public func add<S, E>(_ lhs: E, _ rhs: Tensor<S,E>) -> Tensor<S,E>
     where S: TensorShape, E: AdditiveArithmetic
@@ -50,14 +87,19 @@ import Numerics
     add(repeating(lhs, like: rhs), rhs)
 }
 
-@derivative(of: add)
-@inlinable public func _vjpAdd<S, E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
-    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>, Tensor<S,E>))
-    where S: TensorShape, E: DifferentiableElement
+@derivative(of: add, wrt: rhs)
+@inlinable public func _vjpAdd<S, E>(_ lhs: E, _ rhs: Tensor<S,E>)
+-> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>))
+where S: TensorShape, E: DifferentiableElement
 {
-    (lhs + rhs, { v in (v, v) })
+    print("calling _vjpAdd wrt lhs")
+    return (rhs, {
+        print("calling _vjpAdd pullback wrt rhs")
+        return $0
+    })
 }
 
+//------------------------------------------------------------------------------
 public extension Tensor where Element: AdditiveArithmetic {
     @differentiable(where Element: DifferentiableElement)
     @inlinable static func +(lhs: Self, rhs: Self) -> Self {
