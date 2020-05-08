@@ -112,7 +112,9 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
     public var bias: TensorR2<Element>
 
     // TODO(TF-507): Revert to `typealias State = Tensor<Scalar>` after SR-10697 is fixed.
-    public struct State: Equatable, Differentiable, VectorProtocol, KeyPathIterable {
+    public struct State:
+    Equatable, Differentiable, VectorProtocol, KeyPathIterable
+    {
         @inlinable public func adding(_ x: Element) -> Self {
             State(value + x)
         }
@@ -184,69 +186,56 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
 public struct LSTMCell<Element>: RecurrentLayerCell
 where Element: DifferentiableElement & Real & BinaryFloatingPoint
 {
-    public var fusedWeight: TensorR2<Element>
-    public var fusedBias: TensorR1<Element>
-    
-    public var inputWeight: TensorR2<Element> {
-        let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedWeight[(0, 0), (fusedWeight.shape[0], hiddenSize)]
-    }
-    
-    public var updateWeight: TensorR2<Element> {
-        let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedWeight[(0, hiddenSize),
-                           (fusedWeight.shape[0], 2 * hiddenSize)]
-    }
-    
-    public var forgetWeight: TensorR2<Element> {
-        let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedWeight[(0, 2 * hiddenSize),
-                           (fusedWeight.shape[0], 3 * hiddenSize)]
-    }
-    
-    public var outputWeight: TensorR2<Element> {
-        let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedWeight[(0, 3 * hiddenSize),
-                           (fusedWeight.shape[0], 4 * hiddenSize)]
-    }
-    
-    public var inputBias: TensorR1<Element> {
-        let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedBias[(0), (hiddenSize)]
-    }
-    
-    public var updateBias: TensorR1<Element> {
-        let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedBias[(hiddenSize), (2 * hiddenSize)]
-    }
-    
-    public var forgetBias: TensorR1<Element> {
-        let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedBias[(2 * hiddenSize), (3 * hiddenSize)]
-    }
-    
-    public var outputBias: TensorR1<Element> {
-        let hiddenSize = fusedWeight.shape[1] / 4
-        return fusedBias[(3 * hiddenSize), (4 * hiddenSize)]
-    }
-    
+    // types
     public typealias TimeStepInput = TensorR2<Element>
     public typealias TimeStepOutput = State
     public typealias Input = RNNCellInput<TimeStepInput, State>
     public typealias Output = RNNCellOutput<TimeStepOutput, State>
+    public enum Part: Int, CaseIterable { case input, update, forget, output }
     
+    // properties
+    public var fusedWeight: TensorR2<Element>
+    public var fusedBias: TensorR1<Element>
+    @noDerivative public let hiddenSize: Int
+    
+    //--------------------------------------------------------------------------
     /// Creates a `LSTMCell` with the specified input size and hidden state size.
     ///
     /// - Parameters:
     ///   - inputSize: The number of features in 2-D input tensors.
     ///   - hiddenSize: The number of features in 2-D hidden states.
     public init(inputSize: Int, hiddenSize: Int) {
-        self.fusedWeight = Tensor(glorotUniform: (inputSize + hiddenSize, 4 * hiddenSize))
+        self.hiddenSize = hiddenSize
+        let weightShape = Shape2(inputSize + hiddenSize, 4 * hiddenSize)
+        self.fusedWeight = Tensor(glorotUniform: weightShape)
         self.fusedBias = Tensor(zeros: [4 * hiddenSize])
     }
     
-    public struct State: Equatable, Differentiable, VectorProtocol, KeyPathIterable {
-        
+    //--------------------------------------------------------------------------
+    /// part
+    /// used to access parts of the fused weights
+    @differentiable
+    @inlinable public func part(
+        _ i: Part,
+        of fused: TensorR2<Element>
+    ) -> TensorR2<Element> {
+        fused[0..., (i.rawValue * hiddenSize)..<((i.rawValue + 1) * hiddenSize)]
+    }
+    
+    /// part
+    /// used to access parts of the fused bias
+    @differentiable
+    @inlinable public func part(
+        _ i: Part,
+        of fused: TensorR1<Element>
+    ) -> TensorR1<Element> {
+        fused[(i.rawValue * hiddenSize)..<((i.rawValue + 1) * hiddenSize)]
+    }
+    
+    //--------------------------------------------------------------------------
+    public struct State:
+        Equatable, Differentiable, VectorProtocol, KeyPathIterable
+    {
         // TODO: Verify that is is correct and find out why I had to implement it
         public func adding(_ x: Element) -> Self {
             State(cell: cell + x, hidden: hidden + x)
@@ -276,40 +265,27 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
     @inlinable public func zeroState(
         for input: TensorR2<Element>
     ) -> State {
-        let hiddenSize = fusedWeight.shape[1] / 4
         let shape = Shape2(input.shape[0], hiddenSize)
         return State(cell: Tensor(zeros: shape), hidden: Tensor(zeros: shape))
     }
     
     //--------------------------------------------------------------------------
-    /// Returns the output obtained from applying the layer to the given input.
-    ///
+    /// Returns the output obtained from applying the layer to the given input
     /// - Parameter input: The input to the layer.
     /// - Returns: The hidden state.
     @differentiable
     @inlinable public func callAsFunction(
         _ input: Input
     ) -> Output {
-        let gateInput = input.input.concatenated(with: input.state.hidden, alongAxis: 1)
+        let gateInput = concatenate(input.input, input.state.hidden, axis: 1)
         let fused = matmul(gateInput, fusedWeight, bias: fusedBias)
-        let batchSize = fused.shape[0]
-        let hiddenSize = fused.shape[1] / 4
-        let inputGate = sigmoid(fused[(0, 0), (batchSize, hiddenSize)])
-        let updateGate = tanh(fused[(0, hiddenSize), (batchSize, 2 * hiddenSize)])
-        let forgetGate = sigmoid(fused[(0, 2 * hiddenSize), (batchSize, 3 * hiddenSize)])
-        let outputGate = sigmoid(fused[(0, 3 * hiddenSize), (batchSize, 4 * hiddenSize)])
-
-        // TODO(SR-10697/TF-507): Replace with the following once it does not crash the compiler.
-        // let fusedParts = fused.split(count: 4, alongAxis: 1)
-        // let inputGate = sigmoid(fusedParts[0])
-        // let updateGate = tanh(fusedParts[1])
-        // let forgetGate = sigmoid(fusedParts[2])
-        // let outputGate = sigmoid(fusedParts[3])
-        
+        let inputGate = sigmoid(part(.input, of: fused))
+        let updateGate = tanh(part(.update, of: fused))
+        let forgetGate = sigmoid(part(.forget, of: fused))
+        let outputGate = sigmoid(part(.output, of: fused))
         let newCellState = input.state.cell * forgetGate + inputGate * updateGate
         let newHiddenState = tanh(newCellState) * outputGate
         let newState = State(cell: newCellState, hidden: newHiddenState)
-        
         return Output(output: newState, state: newState)
     }
 }
