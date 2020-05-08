@@ -206,9 +206,9 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
     ///   - hiddenSize: The number of features in 2-D hidden states.
     public init(inputSize: Int, hiddenSize: Int) {
         self.hiddenSize = hiddenSize
-        let weightShape = Shape2(inputSize + hiddenSize, 4 * hiddenSize)
-        self.fusedWeight = Tensor(glorotUniform: weightShape)
         self.fusedBias = Tensor(zeros: [4 * hiddenSize])
+        self.fusedWeight =
+            Tensor(glorotUniform: (inputSize + hiddenSize, 4 * hiddenSize))
     }
     
     //--------------------------------------------------------------------------
