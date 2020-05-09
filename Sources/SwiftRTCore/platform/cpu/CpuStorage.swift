@@ -27,7 +27,7 @@ public final class CpuStorage<Element>: StorageBuffer
     public var element: Element
     
     //--------------------------------------------------------------------------
-    // init(count:name:
+    // init(count:
     @inlinable public init(count: Int) {
         self.hostBuffer = UnsafeMutableBufferPointer.allocate(capacity: count)
         self.id = Context.nextBufferId
@@ -63,9 +63,8 @@ public final class CpuStorage<Element>: StorageBuffer
     }
 
     //--------------------------------------------------------------------------
-    // init(elements:
-    @inlinable
-    public init(copying other: CpuStorage) {
+    // init(other:
+    @inlinable public init(copying other: CpuStorage) {
         self.id = other.id
         self.isReadOnly = other.isReadOnly
         self.isReference = other.isReference
@@ -82,8 +81,7 @@ public final class CpuStorage<Element>: StorageBuffer
 
     //--------------------------------------------------------------------------
     // init(buffer:
-    @inlinable
-    public init(referenceTo buffer: UnsafeBufferPointer<Element>) {
+    @inlinable public init(referenceTo buffer: UnsafeBufferPointer<Element>) {
         self.hostBuffer = UnsafeMutableBufferPointer(mutating: buffer)
         self.id = Context.nextBufferId
         self.isReadOnly = true
