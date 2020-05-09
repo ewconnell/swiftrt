@@ -215,20 +215,18 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
     /// part
     /// used to access parts of the fused weights
     @differentiable
-    @inlinable public func part(
-        _ i: Part,
-        of fused: TensorR2<Element>
-    ) -> TensorR2<Element> {
+    @inlinable public func part(_ i: Part, of fused: TensorR2<Element>)
+    -> TensorR2<Element>
+    {
         fused[0..., (i.rawValue * hiddenSize)..<((i.rawValue + 1) * hiddenSize)]
     }
     
     /// part
     /// used to access parts of the fused bias
     @differentiable
-    @inlinable public func part(
-        _ i: Part,
-        of fused: TensorR1<Element>
-    ) -> TensorR1<Element> {
+    @inlinable public func part(_ i: Part, of fused: TensorR1<Element>)
+    -> TensorR1<Element>
+    {
         fused[(i.rawValue * hiddenSize)..<((i.rawValue + 1) * hiddenSize)]
     }
     
@@ -262,9 +260,7 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
     
     //--------------------------------------------------------------------------
     /// Returns a zero-valued state with shape compatible with the provided input.
-    @inlinable public func zeroState(
-        for input: TensorR2<Element>
-    ) -> State {
+    @inlinable public func zeroState(for input: TensorR2<Element>) -> State {
         let shape = Shape2(input.shape[0], hiddenSize)
         return State(cell: Tensor(zeros: shape), hidden: Tensor(zeros: shape))
     }
@@ -274,9 +270,7 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
     /// - Parameter input: The input to the layer.
     /// - Returns: The hidden state.
     @differentiable
-    @inlinable public func callAsFunction(
-        _ input: Input
-    ) -> Output {
+    @inlinable public func callAsFunction(_ input: Input) -> Output {
         let gateInput = concatenate(input.input, input.state.hidden, axis: 1)
         let fused = matmul(gateInput, fusedWeight, bias: fusedBias)
         let inputGate = sigmoid(part(.input, of: fused))
