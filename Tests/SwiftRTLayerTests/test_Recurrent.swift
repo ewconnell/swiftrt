@@ -54,15 +54,15 @@ class test_Recurrent: XCTestCase {
     //==========================================================================
     // test_LSTMEncoder
     func test_LSTMEncoder() {
-        var lstmEncoder = LSTM<Float>(LSTMCell(inputSize: ndim, hiddenSize: ndim))
-        XCTAssert(lstmEncoder.cell.fusedWeight.shape == [6, 12])
-        print(lstmEncoder.cell.fusedWeight)
-        
-        // set known weights for reproducability
-        lstmEncoder.cell.fusedWeight = initialLSTMCellFusedWeights
-        
-        print(lstmEncoder.cell.fusedWeight.shape)
-        print(lstmEncoder.cell.fusedBias)
+//        var lstmEncoder = LSTM<Float>(LSTMCell(inputSize: ndim, hiddenSize: ndim))
+//        XCTAssert(lstmEncoder.cell.fusedWeight.shape == [6, 12])
+//        print(lstmEncoder.cell.fusedWeight)
+//
+//        // set known weights for reproducability
+//        lstmEncoder.cell.fusedWeight = initialLSTMCellFusedWeights
+//
+//        print(lstmEncoder.cell.fusedWeight.shape)
+//        print(lstmEncoder.cell.fusedBias)
 
     }
 }

@@ -503,9 +503,12 @@ extension CpuFunctions where Self: DeviceQueue & CpuMapOps
                "matmul inner dimensions must be equal")
         //-------------------------------
         // simple place holder
-        for i in result.indices {
-            result[i] = zip(lhs[i.position[0], ...], rhs[..., i.position[1]])
-                .reduce(into: 0) { $0 += $1.0 * $1.1 }
+        for r in 0..<result.shape[0] {
+            let row = lhs[r, ...]
+            for c in 0..<result.shape[1] {
+                let col = rhs[..., c]
+                result[r, c] = zip(row, col).reduce(into: 0) { $0 += $1.0 * $1.1 }
+            }
         }
     }
     
@@ -523,11 +526,14 @@ extension CpuFunctions where Self: DeviceQueue & CpuMapOps
                "matmul inner dimensions must be equal")
         //-------------------------------
         // simple place holder
-        for i in result.indices {
-            let bi = i.position[0]
-            result[i] = zip(lhs[bi, i.position[1], ...],
-                            rhs[bi, ..., i.position[2]])
-                .reduce(into: 0) { $0 += $1.0 * $1.1 }
+        for n in 0..<result.shape[0] {
+            for r in 0..<result.shape[1] {
+                let row = lhs[n, r, ...]
+                for c in 0..<result.shape[2] {
+                    let col = rhs[n, ..., c]
+                    result[n, r, c] = zip(row, col).reduce(into: 0) { $0 += $1.0 * $1.1 }
+                }
+            }
         }
     }
     
