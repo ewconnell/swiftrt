@@ -28,7 +28,8 @@ public typealias PlatformType = CudaService
 public typealias StorageBufferType<Element> = ReplicatedBuffer<Element>
 #else
 public typealias PlatformType = CpuService
-public typealias StorageBufferType<Element> = CpuStorage<Element>
+public typealias StorageBufferType<Element> = DiscreetStorage<Element>
+//public typealias StorageBufferType<Element> = CpuStorage<Element>
 #endif
 
 //==============================================================================
@@ -90,6 +91,14 @@ public final class Context {
     /// - Returns: the current device queue
     @inlinable public static var currentQueue: PlatformType.Device.Queue {
         Context.local.platform.currentQueue
+    }
+
+    /// - Returns: the selected cpu device queue
+    @inlinable public static func cpuQueue(_ id: Int)
+    -> PlatformType.Device.Queue
+    {
+        let qid = id % Context.local.platform.devices[0].queues.count
+        return Context.local.platform.devices[0].queues[qid]
     }
 
     //--------------------------------------------------------------------------
