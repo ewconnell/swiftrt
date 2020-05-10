@@ -162,7 +162,9 @@ public final class DiscreetStorage<Element>: StorageBuffer
     // getMemory
     // Manages an array of replicated device memory indexed by the deviceId
     // assoicated with `stream`. It will lazily create device memory if needed
-    @inlinable func getMemory(_ queue: DeviceQueue) -> DeviceMemory<Element> {
+    @inlinable public func getMemory(
+        _ queue: DeviceQueue
+    ) -> DeviceMemory<Element> {
         if let memory = replicas[queue.deviceId] {
             if memory.version == replicas[master]!.version {
                 return memory
@@ -173,9 +175,13 @@ public final class DiscreetStorage<Element>: StorageBuffer
         } else {
             // the new buffer is the master
             master = queue.deviceId
-            
-            // allocate
-            fatalError()
+            do {
+                let memory = try queue.allocate(Element.self, count: count)
+                replicas[queue.deviceId] = memory
+                return memory
+            } catch {
+                fatalError()
+            }
         }
     }
 }

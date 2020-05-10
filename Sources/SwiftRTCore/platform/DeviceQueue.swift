@@ -40,7 +40,7 @@ public protocol DeviceQueue: Logging {
     //--------------------------------------------------------------------------
     /// allocate
     func allocate<Element>(
-        type: Element.Type,
+        _ type: Element.Type,
         count: Int,
         heapIndex: Int
     ) throws -> DeviceMemory<Element>
@@ -60,9 +60,9 @@ extension DeviceQueue {
     //--------------------------------------------------------------------------
     // allocate
     @inlinable public func allocate<Element>(
-        type: Element.Type,
+        _ type: Element.Type,
         count: Int,
-        heapIndex: Int
+        heapIndex: Int = 0
     ) throws -> DeviceMemory<Element> {
         // allocate an aligned host memory buffer
         let buff = UnsafeMutableBufferPointer<Element>.allocate(capacity: count)
