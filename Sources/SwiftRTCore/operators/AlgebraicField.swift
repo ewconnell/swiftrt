@@ -49,7 +49,7 @@ where S: TensorShape, E: DifferentiableElement
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>))
 where S: TensorShape, E: DifferentiableElement
 {
-    return (lhs, { $0 })
+    return (lhs + rhs, { $0 })
 }
 
 
@@ -66,7 +66,7 @@ where S: TensorShape, E: DifferentiableElement
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>))
 where S: TensorShape, E: DifferentiableElement
 {
-    return (lhs, { $0 })
+    return (lhs + rhs, { $0 })
 }
 
 //------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ where S: TensorShape, E: DifferentiableElement
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>))
 where S: TensorShape, E: DifferentiableElement
 {
-    return (rhs, { $0 })
+    return (lhs + rhs, { $0 })
 }
 
 //------------------------------------------------------------------------------
