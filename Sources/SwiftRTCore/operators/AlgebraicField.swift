@@ -92,7 +92,7 @@ where S: TensorShape, E: DifferentiableElement
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>))
 where S: TensorShape, E: DifferentiableElement
 {
-    print("calling _vjpAdd wrt lhs")
+    print("calling _vjpAdd wrt rhs")
     return (rhs, {
         print("calling _vjpAdd pullback wrt rhs")
         return $0
@@ -107,6 +107,7 @@ public extension Tensor where Element: AdditiveArithmetic {
     }
 
     @differentiable(where Element: DifferentiableElement)
+    @differentiable(wrt: lhs where Element: DifferentiableElement)
     @inlinable static func +(lhs: Self, rhs: Element) -> Self {
         add(lhs, rhs)
     }
@@ -117,6 +118,7 @@ public extension Tensor where Element: AdditiveArithmetic {
     }
 
     @differentiable(where Element: DifferentiableElement)
+    @differentiable(wrt: rhs where Element: DifferentiableElement)
     @inlinable static func +(lhs: Element, rhs: Self) -> Self {
         add(lhs, rhs)
     }
