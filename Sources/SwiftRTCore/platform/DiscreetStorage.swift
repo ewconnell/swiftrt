@@ -173,14 +173,20 @@ public final class DiscreetStorage<Element>: StorageBuffer
                 fatalError()
             }
         } else {
-            // the new buffer is the master
-            master = queue.deviceId
             do {
+                // allocate the buffer for the target device
+                // and save in the replica list
                 let memory = try queue.allocate(Element.self, count: count)
                 replicas[queue.deviceId] = memory
+                
+                // the new buffer is now the master version
+                master = queue.deviceId
                 return memory
             } catch {
-                fatalError()
+                // Fail for now
+                writeLog("Failed to allocate memory on \(queue.deviceName)")
+                fatalError("TODO: implement LRU host migration" +
+                            " and discreet memory discard")
             }
         }
     }
