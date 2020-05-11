@@ -41,7 +41,6 @@ import Numerics
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>, Tensor<S,E>))
 where S: TensorShape, E: DifferentiableElement
 {
-    print("calling _vjpAdd both")
     return (lhs + rhs, { v in (v, v) })
 }
 
@@ -50,11 +49,7 @@ where S: TensorShape, E: DifferentiableElement
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>))
 where S: TensorShape, E: DifferentiableElement
 {
-    print("calling _vjpAdd wrt lhs")
-    return (lhs, {
-        print("calling _vjpAdd pullback wrt lhs")
-        return $0
-    })
+    return (lhs, { $0 })
 }
 
 
@@ -63,7 +58,6 @@ where S: TensorShape, E: DifferentiableElement
 @inlinable public func add<S,E>(_ lhs: Tensor<S,E>, _ rhs: E) -> Tensor<S,E>
     where S: TensorShape, E: AdditiveArithmetic
 {
-    print("calling add lhs + scalar")
     return add(lhs, repeating(rhs, like: lhs))
 }
 
@@ -72,11 +66,7 @@ where S: TensorShape, E: DifferentiableElement
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>))
 where S: TensorShape, E: DifferentiableElement
 {
-    print("calling _vjpAdd wrt lhs")
-    return (lhs, {
-        print("calling _vjpAdd pullback wrt lhs")
-        return $0
-    })
+    return (lhs, { $0 })
 }
 
 //------------------------------------------------------------------------------
@@ -92,11 +82,7 @@ where S: TensorShape, E: DifferentiableElement
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) ->(Tensor<S,E>))
 where S: TensorShape, E: DifferentiableElement
 {
-    print("calling _vjpAdd wrt rhs")
-    return (rhs, {
-        print("calling _vjpAdd pullback wrt rhs")
-        return $0
-    })
+    return (rhs, { $0 })
 }
 
 //------------------------------------------------------------------------------
