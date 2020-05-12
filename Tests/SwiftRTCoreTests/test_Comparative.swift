@@ -76,10 +76,20 @@ class test_Comparative: XCTestCase {
         let a = array([[0, 1], [-2, -3], [-4, 5]])
         let b = array([[0, -7], [2, 3], [4, 5]])
         XCTAssert(max(a, b) == [[0, 1], [2, 3], [4, 5]])
+        XCTAssert(max(a, -2) == [[0, 1], [-2, -2], [-2, 5]])
         
+        // both
         let (ga, gb) = pullback(at: a, b, in: { max($0, $1) })(ones(like: a))
         XCTAssert(ga == [[1, 1], [0, 0], [0, 1]])
         XCTAssert(gb == [[0, 0], [1, 1], [1, 0]])
+
+        // lhs
+        let gl = pullback(at: a, in: { max($0, -2) })(ones(like: a))
+        XCTAssert(gl == [[1, 1], [1, 0], [0, 1]])
+
+        // rhs
+        let gr = pullback(at: a, in: { max(-2, $0) })(ones(like: a))
+        XCTAssert(gr == [[1, 1], [1, 0], [0, 1]])
     }
 
     //--------------------------------------------------------------------------
@@ -97,9 +107,18 @@ class test_Comparative: XCTestCase {
         let b = array([[0, -1], [-2, 3], [-4, 5]])
         XCTAssert(min(a, b) == [[0, -1], [-2, -3], [-4, -5]])
 
+        // both
         let (ga, gb) = pullback(at: a, b, in: { min($0, $1) })(ones(like: a))
         XCTAssert(ga == [[1, 0], [0, 1], [0, 1]])
         XCTAssert(gb == [[0, 1], [1, 0], [1, 0]])
+
+        // lhs
+        let gl = pullback(at: a, in: { min($0, -2) })(ones(like: a))
+        XCTAssert(gl == [[0, 0], [0, 1], [0, 1]])
+        
+        // rhs
+        let gr = pullback(at: a, in: { min(-2, $0) })(ones(like: a))
+        XCTAssert(gr == [[0, 0], [0, 1], [0, 1]])
     }
 
     //--------------------------------------------------------------------------

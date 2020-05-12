@@ -16,19 +16,6 @@
 import Numerics
 
 //==============================================================================
-// utilities
-@inlinable func _vjpMinMax<S,E>(
-    _ x: Tensor<S,E>, _ y: Tensor<S,E>, _ scale: Tensor<S,E>,
-    _ op: @escaping (E, E) -> Bool) -> (Tensor<S,E>, Tensor<S,E>)
-    where S: TensorShape, E: Comparable & Numeric
-{
-    var resultTrue = Tensor(like: x)
-    var resultFalse = Tensor(like: x)
-    Context.currentQueue.vjpMinMax(x, y, scale, op, &resultTrue, &resultFalse)
-    return (resultTrue, resultFalse)
-}
-
-//==============================================================================
 /// and
 /// Computes `lhs .&& rhs` element-wise and returns a tensor of Bool values
 @inlinable public func and<S>(_ lhs: Tensor<S,Bool>, _ rhs: Tensor<S,Bool>)
@@ -119,9 +106,16 @@ public extension Tensor where Element == Bool {
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
     where S: TensorShape, E: DifferentiableElement & Comparable
 {
-    (value: max(lhs, rhs), { _vjpMinMax(lhs, rhs, $0, >=) })
+    (value: max(lhs, rhs), {
+        var resultTrue = Tensor(like: lhs)
+        var resultFalse = Tensor(like: lhs)
+        Context.currentQueue.vjpMax(lhs, rhs, $0, &resultTrue, &resultFalse)
+        return (resultTrue, resultFalse)
+    })
 }
 
+//--------------------------------
+// tensor Element
 @differentiable(where E: DifferentiableElement)
 @inlinable public func max<S,E>(_ lhs: Tensor<S,E>, _ rhs: E)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
@@ -129,11 +123,40 @@ public extension Tensor where Element == Bool {
     max(lhs, repeating(rhs, like: lhs))
 }
 
+@derivative(of: max, wrt: lhs)
+@inlinable public func _vjpMax<S,E>(_ lhs: Tensor<S,E>, _ rhs: E)
+-> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
+{
+    let element = repeating(rhs, like: lhs)
+    return (value: max(lhs, element), {
+        var result: Tensor<S,E> = Tensor(like: $0)
+        Context.currentQueue.vjpMax(lhs, element, $0, &result)
+        return result
+    })
+}
+
+//--------------------------------
+// Element tensor
 @differentiable(where E: DifferentiableElement)
 @inlinable public func max<S,E>(_ lhs: E, _ rhs: Tensor<S,E>)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
 {
     max(repeating(lhs, like: rhs), rhs)
+}
+
+@derivative(of: max, wrt: rhs)
+@inlinable public func _vjpMax<S,E>(_ lhs: E, _ rhs: Tensor<S,E>)
+-> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
+{
+    let element = repeating(lhs, like: rhs)
+    return (value: max(element, rhs), {
+        var result: Tensor<S,E> = Tensor(like: $0)
+        // tensor should be first parameter
+        Context.currentQueue.vjpMax(rhs, element, $0, &result)
+        return result
+    })
 }
 
 // These are added to disambiguate from Swift max when writing
@@ -146,12 +169,12 @@ public extension Tensor where Element: Comparable {
 
     @differentiable(where Element: DifferentiableElement)
     @inlinable func max(_ lhs: Self, _ rhs: Element) -> Self {
-        max(lhs, repeating(rhs, like: lhs))
+        SwiftRTCore.max(lhs, rhs)
     }
 
     @differentiable(where Element: DifferentiableElement)
     @inlinable func max(_ lhs: Element, _ rhs: Self) -> Self {
-        max(repeating(lhs, like: rhs), rhs)
+        SwiftRTCore.max(lhs, rhs)
     }
 }
 
@@ -176,9 +199,16 @@ public extension Tensor where Element: Comparable {
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
     where S: TensorShape, E: DifferentiableElement & Comparable
 {
-    (value: min(lhs, rhs), { _vjpMinMax(lhs, rhs, $0, <=) })
+    (value: min(lhs, rhs), {
+        var resultTrue = Tensor(like: lhs)
+        var resultFalse = Tensor(like: lhs)
+        Context.currentQueue.vjpMin(lhs, rhs, $0, &resultTrue, &resultFalse)
+        return (resultTrue, resultFalse)
+    })
 }
 
+//--------------------------------
+// tensor Element
 @differentiable(where E: DifferentiableElement)
 @inlinable public func min<S,E>(_ lhs: Tensor<S,E>, _ rhs: E)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
@@ -186,11 +216,40 @@ public extension Tensor where Element: Comparable {
     min(lhs, repeating(rhs, like: lhs))
 }
 
+@derivative(of: min, wrt: lhs)
+@inlinable public func _vjpMin<S,E>(_ lhs: Tensor<S,E>, _ rhs: E)
+-> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
+{
+    let element = repeating(rhs, like: lhs)
+    return (value: min(lhs, element), {
+        var result: Tensor<S,E> = Tensor(like: $0)
+        Context.currentQueue.vjpMin(lhs, element, $0, &result)
+        return result
+    })
+}
+
+//--------------------------------
+// Element tensor
 @differentiable(where E: DifferentiableElement)
 @inlinable public func min<S,E>(_ lhs: E, _ rhs: Tensor<S,E>)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
 {
     min(repeating(lhs, like: rhs), rhs)
+}
+
+@derivative(of: min, wrt: rhs)
+@inlinable public func _vjpMin<S,E>(_ lhs: E, _ rhs: Tensor<S,E>)
+-> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
+{
+    let element = repeating(lhs, like: rhs)
+    return (value: min(element, rhs), {
+        var result: Tensor<S,E> = Tensor(like: $0)
+        // tensor should be first parameter
+        Context.currentQueue.vjpMin(rhs, element, $0, &result)
+        return result
+    })
 }
 
 // These are added to disambiguate from Swift max when writing
@@ -203,12 +262,12 @@ public extension Tensor where Element: Comparable {
 
     @differentiable(where Element: DifferentiableElement)
     @inlinable func min(_ lhs: Self, _ rhs: Element) -> Self {
-        min(lhs, repeating(rhs, like: lhs))
+        SwiftRTCore.min(lhs, rhs)
     }
 
     @differentiable(where Element: DifferentiableElement)
     @inlinable func min(_ lhs: Element, _ rhs: Self) -> Self {
-        min(repeating(lhs, like: rhs), rhs)
+        SwiftRTCore.min(lhs, rhs)
     }
 }
 
