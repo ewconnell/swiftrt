@@ -51,12 +51,12 @@ public final class DiscreetStorage<Element>: StorageBuffer
         isReference = false
         master = -1
         name = "Tensor"
-        let count = Context.local.platform.devices.count
-        replicas = [DeviceMemory<Element>?](repeating: nil, count: count)
+        replicas = [DeviceMemory<Element>?](
+            repeating: nil, count: Context.local.platform.devices.count)
 
         #if DEBUG
         diagnostic("\(createString) \(diagnosticName) " +
-                    "\(Element.self)[\(count)]", categories: .dataAlloc)
+                    "\(Element.self)[\(self.count)]", categories: .dataAlloc)
         #endif
     }
     

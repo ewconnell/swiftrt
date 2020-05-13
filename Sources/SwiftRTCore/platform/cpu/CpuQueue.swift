@@ -52,7 +52,14 @@ public final class CpuQueue: DeviceQueue, CpuFunctions, CpuMapOps {
         self.memoryType = memoryType
         self.mode = mode
         
-        diagnostic("\(createString) \(Self.self): \(deviceName)_\(name)",
+        diagnostic("\(createString) \(deviceName)_\(name)",
+                   categories: .queueAlloc)
+    }
+    
+    deinit {
+        // make sure all scheduled work is complete before exiting
+        waitUntilQueueIsComplete()
+        diagnostic("\(releaseString) shutdown: \(deviceName)_\(name)",
                    categories: .queueAlloc)
     }
 }

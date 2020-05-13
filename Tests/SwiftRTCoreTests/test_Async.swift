@@ -50,7 +50,6 @@ class test_Async: XCTestCase {
         
         // sync with caller
         let result = c.array
-        print(result)
         XCTAssert(result == [0, 2, 4, 6, 8, 10])
     }
 }
