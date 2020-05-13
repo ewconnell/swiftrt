@@ -22,8 +22,8 @@ public protocol StorageBuffer: class, Logging {
     /// the type of element stored in the buffer
     associatedtype Element
 
-    /// the host transfer buffer
-    var hostBuffer: UnsafeMutableBufferPointer<Element> { get }
+    /// the number of storage elements
+    var count: Int { get }
     /// the id of the buffer for diagnostics
     var id: Int { get }
     /// `true` if the buffer is read only
@@ -106,7 +106,8 @@ public protocol StorageBuffer: class, Logging {
     ///  - queue: queue for device placement and synchronization
     /// - Returns: a buffer pointer to the elements. Elements will be valid
     ///   when the queue reaches this point
-    func read(at offset: Int, count: Int, using queue: DeviceQueue)
+    func read(at offset: Int, count: Int,
+              using queue: PlatformType.Device.Queue)
         -> UnsafeBufferPointer<Element>
     
     /// `readWrite(type:offset:count:willOverwrite:
@@ -128,7 +129,8 @@ public protocol StorageBuffer: class, Logging {
     /// - Returns: a mutable buffer pointer to the elements.
     ///   Elements will be valid when the queue reaches this point
     func readWrite(at offset: Int, count: Int,
-                   willOverwrite: Bool, using queue: DeviceQueue)
+                   willOverwrite: Bool,
+                   using queue: PlatformType.Device.Queue)
         -> UnsafeMutableBufferPointer<Element>
 }
 

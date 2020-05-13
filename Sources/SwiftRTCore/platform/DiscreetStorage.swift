@@ -51,8 +51,8 @@ public final class DiscreetStorage<Element>: StorageBuffer
         isReference = false
         master = -1
         name = "Tensor"
-        let deviceCount = Context.local.platform.devices.count
-        replicas = [DeviceMemory<Element>?](repeating: nil, count: deviceCount)
+        let count = Context.local.platform.devices.count
+        replicas = [DeviceMemory<Element>?](repeating: nil, count: count)
 
         #if DEBUG
         diagnostic("\(createString) \(diagnosticName) " +
@@ -129,7 +129,7 @@ public final class DiscreetStorage<Element>: StorageBuffer
     @inlinable public func read(
         at offset: Int,
         count: Int,
-        using queue: DeviceQueue
+        using queue: PlatformType.Device.Queue
     ) -> UnsafeBufferPointer<Element> {
         let start = getMemory(queue).buffer.baseAddress!.advanced(by: offset)
         return UnsafeBufferPointer(start: start, count: count)
@@ -152,7 +152,7 @@ public final class DiscreetStorage<Element>: StorageBuffer
         at offset: Int,
         count: Int,
         willOverwrite: Bool,
-        using queue: DeviceQueue
+        using queue: PlatformType.Device.Queue
     ) -> UnsafeMutableBufferPointer<Element> {
         let start = getMemory(queue).buffer.baseAddress!.advanced(by: offset)
         return UnsafeMutableBufferPointer(start: start, count: count)
@@ -163,7 +163,7 @@ public final class DiscreetStorage<Element>: StorageBuffer
     // Manages an array of replicated device memory indexed by the deviceId
     // assoicated with `stream`. It will lazily create device memory if needed
     @inlinable public func getMemory(
-        _ queue: DeviceQueue
+        _ queue: PlatformType.Device.Queue
     ) -> DeviceMemory<Element> {
         if let memory = replicas[queue.deviceId] {
             if memory.version == replicas[master]!.version {

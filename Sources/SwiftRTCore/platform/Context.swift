@@ -28,8 +28,8 @@ public typealias PlatformType = CudaService
 public typealias StorageBufferType<Element> = ReplicatedBuffer<Element>
 #else
 public typealias PlatformType = CpuService
-//public typealias StorageBufferType<Element> = DiscreetStorage<Element>
-public typealias StorageBufferType<Element> = CpuStorage<Element>
+public typealias StorageBufferType<Element> = DiscreetStorage<Element>
+//public typealias StorageBufferType<Element> = CpuStorage<Element>
 #endif
 
 //==============================================================================
@@ -85,6 +85,11 @@ public final class Context {
     /// - Returns: the current device queue
     @inlinable public static var currentDevice: PlatformType.Device {
         Context.local.platform.currentDevice
+    }
+
+    /// - Returns: the current device queue
+    @inlinable public static var devices: [PlatformType.Device] {
+        Context.local.platform.devices
     }
 
     /// the currently scoped queue that platform functions will use

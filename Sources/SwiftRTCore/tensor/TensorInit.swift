@@ -151,7 +151,8 @@ public extension Tensor {
     {
         assert(shape.elementCount() == elements.count)
         self.init(shape, order: order)
-        _ = storage.hostBuffer.initialize(from: elements)
+        let buffer = storage.readWrite(at: 0, count: count)
+        _ = buffer.initialize(from: elements)
     }
     
     //--------------------------------------------------------------------------
@@ -171,7 +172,8 @@ public extension Tensor {
                    "Value cast \(Element.self)(\(value)) failed")
             return Element(exactly: value)!
         }
-        _ = storage.hostBuffer.initialize(from: lazyElements)
+        let buffer = storage.readWrite(at: 0, count: count)
+        _ = buffer.initialize(from: lazyElements)
     }
     
     //--------------------------------------------------------------------------
@@ -188,7 +190,8 @@ public extension Tensor {
         assert(shape.elementCount() == elements.count)
         self.init(shape, order: order)
         let lazyElements = elements.lazy.map { Element($0) }
-        _ = storage.hostBuffer.initialize(from: lazyElements)
+        let buffer = storage.readWrite(at: 0, count: count)
+        _ = buffer.initialize(from: lazyElements)
     }
     
     //--------------------------------------------------------------------------
@@ -205,7 +208,8 @@ public extension Tensor {
         assert(shape.elementCount() == elements.count)
         self.init(shape, order: order)
         let lazyElements = elements.lazy.map { Element($0) }
-        _ = storage.hostBuffer.initialize(from: lazyElements)
+        let buffer = storage.readWrite(at: 0, count: count)
+        _ = buffer.initialize(from: lazyElements)
     }
     
     //--------------------------------------------------------------------------

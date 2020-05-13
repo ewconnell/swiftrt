@@ -19,6 +19,7 @@
 /// A synchronous host memory element storage buffer
 public final class CpuStorage<Element>: StorageBuffer
 {
+    public let count: Int
     public let hostBuffer: UnsafeMutableBufferPointer<Element>
     public let id: Int
     public let isReadOnly: Bool
@@ -29,6 +30,7 @@ public final class CpuStorage<Element>: StorageBuffer
     //--------------------------------------------------------------------------
     // init(count:
     @inlinable public init(count: Int) {
+        self.count = count
         self.hostBuffer = UnsafeMutableBufferPointer.allocate(capacity: count)
         self.id = Context.nextBufferId
         self.isReadOnly = false
@@ -45,6 +47,7 @@ public final class CpuStorage<Element>: StorageBuffer
     //--------------------------------------------------------------------------
     // init(element:
     @inlinable public init(single element: Element) {
+        self.count = 1
         self.element = element
         self.id = Context.nextBufferId
         self.isReadOnly = false
@@ -65,6 +68,7 @@ public final class CpuStorage<Element>: StorageBuffer
     //--------------------------------------------------------------------------
     // init(other:
     @inlinable public init(copying other: CpuStorage) {
+        self.count = other.count
         self.id = other.id
         self.isReadOnly = other.isReadOnly
         self.isReference = other.isReference
@@ -82,6 +86,7 @@ public final class CpuStorage<Element>: StorageBuffer
     //--------------------------------------------------------------------------
     // init(buffer:
     @inlinable public init(referenceTo buffer: UnsafeBufferPointer<Element>) {
+        self.count = buffer.count
         self.hostBuffer = UnsafeMutableBufferPointer(mutating: buffer)
         self.id = Context.nextBufferId
         self.isReadOnly = true
@@ -100,6 +105,7 @@ public final class CpuStorage<Element>: StorageBuffer
     @inlinable
     public init(referenceTo buffer: UnsafeMutableBufferPointer<Element>)
     {
+        self.count = buffer.count
         self.hostBuffer = buffer
         self.id = Context.nextBufferId
         self.isReadOnly = false
@@ -157,7 +163,8 @@ public final class CpuStorage<Element>: StorageBuffer
     //--------------------------------------------------------------------------
     // read
     @inlinable
-    public func read(at offset: Int, count: Int, using queue: DeviceQueue)
+    public func read(at offset: Int, count: Int,
+                     using queue: PlatformType.Device.Queue)
         -> UnsafeBufferPointer<Element>
     {
         let start = hostBuffer.baseAddress!.advanced(by: offset)
@@ -178,7 +185,7 @@ public final class CpuStorage<Element>: StorageBuffer
     // readWrite
     @inlinable
     public func readWrite(at offset: Int, count: Int, willOverwrite: Bool,
-                          using queue: DeviceQueue)
+                          using queue: PlatformType.Device.Queue)
         -> UnsafeMutableBufferPointer<Element>
     {
         let start = hostBuffer.baseAddress!.advanced(by: offset)
