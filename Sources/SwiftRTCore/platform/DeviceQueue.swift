@@ -34,23 +34,49 @@ public protocol DeviceQueue: Logging {
     var logInfo: LogInfo { get }
     /// the type of memory associated with the queue's device
     var memoryType: MemoryType { get }
+    /// specifies if work is queued sync or async
+    var mode: DeviceQueueMode { get }
     /// the name of the queue for diagnostics
     var name: String { get }
 
     //--------------------------------------------------------------------------
-    /// allocate
+    /// allocate(type:count:heapIndex:
+    /// allocates a block of memory on the associated device
+    /// - Parameters:
+    ///  - type: the type of element that will be stored. This ensures
+    ///    correct storage byte size and alignment
+    ///  - count: the number of elements to store
+    ///  - heapIndex: reserved for future use. Should be 0 for now.
+    /// - Returns: a device memory object
     func allocate<Element>(
         _ type: Element.Type,
         count: Int,
         heapIndex: Int
-    ) throws -> DeviceMemory<Element>
-    ///
+    ) -> DeviceMemory<Element>?
+    
+    /// createEvent(options:
+    /// creates a queue event used for synchronization and timing measurements
+    /// - Parameters:
+    ///  - options: event creation options
+    /// - Returns: a new queue event
     func createEvent(options: QueueEventOptions) -> QueueEvent
-    ///
+    
+    /// record(event:
+    /// adds `event` to the queue and returns immediately
+    /// - Parameters:
+    ///  - event: the event to record
+    /// - Returns: `event` so that calls to `record` can be nested
     func record(event: QueueEvent) -> QueueEvent
-    ///
+    
+    /// wait(event:
+    /// queues an operation to wait for the specified event. This function
+    /// does not block the calller if queue `mode` is `.async`
+    /// - Parameters:
+    ///  - event: the event to wait for
     func wait(for event: QueueEvent)
-    ///
+    
+    /// waitUntilQueueIsComplete
+    /// blocks the caller until all events in the queue have completed
     func waitUntilQueueIsComplete()
 }
 
