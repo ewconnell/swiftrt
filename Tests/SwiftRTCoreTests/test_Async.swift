@@ -24,12 +24,33 @@ class test_Async: XCTestCase {
         ("test_add", test_add),
     ]
     
+    // append and use a discreet async cpu device for these tests
+    override func setUpWithError() throws {
+        Context.log.level = .diagnostic
+        // append a cpu device
+        let asyncDiscreetCpu = Context.devices.count
+        let logInfo = Context.local.platform.logInfo
+        let testDevice = CpuDevice(parent: logInfo, memoryType: .discreet,
+                                   id: asyncDiscreetCpu, queueMode: .async)
+        Context.local.platform.devices.append(testDevice)
+        use(device: asyncDiscreetCpu)
+    }
+    
+    override func tearDownWithError() throws {
+        Context.local.platform.devices.removeLast()
+        use(device: 0)
+        Context.log.level = .error
+    }
+
     //--------------------------------------------------------------------------
     func test_add() {
-        
         let a = array(0..<6)
         let b = array(0..<6)
         let c = a + b
         
+        // sync with caller
+        let result = c.array
+        print(result)
+        XCTAssert(result == [0, 2, 4, 6, 8, 10])
     }
 }

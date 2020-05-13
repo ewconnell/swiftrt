@@ -28,7 +28,8 @@ public final class CpuDevice: PlatformDevice {
     @inlinable public init(
         parent logInfo: LogInfo,
         memoryType: MemoryType,
-        id: Int
+        id: Int,
+        queueMode: DeviceQueueMode
     ) {
         self.id = id
         self.name = "cpu:\(id)"
@@ -38,7 +39,8 @@ public final class CpuDevice: PlatformDevice {
                                 parent: self.logInfo,
                                 deviceId: id,
                                 deviceName: name,
-                                memoryType: memoryType)]
+                                memoryType: memoryType,
+                                mode: queueMode)]
     }
 }
 

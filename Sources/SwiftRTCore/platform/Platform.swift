@@ -271,6 +271,10 @@ public enum MemoryType {
     case unified, discreet
 }
 
+public enum DeviceQueueMode {
+    case async, sync
+}
+
 //==============================================================================
 /// QueueId
 /// a unique service device queue identifier that is used to index

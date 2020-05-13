@@ -28,15 +28,20 @@ public final class CpuQueue: DeviceQueue, CpuFunctions, CpuMapOps {
     public let id: Int
     public let logInfo: LogInfo
     public let memoryType: MemoryType
+    public let mode: DeviceQueueMode
     public let name: String
     
     //--------------------------------------------------------------------------
     // initializers
     @inlinable
-    public init(id: Int, parent logInfo: LogInfo,
-                deviceId: Int, deviceName: String,
-                memoryType: MemoryType)
-    {
+    public init(
+        id: Int,
+        parent logInfo: LogInfo,
+        deviceId: Int,
+        deviceName: String,
+        memoryType: MemoryType,
+        mode: DeviceQueueMode
+    ) {
         self.id = id
         self.name = "q\(id)"
         self.logInfo = logInfo.flat(name)
@@ -45,6 +50,7 @@ public final class CpuQueue: DeviceQueue, CpuFunctions, CpuMapOps {
         self.creatorThread = Thread.current
         self.defaultQueueEventOptions = QueueEventOptions()
         self.memoryType = memoryType
+        self.mode = mode
         
         diagnostic("\(createString) \(Self.self): \(deviceName)_\(name)",
                    categories: .queueAlloc)
