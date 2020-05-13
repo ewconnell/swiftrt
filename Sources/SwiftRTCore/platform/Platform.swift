@@ -297,6 +297,7 @@ public let _messageQueueThreadViolation =
 //==============================================================================
 /// DeviceError
 public enum DeviceError : Error {
+    case allocationFailed
     case initializeFailed
     case queueError(idPath: [Int], message: String)
     case timeout(idPath: [Int], message: String)

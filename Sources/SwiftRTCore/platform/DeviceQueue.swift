@@ -41,7 +41,8 @@ public protocol DeviceQueue: Logging {
 
     //--------------------------------------------------------------------------
     /// allocate(type:count:heapIndex:
-    /// allocates a block of memory on the associated device
+    /// allocates a block of memory on the associated device. If there is
+    /// insufficient storage, a `DeviceError` will be thrown.
     /// - Parameters:
     ///  - type: the type of element that will be stored. This ensures
     ///    correct storage byte size and alignment
@@ -52,7 +53,7 @@ public protocol DeviceQueue: Logging {
         _ type: Element.Type,
         count: Int,
         heapIndex: Int
-    ) -> DeviceMemory<Element>?
+    ) throws -> DeviceMemory<Element>
     
     /// createEvent(options:
     /// creates a queue event used for synchronization and timing measurements
