@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 // DeviceQueue functions with default cpu delegation
-extension DeviceQueue where Self: CpuFunctions & CpuMapOps
+extension DeviceQueue where Self: CpuFunctions
 {
     //--------------------------------------------------------------------------
     @inlinable public func reduceSumAll<S,E>(_ x: Tensor<S,E>,
@@ -35,7 +35,7 @@ extension DeviceQueue where Self: CpuFunctions & CpuMapOps
 
 //==============================================================================
 // Cpu device queue function implementations
-extension CpuFunctions where Self: CpuMapOps {
+extension CpuFunctions where Self: DeviceQueue {
     //--------------------------------------------------------------------------
     @inlinable public func cpu_reduceSumAll<S,E>(
         _ x: Tensor<S,E>,

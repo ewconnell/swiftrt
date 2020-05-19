@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 // DeviceQueue functions with default cpu delegation
-extension DeviceQueue where Self: CpuFunctions & CpuMapOps
+extension DeviceQueue where Self: CpuFunctions
 {
     //--------------------------------------------------------------------------
     @inlinable func fill<S,E>(_ result: inout Tensor<S,E>, with element: E)
@@ -78,7 +78,7 @@ extension DeviceQueue where Self: CpuFunctions & CpuMapOps
 
 //==============================================================================
 // Cpu device queue function implementations
-extension CpuFunctions where Self: CpuMapOps {
+extension CpuFunctions where Self: DeviceQueue {
     //--------------------------------------------------------------------------
     @inlinable func cpu_fill<S,E>(
         _ result: inout Tensor<S,E>,

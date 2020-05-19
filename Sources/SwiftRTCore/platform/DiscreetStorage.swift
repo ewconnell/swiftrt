@@ -17,8 +17,7 @@ import Foundation
 
 //==============================================================================
 /// DiscreetStorage
-public final class DiscreetStorage<Element>: StorageBuffer
-{
+public final class DiscreetStorage<Element>: StorageBuffer {
     /// the number of storage elements
     public let count: Int
     /// unique storage id used in diagnostic messages
@@ -28,6 +27,8 @@ public final class DiscreetStorage<Element>: StorageBuffer
     /// `true` if the storage is a reference to externally
     /// managed memory
     public let isReference: Bool
+    ///
+    public var lastMutatingQueueId: Int
     /// the index of the last memory buffer written to
     public var master: Int
     /// the name of the storage used in diagnostic messages
@@ -47,6 +48,7 @@ public final class DiscreetStorage<Element>: StorageBuffer
     @inlinable public init(count: Int) {
         self.count = count
         id = Context.nextBufferId
+        lastMutatingQueueId = 0
         isReadOnly = false
         isReference = false
         master = -1
@@ -75,7 +77,20 @@ public final class DiscreetStorage<Element>: StorageBuffer
     //--------------------------------------------------------------------------
     //
     @inlinable public init(copying other: DiscreetStorage<Element>) {
+        self.count = other.count
+        self.id = other.id
+        self.isReadOnly = other.isReadOnly
+        self.isReference = other.isReference
+        self.name = other.name
         fatalError()
+
+//        if isReference {
+////            hostBuffer = other.hostBuffer
+//        } else {
+////            hostBuffer = UnsafeMutableBufferPointer
+////                .allocate(capacity: other.hostBuffer.count)
+////            _ = hostBuffer.initialize(from: other.hostBuffer)
+//        }
     }
     
     //--------------------------------------------------------------------------

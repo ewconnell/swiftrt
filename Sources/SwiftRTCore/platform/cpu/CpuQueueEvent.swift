@@ -19,22 +19,30 @@ import Foundation
 // CpuQueueEvent
 /// a queue event behaves like a barrier. The first caller to wait takes
 /// the wait semaphore
-public struct CpuQueueEvent: QueueEvent {
+public class CpuQueueEvent: QueueEvent {
     // properties
     public var occurred: Bool
     public var recordedTime: Date?
-    public var id: Int
+    public let id: Int
+    public let semaphore: DispatchSemaphore
 
     // initializers
-    @inlinable
-    public init(options: QueueEventOptions) {
+    @inlinable public init(options: QueueEventOptions) {
         id = Context.nextQueueEventId
-        occurred = true
+        occurred = false
+        semaphore = DispatchSemaphore(value: 0)
     }
 
+    // signals that the event has occurred
+    public func signal() {
+        occurred = true
+        semaphore.signal()
+    }
+    
     // wait
     // a synchronous queue event is a noop since all ops are completed
     // at the time they are queued
-    @inlinable
-    public func wait() throws { }
+    @inlinable public func wait() {
+        semaphore.wait()
+    }
 }

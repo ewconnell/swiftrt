@@ -38,6 +38,8 @@ public protocol DeviceQueue: Logging {
     var mode: DeviceQueueMode { get }
     /// the name of the queue for diagnostics
     var name: String { get }
+    /// the asynchronous operation queue
+    var queue: DispatchQueue { get set }
 
     //--------------------------------------------------------------------------
     /// allocate(type:count:heapIndex:
@@ -118,43 +120,38 @@ extension DeviceQueue {
     //--------------------------------------------------------------------------
     /// record(event:
     @discardableResult
-    @inlinable public func record(
-        event: QueueEvent
-    ) -> QueueEvent {
+    @inlinable public func record(event: QueueEvent) -> QueueEvent {
         diagnostic("\(recordString) QueueEvent(\(event.id)) on " +
                     "\(deviceName)_\(name)", categories: .queueSync)
         
         // set event time
         if defaultQueueEventOptions.contains(.timing) {
-            var timeStampedEvent = event
-            timeStampedEvent.recordedTime = Date()
-            return timeStampedEvent
-        } else {
-            return event
+            event.recordedTime = Date()
         }
+        
+        // record the event
+        queue.async {
+            event.signal()
+        }
+        
+        return event
     }
     
     //--------------------------------------------------------------------------
     /// wait(for event:
     /// waits until the event has occurred
-    @inlinable public func wait(
-        for event: QueueEvent
-    ) {
+    @inlinable public func wait(for event: QueueEvent) {
         guard !event.occurred else { return }
         diagnostic("\(waitString) QueueEvent(\(event.id)) on " +
                     "\(deviceName)_\(name)", categories: .queueSync)
-        do {
-            try event.wait()
-        } catch {
-            // there is no recovery here
-            writeLog("\(error)")
-            fatalError()
-        }
+        event.wait()
     }
     
     //--------------------------------------------------------------------------
     // waitUntilQueueIsComplete
     // the synchronous queue completes work as it is queued,
     // so it is always complete
-    @inlinable public func waitUntilQueueIsComplete() { }
+    @inlinable public func waitUntilQueueIsComplete() {
+        wait(for: record(event: createEvent(options: QueueEventOptions())))
+    }
 }

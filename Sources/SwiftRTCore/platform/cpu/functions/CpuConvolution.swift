@@ -99,7 +99,7 @@ public enum ConvolutionMode: Int, Codable, CaseIterable {
 
 //==============================================================================
 // DeviceQueue functions with default cpu delegation
-extension DeviceQueue where Self: CpuFunctions & CpuMapOps
+extension DeviceQueue where Self: CpuFunctions
 {
     public func convolution<Shape, Element, FilterElement>(
         activation: ActivationType,

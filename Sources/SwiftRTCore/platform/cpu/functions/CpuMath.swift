@@ -18,7 +18,7 @@ import Numerics
 
 //==============================================================================
 // DeviceQueue functions with default cpu delegation
-extension DeviceQueue where Self: CpuFunctions & CpuMapOps
+extension DeviceQueue where Self: CpuFunctions
 {
     //--------------------------------------------------------------------------
     @inlinable func abs<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
@@ -238,7 +238,7 @@ extension DeviceQueue where Self: CpuFunctions & CpuMapOps
 
 //==============================================================================
 // DeviceQueue specialized derivative delegation
-extension DeviceQueue where Self: CpuFunctions & CpuMapOps
+extension DeviceQueue where Self: CpuFunctions
 {
     //--------------------------------------------------------------------------
     @inlinable func vjpMin<S,E>(
@@ -269,7 +269,7 @@ extension DeviceQueue where Self: CpuFunctions & CpuMapOps
 
 //==============================================================================
 // Cpu device queue function implementations
-extension CpuFunctions where Self: DeviceQueue & CpuMapOps
+extension CpuFunctions where Self: DeviceQueue
 {
     //--------------------------------------------------------------------------
     @inlinable func cpu_abs<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
@@ -293,9 +293,6 @@ extension CpuFunctions where Self: DeviceQueue & CpuMapOps
     @inlinable func cpu_add<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                  _ result: inout Tensor<S,E>)
     where S: TensorShape, E: AdditiveArithmetic {
-        lhs.read(using: self)
-        rhs.read(using: self)
-        result.readWrite(using: self)
         mapOp(lhs, rhs, &result, +)
     }
     

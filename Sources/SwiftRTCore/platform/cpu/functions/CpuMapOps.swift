@@ -15,9 +15,7 @@
 //
 import Foundation
 
-public protocol CpuMapOps { }
-
-extension CpuMapOps {
+extension DeviceQueue {
     //--------------------------------------------------------------------------
     @inlinable func generatorOp<R>(
         _ r: inout R,
@@ -46,15 +44,18 @@ extension CpuMapOps {
     
     //--------------------------------------------------------------------------
     // mapOp 2
-    @inlinable func mapOp<L, R, Result>(
-        _ lhs: L,
-        _ rhs: R,
-        _ r: inout Result,
-        _ op: @escaping (L.Element, R.Element) -> Result.Element
-    ) where L: Collection, R: Collection, Result: MutableCollection {
+    @inlinable func mapOp<S,E,RE>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: Tensor<S,E>,
+        _ r: inout Tensor<S,RE>,
+        _ op: @escaping (E, E) -> RE
+    ) {
+        lhs.read(using: self)
+        rhs.read(using: self)
+        r.readWrite(using: self)
         zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = op($1.0, $1.1) }
     }
-    
+
     //--------------------------------------------------------------------------
     // mapOp 3
     @inlinable

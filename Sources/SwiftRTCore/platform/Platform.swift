@@ -220,7 +220,7 @@ public struct DeviceMemory<Element> {
 /// - created by a `DeviceQueue`
 /// - recorded on a queue to create a barrier
 /// - waited on by one or more threads for group synchronization
-public protocol QueueEvent {
+public protocol QueueEvent: class {
     /// the id of the event for diagnostics
     var id: Int { get }
     /// is `true` if the even has occurred, used for polling
@@ -230,9 +230,13 @@ public protocol QueueEvent {
 
     /// measure elapsed time since another event
     func elapsedTime(since other: QueueEvent) -> TimeInterval?
+    
+    /// signals that the event has occurred
+    func signal()
+    
     /// will block the caller until the timeout has elapsed if one
     /// was specified during init, otherwise it will block forever
-    func wait() throws
+    func wait()
 }
 
 //==============================================================================

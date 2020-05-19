@@ -19,7 +19,7 @@ import Foundation
 /// CpuQueue
 /// a final version of the default device queue which executes functions
 /// synchronously on the cpu
-public final class CpuQueue: DeviceQueue, CpuFunctions, CpuMapOps {
+public final class CpuQueue: DeviceQueue, CpuFunctions {
     // properties
     public let creatorThread: Thread
     public var defaultQueueEventOptions: QueueEventOptions
@@ -30,19 +30,19 @@ public final class CpuQueue: DeviceQueue, CpuFunctions, CpuMapOps {
     public let memoryType: MemoryType
     public let mode: DeviceQueueMode
     public let name: String
+    public var queue: DispatchQueue
     
     //--------------------------------------------------------------------------
     // initializers
     @inlinable
     public init(
-        id: Int,
         parent logInfo: LogInfo,
         deviceId: Int,
         deviceName: String,
         memoryType: MemoryType,
         mode: DeviceQueueMode
     ) {
-        self.id = id
+        self.id = Context.nextQueueId
         self.name = "q\(id)"
         self.logInfo = logInfo.flat(name)
         self.deviceId = deviceId
@@ -51,6 +51,7 @@ public final class CpuQueue: DeviceQueue, CpuFunctions, CpuMapOps {
         self.defaultQueueEventOptions = QueueEventOptions()
         self.memoryType = memoryType
         self.mode = mode
+        self.queue = DispatchQueue(label: "\(deviceName)_\(name)")
         
         diagnostic("\(createString) queue: \(deviceName)_\(name)",
                    categories: .queueAlloc)

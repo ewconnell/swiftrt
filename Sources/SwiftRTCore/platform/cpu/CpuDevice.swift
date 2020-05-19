@@ -35,8 +35,7 @@ public final class CpuDevice: PlatformDevice {
         self.name = "cpu:\(id)"
         self.logInfo = logInfo.flat(name)
         self.memoryType = memoryType
-        self.queues = [CpuQueue(id: 0,
-                                parent: self.logInfo,
+        self.queues = [CpuQueue(parent: self.logInfo,
                                 deviceId: id,
                                 deviceName: name,
                                 memoryType: memoryType,
