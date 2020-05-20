@@ -17,29 +17,68 @@ import Foundation
 
 //==============================================================================
 /// StorageElement
-/// tensor elements conform to `StorageElement` to enable reading, writing,
+/// tensor elements conform to `StorageElement`, which enables reading, writing,
 /// and operating on data types that are not native to the Swift language,
-/// but are native and optimal on gpus.
+/// but can be native and optimal for gpus
 public protocol StorageElement {
     associatedtype Stored
     associatedtype Value
+    
+    /// storedIndex
+    /// the stored index will be less than the logical index for packed
+    /// bit types such as `Int4`
+    /// - Parameter index: the logical buffer index
+    /// - Returns: the stored index
     static func storedIndex(_ index: Int) -> Int
+    
+    /// storedCount
+    /// the stored count will be less than the logical count for packed
+    /// bit types such as `Int4`
+    /// - Parameter count: the logical buffer count
+    /// - Returns: the stored count
     static func storedCount(_ count: Int) -> Int
+    
+    /// value
+    /// converts from `Stored` type to `Value` type
+    /// - Parameters:
+    ///  - stored: the stored representation of the element
+    ///  - index: the logical buffer index for the element. This is used
+    ///    to calculate the subelement position for packed elements
+    /// - Returns: the element interchange Value. For example, an `Int1`
+    ///   element is interchanged with the caller as an `Int`
     static func value(from stored: Stored, at index: Int) -> Value
+    
+    /// store
+    /// writes a value into a storage location
+    /// - Parameters:
+    ///  - value: the element value to store. For package element types,
+    ///    it is an error if the interchange Value exceeds the
+    ///    range of the packed type.
+    ///  - index: the logical buffer index for the element. This is used
+    ///    to calculate the subelement position for packed elements
+    ///  - stored: a reference to the storage location. Packed elements
+    ///    are combined (or'ed) when written.
     static func store(value: Value, at index: Int, to stored: inout Stored)
 }
 
+//==============================================================================
+// the default behavior for whole elements is simply pass through
 public extension StorageElement {
     @inlinable static func storedIndex(_ index: Int) -> Int { index }
     @inlinable static func storedCount(_ count: Int) -> Int { count }
 }
 
 public extension StorageElement where Stored == Value {
-    @inlinable static func value(from stored: Stored, at index: Int)
-    -> Value { stored }
+    @inlinable static func value(
+        from stored: Stored,
+        at index: Int
+    ) -> Value { stored }
     
-    @inlinable static func store(value: Value, at index: Int,
-                                 to stored: inout Stored) { stored = value }
+    @inlinable static func store(
+        value: Value,
+        at index: Int,
+        to stored: inout Stored
+    ) { stored = value }
 }
 
 //==============================================================================
@@ -72,7 +111,9 @@ public extension PackedStorageElement
         Value(stored >> packedShift(index) & valueMask)
     }
     
-    @inlinable static func store(value: Value, at index: Int, to stored: inout Stored) {
+    @inlinable static func store(
+        value: Value, at index: Int, to stored: inout Stored
+    ) {
         assert(value >= valueMin && value <= valueMax)
         let shiftCount = packedShift(index)
         if shiftCount == 0 {
@@ -85,7 +126,7 @@ public extension PackedStorageElement
 }
 
 //==============================================================================
-// StorageElement types
+// packed bit types that automatically cast to a native type during iteration
 public struct Int1: PackedStorageElement {
     public typealias Stored = UInt8
     public typealias Value = Int
@@ -106,6 +147,27 @@ public struct Int4: PackedStorageElement {
     @inlinable public static var valueMax: Value { 15 }
 }
 
+//==============================================================================
+// non native types that automatically cast to a native type during iteration
+extension Float16: StorageElement {
+    public typealias Stored = UInt16
+    public typealias Value = Float
+    
+    @inlinable public static func value(
+        from stored: Stored, at index: Int
+    ) -> Value {
+        Value(stored)
+    }
+    
+    @inlinable public static func store(
+        value: Value, at index: Int, to stored: inout Stored
+    ) {
+        stored = Stored(value)
+    }
+}
+
+//==============================================================================
+// standard native type conformance
 extension Int8: StorageElement {
     public typealias Stored = Int8
     public typealias Value = Int8
@@ -124,21 +186,4 @@ extension Float: StorageElement {
 extension Double: StorageElement {
     public typealias Stored = Double
     public typealias Value = Double
-}
-
-extension Float16: StorageElement {
-    public typealias Stored = UInt16
-    public typealias Value = Float
-    
-    @inlinable public static func value(
-        from stored: Stored, at index: Int
-    ) -> Value {
-        Value(stored)
-    }
-    
-    @inlinable public static func store(
-        value: Value, at index: Int, to stored: inout Stored
-    ) {
-        stored = Stored(value)
-    }
 }
