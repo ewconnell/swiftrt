@@ -125,3 +125,20 @@ extension Double: StorageElement {
     public typealias Stored = Double
     public typealias Value = Double
 }
+
+extension Float16: StorageElement {
+    public typealias Stored = UInt16
+    public typealias Value = Float
+    
+    @inlinable public static func value(
+        from stored: Stored, at index: Int
+    ) -> Value {
+        Value(stored)
+    }
+    
+    @inlinable public static func store(
+        value: Value, at index: Int, to stored: inout Stored
+    ) {
+        stored = Stored(value)
+    }
+}
