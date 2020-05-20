@@ -192,7 +192,7 @@ extension Double {
 /// Float16ToFloat
 /// converts from Float16 to Float
 // inspired from Paulius Micikevicius (pauliusm@nvidia.com)
-public func Float16ToFloat(_ h: Float16) -> Float
+@inlinable public func Float16ToFloat(_ h: Float16) -> Float
 {
 	var sign     = UInt32((h.x >> 15) & 1)
 	var exponent = UInt32((h.x >> 10) & 0x1f)
