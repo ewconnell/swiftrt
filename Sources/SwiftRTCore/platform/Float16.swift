@@ -1,5 +1,5 @@
 //******************************************************************************
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// inspired by the C implementation of Paulius Micikevicius pauliusm@nvidia.com
 //
 import Foundation
 
@@ -135,7 +137,6 @@ extension Double {
 //==============================================================================
 /// FloatToFloat16Rnd
 ///	converts from Float to Float16 with rounding
-// inspired from Paulius Micikevicius (pauliusm@nvidia.com)
 @inlinable public func FloatToFloat16Rnd(_ f: Float) -> Float16 {
 	let x = f.bitPattern
 	let u: UInt32 = x & 0x7fffffff
@@ -191,7 +192,6 @@ extension Double {
 //==============================================================================
 /// Float16ToFloat
 /// converts from Float16 to Float
-// inspired from Paulius Micikevicius (pauliusm@nvidia.com)
 @inlinable public func Float16ToFloat(_ h: Float16) -> Float
 {
 	var sign     = UInt32((h.x >> 15) & 1)
