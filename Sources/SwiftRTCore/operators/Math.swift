@@ -202,7 +202,7 @@ public extension Tensor where Element: Real {
 /// - Parameter other: value tensor
 /// - Returns: result
 @inlinable public func cast<S,E,OE>(_ other: Tensor<S,OE>) -> Tensor<S,E>
-    where S: TensorShape, E: BinaryFloatingPoint, OE: BinaryInteger
+where S: TensorShape, E.Value: BinaryFloatingPoint, OE.Value: BinaryInteger
 {
     var result = Tensor<S,E>(other.shape)
     Context.currentQueue.cast(from: other, to: &result)
@@ -210,7 +210,7 @@ public extension Tensor where Element: Real {
 }
 
 @inlinable public func cast<S,E,OE>(_ other: Tensor<S,OE>) -> Tensor<S,E>
-    where S: TensorShape, E: BinaryInteger, OE: BinaryFloatingPoint
+where S: TensorShape, E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint
 {
     var result = Tensor<S,E>(other.shape)
     Context.currentQueue.cast(from: other, to: &result)

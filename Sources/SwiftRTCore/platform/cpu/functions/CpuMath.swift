@@ -56,12 +56,12 @@ extension DeviceQueue where Self: CpuFunctions
     //--------------------------------------------------------------------------
     @inlinable func cast<S, E, RE>(from buffer: Tensor<S,E>,
                                    to result: inout Tensor<S,RE>)
-    where S: TensorShape, E: BinaryFloatingPoint, RE: BinaryInteger
+    where S: TensorShape, E.Value: BinaryFloatingPoint, RE.Value: BinaryInteger
     { cpu_cast(from: buffer, to: &result) }
     //--------------------------------------------------------------------------
     @inlinable func cast<S, E, RE>(from buffer: Tensor<S,E>,
                                    to result: inout Tensor<S,RE>)
-    where S: TensorShape, E: BinaryInteger, RE: BinaryFloatingPoint
+    where S: TensorShape, E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint
     { cpu_cast(from: buffer, to: &result) }
     //--------------------------------------------------------------------------
     @inlinable func copy<S,E>(from x: Tensor<S,E>, to result: inout Tensor<S,E>)

@@ -30,18 +30,18 @@ import Foundation
 //------------------------------------------------------------------------------
 // Rank1 to Swift Array
 public extension Tensor where Shape == Shape1 {
-    @inlinable var array: [Element] {
-        [Element](self)
+    @inlinable var array: [Element.Value] {
+        [Element.Value](self)
     }
 }
 
 //------------------------------------------------------------------------------
 // Rank2 to Swift Array
 public extension Tensor where Shape == Shape2 {
-    @inlinable var array: [[Element]] {
-        var array2 = [[Element]]()
+    @inlinable var array: [[Element.Value]] {
+        var array2 = [[Element.Value]]()
         for d0 in 0..<shape[0] {
-            let row = [Element](self[d0, 0...])
+            let row = [Element.Value](self[d0, 0...])
             array2.append(row)
         }
         return array2
@@ -51,12 +51,12 @@ public extension Tensor where Shape == Shape2 {
 //------------------------------------------------------------------------------
 // Rank3 to Swift Array
 public extension Tensor where Shape == Shape3 {
-    @inlinable var array: [[[Element]]] {
-        var array3 = [[[Element]]]()
+    @inlinable var array: [[[Element.Value]]] {
+        var array3 = [[[Element.Value]]]()
         for d0 in 0..<shape[0] {
-            var array2 = [[Element]]()
+            var array2 = [[Element.Value]]()
             for d1 in 0..<shape[1] {
-                let row = [Element](self[d0, d1, 0...])
+                let row = [Element.Value](self[d0, d1, 0...])
                 array2.append(row)
             }
             array3.append(array2)
@@ -68,14 +68,14 @@ public extension Tensor where Shape == Shape3 {
 //------------------------------------------------------------------------------
 // Rank4 to Swift Array
 public extension Tensor where Shape == Shape4 {
-    @inlinable var array: [[[[Element]]]] {
-        var array4 = [[[[Element]]]]()
+    @inlinable var array: [[[[Element.Value]]]] {
+        var array4 = [[[[Element.Value]]]]()
         for d0 in 0..<shape[0] {
-            var array3 = [[[Element]]]()
+            var array3 = [[[Element.Value]]]()
             for d1 in 0..<shape[1] {
-                var array2 = [[Element]]()
+                var array2 = [[Element.Value]]()
                 for d2 in 0..<shape[2] {
-                    let row = [Element](self[d0, d1, d2, 0...])
+                    let row = [Element.Value](self[d0, d1, d2, 0...])
                     array2.append(row)
                 }
                 array3.append(array2)
@@ -89,16 +89,16 @@ public extension Tensor where Shape == Shape4 {
 //------------------------------------------------------------------------------
 // Rank5 to Swift Array
 public extension Tensor where Shape == Shape5 {
-    @inlinable var array: [[[[[Element]]]]] {
-        var array5 = [[[[[Element]]]]]()
+    @inlinable var array: [[[[[Element.Value]]]]] {
+        var array5 = [[[[[Element.Value]]]]]()
         for d0 in 0..<shape[0] {
-            var array4 = [[[[Element]]]]()
+            var array4 = [[[[Element.Value]]]]()
             for d1 in 0..<shape[1] {
-                var array3 = [[[Element]]]()
+                var array3 = [[[Element.Value]]]()
                 for d2 in 0..<shape[2] {
-                    var array2 = [[Element]]()
+                    var array2 = [[Element.Value]]()
                     for d3 in 0..<shape[3] {
-                        let row = [Element](self[d0, d1, d2, d3, 0...])
+                        let row = [Element.Value](self[d0, d1, d2, d3, 0...])
                         array2.append(row)
                     }
                     array3.append(array2)
@@ -114,18 +114,18 @@ public extension Tensor where Shape == Shape5 {
 //------------------------------------------------------------------------------
 // Rank6 to Swift Array
 public extension Tensor where Shape == Shape6 {
-    @inlinable var array: [[[[[[Element]]]]]] {
-        var array6 = [[[[[[Element]]]]]]()
+    @inlinable var array: [[[[[[Element.Value]]]]]] {
+        var array6 = [[[[[[Element.Value]]]]]]()
         for d0 in 0..<shape[0] {
-            var array5 = [[[[[Element]]]]]()
+            var array5 = [[[[[Element.Value]]]]]()
             for d1 in 0..<shape[1] {
-                var array4 = [[[[Element]]]]()
+                var array4 = [[[[Element.Value]]]]()
                 for d2 in 0..<shape[2] {
-                    var array3 = [[[Element]]]()
+                    var array3 = [[[Element.Value]]]()
                     for d3 in 0..<shape[3] {
-                        var array2 = [[Element]]()
+                        var array2 = [[Element.Value]]()
                         for d4 in 0..<shape[4] {
-                            let row = [Element](self[d0, d1, d2, d3, d4, 0...])
+                            let row = [Element.Value](self[d0, d1, d2, d3, d4, 0...])
                             array2.append(row)
                         }
                         array3.append(array2)

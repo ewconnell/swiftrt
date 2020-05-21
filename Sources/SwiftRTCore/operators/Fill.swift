@@ -124,7 +124,8 @@ where S: TensorShape
         //     @differentiable(wrt: (tensors), results: (result))
         // - This makes `resultTangent` not be inout, so we don't need to set
         //   it any more.
-        resultTangent = zeros(like: resultTangent)
+        resultTangent = Tensor(zeros: resultTangent.shape,
+                               order: resultTangent.order)
 
         return Array.DifferentiableView(tensorTangents)
     }
@@ -211,15 +212,17 @@ where S: TensorShape
 //==============================================================================
 /// fill<S,E>(x:value:
 /// fills the view with the specified value
-@inlinable public func fill<S,E>(_ x: inout Tensor<S,E>, with element: E)
-    where S: TensorShape
-{
+@inlinable public func fill<S, E: StorageElement>(
+    _ x: inout Tensor<S,E>,
+    with element: E.Value
+) where S: TensorShape{
     Context.currentQueue.fill(&x, with: element)
 }
 
-@inlinable
-public func fill<S,E,B>(_ x: inout Tensor<S,E>, with range: Range<B>)
-    where S: TensorShape, E: Numeric,
+@inlinable public func fill<S,E: StorageElement,B>(
+    _ x: inout Tensor<S,E>,
+    with range: Range<B>
+) where S: TensorShape, E.Value: Numeric,
     B: SignedInteger, B.Stride: SignedInteger
 {
     Context.currentQueue.fill(&x, with: range)

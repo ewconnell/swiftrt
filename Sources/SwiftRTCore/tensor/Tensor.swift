@@ -18,11 +18,13 @@ import Numerics
 
 //==============================================================================
 /// Tensor
-public struct Tensor<Shape, Element>: MutableTensorType
-    where Shape: TensorShape
+public struct Tensor<Shape, TensorElement>: TensorProtocol, MutableCollection
+where Shape: TensorShape, TensorElement: StorageElement
 {
     // types
     public typealias Index = ElementIndex<Shape>
+    public typealias Element = TensorElement.Value
+    
     /// the storage buffer base offset where this tensor's elements begin
     public let baseOffset: Int
     /// the dense number of elements in the shape
@@ -33,19 +35,16 @@ public struct Tensor<Shape, Element>: MutableTensorType
     // this is a stored property, because it's used during
     // gpu dispatch decision making
     public let isSequential: Bool
+    /// the strides used to subscript the logical shape (used by makeIndex)
+    public let logicalStrides: Shape
     /// the dimensions of the element space
     @noDerivative public let shape: Shape
-    // used by makeIndex
-    public let shapeStrides: Shape
     /// The strided number of elements spanned by the shape
     public let spanCount: Int
     /// The distance to the next element along each dimension
     public let strides: Shape
     /// the element storage buffer.
-    public var storage: StorageBufferType<Element>
-    /// Specifies whether data is stored in row-major (C-style)
-    /// or column-major (Fortran-style) order in memory.
-    public let storageOrder: StorageOrder
+    public var storage: StorageBufferType<TensorElement>
 
     //-----------------------------------
     /// `true` if the view will be shared by by multiple writers
@@ -58,9 +57,6 @@ public struct Tensor<Shape, Element>: MutableTensorType
     /// the ending index zero relative to the storage buffer
     public let endIndex: Index
 
-    /// `true` if the tensor represents a single constant Element
-    @inlinable public var isSingleElement: Bool { spanCount == 1 }
-    
     /// `true` if the tensor elements are densely packed
     @inlinable public var isContiguous: Bool { count == spanCount }
 
@@ -70,6 +66,9 @@ public struct Tensor<Shape, Element>: MutableTensorType
         set { storage.name = newValue }
     }
 
+    /// the element storage order
+    @inlinable public var order: StorageOrder { storage.order }
+    
     //--------------------------------------------------------------------------
     /// init(
     /// Used to initialize a collection of dense stored elements
@@ -78,9 +77,8 @@ public struct Tensor<Shape, Element>: MutableTensorType
         strides: Shape,
         count: Int,
         spanCount: Int,
-        storage: StorageBufferType<Element>,
+        storage: StorageBufferType<TensorElement>,
         baseOffset: Int,
-        order: StorageOrder,
         share: Bool,
         isSequential: Bool
     ) {
@@ -90,12 +88,11 @@ public struct Tensor<Shape, Element>: MutableTensorType
         self.spanCount = spanCount
         self.storage = storage
         self.baseOffset = baseOffset
-        self.storageOrder = order
         self._isShared = share
         self.isSequential = isSequential
         self.startIndex = Index(Shape.zero, baseOffset)
         self.endIndex = Index(shape, baseOffset + count)
-        self.shapeStrides = shape.strides(for: order)
+        self.logicalStrides = shape.strides()
     }
     
     //--------------------------------------------------------------------------
@@ -107,14 +104,13 @@ public struct Tensor<Shape, Element>: MutableTensorType
         count = shape.elementCount()
         spanCount = 1
         baseOffset = 0
-        storageOrder = .C
         _isShared = true
         isSequential = true
         startIndex = Index(Shape.zero, 0)
         endIndex = Index(shape, count)
-        storage = StorageBufferType<Element>(single: element)
+        storage = StorageBufferType<TensorElement>(single: element)
         storage.name = "Element"
-        shapeStrides = Shape.zero
+        logicalStrides = shape.strides()
     }
 }
 
@@ -125,8 +121,13 @@ public struct Tensor<Shape, Element>: MutableTensorType
 /// to reduce the number of generic requirements when writing
 /// `@differentiable` attributes
 ///
-public protocol DifferentiableTensor: TensorType & Differentiable
-    where Self == TangentVector, Element: DifferentiableElement {}
+public protocol TensorProtocol: Logging {
+    associatedtype Shape: TensorShape
+    associatedtype TensorElement: StorageElement
+}
+
+public protocol DifferentiableTensor: TensorProtocol & Differentiable
+where Self == TangentVector, TensorElement.Value: DifferentiableElement {}
 
 /// DifferentiableElement
 public protocol DifferentiableElement:
@@ -251,19 +252,15 @@ public extension Tensor {
     ///  - position: the n-dimensional coordinate position within `shape`
     /// - Returns: the index
     @inlinable func makeIndex(at position: Shape) -> Index {
-        Index(position, baseOffset + position.index(stridedBy: shapeStrides))
+        Index(position, baseOffset + position.index(stridedBy: logicalStrides))
     }
 
     //--------------------------------------------------------------------------
     /// index(i:
     @inlinable func index(after i: Index) -> Index {
-        // If the storage is a single broadcast element or many, the index
-        // still has to be incremented to satisfy reaching the end of
-        // the collection
-        if isSequential {
-            return Index(at: i.sequencePosition &+ 1)
-        } else {
-            return i.incremented(between: startIndex, and: endIndex)
+        switch storage.order {
+        case .row: return RowSequential(self).index(after: i)
+        case .col: return ColSequential(self).index(after: i)
         }
     }
 
@@ -275,30 +272,17 @@ public extension Tensor {
     // don't appear to affect perf numbers.
     @inlinable subscript(i: Index) -> Element {
         get {
-            // a single element can skip doing the buffer linear address
-            // calculation. This is beneficial ranked higher ranked
-            // repeated scalars.
-            if isSingleElement {
-                return storage.element(at: baseOffset)
-            } else if isSequential {
-                // most tensors are layed out sequentially, so it is much
-                // cheaper to use the sequencePosition. The `baseOffset`
-                // is included during index initialization
-                return storage.element(at: i.sequencePosition)
-            } else {
-                // perform a full strided buffer index calculation
-                return storage.element(at: baseOffset &+ i.linearIndex(strides))
+            // designed for adding more layouts
+            switch storage.order {
+            case .row: return RowSequential(self)[i]
+            case .col: return ColSequential(self)[i]
             }
         }
         
         set {
-            if isSingleElement {
-                return storage.setElement(value: newValue, at: baseOffset)
-            } else if isSequential {
-                storage.setElement(value: newValue, at: i.sequencePosition)
-            } else {
-                storage.setElement(value: newValue,
-                                   at: baseOffset &+ i.linearIndex(strides))
+            switch storage.order {
+            case .row: _ = RowSequential(mutating: self, i, newValue)
+            case .col: _ = ColSequential(mutating: self, i, newValue)
             }
         }
     }
@@ -334,7 +318,6 @@ public extension Tensor {
             spanCount: span,
             storage: storage,
             baseOffset: baseOffset + lower.index(stridedBy: strides),
-            order: storageOrder,
             share: share,
             isSequential: isSeq)
     }

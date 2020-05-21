@@ -18,20 +18,24 @@
 /// SyncStorage
 /// A synchronous host memory element storage buffer
 public final class CpuStorage<Element>: StorageBuffer
+where Element: StorageElement
 {
     public let count: Int
-    public let hostBuffer: UnsafeMutableBufferPointer<Element>
+    public let hostBuffer: UnsafeMutableBufferPointer<Element.Stored>
     public let id: Int
     public let isReadOnly: Bool
     public let isReference: Bool
     public var name: String
-    public var element: Element
+    public let order: StorageOrder
+    public var element: Element.Stored
     
     //--------------------------------------------------------------------------
-    // init(count:
-    @inlinable public init(count: Int) {
+    // init(count:order:
+    @inlinable public init(count: Int, order: StorageOrder) {
         self.count = count
-        self.hostBuffer = UnsafeMutableBufferPointer.allocate(capacity: count)
+        self.order = order
+        self.hostBuffer = UnsafeMutableBufferPointer
+            .allocate(capacity: Element.storedCount(count))
         self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = false
@@ -46,9 +50,10 @@ public final class CpuStorage<Element>: StorageBuffer
 
     //--------------------------------------------------------------------------
     // init(element:
-    @inlinable public init(single element: Element) {
+    @inlinable public init(single element: Element.Value) {
         self.count = 1
-        self.element = element
+        self.order = .row
+        self.element = Element.stored(value: element)
         self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = true
@@ -69,6 +74,7 @@ public final class CpuStorage<Element>: StorageBuffer
     // init(other:
     @inlinable public init(copying other: CpuStorage) {
         self.count = other.count
+        self.order = other.order
         self.id = other.id
         self.isReadOnly = other.isReadOnly
         self.isReference = other.isReference
@@ -84,9 +90,13 @@ public final class CpuStorage<Element>: StorageBuffer
     }
 
     //--------------------------------------------------------------------------
-    // init(buffer:
-    @inlinable public init(referenceTo buffer: UnsafeBufferPointer<Element>) {
+    // init(buffer:order:
+    @inlinable public init(
+        referenceTo buffer: UnsafeBufferPointer<Element.Stored>,
+        order: StorageOrder
+    ) {
         self.count = buffer.count
+        self.order = order
         self.hostBuffer = UnsafeMutableBufferPointer(mutating: buffer)
         self.id = Context.nextBufferId
         self.isReadOnly = true
@@ -102,10 +112,12 @@ public final class CpuStorage<Element>: StorageBuffer
     
     //--------------------------------------------------------------------------
     // init(buffer:
-    @inlinable
-    public init(referenceTo buffer: UnsafeMutableBufferPointer<Element>)
-    {
+    @inlinable public init(
+        referenceTo buffer: UnsafeMutableBufferPointer<Element.Stored>,
+        order: StorageOrder
+    ) {
         self.count = buffer.count
+        self.order = order
         self.hostBuffer = buffer
         self.id = Context.nextBufferId
         self.isReadOnly = false
@@ -130,8 +142,7 @@ public final class CpuStorage<Element>: StorageBuffer
     
     //--------------------------------------------------------------------------
     // deinit
-    @inlinable
-    deinit {
+    @inlinable deinit {
         if !isReference {
             hostBuffer.deallocate()
             #if DEBUG
@@ -141,20 +152,19 @@ public final class CpuStorage<Element>: StorageBuffer
         }
     }
     
-    @inlinable
-    public func element(at offset: Int) -> Element {
-        hostBuffer[offset]
+    @inlinable public func element(at index: Int) -> Element.Value {
+        Element.value(from: hostBuffer[Element.storedIndex(index)], at: index)
     }
     
-    @inlinable
-    public func setElement(value: Element, at offset: Int) {
-        hostBuffer[offset] = value
+    @inlinable public func setElement(value: Element.Value, at index: Int) {
+        let si = Element.storedIndex(index)
+        Element.store(value: value, at: index, to: &hostBuffer[si])
     }
     
     //--------------------------------------------------------------------------
     // read
     @inlinable
-    public func read(at offset: Int, count: Int) -> UnsafeBufferPointer<Element>
+    public func read(at offset: Int, count: Int) -> UnsafeBufferPointer<Element.Stored>
     {
         let start = hostBuffer.baseAddress!.advanced(by: offset)
         return UnsafeBufferPointer(start: start, count: count)
@@ -165,7 +175,7 @@ public final class CpuStorage<Element>: StorageBuffer
     @inlinable
     public func read(at offset: Int, count: Int,
                      using queue: PlatformType.Device.Queue)
-        -> UnsafeBufferPointer<Element>
+        -> UnsafeBufferPointer<Element.Stored>
     {
         let start = hostBuffer.baseAddress!.advanced(by: offset)
         return UnsafeBufferPointer(start: start, count: count)
@@ -175,7 +185,7 @@ public final class CpuStorage<Element>: StorageBuffer
     // readWrite
     @inlinable
     public func readWrite(at offset: Int, count: Int)
-        -> UnsafeMutableBufferPointer<Element>
+        -> UnsafeMutableBufferPointer<Element.Stored>
     {
         let start = hostBuffer.baseAddress!.advanced(by: offset)
         return UnsafeMutableBufferPointer(start: start, count: count)
@@ -186,7 +196,7 @@ public final class CpuStorage<Element>: StorageBuffer
     @inlinable
     public func readWrite(at offset: Int, count: Int, willOverwrite: Bool,
                           using queue: PlatformType.Device.Queue)
-        -> UnsafeMutableBufferPointer<Element>
+        -> UnsafeMutableBufferPointer<Element.Stored>
     {
         let start = hostBuffer.baseAddress!.advanced(by: offset)
         return UnsafeMutableBufferPointer(start: start, count: count)

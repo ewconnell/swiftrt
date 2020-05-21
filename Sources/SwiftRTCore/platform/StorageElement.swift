@@ -59,6 +59,12 @@ public protocol StorageElement {
     ///  - stored: a reference to the storage location. Packed elements
     ///    are combined (or'ed) when written.
     static func store(value: Value, at index: Int, to stored: inout Stored)
+
+    /// stored
+    /// converts the Value interchange type to the Stored type
+    /// - Parameters:
+    ///  - value: the element value to store
+    static func stored(value: Value) -> Stored
 }
 
 //==============================================================================
@@ -79,6 +85,8 @@ public extension StorageElement where Stored == Value {
         at index: Int,
         to stored: inout Stored
     ) { stored = value }
+
+    static func stored(value: Value) -> Stored { value }
 }
 
 //==============================================================================
@@ -123,6 +131,8 @@ public extension PackedStorageElement
             stored |= Stored(value) << shiftCount
         }
     }
+    
+    @inlinable static func stored(value: Value) -> Stored { Stored(value) }
 }
 
 //==============================================================================
@@ -164,10 +174,19 @@ extension Float16: StorageElement {
     ) {
         stored = Stored(value)
     }
+    
+    @inlinable public static func stored(value: Value) -> Stored {
+        Stored(value)
+    }
 }
 
 //==============================================================================
 // standard native type conformance
+extension Bool: StorageElement {
+    public typealias Stored = Bool
+    public typealias Value = Bool
+}
+
 extension Int8: StorageElement {
     public typealias Stored = Int8
     public typealias Value = Int8
@@ -176,6 +195,26 @@ extension Int8: StorageElement {
 extension UInt8: StorageElement {
     public typealias Stored = UInt8
     public typealias Value = UInt8
+}
+
+extension Int16: StorageElement {
+    public typealias Stored = Int16
+    public typealias Value = Int16
+}
+
+extension UInt16: StorageElement {
+    public typealias Stored = UInt16
+    public typealias Value = UInt16
+}
+
+extension Int32: StorageElement {
+    public typealias Stored = Int32
+    public typealias Value = Int32
+}
+
+extension UInt32: StorageElement {
+    public typealias Stored = UInt32
+    public typealias Value = UInt32
 }
 
 extension Float: StorageElement {
@@ -187,3 +226,128 @@ extension Double: StorageElement {
     public typealias Stored = Double
     public typealias Value = Double
 }
+
+//==============================================================================
+// storage element iterators
+//==============================================================================
+
+//==============================================================================
+/// BufferSequential
+/// walks the buffer elements in order, independent of logical orientation
+/// this is used for elementwise operations
+
+// Note: we copy the host buffer so that it can be accessed asynchronously
+// without copy-on-write issues
+public struct BufferSequential<Shape, TensorElement>: MutableCollection
+    where Shape: TensorShape, TensorElement: StorageElement
+{
+    public typealias Index = ElementIndex<Shape>
+    public typealias Element = TensorElement.Value
+    public let hostBuffer: UnsafeMutableBufferPointer<TensorElement.Stored>
+    public let isSingleElement: Bool
+    public let startIndex: Index
+    public let endIndex: Index
+    
+    @inlinable public init(_ tensor: Tensor<Shape, TensorElement>) {
+        hostBuffer = tensor.storage.hostBuffer
+        startIndex = tensor.startIndex
+        endIndex = tensor.endIndex
+        isSingleElement = tensor.count == 1
+    }
+    
+    @inlinable public init(mutating tensor: Tensor<Shape, TensorElement>) {
+        self.init(tensor)
+    }
+    
+    @inlinable public init(
+        mutating tensor: Tensor<Shape, TensorElement>,
+        _ index: Index, _ newValue: Element
+    ) {
+        self.init(tensor)
+        self[index] = newValue
+    }
+    
+    @inlinable public func index(after i: Index) -> Index {
+        Index(at: i.sequencePosition &+ 1)
+    }
+    
+    @inlinable public subscript(position: Index) -> Element {
+        get {
+            if isSingleElement {
+                return TensorElement.value(from: hostBuffer[0], at: 0)
+            } else {
+                let i = position.sequencePosition
+                let si = TensorElement.storedIndex(i)
+                return TensorElement.value(from: hostBuffer[si], at: i)
+            }
+        }
+        
+        set(newValue) {
+            if isSingleElement {
+                TensorElement.store(value: newValue, at: 0, to: &hostBuffer[0])
+            } else {
+                let i = position.sequencePosition
+                let si = TensorElement.storedIndex(i)
+                TensorElement.store(value: newValue, at: i, to: &hostBuffer[si])
+            }
+        }
+    }
+}
+
+//==============================================================================
+/// RowSequential
+/// walks the buffer elements in logical row major order
+public typealias RowSequential<Shape, TensorElement> =
+    BufferSequential<Shape, TensorElement>
+where Shape: TensorShape, TensorElement: StorageElement
+
+//==============================================================================
+/// ColSequential
+/// walks the col major buffer elements in logical row major order
+public struct ColSequential<Shape, TensorElement>: MutableCollection
+where Shape: TensorShape, TensorElement: StorageElement
+{
+    public typealias Index = ElementIndex<Shape>
+    public typealias Element = TensorElement.Value
+    public let hostBuffer: UnsafeMutableBufferPointer<TensorElement.Stored>
+    public let isSingleElement: Bool
+    public let startIndex: Index
+    public let endIndex: Index
+    
+    @inlinable public init(_ tensor: Tensor<Shape, TensorElement>) {
+        hostBuffer = tensor.storage.hostBuffer
+        startIndex = tensor.startIndex
+        endIndex = tensor.endIndex
+        isSingleElement = tensor.count == 1
+    }
+    
+    @inlinable public init(mutating tensor: Tensor<Shape, TensorElement>) {
+        self.init(tensor)
+    }
+    
+    @inlinable public init(
+        mutating tensor: Tensor<Shape, TensorElement>,
+        _ index: Index, _ newValue: Element
+    ) {
+        self.init(tensor)
+        self[index] = newValue
+    }
+    
+    @inlinable public func index(after i: Index) -> Index {
+        Index(at: i.sequencePosition &+ 1)
+    }
+    
+    @inlinable public subscript(position: Index) -> Element {
+        get {
+            let i = position.sequencePosition
+            let si = TensorElement.storedIndex(i)
+            return TensorElement.value(from: hostBuffer[si], at: i)
+        }
+        set(newValue) {
+            let i = position.sequencePosition
+            let si = TensorElement.storedIndex(i)
+            TensorElement.store(value: newValue, at: i, to: &hostBuffer[si])
+        }
+    }
+}
+

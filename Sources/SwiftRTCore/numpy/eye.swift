@@ -41,7 +41,8 @@ import Foundation
     _ n: Int,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape2, Element> where Element: Numeric
+) -> Tensor<Shape2, Element>
+where Element: StorageElement, Element.Value: Numeric
 {
     eye(n, n, dtype: dtype, order: order)
 }
@@ -75,7 +76,8 @@ import Foundation
     _ N: Int, _ M: Int? = nil, k: Int = 0,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape2, Element> where Element: Numeric
+) -> Tensor<Shape2, Element>
+where Element: StorageElement, Element.Value: Numeric
 {
     Tensor<Shape2, Element>(eye: Shape2(N, M ?? N), offset: k, order: order)
 }

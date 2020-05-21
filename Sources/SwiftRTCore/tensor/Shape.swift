@@ -214,6 +214,10 @@ public extension TensorShape {
         }
     }
 
+    @inlinable func strides() -> Self {
+        strides(for: .row)
+    }
+    
     //--------------------------------------------------------------------------
     /// `areSequential`
     /// - Parameter shape: the bounding shape for the strides
