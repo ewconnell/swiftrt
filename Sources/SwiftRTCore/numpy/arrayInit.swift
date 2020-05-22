@@ -38,6 +38,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 //==============================================================================
 /// empty
 /// Return a new tensor of given shape and type, without initializing entries.
+///
 /// - Parameters:
 ///  - shape: Int or tuple of Int
 ///    Shape of the empty array, e.g., (2, 3) or 2.
@@ -556,6 +557,7 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 //==============================================================================
 /// full(like:
 /// Return a new tensor of given shape and type filled with `value`
+///
 /// - Parameters:
 ///  - prototype: unspecified attributes are copied from this tensor
 ///  - value: Fill value.
@@ -750,6 +752,7 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 //==============================================================================
 /// ones
 /// Return a new tensor of given shape and type filled with ones
+///
 /// - Parameters:
 ///  - shape: Int or tuple of Int
 ///    Shape of the array, e.g., (2, 3) or 2.
@@ -918,6 +921,7 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 //==============================================================================
 /// ones(like:
 /// Return a new tensor of given shape and type filled with `value`
+///
 /// - Parameters:
 ///  - prototype: unspecified attributes are copied from this tensor
 ///  - dtype: data-type, optional
@@ -1083,6 +1087,7 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 //==============================================================================
 /// zeros
 /// Return a new tensor of given shape and type filled with zeros
+///
 /// - Parameters:
 ///  - shape: Int or tuple of Int
 ///    Shape of the array, e.g., (2, 3) or 2.
@@ -1272,6 +1277,7 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 //==============================================================================
 /// zeros(like:
 /// Return a new tensor of given shape and type filled with `value`
+///
 /// - Parameters:
 ///  - prototype: unspecified attributes are copied from this tensor
 ///  - dtype: data-type, optional
