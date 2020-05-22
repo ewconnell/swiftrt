@@ -178,7 +178,7 @@ where E.Value: DifferentiableElement
 ///  - transposeRhs: `true` to transpose `rhs`, default is `false`
 /// - Returns: a new tensor containing the result
 // https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func matmul<S,E>(
     _ lhs: Tensor<S,E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
@@ -207,7 +207,7 @@ where S: TensorShape, E.Value: DifferentiableElement
 ///  - transposeRhs: `true` to transpose `rhs`, default is `false`
 /// - Returns: a new tensor containing the result
 // https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func matmul<S,E>(
     _ lhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
@@ -236,7 +236,7 @@ where S: TensorShape, E.Value: DifferentiableElement
 ///  - transposeRhs: `true` to transpose `rhs`, default is `false`
 /// - Returns: a new tensor containing the result
 // https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func matmul<S,E>(
     _ lhs: Tensor<S,E>, transposed transposeRhs: Bool = false,
     _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
