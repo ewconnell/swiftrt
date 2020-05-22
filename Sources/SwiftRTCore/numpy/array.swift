@@ -195,64 +195,68 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 
 //------------------------------------------------------------------------------
 // Rank1 array from a flat collection where shape is implied by count
-// same type
-@inlinable public func array<C: Collection>(
+// explicit type
+@inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Value
+    dtype: Element.Type
+) -> Tensor<Shape1,Element> where C.Element == Element.Value
 {
-    Tensor<Shape1,C.Element>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1,Element>(elements, Shape1(elements.count))
+}
+
+// FixedSizeVector type
+@inlinable public func array<C: Collection>(
+    _ elements: C
+) -> Tensor<Shape1,C.Element>
+    where C.Element: FixedSizeVector, C.Element == C.Element.Value
+{
+    Tensor<Shape1,C.Element>(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C: Collection>(
-    _ elements: C,
-    order: StorageOrder = .C
+    _ elements: C
 ) -> Tensor<Shape1,DType> where C.Element: BinaryInteger
 {
-    Tensor<Shape1,DType>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1,DType>(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C: Collection>(
-    _ elements: C,
-    order: StorageOrder = .C
+    _ elements: C
 ) -> Tensor<Shape1, DType> where C.Element: BinaryFloatingPoint
 {
-    Tensor<Shape1, DType>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1, DType>(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type,
-    order: StorageOrder = .C
+    dtype: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
 {
-    Tensor<Shape1, Element>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1, Element>(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type,
-    order: StorageOrder = .C
+    dtype: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
-    Tensor<Shape1,Element>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1,Element>(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type,
-    order: StorageOrder = .C
+    dtype: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
 {
-    Tensor<Shape1, Element>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1, Element>(elements, Shape1(elements.count))
 }
 
 //------------------------------------------------------------------------------
@@ -548,14 +552,35 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 
 //------------------------------------------------------------------------------
 // Rank2 shaped array from Swift Array
-// same type
-@inlinable public func array<C>(
+// explicit type
+@inlinable public func array<C, Element>(
     _ elements: C,
+    dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape2,C.Element.Element>
+) -> Tensor<Shape2, Element>
     where
     C: Collection,
     C.Element: Collection,
+    C.Element.Element == Element.Value
+{
+    let shape = Shape2(
+        elements.count,
+        elements.first!.count)
+
+    let flatElements = elements.joined()
+    return Tensor<Shape2,Element>(
+        flatElements, shape, order: order)
+}
+
+// FixedSizeVector type
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape2, C.Element.Element>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: FixedSizeVector,
     C.Element.Element == C.Element.Element.Value
 {
     let shape = Shape2(
@@ -567,7 +592,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element integer -> DType
+// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
@@ -585,7 +610,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape2,DType>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element floating point -> DType
+// implicitly casts from C.Element floating point -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
@@ -604,7 +629,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 }
 
 
-/// implicitly casts from C.Element integer -> Element
+// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -623,7 +648,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape2,Element>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element float -> Element integer
+// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -642,7 +667,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape2,Element>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element float -> Element float
+// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -664,15 +689,38 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 
 //------------------------------------------------------------------------------
 // Rank3 shaped array from Swift Array
-// same type
-@inlinable public func array<C>(
+// explicit type
+@inlinable public func array<C, Element>(
     _ elements: C,
+    dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape3,C.Element.Element.Element>
+) -> Tensor<Shape3, Element>
     where
     C: Collection,
     C.Element: Collection,
     C.Element.Element: Collection,
+    C.Element.Element.Element == Element.Value
+{
+    let shape = Shape3(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count)
+
+    let flatElements = elements.joined().joined()
+    return Tensor<Shape3,Element>(
+        flatElements, shape, order: order)
+}
+
+// FixedSizeVector type
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape3, C.Element.Element.Element>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: FixedSizeVector,
     C.Element.Element.Element == C.Element.Element.Element.Value
 {
     let shape = Shape3(
@@ -685,7 +733,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element integer -> DType
+// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
@@ -705,7 +753,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape3,DType>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element floating point -> DType
+// implicitly casts from C.Element floating point -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
@@ -726,7 +774,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 }
 
 
-/// implicitly casts from C.Element integer -> Element
+// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -747,7 +795,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape3,Element>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element float -> Element integer
+// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -768,7 +816,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape3,Element>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element float -> Element float
+// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -792,16 +840,41 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 
 //------------------------------------------------------------------------------
 // Rank4 shaped array from Swift Array
-// same type
-@inlinable public func array<C>(
+// explicit type
+@inlinable public func array<C, Element>(
     _ elements: C,
+    dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape4,C.Element.Element.Element.Element>
+) -> Tensor<Shape4, Element>
     where
     C: Collection,
     C.Element: Collection,
     C.Element.Element: Collection,
     C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element == Element.Value
+{
+    let shape = Shape4(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined()
+    return Tensor<Shape4,Element>(
+        flatElements, shape, order: order)
+}
+
+// FixedSizeVector type
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape4, C.Element.Element.Element.Element>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element: FixedSizeVector,
     C.Element.Element.Element.Element == C.Element.Element.Element.Element.Value
 {
     let shape = Shape4(
@@ -815,7 +888,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element integer -> DType
+// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
@@ -837,7 +910,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape4,DType>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element floating point -> DType
+// implicitly casts from C.Element floating point -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
@@ -860,7 +933,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 }
 
 
-/// implicitly casts from C.Element integer -> Element
+// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -883,7 +956,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape4,Element>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element float -> Element integer
+// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -906,7 +979,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape4,Element>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element float -> Element float
+// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -932,17 +1005,44 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 
 //------------------------------------------------------------------------------
 // Rank5 shaped array from Swift Array
-// same type
-@inlinable public func array<C>(
+// explicit type
+@inlinable public func array<C, Element>(
     _ elements: C,
+    dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape5,C.Element.Element.Element.Element.Element>
+) -> Tensor<Shape5, Element>
     where
     C: Collection,
     C.Element: Collection,
     C.Element.Element: Collection,
     C.Element.Element.Element: Collection,
     C.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element == Element.Value
+{
+    let shape = Shape5(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined().joined()
+    return Tensor<Shape5,Element>(
+        flatElements, shape, order: order)
+}
+
+// FixedSizeVector type
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape5, C.Element.Element.Element.Element.Element>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element: FixedSizeVector,
     C.Element.Element.Element.Element.Element == C.Element.Element.Element.Element.Element.Value
 {
     let shape = Shape5(
@@ -957,7 +1057,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element integer -> DType
+// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
@@ -981,7 +1081,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape5,DType>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element floating point -> DType
+// implicitly casts from C.Element floating point -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
@@ -1006,7 +1106,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 }
 
 
-/// implicitly casts from C.Element integer -> Element
+// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -1031,7 +1131,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape5,Element>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element float -> Element integer
+// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -1056,7 +1156,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape5,Element>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element float -> Element float
+// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -1084,11 +1184,12 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 
 //------------------------------------------------------------------------------
 // Rank6 shaped array from Swift Array
-// same type
-@inlinable public func array<C>(
+// explicit type
+@inlinable public func array<C, Element>(
     _ elements: C,
+    dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape6,C.Element.Element.Element.Element.Element.Element>
+) -> Tensor<Shape6, Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -1096,6 +1197,34 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     C.Element.Element.Element: Collection,
     C.Element.Element.Element.Element: Collection,
     C.Element.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element.Element == Element.Value
+{
+    let shape = Shape6(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined().joined().joined()
+    return Tensor<Shape6,Element>(
+        flatElements, shape, order: order)
+}
+
+// FixedSizeVector type
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape6, C.Element.Element.Element.Element.Element.Element>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element.Element: FixedSizeVector,
     C.Element.Element.Element.Element.Element.Element == C.Element.Element.Element.Element.Element.Element.Value
 {
     let shape = Shape6(
@@ -1111,7 +1240,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
         flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element integer -> DType
+// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
@@ -1137,7 +1266,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape6,DType>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element floating point -> DType
+// implicitly casts from C.Element floating point -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
@@ -1164,7 +1293,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 }
 
 
-/// implicitly casts from C.Element integer -> Element
+// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -1191,7 +1320,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape6,Element>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element float -> Element integer
+// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -1218,7 +1347,7 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
     return Tensor<Shape6,Element>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element float -> Element float
+// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,

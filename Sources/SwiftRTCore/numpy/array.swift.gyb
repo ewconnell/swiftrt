@@ -86,64 +86,68 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
 
 //------------------------------------------------------------------------------
 // Rank1 array from a flat collection where shape is implied by count
-// same type
-@inlinable public func array<C: Collection>(
+// explicit type
+@inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Value
+    dtype: Element.Type
+) -> Tensor<Shape1,Element> where C.Element == Element.Value
 {
-    Tensor<Shape1,C.Element>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1,Element>(elements, Shape1(elements.count))
+}
+
+// FixedSizeVector type
+@inlinable public func array<C: Collection>(
+    _ elements: C
+) -> Tensor<Shape1,C.Element>
+    where C.Element: FixedSizeVector, C.Element == C.Element.Value
+{
+    Tensor<Shape1,C.Element>(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C: Collection>(
-    _ elements: C,
-    order: StorageOrder = .C
+    _ elements: C
 ) -> Tensor<Shape1,DType> where C.Element: BinaryInteger
 {
-    Tensor<Shape1,DType>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1,DType>(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C: Collection>(
-    _ elements: C,
-    order: StorageOrder = .C
+    _ elements: C
 ) -> Tensor<Shape1, DType> where C.Element: BinaryFloatingPoint
 {
-    Tensor<Shape1, DType>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1, DType>(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type,
-    order: StorageOrder = .C
+    dtype: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
 {
-    Tensor<Shape1, Element>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1, Element>(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type,
-    order: StorageOrder = .C
+    dtype: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
-    Tensor<Shape1,Element>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1,Element>(elements, Shape1(elements.count))
 }
 
 /// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type,
-    order: StorageOrder = .C
+    dtype: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
 {
-    Tensor<Shape1, Element>(elements, Shape1(elements.count), order: order)
+    Tensor<Shape1, Element>(elements, Shape1(elements.count))
 }
 
 %for n in range(2, numShapes + 1):
@@ -210,15 +214,38 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
 %for n in range(2, numShapes + 1):
 //------------------------------------------------------------------------------
 // Rank${n} shaped array from Swift Array
-// same type
-@inlinable public func array<C>(
+// explicit type
+@inlinable public func array<C, Element>(
     _ elements: C,
+    dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape${n},C${'.Element' * n}>
+) -> Tensor<Shape${n}, Element>
     where
 % for i in range(n):
     C${'.Element' * i}: Collection,
 % end
+    C${'.Element' * n} == Element.Value
+{
+    let shape = Shape${n}(
+% for i in range(n):
+        elements${'.first!' * i}.count${')' if i == n - 1 else ','}
+% end
+
+    let flatElements = elements${'.joined()' * (n - 1)}
+    return Tensor<Shape${n},Element>(
+        flatElements, shape, order: order)
+}
+
+// FixedSizeVector type
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape${n}, C${'.Element' * n}>
+    where
+% for i in range(n):
+    C${'.Element' * i}: Collection,
+% end
+    C${'.Element' * n}: FixedSizeVector,
     C${'.Element' * n} == C${'.Element' * n}.Value
 {
     let shape = Shape${n}(
@@ -231,7 +258,7 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
         flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element integer -> DType
+// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
@@ -251,7 +278,7 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
     return Tensor<Shape${n},DType>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element floating point -> DType
+// implicitly casts from C.Element floating point -> DType
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
@@ -272,7 +299,7 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
 }
 
 
-/// implicitly casts from C.Element integer -> Element
+// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -293,7 +320,7 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
     return Tensor<Shape${n},Element>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element float -> Element integer
+// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -314,7 +341,7 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
     return Tensor<Shape${n},Element>(flatElements, shape, order: order)
 }
 
-/// implicitly casts from C.Element float -> Element float
+// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,

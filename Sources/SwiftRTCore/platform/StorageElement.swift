@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 import Foundation
+import Numerics
 
 //==============================================================================
 /// StorageElement
@@ -183,48 +184,53 @@ extension Float16: StorageElement {
 //==============================================================================
 // standard native type conformance
 extension Bool: StorageElement {
-    public typealias Stored = Bool
-    public typealias Value = Bool
+    public typealias Stored = Self
+    public typealias Value = Self
 }
 
 extension Int8: StorageElement {
-    public typealias Stored = Int8
-    public typealias Value = Int8
+    public typealias Stored = Self
+    public typealias Value = Self
 }
 
 extension UInt8: StorageElement {
-    public typealias Stored = UInt8
-    public typealias Value = UInt8
+    public typealias Stored = Self
+    public typealias Value = Self
 }
 
 extension Int16: StorageElement {
-    public typealias Stored = Int16
-    public typealias Value = Int16
+    public typealias Stored = Self
+    public typealias Value = Self
 }
 
 extension UInt16: StorageElement {
-    public typealias Stored = UInt16
-    public typealias Value = UInt16
+    public typealias Stored = Self
+    public typealias Value = Self
 }
 
 extension Int32: StorageElement {
-    public typealias Stored = Int32
-    public typealias Value = Int32
+    public typealias Stored = Self
+    public typealias Value = Self
 }
 
 extension UInt32: StorageElement {
-    public typealias Stored = UInt32
-    public typealias Value = UInt32
+    public typealias Stored = Self
+    public typealias Value = Self
 }
 
 extension Float: StorageElement {
-    public typealias Stored = Float
-    public typealias Value = Float
+    public typealias Stored = Self
+    public typealias Value = Self
 }
 
 extension Double: StorageElement {
-    public typealias Stored = Double
-    public typealias Value = Double
+    public typealias Stored = Self
+    public typealias Value = Self
+}
+
+extension Complex: StorageElement {
+    public typealias Stored = Self
+    public typealias Value = Self
 }
 
 //==============================================================================

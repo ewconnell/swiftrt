@@ -21,14 +21,13 @@ import Foundation
 /// short vector Element types.
 /// For example: Matrix<RGBA<Float>> -> NHWCTensor<Float>
 ///
-public protocol FixedSizeVector {
+public protocol FixedSizeVector: StorageElement {
     associatedtype Scalar
     static var count: Int { get }
 }
 
 public extension FixedSizeVector {
-    @inlinable
-    static var count: Int {
+    @inlinable static var count: Int {
         MemoryLayout<Self>.size / MemoryLayout<Scalar>.size
     }
 }
@@ -65,6 +64,9 @@ public extension RGBProtocol where Scalar: Codable {
 public struct RGB<Scalar>: RGBProtocol
     where Scalar: Numeric
 {
+    public typealias Stored = Self
+    public typealias Value = Self
+    
     public var r, g, b: Scalar
 
     @inlinable
@@ -112,15 +114,15 @@ public extension RGBAProtocol where Scalar: Codable {
 public struct RGBA<Scalar> : RGBAProtocol
     where Scalar: Numeric
 {
+    public typealias Stored = Self
+    public typealias Value = Self
     public var r, g, b, a: Scalar
 
-    @inlinable
-    public init() {
+    @inlinable public init() {
         r = Scalar.zero; g = Scalar.zero; b = Scalar.zero; a = Scalar.zero
     }
     
-    @inlinable
-    public init(_ r: Scalar, _ g: Scalar, _ b: Scalar, _ a: Scalar) {
+    @inlinable public init(_ r: Scalar, _ g: Scalar, _ b: Scalar, _ a: Scalar) {
         self.r = r; self.g = g; self.b = b; self.a = a
     }
 }
@@ -135,13 +137,13 @@ public protocol StereoProtocol: FixedSizeVector {}
 public struct StereoSample<Scalar>: StereoProtocol
     where Scalar: Numeric
 {
+    public typealias Stored = Self
+    public typealias Value = Self
     public var left, right: Scalar
 
-    @inlinable
-    public init() { left = Scalar.zero; right = Scalar.zero }
+    @inlinable public init() { left = Scalar.zero; right = Scalar.zero }
 
-    @inlinable
-    public init(_ left: Scalar, _ right: Scalar) {
+    @inlinable public init(_ left: Scalar, _ right: Scalar) {
         self.left = left; self.right = right
     }
 }
