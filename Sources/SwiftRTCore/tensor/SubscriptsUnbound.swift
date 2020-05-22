@@ -29,31 +29,10 @@ import Foundation
 //==============================================================================
 // These subscripts do a mutli-dimensional selection based on item indexes
 // from dimension 0
-public extension TensorType
-{
+public extension Tensor {
 //    @differentiable(where Self: DifferentiableTensor)
     @inlinable subscript(range: UnboundedRange) -> Self { self }
     
-//    @differentiable(where Self: DifferentiableTensor)
-    @inlinable subscript<R>(range: R) -> Self where R: SignedRangeExpression {
-        get {
-            let (start, end) = getItemRange(range.relativeTo(0..<shape[0]))
-            return self[start, end]
-        }
-    }
-    
-    @_semantics("autodiff.nonvarying")
-    @inlinable func getItemRange(_ range: Range<Int>) -> (Shape, Shape) {
-        var lower = Shape.zero
-        var upper = self.shape
-        lower[0] = range.lowerBound
-        upper[0] = range.upperBound
-        return (lower, upper)
-    }
-}
-
-public extension MutableTensorType
-{
 //    @differentiable(where Self: DifferentiableTensor)
     @inlinable subscript<R>(range: R) -> Self where R: SignedRangeExpression {
         get {
@@ -64,6 +43,15 @@ public extension MutableTensorType
             let (start, end) = getItemRange(range.relativeTo(0..<shape[0]))
             self[start, end] = newValue
         }
+    }
+
+    @_semantics("autodiff.nonvarying")
+    @inlinable func getItemRange(_ range: Range<Int>) -> (Shape, Shape) {
+        var lower = Shape.zero
+        var upper = self.shape
+        lower[0] = range.lowerBound
+        upper[0] = range.upperBound
+        return (lower, upper)
     }
 }
 
