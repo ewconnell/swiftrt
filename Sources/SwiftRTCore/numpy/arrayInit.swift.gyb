@@ -48,23 +48,19 @@ public typealias Tensor${n} = Tensor<Shape${n},DType>
 ///    or column-major (Fortran-style) order in memory.
 /// - Returns: Tensor of uninitialized (arbitrary) data of the given shape,
 ///   dtype, and order. Elements will not be initialized.
-@inlinable public func empty<Shape, Element>(
+@inlinable public func empty<Shape: TensorShape, Element: StorageElement>(
     _ shape: Shape.Tuple,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> Tensor<Shape, Element>
-    where Shape: TensorShape, Element: StorageElement
-{
+) -> Tensor<Shape, Element> {
     empty(Shape(shape), dtype, order)
 }
 
-@inlinable public func empty<Shape, Element>(
+@inlinable public func empty<Shape: TensorShape, Element: StorageElement>(
     _ shape: Shape,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> Tensor<Shape, Element>
-    where Shape: TensorShape, Element: StorageElement
-{
+) -> Tensor<Shape, Element> {
     Tensor(shape, order: order)
 }
 
@@ -74,11 +70,9 @@ public typealias Tensor${n} = Tensor<Shape${n},DType>
     empty(Shape1(1), DType.self)
 }
 
-@inlinable public func empty<Element>(
+@inlinable public func empty<Element: StorageElement>(
     dtype: Element.Type
-) -> Tensor<Shape1, Element>
-    where Element: StorageElement
-{
+) -> Tensor<Shape1, Element> {
     empty(Shape1(1), dtype)
 }
 
@@ -88,22 +82,18 @@ public typealias Tensor${n} = Tensor<Shape${n},DType>
 @inlinable public func empty(_ shape: Shape${n}.Tuple, order: StorageOrder = .C)
     -> Tensor<Shape${n}, DType> { empty(shape, DType.self, order) }
 
-@inlinable public func empty<Element>(
+@inlinable public func empty<Element: StorageElement>(
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type
-) -> Tensor<Shape${n}, Element>
-    where Element: StorageElement
-{
+) -> Tensor<Shape${n}, Element> {
     empty(shape, dtype)
 }
 
-@inlinable public func empty<Element>(
+@inlinable public func empty<Element: StorageElement>(
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape${n}, Element>
-    where Element: StorageElement
-{
+) -> Tensor<Shape${n}, Element> {
     empty(shape, dtype, order)
 }
     
@@ -111,7 +101,8 @@ public typealias Tensor${n} = Tensor<Shape${n},DType>
 
 //==============================================================================
 /// empty(like:
-/// Return a new tensor of given shape and type, without initializing entries.
+/// Return a new tensor of given shape and type, without initializing entries
+///
 /// - Parameters:
 ///  - prototype: unspecified attributes are copied from this tensor
 ///  - dtype: data-type, optional
@@ -128,8 +119,7 @@ public typealias Tensor${n} = Tensor<Shape${n},DType>
 @inlinable public func empty<S,E>(
     like prototype: Tensor<S,E>,
     order: StorageOrder? = nil
-) -> Tensor<S,E> where E: StorageElement
-{
+) -> Tensor<S,E> {
     empty(prototype.shape, E.self, order ?? prototype.storage.order)
 }
 
@@ -181,6 +171,7 @@ public typealias Tensor${n} = Tensor<Shape${n},DType>
 //==============================================================================
 /// full
 /// Return a new tensor of given shape and type filled with `value`
+///
 /// - Parameters:
 ///  - shape: Int or tuple of Int
 ///    Shape of the array, e.g., (2, 3) or 2.
@@ -192,25 +183,21 @@ public typealias Tensor${n} = Tensor<Shape${n},DType>
 ///    or column-major (Fortran-style) order in memory.
 /// - Returns: Fill of uninitialized (arbitrary) data of the given shape,
 ///   dtype, and order. Elements will not be initialized.
-@inlinable public func full<Shape, Element>(
+@inlinable public func full<Shape: TensorShape, Element: StorageElement>(
     _ shape: Shape.Tuple,
-    _ value: Element,
+    _ value: Element.Value,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> Tensor<Shape, Element>
-    where Shape: TensorShape, Element: StorageElement
-{
+) -> Tensor<Shape, Element> {
     full(Shape(shape), value, dtype, order)
 }
 
-@inlinable public func full<Shape, Element>(
+@inlinable public func full<Shape: TensorShape, Element: StorageElement>(
     _ shape: Shape,
-    _ value: Element,
+    _ value: Element.Value,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
-) -> Tensor<Shape, Element>
-    where Shape: TensorShape, Element: StorageElement
-{
+) -> Tensor<Shape, Element> {
     var tensor = Tensor<Shape, Element>(shape, order: order)
     fill(&tensor, with: value)
     return tensor
@@ -224,7 +211,8 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 }
 
 @inlinable public func full<Element: StorageElement>(
-    _ value: Element, dtype: Element.Type
+    _ value: Element.Value,
+    dtype: Element.Type
 ) -> Tensor<Shape1, Element> {
     full(Shape1(1), value, dtype)
 }
@@ -240,13 +228,13 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 
 @inlinable public func full<Element: StorageElement>(
     _ shape: Shape${n}.Tuple,
-    _ value: Element,
+    _ value: Element.Value,
     dtype: Element.Type
 ) -> Tensor<Shape${n}, Element> { full(shape, value, dtype) }
 
 @inlinable public func full<Element: StorageElement>(
     _ shape: Shape${n}.Tuple,
-    _ value: Element,
+    _ value: Element.Value,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape${n}, Element> { full(shape, value, dtype, order) }
@@ -270,9 +258,9 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 ///   dtype, and order. Elements will not be initialized.
 
 // same type and shape
-@inlinable public func full<S,E: StorageElement>(
+@inlinable public func full<S,E>(
     like prototype: Tensor<S,E>,
-    _ value: E,
+    _ value: E.Value,
     order: StorageOrder? = nil
 ) -> Tensor<S,E>
 {
@@ -283,9 +271,9 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 // same type different shape
 %for n in range(1, numShapes + 1):
 // Rank${n}
-@inlinable public func full<S,E: StorageElement>(
+@inlinable public func full<S,E>(
     like prototype: Tensor<S,E>,
-    _ value: E,
+    _ value: E.Value,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
 ) -> Tensor<Shape${n}, E>
@@ -298,9 +286,9 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 
 //------------------------------------------------------------------------------
 // different type same shape
-@inlinable public func full<S,E,Element: StorageElement>(
+@inlinable public func full<S,E,Element>(
     like prototype: Tensor<S,E>,
-    _ value: Element,
+    _ value: Element.Value,
     dtype: Element.Type,
     order: StorageOrder? = nil
 ) -> Tensor<S, Element>
@@ -312,9 +300,9 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 // different type, different shape
 %for n in range(1, numShapes + 1):
 // Rank${n}
-@inlinable public func full<S,E,Element: StorageElement>(
+@inlinable public func full<S,E,Element>(
     like prototype: Tensor<S,E>,
-    _ value: Element,
+    _ value: Element.Value,
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
@@ -339,22 +327,22 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 ///    or column-major (Fortran-style) order in memory.
 /// - Returns: Fill of uninitialized (arbitrary) data of the given shape,
 ///   dtype, and order. Elements will not be initialized.
-@inlinable public func ones<Shape, Element: StorageElement>(
+@inlinable public func ones<Shape, Element>(
     _ shape: Shape.Tuple,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
 ) -> Tensor<Shape, Element>
-    where Shape: TensorShape, Element.Value: Numeric
+    where Element.Value: Numeric
 {
     ones(Shape(shape), dtype, order)
 }
 
-@inlinable public func ones<Shape, Element: StorageElement>(
+@inlinable public func ones<Shape, Element>(
     _ shape: Shape,
     _ dtype: Element.Type,
     _ order: StorageOrder = .C
 ) -> Tensor<Shape, Element>
-    where Shape: TensorShape, Element.Value: Numeric
+    where Element.Value: Numeric
 {
     Tensor<Shape, Element>(ones: shape, order: order)
 }
@@ -365,7 +353,7 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
     ones(Shape1(1), DType.self)
 }
 
-@inlinable public func ones<Element: StorageElement>(
+@inlinable public func ones<Element>(
     dtype: Element.Type
 ) -> Tensor<Shape1, Element>
     where Element.Value: Numeric
@@ -381,13 +369,13 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
     order: StorageOrder = .C
 ) -> Tensor${n} { ones(shape, DType.self, order) }
 
-@inlinable public func ones<Element: StorageElement>(
+@inlinable public func ones<Element>(
     _ shape: Shape${n}.Tuple,
      dtype: Element.Type
 ) -> Tensor<Shape${n}, Element>
     where Element.Value: Numeric { ones(shape, dtype) }
 
-@inlinable public func ones<Element: StorageElement>(
+@inlinable public func ones<Element>(
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
@@ -412,10 +400,10 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 ///   dtype, and order. Elements will not be initialized.
 
 // same type and shape
-@inlinable public func ones<S, E: Numeric>(
+@inlinable public func ones<S, E>(
     like prototype: Tensor<S,E>,
     order: StorageOrder? = nil
-) -> Tensor<S,E> {
+) -> Tensor<S,E> where E.Value: Numeric {
     ones(prototype.shape, E.self, order ?? prototype.storage.order)
 }
 
@@ -423,11 +411,11 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 // same type different shape
 %for n in range(1, numShapes + 1):
 // Rank${n}
-@inlinable public func ones<S, E: Numeric>(
+@inlinable public func ones<S, E>(
     like prototype: Tensor<S,E>,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> Tensor<Shape${n}, E> {
+) -> Tensor<Shape${n}, E> where E.Value: Numeric {
     assert(prototype.count == Shape${n}(shape).elementCount())
     return ones(shape, E.self, order ?? prototype.storage.order)
 }
@@ -436,11 +424,11 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 
 //------------------------------------------------------------------------------
 // different type same shape
-@inlinable public func ones<S,E, Element: Numeric>(
+@inlinable public func ones<S,E,Element>(
     like prototype: Tensor<S,E>,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> Tensor<S, Element> {
+) -> Tensor<S, Element> where Element.Value: Numeric {
     ones(prototype.shape, Element.self, order ?? prototype.storage.order)
 }
 
@@ -448,13 +436,12 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 // different type, different shape
 %for n in range(1, numShapes + 1):
 // Rank${n}
-@inlinable public func ones<S, E, Element: Numeric>(
+@inlinable public func ones<S, E, Element>(
     like prototype: Tensor<S,E>,
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> Tensor<Shape${n}, Element>
-{
+) -> Tensor<Shape${n}, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape${n}(shape).elementCount())
     return ones(shape, Element.self, order ?? prototype.storage.order)
 }
@@ -478,8 +465,7 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
     _ shape: S.Tuple,
     _ dtype: E.Type,
     _ order: StorageOrder = .C
-) -> Tensor<S,E>
-    where E: StorageElement, E.Value: Numeric
+) -> Tensor<S,E> where E.Value: Numeric
 {
     zeros(S(shape), dtype, order)
 }
@@ -488,8 +474,7 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
     _ shape: S,
     _ dtype: E.Type,
     _ order: StorageOrder = .C
-) -> Tensor<S,E>
-    where E: StorageElement, E.Value: Numeric
+) -> Tensor<S,E> where E.Value: Numeric
 {
     Tensor<S,E>(zeros: shape, order: order)
 }
@@ -502,8 +487,7 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 
 @inlinable public func zeros<Element>(
     dtype: Element.Type
-) -> Tensor<Shape1, Element>
-    where Element: StorageElement, Element.Value: Numeric
+) -> Tensor<Shape1, Element> where Element.Value: Numeric
 {
     zeros(Shape1(1), dtype)
 }
@@ -516,21 +500,19 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
     order: StorageOrder = .C
 ) -> Tensor${n} { zeros(shape, DType.self, order) }
 
-@inlinable public func zeros<Element: Numeric>(
+@inlinable public func zeros<Element>(
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type
-) -> Tensor<Shape${n}, Element>
-    where Element: StorageElement, Element.Value: Numeric
+) -> Tensor<Shape${n}, Element> where Element.Value: Numeric
 {
     zeros(shape, dtype)
 }
 
-@inlinable public func zeros<Element: Numeric>(
+@inlinable public func zeros<Element>(
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape${n}, Element>
-    where Element: StorageElement, Element.Value: Numeric
+) -> Tensor<Shape${n}, Element> where Element.Value: Numeric
 {
     zeros(shape, dtype, order)
 }
@@ -556,8 +538,7 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 @inlinable public func zeros<S,E>(
     like prototype: Tensor<S,E>,
     order: StorageOrder? = nil
-) -> Tensor<S,E>
-    where E: StorageElement, E.Value: Numeric
+) -> Tensor<S,E> where E.Value: Numeric
 {
     zeros(prototype.shape, E.self, order ?? prototype.storage.order)
 }
@@ -570,8 +551,7 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
     like prototype: Tensor<S,E>,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> Tensor<Shape${n}, E>
-    where E: StorageElement, E.Value: Numeric
+) -> Tensor<Shape${n}, E> where E.Value: Numeric
 {
     assert(prototype.count == Shape${n}(shape).elementCount())
     return zeros(shape, E.self, order ?? prototype.storage.order)
@@ -581,11 +561,11 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 
 //------------------------------------------------------------------------------
 // different type same shape
-@inlinable public func zeros<S,E, Element: Numeric>(
+@inlinable public func zeros<S,E, Element>(
     like prototype: Tensor<S,E>,
     dtype: Element.Type,
     order: StorageOrder? = nil
-) -> Tensor<S, Element> {
+) -> Tensor<S, Element> where Element.Value: Numeric {
     zeros(prototype.shape, Element.self, order ?? prototype.storage.order)
 }
 
@@ -593,12 +573,12 @@ public func full(_ value: DType) -> Tensor<Shape1, DType> {
 // different type, different shape
 %for n in range(1, numShapes + 1):
 // Rank${n}
-@inlinable public func zeros<S,E, Element: Numeric>(
+@inlinable public func zeros<S,E,Element>(
     like prototype: Tensor<S,E>,
     dtype: Element.Type,
     order: StorageOrder? = nil,
     shape: Shape${n}.Tuple
-) -> Tensor<Shape${n}, Element> {
+) -> Tensor<Shape${n}, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape${n}(shape).elementCount())
     return zeros(shape, Element.self, order ?? prototype.storage.order)
 }
