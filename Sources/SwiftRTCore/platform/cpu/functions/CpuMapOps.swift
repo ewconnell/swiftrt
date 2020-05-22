@@ -17,29 +17,99 @@ import Foundation
 
 extension DeviceQueue {
     //==========================================================================
-    @inlinable func generatorOp<R>(
-        _ r: inout R,
-        _ op: @escaping () -> R.Element
-    ) where R: MutableCollection {
-        r.indices.forEach { r[$0] = op() }
+    // reduction
+    @inlinable func mapOp<S,E,RE>(
+        _ x: Tensor<S,E>,
+        _ result: inout Tensor<S,RE>,
+        _ op: @escaping (RE.Value, E.Value) -> RE.Value
+    ) {
+        //------------------------------------
+        // the actual operation. `out` is not `inout` because the operation
+        // will be deferred in async mode. This is safe because the operations
+        // are synchronized via the queue
+        func execute<I0: Collection, O: MutableCollection>(
+            _ i0: I0, _ out: O,
+            _ op: @escaping (O.Element, I0.Element) -> O.Element
+        ) {
+            var out = out
+            if mode == .async {
+                queue.async {
+                    zip(out.indices, i0).forEach { out[$0] = op(out[$0], $1) }
+                }
+            } else {
+                zip(out.indices, i0).forEach { out[$0] = op(out[$0], $1) }
+            }
+        }
+        
+        // queue data transfers and execute
+        x.read(using: self)
+        result.readWrite(using: self)
+        execute(BufferSequential(x), BufferSequential(mutating: result), op)
     }
-    
+
     //==========================================================================
-    @inlinable func inPlaceOp<R>(
-        _ r: inout R,
-        _ op: @escaping (R.Element) -> R.Element
-    ) where R: MutableCollection {
-        r.indices.forEach { r[$0] = op(r[$0]) }
+    // generator
+    @inlinable func mapOp<S,E>(
+        _ result: inout Tensor<S,E>,
+        _ op: @escaping () -> E.Value
+    ) {
+        result.readWrite(using: self)
+        var r = BufferSequential(mutating: result)
+        if mode == .async {
+            queue.async {
+                r.indices.forEach { r[$0] = op() }
+            }
+        } else {
+            r.indices.forEach { r[$0] = op() }
+        }
+    }
+
+    //==========================================================================
+    // inplace
+    @inlinable func mapOp<S,E>(
+        _ result: inout Tensor<S,E>,
+        _ op: @escaping (E.Value) -> E.Value
+    ) {
+        result.readWrite(using: self)
+        var r = BufferSequential(mutating: result)
+        if mode == .async {
+            queue.async {
+                r.indices.forEach { r[$0] = op(r[$0]) }
+            }
+        } else {
+            r.indices.forEach { r[$0] = op(r[$0]) }
+        }
     }
     
     //==========================================================================
     // mapOp 1
-    @inlinable func mapOp<T, R>(
-        _ x: T,
-        _ r: inout R,
-        _ op: @escaping (T.Element) -> R.Element
-    ) where T: Collection, R: MutableCollection {
-        zip(r.indices, x).forEach { r[$0] = op($1) }
+    @inlinable func mapOp<S,E,RE>(
+        _ x: Tensor<S,E>,
+        _ result: inout Tensor<S,RE>,
+        _ op: @escaping (E.Value) -> RE.Value
+    ) {
+        //------------------------------------
+        // the actual operation. `out` is not `inout` because the operation
+        // will be deferred in async mode. This is safe because the operations
+        // are synchronized via the queue
+        func execute<I0: Collection, O: MutableCollection>(
+            _ i0: I0, _ out: O,
+            _ op: @escaping (I0.Element) -> O.Element
+        ) {
+            var out = out
+            if mode == .async {
+                queue.async {
+                    zip(out.indices, i0).forEach { out[$0] = op($1) }
+                }
+            } else {
+                zip(out.indices, i0).forEach { out[$0] = op($1) }
+            }
+        }
+
+        // queue data transfers and execute
+        x.read(using: self)
+        result.readWrite(using: self)
+        execute(BufferSequential(x), BufferSequential(mutating: result), op)
     }
     
     //==========================================================================
@@ -97,44 +167,126 @@ extension DeviceQueue {
 
     //==========================================================================
     // mapOp 3
-    @inlinable
-    func mapOp<T1, T2, T3, R>(
-        _ a: T1,
-        _ b: T2,
-        _ c: T3,
-        _ r: inout R,
-        _ op: @escaping (T1.Element, T2.Element, T3.Element) -> R.Element
-    ) where T1: Collection, T2: Collection, T3: Collection, R: MutableCollection {
-        zip(r.indices, zip(a, zip(b, c))).forEach { r[$0] = op($1.0, $1.1.0, $1.1.1) }
-    }
-    
-    //==========================================================================
-    // mapOp 3R2
-    /// generically combines three tensors
-    @inlinable func mapOp<T1, T2, T3, R1, R2>(
-        _ a: T1,
-        _ b: T2,
-        _ c: T3,
-        _ r1: inout R1,
-        _ r2: inout R2,
-        _ op: @escaping
-            (T1.Element, T2.Element, T3.Element) -> (R1.Element, R2.Element)
-    ) where T1: Collection, T2: Collection, T3: Collection,
-            R1: MutableCollection, R2: MutableCollection
-    {
-        zip(zip(r1.indices, r2.indices), zip(a, zip(b, c))).forEach {
-            let (r1v, r2v) = op($1.0, $1.1.0, $1.1.1)
-            r1[$0.0] = r1v
-            r2[$0.1] = r2v
+    @inlinable func mapOp<S,E0, E1, E2, R1>(
+        _ a: Tensor<S,E0>,
+        _ b: Tensor<S,E1>,
+        _ c: Tensor<S,E2>,
+        _ result: inout Tensor<S,R1>,
+        _ op: @escaping (E0.Value, E1.Value, E2.Value) -> R1.Value
+    ) {
+        //------------------------------------
+        // the actual operation. `out` is not `inout` because the operation
+        // will be deferred in async mode. This is safe because the operations
+        // are synchronized via the queue
+        func execute<
+            I0: Collection,
+            I1: Collection,
+            I2: Collection,
+            O: MutableCollection
+        >(
+            _ i0: I0, _ i1: I1, _ i2: I2, _ out: O,
+            _ op: @escaping (I0.Element, I1.Element, I2.Element) -> O.Element
+        ) {
+            var out = out
+            if mode == .async {
+                queue.async {
+                    zip(out.indices, zip(i0, zip(i1, i2))).forEach {
+                        out[$0] = op($1.0, $1.1.0, $1.1.1)
+                    }
+                }
+            } else {
+                zip(out.indices, zip(i0, zip(i1, i2))).forEach {
+                    out[$0] = op($1.0, $1.1.0, $1.1.1)
+                }
+            }
+        }
+        
+        //------------------------------------
+        // queue data transfers
+        a.read(using: self)
+        b.read(using: self)
+        c.read(using: self)
+        result.readWrite(using: self)
+        
+        // execute right layout combination
+        if a.order == b.order && a.order == c.order {
+            execute(BufferSequential(a),
+                    BufferSequential(b),
+                    BufferSequential(c),
+                    BufferSequential(mutating: result), op)
+        } else {
+            switch (a.order, b.order, c.order) {
+            default:
+                fatalError("mixed layout not implemented")
+            }
         }
     }
     
     //==========================================================================
-    // reductionOp
-    @inlinable func reductionOp<T, R>(
-        _ x: T, _ r: inout R,
-        _ op: @escaping (T.Element, T.Element) -> T.Element
-    ) where T: Collection, R: MutableCollection, R.Element == T.Element {
-        zip(r.indices, x).forEach { r[$0] = op(r[$0], $1) }
+    // mapOp 3
+    @inlinable func mapOp<S,E0, E1, E2, R1, R2>(
+        _ a: Tensor<S,E0>,
+        _ b: Tensor<S,E1>,
+        _ c: Tensor<S,E2>,
+        _ r1: inout Tensor<S,R1>,
+        _ r2: inout Tensor<S,R2>,
+        _ op: @escaping (E0.Value, E1.Value, E2.Value) -> (R1.Value, R2.Value)
+    ) {
+        //------------------------------------
+        // the actual operation. `out` is not `inout` because the operation
+        // will be deferred in async mode. This is safe because the operations
+        // are synchronized via the queue
+        func execute<
+            I0: Collection,
+            I1: Collection,
+            I2: Collection,
+            O1: MutableCollection,
+            O2: MutableCollection
+        >(
+            _ i0: I0, _ i1: I1, _ i2: I2, _ o1: O1, _ o2: O2,
+            _ op2: @escaping (I0.Element, I1.Element, I2.Element)
+                -> (O1.Element, O2.Element)
+        ) {
+            var o1 = o1, o2 = o2
+            if mode == .async {
+                queue.async {
+                    zip(zip(o1.indices, o2.indices), zip(i0, zip(i1, i2))).forEach
+                    {
+                        let (o1v, o2v) = op2($1.0, $1.1.0, $1.1.1)
+                        o1[$0.0] = o1v
+                        o2[$0.1] = o2v
+                    }
+                }
+            } else {
+                zip(zip(o1.indices, o2.indices), zip(i0, zip(i1, i2))).forEach {
+                    let (o1v, o2v) = op2($1.0, $1.1.0, $1.1.1)
+                    o1[$0.0] = o1v
+                    o2[$0.1] = o2v
+                }
+            }
+        }
+        
+        //------------------------------------
+        // queue data transfers
+        a.read(using: self)
+        b.read(using: self)
+        c.read(using: self)
+        r1.readWrite(using: self)
+        r2.readWrite(using: self)
+
+        // execute right layout combination
+        if a.order == b.order && a.order == c.order {
+            execute(BufferSequential(a),
+                    BufferSequential(b),
+                    BufferSequential(c),
+                    BufferSequential(mutating: r1),
+                    BufferSequential(mutating: r2),
+                    op)
+        } else {
+            switch (a.order, b.order, c.order) {
+            default:
+                fatalError("mixed layout not implemented")
+            }
+        }
     }
 }
