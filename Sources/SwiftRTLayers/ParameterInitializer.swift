@@ -17,22 +17,22 @@ import Foundation
 import Numerics
 import SwiftRTCore
 
-public typealias ParameterInitializer<S,E> = (S) -> Tensor<S,E>
-    where S: TensorShape
+public typealias ParameterInitializer<S: TensorShape, E: StorageElement>
+    = (S) -> Tensor<S,E>
 
 /// Returns a function that creates a tensor by initializing
 /// all its values to zeros.
 @inlinable public func zeros<S,E>() -> ParameterInitializer<S,E>
-where S: TensorShape, E: Numeric
+where S: TensorShape, E.Value: Numeric
 {
     { Tensor<S,E>(zeros: $0) }
 }
 
 /// Returns a function that creates a tensor by initializing
 /// all its values to the provided value.
-public func constantInitializer<S,E>(value: E) -> ParameterInitializer<S,E>
-where S: TensorShape
-{
+public func constantInitializer<S,E>(
+    value: E.Value
+) -> ParameterInitializer<S,E> where S: TensorShape {
     {
         var tensor = Tensor<S,E>($0)
         fill(&tensor, with: value)
@@ -63,7 +63,7 @@ public func constantInitializer<S,E>(value: Tensor<S,E>)
 public func glorotUniform<S,E>(
     seed: RandomSeed = Context.randomSeed
 ) -> ParameterInitializer<S,E>
-where S: TensorShape, E: Real & BinaryFloatingPoint
+where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
     { Tensor<S,E>(glorotUniform: $0, seed: seed) }
 }
@@ -77,7 +77,7 @@ where S: TensorShape, E: Real & BinaryFloatingPoint
 public func glorotNormal<S,E>(
     seed: RandomSeed = Context.randomSeed
 ) -> ParameterInitializer<S,E>
-where S: TensorShape, E: Real & BinaryFloatingPoint
+where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
     { Tensor<S,E>(glorotNormal: $0, seed: seed) }
 }
@@ -91,7 +91,7 @@ where S: TensorShape, E: Real & BinaryFloatingPoint
 public func heUniform<S,E>(
     seed: RandomSeed = Context.randomSeed
 ) -> ParameterInitializer<S,E> where
-    S: TensorShape, E: Real & BinaryFloatingPoint
+S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
     { Tensor<S,E>(heUniform: $0, seed: seed) }
 }
@@ -104,7 +104,7 @@ public func heUniform<S,E>(
 public func heNormal<S,E>(
     seed: RandomSeed = Context.randomSeed
 ) -> ParameterInitializer<S,E> where
-    S: TensorShape, E: Real & BinaryFloatingPoint
+    S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
     { Tensor<S,E>(heNormal: $0, seed: seed) }
 }
@@ -118,7 +118,7 @@ public func heNormal<S,E>(
 public func leCunUniform<S,E>(
     seed: RandomSeed = Context.randomSeed
 ) -> ParameterInitializer<S,E>
-where S: TensorShape, E: Real & BinaryFloatingPoint
+where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
     { Tensor<S,E>(leCunUniform: $0, seed: seed) }
 }
@@ -131,7 +131,7 @@ where S: TensorShape, E: Real & BinaryFloatingPoint
 public func leCunNormal<S,E>(
     seed: RandomSeed = Context.randomSeed
 ) -> ParameterInitializer<S,E>
-where S: TensorShape, E: Real & BinaryFloatingPoint
+where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
     { Tensor<S,E>(leCunNormal: $0, seed: seed) }
 }
@@ -152,7 +152,7 @@ public func truncatedNormalInitializer<S,E>(
     standardDeviation: Tensor<S,E> = Tensor<S,E>(1),
     seed: RandomSeed = Context.randomSeed)
 -> ParameterInitializer<S,E>
-where S: TensorShape, E: Real & BinaryFloatingPoint
+where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
     {
         Tensor<S,E>(randomTruncatedNormal: $0,

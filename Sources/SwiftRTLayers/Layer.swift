@@ -127,7 +127,7 @@ public extension Layer {
 }
 
 /// A mutable, shareable, owning reference to a tensor.
-public final class Parameter<S,E> where S: TensorShape {
+public final class Parameter<S: TensorShape, E: StorageElement> {
     public var value: Tensor<S,E>
     public init(_ value: Tensor<S,E>) {
         self.value = value
