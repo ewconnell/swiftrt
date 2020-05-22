@@ -84,13 +84,19 @@ numShapes = 6
 //==============================================================================
 // Rank${n}
 @differentiable(where E.Value: DifferentiableElement)
-@inlinable public func expand<E>(dims a: Tensor<Shape${n}, E>, axis: Int) -> Tensor<Shape${n + 1},E> {
+@inlinable public func expand<E>(
+    dims a: Tensor<Shape${n}, E>,
+    axis: Int
+) -> Tensor<Shape${n + 1},E> {
     Tensor<Shape${n + 1}, E>(expanding: a, axes: Shape1(axis))
 }
 
 % for i in range(2, numShapes + 1 - n):
 @differentiable(where E.Value: DifferentiableElement)
-@inlinable public func expand<E>(dims a: Tensor<Shape${n}, E>, axes: Shape${i}.Tuple) -> Tensor<Shape${n + i},E> {
+@inlinable public func expand<E>(
+    dims a: Tensor<Shape${n}, E>,
+    axes: Shape${i}.Tuple
+) -> Tensor<Shape${n + i},E> {
     Tensor<Shape${n + i},E>(expanding: a, axes: Shape${i}(axes))
 }
 
@@ -148,13 +154,19 @@ numShapes = 6
 //==============================================================================
 // Rank${n}
 @differentiable(where E.Value: DifferentiableElement)
-@inlinable public func squeeze<E>(_ a: Tensor<Shape${n},E>, axis: Int) -> Tensor<Shape${n - 1},E> {
+@inlinable public func squeeze<E>(
+    _ a: Tensor<Shape${n},E>,
+    axis: Int
+) -> Tensor<Shape${n - 1},E> {
     Tensor<Shape${n - 1},E>(squeezing: a, axes: Shape1(axis))
 }
 
 % for i in range(2, n):
 @differentiable(where E.Value: DifferentiableElement)
-@inlinable public func squeeze<E>(_ a: Tensor<Shape${n},E>, axes: Shape${i}.Tuple) -> Tensor<Shape${n - i},E> {
+@inlinable public func squeeze<E>(
+    _ a: Tensor<Shape${n},E>,
+    axes: Shape${i}.Tuple
+) -> Tensor<Shape${n - i},E> {
     Tensor<Shape${n - i},E>(squeezing: a, axes: Shape${i}(axes))
 }
 
