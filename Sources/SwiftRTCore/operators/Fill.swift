@@ -66,7 +66,7 @@ import Foundation
 }
 
 public extension Tensor {
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable func concatenated(
         with others: Self...,
         alongAxis axis: Int = 0
@@ -157,10 +157,10 @@ where S: TensorShape
 // initializer extensions
 @inlinable func fill<S,E>(
     randomUniform x: inout Tensor<S,E>,
-    from lower: E,
-    to upper: E,
+    from lower: E.Value,
+    to upper: E.Value,
     seed: RandomSeed
-) where S: TensorShape, E: BinaryFloatingPoint
+) where S: TensorShape, E.Value: BinaryFloatingPoint
 {
     Context.currentQueue.fill(randomUniform: &x, lower, upper, seed)
 }
@@ -168,11 +168,11 @@ where S: TensorShape
 //-------------------------------------
 @inlinable func fill<S,E>(
     randomNormal x: inout Tensor<S,E>,
-    mean: E,
-    standardDeviation: E,
+    mean: E.Value,
+    standardDeviation: E.Value,
     seed: RandomSeed
 )
-    where S: TensorShape, E: BinaryFloatingPoint
+    where S: TensorShape, E.Value: BinaryFloatingPoint
 {
     Context.currentQueue.fill(randomNormal: &x, mean, standardDeviation, seed)
 }
@@ -182,7 +182,7 @@ where S: TensorShape
     mean: Tensor<S,E>,
     standardDeviation: Tensor<S,E>,
     seed: RandomSeed)
-    where S: TensorShape, E: BinaryFloatingPoint
+    where S: TensorShape, E.Value: BinaryFloatingPoint
 {
     Context.currentQueue.fill(randomNormal: &x, mean, standardDeviation, seed)
 }
@@ -190,9 +190,10 @@ where S: TensorShape
 //-------------------------------------
 @inlinable func fill<S,E>(
     randomTruncatedNormal x: inout Tensor<S,E>,
-    mean: E, standardDeviation: E,
+    mean: E.Value,
+    standardDeviation: E.Value,
     seed: RandomSeed
-) where S: TensorShape, E: BinaryFloatingPoint
+) where S: TensorShape, E.Value: BinaryFloatingPoint
 {
     Context.currentQueue
         .fill(randomTruncatedNormal: &x, mean, standardDeviation, seed)
@@ -203,7 +204,7 @@ where S: TensorShape
     mean: Tensor<S,E>,
     standardDeviation: Tensor<S,E>,
     seed: RandomSeed
-) where S: TensorShape, E: BinaryFloatingPoint
+) where S: TensorShape, E.Value: BinaryFloatingPoint
 {
     Context.currentQueue
         .fill(randomTruncatedNormal: &x, mean, standardDeviation, seed)
@@ -233,7 +234,7 @@ where S: TensorShape
 /// a convenience function to fill the tensor with index values from
 /// `0..<count`. If a different range is desired, use `fill(with range:`
 @inlinable func fillWithIndex<S,E>(_ x: inout Tensor<S,E>)
-    where S: TensorShape, E: Comparable & Numeric
+    where S: TensorShape, E.Value: Comparable & Numeric
 {
     fill(&x, with: 0..<x.count)
 }
@@ -252,7 +253,7 @@ where S: TensorShape
     return result
 }
 
-public extension Tensor where Element: Comparable {
+public extension Tensor where TensorElement.Value: Comparable {
     @inlinable func replacing(
         with y: Self,
         where condition: Tensor<Shape,Bool>
@@ -261,7 +262,7 @@ public extension Tensor where Element: Comparable {
     }
     
     @inlinable func replacing(
-        with value: Element,
+        with value: TensorElement.Value,
         where condition: Tensor<Shape,Bool>
     ) -> Self {
         replacing(with: repeating(value, like: self), where: condition)

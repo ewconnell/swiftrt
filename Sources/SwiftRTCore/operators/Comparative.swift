@@ -39,7 +39,7 @@ import Numerics
     and(repeating(lhs, like: rhs), rhs)
 }
 
-extension Tensor where Element == Bool {
+extension Tensor where TensorElement == Bool {
     @inlinable
     public static func .&&(_ lhs: Self, _ rhs: Self) -> Self { and(lhs, rhs) }
 
@@ -74,7 +74,7 @@ extension Tensor where Element == Bool {
     or(repeating(lhs, like: rhs), rhs)
 }
 
-public extension Tensor where Element == Bool {
+public extension Tensor where TensorElement == Bool {
     @inlinable
     static func .||(_ lhs: Self, _ rhs: Self) -> Self { or(lhs, rhs) }
 
@@ -93,7 +93,7 @@ public extension Tensor where Element == Bool {
 /// - Returns: result
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func max<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
-    -> Tensor<S,E> where S: TensorShape, E: Comparable
+-> Tensor<S,E> where S: TensorShape, E.Value: Comparable
 {
     assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
     var result = Tensor(like: lhs)
@@ -104,7 +104,7 @@ public extension Tensor where Element == Bool {
 @derivative(of: max)
 @inlinable func _vjpMax<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-    where S: TensorShape, E: DifferentiableElement & Comparable
+where S: TensorShape, E.Value: DifferentiableElement & Comparable
 {
     (value: max(lhs, rhs), {
         var resultTrue = Tensor(like: lhs)
@@ -117,16 +117,16 @@ public extension Tensor where Element == Bool {
 //--------------------------------
 // tensor Element
 @differentiable(where E.Value: DifferentiableElement)
-@inlinable public func max<S,E>(_ lhs: Tensor<S,E>, _ rhs: E)
-    -> Tensor<S,E> where S: TensorShape, E: Comparable
+@inlinable public func max<S,E>(_ lhs: Tensor<S,E>, _ rhs: E.Value)
+-> Tensor<S,E> where S: TensorShape, E.Value: Comparable
 {
     max(lhs, repeating(rhs, like: lhs))
 }
 
 @derivative(of: max, wrt: lhs)
-@inlinable public func _vjpMax<S,E>(_ lhs: Tensor<S,E>, _ rhs: E)
+@inlinable public func _vjpMax<S,E>(_ lhs: Tensor<S,E>, _ rhs: E.Value)
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
+where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableElement
 {
     let element = repeating(rhs, like: lhs)
     return (value: max(lhs, element), {
@@ -139,16 +139,16 @@ where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
 //--------------------------------
 // Element tensor
 @differentiable(where E.Value: DifferentiableElement)
-@inlinable public func max<S,E>(_ lhs: E, _ rhs: Tensor<S,E>)
-    -> Tensor<S,E> where S: TensorShape, E: Comparable
+@inlinable public func max<S,E>(_ lhs: E.Value, _ rhs: Tensor<S,E>)
+    -> Tensor<S,E> where S: TensorShape, E.Value: Comparable
 {
     max(repeating(lhs, like: rhs), rhs)
 }
 
 @derivative(of: max, wrt: rhs)
-@inlinable public func _vjpMax<S,E>(_ lhs: E, _ rhs: Tensor<S,E>)
+@inlinable public func _vjpMax<S,E>(_ lhs: E.Value, _ rhs: Tensor<S,E>)
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
+where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableElement
 {
     let element = repeating(lhs, like: rhs)
     return (value: max(element, rhs), {
@@ -161,19 +161,19 @@ where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
 
 // These are added to disambiguate from Swift max when writing
 // a TensorView extension
-public extension Tensor where Element: Comparable {
-    @differentiable(where Element: DifferentiableElement)
+public extension Tensor where TensorElement.Value: Comparable {
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable func max(_ lhs: Self, _ rhs: Self) -> Self {
         SwiftRTCore.max(lhs, rhs)
     }
 
-    @differentiable(where Element: DifferentiableElement)
-    @inlinable func max(_ lhs: Self, _ rhs: Element) -> Self {
+    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @inlinable func max(_ lhs: Self, _ rhs: TensorElement.Value) -> Self {
         SwiftRTCore.max(lhs, rhs)
     }
 
-    @differentiable(where Element: DifferentiableElement)
-    @inlinable func max(_ lhs: Element, _ rhs: Self) -> Self {
+    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @inlinable func max(_ lhs: TensorElement.Value, _ rhs: Self) -> Self {
         SwiftRTCore.max(lhs, rhs)
     }
 }
@@ -186,7 +186,7 @@ public extension Tensor where Element: Comparable {
 /// - Returns: result
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func min<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
-    -> Tensor<S,E> where S: TensorShape, E: Comparable
+-> Tensor<S,E> where S: TensorShape, E.Value: Comparable
 {
     assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
     var result = Tensor(like: lhs)
@@ -197,7 +197,7 @@ public extension Tensor where Element: Comparable {
 @derivative(of: min)
 @inlinable func _vjpMin<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-    where S: TensorShape, E: DifferentiableElement & Comparable
+    where S: TensorShape, E.Value: DifferentiableElement & Comparable
 {
     (value: min(lhs, rhs), {
         var resultTrue = Tensor(like: lhs)
@@ -210,16 +210,16 @@ public extension Tensor where Element: Comparable {
 //--------------------------------
 // tensor Element
 @differentiable(where E.Value: DifferentiableElement)
-@inlinable public func min<S,E>(_ lhs: Tensor<S,E>, _ rhs: E)
-    -> Tensor<S,E> where S: TensorShape, E: Comparable
+@inlinable public func min<S,E>(_ lhs: Tensor<S,E>, _ rhs: E.Value)
+    -> Tensor<S,E> where S: TensorShape, E.Value: Comparable
 {
     min(lhs, repeating(rhs, like: lhs))
 }
 
 @derivative(of: min, wrt: lhs)
-@inlinable public func _vjpMin<S,E>(_ lhs: Tensor<S,E>, _ rhs: E)
+@inlinable public func _vjpMin<S,E>(_ lhs: Tensor<S,E>, _ rhs: E.Value)
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
+where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableElement
 {
     let element = repeating(rhs, like: lhs)
     return (value: min(lhs, element), {
@@ -232,16 +232,16 @@ where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
 //--------------------------------
 // Element tensor
 @differentiable(where E.Value: DifferentiableElement)
-@inlinable public func min<S,E>(_ lhs: E, _ rhs: Tensor<S,E>)
-    -> Tensor<S,E> where S: TensorShape, E: Comparable
+@inlinable public func min<S,E>(_ lhs: E.Value, _ rhs: Tensor<S,E>)
+    -> Tensor<S,E> where S: TensorShape, E.Value: Comparable
 {
     min(repeating(lhs, like: rhs), rhs)
 }
 
 @derivative(of: min, wrt: rhs)
-@inlinable public func _vjpMin<S,E>(_ lhs: E, _ rhs: Tensor<S,E>)
+@inlinable public func _vjpMin<S,E>(_ lhs: E.Value, _ rhs: Tensor<S,E>)
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
+where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableElement
 {
     let element = repeating(lhs, like: rhs)
     return (value: min(element, rhs), {
@@ -254,19 +254,19 @@ where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
 
 // These are added to disambiguate from Swift max when writing
 // a TensorView extension
-public extension Tensor where Element: Comparable {
-    @differentiable(where Element: DifferentiableElement)
+public extension Tensor where TensorElement.Value: Comparable {
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable func min(_ lhs: Self, _ rhs: Self) -> Self {
         SwiftRTCore.min(lhs, rhs)
     }
 
-    @differentiable(where Element: DifferentiableElement)
-    @inlinable func min(_ lhs: Self, _ rhs: Element) -> Self {
+    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @inlinable func min(_ lhs: Self, _ rhs: TensorElement.Value) -> Self {
         SwiftRTCore.min(lhs, rhs)
     }
 
-    @differentiable(where Element: DifferentiableElement)
-    @inlinable func min(_ lhs: Element, _ rhs: Self) -> Self {
+    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @inlinable func min(_ lhs: TensorElement.Value, _ rhs: Self) -> Self {
         SwiftRTCore.min(lhs, rhs)
     }
 }
@@ -277,7 +277,7 @@ public extension Tensor where Element: Comparable {
 /// tensor of Bool values
 @inlinable
 public func equal<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,Bool>
-where S: TensorShape, E: Equatable
+where S: TensorShape, E.Value: Equatable
 {
     assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
     var result = Tensor<S, Bool>(lhs.shape)
@@ -285,7 +285,7 @@ where S: TensorShape, E: Equatable
     return result
 }
 
-extension Tensor: Equatable where Element: Equatable {
+extension Tensor: Equatable where TensorElement.Value: Equatable {
     @inlinable
     public static func .== (_ lhs: Self, _ rhs: Self) -> Tensor<Shape, Bool> {
         equal(lhs, rhs)
@@ -325,9 +325,10 @@ where S: TensorShape, E.Value: SignedNumeric & Comparable {
 }
 
 public extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
-    @inlinable func elementsAlmostEqual(_ rhs: Self, tolerance: Element)
-        -> Tensor<Shape,Bool>
-    {
+    @inlinable func elementsAlmostEqual(
+        _ rhs: Self,
+        tolerance: TensorElement.Value
+    ) -> Tensor<Shape,Bool> {
         SwiftRTCore.elementsAlmostEqual(self, rhs, tolerance: tolerance)
     }
 }
@@ -337,7 +338,7 @@ public extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
 /// Computes `lhs != rhs` element-wise and returns a `TensorView` of Boolean
 /// values.
 @inlinable public func notEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
-    -> Tensor<S,Bool> where S: TensorShape, E: Equatable
+-> Tensor<S,Bool> where S: TensorShape, E.Value: Equatable
 {
     assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
     var result = Tensor<S,Bool>(lhs.shape)
@@ -345,7 +346,7 @@ public extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
     return result
 }
 
-public extension Tensor where Element: Equatable {
+public extension Tensor where TensorElement.Value: Equatable {
     @inlinable static func .!=(_ lhs: Self, _ rhs: Self) -> Tensor<Shape, Bool> {
         notEqual(lhs, rhs)
     }
@@ -354,16 +355,15 @@ public extension Tensor where Element: Equatable {
 //==============================================================================
 /// greater
 /// Computes `lhs .> rhs` element-wise and returns a tensor of Bool values
-@inlinable
-public func greater<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
-    -> Tensor<S,Bool> where S: TensorShape, E: Comparable
+@inlinable public func greater<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+-> Tensor<S,Bool> where S: TensorShape, E.Value: Comparable
 {
     var result = Tensor<S,Bool>(lhs.shape)
     Context.currentQueue.greater(lhs, rhs, &result)
     return result
 }
 
-public extension Tensor where Element: Comparable {
+public extension Tensor where TensorElement.Value: Comparable {
     @inlinable static func .>(_ lhs: Self, _ rhs: Self) -> Tensor<Shape,Bool> {
         greater(lhs, rhs)
     }
@@ -372,16 +372,15 @@ public extension Tensor where Element: Comparable {
 //==============================================================================
 /// greaterOrEqual
 /// Computes `lhs .>= rhs` element-wise and returns a tensor of Bool values
-@inlinable
-public func greaterOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
-    -> Tensor<S, Bool> where S: TensorShape, E: Comparable
+@inlinable public func greaterOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+-> Tensor<S, Bool> where S: TensorShape, E.Value: Comparable
 {
     var result = Tensor<S,Bool>(lhs.shape)
     Context.currentQueue.greaterOrEqual(lhs, rhs, &result)
     return result
 }
 
-public extension Tensor where Element: Comparable {
+public extension Tensor where TensorElement.Value: Comparable {
     @inlinable static func .>=(_ lhs: Self, _ rhs: Self) -> Tensor<Shape,Bool> {
         greaterOrEqual(lhs, rhs)
     }
@@ -391,14 +390,14 @@ public extension Tensor where Element: Comparable {
 /// less
 /// Computes `lhs .< rhs` element-wise and returns a tensor of Bool values
 @inlinable public func less<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
-    -> Tensor<S,Bool> where S: TensorShape, E: Comparable
+-> Tensor<S,Bool> where S: TensorShape, E.Value: Comparable
 {
     var result = Tensor<S,Bool>(lhs.shape)
     Context.currentQueue.less(lhs, rhs, &result)
     return result
 }
 
-public extension Tensor where Element: Comparable {
+public extension Tensor where TensorElement.Value: Comparable {
     @inlinable static func .<(_ lhs: Self, _ rhs: Self) -> Tensor<Shape, Bool> {
         less(lhs, rhs)
     }
@@ -408,37 +407,41 @@ public extension Tensor where Element: Comparable {
 /// lessOrEqual
 /// Computes `lhs .<= rhs` element-wise and returns a tensor of Bool values
 @inlinable public func lessOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
-    -> Tensor<S,Bool> where S: TensorShape, E: Comparable
+-> Tensor<S,Bool> where S: TensorShape, E.Value: Comparable
 {
     var result = Tensor<S,Bool>(lhs.shape)
     Context.currentQueue.lessOrEqual(lhs, rhs, &result)
     return result
 }
 
-@inlinable public func lessOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: E)
-    -> Tensor<S,Bool> where S: TensorShape, E: Comparable
+@inlinable public func lessOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: E.Value)
+-> Tensor<S,Bool> where S: TensorShape, E.Value: Comparable
 {
     lessOrEqual(lhs, repeating(rhs, like: lhs))
 }
 
-@inlinable public func lessOrEqual<S,E>(_ lhs: E, _ rhs: Tensor<S,E>)
-    -> Tensor<S,Bool> where S: TensorShape, E: Comparable
+@inlinable public func lessOrEqual<S,E>(_ lhs: E.Value, _ rhs: Tensor<S,E>)
+-> Tensor<S,Bool> where S: TensorShape, E.Value: Comparable
 {
     lessOrEqual(repeating(lhs, like: rhs), rhs)
 }
 
-public extension Tensor where Element: Comparable {
+public extension Tensor where TensorElement.Value: Comparable {
     @inlinable static func .<=(_ lhs: Self, _ rhs: Self) -> Tensor<Shape,Bool> {
         lessOrEqual(lhs, rhs)
     }
 
-    @inlinable
-    static func .<=(_ lhs: Self, _ rhs: Element) -> Tensor<Shape,Bool> {
+    @inlinable static func .<=(
+        _ lhs: Self,
+        _ rhs: TensorElement.Value
+    ) -> Tensor<Shape,Bool> {
         lessOrEqual(lhs, rhs)
     }
 
-    @inlinable
-    static func .<=(_ lhs: Element, _ rhs: Self) -> Tensor<Shape,Bool> {
+    @inlinable static func .<=(
+        _ lhs: TensorElement.Value,
+        _ rhs: Self
+    ) -> Tensor<Shape,Bool> {
         lessOrEqual(lhs, rhs)
     }
 }
