@@ -288,7 +288,7 @@ public extension Tensor where TensorElement.Value: Numeric {
 }
 
 public extension Tensor where TensorElement.Value: AlgebraicField {
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable static func / (lhs: Self, rhs: Self) -> Self { div(lhs, rhs) }
 
     @inlinable static func /= (lhs: inout Self, rhs: Element) {

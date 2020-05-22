@@ -70,7 +70,7 @@ where S: TensorShape, E.Value: DifferentiableElement
 }
 
 public extension Tensor {
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable func gathering(
         indices: TensorR1<DeviceIndex>,
         axis: Int = 0

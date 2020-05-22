@@ -289,7 +289,7 @@ public extension Tensor {
 
     //--------------------------------------------------------------------------
     // sub view subscript
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
         get { createView(lower, upper, isShared) }
         set {
@@ -299,7 +299,7 @@ public extension Tensor {
         }
     }
 
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable subscript(lower: Shape.Tuple, upper: Shape.Tuple) -> Self {
         get { self[Shape(lower), Shape(upper)] }
         set { self[Shape(lower), Shape(upper)] = newValue }
@@ -366,7 +366,7 @@ public extension Tensor {
 
 //==============================================================================
 /// Derivative registration
-extension Tensor where Element: DifferentiableElement {
+extension Tensor where TensorElement.Value: DifferentiableElement {
     // https://github.com/apple/swift/blob/37b507b31c77ef969151f385cd1902dd44fb3b7f/stdlib/public/core/Array.swift#L2091
     
     @derivative(of: subscript)
@@ -440,7 +440,7 @@ public extension Tensor {
     /// element
     /// can get and set the value of a single element tensor.
     /// - Returns: the only element in the tensor
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable var element: Element {
         get {
             assert(count == 1, "the `element` property expects " +

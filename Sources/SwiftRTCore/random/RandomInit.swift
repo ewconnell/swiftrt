@@ -18,7 +18,7 @@ import Numerics
 
 //==============================================================================
 // Random initializers
-public extension Tensor where Element: BinaryFloatingPoint {
+public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
     //--------------------------------------------------------------------------
     // `init(randomUniform`
     /// Creates a tensor with the specified shape, randomly sampling scalar
@@ -198,7 +198,7 @@ fileprivate extension TensorShape {
     }
 }
 
-public extension Tensor where Element: Real & BinaryFloatingPoint {
+public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     //--------------------------------------------------------------------------
     /// Creates a tensor with the specified shape by performing
     /// Glorot (Xavier) uniform initialization.

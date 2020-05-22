@@ -96,7 +96,7 @@ public extension Tensor {
     /// - Parameters:
     ///  - element: the element value to repeat while indexing
     ///  - shape: the shape of the tensor
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable init(repeating element: Element, to shape: Shape) {
         self.init(single: element, shape: shape)
     }
@@ -107,7 +107,7 @@ public extension Tensor {
     /// - Parameters:
     ///  - other: the tensor to repeat
     ///  - shape: the shape of the tensor
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable init(repeating other: Self, to shape: Shape) {
         // make sure the bounds are compatible
         assert({
@@ -149,7 +149,7 @@ public extension Tensor {
     }
 }
 
-extension Tensor where Element: DifferentiableElement
+extension Tensor where TensorElement.Value: DifferentiableElement
 {
     @derivative(of: init(repeating:to:))
     @inlinable static func _vjpInit(repeating value: Element, to shape: Shape)
@@ -232,7 +232,7 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     /// init(elements:shape:order:
     /// implicitly casts from C.Element integer -> TensorElement.Value
-    /// 
+    ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
