@@ -20,15 +20,16 @@ import Foundation
 extension DeviceQueue where Self: CpuFunctions
 {
     //--------------------------------------------------------------------------
-    @inlinable public func reduceSumAll<S,E>(_ x: Tensor<S,E>,
-                                             _ result: inout Tensor<S,E>)
-    where E: AdditiveArithmetic { cpu_reduceSumAll(x, &result) }
+    @inlinable public func reduceSumAll<S,E>(
+        _ x: Tensor<S,E>,
+        _ result: inout Tensor<S,E>
+    ) where E.Value: AdditiveArithmetic { cpu_reduceSumAll(x, &result) }
     //--------------------------------------------------------------------------
     @inlinable func reduce<S,E>(
         _ x: Tensor<S,E>,
         _ result: inout Tensor<S,E>,
         _ opId: ReductionOp,
-        _ opNext: @escaping (E, E) -> E,
+        _ opNext: @escaping (E.Value, E.Value) -> E.Value,
         _ opFinal: ReduceOpFinal<Tensor<S,E>>?
     ) { cpu_reduce(x, &result, opId, opNext, opFinal) }
 }
@@ -40,8 +41,10 @@ extension CpuFunctions where Self: DeviceQueue {
     @inlinable public func cpu_reduceSumAll<S,E>(
         _ x: Tensor<S,E>,
         _ result: inout Tensor<S,E>
-    ) where E: AdditiveArithmetic {
-        result[result.startIndex] = x.indices.reduce(into: E.zero) { $0 += x[$1] }
+    ) where E.Value: AdditiveArithmetic {
+        result[result.startIndex] = x.indices.reduce(into: E.Value.zero) {
+            $0 += x[$1]
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -49,7 +52,7 @@ extension CpuFunctions where Self: DeviceQueue {
         _ x: Tensor<S,E>,
         _ result: inout Tensor<S,E>,
         _ opId: ReductionOp,
-        _ opNext: @escaping (E, E) -> E,
+        _ opNext: @escaping (E.Value, E.Value) -> E.Value,
         _ opFinal: ReduceOpFinal<Tensor<S,E>>?
     ) {
         // repeat result to match `x`
@@ -58,10 +61,10 @@ extension CpuFunctions where Self: DeviceQueue {
         var repeatedResult = Tensor<S,E>(repeating: result, to: x.shape)
         
         // do the reductions
-        reductionOp(x, &repeatedResult, opNext)
+        mapOp(x, &repeatedResult, opNext)
         
         if let op = opFinal {
-            inPlaceOp(&result, op)
+            mapOp(&result, op)
         }
     }
 }
