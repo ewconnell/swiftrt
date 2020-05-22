@@ -91,7 +91,7 @@ public extension Tensor where Element == Bool {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func max<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
 {
@@ -116,7 +116,7 @@ public extension Tensor where Element == Bool {
 
 //--------------------------------
 // tensor Element
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func max<S,E>(_ lhs: Tensor<S,E>, _ rhs: E)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
 {
@@ -138,7 +138,7 @@ where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
 
 //--------------------------------
 // Element tensor
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func max<S,E>(_ lhs: E, _ rhs: Tensor<S,E>)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
 {
@@ -184,7 +184,7 @@ public extension Tensor where Element: Comparable {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func min<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
 {
@@ -209,7 +209,7 @@ public extension Tensor where Element: Comparable {
 
 //--------------------------------
 // tensor Element
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func min<S,E>(_ lhs: Tensor<S,E>, _ rhs: E)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
 {
@@ -231,7 +231,7 @@ where S: TensorShape, E: Comparable & Numeric & DifferentiableElement
 
 //--------------------------------
 // Element tensor
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func min<S,E>(_ lhs: E, _ rhs: Tensor<S,E>)
     -> Tensor<S,E> where S: TensorShape, E: Comparable
 {
@@ -313,17 +313,18 @@ extension Tensor: Equatable where Element: Equatable {
 /// Performs element-wise equality comparison within the tolerance range
 /// and returns a tensor of Bool values
 @inlinable public func elementsAlmostEqual<S,E>(
-    _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
-    tolerance: E) -> Tensor<S,Bool>
-    where S: TensorShape, E: SignedNumeric & Comparable
-{
+    _ lhs: Tensor<S,E>,
+    _ rhs: Tensor<S,E>,
+    tolerance: E.Value
+) -> Tensor<S,Bool>
+where S: TensorShape, E.Value: SignedNumeric & Comparable {
     assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
     var result = Tensor<S,Bool>(lhs.shape)
     Context.currentQueue.elementsAlmostEqual(lhs, rhs, tolerance, &result)
     return result
 }
 
-public extension Tensor where Element: SignedNumeric & Comparable {
+public extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
     @inlinable func elementsAlmostEqual(_ rhs: Self, tolerance: Element)
         -> Tensor<Shape,Bool>
     {

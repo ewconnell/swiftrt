@@ -52,7 +52,7 @@ import Foundation
 
 //==============================================================================
 // Rank1
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape2.Tuple,
@@ -61,7 +61,7 @@ import Foundation
     Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape3.Tuple,
@@ -70,7 +70,7 @@ import Foundation
     Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape4.Tuple,
@@ -79,7 +79,7 @@ import Foundation
     Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape5.Tuple,
@@ -88,7 +88,7 @@ import Foundation
     Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape6.Tuple,
@@ -99,7 +99,7 @@ import Foundation
 
 //==============================================================================
 // Rank2
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Int,
@@ -108,7 +108,7 @@ import Foundation
     Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape2.Tuple,
@@ -117,7 +117,7 @@ import Foundation
     Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape3.Tuple,
@@ -126,7 +126,7 @@ import Foundation
     Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape4.Tuple,
@@ -135,7 +135,7 @@ import Foundation
     Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape5.Tuple,
@@ -144,7 +144,7 @@ import Foundation
     Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape6.Tuple,
@@ -155,7 +155,7 @@ import Foundation
 
 //==============================================================================
 // Rank3
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Int,
@@ -164,7 +164,7 @@ import Foundation
     Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape2.Tuple,
@@ -173,7 +173,7 @@ import Foundation
     Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape3.Tuple,
@@ -182,7 +182,7 @@ import Foundation
     Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape4.Tuple,
@@ -191,7 +191,7 @@ import Foundation
     Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape5.Tuple,
@@ -200,7 +200,7 @@ import Foundation
     Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape6.Tuple,
@@ -211,7 +211,7 @@ import Foundation
 
 //==============================================================================
 // Rank4
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Int,
@@ -220,7 +220,7 @@ import Foundation
     Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape2.Tuple,
@@ -229,7 +229,7 @@ import Foundation
     Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape3.Tuple,
@@ -238,7 +238,7 @@ import Foundation
     Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape4.Tuple,
@@ -247,7 +247,7 @@ import Foundation
     Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape5.Tuple,
@@ -256,7 +256,7 @@ import Foundation
     Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape6.Tuple,
@@ -267,7 +267,7 @@ import Foundation
 
 //==============================================================================
 // Rank5
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Int,
@@ -276,7 +276,7 @@ import Foundation
     Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape2.Tuple,
@@ -285,7 +285,7 @@ import Foundation
     Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape3.Tuple,
@@ -294,7 +294,7 @@ import Foundation
     Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape4.Tuple,
@@ -303,7 +303,7 @@ import Foundation
     Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape5.Tuple,
@@ -312,7 +312,7 @@ import Foundation
     Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape6.Tuple,
@@ -323,7 +323,7 @@ import Foundation
 
 //==============================================================================
 // Rank6
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Int,
@@ -332,7 +332,7 @@ import Foundation
     Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape2.Tuple,
@@ -341,7 +341,7 @@ import Foundation
     Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape3.Tuple,
@@ -350,7 +350,7 @@ import Foundation
     Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape4.Tuple,
@@ -359,7 +359,7 @@ import Foundation
     Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape5.Tuple,
@@ -368,7 +368,7 @@ import Foundation
     Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape6.Tuple,
@@ -388,85 +388,85 @@ import Foundation
 ///
 //==============================================================================
 // Rank1
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape1, E>, axis: Int) -> Tensor<Shape2,E> {
     Tensor<Shape2, E>(expanding: a, axes: Shape1(axis))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape1, E>, axes: Shape2.Tuple) -> Tensor<Shape3,E> {
     Tensor<Shape3,E>(expanding: a, axes: Shape2(axes))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape1, E>, axes: Shape3.Tuple) -> Tensor<Shape4,E> {
     Tensor<Shape4,E>(expanding: a, axes: Shape3(axes))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape1, E>, axes: Shape4.Tuple) -> Tensor<Shape5,E> {
     Tensor<Shape5,E>(expanding: a, axes: Shape4(axes))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape1, E>, axes: Shape5.Tuple) -> Tensor<Shape6,E> {
     Tensor<Shape6,E>(expanding: a, axes: Shape5(axes))
 }
 
 //==============================================================================
 // Rank2
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape2, E>, axis: Int) -> Tensor<Shape3,E> {
     Tensor<Shape3, E>(expanding: a, axes: Shape1(axis))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape2, E>, axes: Shape2.Tuple) -> Tensor<Shape4,E> {
     Tensor<Shape4,E>(expanding: a, axes: Shape2(axes))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape2, E>, axes: Shape3.Tuple) -> Tensor<Shape5,E> {
     Tensor<Shape5,E>(expanding: a, axes: Shape3(axes))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape2, E>, axes: Shape4.Tuple) -> Tensor<Shape6,E> {
     Tensor<Shape6,E>(expanding: a, axes: Shape4(axes))
 }
 
 //==============================================================================
 // Rank3
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape3, E>, axis: Int) -> Tensor<Shape4,E> {
     Tensor<Shape4, E>(expanding: a, axes: Shape1(axis))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape3, E>, axes: Shape2.Tuple) -> Tensor<Shape5,E> {
     Tensor<Shape5,E>(expanding: a, axes: Shape2(axes))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape3, E>, axes: Shape3.Tuple) -> Tensor<Shape6,E> {
     Tensor<Shape6,E>(expanding: a, axes: Shape3(axes))
 }
 
 //==============================================================================
 // Rank4
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape4, E>, axis: Int) -> Tensor<Shape5,E> {
     Tensor<Shape5, E>(expanding: a, axes: Shape1(axis))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape4, E>, axes: Shape2.Tuple) -> Tensor<Shape6,E> {
     Tensor<Shape6,E>(expanding: a, axes: Shape2(axes))
 }
 
 //==============================================================================
 // Rank5
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func expand<E>(dims a: Tensor<Shape5, E>, axis: Int) -> Tensor<Shape6,E> {
     Tensor<Shape6, E>(expanding: a, axes: Shape1(axis))
 }
@@ -485,21 +485,21 @@ import Foundation
 ///
 //==============================================================================
 // Rank1
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: [Tensor<Shape1, E>], axis: Int = 0)
     -> Tensor<Shape2, E>
 {
     Tensor<Shape2, E>(stacking: arrays, axis: axis)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: Tensor<Shape1, E>..., axis: Int = 0)
     -> Tensor<Shape2, E>
 {
     Tensor<Shape2, E>(stacking: arrays, axis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+//@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(
     _ arrays: [Tensor<Shape1, E>],
     axis: Int = 0,
@@ -511,21 +511,21 @@ import Foundation
 
 //==============================================================================
 // Rank2
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: [Tensor<Shape2, E>], axis: Int = 0)
     -> Tensor<Shape3, E>
 {
     Tensor<Shape3, E>(stacking: arrays, axis: axis)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: Tensor<Shape2, E>..., axis: Int = 0)
     -> Tensor<Shape3, E>
 {
     Tensor<Shape3, E>(stacking: arrays, axis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+//@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(
     _ arrays: [Tensor<Shape2, E>],
     axis: Int = 0,
@@ -537,21 +537,21 @@ import Foundation
 
 //==============================================================================
 // Rank3
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: [Tensor<Shape3, E>], axis: Int = 0)
     -> Tensor<Shape4, E>
 {
     Tensor<Shape4, E>(stacking: arrays, axis: axis)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: Tensor<Shape3, E>..., axis: Int = 0)
     -> Tensor<Shape4, E>
 {
     Tensor<Shape4, E>(stacking: arrays, axis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+//@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(
     _ arrays: [Tensor<Shape3, E>],
     axis: Int = 0,
@@ -563,21 +563,21 @@ import Foundation
 
 //==============================================================================
 // Rank4
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: [Tensor<Shape4, E>], axis: Int = 0)
     -> Tensor<Shape5, E>
 {
     Tensor<Shape5, E>(stacking: arrays, axis: axis)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: Tensor<Shape4, E>..., axis: Int = 0)
     -> Tensor<Shape5, E>
 {
     Tensor<Shape5, E>(stacking: arrays, axis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+//@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(
     _ arrays: [Tensor<Shape4, E>],
     axis: Int = 0,
@@ -589,21 +589,21 @@ import Foundation
 
 //==============================================================================
 // Rank5
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: [Tensor<Shape5, E>], axis: Int = 0)
     -> Tensor<Shape6, E>
 {
     Tensor<Shape6, E>(stacking: arrays, axis: axis)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: Tensor<Shape5, E>..., axis: Int = 0)
     -> Tensor<Shape6, E>
 {
     Tensor<Shape6, E>(stacking: arrays, axis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+//@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(
     _ arrays: [Tensor<Shape5, E>],
     axis: Int = 0,
@@ -623,85 +623,85 @@ import Foundation
 ///
 //==============================================================================
 // Rank2
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape2,E>, axis: Int) -> Tensor<Shape1,E> {
     Tensor<Shape1,E>(squeezing: a, axes: Shape1(axis))
 }
 
 //==============================================================================
 // Rank3
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape3,E>, axis: Int) -> Tensor<Shape2,E> {
     Tensor<Shape2,E>(squeezing: a, axes: Shape1(axis))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape3,E>, axes: Shape2.Tuple) -> Tensor<Shape1,E> {
     Tensor<Shape1,E>(squeezing: a, axes: Shape2(axes))
 }
 
 //==============================================================================
 // Rank4
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape4,E>, axis: Int) -> Tensor<Shape3,E> {
     Tensor<Shape3,E>(squeezing: a, axes: Shape1(axis))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape4,E>, axes: Shape2.Tuple) -> Tensor<Shape2,E> {
     Tensor<Shape2,E>(squeezing: a, axes: Shape2(axes))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape4,E>, axes: Shape3.Tuple) -> Tensor<Shape1,E> {
     Tensor<Shape1,E>(squeezing: a, axes: Shape3(axes))
 }
 
 //==============================================================================
 // Rank5
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape5,E>, axis: Int) -> Tensor<Shape4,E> {
     Tensor<Shape4,E>(squeezing: a, axes: Shape1(axis))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape5,E>, axes: Shape2.Tuple) -> Tensor<Shape3,E> {
     Tensor<Shape3,E>(squeezing: a, axes: Shape2(axes))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape5,E>, axes: Shape3.Tuple) -> Tensor<Shape2,E> {
     Tensor<Shape2,E>(squeezing: a, axes: Shape3(axes))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape5,E>, axes: Shape4.Tuple) -> Tensor<Shape1,E> {
     Tensor<Shape1,E>(squeezing: a, axes: Shape4(axes))
 }
 
 //==============================================================================
 // Rank6
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape6,E>, axis: Int) -> Tensor<Shape5,E> {
     Tensor<Shape5,E>(squeezing: a, axes: Shape1(axis))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape6,E>, axes: Shape2.Tuple) -> Tensor<Shape4,E> {
     Tensor<Shape4,E>(squeezing: a, axes: Shape2(axes))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape6,E>, axes: Shape3.Tuple) -> Tensor<Shape3,E> {
     Tensor<Shape3,E>(squeezing: a, axes: Shape3(axes))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape6,E>, axes: Shape4.Tuple) -> Tensor<Shape2,E> {
     Tensor<Shape2,E>(squeezing: a, axes: Shape4(axes))
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func squeeze<E>(_ a: Tensor<Shape6,E>, axes: Shape5.Tuple) -> Tensor<Shape1,E> {
     Tensor<Shape1,E>(squeezing: a, axes: Shape5(axes))
 }
@@ -729,9 +729,9 @@ import Foundation
 }
 
 // specifying type
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<Element>(
-    _ value: Element,
+    _ value: Element.Value,
     _ shape: Shape1.Tuple,
     dtype: Element.Type
 ) -> Tensor<Shape1,Element> {
@@ -750,9 +750,9 @@ import Foundation
 }
 
 // specifying type
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<Element>(
-    _ value: Element,
+    _ value: Element.Value,
     _ shape: Shape2.Tuple,
     dtype: Element.Type
 ) -> Tensor<Shape2,Element> {
@@ -771,9 +771,9 @@ import Foundation
 }
 
 // specifying type
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<Element>(
-    _ value: Element,
+    _ value: Element.Value,
     _ shape: Shape3.Tuple,
     dtype: Element.Type
 ) -> Tensor<Shape3,Element> {
@@ -792,9 +792,9 @@ import Foundation
 }
 
 // specifying type
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<Element>(
-    _ value: Element,
+    _ value: Element.Value,
     _ shape: Shape4.Tuple,
     dtype: Element.Type
 ) -> Tensor<Shape4,Element> {
@@ -813,9 +813,9 @@ import Foundation
 }
 
 // specifying type
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<Element>(
-    _ value: Element,
+    _ value: Element.Value,
     _ shape: Shape5.Tuple,
     dtype: Element.Type
 ) -> Tensor<Shape5,Element> {
@@ -834,9 +834,9 @@ import Foundation
 }
 
 // specifying type
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<Element>(
-    _ value: Element,
+    _ value: Element.Value,
     _ shape: Shape6.Tuple,
     dtype: Element.Type
 ) -> Tensor<Shape6,Element> {
@@ -856,9 +856,9 @@ import Foundation
 /// - Returns: read only repeated element
 
 // same type and shape
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<S,Element>(
-    _ value: Element,
+    _ value: Element.Value,
     like prototype: Tensor<S,Element>
 ) -> Tensor<S,Element> where S: TensorShape
 {
@@ -866,9 +866,9 @@ import Foundation
 }
 
 // different type same shape
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<S,E, Element>(
-    _ value: Element,
+    _ value: Element.Value,
     like prototype: Tensor<S,E>,
     dtype: Element.Type
 ) -> Tensor<S,Element> where S: TensorShape
@@ -879,9 +879,9 @@ import Foundation
 //------------------------------------------------------------------------------
 // same type different shape
 // Rank1
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<S,E>(
-    _ value: E,
+    _ value: E.Value,
     like prototype: Tensor<S,E>,
     shape: Shape1.Tuple
 ) -> Tensor<Shape1, E> where S: TensorShape
@@ -891,9 +891,9 @@ import Foundation
 }
 
 // Rank2
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<S,E>(
-    _ value: E,
+    _ value: E.Value,
     like prototype: Tensor<S,E>,
     shape: Shape2.Tuple
 ) -> Tensor<Shape2, E> where S: TensorShape
@@ -903,9 +903,9 @@ import Foundation
 }
 
 // Rank3
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<S,E>(
-    _ value: E,
+    _ value: E.Value,
     like prototype: Tensor<S,E>,
     shape: Shape3.Tuple
 ) -> Tensor<Shape3, E> where S: TensorShape
@@ -915,9 +915,9 @@ import Foundation
 }
 
 // Rank4
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<S,E>(
-    _ value: E,
+    _ value: E.Value,
     like prototype: Tensor<S,E>,
     shape: Shape4.Tuple
 ) -> Tensor<Shape4, E> where S: TensorShape
@@ -927,9 +927,9 @@ import Foundation
 }
 
 // Rank5
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<S,E>(
-    _ value: E,
+    _ value: E.Value,
     like prototype: Tensor<S,E>,
     shape: Shape5.Tuple
 ) -> Tensor<Shape5, E> where S: TensorShape
@@ -939,9 +939,9 @@ import Foundation
 }
 
 // Rank6
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<S,E>(
-    _ value: E,
+    _ value: E.Value,
     like prototype: Tensor<S,E>,
     shape: Shape6.Tuple
 ) -> Tensor<Shape6, E> where S: TensorShape
@@ -954,9 +954,9 @@ import Foundation
 //------------------------------------------------------------------------------
 // different type, different shape
 // Rank1
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<S,E,Element>(
-    _ value: Element,
+    _ value: Element.Value,
     like prototype: Tensor<S,E>,
     dtype: Element.Type,
     shape: Shape1.Tuple
@@ -967,9 +967,9 @@ import Foundation
 }
 
 // Rank2
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<S,E,Element>(
-    _ value: Element,
+    _ value: Element.Value,
     like prototype: Tensor<S,E>,
     dtype: Element.Type,
     shape: Shape2.Tuple
@@ -980,9 +980,9 @@ import Foundation
 }
 
 // Rank3
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<S,E,Element>(
-    _ value: Element,
+    _ value: Element.Value,
     like prototype: Tensor<S,E>,
     dtype: Element.Type,
     shape: Shape3.Tuple
@@ -993,9 +993,9 @@ import Foundation
 }
 
 // Rank4
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<S,E,Element>(
-    _ value: Element,
+    _ value: Element.Value,
     like prototype: Tensor<S,E>,
     dtype: Element.Type,
     shape: Shape4.Tuple
@@ -1006,9 +1006,9 @@ import Foundation
 }
 
 // Rank5
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<S,E,Element>(
-    _ value: Element,
+    _ value: Element.Value,
     like prototype: Tensor<S,E>,
     dtype: Element.Type,
     shape: Shape5.Tuple
@@ -1019,9 +1019,9 @@ import Foundation
 }
 
 // Rank6
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<S,E,Element>(
-    _ value: Element,
+    _ value: Element.Value,
     like prototype: Tensor<S,E>,
     dtype: Element.Type,
     shape: Shape6.Tuple
@@ -1041,7 +1041,7 @@ import Foundation
 //---------------------------------------
 // Rank1
 // default type
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<E>(
     _ other: Tensor<Shape1,E>,
     _ shape: Shape1.Tuple
@@ -1052,7 +1052,7 @@ import Foundation
 //---------------------------------------
 // Rank2
 // default type
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<E>(
     _ other: Tensor<Shape2,E>,
     _ shape: Shape2.Tuple
@@ -1063,7 +1063,7 @@ import Foundation
 //---------------------------------------
 // Rank3
 // default type
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<E>(
     _ other: Tensor<Shape3,E>,
     _ shape: Shape3.Tuple
@@ -1074,7 +1074,7 @@ import Foundation
 //---------------------------------------
 // Rank4
 // default type
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<E>(
     _ other: Tensor<Shape4,E>,
     _ shape: Shape4.Tuple
@@ -1085,7 +1085,7 @@ import Foundation
 //---------------------------------------
 // Rank5
 // default type
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<E>(
     _ other: Tensor<Shape5,E>,
     _ shape: Shape5.Tuple
@@ -1096,7 +1096,7 @@ import Foundation
 //---------------------------------------
 // Rank6
 // default type
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<E>(
     _ other: Tensor<Shape6,E>,
     _ shape: Shape6.Tuple
