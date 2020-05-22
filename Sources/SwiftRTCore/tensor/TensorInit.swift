@@ -232,6 +232,7 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     /// init(elements:shape:order:
     /// implicitly casts from C.Element integer -> TensorElement.Value
+    /// 
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
@@ -250,10 +251,35 @@ public extension Tensor {
             storage.setElement(value: Element(exactly: value)!, at: i)
         }
     }
-    
+
     //--------------------------------------------------------------------------
     /// init(elements:shape:order:
-    /// implicitly casts from C.Element float -> TensorElement.Value
+    /// implicitly casts from C.Element float -> integer TensorElement.Value
+    ///
+    /// - Parameters:
+    ///  - elements: the value collection used to initialize storage
+    ///  - shape: the shape of the tensor
+    ///  - order: the storage order
+    // Note: to handle the case of Double <--> Float
+    @inlinable init<C>(
+        _ elements: C,
+        _ shape: Shape,
+        order: StorageOrder = .C
+    ) where C: Collection, C.Element: BinaryFloatingPoint,
+            TensorElement.Value: BinaryInteger
+    {
+        assert(shape.elementCount() == elements.count)
+        self.init(shape, order: order)
+        _ = storage.readWrite(at: 0, count: count)
+        for (i, value) in elements.enumerated() {
+            storage.setElement(value: Element(value), at: i)
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    /// init(elements:shape:order:
+    /// implicitly casts from floating C.Element -> floating TensorElement.Value
+    ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor

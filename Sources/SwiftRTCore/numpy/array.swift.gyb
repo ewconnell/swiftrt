@@ -90,7 +90,7 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
 @inlinable public func array<C: Collection>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor<Shape1,C.Element>
+) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Value
 {
     Tensor<Shape1,C.Element>(elements, Shape1(elements.count), order: order)
 }
@@ -150,58 +150,57 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
 //------------------------------------------------------------------------------
 // Rank${n} shaped array from a flat collection
 // same type
-@inlinable public func array<C>(
+@inlinable public func array<C: Collection>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
     order: StorageOrder = .C
-) -> Tensor<Shape${n},C.Element> where C: Collection
+) -> Tensor<Shape${n},C.Element> where C.Element == C.Element.Value
 {
     Tensor<Shape${n},C.Element>(elements, Shape${n}(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> DType
-@inlinable public func array<C>(
+@inlinable public func array<C: Collection>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
     order: StorageOrder = .C
-) -> Tensor<Shape${n},DType> where C: Collection, C.Element: BinaryInteger
+) -> Tensor<Shape${n},DType> where C.Element: BinaryInteger
 {
     Tensor<Shape${n},DType>(elements, Shape${n}(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
-@inlinable public func array<C, Element>(
+@inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},Element>
-    where C: Collection, C.Element: BinaryInteger, Element: Numeric
+    where C.Element: BinaryInteger, Element.Value: Numeric
 {
     Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
-@inlinable public func array<C, Element>(
+@inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},Element>
-    where C: Collection, C.Element: BinaryFloatingPoint, Element: BinaryInteger
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
     Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
-@inlinable public func array<C, Element>(
+@inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},Element>
-    where C: Collection, C.Element: BinaryFloatingPoint,
-    Element: BinaryFloatingPoint
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
 {
     Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order)
 }
@@ -218,8 +217,9 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
 ) -> Tensor<Shape${n},C${'.Element' * n}>
     where
 % for i in range(n):
-    C${'.Element' * i}: Collection${',' if i < n - 1 else ''}
+    C${'.Element' * i}: Collection,
 % end
+    C${'.Element' * n} == C${'.Element' * n}.Value
 {
     let shape = Shape${n}(
 % for i in range(n):
@@ -282,7 +282,7 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
 % for i in range(n):
     C${'.Element' * i}: Collection,
 % end
-    C${'.Element' * n}: BinaryInteger, Element: Numeric
+    C${'.Element' * n}: BinaryInteger, Element.Value: Numeric
 {
     let shape = Shape${n}(
 % for i in range(n):
@@ -303,7 +303,7 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
 % for i in range(n):
     C${'.Element' * i}: Collection,
 % end
-    C${'.Element' * n}: BinaryFloatingPoint, Element: BinaryInteger
+    C${'.Element' * n}: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
     let shape = Shape${n}(
 % for i in range(n):
@@ -325,7 +325,7 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
     C${'.Element' * i}: Collection,
 % end
     C${'.Element' * n}: BinaryFloatingPoint,
-    Element: BinaryFloatingPoint
+    Element.Value: BinaryFloatingPoint
 {
     let shape = Shape${n}(
 % for i in range(n):
