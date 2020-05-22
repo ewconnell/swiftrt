@@ -23,7 +23,7 @@ import Foundation
     _ lhs: TensorR2<E>, _ transposeLhs: Bool,
     _ rhs: TensorR2<E>, _ transposeRhs: Bool
 ) -> (TensorR2<E>, TensorR2<E>)
-where E: DifferentiableElement
+where E.Value: DifferentiableElement
 {
     let (lhsGrad, rhsGrad): (TensorR2<E>, TensorR2<E>)
     switch (transposeLhs, transposeRhs) {
@@ -53,13 +53,13 @@ where E: DifferentiableElement
 ///  - transposeRhs: `true` to transpose `rhs`, default is `false`
 /// - Returns: a new tensor containing the result
 // https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
-@differentiable(where E: DifferentiableElement)
-@differentiable(wrt: lhs where E: DifferentiableElement)
-@differentiable(wrt: rhs where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
+@differentiable(wrt: lhs where E.Value: DifferentiableElement)
+@differentiable(wrt: rhs where E.Value: DifferentiableElement)
 @inlinable public func matmul<E>(
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
-) -> TensorR2<E> where E: Numeric
+) -> TensorR2<E> where E.Value: Numeric
 {
     let lhsShape = transposeLhs ? lhs.shape.t : lhs.shape
     let rhsShape = transposeRhs ? rhs.shape.t : rhs.shape
@@ -74,7 +74,7 @@ where E: DifferentiableElement
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR2<E>))
-where E: DifferentiableElement
+where E.Value: DifferentiableElement
 {
     (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
      { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
@@ -85,7 +85,7 @@ where E: DifferentiableElement
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
-where E: DifferentiableElement
+where E.Value: DifferentiableElement
 {
     (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
      { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).0 })
@@ -96,7 +96,7 @@ where E: DifferentiableElement
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
-where E: DifferentiableElement
+where E.Value: DifferentiableElement
 {
     (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
      { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).1 })
@@ -112,14 +112,14 @@ where E: DifferentiableElement
 ///  - transposeRhs: `true` to transpose `rhs`, default is `false`
 /// - Returns: a new tensor containing the result
 // https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
-@differentiable(where E: DifferentiableElement)
-@differentiable(wrt: (lhs, bias) where E: DifferentiableElement)
-@differentiable(wrt: (rhs, bias) where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
+@differentiable(wrt: (lhs, bias) where E.Value: DifferentiableElement)
+@differentiable(wrt: (rhs, bias) where E.Value: DifferentiableElement)
 @inlinable public func matmul<E>(
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
-) -> TensorR2<E> where E: Numeric
+) -> TensorR2<E> where E.Value: Numeric
 {
     let lhsShape = transposeLhs ? lhs.shape.t : lhs.shape
     let rhsShape = transposeRhs ? rhs.shape.t : rhs.shape
@@ -135,7 +135,7 @@ where E: DifferentiableElement
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR2<E>, TensorR1<E>))
-where E: DifferentiableElement
+where E.Value: DifferentiableElement
 {
     fatalError()
 //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
@@ -148,7 +148,7 @@ where E: DifferentiableElement
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR1<E>))
-where E: DifferentiableElement
+where E.Value: DifferentiableElement
 {
     fatalError()
 //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
@@ -161,7 +161,7 @@ where E: DifferentiableElement
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR1<E>))
-where E: DifferentiableElement
+where E.Value: DifferentiableElement
 {
     fatalError()
 //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
@@ -182,7 +182,7 @@ where E: DifferentiableElement
 @inlinable public func matmul<S,E>(
     _ lhs: Tensor<S,E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
-) -> Tensor<S,E> where S: TensorShape, E: Numeric
+) -> Tensor<S,E> where S: TensorShape, E.Value: Numeric
 {
     fatalError()
 }
@@ -192,7 +192,7 @@ where E: DifferentiableElement
     _ lhs: Tensor<S,E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, TensorR2<E>))
-where S: TensorShape, E: DifferentiableElement
+where S: TensorShape, E.Value: DifferentiableElement
 {
     fatalError()
 }
@@ -211,7 +211,7 @@ where S: TensorShape, E: DifferentiableElement
 @inlinable public func matmul<S,E>(
     _ lhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
-) -> Tensor<S,E> where S: TensorShape, E: Numeric
+) -> Tensor<S,E> where S: TensorShape, E.Value: Numeric
 {
     fatalError()
 }
@@ -221,7 +221,7 @@ where S: TensorShape, E: DifferentiableElement
     _ lhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (TensorR2<E>, Tensor<S,E>))
-where S: TensorShape, E: DifferentiableElement
+where S: TensorShape, E.Value: DifferentiableElement
 {
     fatalError()
 }
@@ -240,7 +240,7 @@ where S: TensorShape, E: DifferentiableElement
 @inlinable public func matmul<S,E>(
     _ lhs: Tensor<S,E>, transposed transposeRhs: Bool = false,
     _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
-) -> Tensor<S,E> where S: TensorShape, E: Numeric
+) -> Tensor<S,E> where S: TensorShape, E.Value: Numeric
 {
     fatalError()
 }
@@ -250,7 +250,7 @@ where S: TensorShape, E: DifferentiableElement
     _ lhs: Tensor<S,E>, transposed transposeRhs: Bool = false,
     _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-where S: TensorShape, E: DifferentiableElement
+where S: TensorShape, E.Value: DifferentiableElement
 {
     fatalError()
 }

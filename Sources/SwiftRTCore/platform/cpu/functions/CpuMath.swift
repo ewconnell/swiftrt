@@ -149,7 +149,7 @@ extension DeviceQueue where Self: CpuFunctions
         _ lhs: TensorR2<E>, _ transposeLhs: Bool,
         _ rhs: TensorR2<E>, _ transposeRhs: Bool,
         _ result: inout TensorR2<E>
-    ) where E: Numeric {
+    ) where E.Value: Numeric {
         cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
     }
     //--------------------------------------------------------------------------
@@ -157,7 +157,7 @@ extension DeviceQueue where Self: CpuFunctions
         _ lhs: TensorR3<E>, _ transposeLhs: Bool,
         _ rhs: TensorR3<E>, _ transposeRhs: Bool,
         _ result: inout TensorR3<E>
-    ) where E: Numeric {
+    ) where E.Value: Numeric {
         cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
     }
     //--------------------------------------------------------------------------
@@ -511,7 +511,7 @@ extension CpuFunctions where Self: DeviceQueue
         _ lhs: TensorR2<E>, _ transposeLhs: Bool,
         _ rhs: TensorR2<E>, _ transposeRhs: Bool,
         _ result: inout TensorR2<E>
-    ) where E: Numeric {
+    ) where E.Value: Numeric {
         let lhs = transposeLhs ? lhs.t : lhs
         let rhs = transposeRhs ? rhs.t : rhs
         assert(result.shape[0] == lhs.shape[0] &&

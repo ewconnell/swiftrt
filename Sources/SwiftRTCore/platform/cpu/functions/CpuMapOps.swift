@@ -65,6 +65,23 @@ extension DeviceQueue {
     }
 
     //==========================================================================
+    // range
+    @inlinable func mapOp<S,E,C>(
+        _ elements: C,
+        _ result: inout Tensor<S,E>
+    ) where C: Collection, C.Element == E.Value {
+        result.readWrite(using: self)
+        var r = BufferSequential(mutating: result)
+        if mode == .async {
+            queue.async {
+                zip(r.indices, elements).forEach { r[$0] = $1 }
+            }
+        } else {
+            zip(r.indices, elements).forEach { r[$0] = $1 }
+        }
+    }
+    
+    //==========================================================================
     // inplace
     @inlinable func mapOp<S,E>(
         _ result: inout Tensor<S,E>,
