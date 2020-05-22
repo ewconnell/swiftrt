@@ -106,7 +106,8 @@ extension RecurrentLayerCell {
 //==============================================================================
 /// A basic RNN cell.
 public struct BasicRNNCell<Element>: RecurrentLayerCell
-where Element: DifferentiableElement & Real & BinaryFloatingPoint
+where Element: StorageElement,
+      Element.Value: DifferentiableElement & Real & BinaryFloatingPoint
 {
     public var weight: TensorR2<Element>
     public var bias: TensorR2<Element>
@@ -115,19 +116,19 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
     public struct State:
     Equatable, Differentiable, VectorProtocol, KeyPathIterable
     {
-        @inlinable public func adding(_ x: Element) -> Self {
+        @inlinable public func adding(_ x: Element.Value) -> Self {
             State(value + x)
         }
         
-        @inlinable public func subtracting(_ x: Element) -> Self {
+        @inlinable public func subtracting(_ x: Element.Value) -> Self {
             State(value - x)
         }
         
-        @inlinable public func scaled(by scalar: Element) -> Self {
+        @inlinable public func scaled(by scalar: Element.Value) -> Self {
             State(value * scalar)
         }
         
-        public typealias VectorSpaceScalar = Element
+        public typealias VectorSpaceScalar = Element.Value
         public var value: TensorR2<Element>
         @differentiable
         @inlinable public init(_ value: TensorR2<Element>) {
@@ -184,7 +185,8 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
 //==============================================================================
 /// An LSTM cell.
 public struct LSTMCell<Element>: RecurrentLayerCell
-where Element: DifferentiableElement & Real & BinaryFloatingPoint
+where Element: StorageElement,
+      Element.Value: DifferentiableElement & Real & BinaryFloatingPoint
 {
     // types
     public typealias TimeStepInput = TensorR2<Element>
@@ -235,19 +237,19 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
         Equatable, Differentiable, VectorProtocol, KeyPathIterable
     {
         // TODO: Verify that is is correct and find out why I had to implement it
-        public func adding(_ x: Element) -> Self {
+        public func adding(_ x: Element.Value) -> Self {
             State(cell: cell + x, hidden: hidden + x)
         }
         
-        public func subtracting(_ x: Element) -> Self {
+        public func subtracting(_ x: Element.Value) -> Self {
             State(cell: cell - x, hidden: hidden - x)
         }
         
-        public func scaled(by scalar: Element) -> Self {
+        public func scaled(by scalar: Element.Value) -> Self {
             State(cell: cell * scalar, hidden: hidden * scalar)
         }        
         
-        public typealias VectorSpaceScalar = Element
+        public typealias VectorSpaceScalar = Element.Value
         public var cell: TensorR2<Element>
         public var hidden: TensorR2<Element>
         
@@ -287,7 +289,8 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
 //==============================================================================
 /// An GRU cell.
 public struct GRUCell<Element>: RecurrentLayerCell
-where Element: DifferentiableElement & Real & BinaryFloatingPoint
+where Element: StorageElement,
+      Element.Value: DifferentiableElement & Real & BinaryFloatingPoint
 {
     public var updateWeight1, updateWeight2: TensorR2<Element>
     public var resetWeight1, resetWeight2: TensorR2<Element>
@@ -338,19 +341,19 @@ where Element: DifferentiableElement & Real & BinaryFloatingPoint
     // TODO(TF-507): Revert to `typealias State = Tensor<Scalar>` after
     // SR-10697 is fixed.
     public struct State: Equatable, Differentiable, VectorProtocol, KeyPathIterable {
-        public func adding(_ x: Element) -> Self {
+        public func adding(_ x: Element.Value) -> Self {
             State(hidden: hidden + x)
         }
         
-        public func subtracting(_ x: Element) -> Self {
+        public func subtracting(_ x: Element.Value) -> Self {
             State(hidden: hidden - x)
         }
         
-        public func scaled(by scalar: Element) -> Self {
+        public func scaled(by scalar: Element.Value) -> Self {
             State(hidden: hidden * scalar)
         }
         
-        public typealias VectorSpaceScalar = Element
+        public typealias VectorSpaceScalar = Element.Value
         public var hidden: TensorR2<Element>
         
         @differentiable
@@ -491,10 +494,13 @@ extension RecurrentLayer: Equatable where Cell: Equatable {}
 extension RecurrentLayer: AdditiveArithmetic where Cell: AdditiveArithmetic {}
 
 public typealias BasicRNN<Element> = RecurrentLayer<BasicRNNCell<Element>>
-    where Element: Real & BinaryFloatingPoint & DifferentiableElement
+where Element: StorageElement,
+      Element.Value: Real & BinaryFloatingPoint & DifferentiableElement
 
 public typealias LSTM<Element> = RecurrentLayer<LSTMCell<Element>>
-    where Element: Real & BinaryFloatingPoint & DifferentiableElement
+    where Element: StorageElement,
+          Element.Value: Real & BinaryFloatingPoint & DifferentiableElement
 
 public typealias GRU<Element> = RecurrentLayer<GRUCell<Element>>
-    where Element: Real & BinaryFloatingPoint & DifferentiableElement
+    where Element: StorageElement,
+          Element.Value: Real & BinaryFloatingPoint & DifferentiableElement
