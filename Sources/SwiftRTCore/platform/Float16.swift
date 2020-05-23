@@ -34,16 +34,16 @@ public struct Float16 : Equatable, Comparable, AdditiveArithmetic {
         guard let v = Float(string) else { return nil }
         self = FloatToFloat16Rnd(v)
 	}
+    @inlinable public init(_ v: UInt8)  { self.init(Float(v)) }
+    @inlinable public init(_ v: UInt16) { self.init(Float(v)) }
+    @inlinable public init(_ v: Int16)  { self.init(Float(v)) }
+    @inlinable public init(_ v: Int32)  { self.init(Float(v)) }
+    @inlinable public init(_ v: Int)    { self.init(Float(v)) }
+    @inlinable public init(_ v: Double) { self.init(Float(v)) }
+    
+    //--------------------------------------------------------------------------
+    @inlinable public init(_ v: Float)  { self = FloatToFloat16Rnd(v) }
 
-	@inlinable public init(_ v: UInt8)  { self = FloatToFloat16Rnd(Float(v)) }
-	@inlinable public init(_ v: UInt16) { self = FloatToFloat16Rnd(Float(v)) }
-	@inlinable public init(_ v: Int16)  { self = FloatToFloat16Rnd(Float(v)) }
-	@inlinable public init(_ v: Int32)  { self = FloatToFloat16Rnd(Float(v)) }
-	@inlinable public init(_ v: Int)    { self = FloatToFloat16Rnd(Float(v)) }
-	@inlinable public init(_ v: Float)  { self = FloatToFloat16Rnd(v) }
-	@inlinable public init(_ d: Double) { self = FloatToFloat16Rnd(Float(d)) }
-	@inlinable public init(d: Double)   { self = FloatToFloat16Rnd(Float(d)) }
-	
     //--------------------------------------------------------------------------
 	// functions
 	@inlinable public var mantissa: Int { (Int)(x & Float16.mantissaMask) }
@@ -187,7 +187,6 @@ extension Double {
 	
 	return Float16(bitPattern: UInt16(sign | (exponent << 10) | mantissa))
 }
-
 
 //==============================================================================
 /// Float16ToFloat
