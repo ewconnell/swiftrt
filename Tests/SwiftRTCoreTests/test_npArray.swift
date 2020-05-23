@@ -58,6 +58,10 @@ class test_npArray: XCTestCase {
         let _ = array([0, 1, 2, 3, 4, 5], (2, 3))
         let _ = array(0..<6, (2, 3))
         
+        let pixels = [RGB<Float>(0, 0.5, 1), RGB<Float>(0.25, 0.5, 0.75)]
+        let _ = array(pixels)
+        let _ = array(pixels, (1, 2))
+        
 //        let a3 = array([[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]])
 //        let af4 = array(0..<120, (2, 3, 4, 5))
 
