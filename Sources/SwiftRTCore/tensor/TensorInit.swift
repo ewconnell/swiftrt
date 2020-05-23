@@ -184,8 +184,8 @@ public extension Tensor {
     ///  is expected to be of type `UInt8`
     ///  For `Float`, `TensorElement.Stored == Float`, so `C.Element`
     ///  is expected to be of type `Float`
-    ///  For `Float16`, `TensorElement.Stored == UInt16`, so `C.Element`
-    ///  is expected to be of type `UInt16`
+    ///  For `Float16`, `TensorElement.Stored == Float16`, so `C.Element`
+    ///  is expected to be of type `Float16`
     ///
     ///  - shape: the shape of the tensor
     ///  - order: the storage order
@@ -206,9 +206,9 @@ public extension Tensor {
     /// initializes the tensor with the given `elements while
     /// converting them to `TensorElement.Stored` type.
     /// For example in the `Float16` case, `C.Element` would be type `Float`
-    /// but the stored type will be `UInt16` with a bit pattern of matching
-    /// `Float16`. So floats go in, and a buffer with `Float16` pattern is
-    /// ready to transit to a discreet device with native `Float16` support.
+    /// but the stored type will be the `Float16` bit pattern.
+    /// So floats go in, and a buffer with `Float16` pattern is
+    /// ready for use on a discreet device with native `Float16` support.
     ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
@@ -254,30 +254,6 @@ public extension Tensor {
 
     //--------------------------------------------------------------------------
     /// init(elements:shape:order:
-    /// implicitly casts from C.Element float -> integer TensorElement.Value
-    ///
-    /// - Parameters:
-    ///  - elements: the value collection used to initialize storage
-    ///  - shape: the shape of the tensor
-    ///  - order: the storage order
-    // Note: to handle the case of Double <--> Float
-    @inlinable init<C>(
-        _ elements: C,
-        _ shape: Shape,
-        order: StorageOrder = .C
-    ) where C: Collection, C.Element: BinaryFloatingPoint,
-            TensorElement.Value: BinaryInteger
-    {
-        assert(shape.elementCount() == elements.count)
-        self.init(shape, order: order)
-        _ = storage.readWrite(at: 0, count: count)
-        for (i, value) in elements.enumerated() {
-            storage.setElement(value: Element(value), at: i)
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    /// init(elements:shape:order:
     /// implicitly casts from floating C.Element -> floating TensorElement.Value
     ///
     /// - Parameters:
@@ -291,6 +267,30 @@ public extension Tensor {
         order: StorageOrder = .C
     ) where C: Collection, C.Element: BinaryFloatingPoint,
             TensorElement.Value: BinaryFloatingPoint
+    {
+        assert(shape.elementCount() == elements.count)
+        self.init(shape, order: order)
+        _ = storage.readWrite(at: 0, count: count)
+        for (i, value) in elements.enumerated() {
+            storage.setElement(value: Element(value), at: i)
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    /// init(elements:shape:order:
+    /// implicitly casts from C.Element float -> integer TensorElement.Value
+    ///
+    /// - Parameters:
+    ///  - elements: the value collection used to initialize storage
+    ///  - shape: the shape of the tensor
+    ///  - order: the storage order
+    // Note: to handle the case of Double <--> Float
+    @inlinable init<C>(
+        _ elements: C,
+        _ shape: Shape,
+        order: StorageOrder = .C
+    ) where C: Collection, C.Element: BinaryFloatingPoint,
+            TensorElement.Value: BinaryInteger
     {
         assert(shape.elementCount() == elements.count)
         self.init(shape, order: order)
@@ -786,8 +786,8 @@ public extension Tensor {
     @inlinable var t: Self { Self(transposing: self) }
     
     @differentiable(where TensorElement.Value: DifferentiableElement)
-    @inlinable func transposed(permutatedBy permutations: Shape.Tuple) -> Self {
-        Self(transposing: self, permutatedBy: Shape(permutations))
+    @inlinable func transposed(permutatedBy permutations: Shape) -> Self {
+        Self(transposing: self, permutatedBy: permutations)
     }
 }
 
@@ -827,10 +827,6 @@ extension Tensor where TensorElement.Value: Numeric {
         fill(&self, with: 0)
     }
 
-    @inlinable public init(zeros shape: Shape.Tuple, order: StorageOrder = .C) {
-        self.init(zeros: Shape(shape), order: order)
-    }
-
     //--------------------------------------------------------------------------
     /// init(ones shape:order:
     /// creates a dense shape filled with ones
@@ -841,11 +837,7 @@ extension Tensor where TensorElement.Value: Numeric {
         self.init(shape, order: order)
         fill(&self, with: 1)
     }
-
-    @inlinable public init(ones shape: Shape.Tuple, order: StorageOrder = .C) {
-        self.init(ones: Shape(shape), order: order)
-    }
-
+    
     //--------------------------------------------------------------------------
     /// init(eye:offset:
     /// Returns a new data shape where the bounds and strides are permuted
@@ -860,14 +852,6 @@ extension Tensor where TensorElement.Value: Numeric {
     ) {
         self.init(shape, order: order)
         Context.currentQueue.eye(&self, offset: offset)
-    }
-
-    @inlinable public init(
-        eye shape: Shape.Tuple,
-        offset: Int = 0,
-        order: StorageOrder = .C
-    ) {
-        self.init(eye: Shape(shape), offset: offset, order: order)
     }
 }
 

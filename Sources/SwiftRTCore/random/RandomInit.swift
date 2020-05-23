@@ -37,16 +37,6 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
         self = Self(shape)
         Context.currentQueue.fill(randomUniform: &self, lower, upper, seed)
     }
-
-    // tuple signature
-    init(randomUniform shape: Shape.Tuple,
-         lower: Element = 0,
-         upper: Element = 1,
-         seed: RandomSeed = Context.randomSeed)
-    {
-        self.init(randomUniform: Shape(shape),
-                  lower: lower, upper: upper, seed: seed)
-    }
     
     //--------------------------------------------------------------------------
     /// Creates a tensor with the specified shape, randomly sampling
@@ -67,16 +57,6 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
             .fill(randomNormal: &self, mean, standardDeviation, seed)
     }
 
-    // tuple signature
-    init(randomNormal shape: Shape.Tuple,
-         mean: Element = 0,
-         standardDeviation: Element = 1,
-         seed: RandomSeed = Context.randomSeed)
-    {
-        self.init(randomNormal: Shape(shape),
-                  mean: mean, standardDeviation: standardDeviation, seed: seed)
-    }
-
     //------------------------------------
     // tensor parameter version
     init(randomNormal shape: Shape,
@@ -87,14 +67,6 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
         self = Self(shape)
         Context.currentQueue
             .fill(randomNormal: &self, mean, standardDeviation, seed)
-    }
-
-    // tuple signature
-    init(randomNormal shape: Shape.Tuple, mean: Self,
-         standardDeviation: Self, seed: RandomSeed = Context.randomSeed)
-    {
-        self.init(randomNormal: Shape(shape),
-                  mean: mean, standardDeviation: standardDeviation, seed: seed)
     }
     
     //--------------------------------------------------------------------------
@@ -115,15 +87,6 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
         Context.currentQueue
             .fill(randomTruncatedNormal: &self, mean, standardDeviation, seed)
     }
-
-    // tuple signature
-    init(randomTruncatedNormal shape: Shape.Tuple,
-         mean: Element = 0, standardDeviation: Element = 1,
-         seed: RandomSeed = Context.randomSeed)
-    {
-        self.init(randomTruncatedNormal: Shape(shape),
-                  mean: mean, standardDeviation: standardDeviation, seed: seed)
-    }
     
     //------------------------------------
     // tensor parameter version
@@ -135,15 +98,6 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
         self = Self(shape)
         Context.currentQueue
             .fill(randomTruncatedNormal: &self, mean, standardDeviation, seed)
-    }
-
-    // tuple signature
-    init(randomTruncatedNormal shape: Shape.Tuple,
-         mean: Self, standardDeviation: Self,
-         seed: RandomSeed = Context.randomSeed)
-    {
-        self.init(randomTruncatedNormal: Shape(shape),
-                  mean: mean, standardDeviation: standardDeviation, seed: seed)
     }
 }
 
@@ -224,12 +178,6 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
                   upper: limit,
                   seed: seed)
     }
-
-    init(glorotUniform shape: Shape.Tuple,
-         seed: RandomSeed = Context.randomSeed)
-    {
-        self.init(glorotUniform: Shape(shape), seed: seed)
-    }
     
     //--------------------------------------------------------------------------
     /// Creates a tensor with the specified shape by performing
@@ -260,11 +208,6 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
                   mean: 0, standardDeviation: standardDeviation, seed: seed)
     }
 
-    init(glorotNormal shape: Shape.Tuple,
-         seed: RandomSeed = Context.randomSeed)
-    {
-        self.init(glorotNormal: Shape(shape), seed: seed)
-    }
     //--------------------------------------------------------------------------
     /// Creates a tensor with the specified shape by performing
     /// He (Kaiming) uniform initialization.
@@ -287,10 +230,6 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
         let limit = Element.sqrt(6 / Element(fanIn))
         self.init(randomUniform: shape, lower: -limit,
                   upper: limit, seed: seed)
-    }
-
-    init(heUniform shape: Shape.Tuple, seed: RandomSeed = Context.randomSeed) {
-        self.init(heUniform: Shape(shape), seed: seed)
     }
     
     //--------------------------------------------------------------------------
@@ -320,10 +259,6 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
                   mean: 0, standardDeviation: standardDeviation,
                   seed: seed)
     }
-
-    init(heNormal shape: Shape.Tuple, seed: RandomSeed = Context.randomSeed) {
-        self.init(heNormal: Shape(shape), seed: seed)
-    }
     
     //--------------------------------------------------------------------------
     /// Creates a tensor with the specified shape by performing LeCun
@@ -344,10 +279,6 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
         let limit = Element.sqrt(3 / Element(fanIn))
         self.init(randomUniform: shape, lower: -limit,
                   upper: limit, seed: seed)
-    }
-
-    init(leCunUniform shape: Shape.Tuple, seed: RandomSeed = Context.randomSeed) {
-        self.init(leCunUniform: Shape(shape), seed: seed)
     }
     
     //--------------------------------------------------------------------------
@@ -375,10 +306,6 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
         self.init(randomTruncatedNormal: shape,
                   mean: 0, standardDeviation: standardDeviation,
                   seed: seed)
-    }
-    
-    init(leCunNormal shape: Shape.Tuple, seed: RandomSeed = Context.randomSeed) {
-        self.init(leCunNormal: Shape(shape), seed: seed)
     }
 }
 
