@@ -161,7 +161,7 @@ public struct Int4: PackedStorageElement {
 //==============================================================================
 // non native types that automatically cast to a native type during iteration
 extension Float16: StorageElement {
-    public typealias Stored = UInt16
+    public typealias Stored = Self
     public typealias Value = Float
     
     @inlinable public static func value(
@@ -214,6 +214,16 @@ extension Int32: StorageElement {
 }
 
 extension UInt32: StorageElement {
+    public typealias Stored = Self
+    public typealias Value = Self
+}
+
+extension Int: StorageElement {
+    public typealias Stored = Self
+    public typealias Value = Self
+}
+
+extension UInt: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
 }
