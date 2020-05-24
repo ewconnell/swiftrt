@@ -347,7 +347,7 @@ class test_Shape: XCTestCase {
         XCTAssert(m.t == [[0,3,6], [1,4,7], [2,5,8]])
         
         let a = array(0..<24, (2,3,4))
-        let transA = a.transposed(permutatedBy: (2,1,0))
+        let transA = a.transposed(permutatedBy: [2, 1, 0])
         XCTAssert(transA == [[[ 0.0, 12.0],
                               [ 4.0, 16.0],
                               [ 8.0, 20.0]],
@@ -372,10 +372,10 @@ class test_Shape: XCTestCase {
         let transposed = ones((3, 2))
         let transposedPullback = pullback(at: input) { $0.t }
         let transposedPermutationsPullback = pullback(at: input) {
-            $0.transposed(permutatedBy: (1, 0))
+            $0.transposed(permutatedBy: [1, 0])
         }
         let transposedVariadicsPullback = pullback(at: input) {
-            $0.transposed(permutatedBy: (1, 0))
+            $0.transposed(permutatedBy: [1, 0])
         }
         
         XCTAssertEqual(input, transposedPullback(transposed))

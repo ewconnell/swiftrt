@@ -271,79 +271,79 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 // explicit type
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape2,
+    _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Element> where C.Element == Element.Value
 {
-    Tensor<Shape2,Element>(elements, shape, order: order)
+    Tensor<Shape2,Element>(elements, Shape2(shape), order: order)
 }
 
 // FixedSizeVector type
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape2,
+    _ shape: Shape2.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,C.Element>
     where C.Element: FixedSizeVector, C.Element == C.Element.Value
 {
-    Tensor<Shape2,C.Element>(elements, shape, order: order)
+    Tensor<Shape2,C.Element>(elements, Shape2(shape), order: order)
 }
 
 // Bool type
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape2,
+    _ shape: Shape2.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Bool> where C.Element == Bool
 {
-    Tensor<Shape2,Bool>(elements, shape, order: order)
+    Tensor<Shape2,Bool>(elements, Shape2(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape2,
+    _ shape: Shape2.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,DType> where C.Element: BinaryInteger
 {
-    Tensor<Shape2,DType>(elements, shape, order: order)
+    Tensor<Shape2,DType>(elements, Shape2(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape2,
+    _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
 {
-    Tensor<Shape2,Element>(elements, shape, order: order)
+    Tensor<Shape2,Element>(elements, Shape2(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape2,
+    _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
-    Tensor<Shape2,Element>(elements, shape, order: order)
+    Tensor<Shape2,Element>(elements, Shape2(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape2,
+    _ shape: Shape2.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
 {
-    Tensor<Shape2,Element>(elements, shape, order: order)
+    Tensor<Shape2,Element>(elements, Shape2(shape), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -351,79 +351,79 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 // explicit type
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape3,
+    _ shape: Shape3.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Element> where C.Element == Element.Value
 {
-    Tensor<Shape3,Element>(elements, shape, order: order)
+    Tensor<Shape3,Element>(elements, Shape3(shape), order: order)
 }
 
 // FixedSizeVector type
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape3,
+    _ shape: Shape3.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,C.Element>
     where C.Element: FixedSizeVector, C.Element == C.Element.Value
 {
-    Tensor<Shape3,C.Element>(elements, shape, order: order)
+    Tensor<Shape3,C.Element>(elements, Shape3(shape), order: order)
 }
 
 // Bool type
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape3,
+    _ shape: Shape3.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Bool> where C.Element == Bool
 {
-    Tensor<Shape3,Bool>(elements, shape, order: order)
+    Tensor<Shape3,Bool>(elements, Shape3(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape3,
+    _ shape: Shape3.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,DType> where C.Element: BinaryInteger
 {
-    Tensor<Shape3,DType>(elements, shape, order: order)
+    Tensor<Shape3,DType>(elements, Shape3(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape3,
+    _ shape: Shape3.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
 {
-    Tensor<Shape3,Element>(elements, shape, order: order)
+    Tensor<Shape3,Element>(elements, Shape3(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape3,
+    _ shape: Shape3.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
-    Tensor<Shape3,Element>(elements, shape, order: order)
+    Tensor<Shape3,Element>(elements, Shape3(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape3,
+    _ shape: Shape3.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
 {
-    Tensor<Shape3,Element>(elements, shape, order: order)
+    Tensor<Shape3,Element>(elements, Shape3(shape), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -431,79 +431,79 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 // explicit type
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape4,
+    _ shape: Shape4.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Element> where C.Element == Element.Value
 {
-    Tensor<Shape4,Element>(elements, shape, order: order)
+    Tensor<Shape4,Element>(elements, Shape4(shape), order: order)
 }
 
 // FixedSizeVector type
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape4,
+    _ shape: Shape4.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,C.Element>
     where C.Element: FixedSizeVector, C.Element == C.Element.Value
 {
-    Tensor<Shape4,C.Element>(elements, shape, order: order)
+    Tensor<Shape4,C.Element>(elements, Shape4(shape), order: order)
 }
 
 // Bool type
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape4,
+    _ shape: Shape4.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Bool> where C.Element == Bool
 {
-    Tensor<Shape4,Bool>(elements, shape, order: order)
+    Tensor<Shape4,Bool>(elements, Shape4(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape4,
+    _ shape: Shape4.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,DType> where C.Element: BinaryInteger
 {
-    Tensor<Shape4,DType>(elements, shape, order: order)
+    Tensor<Shape4,DType>(elements, Shape4(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape4,
+    _ shape: Shape4.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
 {
-    Tensor<Shape4,Element>(elements, shape, order: order)
+    Tensor<Shape4,Element>(elements, Shape4(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape4,
+    _ shape: Shape4.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
-    Tensor<Shape4,Element>(elements, shape, order: order)
+    Tensor<Shape4,Element>(elements, Shape4(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape4,
+    _ shape: Shape4.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
 {
-    Tensor<Shape4,Element>(elements, shape, order: order)
+    Tensor<Shape4,Element>(elements, Shape4(shape), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -511,79 +511,79 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 // explicit type
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape5,
+    _ shape: Shape5.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Element> where C.Element == Element.Value
 {
-    Tensor<Shape5,Element>(elements, shape, order: order)
+    Tensor<Shape5,Element>(elements, Shape5(shape), order: order)
 }
 
 // FixedSizeVector type
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape5,
+    _ shape: Shape5.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,C.Element>
     where C.Element: FixedSizeVector, C.Element == C.Element.Value
 {
-    Tensor<Shape5,C.Element>(elements, shape, order: order)
+    Tensor<Shape5,C.Element>(elements, Shape5(shape), order: order)
 }
 
 // Bool type
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape5,
+    _ shape: Shape5.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Bool> where C.Element == Bool
 {
-    Tensor<Shape5,Bool>(elements, shape, order: order)
+    Tensor<Shape5,Bool>(elements, Shape5(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape5,
+    _ shape: Shape5.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,DType> where C.Element: BinaryInteger
 {
-    Tensor<Shape5,DType>(elements, shape, order: order)
+    Tensor<Shape5,DType>(elements, Shape5(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape5,
+    _ shape: Shape5.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
 {
-    Tensor<Shape5,Element>(elements, shape, order: order)
+    Tensor<Shape5,Element>(elements, Shape5(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape5,
+    _ shape: Shape5.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
-    Tensor<Shape5,Element>(elements, shape, order: order)
+    Tensor<Shape5,Element>(elements, Shape5(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape5,
+    _ shape: Shape5.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
 {
-    Tensor<Shape5,Element>(elements, shape, order: order)
+    Tensor<Shape5,Element>(elements, Shape5(shape), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -591,79 +591,79 @@ public extension Tensor where Shape == Shape6, Element: Equatable {
 // explicit type
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape6,
+    _ shape: Shape6.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Element> where C.Element == Element.Value
 {
-    Tensor<Shape6,Element>(elements, shape, order: order)
+    Tensor<Shape6,Element>(elements, Shape6(shape), order: order)
 }
 
 // FixedSizeVector type
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape6,
+    _ shape: Shape6.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,C.Element>
     where C.Element: FixedSizeVector, C.Element == C.Element.Value
 {
-    Tensor<Shape6,C.Element>(elements, shape, order: order)
+    Tensor<Shape6,C.Element>(elements, Shape6(shape), order: order)
 }
 
 // Bool type
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape6,
+    _ shape: Shape6.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Bool> where C.Element == Bool
 {
-    Tensor<Shape6,Bool>(elements, shape, order: order)
+    Tensor<Shape6,Bool>(elements, Shape6(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> DType
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape6,
+    _ shape: Shape6.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,DType> where C.Element: BinaryInteger
 {
-    Tensor<Shape6,DType>(elements, shape, order: order)
+    Tensor<Shape6,DType>(elements, Shape6(shape), order: order)
 }
 
 /// implicitly casts from C.Element integer -> Element
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape6,
+    _ shape: Shape6.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
 {
-    Tensor<Shape6,Element>(elements, shape, order: order)
+    Tensor<Shape6,Element>(elements, Shape6(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element integer
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape6,
+    _ shape: Shape6.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
-    Tensor<Shape6,Element>(elements, shape, order: order)
+    Tensor<Shape6,Element>(elements, Shape6(shape), order: order)
 }
 
 /// implicitly casts from C.Element float -> Element float
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
-    _ shape: Shape6,
+    _ shape: Shape6.Tuple,
     dtype: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
 {
-    Tensor<Shape6,Element>(elements, shape, order: order)
+    Tensor<Shape6,Element>(elements, Shape6(shape), order: order)
 }
 
 
