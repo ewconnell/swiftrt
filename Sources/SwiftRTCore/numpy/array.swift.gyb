@@ -28,8 +28,10 @@ numShapes = 6
 //******************************************************************************
 
 
-//==============================================================================
-/// array
+//******************************************************************************
+// This section converts Tensor --> Swift Array
+//******************************************************************************
+
 //------------------------------------------------------------------------------
 // Rank1 to Swift Array
 public extension Tensor where Shape == Shape1 {
@@ -70,6 +72,11 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
 }
 
 %end
+
+//******************************************************************************
+// This section converts a flat Collection --> TensorR1
+//******************************************************************************
+
 //==============================================================================
 /// array
 /// Return a new tensor of given shape and type, without initializing entries.
@@ -157,6 +164,10 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
     Tensor<Shape1, Element>(elements, Shape1(elements.count))
 }
 
+//******************************************************************************
+// This section converts a flat Collection --> shaped Tensor
+//******************************************************************************
+
 %for n in range(2, numShapes + 1):
 //------------------------------------------------------------------------------
 // Rank${n} shaped array from a flat collection
@@ -239,6 +250,11 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
 }
 
 %end
+
+//******************************************************************************
+// This section converts a Collection of collections --> shaped Tensor
+// Swift Arrays are converted using this section
+//******************************************************************************
 
 %for n in range(2, numShapes + 1):
 //------------------------------------------------------------------------------
