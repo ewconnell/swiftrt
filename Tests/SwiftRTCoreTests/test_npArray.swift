@@ -35,7 +35,77 @@ class test_npArray: XCTestCase {
         ("test_eye", test_eye),
     ]
     
+    //==========================================================================
+    // test_implicitArray
+    func test_implicitArray() {
+        // stored bit pattern
+        let _ = array(stored: [Float16(0), Float16(1)])
+        let _ = array(stored: [Float16(0), Float16(1)], (1, 2))
+        
+        // packed types
+        let _ = array([0, 1], dtype: UInt1.self)
+        let _ = array(stored: [0b00000010], dtype: UInt1.self)
+        
+        let _ = array([0, 3], dtype: UInt4.self)
+        let _ = array(stored: [0b00110000], dtype: UInt4.self)
 
+        // values
+        let _ = array([true, false])
+        let _ = array([RGB<UInt8>(0, 127, 255), RGB<UInt8>(63, 127, 191)])
+        let _ = array([RGB<Float>(0, 0.5, 1), RGB<Float>(0.25, 0.5, 0.75)])
+
+        // conversions to DType
+        let _ = array([0, 1, 2])
+        let _ = array([0.0, 1.5, 2.5])
+
+        // values
+        let _ = array([true, false], (1, 2))
+        let _ = array([RGB<UInt8>(0, 127, 255), RGB<UInt8>(63, 127, 191)], (1, 2))
+        let _ = array([RGB<Float>(0, 0.5, 1), RGB<Float>(0.25, 0.5, 0.75)], (1, 2))
+        
+        // conversions to DType
+        let _ = array([0, 1, 2], (1, 2))
+        let _ = array([0.0, 1.5, 2.5], (1, 2))
+    }
+
+    //==========================================================================
+    // test_explicitArray
+    func test_explicitArray() {
+        // set unconverted Element
+        let _ = array([true, false], dtype: Bool.self)
+        let _ = array([RGB<UInt8>(0, 127, 255), RGB<UInt8>(63, 127, 191)],
+                      dtype: RGB<UInt8>.self)
+
+        // integer conversions to Element
+        let _ = array([0, 1, 2], dtype: UInt8.self)
+        let _ = array([0, 1, 2], dtype: Int.self)
+        let _ = array([0, 1, 2], dtype: Float.self)
+        let _ = array([0, 1, 2], dtype: Double.self)
+
+        // floating conversions to Element
+        let _ = array([0.0, 1.5, 2.5], dtype: UInt8.self)
+        let _ = array([0.0, 1.5, 2.5], dtype: Int.self)
+        let _ = array([0.0, 1.5, 2.5], dtype: Float.self)
+        let _ = array([0.0, 1.5, 2.5], dtype: Double.self)
+        
+        // set unconverted shaped Element
+        let _ = array([true, false], (1, 2), dtype: Bool.self)
+        let _ = array([RGB<UInt8>(0, 127, 255), RGB<UInt8>(63, 127, 191)],
+                      (1, 2), dtype: RGB<UInt8>.self)
+
+        // integer conversions to shaped Element
+        let _ = array([0, 1, 2], (1, 2), dtype: UInt8.self)
+        let _ = array([0, 1, 2], (1, 2), dtype: Int.self)
+        let _ = array([0, 1, 2], (1, 2), dtype: Float.self)
+        let _ = array([0, 1, 2], (1, 2), dtype: Double.self)
+        
+        // floating conversions to shaped Element
+        let _ = array([0.0, 1.5, 2.5], (1, 2), dtype: UInt8.self)
+        let _ = array([0.0, 1.5, 2.5], (1, 2), dtype: Int.self)
+        let _ = array([0.0, 1.5, 2.5], (1, 2), dtype: Float.self)
+        let _ = array([0.0, 1.5, 2.5], (1, 2), dtype: Double.self)
+    }
+    
     //==========================================================================
     // test_array
     func test_array() {
@@ -57,10 +127,6 @@ class test_npArray: XCTestCase {
         let _ = array([[0, 1, 2], [3, 4, 5]])
         let _ = array([0, 1, 2, 3, 4, 5], (2, 3))
         let _ = array(0..<6, (2, 3))
-        
-        let pixels = [RGB<Float>(0, 0.5, 1), RGB<Float>(0.25, 0.5, 0.75)]
-        let _ = array(pixels)
-        let _ = array(pixels, (1, 2))
         
 //        let a3 = array([[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]])
 //        let af4 = array(0..<120, (2, 3, 4, 5))

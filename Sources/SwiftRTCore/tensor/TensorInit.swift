@@ -190,7 +190,7 @@ public extension Tensor {
     ///  - shape: the shape of the tensor
     ///  - order: the storage order
     @inlinable init<C>(
-        storage elements: C,
+        stored elements: C,
         _ shape: Shape,
         order: StorageOrder = .C)
     where C: Collection, C.Element == TensorElement.Stored

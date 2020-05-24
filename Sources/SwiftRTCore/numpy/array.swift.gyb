@@ -27,59 +27,11 @@ numShapes = 6
 //
 //******************************************************************************
 
-
-//******************************************************************************
-// This section converts Tensor --> Swift Array
-//******************************************************************************
-
-//------------------------------------------------------------------------------
-// Rank1 to Swift Array
-public extension Tensor where Shape == Shape1 {
-    @inlinable var array: [Element] {
-        [Element](self)
-    }
-}
-
-%for n in range(2, numShapes + 1):
-//------------------------------------------------------------------------------
-// Rank${n} to Swift Array
-public extension Tensor where Shape == Shape${n} {
-    @inlinable var array: ${'[' * n}Element${']' * n} {
-% for i in range(n - 1):
-%  indent = '    ' * i
-        ${indent}var array${n - i} = ${'[' * (n - i)}Element${']' * (n - i)}()
-        ${indent}for d${i} in 0..<shape[${i}] {
-% end
-        ${'    ' * (i + 1)}let row = [Element](self[${', '.join(['d' + str(j) for j in range(n - 1)])}, 0...])
-        ${'    ' * (i + 1)}array${n - i}.append(row)
-% for i in reversed(range(n - 1)):
-%  indent = '    ' * i
-        ${indent}}
-        ${indent}${'array' + str(n - i + 1) + '.append(array' + str(n - i) + ')' if i > 0 else 'return array' + str(n - i)}
-% end
-    }
-}
-
-%end
-
-//==============================================================================
-/// Equatable
-%for n in range(1, numShapes + 1):
-public extension Tensor where Shape == Shape${n}, Element: Equatable {
-    @inlinable static func == (lhs: Self, rhs: ${'[' * n}Element${']' * n}) -> Bool {
-        lhs.array == rhs
-    }
-}
-
-%end
-
-//******************************************************************************
-// This section converts a flat Collection --> TensorR1
-//******************************************************************************
-
 //==============================================================================
 /// array
-/// Return a new tensor of given shape and type, without initializing entries.
+/// Creates a tensor of the given shape and type without initializing the
+/// elements
+///
 /// - Parameters:
 ///  - elements: a collection of elements used to initialize storage
 ///  - shape: Int or tuple of Int describing the dimensions of the array
@@ -91,34 +43,33 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
 /// - Returns: Tensor of uninitialized (arbitrary) data of the given shape,
 ///   dtype, and order. Elements will not be initialized.
 
-//------------------------------------------------------------------------------
-// Rank1 array from a flat collection where shape is implied by count
-// explicit type
-@inlinable public func array<C: Collection, Element>(
-    _ elements: C,
-    dtype: Element.Type
-) -> Tensor<Shape1,Element> where C.Element == Element.Value
+//******************************************************************************
+// This section converts a flat Collection --> TensorR1
+// where shape is implied by count
+//******************************************************************************
+
+//************************** Implicit typing
+
+//---------------------------
+// C.Element == Element.Stored
+@inlinable public func array<C: Collection>(
+    stored elements: C
+) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Stored
 {
-    Tensor<Shape1,Element>(elements, Shape1(elements.count))
+    Tensor<Shape1,C.Element>(stored: elements, Shape1(elements.count))
 }
 
-// FixedSizeVector type
+//---------------------------
+// C.Element == Element.Value
 @inlinable public func array<C: Collection>(
-    _ elements: C
-) -> Tensor<Shape1,C.Element>
-    where C.Element: FixedSizeVector, C.Element == C.Element.Value
+    elements: C
+) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Value
 {
     Tensor<Shape1,C.Element>(elements, Shape1(elements.count))
 }
 
-// Bool type
-@inlinable public func array<C: Collection>(
-    _ elements: C
-) -> Tensor<Shape1,Bool> where C.Element == Bool {
-    Tensor<Shape1,Bool>(elements, Shape1(elements.count))
-}
-
-/// implicitly casts from C.Element integer -> DType
+//---------------------------
+// C.Element integer -> DType
 @inlinable public func array<C: Collection>(
     _ elements: C
 ) -> Tensor<Shape1,DType> where C.Element: BinaryInteger
@@ -126,7 +77,8 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
     Tensor<Shape1,DType>(elements, Shape1(elements.count))
 }
 
-/// implicitly casts from C.Element integer -> DType
+//---------------------------
+// C.Element floating -> DType
 @inlinable public func array<C: Collection>(
     _ elements: C
 ) -> Tensor<Shape1, DType> where C.Element: BinaryFloatingPoint
@@ -134,7 +86,10 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
     Tensor<Shape1, DType>(elements, Shape1(elements.count))
 }
 
-/// implicitly casts from C.Element integer -> Element
+//************************** Explicit typing
+
+//---------------------------
+// C.Element integer --> numeric Element.Value
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
     dtype: Element.Type
@@ -144,17 +99,8 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
     Tensor<Shape1, Element>(elements, Shape1(elements.count))
 }
 
-/// implicitly casts from C.Element float -> Element integer
-@inlinable public func array<C: Collection, Element: StorageElement>(
-    _ elements: C,
-    dtype: Element.Type
-) -> Tensor<Shape1,Element>
-    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
-{
-    Tensor<Shape1,Element>(elements, Shape1(elements.count))
-}
-
-/// implicitly casts from C.Element float -> Element float
+//---------------------------
+// C.Element floating --> floating Element.Value
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
     dtype: Element.Type
@@ -164,46 +110,50 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
     Tensor<Shape1, Element>(elements, Shape1(elements.count))
 }
 
+//---------------------------
+// C.Element floating --> integer Element.Value
+@inlinable public func array<C: Collection, Element: StorageElement>(
+    _ elements: C,
+    dtype: Element.Type
+) -> Tensor<Shape1,Element>
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
+{
+    Tensor<Shape1,Element>(elements, Shape1(elements.count))
+}
+
 //******************************************************************************
 // This section converts a flat Collection --> shaped Tensor
 //******************************************************************************
 
 %for n in range(2, numShapes + 1):
 //------------------------------------------------------------------------------
-// Rank${n} shaped array from a flat collection
-// explicit type
-@inlinable public func array<C: Collection, Element>(
-    _ elements: C,
+// Rank${n}
+//************************** Implicit typing
+
+//---------------------------
+// C.Element == Element.Stored
+@inlinable public func array<C: Collection>(
+    stored elements: C,
     _ shape: Shape${n}.Tuple,
-    dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape${n},Element> where C.Element == Element.Value
+) -> Tensor<Shape${n},C.Element> where C.Element == C.Element.Stored
 {
-    Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order)
+    Tensor<Shape${n},C.Element>(stored: elements, Shape${n}(shape), order: order)
 }
 
-// FixedSizeVector type
+//---------------------------
+// C.Element == Element.Value
 @inlinable public func array<C: Collection>(
-    _ elements: C,
+    elements: C,
     _ shape: Shape${n}.Tuple,
     order: StorageOrder = .C
-) -> Tensor<Shape${n},C.Element>
-    where C.Element: FixedSizeVector, C.Element == C.Element.Value
+) -> Tensor<Shape${n},C.Element> where C.Element == C.Element.Value
 {
     Tensor<Shape${n},C.Element>(elements, Shape${n}(shape), order: order)
 }
 
-// Bool type
-@inlinable public func array<C: Collection>(
-    _ elements: C,
-    _ shape: Shape${n}.Tuple,
-    order: StorageOrder = .C
-) -> Tensor<Shape${n},Bool> where C.Element == Bool
-{
-    Tensor<Shape${n},Bool>(elements, Shape${n}(shape), order: order)
-}
-
-/// implicitly casts from C.Element integer -> DType
+//---------------------------
+// C.Element integer -> DType
 @inlinable public func array<C: Collection>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
@@ -213,7 +163,21 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
     Tensor<Shape${n},DType>(elements, Shape${n}(shape), order: order)
 }
 
-/// implicitly casts from C.Element integer -> Element
+//---------------------------
+// C.Element floating -> DType
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape${n}.Tuple,
+    order: StorageOrder = .C
+) -> Tensor<Shape${n},DType> where C.Element: BinaryFloatingPoint
+{
+    Tensor<Shape${n},DType>(elements, Shape${n}(shape), order: order)
+}
+
+//************************** Explicit typing
+
+//---------------------------
+// C.Element integer --> numeric Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
@@ -225,19 +189,8 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
     Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order)
 }
 
-/// implicitly casts from C.Element float -> Element integer
-@inlinable public func array<C: Collection, Element>(
-    _ elements: C,
-    _ shape: Shape${n}.Tuple,
-    dtype: Element.Type,
-    order: StorageOrder = .C
-) -> Tensor<Shape${n},Element>
-    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
-{
-    Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order)
-}
-
-/// implicitly casts from C.Element float -> Element float
+//---------------------------
+// C.Element floating --> floating Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
@@ -245,6 +198,19 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
+{
+    Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order)
+}
+
+//---------------------------
+// C.Element floating --> integer Element.Value
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape${n}.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Tensor<Shape${n},Element>
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
     Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order)
 }
@@ -430,3 +396,49 @@ public extension Tensor where Shape == Shape${n}, Element: Equatable {
 }
 
 %end
+
+//******************************************************************************
+// This section converts Tensor --> Swift Array
+//******************************************************************************
+
+//------------------------------------------------------------------------------
+// Rank1 to Swift Array
+public extension Tensor where Shape == Shape1 {
+    @inlinable var array: [Element] {
+        [Element](self)
+    }
+}
+
+%for n in range(2, numShapes + 1):
+//------------------------------------------------------------------------------
+// Rank${n} to Swift Array
+public extension Tensor where Shape == Shape${n} {
+    @inlinable var array: ${'[' * n}Element${']' * n} {
+% for i in range(n - 1):
+%  indent = '    ' * i
+        ${indent}var array${n - i} = ${'[' * (n - i)}Element${']' * (n - i)}()
+        ${indent}for d${i} in 0..<shape[${i}] {
+% end
+        ${'    ' * (i + 1)}let row = [Element](self[${', '.join(['d' + str(j) for j in range(n - 1)])}, 0...])
+        ${'    ' * (i + 1)}array${n - i}.append(row)
+% for i in reversed(range(n - 1)):
+%  indent = '    ' * i
+        ${indent}}
+        ${indent}${'array' + str(n - i + 1) + '.append(array' + str(n - i) + ')' if i > 0 else 'return array' + str(n - i)}
+% end
+    }
+}
+
+%end
+
+//==============================================================================
+/// Equatable
+%for n in range(1, numShapes + 1):
+public extension Tensor where Shape == Shape${n}, Element: Equatable {
+    @inlinable static func == (lhs: Self, rhs: ${'[' * n}Element${']' * n}) -> Bool {
+        lhs.array == rhs
+    }
+}
+
+%end
+

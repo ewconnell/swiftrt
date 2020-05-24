@@ -15,6 +15,8 @@
 //
 import Foundation
 
+//*** TODO: write specializations for PackedStorageElement Scalar types
+
 //==============================================================================
 /// conformance indicates that scalar components are of the same type and
 /// densely packed. This is necessary for zero copy view type casting of
@@ -22,7 +24,7 @@ import Foundation
 /// For example: Matrix<RGBA<Float>> -> NHWCTensor<Float>
 ///
 public protocol FixedSizeVector: StorageElement {
-    associatedtype Scalar
+    associatedtype Scalar: StorageElement
     static var count: Int { get }
 }
 
@@ -61,16 +63,17 @@ public extension RGBProtocol where Scalar: Codable {
     }
 }
 
-public struct RGB<Scalar>: RGBProtocol
-    where Scalar: Numeric
+public struct RGB<Scalar: StorageElement>: RGBProtocol
+where Scalar: Numeric
 {
     public typealias Stored = Self
     public typealias Value = Self
     
     public var r, g, b: Scalar
 
-    @inlinable
-    public init() { r = Scalar.zero; g = Scalar.zero; b = Scalar.zero }
+    @inlinable public init() {
+        r = Scalar.zero; g = Scalar.zero; b = Scalar.zero
+    }
 
     @inlinable
     public init(_ r: Scalar, _ g: Scalar, _ b: Scalar) {
@@ -111,7 +114,7 @@ public extension RGBAProtocol where Scalar: Codable {
     }
 }
 
-public struct RGBA<Scalar> : RGBAProtocol
+public struct RGBA<Scalar: StorageElement> : RGBAProtocol
     where Scalar: Numeric
 {
     public typealias Stored = Self
@@ -134,7 +137,7 @@ extension RGBA: Equatable where Scalar: Equatable {}
 // Stereo
 public protocol StereoProtocol: FixedSizeVector {}
 
-public struct StereoSample<Scalar>: StereoProtocol
+public struct StereoSample<Scalar: StorageElement>: StereoProtocol
     where Scalar: Numeric
 {
     public typealias Stored = Self
