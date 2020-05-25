@@ -182,6 +182,28 @@ extension Float16: StorageElement {
 }
 
 //==============================================================================
+// Int64 is not supported as a tensor element type, so it is translated to Int32
+extension Int: PackedStorageElement {
+    public typealias Stored = Int32
+    public typealias Value = Self
+    @inlinable public static var indexShift: Int { 1 }
+    @inlinable public static var maskingShift: Int { 0 }
+    @inlinable public static var valueMask: Stored { Int32.max }
+    @inlinable public static var valueMin: Value { Value(Int32.min) }
+    @inlinable public static var valueMax: Value { Value(Int32.max) }
+}
+
+extension UInt: PackedStorageElement {
+    public typealias Stored = UInt32
+    public typealias Value = Self
+    @inlinable public static var indexShift: Int { 1 }
+    @inlinable public static var maskingShift: Int { 0 }
+    @inlinable public static var valueMask: Stored { UInt32.max }
+    @inlinable public static var valueMin: Value { Value(UInt32.min) }
+    @inlinable public static var valueMax: Value { Value(UInt32.max) }
+}
+
+//==============================================================================
 // standard native type conformance
 extension Bool: StorageElement {
     public typealias Stored = Self
@@ -214,16 +236,6 @@ extension Int32: StorageElement {
 }
 
 extension UInt32: StorageElement {
-    public typealias Stored = Self
-    public typealias Value = Self
-}
-
-extension Int: StorageElement {
-    public typealias Stored = Self
-    public typealias Value = Self
-}
-
-extension UInt: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
 }
