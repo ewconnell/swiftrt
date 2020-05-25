@@ -14,17 +14,17 @@
 // limitations under the License.
 //
 import XCTest
+import Foundation
+import SwiftRT
 
-#if !canImport(ObjectiveC)
-public func allTests() -> [XCTestCaseEntry] {
-    return [
-        testCase(test_Async.allTests),
-        testCase(test_arraySyntax.allTests),
-        testCase(test_AlgebraicField.allTests),
-        testCase(test_Initialize.allTests),
-        testCase(test_Reductions.allTests),
-        testCase(test_Subscripting.allTests),
-        testCase(test_Shape.allTests),
+class test_StorageElement: XCTestCase {
+    //==========================================================================
+    // support terminal test run
+    static var allTests = [
+        ("test_Int1", test_Int1),
     ]
+    
+    //--------------------------------------------------------------------------
+    func test_Int1() {
+    }
 }
-#endif
