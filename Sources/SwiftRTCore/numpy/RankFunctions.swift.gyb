@@ -187,12 +187,12 @@ numShapes = 6
 //---------------------------------------
 // Rank${n}
 // default type
-@differentiable
-@inlinable public func repeating(
-    _ value: DType,
+@differentiable(where Element.Value: DifferentiableElement)
+@inlinable public func repeating<Element>(
+    _ value: Element,
     _ shape: Shape${n}.Tuple
-) -> Tensor<Shape${n}, DType> {
-   Tensor<Shape${n},DType>(repeating: value, to: Shape${n}(shape))
+) -> Tensor<Shape${n}, Element> where Element == Element.Value {
+   Tensor<Shape${n},Element>(repeating: value, to: Shape${n}(shape))
 }
 
 // specifying type

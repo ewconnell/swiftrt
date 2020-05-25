@@ -148,7 +148,7 @@ numShapes = 6
 //************************** Explicit typing
 
 //---------------------------
-// C.Element integer --> numeric Element.Value
+// C.Element Bool --> numeric Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
@@ -208,18 +208,20 @@ numShapes = 6
 
 %for n in range(2, numShapes + 1):
 //------------------------------------------------------------------------------
-// Rank${n} shaped array from Swift Array
-// explicit type
-@inlinable public func array<C, Element>(
-    _ elements: C,
-    dtype: Element.Type,
+// Rank${n}
+//************************** Implicit typing
+
+//---------------------------
+// C.Element == Element.Stored
+@inlinable public func array<C>(
+    stored elements: C,
     order: StorageOrder = .C
-) -> Tensor<Shape${n}, Element>
+) -> Tensor<Shape${n},C${'.Element' * n}>
     where
 % for i in range(n):
     C${'.Element' * i}: Collection,
 % end
-    C${'.Element' * n} == Element.Value
+    C${'.Element' * n} == C${'.Element' * n}.Stored
 {
     let shape = Shape${n}(
 % for i in range(n):
@@ -227,20 +229,20 @@ numShapes = 6
 % end
 
     let flatElements = elements${'.joined()' * (n - 1)}
-    return Tensor<Shape${n},Element>(
-        flatElements, shape, order: order)
+    return Tensor<Shape${n},C${'.Element' * n}>(
+        stored: flatElements, shape, order: order)
 }
 
-// FixedSizeVector type
+//---------------------------
+// C.Element == Element.Value
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor<Shape${n}, C${'.Element' * n}>
+) -> Tensor<Shape${n},C${'.Element' * n}>
     where
 % for i in range(n):
     C${'.Element' * i}: Collection,
 % end
-    C${'.Element' * n}: FixedSizeVector,
     C${'.Element' * n} == C${'.Element' * n}.Value
 {
     let shape = Shape${n}(
@@ -253,16 +255,20 @@ numShapes = 6
         flatElements, shape, order: order)
 }
 
-// FixedSizeVector type
-@inlinable public func array<C>(
+//************************** Explicit typing
+
+//---------------------------
+// C.Element Bool --> numeric Element.Value
+@inlinable public func array<C,Element>(
     _ elements: C,
+    dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape${n},Bool>
+) -> Tensor<Shape${n},Element>
     where
 % for i in range(n):
     C${'.Element' * i}: Collection,
 % end
-    C${'.Element' * n} == Bool
+    C${'.Element' * n} == Bool, Element.Value: Numeric
 {
     let shape = Shape${n}(
 % for i in range(n):
@@ -270,52 +276,12 @@ numShapes = 6
 % end
 
     let flatElements = elements${'.joined()' * (n - 1)}
-    return Tensor<Shape${n},Bool>(
+    return Tensor<Shape${n},Element>(
         flatElements, shape, order: order)
 }
 
-// implicitly casts from C.Element integer -> DType
-@inlinable public func array<C>(
-    _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape${n},DType>
-    where
-% for i in range(n):
-    C${'.Element' * i}: Collection,
-% end
-    C${'.Element' * n}: BinaryInteger
-{
-    let shape = Shape${n}(
-% for i in range(n):
-        elements${'.first!' * i}.count${")" if i == n - 1 else ","}
-% end
-
-    let flatElements = elements${'.joined()' * (n - 1)}
-    return Tensor<Shape${n},DType>(flatElements, shape, order: order)
-}
-
-// implicitly casts from C.Element floating point -> DType
-@inlinable public func array<C>(
-    _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape${n},DType>
-    where
-% for i in range(n):
-    C${'.Element' * i}: Collection,
-% end
-    C${'.Element' * n}: BinaryFloatingPoint
-{
-    let shape = Shape${n}(
-% for i in range(n):
-        elements${'.first!' * i}.count${")" if i == n - 1 else ","}
-% end
-
-    let flatElements = elements${'.joined()' * (n - 1)}
-    return Tensor<Shape${n},DType>(flatElements, shape, order: order)
-}
-
-
-// implicitly casts from C.Element integer -> Element
+//---------------------------
+// C.Element integer --> numeric Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -336,28 +302,8 @@ numShapes = 6
     return Tensor<Shape${n},Element>(flatElements, shape, order: order)
 }
 
-// implicitly casts from C.Element float -> Element integer
-@inlinable public func array<C, Element>(
-    _ elements: C,
-    dtype: Element.Type,
-    order: StorageOrder = .C
-) -> Tensor<Shape${n},Element>
-    where
-% for i in range(n):
-    C${'.Element' * i}: Collection,
-% end
-    C${'.Element' * n}: BinaryFloatingPoint, Element.Value: BinaryInteger
-{
-    let shape = Shape${n}(
-% for i in range(n):
-        elements${'.first!' * i}.count${")" if i == n - 1 else ","}
-% end
-
-    let flatElements = elements${'.joined()' * (n - 1)}
-    return Tensor<Shape${n},Element>(flatElements, shape, order: order)
-}
-
-// implicitly casts from C.Element float -> Element float
+//---------------------------
+// C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -369,6 +315,29 @@ numShapes = 6
 % end
     C${'.Element' * n}: BinaryFloatingPoint,
     Element.Value: BinaryFloatingPoint
+{
+    let shape = Shape${n}(
+% for i in range(n):
+        elements${'.first!' * i}.count${")" if i == n - 1 else ","}
+% end
+
+    let flatElements = elements${'.joined()' * (n - 1)}
+    return Tensor<Shape${n},Element>(flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element floating --> floating Element.Value
+@inlinable public func array<C, Element>(
+    _ elements: C,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Tensor<Shape${n},Element>
+    where
+% for i in range(n):
+    C${'.Element' * i}: Collection,
+% end
+    C${'.Element' * n}: BinaryFloatingPoint,
+    Element.Value: BinaryInteger
 {
     let shape = Shape${n}(
 % for i in range(n):

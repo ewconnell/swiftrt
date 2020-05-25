@@ -144,7 +144,7 @@ import Foundation
 //************************** Explicit typing
 
 //---------------------------
-// C.Element integer --> numeric Element.Value
+// C.Element Bool --> numeric Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape2.Tuple,
@@ -224,7 +224,7 @@ import Foundation
 //************************** Explicit typing
 
 //---------------------------
-// C.Element integer --> numeric Element.Value
+// C.Element Bool --> numeric Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape3.Tuple,
@@ -304,7 +304,7 @@ import Foundation
 //************************** Explicit typing
 
 //---------------------------
-// C.Element integer --> numeric Element.Value
+// C.Element Bool --> numeric Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape4.Tuple,
@@ -384,7 +384,7 @@ import Foundation
 //************************** Explicit typing
 
 //---------------------------
-// C.Element integer --> numeric Element.Value
+// C.Element Bool --> numeric Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape5.Tuple,
@@ -464,7 +464,7 @@ import Foundation
 //************************** Explicit typing
 
 //---------------------------
-// C.Element integer --> numeric Element.Value
+// C.Element Bool --> numeric Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape6.Tuple,
@@ -522,36 +522,38 @@ import Foundation
 //******************************************************************************
 
 //------------------------------------------------------------------------------
-// Rank2 shaped array from Swift Array
-// explicit type
-@inlinable public func array<C, Element>(
-    _ elements: C,
-    dtype: Element.Type,
+// Rank2
+//************************** Implicit typing
+
+//---------------------------
+// C.Element == Element.Stored
+@inlinable public func array<C>(
+    stored elements: C,
     order: StorageOrder = .C
-) -> Tensor<Shape2, Element>
+) -> Tensor<Shape2,C.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
-    C.Element.Element == Element.Value
+    C.Element.Element == C.Element.Element.Stored
 {
     let shape = Shape2(
         elements.count,
         elements.first!.count)
 
     let flatElements = elements.joined()
-    return Tensor<Shape2,Element>(
-        flatElements, shape, order: order)
+    return Tensor<Shape2,C.Element.Element>(
+        stored: flatElements, shape, order: order)
 }
 
-// FixedSizeVector type
+//---------------------------
+// C.Element == Element.Value
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor<Shape2, C.Element.Element>
+) -> Tensor<Shape2,C.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
-    C.Element.Element: FixedSizeVector,
     C.Element.Element == C.Element.Element.Value
 {
     let shape = Shape2(
@@ -563,63 +565,31 @@ import Foundation
         flatElements, shape, order: order)
 }
 
-// FixedSizeVector type
-@inlinable public func array<C>(
+//************************** Explicit typing
+
+//---------------------------
+// C.Element Bool --> numeric Element.Value
+@inlinable public func array<C,Element>(
     _ elements: C,
+    dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape2,Bool>
+) -> Tensor<Shape2,Element>
     where
     C: Collection,
     C.Element: Collection,
-    C.Element.Element == Bool
+    C.Element.Element == Bool, Element.Value: Numeric
 {
     let shape = Shape2(
         elements.count,
         elements.first!.count)
 
     let flatElements = elements.joined()
-    return Tensor<Shape2,Bool>(
+    return Tensor<Shape2,Element>(
         flatElements, shape, order: order)
 }
 
-// implicitly casts from C.Element integer -> DType
-@inlinable public func array<C>(
-    _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape2,DType>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: BinaryInteger
-{
-    let shape = Shape2(
-        elements.count,
-        elements.first!.count)
-
-    let flatElements = elements.joined()
-    return Tensor<Shape2,DType>(flatElements, shape, order: order)
-}
-
-// implicitly casts from C.Element floating point -> DType
-@inlinable public func array<C>(
-    _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape2,DType>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: BinaryFloatingPoint
-{
-    let shape = Shape2(
-        elements.count,
-        elements.first!.count)
-
-    let flatElements = elements.joined()
-    return Tensor<Shape2,DType>(flatElements, shape, order: order)
-}
-
-
-// implicitly casts from C.Element integer -> Element
+//---------------------------
+// C.Element integer --> numeric Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -638,26 +608,8 @@ import Foundation
     return Tensor<Shape2,Element>(flatElements, shape, order: order)
 }
 
-// implicitly casts from C.Element float -> Element integer
-@inlinable public func array<C, Element>(
-    _ elements: C,
-    dtype: Element.Type,
-    order: StorageOrder = .C
-) -> Tensor<Shape2,Element>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
-{
-    let shape = Shape2(
-        elements.count,
-        elements.first!.count)
-
-    let flatElements = elements.joined()
-    return Tensor<Shape2,Element>(flatElements, shape, order: order)
-}
-
-// implicitly casts from C.Element float -> Element float
+//---------------------------
+// C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -677,19 +629,42 @@ import Foundation
     return Tensor<Shape2,Element>(flatElements, shape, order: order)
 }
 
-//------------------------------------------------------------------------------
-// Rank3 shaped array from Swift Array
-// explicit type
+//---------------------------
+// C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape3, Element>
+) -> Tensor<Shape2,Element>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: BinaryFloatingPoint,
+    Element.Value: BinaryInteger
+{
+    let shape = Shape2(
+        elements.count,
+        elements.first!.count)
+
+    let flatElements = elements.joined()
+    return Tensor<Shape2,Element>(flatElements, shape, order: order)
+}
+
+//------------------------------------------------------------------------------
+// Rank3
+//************************** Implicit typing
+
+//---------------------------
+// C.Element == Element.Stored
+@inlinable public func array<C>(
+    stored elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape3,C.Element.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
     C.Element.Element: Collection,
-    C.Element.Element.Element == Element.Value
+    C.Element.Element.Element == C.Element.Element.Element.Stored
 {
     let shape = Shape3(
         elements.count,
@@ -697,20 +672,20 @@ import Foundation
         elements.first!.first!.count)
 
     let flatElements = elements.joined().joined()
-    return Tensor<Shape3,Element>(
-        flatElements, shape, order: order)
+    return Tensor<Shape3,C.Element.Element.Element>(
+        stored: flatElements, shape, order: order)
 }
 
-// FixedSizeVector type
+//---------------------------
+// C.Element == Element.Value
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor<Shape3, C.Element.Element.Element>
+) -> Tensor<Shape3,C.Element.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
     C.Element.Element: Collection,
-    C.Element.Element.Element: FixedSizeVector,
     C.Element.Element.Element == C.Element.Element.Element.Value
 {
     let shape = Shape3(
@@ -723,16 +698,20 @@ import Foundation
         flatElements, shape, order: order)
 }
 
-// FixedSizeVector type
-@inlinable public func array<C>(
+//************************** Explicit typing
+
+//---------------------------
+// C.Element Bool --> numeric Element.Value
+@inlinable public func array<C,Element>(
     _ elements: C,
+    dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape3,Bool>
+) -> Tensor<Shape3,Element>
     where
     C: Collection,
     C.Element: Collection,
     C.Element.Element: Collection,
-    C.Element.Element.Element == Bool
+    C.Element.Element.Element == Bool, Element.Value: Numeric
 {
     let shape = Shape3(
         elements.count,
@@ -740,52 +719,12 @@ import Foundation
         elements.first!.first!.count)
 
     let flatElements = elements.joined().joined()
-    return Tensor<Shape3,Bool>(
+    return Tensor<Shape3,Element>(
         flatElements, shape, order: order)
 }
 
-// implicitly casts from C.Element integer -> DType
-@inlinable public func array<C>(
-    _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape3,DType>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: Collection,
-    C.Element.Element.Element: BinaryInteger
-{
-    let shape = Shape3(
-        elements.count,
-        elements.first!.count,
-        elements.first!.first!.count)
-
-    let flatElements = elements.joined().joined()
-    return Tensor<Shape3,DType>(flatElements, shape, order: order)
-}
-
-// implicitly casts from C.Element floating point -> DType
-@inlinable public func array<C>(
-    _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape3,DType>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: Collection,
-    C.Element.Element.Element: BinaryFloatingPoint
-{
-    let shape = Shape3(
-        elements.count,
-        elements.first!.count,
-        elements.first!.first!.count)
-
-    let flatElements = elements.joined().joined()
-    return Tensor<Shape3,DType>(flatElements, shape, order: order)
-}
-
-
-// implicitly casts from C.Element integer -> Element
+//---------------------------
+// C.Element integer --> numeric Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -806,28 +745,8 @@ import Foundation
     return Tensor<Shape3,Element>(flatElements, shape, order: order)
 }
 
-// implicitly casts from C.Element float -> Element integer
-@inlinable public func array<C, Element>(
-    _ elements: C,
-    dtype: Element.Type,
-    order: StorageOrder = .C
-) -> Tensor<Shape3,Element>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: Collection,
-    C.Element.Element.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
-{
-    let shape = Shape3(
-        elements.count,
-        elements.first!.count,
-        elements.first!.first!.count)
-
-    let flatElements = elements.joined().joined()
-    return Tensor<Shape3,Element>(flatElements, shape, order: order)
-}
-
-// implicitly casts from C.Element float -> Element float
+//---------------------------
+// C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -849,20 +768,45 @@ import Foundation
     return Tensor<Shape3,Element>(flatElements, shape, order: order)
 }
 
-//------------------------------------------------------------------------------
-// Rank4 shaped array from Swift Array
-// explicit type
+//---------------------------
+// C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape4, Element>
+) -> Tensor<Shape3,Element>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: BinaryFloatingPoint,
+    Element.Value: BinaryInteger
+{
+    let shape = Shape3(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count)
+
+    let flatElements = elements.joined().joined()
+    return Tensor<Shape3,Element>(flatElements, shape, order: order)
+}
+
+//------------------------------------------------------------------------------
+// Rank4
+//************************** Implicit typing
+
+//---------------------------
+// C.Element == Element.Stored
+@inlinable public func array<C>(
+    stored elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape4,C.Element.Element.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
     C.Element.Element: Collection,
     C.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element == Element.Value
+    C.Element.Element.Element.Element == C.Element.Element.Element.Element.Stored
 {
     let shape = Shape4(
         elements.count,
@@ -871,21 +815,21 @@ import Foundation
         elements.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined()
-    return Tensor<Shape4,Element>(
-        flatElements, shape, order: order)
+    return Tensor<Shape4,C.Element.Element.Element.Element>(
+        stored: flatElements, shape, order: order)
 }
 
-// FixedSizeVector type
+//---------------------------
+// C.Element == Element.Value
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor<Shape4, C.Element.Element.Element.Element>
+) -> Tensor<Shape4,C.Element.Element.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
     C.Element.Element: Collection,
     C.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element: FixedSizeVector,
     C.Element.Element.Element.Element == C.Element.Element.Element.Element.Value
 {
     let shape = Shape4(
@@ -899,17 +843,21 @@ import Foundation
         flatElements, shape, order: order)
 }
 
-// FixedSizeVector type
-@inlinable public func array<C>(
+//************************** Explicit typing
+
+//---------------------------
+// C.Element Bool --> numeric Element.Value
+@inlinable public func array<C,Element>(
     _ elements: C,
+    dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape4,Bool>
+) -> Tensor<Shape4,Element>
     where
     C: Collection,
     C.Element: Collection,
     C.Element.Element: Collection,
     C.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element == Bool
+    C.Element.Element.Element.Element == Bool, Element.Value: Numeric
 {
     let shape = Shape4(
         elements.count,
@@ -918,56 +866,12 @@ import Foundation
         elements.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined()
-    return Tensor<Shape4,Bool>(
+    return Tensor<Shape4,Element>(
         flatElements, shape, order: order)
 }
 
-// implicitly casts from C.Element integer -> DType
-@inlinable public func array<C>(
-    _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape4,DType>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: Collection,
-    C.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element: BinaryInteger
-{
-    let shape = Shape4(
-        elements.count,
-        elements.first!.count,
-        elements.first!.first!.count,
-        elements.first!.first!.first!.count)
-
-    let flatElements = elements.joined().joined().joined()
-    return Tensor<Shape4,DType>(flatElements, shape, order: order)
-}
-
-// implicitly casts from C.Element floating point -> DType
-@inlinable public func array<C>(
-    _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape4,DType>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: Collection,
-    C.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element: BinaryFloatingPoint
-{
-    let shape = Shape4(
-        elements.count,
-        elements.first!.count,
-        elements.first!.first!.count,
-        elements.first!.first!.first!.count)
-
-    let flatElements = elements.joined().joined().joined()
-    return Tensor<Shape4,DType>(flatElements, shape, order: order)
-}
-
-
-// implicitly casts from C.Element integer -> Element
+//---------------------------
+// C.Element integer --> numeric Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -990,30 +894,8 @@ import Foundation
     return Tensor<Shape4,Element>(flatElements, shape, order: order)
 }
 
-// implicitly casts from C.Element float -> Element integer
-@inlinable public func array<C, Element>(
-    _ elements: C,
-    dtype: Element.Type,
-    order: StorageOrder = .C
-) -> Tensor<Shape4,Element>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: Collection,
-    C.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
-{
-    let shape = Shape4(
-        elements.count,
-        elements.first!.count,
-        elements.first!.first!.count,
-        elements.first!.first!.first!.count)
-
-    let flatElements = elements.joined().joined().joined()
-    return Tensor<Shape4,Element>(flatElements, shape, order: order)
-}
-
-// implicitly casts from C.Element float -> Element float
+//---------------------------
+// C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -1037,21 +919,48 @@ import Foundation
     return Tensor<Shape4,Element>(flatElements, shape, order: order)
 }
 
-//------------------------------------------------------------------------------
-// Rank5 shaped array from Swift Array
-// explicit type
+//---------------------------
+// C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape5, Element>
+) -> Tensor<Shape4,Element>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element: BinaryFloatingPoint,
+    Element.Value: BinaryInteger
+{
+    let shape = Shape4(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined()
+    return Tensor<Shape4,Element>(flatElements, shape, order: order)
+}
+
+//------------------------------------------------------------------------------
+// Rank5
+//************************** Implicit typing
+
+//---------------------------
+// C.Element == Element.Stored
+@inlinable public func array<C>(
+    stored elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape5,C.Element.Element.Element.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
     C.Element.Element: Collection,
     C.Element.Element.Element: Collection,
     C.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element == Element.Value
+    C.Element.Element.Element.Element.Element == C.Element.Element.Element.Element.Element.Stored
 {
     let shape = Shape5(
         elements.count,
@@ -1061,22 +970,22 @@ import Foundation
         elements.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined()
-    return Tensor<Shape5,Element>(
-        flatElements, shape, order: order)
+    return Tensor<Shape5,C.Element.Element.Element.Element.Element>(
+        stored: flatElements, shape, order: order)
 }
 
-// FixedSizeVector type
+//---------------------------
+// C.Element == Element.Value
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor<Shape5, C.Element.Element.Element.Element.Element>
+) -> Tensor<Shape5,C.Element.Element.Element.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
     C.Element.Element: Collection,
     C.Element.Element.Element: Collection,
     C.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element: FixedSizeVector,
     C.Element.Element.Element.Element.Element == C.Element.Element.Element.Element.Element.Value
 {
     let shape = Shape5(
@@ -1091,18 +1000,22 @@ import Foundation
         flatElements, shape, order: order)
 }
 
-// FixedSizeVector type
-@inlinable public func array<C>(
+//************************** Explicit typing
+
+//---------------------------
+// C.Element Bool --> numeric Element.Value
+@inlinable public func array<C,Element>(
     _ elements: C,
+    dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape5,Bool>
+) -> Tensor<Shape5,Element>
     where
     C: Collection,
     C.Element: Collection,
     C.Element.Element: Collection,
     C.Element.Element.Element: Collection,
     C.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element == Bool
+    C.Element.Element.Element.Element.Element == Bool, Element.Value: Numeric
 {
     let shape = Shape5(
         elements.count,
@@ -1112,60 +1025,12 @@ import Foundation
         elements.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined()
-    return Tensor<Shape5,Bool>(
+    return Tensor<Shape5,Element>(
         flatElements, shape, order: order)
 }
 
-// implicitly casts from C.Element integer -> DType
-@inlinable public func array<C>(
-    _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape5,DType>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: Collection,
-    C.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element: BinaryInteger
-{
-    let shape = Shape5(
-        elements.count,
-        elements.first!.count,
-        elements.first!.first!.count,
-        elements.first!.first!.first!.count,
-        elements.first!.first!.first!.first!.count)
-
-    let flatElements = elements.joined().joined().joined().joined()
-    return Tensor<Shape5,DType>(flatElements, shape, order: order)
-}
-
-// implicitly casts from C.Element floating point -> DType
-@inlinable public func array<C>(
-    _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape5,DType>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: Collection,
-    C.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element: BinaryFloatingPoint
-{
-    let shape = Shape5(
-        elements.count,
-        elements.first!.count,
-        elements.first!.first!.count,
-        elements.first!.first!.first!.count,
-        elements.first!.first!.first!.first!.count)
-
-    let flatElements = elements.joined().joined().joined().joined()
-    return Tensor<Shape5,DType>(flatElements, shape, order: order)
-}
-
-
-// implicitly casts from C.Element integer -> Element
+//---------------------------
+// C.Element integer --> numeric Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -1190,32 +1055,8 @@ import Foundation
     return Tensor<Shape5,Element>(flatElements, shape, order: order)
 }
 
-// implicitly casts from C.Element float -> Element integer
-@inlinable public func array<C, Element>(
-    _ elements: C,
-    dtype: Element.Type,
-    order: StorageOrder = .C
-) -> Tensor<Shape5,Element>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: Collection,
-    C.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
-{
-    let shape = Shape5(
-        elements.count,
-        elements.first!.count,
-        elements.first!.first!.count,
-        elements.first!.first!.first!.count,
-        elements.first!.first!.first!.first!.count)
-
-    let flatElements = elements.joined().joined().joined().joined()
-    return Tensor<Shape5,Element>(flatElements, shape, order: order)
-}
-
-// implicitly casts from C.Element float -> Element float
+//---------------------------
+// C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -1241,14 +1082,43 @@ import Foundation
     return Tensor<Shape5,Element>(flatElements, shape, order: order)
 }
 
-//------------------------------------------------------------------------------
-// Rank6 shaped array from Swift Array
-// explicit type
+//---------------------------
+// C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape6, Element>
+) -> Tensor<Shape5,Element>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element: BinaryFloatingPoint,
+    Element.Value: BinaryInteger
+{
+    let shape = Shape5(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined().joined()
+    return Tensor<Shape5,Element>(flatElements, shape, order: order)
+}
+
+//------------------------------------------------------------------------------
+// Rank6
+//************************** Implicit typing
+
+//---------------------------
+// C.Element == Element.Stored
+@inlinable public func array<C>(
+    stored elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape6,C.Element.Element.Element.Element.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -1256,7 +1126,7 @@ import Foundation
     C.Element.Element.Element: Collection,
     C.Element.Element.Element.Element: Collection,
     C.Element.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element.Element == Element.Value
+    C.Element.Element.Element.Element.Element.Element == C.Element.Element.Element.Element.Element.Element.Stored
 {
     let shape = Shape6(
         elements.count,
@@ -1267,15 +1137,16 @@ import Foundation
         elements.first!.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor<Shape6,Element>(
-        flatElements, shape, order: order)
+    return Tensor<Shape6,C.Element.Element.Element.Element.Element.Element>(
+        stored: flatElements, shape, order: order)
 }
 
-// FixedSizeVector type
+//---------------------------
+// C.Element == Element.Value
 @inlinable public func array<C>(
     _ elements: C,
     order: StorageOrder = .C
-) -> Tensor<Shape6, C.Element.Element.Element.Element.Element.Element>
+) -> Tensor<Shape6,C.Element.Element.Element.Element.Element.Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -1283,7 +1154,6 @@ import Foundation
     C.Element.Element.Element: Collection,
     C.Element.Element.Element.Element: Collection,
     C.Element.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element.Element: FixedSizeVector,
     C.Element.Element.Element.Element.Element.Element == C.Element.Element.Element.Element.Element.Element.Value
 {
     let shape = Shape6(
@@ -1299,11 +1169,15 @@ import Foundation
         flatElements, shape, order: order)
 }
 
-// FixedSizeVector type
-@inlinable public func array<C>(
+//************************** Explicit typing
+
+//---------------------------
+// C.Element Bool --> numeric Element.Value
+@inlinable public func array<C,Element>(
     _ elements: C,
+    dtype: Element.Type,
     order: StorageOrder = .C
-) -> Tensor<Shape6,Bool>
+) -> Tensor<Shape6,Element>
     where
     C: Collection,
     C.Element: Collection,
@@ -1311,7 +1185,7 @@ import Foundation
     C.Element.Element.Element: Collection,
     C.Element.Element.Element.Element: Collection,
     C.Element.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element.Element == Bool
+    C.Element.Element.Element.Element.Element.Element == Bool, Element.Value: Numeric
 {
     let shape = Shape6(
         elements.count,
@@ -1322,64 +1196,12 @@ import Foundation
         elements.first!.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor<Shape6,Bool>(
+    return Tensor<Shape6,Element>(
         flatElements, shape, order: order)
 }
 
-// implicitly casts from C.Element integer -> DType
-@inlinable public func array<C>(
-    _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape6,DType>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: Collection,
-    C.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element.Element: BinaryInteger
-{
-    let shape = Shape6(
-        elements.count,
-        elements.first!.count,
-        elements.first!.first!.count,
-        elements.first!.first!.first!.count,
-        elements.first!.first!.first!.first!.count,
-        elements.first!.first!.first!.first!.first!.count)
-
-    let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor<Shape6,DType>(flatElements, shape, order: order)
-}
-
-// implicitly casts from C.Element floating point -> DType
-@inlinable public func array<C>(
-    _ elements: C,
-    order: StorageOrder = .C
-) -> Tensor<Shape6,DType>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: Collection,
-    C.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element.Element: BinaryFloatingPoint
-{
-    let shape = Shape6(
-        elements.count,
-        elements.first!.count,
-        elements.first!.first!.count,
-        elements.first!.first!.first!.count,
-        elements.first!.first!.first!.first!.count,
-        elements.first!.first!.first!.first!.first!.count)
-
-    let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor<Shape6,DType>(flatElements, shape, order: order)
-}
-
-
-// implicitly casts from C.Element integer -> Element
+//---------------------------
+// C.Element integer --> numeric Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -1406,34 +1228,8 @@ import Foundation
     return Tensor<Shape6,Element>(flatElements, shape, order: order)
 }
 
-// implicitly casts from C.Element float -> Element integer
-@inlinable public func array<C, Element>(
-    _ elements: C,
-    dtype: Element.Type,
-    order: StorageOrder = .C
-) -> Tensor<Shape6,Element>
-    where
-    C: Collection,
-    C.Element: Collection,
-    C.Element.Element: Collection,
-    C.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element: Collection,
-    C.Element.Element.Element.Element.Element.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
-{
-    let shape = Shape6(
-        elements.count,
-        elements.first!.count,
-        elements.first!.first!.count,
-        elements.first!.first!.first!.count,
-        elements.first!.first!.first!.first!.count,
-        elements.first!.first!.first!.first!.first!.count)
-
-    let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor<Shape6,Element>(flatElements, shape, order: order)
-}
-
-// implicitly casts from C.Element float -> Element float
+//---------------------------
+// C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
     dtype: Element.Type,
@@ -1448,6 +1244,35 @@ import Foundation
     C.Element.Element.Element.Element.Element: Collection,
     C.Element.Element.Element.Element.Element.Element: BinaryFloatingPoint,
     Element.Value: BinaryFloatingPoint
+{
+    let shape = Shape6(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined().joined().joined()
+    return Tensor<Shape6,Element>(flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element floating --> floating Element.Value
+@inlinable public func array<C, Element>(
+    _ elements: C,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Tensor<Shape6,Element>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element.Element: BinaryFloatingPoint,
+    Element.Value: BinaryInteger
 {
     let shape = Shape6(
         elements.count,

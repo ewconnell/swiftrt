@@ -70,6 +70,7 @@ class test_npArray: XCTestCase {
         // implicit vectors
         let _ = array([true, false])
         let _ = array([0, 1, 2])
+        let _ = array([Float](arrayLiteral: 0, 1, 2))
         let _ = array([0.0, 1.5, 2.5])
         let _ = array([RGB<UInt8>(0, 127, 255), RGB<UInt8>(63, 127, 191)])
         let _ = array([RGB<Float>(0, 0.5, 1), RGB<Float>(0.25, 0.5, 0.75)])

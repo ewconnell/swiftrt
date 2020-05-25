@@ -32,21 +32,24 @@ class test_Math: XCTestCase {
     //--------------------------------------------------------------------------
     // test_abs
     func test_abs() {
+        // integer abs
         let a = array([-1, 2, -3, 4])
         XCTAssert(abs(a) == [1, 2, 3, 4])
 
-        let g = pullback(at: a, in: { abs($0) })(ones(like: a))
+        // real abs
+        let b = array([-1.0, 2, -3, 4])
+        let g = pullback(at: b, in: { abs($0) })(ones(like: b))
         XCTAssert(g == [-1, 1, -1, 1])
     }
     
     //--------------------------------------------------------------------------
     // test_exp
     func test_exp() {
-        let a = array(0..<6)
+        let a = array([0.0, 1, 2, 3, 4, 5])
         let expected = a.map { Foundation.exp($0) }
         XCTAssert(exp(a) == expected)
         
-        let b = array(1...3)
+        let b = array([1.0, 2, 3])
         let g = pullback(at: b, in: { exp($0) })(ones(like: b))
         let e = array([2.7182817,  7.389056, 20.085537])
         XCTAssert(elementsAlmostEqual(g, e, tolerance: 0.0001).all().element)
@@ -55,11 +58,11 @@ class test_Math: XCTestCase {
     //--------------------------------------------------------------------------
     // test_log
     func test_log() {
-        let a = array(0..<6, (3, 2))
+        let a = array([0.0, 1, 2, 3, 4, 5], (3, 2))
         let expected = a.map { Foundation.log($0) }
         XCTAssert(log(a).flatArray == expected)
 
-        let b = array([1, -2, 3])
+        let b = array([1.0, -2.0, 3.0])
         let g = pullback(at: b, in: { log($0) })(ones(like: b))
         let e = array([1.0, -0.5, 0.33333334])
         XCTAssert(elementsAlmostEqual(g, e, tolerance: 0.0001).all().element)
@@ -75,7 +78,7 @@ class test_Math: XCTestCase {
         let b = -a
         XCTAssert(b.flatArray == expected)
 
-        let c = array([1, -2, 3])
+        let c = array([1.0, -2.0, 3.0])
         let g = pullback(at: c, in: { (-$0) })(ones(like: c))
         XCTAssert(g == [-1, -1, -1])
     }
@@ -86,7 +89,8 @@ class test_Math: XCTestCase {
         let a = array([-1, 2, -3, 4])
         XCTAssert(sign(a) == [-1, 1, -1, 1])
 
-        let g = pullback(at: a, in: { sign($0) })(ones(like: a))
+        let b = array([-1.0, 2.0, -3.0, 4.0])
+        let g = pullback(at: b, in: { sign($0) })(ones(like: b))
         XCTAssert(g == [0, 0, 0, 0])
     }
 
@@ -96,7 +100,7 @@ class test_Math: XCTestCase {
         let a = array([[0, -1], [2, -3], [4, 5]])
         XCTAssert(a.squared() == [[0, 1], [4, 9], [16, 25]])
 
-        let b = array([1, -2, 3])
+        let b = array([1.0, -2.0, 3.0])
         let g = pullback(at: b, in: { $0.squared() })(ones(like: b))
         XCTAssert(g == [2, -4, 6])
     }

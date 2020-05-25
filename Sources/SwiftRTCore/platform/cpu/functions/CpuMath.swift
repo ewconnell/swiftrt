@@ -22,7 +22,9 @@ extension DeviceQueue where Self: CpuFunctions
 {
     //--------------------------------------------------------------------------
     @inlinable func abs<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
-    where S: TensorShape, E.Value: Real { cpu_abs(x, &result) }
+    where S: TensorShape, E.Value: Comparable & SignedNumeric {
+        cpu_abs(x, &result)
+    }
     //--------------------------------------------------------------------------
     @inlinable func acos<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real { cpu_acos(x, &result) }
@@ -215,7 +217,9 @@ extension DeviceQueue where Self: CpuFunctions
     where S: TensorShape, E.Value: Real { cpu_sigmoid(x, &result) }
     //--------------------------------------------------------------------------
     @inlinable func sign<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
-    where S: TensorShape, E.Value: Real { cpu_sign(x, &result) }
+    where S: TensorShape, E.Value: Comparable & SignedNumeric {
+        cpu_sign(x, &result)
+    }
     //--------------------------------------------------------------------------
     @inlinable func signGamma<S,E>(_ x: Tensor<S,E>,
                                    _ result: inout FloatingPointSign)
@@ -284,7 +288,7 @@ extension CpuFunctions where Self: DeviceQueue
 {
     //--------------------------------------------------------------------------
     @inlinable func cpu_abs<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
-    where S: TensorShape, E.Value: Real {
+    where S: TensorShape, E.Value: Comparable & SignedNumeric {
         mapOp(x, &result) { Swift.abs($0) }
     }
     
@@ -649,7 +653,7 @@ extension CpuFunctions where Self: DeviceQueue
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_sign<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
-    where S: TensorShape, E.Value: Real {
+    where S: TensorShape, E.Value: Comparable & SignedNumeric {
         mapOp(x, &result) { $0 < 0 ? -1 : 1 }
     }
     

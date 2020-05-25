@@ -21,7 +21,7 @@ import Numerics
 /// - Parameter x: value tensor
 /// - Returns: result
 @inlinable public func abs<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
-where S: TensorShape, E.Value: Real
+where S: TensorShape, E.Value: Comparable & SignedNumeric
 {
     var result = Tensor(like: x)
     Context.currentQueue.abs(x, &result)
@@ -31,14 +31,15 @@ where S: TensorShape, E.Value: Real
 @derivative(of: abs)
 @inlinable func _vjpAbs<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape,
+          E.Value: DifferentiableElement & Comparable & SignedNumeric
 {
     let signX = sign(x)
     return (abs(x), { $0 * signX })
 }
 
 // Tensor extension to disambiguate with Swift.abs
-public extension Tensor where TensorElement.Value: Real {
+public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
     // make glboal function visible for extension implementations
     @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable func abs(_ x: Self) -> Self { SwiftRTCore.abs(x) }
@@ -731,7 +732,7 @@ public extension Tensor where TensorElement.Value: Real {
 /// - Parameter x: value tensor
 /// - Returns: the signs of `x`. -1 for negative `x` values, 1 for positive
 @inlinable public func sign<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
-    where S: TensorShape, E.Value: Real
+    where S: TensorShape, E.Value: Comparable & SignedNumeric
 {
     var result = Tensor(like: x)
     Context.currentQueue.sign(x, &result)
@@ -741,13 +742,14 @@ public extension Tensor where TensorElement.Value: Real {
 @derivative(of: sign)
 @inlinable func _vjpSign<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape,
+          E.Value: DifferentiableElement & Comparable & SignedNumeric
 {
     (sign(x), { _ in repeating(0, like: x) })
 }
 
 // Tensor extension
-public extension Tensor where TensorElement.Value: Real {
+public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
     // make glboal function visible for extension implementations
     @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable func sign(_ x: Self) -> Self { SwiftRTCore.sign(x) }

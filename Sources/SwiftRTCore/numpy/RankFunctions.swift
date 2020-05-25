@@ -810,12 +810,12 @@ import Foundation
 //---------------------------------------
 // Rank1
 // default type
-@differentiable
-@inlinable public func repeating(
-    _ value: DType,
+@differentiable(where Element.Value: DifferentiableElement)
+@inlinable public func repeating<Element>(
+    _ value: Element,
     _ shape: Shape1.Tuple
-) -> Tensor<Shape1, DType> {
-   Tensor<Shape1,DType>(repeating: value, to: Shape1(shape))
+) -> Tensor<Shape1, Element> where Element == Element.Value {
+   Tensor<Shape1,Element>(repeating: value, to: Shape1(shape))
 }
 
 // specifying type
@@ -831,12 +831,12 @@ import Foundation
 //---------------------------------------
 // Rank2
 // default type
-@differentiable
-@inlinable public func repeating(
-    _ value: DType,
+@differentiable(where Element.Value: DifferentiableElement)
+@inlinable public func repeating<Element>(
+    _ value: Element,
     _ shape: Shape2.Tuple
-) -> Tensor<Shape2, DType> {
-   Tensor<Shape2,DType>(repeating: value, to: Shape2(shape))
+) -> Tensor<Shape2, Element> where Element == Element.Value {
+   Tensor<Shape2,Element>(repeating: value, to: Shape2(shape))
 }
 
 // specifying type
@@ -852,12 +852,12 @@ import Foundation
 //---------------------------------------
 // Rank3
 // default type
-@differentiable
-@inlinable public func repeating(
-    _ value: DType,
+@differentiable(where Element.Value: DifferentiableElement)
+@inlinable public func repeating<Element>(
+    _ value: Element,
     _ shape: Shape3.Tuple
-) -> Tensor<Shape3, DType> {
-   Tensor<Shape3,DType>(repeating: value, to: Shape3(shape))
+) -> Tensor<Shape3, Element> where Element == Element.Value {
+   Tensor<Shape3,Element>(repeating: value, to: Shape3(shape))
 }
 
 // specifying type
@@ -873,12 +873,12 @@ import Foundation
 //---------------------------------------
 // Rank4
 // default type
-@differentiable
-@inlinable public func repeating(
-    _ value: DType,
+@differentiable(where Element.Value: DifferentiableElement)
+@inlinable public func repeating<Element>(
+    _ value: Element,
     _ shape: Shape4.Tuple
-) -> Tensor<Shape4, DType> {
-   Tensor<Shape4,DType>(repeating: value, to: Shape4(shape))
+) -> Tensor<Shape4, Element> where Element == Element.Value {
+   Tensor<Shape4,Element>(repeating: value, to: Shape4(shape))
 }
 
 // specifying type
@@ -894,12 +894,12 @@ import Foundation
 //---------------------------------------
 // Rank5
 // default type
-@differentiable
-@inlinable public func repeating(
-    _ value: DType,
+@differentiable(where Element.Value: DifferentiableElement)
+@inlinable public func repeating<Element>(
+    _ value: Element,
     _ shape: Shape5.Tuple
-) -> Tensor<Shape5, DType> {
-   Tensor<Shape5,DType>(repeating: value, to: Shape5(shape))
+) -> Tensor<Shape5, Element> where Element == Element.Value {
+   Tensor<Shape5,Element>(repeating: value, to: Shape5(shape))
 }
 
 // specifying type
@@ -915,12 +915,12 @@ import Foundation
 //---------------------------------------
 // Rank6
 // default type
-@differentiable
-@inlinable public func repeating(
-    _ value: DType,
+@differentiable(where Element.Value: DifferentiableElement)
+@inlinable public func repeating<Element>(
+    _ value: Element,
     _ shape: Shape6.Tuple
-) -> Tensor<Shape6, DType> {
-   Tensor<Shape6,DType>(repeating: value, to: Shape6(shape))
+) -> Tensor<Shape6, Element> where Element == Element.Value {
+   Tensor<Shape6,Element>(repeating: value, to: Shape6(shape))
 }
 
 // specifying type
