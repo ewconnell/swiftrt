@@ -36,45 +36,48 @@ class test_npArray: XCTestCase {
     ]
     
     //==========================================================================
-    // test_implicitArray
-    func test_implicitArray() {
+    // test_arraySyntax
+    func test_arraySyntax() {
         // stored bit pattern
         let _ = array(stored: [Float16(0), Float16(1)])
         let _ = array(stored: [Float16(0), Float16(1)], (1, 2))
         
         // packed types
-        let _ = array([0, 1], dtype: UInt1.self)
-        let _ = array(stored: [0b00000010], dtype: UInt1.self)
+        let _ = array([0, 1, 0, 1], dtype: UInt1.self)
+        let _ = array(stored: [0b00001010])
         
-        let _ = array([0, 3], dtype: UInt4.self)
-        let _ = array(stored: [0b00110000], dtype: UInt4.self)
+        let _ = array([0, 1, 2, 3], dtype: UInt4.self)
+        let _ = array(stored: [0x10, 0x32])
+        
+        // boolean conversion to Element
+        let _ = array([true, false], dtype: UInt1.self)
+        let _ = array([true, false], dtype: UInt4.self)
+        let _ = array([true, false], dtype: UInt8.self)
+        let _ = array([true, false], dtype: Int.self)
+        let _ = array([true, false], dtype: Float16.self)
+        let _ = array([true, false], dtype: Float.self)
+        let _ = array([true, false], dtype: Double.self)
 
-        // values
+        // boolean conversion to shaped Element
+        let _ = array([true, false], (1, 2), dtype: UInt1.self)
+        let _ = array([true, false], (1, 2), dtype: UInt4.self)
+        let _ = array([true, false], (1, 2), dtype: UInt8.self)
+        let _ = array([true, false], (1, 2), dtype: Int.self)
+        let _ = array([true, false], (1, 2), dtype: Float16.self)
+        let _ = array([true, false], (1, 2), dtype: Float.self)
+        let _ = array([true, false], (1, 2), dtype: Double.self)
+
+        // implicit vectors
         let _ = array([true, false])
-        let _ = array([RGB<UInt8>(0, 127, 255), RGB<UInt8>(63, 127, 191)])
-        let _ = array([RGB<Float>(0, 0.5, 1), RGB<Float>(0.25, 0.5, 0.75)])
-
-        // conversions to DType
         let _ = array([0, 1, 2])
         let _ = array([0.0, 1.5, 2.5])
-
-        // values
+        let _ = array([RGB<UInt8>(0, 127, 255), RGB<UInt8>(63, 127, 191)])
+        let _ = array([RGB<Float>(0, 0.5, 1), RGB<Float>(0.25, 0.5, 0.75)])
+        
+        // implicit shaped
         let _ = array([true, false], (1, 2))
         let _ = array([RGB<UInt8>(0, 127, 255), RGB<UInt8>(63, 127, 191)], (1, 2))
         let _ = array([RGB<Float>(0, 0.5, 1), RGB<Float>(0.25, 0.5, 0.75)], (1, 2))
-        
-        // conversions to DType
-        let _ = array([0, 1, 2], (1, 2))
-        let _ = array([0.0, 1.5, 2.5], (1, 2))
-    }
-
-    //==========================================================================
-    // test_explicitArray
-    func test_explicitArray() {
-        // set unconverted Element
-        let _ = array([true, false], dtype: Bool.self)
-        let _ = array([RGB<UInt8>(0, 127, 255), RGB<UInt8>(63, 127, 191)],
-                      dtype: RGB<UInt8>.self)
 
         // integer conversions to Element
         let _ = array([0, 1, 2], dtype: UInt8.self)
@@ -88,11 +91,6 @@ class test_npArray: XCTestCase {
         let _ = array([0.0, 1.5, 2.5], dtype: Float.self)
         let _ = array([0.0, 1.5, 2.5], dtype: Double.self)
         
-        // set unconverted shaped Element
-        let _ = array([true, false], (1, 2), dtype: Bool.self)
-        let _ = array([RGB<UInt8>(0, 127, 255), RGB<UInt8>(63, 127, 191)],
-                      (1, 2), dtype: RGB<UInt8>.self)
-
         // integer conversions to shaped Element
         let _ = array([0, 1, 2], (1, 2), dtype: UInt8.self)
         let _ = array([0, 1, 2], (1, 2), dtype: Int.self)
@@ -127,16 +125,6 @@ class test_npArray: XCTestCase {
         let _ = array([[0, 1, 2], [3, 4, 5]])
         let _ = array([0, 1, 2, 3, 4, 5], (2, 3))
         let _ = array(0..<6, (2, 3))
-        
-//        let a3 = array([[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]])
-//        let af4 = array(0..<120, (2, 3, 4, 5))
-
-//        for r in 0..<a1.shape[0] {
-//            for c in 0..<a1.shape[1] {
-//                print(a[r, c])
-//            }
-//        }
-        
     }
 
     //==========================================================================
@@ -157,8 +145,6 @@ class test_npArray: XCTestCase {
         let _ = empty((2, 3), order: .F)
         let _ = empty((2, 3), dtype: Int.self)
         let _ = empty((2, 3), dtype: Int.self, order: .F)
-        
-//        print(empty((2, 3), dtype: Int.self))
     }
 
     //==========================================================================

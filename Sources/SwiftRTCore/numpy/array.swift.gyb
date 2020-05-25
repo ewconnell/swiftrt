@@ -60,33 +60,26 @@ numShapes = 6
 }
 
 //---------------------------
-// C.Element == Element.Value
+// C.Element == C.Element.Value
 @inlinable public func array<C: Collection>(
-    elements: C
+    _ elements: C
 ) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Value
 {
     Tensor<Shape1,C.Element>(elements, Shape1(elements.count))
 }
 
-//---------------------------
-// C.Element integer -> DType
-@inlinable public func array<C: Collection>(
-    _ elements: C
-) -> Tensor<Shape1,DType> where C.Element: BinaryInteger
-{
-    Tensor<Shape1,DType>(elements, Shape1(elements.count))
-}
-
-//---------------------------
-// C.Element floating -> DType
-@inlinable public func array<C: Collection>(
-    _ elements: C
-) -> Tensor<Shape1, DType> where C.Element: BinaryFloatingPoint
-{
-    Tensor<Shape1, DType>(elements, Shape1(elements.count))
-}
-
 //************************** Explicit typing
+
+//---------------------------
+// C.Element Bool --> numeric Element.Value
+@inlinable public func array<C: Collection, Element: StorageElement>(
+    _ elements: C,
+    dtype: Element.Type
+) -> Tensor<Shape1,Element>
+    where C.Element == Bool, Element.Value: Numeric
+{
+    Tensor<Shape1, Element>(elements, Shape1(elements.count))
+}
 
 //---------------------------
 // C.Element integer --> numeric Element.Value
@@ -144,7 +137,7 @@ numShapes = 6
 //---------------------------
 // C.Element == Element.Value
 @inlinable public func array<C: Collection>(
-    elements: C,
+    _ elements: C,
     _ shape: Shape${n}.Tuple,
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},C.Element> where C.Element == C.Element.Value
@@ -152,29 +145,20 @@ numShapes = 6
     Tensor<Shape${n},C.Element>(elements, Shape${n}(shape), order: order)
 }
 
-//---------------------------
-// C.Element integer -> DType
-@inlinable public func array<C: Collection>(
-    _ elements: C,
-    _ shape: Shape${n}.Tuple,
-    order: StorageOrder = .C
-) -> Tensor<Shape${n},DType> where C.Element: BinaryInteger
-{
-    Tensor<Shape${n},DType>(elements, Shape${n}(shape), order: order)
-}
-
-//---------------------------
-// C.Element floating -> DType
-@inlinable public func array<C: Collection>(
-    _ elements: C,
-    _ shape: Shape${n}.Tuple,
-    order: StorageOrder = .C
-) -> Tensor<Shape${n},DType> where C.Element: BinaryFloatingPoint
-{
-    Tensor<Shape${n},DType>(elements, Shape${n}(shape), order: order)
-}
-
 //************************** Explicit typing
+
+//---------------------------
+// C.Element integer --> numeric Element.Value
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape${n}.Tuple,
+    dtype: Element.Type,
+    order: StorageOrder = .C
+) -> Tensor<Shape${n},Element>
+    where C.Element == Bool, Element.Value: Numeric
+{
+    Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order)
+}
 
 //---------------------------
 // C.Element integer --> numeric Element.Value
