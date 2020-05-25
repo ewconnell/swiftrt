@@ -85,7 +85,15 @@ class test_StorageElement: XCTestCase {
             [1, 1],
         ], type: UInt1.self)
         
-        let b = array(a, type: Bool.self)
+        let b = array(a, (4, 2), type: Bool.self)
+
+        let c = array([
+            [false, false],
+            [false, true],
+            [false, false],
+            [true, true],
+        ])
+        XCTAssert(b == c)
     }
 
     //--------------------------------------------------------------------------
