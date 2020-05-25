@@ -100,6 +100,17 @@ numShapes = 6
 }
 
 //---------------------------
+// C.Element numeric --> Bool
+@inlinable public func array<C: Collection, Element: StorageElement>(
+    _ elements: C,
+    type: Element.Type
+) -> Tensor<Shape1,Bool>
+    where C.Element: Numeric, Element.Value == Bool
+{
+    Tensor<Shape1,Bool>(elements, Shape1(elements.count))
+}
+
+//---------------------------
 // C.Element integer --> numeric Element.Value
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
@@ -188,7 +199,7 @@ numShapes = 6
 //************************** Explicit typing
 
 //---------------------------
-// C.Element Bool --> numeric Element.Value
+// C.Element Bool --> Numeric Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
@@ -196,6 +207,19 @@ numShapes = 6
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},Element>
     where C.Element == Bool, Element.Value: Numeric
+{
+    Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order)
+}
+
+//---------------------------
+// C.Element Numeric --> Bool Element.Value
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape${n}.Tuple,
+    type: Element.Type,
+    order: StorageOrder = .C
+) -> Tensor<Shape${n},Element>
+where C.Element: Numeric, Element.Value == Bool
 {
     Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order)
 }

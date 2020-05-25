@@ -21,10 +21,86 @@ class test_StorageElement: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_Int1", test_Int1),
+        ("test_Int1StorageSize", test_Int1StorageSize),
     ]
     
     //--------------------------------------------------------------------------
-    func test_Int1() {
+    func test_Int1StorageSize() {
+        let a = array([
+            [0, 0],
+            [0, 1],
+            [1, 0],
+        ], type: UInt1.self)
+        XCTAssert(a.storage.hostBuffer.count == 1)
+
+        let b = array([
+            [0, 0],
+            [0, 1],
+            [1, 0],
+            [1, 1]
+        ], type: UInt1.self)
+        XCTAssert(b.storage.hostBuffer.count == 1)
+
+        let c = array([0, 1, 0, 1, 0, 1, 0], type: UInt1.self)
+        XCTAssert(c.storage.hostBuffer.count == 1)
+        
+        let d = array([0, 1, 0, 1, 0, 1, 0, 1], type: UInt1.self)
+        XCTAssert(d.storage.hostBuffer.count == 1)
+        
+        let e = array([0, 1, 0, 1, 0, 1, 0, 1, 0], type: UInt1.self)
+        XCTAssert(e.storage.hostBuffer.count == 2)
+    }
+    
+    //--------------------------------------------------------------------------
+    func test_Int1Add() {
+        let a = array([
+            [0, 0],
+            [0, 1],
+            [0, 0],
+            [1, 1],
+        ], type: UInt1.self)
+        
+        let b = array([
+            [1, 0],
+            [1, 0],
+            [0, 1],
+            [0, 0],
+        ], type: UInt1.self)
+
+        let c = a + b
+        XCTAssert(c == [
+            [1, 0],
+            [1, 1],
+            [0, 1],
+            [1, 1],
+        ])
+    }
+
+    //--------------------------------------------------------------------------
+    func test_Int1Bool() {
+        let a = array([
+            [0, 0],
+            [0, 1],
+            [0, 0],
+            [1, 1],
+        ], type: UInt1.self)
+        
+        let b = array(a, type: Bool.self)
+    }
+
+    //--------------------------------------------------------------------------
+    func test_Int1Reshape() {
+        let a = array([
+            [0, 0],
+            [0, 1],
+            [0, 0],
+            [1, 1],
+        ], type: UInt1.self)
+        
+        let b = reshape(a, (2, 4))
+        XCTAssert(b == [
+            [1, 0, 1, 1],
+            [0, 1, 1, 1],
+        ])
     }
 }

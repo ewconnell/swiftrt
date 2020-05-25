@@ -97,6 +97,17 @@ import Foundation
 }
 
 //---------------------------
+// C.Element numeric --> Bool
+@inlinable public func array<C: Collection, Element: StorageElement>(
+    _ elements: C,
+    type: Element.Type
+) -> Tensor<Shape1,Bool>
+    where C.Element: Numeric, Element.Value == Bool
+{
+    Tensor<Shape1,Bool>(elements, Shape1(elements.count))
+}
+
+//---------------------------
 // C.Element integer --> numeric Element.Value
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
@@ -184,7 +195,7 @@ import Foundation
 //************************** Explicit typing
 
 //---------------------------
-// C.Element Bool --> numeric Element.Value
+// C.Element Bool --> Numeric Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape2.Tuple,
@@ -192,6 +203,19 @@ import Foundation
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Element>
     where C.Element == Bool, Element.Value: Numeric
+{
+    Tensor<Shape2,Element>(elements, Shape2(shape), order: order)
+}
+
+//---------------------------
+// C.Element Numeric --> Bool Element.Value
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape2.Tuple,
+    type: Element.Type,
+    order: StorageOrder = .C
+) -> Tensor<Shape2,Element>
+where C.Element: Numeric, Element.Value == Bool
 {
     Tensor<Shape2,Element>(elements, Shape2(shape), order: order)
 }
@@ -286,7 +310,7 @@ import Foundation
 //************************** Explicit typing
 
 //---------------------------
-// C.Element Bool --> numeric Element.Value
+// C.Element Bool --> Numeric Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape3.Tuple,
@@ -294,6 +318,19 @@ import Foundation
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Element>
     where C.Element == Bool, Element.Value: Numeric
+{
+    Tensor<Shape3,Element>(elements, Shape3(shape), order: order)
+}
+
+//---------------------------
+// C.Element Numeric --> Bool Element.Value
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape3.Tuple,
+    type: Element.Type,
+    order: StorageOrder = .C
+) -> Tensor<Shape3,Element>
+where C.Element: Numeric, Element.Value == Bool
 {
     Tensor<Shape3,Element>(elements, Shape3(shape), order: order)
 }
@@ -388,7 +425,7 @@ import Foundation
 //************************** Explicit typing
 
 //---------------------------
-// C.Element Bool --> numeric Element.Value
+// C.Element Bool --> Numeric Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape4.Tuple,
@@ -396,6 +433,19 @@ import Foundation
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Element>
     where C.Element == Bool, Element.Value: Numeric
+{
+    Tensor<Shape4,Element>(elements, Shape4(shape), order: order)
+}
+
+//---------------------------
+// C.Element Numeric --> Bool Element.Value
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape4.Tuple,
+    type: Element.Type,
+    order: StorageOrder = .C
+) -> Tensor<Shape4,Element>
+where C.Element: Numeric, Element.Value == Bool
 {
     Tensor<Shape4,Element>(elements, Shape4(shape), order: order)
 }
@@ -490,7 +540,7 @@ import Foundation
 //************************** Explicit typing
 
 //---------------------------
-// C.Element Bool --> numeric Element.Value
+// C.Element Bool --> Numeric Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape5.Tuple,
@@ -498,6 +548,19 @@ import Foundation
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Element>
     where C.Element == Bool, Element.Value: Numeric
+{
+    Tensor<Shape5,Element>(elements, Shape5(shape), order: order)
+}
+
+//---------------------------
+// C.Element Numeric --> Bool Element.Value
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape5.Tuple,
+    type: Element.Type,
+    order: StorageOrder = .C
+) -> Tensor<Shape5,Element>
+where C.Element: Numeric, Element.Value == Bool
 {
     Tensor<Shape5,Element>(elements, Shape5(shape), order: order)
 }
@@ -592,7 +655,7 @@ import Foundation
 //************************** Explicit typing
 
 //---------------------------
-// C.Element Bool --> numeric Element.Value
+// C.Element Bool --> Numeric Element.Value
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape6.Tuple,
@@ -600,6 +663,19 @@ import Foundation
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Element>
     where C.Element == Bool, Element.Value: Numeric
+{
+    Tensor<Shape6,Element>(elements, Shape6(shape), order: order)
+}
+
+//---------------------------
+// C.Element Numeric --> Bool Element.Value
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape6.Tuple,
+    type: Element.Type,
+    order: StorageOrder = .C
+) -> Tensor<Shape6,Element>
+where C.Element: Numeric, Element.Value == Bool
 {
     Tensor<Shape6,Element>(elements, Shape6(shape), order: order)
 }

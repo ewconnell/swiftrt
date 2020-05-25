@@ -81,24 +81,28 @@ class test_arraySyntax: XCTestCase {
         let _ = array([RGB<Float>(0, 0.5, 1), RGB<Float>(0.25, 0.5, 0.75)], (1, 2))
 
         // integer conversions to Element
+        let _ = array([0, 1, 2], type: Bool.self)
         let _ = array([0, 1, 2], type: UInt8.self)
         let _ = array([0, 1, 2], type: Int32.self)
         let _ = array([0, 1, 2], type: Float.self)
         let _ = array([0, 1, 2], type: Double.self)
 
         // floating conversions to Element
+        let _ = array([0.0, 1, 2], type: Bool.self)
         let _ = array([0.0, 1.5, 2.5], type: UInt8.self)
         let _ = array([0.0, 1.5, 2.5], type: Int32.self)
         let _ = array([0.0, 1.5, 2.5], type: Float.self)
         let _ = array([0.0, 1.5, 2.5], type: Double.self)
         
         // integer conversions to shaped Element
+        let _ = array([0, 1, 2], (1, 2), type: Bool.self)
         let _ = array([0, 1, 2], (1, 2), type: UInt8.self)
         let _ = array([0, 1, 2], (1, 2), type: Int32.self)
         let _ = array([0, 1, 2], (1, 2), type: Float.self)
         let _ = array([0, 1, 2], (1, 2), type: Double.self)
         
         // floating conversions to shaped Element
+        let _ = array([0.0, 1, 2], (1, 2), type: Bool.self)
         let _ = array([0.0, 1.5, 2.5], (1, 2), type: UInt8.self)
         let _ = array([0.0, 1.5, 2.5], (1, 2), type: Int32.self)
         let _ = array([0.0, 1.5, 2.5], (1, 2), type: Float.self)

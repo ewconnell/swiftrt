@@ -231,7 +231,7 @@ public extension Tensor {
     
     //--------------------------------------------------------------------------
     /// init(elements:shape:order:
-    /// implicitly casts from C.Element Bool -> TensorElement.Value
+    /// implicitly casts from C.Element Bool -> Numeric TensorElement.Value
     ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
@@ -247,6 +247,27 @@ public extension Tensor {
         _ = storage.readWrite(at: 0, count: count)
         for (i, value) in elements.enumerated() {
             storage.setElement(value: Element(exactly: value ? 1 : 0)!, at: i)
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    /// init(elements:shape:order:
+    /// implicitly casts from C.Element Numeric -> Bool TensorElement.Value
+    ///
+    /// - Parameters:
+    ///  - elements: the value collection used to initialize storage
+    ///  - shape: the shape of the tensor
+    ///  - order: the storage order
+    @inlinable init<C>(
+        _ elements: C,
+        _ shape: Shape,
+        order: StorageOrder = .C
+    ) where C: Collection, C.Element: Numeric, TensorElement.Value == Bool {
+        assert(shape.elementCount() == elements.count)
+        self.init(shape, order: order)
+        _ = storage.readWrite(at: 0, count: count)
+        for (i, value) in elements.enumerated() {
+            storage.setElement(value: Element(value == 0), at: i)
         }
     }
     
