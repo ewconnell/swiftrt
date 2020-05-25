@@ -65,6 +65,24 @@ import Foundation
     Tensor<Shape1,C.Element>(elements, Shape1(elements.count))
 }
 
+//---------------------------
+// C.Element == Int --> DType
+@inlinable public func array<C: Collection>(
+    _ elements: C
+) -> Tensor<Shape1,DType> where C.Element == Int
+{
+    Tensor<Shape1,DType>(elements, Shape1(elements.count))
+}
+
+//---------------------------
+// C.Element == Double --> DType
+@inlinable public func array<C: Collection>(
+    _ elements: C
+) -> Tensor<Shape1,DType> where C.Element == Double
+{
+    Tensor<Shape1,DType>(elements, Shape1(elements.count))
+}
+
 //************************** Explicit typing
 
 //---------------------------
@@ -139,6 +157,28 @@ import Foundation
 ) -> Tensor<Shape2,C.Element> where C.Element == C.Element.Value
 {
     Tensor<Shape2,C.Element>(elements, Shape2(shape), order: order)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape2.Tuple,
+    order: StorageOrder = .C
+) -> Tensor<Shape2,DType> where C.Element == Int
+{
+    Tensor<Shape2,DType>(elements, Shape2(shape), order: order)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape2.Tuple,
+    order: StorageOrder = .C
+) -> Tensor<Shape2,DType> where C.Element == Double
+{
+    Tensor<Shape2,DType>(elements, Shape2(shape), order: order)
 }
 
 //************************** Explicit typing
@@ -221,6 +261,28 @@ import Foundation
     Tensor<Shape3,C.Element>(elements, Shape3(shape), order: order)
 }
 
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape3.Tuple,
+    order: StorageOrder = .C
+) -> Tensor<Shape3,DType> where C.Element == Int
+{
+    Tensor<Shape3,DType>(elements, Shape3(shape), order: order)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape3.Tuple,
+    order: StorageOrder = .C
+) -> Tensor<Shape3,DType> where C.Element == Double
+{
+    Tensor<Shape3,DType>(elements, Shape3(shape), order: order)
+}
+
 //************************** Explicit typing
 
 //---------------------------
@@ -299,6 +361,28 @@ import Foundation
 ) -> Tensor<Shape4,C.Element> where C.Element == C.Element.Value
 {
     Tensor<Shape4,C.Element>(elements, Shape4(shape), order: order)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape4.Tuple,
+    order: StorageOrder = .C
+) -> Tensor<Shape4,DType> where C.Element == Int
+{
+    Tensor<Shape4,DType>(elements, Shape4(shape), order: order)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape4.Tuple,
+    order: StorageOrder = .C
+) -> Tensor<Shape4,DType> where C.Element == Double
+{
+    Tensor<Shape4,DType>(elements, Shape4(shape), order: order)
 }
 
 //************************** Explicit typing
@@ -381,6 +465,28 @@ import Foundation
     Tensor<Shape5,C.Element>(elements, Shape5(shape), order: order)
 }
 
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape5.Tuple,
+    order: StorageOrder = .C
+) -> Tensor<Shape5,DType> where C.Element == Int
+{
+    Tensor<Shape5,DType>(elements, Shape5(shape), order: order)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape5.Tuple,
+    order: StorageOrder = .C
+) -> Tensor<Shape5,DType> where C.Element == Double
+{
+    Tensor<Shape5,DType>(elements, Shape5(shape), order: order)
+}
+
 //************************** Explicit typing
 
 //---------------------------
@@ -459,6 +565,28 @@ import Foundation
 ) -> Tensor<Shape6,C.Element> where C.Element == C.Element.Value
 {
     Tensor<Shape6,C.Element>(elements, Shape6(shape), order: order)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape6.Tuple,
+    order: StorageOrder = .C
+) -> Tensor<Shape6,DType> where C.Element == Int
+{
+    Tensor<Shape6,DType>(elements, Shape6(shape), order: order)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape6.Tuple,
+    order: StorageOrder = .C
+) -> Tensor<Shape6,DType> where C.Element == Double
+{
+    Tensor<Shape6,DType>(elements, Shape6(shape), order: order)
 }
 
 //************************** Explicit typing
@@ -562,6 +690,46 @@ import Foundation
 
     let flatElements = elements.joined()
     return Tensor<Shape2,C.Element.Element>(
+        flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element == Int --> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape2,DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element == Int
+{
+    let shape = Shape2(
+        elements.count,
+        elements.first!.count)
+
+    let flatElements = elements.joined()
+    return Tensor<Shape2,DType>(
+        flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element == Double --> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape2,DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element == Double
+{
+    let shape = Shape2(
+        elements.count,
+        elements.first!.count)
+
+    let flatElements = elements.joined()
+    return Tensor<Shape2,DType>(
         flatElements, shape, order: order)
 }
 
@@ -695,6 +863,50 @@ import Foundation
 
     let flatElements = elements.joined().joined()
     return Tensor<Shape3,C.Element.Element.Element>(
+        flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element == Int --> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape3,DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element == Int
+{
+    let shape = Shape3(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count)
+
+    let flatElements = elements.joined().joined()
+    return Tensor<Shape3,DType>(
+        flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element == Double --> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape3,DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element == Double
+{
+    let shape = Shape3(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count)
+
+    let flatElements = elements.joined().joined()
+    return Tensor<Shape3,DType>(
         flatElements, shape, order: order)
 }
 
@@ -840,6 +1052,54 @@ import Foundation
 
     let flatElements = elements.joined().joined().joined()
     return Tensor<Shape4,C.Element.Element.Element.Element>(
+        flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element == Int --> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape4,DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element == Int
+{
+    let shape = Shape4(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined()
+    return Tensor<Shape4,DType>(
+        flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element == Double --> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape4,DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element == Double
+{
+    let shape = Shape4(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined()
+    return Tensor<Shape4,DType>(
         flatElements, shape, order: order)
 }
 
@@ -997,6 +1257,58 @@ import Foundation
 
     let flatElements = elements.joined().joined().joined().joined()
     return Tensor<Shape5,C.Element.Element.Element.Element.Element>(
+        flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element == Int --> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape5,DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element == Int
+{
+    let shape = Shape5(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined().joined()
+    return Tensor<Shape5,DType>(
+        flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element == Double --> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape5,DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element == Double
+{
+    let shape = Shape5(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined().joined()
+    return Tensor<Shape5,DType>(
         flatElements, shape, order: order)
 }
 
@@ -1166,6 +1478,62 @@ import Foundation
 
     let flatElements = elements.joined().joined().joined().joined().joined()
     return Tensor<Shape6,C.Element.Element.Element.Element.Element.Element>(
+        flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element == Int --> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape6,DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element.Element == Int
+{
+    let shape = Shape6(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined().joined().joined()
+    return Tensor<Shape6,DType>(
+        flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element == Double --> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape6,DType>
+    where
+    C: Collection,
+    C.Element: Collection,
+    C.Element.Element: Collection,
+    C.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element: Collection,
+    C.Element.Element.Element.Element.Element.Element == Double
+{
+    let shape = Shape6(
+        elements.count,
+        elements.first!.count,
+        elements.first!.first!.count,
+        elements.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.count,
+        elements.first!.first!.first!.first!.first!.count)
+
+    let flatElements = elements.joined().joined().joined().joined().joined()
+    return Tensor<Shape6,DType>(
         flatElements, shape, order: order)
 }
 

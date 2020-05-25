@@ -68,6 +68,24 @@ numShapes = 6
     Tensor<Shape1,C.Element>(elements, Shape1(elements.count))
 }
 
+//---------------------------
+// C.Element == Int --> DType
+@inlinable public func array<C: Collection>(
+    _ elements: C
+) -> Tensor<Shape1,DType> where C.Element == Int
+{
+    Tensor<Shape1,DType>(elements, Shape1(elements.count))
+}
+
+//---------------------------
+// C.Element == Double --> DType
+@inlinable public func array<C: Collection>(
+    _ elements: C
+) -> Tensor<Shape1,DType> where C.Element == Double
+{
+    Tensor<Shape1,DType>(elements, Shape1(elements.count))
+}
+
 //************************** Explicit typing
 
 //---------------------------
@@ -143,6 +161,28 @@ numShapes = 6
 ) -> Tensor<Shape${n},C.Element> where C.Element == C.Element.Value
 {
     Tensor<Shape${n},C.Element>(elements, Shape${n}(shape), order: order)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape${n}.Tuple,
+    order: StorageOrder = .C
+) -> Tensor<Shape${n},DType> where C.Element == Int
+{
+    Tensor<Shape${n},DType>(elements, Shape${n}(shape), order: order)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape${n}.Tuple,
+    order: StorageOrder = .C
+) -> Tensor<Shape${n},DType> where C.Element == Double
+{
+    Tensor<Shape${n},DType>(elements, Shape${n}(shape), order: order)
 }
 
 //************************** Explicit typing
@@ -252,6 +292,50 @@ numShapes = 6
 
     let flatElements = elements${'.joined()' * (n - 1)}
     return Tensor<Shape${n},C${'.Element' * n}>(
+        flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element == Int --> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape${n},DType>
+    where
+% for i in range(n):
+    C${'.Element' * i}: Collection,
+% end
+    C${'.Element' * n} == Int
+{
+    let shape = Shape${n}(
+% for i in range(n):
+        elements${'.first!' * i}.count${')' if i == n - 1 else ','}
+% end
+
+    let flatElements = elements${'.joined()' * (n - 1)}
+    return Tensor<Shape${n},DType>(
+        flatElements, shape, order: order)
+}
+
+//---------------------------
+// C.Element == Double --> DType
+@inlinable public func array<C>(
+    _ elements: C,
+    order: StorageOrder = .C
+) -> Tensor<Shape${n},DType>
+    where
+% for i in range(n):
+    C${'.Element' * i}: Collection,
+% end
+    C${'.Element' * n} == Double
+{
+    let shape = Shape${n}(
+% for i in range(n):
+        elements${'.first!' * i}.count${')' if i == n - 1 else ','}
+% end
+
+    let flatElements = elements${'.joined()' * (n - 1)}
+    return Tensor<Shape${n},DType>(
         flatElements, shape, order: order)
 }
 

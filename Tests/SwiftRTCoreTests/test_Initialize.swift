@@ -41,7 +41,7 @@ class test_Initialize: XCTestCase {
     //--------------------------------------------------------------------------
     // test_castElements
     func test_castElements() {
-        let fMatrix = array(0..<6, (3, 2), type: Float.self)
+        let fMatrix = array(0..<6, (3, 2))
         let iMatrix = TensorR2<Int32>(fMatrix)
         XCTAssert(iMatrix == [[0, 1], [2, 3], [4, 5]])
     }
@@ -80,14 +80,14 @@ class test_Initialize: XCTestCase {
     //   2, 3,
     //   4, 5
     func test_columnMajorDataView() {
-        let cm = array([0, 2, 4, 1, 3, 5], (3, 2), type: Int.self, order: .F)
+        let cm = array([0, 2, 4, 1, 3, 5], (3, 2), type: Int32.self, order: .F)
         XCTAssert(cm == [[0, 1], [2, 3], [4, 5]])
     }
 
     //--------------------------------------------------------------------------
     // test_indenting
     func test_indenting() {
-        let a = array(0..<4, type: Float.self)
+        let a = array(0..<4)
         let b = Tensor2(indenting: a)
         XCTAssert(b.shape == [1, a.count])
     }
@@ -196,10 +196,10 @@ class test_Initialize: XCTestCase {
     //--------------------------------------------------------------------------
     // test_concatenateGradients
     func test_concatenateGradients() {
-        let a1 = array([1, 2, 3, 4, 5], type: Float.self)
-        let b1 = array([6, 7, 8, 9, 10], type: Float.self)
-        let a2 = array([1, 1, 1, 1, 1], type: Float.self)
-        let b2 = array([1, 1, 1, 1, 1], type: Float.self)
+        let a1 = array([1, 2, 3, 4, 5])
+        let b1 = array([6, 7, 8, 9, 10])
+        let a2 = array([1, 1, 1, 1, 1])
+        let b2 = array([1, 1, 1, 1, 1])
         let (g1, g2) = gradient(at: a2, b2) { a, b in
             concatenate(a1 * a, b1 * b, axis: -1).sum().element
         }

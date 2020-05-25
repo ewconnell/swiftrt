@@ -184,18 +184,42 @@ numShapes = 6
 /// - Returns: read only repeated element
 
 %for n in range(1, numShapes + 1):
-//---------------------------------------
+//------------------------------------------------------------------------------
 // Rank${n}
-// default type
+
+//************************** Implicit typing
+
+//---------------------------
+// same type
 @differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<Element>(
     _ value: Element,
     _ shape: Shape${n}.Tuple
 ) -> Tensor<Shape${n}, Element> where Element == Element.Value {
-   Tensor<Shape${n},Element>(repeating: value, to: Shape${n}(shape))
+    Tensor<Shape${n},Element>(repeating: value, to: Shape${n}(shape))
 }
 
-// specifying type
+//---------------------------
+// Int --> DType
+@inlinable public func repeating(
+    _ value: Int,
+    _ shape: Shape${n}.Tuple
+) -> Tensor<Shape${n}, DType> {
+    Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape))
+}
+
+//---------------------------
+// Double --> DType
+// @differentiable
+@inlinable public func repeating(
+    _ value: Double,
+    _ shape: Shape${n}.Tuple
+) -> Tensor<Shape${n}, DType> {
+    Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape))
+}
+
+//************************** Explicit typing
+
 @differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<Element>(
     _ value: Element.Value,

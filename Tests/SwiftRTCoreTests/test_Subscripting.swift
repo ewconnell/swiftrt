@@ -164,7 +164,7 @@ class test_Subscripting: XCTestCase {
     //==========================================================================
     // test_Tensor1RangeGradient
     func test_Tensor1RangeGradient() {
-        let v = array(0..<10, type: Float.self)
+        let v = array(0..<10)
 
         // simple range selection
         let range = v[1..<3]
@@ -209,7 +209,7 @@ class test_Subscripting: XCTestCase {
         v1[2...4] = sevens
         XCTAssert(v1.flatArray == [0, 1, 7, 7, 7, 5, 6])
         
-        let v2 = array(1...6, type: Float.self)
+        let v2 = array(1...6)
         let g = pullback(at: v2, in: { exp($0) })(ones(like: v2))
         XCTAssert(g == array([2.7182817, 7.389056, 20.085537,
                               54.59815, 148.41316, 403.4288]))
