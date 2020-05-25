@@ -49,21 +49,21 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
-    /// init(shape:order:
+    /// init(shape:layout:
     /// creates a dense shape
     /// - Parameters:
     ///  - shape: the n-dimensional shape of the tensor
-    ///  - order: the storage order of the elements
-    @inlinable init(_ shape: Shape, order: StorageOrder = .row) {
+    ///  - layout: the storage layout of the elements
+    @inlinable init(_ shape: Shape, layout: Layout = .row) {
         let count = shape.elementCount()
         self.init(shape: shape,
-                  strides: shape.strides(for: order),
+                  strides: shape.strides(for: layout),
                   count: count,
                   spanCount: count,
-                  storage: StorageBufferType(count: count, order: order),
+                  storage: StorageBufferType(count: count, layout: layout),
                   baseOffset: 0,
                   share: false,
-                  isSequential: order == .row)
+                  isSequential: layout == .row)
     }
     
     //--------------------------------------------------------------------------
@@ -73,13 +73,13 @@ public extension Tensor {
     }
     
     //--------------------------------------------------------------------------
-    /// init(like:order:
+    /// init(like:layout:
     /// convenience initializer to initialize with the shape and type as `other`
     /// - Parameters:
     ///  - other: a tensor to copy attributes from
-    ///  - order: the storage order of the elements
+    ///  - layout: the storage layout of the elements
     @inlinable init(like other: Self) {
-        self.init(other.shape, order: other.order)
+        self.init(other.shape, layout: other.layout)
     }
     
     //--------------------------------------------------------------------------
@@ -173,7 +173,7 @@ extension Tensor where TensorElement.Value: DifferentiableElement
 
 public extension Tensor {
     //--------------------------------------------------------------------------
-    /// init(storage:shape:order:
+    /// init(storage:shape:layout:
     /// initializes the tensor storage buffer with `storage elements`
     ///
     /// - Parameters:
@@ -188,21 +188,21 @@ public extension Tensor {
     ///  is expected to be of type `Float16`
     ///
     ///  - shape: the shape of the tensor
-    ///  - order: the storage order
+    ///  - layout: the storage layout
     @inlinable init<C>(
         stored elements: C,
         _ shape: Shape,
-        order: StorageOrder = .C)
+        layout: Layout = .C)
     where C: Collection, C.Element == TensorElement.Stored
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, order: order)
+        self.init(shape, layout: layout)
         let buffer = storage.readWrite(at: 0, count: count)
         _ = buffer.initialize(from: elements)
     }
     
     //--------------------------------------------------------------------------
-    /// init(elements:shape:order:
+    /// init(elements:shape:layout:
     /// initializes the tensor with the given `elements while
     /// converting them to `TensorElement.Stored` type.
     /// For example in the `Float16` case, `C.Element` would be type `Float`
@@ -213,14 +213,14 @@ public extension Tensor {
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
-    ///  - order: the storage order
+    ///  - layout: the storage layout
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        order: StorageOrder = .C
+        layout: Layout = .C
     ) where C: Collection, C.Element == TensorElement.Value {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, order: order)
+        self.init(shape, layout: layout)
         
         // prepare storage for writing and then write the element values
         _ = storage.readWrite(at: 0, count: count)
@@ -230,20 +230,20 @@ public extension Tensor {
     }
     
     //--------------------------------------------------------------------------
-    /// init(elements:shape:order:
+    /// init(elements:shape:layout:
     /// implicitly casts from C.Element Bool -> Numeric TensorElement.Value
     ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
-    ///  - order: the storage order
+    ///  - layout: the storage layout
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        order: StorageOrder = .C
+        layout: Layout = .C
     ) where C: Collection, C.Element == Bool, TensorElement.Value: Numeric {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, order: order)
+        self.init(shape, layout: layout)
         _ = storage.readWrite(at: 0, count: count)
         for (i, value) in elements.enumerated() {
             storage.setElement(value: Element(exactly: value ? 1 : 0)!, at: i)
@@ -251,20 +251,20 @@ public extension Tensor {
     }
     
     //--------------------------------------------------------------------------
-    /// init(elements:shape:order:
+    /// init(elements:shape:layout:
     /// implicitly casts from C.Element Numeric -> Bool TensorElement.Value
     ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
-    ///  - order: the storage order
+    ///  - layout: the storage layout
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        order: StorageOrder = .C
+        layout: Layout = .C
     ) where C: Collection, C.Element: Numeric, TensorElement.Value == Bool {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, order: order)
+        self.init(shape, layout: layout)
         _ = storage.readWrite(at: 0, count: count)
         for (i, value) in elements.enumerated() {
             storage.setElement(value: Element(value == 0), at: i)
@@ -272,22 +272,22 @@ public extension Tensor {
     }
     
     //--------------------------------------------------------------------------
-    /// init(elements:shape:order:
+    /// init(elements:shape:layout:
     /// implicitly casts from C.Element integer -> TensorElement.Value
     ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
-    ///  - order: the storage order
+    ///  - layout: the storage layout
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        order: StorageOrder = .C
+        layout: Layout = .C
     ) where C: Collection, C.Element: BinaryInteger,
             TensorElement.Value: Numeric
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, order: order)
+        self.init(shape, layout: layout)
         _ = storage.readWrite(at: 0, count: count)
         for (i, value) in elements.enumerated() {
             storage.setElement(value: Element(exactly: value)!, at: i)
@@ -295,23 +295,23 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
-    /// init(elements:shape:order:
+    /// init(elements:shape:layout:
     /// implicitly casts from floating C.Element -> floating TensorElement.Value
     ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
-    ///  - order: the storage order
+    ///  - layout: the storage layout
     // Note: to handle the case of Double <--> Float
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        order: StorageOrder = .C
+        layout: Layout = .C
     ) where C: Collection, C.Element: BinaryFloatingPoint,
             TensorElement.Value: BinaryFloatingPoint
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, order: order)
+        self.init(shape, layout: layout)
         _ = storage.readWrite(at: 0, count: count)
         for (i, value) in elements.enumerated() {
             storage.setElement(value: Element(value), at: i)
@@ -319,23 +319,23 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
-    /// init(elements:shape:order:
+    /// init(elements:shape:layout:
     /// implicitly casts from C.Element float -> integer TensorElement.Value
     ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
-    ///  - order: the storage order
+    ///  - layout: the storage layout
     // Note: to handle the case of Double <--> Float
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        order: StorageOrder = .C
+        layout: Layout = .C
     ) where C: Collection, C.Element: BinaryFloatingPoint,
             TensorElement.Value: BinaryInteger
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, order: order)
+        self.init(shape, layout: layout)
         _ = storage.readWrite(at: 0, count: count)
         for (i, value) in elements.enumerated() {
             storage.setElement(value: Element(value), at: i)
@@ -357,18 +357,18 @@ public extension Tensor {
 }
 
 //==============================================================================
-/// init(reshaping:shape:order:
+/// init(reshaping:shape:layout:
 /// - Parameters:
 ///  - other: the tensor to reshape
 ///  - newShape: the shape of the new tensor
-///  - order: the storage order of the new tensor
+///  - layout: the storage layout of the new tensor
 public extension Tensor {
 
     @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable init<S>(
         reshaping other: Tensor<S,TensorElement>,
         to newShape: Shape,
-        order newOrder: StorageOrder = .C
+        layout newOrder: Layout = .C
     ) where S: TensorShape
     {
         assert(other.isContiguous, "cannot reshape non contiguous data")
@@ -394,23 +394,23 @@ public extension Tensor {
         assert(shape.elementCount() == other.count,
                "the new shape must have the same number of elements as other")
         
-        // determine storage order
-        let order: StorageOrder =
+        // determine storage layout
+        let layout: Layout =
                 newOrder == .F ||
-                (newOrder.rawValue == StorageOrder.A &&
-                    other.order == .F && other.isSequential) ? .F : .C
+                (newOrder.rawValue == Layout.A &&
+                    other.layout == .F && other.isSequential) ? .F : .C
 
         // reorder other's elements if needed
         var source = other
-        if order != other.order {
-            // change the source to have the new storage order and copy
-            let strides = other.shape.strides(for: order)
+        if layout != other.layout {
+            // change the source to have the new storage layout and copy
+            let strides = other.shape.strides(for: layout)
             source = Tensor<S,TensorElement>(
                 shape: other.shape,
                 strides: strides,
                 count: other.count,
                 spanCount: other.spanCount,
-                storage: StorageBufferType<TensorElement>(count: source.count, order: order),
+                storage: StorageBufferType<TensorElement>(count: source.count, layout: layout),
                 baseOffset: 0,
                 share: other.isShared,
                 isSequential: strides.areSequential(for: other.shape))
@@ -424,9 +424,9 @@ public extension Tensor {
             copy(from: other, to: &source)
         }
         
-        // init with new shape in the corrected order
+        // init with new shape in the corrected layout
         self.init(shape: shape,
-                  strides: shape.strides(for: order),
+                  strides: shape.strides(for: layout),
                   count: source.count,
                   spanCount: source.spanCount,
                   storage: source.storage,
@@ -438,18 +438,18 @@ public extension Tensor {
 
 extension Tensor where TensorElement.Value: DifferentiableElement
 {
-    @derivative(of: init(reshaping:to:order:))
+    @derivative(of: init(reshaping:to:layout:))
     @inlinable static func _vjpInit<S>(
         reshaping other: Tensor<S,TensorElement>,
         to newShape: Shape,
-        order newOrder: StorageOrder
+        layout newOrder: Layout
     ) -> (value: Self, pullback: (Self) -> Tensor<S,TensorElement>)
         where S: TensorShape
     {
-        let value = Self(reshaping: other, to: newShape, order: newOrder)
+        let value = Self(reshaping: other, to: newShape, layout: newOrder)
         return (value, {
             Tensor<S,TensorElement>(reshaping: $0, to: other.shape,
-                                    order: other.order)
+                                    layout: other.layout)
         })
     }
 }
@@ -483,7 +483,7 @@ public extension Tensor {
         } else {
             assert(Shape.rank == S.rank + axes.count, "rank mismatch")
             // set 1 in expanded dimensions making sure axes are positive
-            // and keeping in mind the axes could be in any order
+            // and keeping in mind the axes could be in any layout
             for i in 0..<axes.count {
                 shape[axes[i] >= 0 ? axes[i] : axes[i] + S.rank] = 1
             }
@@ -561,7 +561,7 @@ public extension Tensor {
         var otherShape = other.shape
 
         // zero the axes to squeeze. These are done in two loops
-        // because the axes list could be in any order
+        // because the axes list could be in any layout
         for i in 0..<axes.count {
             otherShape[axes[i] >= 0 ? axes[i] : axes[i] + S.rank] = 0
         }
@@ -775,7 +775,7 @@ public extension Tensor {
 //==============================================================================
 /// init(transposing:permutations:
 /// Returns a new data shape where the bounds and strides are permuted
-/// - Parameter permutations: the indice order mapping. `count` must
+/// - Parameter permutations: the indice layout mapping. `count` must
 ///   equal `rank`
 /// - Returns: transposed/permuted shape
 /// - Precondition: Each value in `permutations` must be in the range
@@ -859,24 +859,24 @@ extension Tensor where TensorElement.Value: DifferentiableElement {
 //
 extension Tensor where TensorElement.Value: Numeric {
     //--------------------------------------------------------------------------
-    /// init(zeros shape:order:
+    /// init(zeros shape:layout:
     /// creates a dense shape filled with zeros
     /// - Parameters:
     ///  - shape: the n-dimensional shape of the tensor to be filled
-    ///  - order: the storage order of the elements
-    @inlinable public init(zeros shape: Shape, order: StorageOrder = .C) {
-        self.init(shape, order: order)
+    ///  - layout: the storage layout of the elements
+    @inlinable public init(zeros shape: Shape, layout: Layout = .C) {
+        self.init(shape, layout: layout)
         fill(&self, with: 0)
     }
 
     //--------------------------------------------------------------------------
-    /// init(ones shape:order:
+    /// init(ones shape:layout:
     /// creates a dense shape filled with ones
     /// - Parameters:
     ///  - shape: the n-dimensional shape of the tensor to be filled
-    ///  - order: the storage order of the elements
-    @inlinable public init(ones shape: Shape, order: StorageOrder = .C) {
-        self.init(shape, order: order)
+    ///  - layout: the storage layout of the elements
+    @inlinable public init(ones shape: Shape, layout: Layout = .C) {
+        self.init(shape, layout: layout)
         fill(&self, with: 1)
     }
     
@@ -886,13 +886,13 @@ extension Tensor where TensorElement.Value: Numeric {
     /// - Parameters:
     ///  - shape: the shape of the array
     ///  - offset: the offset of the diagonal
-    ///  - order: the storage order of the new tensor
+    ///  - layout: the storage layout of the new tensor
     @inlinable public init(
         eye shape: Shape,
         offset: Int = 0,
-        order: StorageOrder = .C
+        layout: Layout = .C
     ) {
-        self.init(shape, order: order)
+        self.init(shape, layout: layout)
         Context.currentQueue.eye(&self, offset: offset)
     }
 }
@@ -900,13 +900,13 @@ extension Tensor where TensorElement.Value: Numeric {
 @inlinable public func zeros<S,E>(like other: Tensor<S,E>) -> Tensor<S,E>
 where E.Value: Numeric
 {
-    Tensor<S,E>(zeros: other.shape, order: other.order)
+    Tensor<S,E>(zeros: other.shape, layout: other.layout)
 }
 
 @inlinable public func ones<S,E>(like other: Tensor<S,E>) -> Tensor<S,E>
 where E.Value: Numeric
 {
-    Tensor<S,E>(ones: other.shape, order: other.order)
+    Tensor<S,E>(ones: other.shape, layout: other.layout)
 }
 
 //==============================================================================

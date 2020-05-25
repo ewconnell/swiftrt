@@ -26,14 +26,14 @@ where Element: StorageElement
     public let isReadOnly: Bool
     public let isReference: Bool
     public var name: String
-    public let order: StorageOrder
+    public let layout: Layout
     public var element: Element.Stored
     
     //--------------------------------------------------------------------------
-    // init(count:order:
-    @inlinable public init(count: Int, order: StorageOrder) {
+    // init(count:layout:
+    @inlinable public init(count: Int, layout: Layout) {
         self.count = count
-        self.order = order
+        self.layout = layout
         self.hostBuffer = UnsafeMutableBufferPointer
             .allocate(capacity: Element.storedCount(count))
         self.id = Context.nextBufferId
@@ -52,7 +52,7 @@ where Element: StorageElement
     // init(element:
     @inlinable public init(single element: Element.Value) {
         self.count = 1
-        self.order = .row
+        self.layout = .row
         self.element = Element.stored(value: element)
         self.id = Context.nextBufferId
         self.isReadOnly = false
@@ -74,7 +74,7 @@ where Element: StorageElement
     // init(other:
     @inlinable public init(copying other: CpuStorage) {
         self.count = other.count
-        self.order = other.order
+        self.layout = other.layout
         self.id = other.id
         self.isReadOnly = other.isReadOnly
         self.isReference = other.isReference
@@ -90,13 +90,13 @@ where Element: StorageElement
     }
 
     //--------------------------------------------------------------------------
-    // init(buffer:order:
+    // init(buffer:layout:
     @inlinable public init(
         referenceTo buffer: UnsafeBufferPointer<Element.Stored>,
-        order: StorageOrder
+        layout: Layout
     ) {
         self.count = buffer.count
-        self.order = order
+        self.layout = layout
         self.hostBuffer = UnsafeMutableBufferPointer(mutating: buffer)
         self.id = Context.nextBufferId
         self.isReadOnly = true
@@ -114,10 +114,10 @@ where Element: StorageElement
     // init(buffer:
     @inlinable public init(
         referenceTo buffer: UnsafeMutableBufferPointer<Element.Stored>,
-        order: StorageOrder
+        layout: Layout
     ) {
         self.count = buffer.count
-        self.order = order
+        self.layout = layout
         self.hostBuffer = buffer
         self.id = Context.nextBufferId
         self.isReadOnly = false

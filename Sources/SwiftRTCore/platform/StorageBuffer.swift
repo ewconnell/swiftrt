@@ -33,14 +33,14 @@ public protocol StorageBuffer: class, Logging {
     /// the buffer name used in diagnostic messages
     var name: String { get set }
     /// specifies the stored element layout order
-    var order: StorageOrder { get }
+    var layout: Layout { get }
     
-    /// `init(count:order:
+    /// `init(count:layout:
     /// creates an uninitialized lazily allocated element buffer
     /// - Parameters:
     ///  - count: size of the buffer in `Element` units
-    ///  - order: element layout order
-    init(count: Int, order: StorageOrder)
+    ///  - layout: element layout order
+    init(count: Int, layout: Layout)
     
     /// `init(element:
     /// creates a storage buffer with a single element
@@ -52,7 +52,7 @@ public protocol StorageBuffer: class, Logging {
     /// copy constructor
     init(copying other: Self)
     
-    /// `init(buffer:order:
+    /// `init(buffer:layout:
     /// creates an element buffer whose data is managed by the application.
     /// No memory is allocated, so the buffer must point to valid data space.
     /// This can be used to access things like hardware buffers or
@@ -60,18 +60,18 @@ public protocol StorageBuffer: class, Logging {
     /// requiring an additional copy operation.
     /// - Parameters:
     ///  - buffer: a buffer pointer to the data
-    ///  - order: element layout order
+    ///  - layout: element layout order
     init(referenceTo buffer: UnsafeBufferPointer<Element.Stored>,
-         order: StorageOrder)
+         layout: Layout)
     
-    /// `init(buffer:order:
+    /// `init(buffer:layout:
     /// creates an element buffer whose data is managed by the application.
     /// No memory is allocated, so the buffer must point to valid data space.
     /// - Parameters:
     ///  - buffer: a mutable buffer pointer to application data
-    ///  - order: element layout order
+    ///  - layout: element layout order
     init(referenceTo buffer: UnsafeMutableBufferPointer<Element.Stored>,
-         order: StorageOrder)
+         layout: Layout)
     
     /// `init(blockSize:bufferedBlocks:sequence:`
     /// initializes a streaming device buffer to be used with `stream`

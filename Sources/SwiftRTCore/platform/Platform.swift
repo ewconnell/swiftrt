@@ -125,11 +125,11 @@ public enum NanPropagation: Int, Codable {
 }
 
 //==============================================================================
-/// StorageOrder
+/// Layout
 /// Specifies how to store multi-dimensional data in row-major (C-style)
 /// or column-major (Fortran-style) order in memory.
 /// These names are following the numpy naming convention
-public enum StorageOrder: Int, Codable {
+public enum Layout: Int, Codable {
     /// Data is ordered in row-major dense sequential format.
     /// The leading dimension is the stride (in elements) to the beginning
     /// of next row in memory.

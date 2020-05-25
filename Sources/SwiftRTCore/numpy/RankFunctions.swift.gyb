@@ -63,9 +63,9 @@ numShapes = 6
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape${n}, E>,
     _ newShape: ${shapeType},
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape${i}, E> {
-    Tensor<Shape${i}, E>(reshaping: a, to: Shape${i}(newShape), order: order)
+    Tensor<Shape${i}, E>(reshaping: a, to: Shape${i}(newShape), layout: order)
 }
 
 %  end

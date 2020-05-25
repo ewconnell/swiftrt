@@ -56,45 +56,45 @@ import Foundation
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape2.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape2, E> {
-    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
+    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape3.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape3, E> {
-    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
+    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape4.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape4, E> {
-    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
+    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape5.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape5, E> {
-    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
+    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape6.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape6, E> {
-    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), order: order)
+    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), layout: order)
 }
 
 //==============================================================================
@@ -103,54 +103,54 @@ import Foundation
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Int,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape1, E> {
-    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
+    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape2.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape2, E> {
-    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
+    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape3.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape3, E> {
-    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
+    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape4.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape4, E> {
-    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
+    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape5.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape5, E> {
-    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
+    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape6.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape6, E> {
-    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), order: order)
+    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), layout: order)
 }
 
 //==============================================================================
@@ -159,54 +159,54 @@ import Foundation
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Int,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape1, E> {
-    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
+    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape2.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape2, E> {
-    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
+    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape3.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape3, E> {
-    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
+    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape4.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape4, E> {
-    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
+    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape5.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape5, E> {
-    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
+    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape6.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape6, E> {
-    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), order: order)
+    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), layout: order)
 }
 
 //==============================================================================
@@ -215,54 +215,54 @@ import Foundation
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Int,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape1, E> {
-    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
+    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape2.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape2, E> {
-    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
+    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape3.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape3, E> {
-    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
+    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape4.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape4, E> {
-    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
+    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape5.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape5, E> {
-    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
+    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape6.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape6, E> {
-    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), order: order)
+    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), layout: order)
 }
 
 //==============================================================================
@@ -271,54 +271,54 @@ import Foundation
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Int,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape1, E> {
-    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
+    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape2.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape2, E> {
-    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
+    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape3.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape3, E> {
-    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
+    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape4.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape4, E> {
-    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
+    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape5.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape5, E> {
-    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
+    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape6.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape6, E> {
-    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), order: order)
+    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), layout: order)
 }
 
 //==============================================================================
@@ -327,54 +327,54 @@ import Foundation
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Int,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape1, E> {
-    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
+    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape2.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape2, E> {
-    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
+    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape3.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape3, E> {
-    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
+    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape4.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape4, E> {
-    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
+    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape5.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape5, E> {
-    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
+    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), layout: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape6.Tuple,
-    order: StorageOrder = .C
+    order: Layout = .C
 ) -> Tensor<Shape6, E> {
-    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), order: order)
+    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), layout: order)
 }
 
 

@@ -166,12 +166,12 @@ extension DeviceQueue {
         result.readWrite(using: self)
 
         // execute right layout combination
-        if lhs.order == rhs.order {
+        if lhs.layout == rhs.layout {
             execute(BufferSequential(lhs),
                     BufferSequential(rhs),
                     BufferSequential(mutating: result), op)
         } else {
-            switch (lhs.order, rhs.order) {
+            switch (lhs.layout, rhs.layout) {
             case (.row, .col):
                 execute(RowSequential(lhs),
                         ColSequential(rhs),
@@ -226,13 +226,13 @@ extension DeviceQueue {
         result.readWrite(using: self)
         
         // execute right layout combination
-        if a.order == b.order && a.order == c.order {
+        if a.layout == b.layout && a.layout == c.layout {
             execute(BufferSequential(a),
                     BufferSequential(b),
                     BufferSequential(c),
                     BufferSequential(mutating: result), op)
         } else {
-            switch (a.order, b.order, c.order) {
+            switch (a.layout, b.layout, c.layout) {
             default:
                 fatalError("mixed layout not implemented")
             }
@@ -292,7 +292,7 @@ extension DeviceQueue {
         r2.readWrite(using: self)
 
         // execute right layout combination
-        if a.order == b.order && a.order == c.order {
+        if a.layout == b.layout && a.layout == c.layout {
             execute(BufferSequential(a),
                     BufferSequential(b),
                     BufferSequential(c),
@@ -300,7 +300,7 @@ extension DeviceQueue {
                     BufferSequential(mutating: r2),
                     op)
         } else {
-            switch (a.order, b.order, c.order) {
+            switch (a.layout, b.layout, c.layout) {
             default:
                 fatalError("mixed layout not implemented")
             }

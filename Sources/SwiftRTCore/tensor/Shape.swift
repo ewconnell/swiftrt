@@ -49,7 +49,7 @@ public protocol TensorShape: SIMD where Scalar == Int {
     func incremented(between lower: Self, and upper: Self) -> Self
     
     /// - Returns: srtides for the shape and given storage order
-    func strides(for order: StorageOrder) -> Self
+    func strides(for layout: Layout) -> Self
 }
 
 //==============================================================================
@@ -182,9 +182,9 @@ public extension TensorShape {
     }
     
     //--------------------------------------------------------------------------
-    /// `strides(order:`
+    /// `strides(layout:`
     /// computes the strides needed to index the specified storage order
-    @inlinable func strides(for order: StorageOrder) -> Self {
+    @inlinable func strides(for layout: Layout) -> Self {
         guard Self.rank > 1 else { return Self.one }
         
         func computeStrides(for shape: Self) -> Self {
@@ -200,7 +200,7 @@ public extension TensorShape {
             return strides
         }
 
-        if order == .C {
+        if layout == .C {
             // row major
             return computeStrides(for: self)
             

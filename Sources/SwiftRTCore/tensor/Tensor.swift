@@ -67,7 +67,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     }
 
     /// the element storage order
-    @inlinable public var order: StorageOrder { storage.order }
+    @inlinable public var layout: Layout { storage.layout }
     
     //--------------------------------------------------------------------------
     /// init(
@@ -258,7 +258,7 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     /// index(i:
     @inlinable func index(after i: Index) -> Index {
-        switch storage.order {
+        switch storage.layout {
         case .row: return RowSequential(self).index(after: i)
         case .col: return ColSequential(self).index(after: i)
         }
@@ -273,14 +273,14 @@ public extension Tensor {
     @inlinable subscript(i: Index) -> Element {
         get {
             // designed for adding more layouts
-            switch storage.order {
+            switch storage.layout {
             case .row: return RowSequential(self)[i]
             case .col: return ColSequential(self)[i]
             }
         }
         
         set {
-            switch storage.order {
+            switch storage.layout {
             case .row: _ = RowSequential(mutating: self, i, newValue)
             case .col: _ = ColSequential(mutating: self, i, newValue)
             }
