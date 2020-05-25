@@ -179,7 +179,7 @@ numShapes = 6
 /// - Parameters:
 ///  - value: to repeat
 ///  - shape: Int or tuple of Int. Shape of the array, e.g., (2, 3) or 2.
-///  - dtype: data-type, optional
+///  - type: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
 /// - Returns: read only repeated element
 
@@ -200,7 +200,7 @@ numShapes = 6
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape${n}.Tuple,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape${n},Element> {
     Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape))
 }
@@ -213,7 +213,7 @@ numShapes = 6
 /// - Parameters:
 ///  - value: to repeat
 ///  - prototype: attributes are copied from this tensor when not specified
-///  - dtype: data-type, optional
+///  - type: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
 ///  - shape: Int or tuple of Int. Shape of the array, e.g., (2, 3) or 2.
 /// - Returns: read only repeated element
@@ -233,7 +233,7 @@ numShapes = 6
 @inlinable public func repeating<S,E, Element>(
     _ value: Element.Value,
     like prototype: Tensor<S,E>,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<S,Element> where S: TensorShape
 {
     Tensor<S,Element>(repeating: value, to: prototype.shape)
@@ -264,7 +264,7 @@ numShapes = 6
 @inlinable public func repeating<S,E,Element>(
     _ value: Element.Value,
     like prototype: Tensor<S,E>,
-    dtype: Element.Type,
+    type: Element.Type,
     shape: Shape${n}.Tuple
 ) -> Tensor<Shape${n}, Element> where S: TensorShape
 {

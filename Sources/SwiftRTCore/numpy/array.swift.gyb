@@ -35,13 +35,13 @@ numShapes = 6
 /// - Parameters:
 ///  - elements: a collection of elements used to initialize storage
 ///  - shape: Int or tuple of Int describing the dimensions of the array
-///  - dtype: data-type, optional
+///  - type: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
 ///  - order: { .C, .F }, optional, default .C
 ///    Whether to store multi-dimensional data in row-major (C-style)
 ///    or column-major (Fortran-style) order in memory.
 /// - Returns: Tensor of uninitialized (arbitrary) data of the given shape,
-///   dtype, and order. Elements will not be initialized.
+///   type, and order. Elements will not be initialized.
 
 //******************************************************************************
 // This section converts a flat Collection --> TensorR1
@@ -74,7 +74,7 @@ numShapes = 6
 // C.Element Bool --> numeric Element.Value
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element == Bool, Element.Value: Numeric
 {
@@ -85,7 +85,7 @@ numShapes = 6
 // C.Element integer --> numeric Element.Value
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
 {
@@ -96,7 +96,7 @@ numShapes = 6
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
 {
@@ -107,7 +107,7 @@ numShapes = 6
 // C.Element floating --> integer Element.Value
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
@@ -152,7 +152,7 @@ numShapes = 6
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},Element>
     where C.Element == Bool, Element.Value: Numeric
@@ -165,7 +165,7 @@ numShapes = 6
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
@@ -178,7 +178,7 @@ numShapes = 6
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
@@ -191,7 +191,7 @@ numShapes = 6
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
@@ -261,7 +261,7 @@ numShapes = 6
 // C.Element Bool --> numeric Element.Value
 @inlinable public func array<C,Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},Element>
     where
@@ -284,7 +284,7 @@ numShapes = 6
 // C.Element integer --> numeric Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},Element>
     where
@@ -306,7 +306,7 @@ numShapes = 6
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},Element>
     where
@@ -329,7 +329,7 @@ numShapes = 6
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape${n},Element>
     where

@@ -106,7 +106,7 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_squeeze
     func test_squeeze() {
-        let a = array(0..<24, (2, 3, 4), dtype: Float.self)
+        let a = array(0..<24, (2, 3, 4), type: Float.self)
 
         let sumCols = a.sum(alongAxes: 2)
         XCTAssert(sumCols.shape == [2, 3, 1])
@@ -166,10 +166,10 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_stackingGradients
     func test_stackingGradients() {
-        let a1 = array([1, 2, 3, 4, 5], dtype: Float.self)
-        let b1 = array([6, 7, 8, 9, 10], dtype: Float.self)
-        let a2 = array([1, 1, 1, 1, 1], dtype: Float.self)
-        let b2 = array([1, 1, 1, 1, 1], dtype: Float.self)
+        let a1 = array([1, 2, 3, 4, 5], type: Float.self)
+        let b1 = array([6, 7, 8, 9, 10], type: Float.self)
+        let a2 = array([1, 1, 1, 1, 1], type: Float.self)
+        let b2 = array([1, 1, 1, 1, 1], type: Float.self)
         let grads = gradient(at: a2, b2) { a, b in
             stack(a1 * a, b1 * b, axis: -1).sum().element
         }
@@ -184,7 +184,7 @@ class test_Shape: XCTestCase {
         let i = 3
         let j = 3
         let maxK: Float = 16
-        let k1 = array(0..<30, (5, 6), dtype: Float.self)
+        let k1 = array(0..<30, (5, 6), type: Float.self)
 
         let mask = squeeze(stack([
             k1[0...j  , 1...i  ],
@@ -346,7 +346,7 @@ class test_Shape: XCTestCase {
         let m = array(0..<9, (3, 3))
         XCTAssert(m.t == [[0,3,6], [1,4,7], [2,5,8]])
         
-        let a = array(0..<24, (2,3,4), dtype: Float.self)
+        let a = array(0..<24, (2,3,4), type: Float.self)
         let transA = a.transposed(permutatedBy: [2, 1, 0])
         XCTAssert(transA == [[[ 0.0, 12.0],
                               [ 4.0, 16.0],

@@ -43,29 +43,29 @@ class test_npArray: XCTestCase {
         let _ = array(stored: [Float16(0), Float16(1)], (1, 2))
         
         // packed types
-        let _ = array([0, 1, 0, 1], dtype: UInt1.self)
+        let _ = array([0, 1, 0, 1], type: UInt1.self)
         let _ = array(stored: [0b00001010])
         
-        let _ = array([0, 1, 2, 3], dtype: UInt4.self)
+        let _ = array([0, 1, 2, 3], type: UInt4.self)
         let _ = array(stored: [0x10, 0x32])
         
         // boolean conversion to Element
-        let _ = array([true, false], dtype: UInt1.self)
-        let _ = array([true, false], dtype: UInt4.self)
-        let _ = array([true, false], dtype: UInt8.self)
-        let _ = array([true, false], dtype: Int.self)
-        let _ = array([true, false], dtype: Float16.self)
-        let _ = array([true, false], dtype: Float.self)
-        let _ = array([true, false], dtype: Double.self)
+        let _ = array([true, false], type: UInt1.self)
+        let _ = array([true, false], type: UInt4.self)
+        let _ = array([true, false], type: UInt8.self)
+        let _ = array([true, false], type: Int.self)
+        let _ = array([true, false], type: Float16.self)
+        let _ = array([true, false], type: Float.self)
+        let _ = array([true, false], type: Double.self)
 
         // boolean conversion to shaped Element
-        let _ = array([true, false], (1, 2), dtype: UInt1.self)
-        let _ = array([true, false], (1, 2), dtype: UInt4.self)
-        let _ = array([true, false], (1, 2), dtype: UInt8.self)
-        let _ = array([true, false], (1, 2), dtype: Int.self)
-        let _ = array([true, false], (1, 2), dtype: Float16.self)
-        let _ = array([true, false], (1, 2), dtype: Float.self)
-        let _ = array([true, false], (1, 2), dtype: Double.self)
+        let _ = array([true, false], (1, 2), type: UInt1.self)
+        let _ = array([true, false], (1, 2), type: UInt4.self)
+        let _ = array([true, false], (1, 2), type: UInt8.self)
+        let _ = array([true, false], (1, 2), type: Int.self)
+        let _ = array([true, false], (1, 2), type: Float16.self)
+        let _ = array([true, false], (1, 2), type: Float.self)
+        let _ = array([true, false], (1, 2), type: Double.self)
 
         // implicit vectors
         let _ = array([true, false])
@@ -81,28 +81,28 @@ class test_npArray: XCTestCase {
         let _ = array([RGB<Float>(0, 0.5, 1), RGB<Float>(0.25, 0.5, 0.75)], (1, 2))
 
         // integer conversions to Element
-        let _ = array([0, 1, 2], dtype: UInt8.self)
-        let _ = array([0, 1, 2], dtype: Int.self)
-        let _ = array([0, 1, 2], dtype: Float.self)
-        let _ = array([0, 1, 2], dtype: Double.self)
+        let _ = array([0, 1, 2], type: UInt8.self)
+        let _ = array([0, 1, 2], type: Int.self)
+        let _ = array([0, 1, 2], type: Float.self)
+        let _ = array([0, 1, 2], type: Double.self)
 
         // floating conversions to Element
-        let _ = array([0.0, 1.5, 2.5], dtype: UInt8.self)
-        let _ = array([0.0, 1.5, 2.5], dtype: Int.self)
-        let _ = array([0.0, 1.5, 2.5], dtype: Float.self)
-        let _ = array([0.0, 1.5, 2.5], dtype: Double.self)
+        let _ = array([0.0, 1.5, 2.5], type: UInt8.self)
+        let _ = array([0.0, 1.5, 2.5], type: Int.self)
+        let _ = array([0.0, 1.5, 2.5], type: Float.self)
+        let _ = array([0.0, 1.5, 2.5], type: Double.self)
         
         // integer conversions to shaped Element
-        let _ = array([0, 1, 2], (1, 2), dtype: UInt8.self)
-        let _ = array([0, 1, 2], (1, 2), dtype: Int.self)
-        let _ = array([0, 1, 2], (1, 2), dtype: Float.self)
-        let _ = array([0, 1, 2], (1, 2), dtype: Double.self)
+        let _ = array([0, 1, 2], (1, 2), type: UInt8.self)
+        let _ = array([0, 1, 2], (1, 2), type: Int.self)
+        let _ = array([0, 1, 2], (1, 2), type: Float.self)
+        let _ = array([0, 1, 2], (1, 2), type: Double.self)
         
         // floating conversions to shaped Element
-        let _ = array([0.0, 1.5, 2.5], (1, 2), dtype: UInt8.self)
-        let _ = array([0.0, 1.5, 2.5], (1, 2), dtype: Int.self)
-        let _ = array([0.0, 1.5, 2.5], (1, 2), dtype: Float.self)
-        let _ = array([0.0, 1.5, 2.5], (1, 2), dtype: Double.self)
+        let _ = array([0.0, 1.5, 2.5], (1, 2), type: UInt8.self)
+        let _ = array([0.0, 1.5, 2.5], (1, 2), type: Int.self)
+        let _ = array([0.0, 1.5, 2.5], (1, 2), type: Float.self)
+        let _ = array([0.0, 1.5, 2.5], (1, 2), type: Double.self)
     }
     
     //==========================================================================
@@ -111,17 +111,17 @@ class test_npArray: XCTestCase {
         // Rank1
         let b: [Int8] = [0, 1, 2]
         let _ = array(b)
-        let _ = array(b, dtype: Int32.self)
-        let _ = array(b, dtype: Double.self)
+        let _ = array(b, type: Int32.self)
+        let _ = array(b, type: Double.self)
 
         let dt: [DType] = [1.5, 2.5, 3.5]
         let _ = array(dt)
-        let _ = array(dt, dtype: Int32.self)
-        let _ = array(dt, dtype: Double.self)
+        let _ = array(dt, type: Int32.self)
+        let _ = array(dt, type: Double.self)
 
         let d: [Double] = [1.5, 2.5, 3.5]
         let _ = array(d)
-        let _ = array(d, dtype: Int32.self)
+        let _ = array(d, type: Int32.self)
         
         let _ = array([[0, 1, 2], [3, 4, 5]])
         let _ = array([0, 1, 2, 3, 4, 5], (2, 3))
@@ -133,19 +133,19 @@ class test_npArray: XCTestCase {
     func test_empty() {
         // T0
         let _ = empty()
-        let _ = empty(dtype: Int.self)
+        let _ = empty(type: Int.self)
 
         // T1
         let _ = empty(3)
         let _ = empty(3, order: .F)
-        let _ = empty(3, dtype: Int.self)
-        let _ = empty(3, dtype: Int.self, order: .F)
+        let _ = empty(3, type: Int.self)
+        let _ = empty(3, type: Int.self, order: .F)
 
         // T2
         let _ = empty((2, 3))
         let _ = empty((2, 3), order: .F)
-        let _ = empty((2, 3), dtype: Int.self)
-        let _ = empty((2, 3), dtype: Int.self, order: .F)
+        let _ = empty((2, 3), type: Int.self)
+        let _ = empty((2, 3), type: Int.self, order: .F)
     }
 
     //==========================================================================
@@ -158,9 +158,9 @@ class test_npArray: XCTestCase {
         let _ = empty(like: proto, shape: (1, 2, 3))
         let _ = empty(like: proto, order: .F)
         let _ = empty(like: proto, order: .F, shape: (1, 2, 3))
-        let _ = empty(like: proto, dtype: Int.self)
-        let _ = empty(like: proto, dtype: Int.self, shape: (1, 2, 3))
-        let _ = empty(like: proto, dtype: Int.self, order: .F, shape: (1, 2, 3))
+        let _ = empty(like: proto, type: Int.self)
+        let _ = empty(like: proto, type: Int.self, shape: (1, 2, 3))
+        let _ = empty(like: proto, type: Int.self, order: .F, shape: (1, 2, 3))
     }
     
     //==========================================================================
@@ -168,19 +168,19 @@ class test_npArray: XCTestCase {
     func test_ones() {
         // T0
         let _ = ones()
-        let _ = ones(dtype: Int.self)
+        let _ = ones(type: Int.self)
 
         // T1
         let _ = ones(3)
         let _ = ones(3, order: .F)
-        let _ = ones(3, dtype: Int.self)
-        let _ = ones(3, dtype: Int.self, order: .F)
+        let _ = ones(3, type: Int.self)
+        let _ = ones(3, type: Int.self, order: .F)
 
         // T2
         let _ = ones((2, 3))
         let _ = ones((2, 3), order: .F)
-        let _ = ones((2, 3), dtype: Int.self)
-        let _ = ones((2, 3), dtype: Int.self, order: .F)
+        let _ = ones((2, 3), type: Int.self)
+        let _ = ones((2, 3), type: Int.self, order: .F)
     }
 
     //==========================================================================
@@ -193,15 +193,15 @@ class test_npArray: XCTestCase {
         let _ = ones(like: proto, shape: (1, 2, 3))
         let _ = ones(like: proto, order: .F)
         let _ = ones(like: proto, order: .F, shape: (1, 2, 3))
-        let _ = ones(like: proto, dtype: Int.self)
-        let _ = ones(like: proto, dtype: Int.self, shape: (1, 2, 3))
-        let _ = ones(like: proto, dtype: Int.self, order: .F, shape: (1, 2, 3))
+        let _ = ones(like: proto, type: Int.self)
+        let _ = ones(like: proto, type: Int.self, shape: (1, 2, 3))
+        let _ = ones(like: proto, type: Int.self, order: .F, shape: (1, 2, 3))
     }
     
     //==========================================================================
     // test_onesView
     func test_onesView() {
-        let t1 = ones((4, 3), dtype: Int.self)
+        let t1 = ones((4, 3), type: Int.self)
         let view = t1[1...2, ...]
         XCTAssert(view == [[1, 1, 1], [1, 1, 1]])
     }
@@ -211,19 +211,19 @@ class test_npArray: XCTestCase {
     func test_zeros() {
         // T0
         let _ = zeros()
-        let _ = zeros(dtype: Int.self)
+        let _ = zeros(type: Int.self)
 
         // T1
         let _ = zeros(3)
         let _ = zeros(3, order: .F)
-        let _ = zeros(3, dtype: Int.self)
-        let _ = zeros(3, dtype: Int.self, order: .F)
+        let _ = zeros(3, type: Int.self)
+        let _ = zeros(3, type: Int.self, order: .F)
 
         // T2
         let _ = zeros((2, 3))
         let _ = zeros((2, 3), order: .F)
-        let _ = zeros((2, 3), dtype: Int.self)
-        let _ = zeros((2, 3), dtype: Int.self, order: .F)
+        let _ = zeros((2, 3), type: Int.self)
+        let _ = zeros((2, 3), type: Int.self, order: .F)
     }
 
     //==========================================================================
@@ -236,9 +236,9 @@ class test_npArray: XCTestCase {
         let _ = zeros(like: proto, shape: (1, 2, 3))
         let _ = zeros(like: proto, order: .F)
         let _ = zeros(like: proto, order: .F, shape: (1, 2, 3))
-        let _ = zeros(like: proto, dtype: Int.self)
-        let _ = zeros(like: proto, dtype: Int.self, shape: (1, 2, 3))
-        let _ = zeros(like: proto, dtype: Int.self, order: .F, shape: (1, 2, 3))
+        let _ = zeros(like: proto, type: Int.self)
+        let _ = zeros(like: proto, type: Int.self, shape: (1, 2, 3))
+        let _ = zeros(like: proto, type: Int.self, order: .F, shape: (1, 2, 3))
     }
     
     //==========================================================================
@@ -246,19 +246,19 @@ class test_npArray: XCTestCase {
     func test_full() {
         // T0
         let _ = full(42)
-        let _ = full(42, dtype: Int.self)
+        let _ = full(42, type: Int.self)
 
         // T1
         let _ = full(3)
         let _ = full(3, 42, order: .F)
-        let _ = full(3, 42, dtype: Int.self)
-        let _ = full(3, 42, dtype: Int.self, order: .F)
+        let _ = full(3, 42, type: Int.self)
+        let _ = full(3, 42, type: Int.self, order: .F)
 
         // T2
         let _ = full((2, 3), 42)
         let _ = full((2, 3), 42, order: .F)
-        let _ = full((2, 3), 42, dtype: Int.self)
-        let _ = full((2, 3), 42, dtype: Int.self, order: .F)
+        let _ = full((2, 3), 42, type: Int.self)
+        let _ = full((2, 3), 42, type: Int.self, order: .F)
     }
 
     //==========================================================================
@@ -271,9 +271,9 @@ class test_npArray: XCTestCase {
         let _ = full(like: proto, 42, shape: (1, 2, 3))
         let _ = full(like: proto, 42, order: .F)
         let _ = full(like: proto, 42, order: .F, shape: (1, 2, 3))
-        let _ = full(like: proto, 42, dtype: Int.self)
-        let _ = full(like: proto, 42, dtype: Int.self, shape: (1, 2, 3))
-        let _ = full(like: proto, 42, dtype: Int.self, order: .F, shape: (1, 2, 3))
+        let _ = full(like: proto, 42, type: Int.self)
+        let _ = full(like: proto, 42, type: Int.self, shape: (1, 2, 3))
+        let _ = full(like: proto, 42, type: Int.self, order: .F, shape: (1, 2, 3))
     }
 
     //==========================================================================
@@ -281,8 +281,8 @@ class test_npArray: XCTestCase {
     func test_identity() {
 //        let _ = identity(3)
 //        let _ = identity(3, order: .F)
-//        let _ = identity(3, dtype: Int.self)
-//        let _ = identity(3, dtype: Int.self, order: .F)
+//        let _ = identity(3, type: Int.self)
+//        let _ = identity(3, type: Int.self, order: .F)
     }
 
     //==========================================================================
@@ -292,9 +292,9 @@ class test_npArray: XCTestCase {
 //        // verify signature combinations
 //        let _ = eye(2)
 //        let _ = eye(3, k: 1)
-//        let _ = eye(4, 3, k: -1, dtype: Int.self)
-//        let _ = eye(3, dtype: Int.self, order: .F)
-//        print(eye(3, k: 0, dtype: Int.self))
+//        let _ = eye(4, 3, k: -1, type: Int.self)
+//        let _ = eye(3, type: Int.self, order: .F)
+//        print(eye(3, k: 0, type: Int.self))
 //        // check plus
 //        XCTAssert(eye(3, k: 1) == [
 //            [0, 1, 0],

@@ -803,7 +803,7 @@ import Foundation
 /// - Parameters:
 ///  - value: to repeat
 ///  - shape: Int or tuple of Int. Shape of the array, e.g., (2, 3) or 2.
-///  - dtype: data-type, optional
+///  - type: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
 /// - Returns: read only repeated element
 
@@ -823,7 +823,7 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape1.Tuple,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape1,Element> {
     Tensor<Shape1, Element>(repeating: value, to: Shape1(shape))
 }
@@ -844,7 +844,7 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape2.Tuple,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape2,Element> {
     Tensor<Shape2, Element>(repeating: value, to: Shape2(shape))
 }
@@ -865,7 +865,7 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape3.Tuple,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape3,Element> {
     Tensor<Shape3, Element>(repeating: value, to: Shape3(shape))
 }
@@ -886,7 +886,7 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape4.Tuple,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape4,Element> {
     Tensor<Shape4, Element>(repeating: value, to: Shape4(shape))
 }
@@ -907,7 +907,7 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape5.Tuple,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape5,Element> {
     Tensor<Shape5, Element>(repeating: value, to: Shape5(shape))
 }
@@ -928,7 +928,7 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape6.Tuple,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape6,Element> {
     Tensor<Shape6, Element>(repeating: value, to: Shape6(shape))
 }
@@ -940,7 +940,7 @@ import Foundation
 /// - Parameters:
 ///  - value: to repeat
 ///  - prototype: attributes are copied from this tensor when not specified
-///  - dtype: data-type, optional
+///  - type: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
 ///  - shape: Int or tuple of Int. Shape of the array, e.g., (2, 3) or 2.
 /// - Returns: read only repeated element
@@ -960,7 +960,7 @@ import Foundation
 @inlinable public func repeating<S,E, Element>(
     _ value: Element.Value,
     like prototype: Tensor<S,E>,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<S,Element> where S: TensorShape
 {
     Tensor<S,Element>(repeating: value, to: prototype.shape)
@@ -1048,7 +1048,7 @@ import Foundation
 @inlinable public func repeating<S,E,Element>(
     _ value: Element.Value,
     like prototype: Tensor<S,E>,
-    dtype: Element.Type,
+    type: Element.Type,
     shape: Shape1.Tuple
 ) -> Tensor<Shape1, Element> where S: TensorShape
 {
@@ -1061,7 +1061,7 @@ import Foundation
 @inlinable public func repeating<S,E,Element>(
     _ value: Element.Value,
     like prototype: Tensor<S,E>,
-    dtype: Element.Type,
+    type: Element.Type,
     shape: Shape2.Tuple
 ) -> Tensor<Shape2, Element> where S: TensorShape
 {
@@ -1074,7 +1074,7 @@ import Foundation
 @inlinable public func repeating<S,E,Element>(
     _ value: Element.Value,
     like prototype: Tensor<S,E>,
-    dtype: Element.Type,
+    type: Element.Type,
     shape: Shape3.Tuple
 ) -> Tensor<Shape3, Element> where S: TensorShape
 {
@@ -1087,7 +1087,7 @@ import Foundation
 @inlinable public func repeating<S,E,Element>(
     _ value: Element.Value,
     like prototype: Tensor<S,E>,
-    dtype: Element.Type,
+    type: Element.Type,
     shape: Shape4.Tuple
 ) -> Tensor<Shape4, Element> where S: TensorShape
 {
@@ -1100,7 +1100,7 @@ import Foundation
 @inlinable public func repeating<S,E,Element>(
     _ value: Element.Value,
     like prototype: Tensor<S,E>,
-    dtype: Element.Type,
+    type: Element.Type,
     shape: Shape5.Tuple
 ) -> Tensor<Shape5, Element> where S: TensorShape
 {
@@ -1113,7 +1113,7 @@ import Foundation
 @inlinable public func repeating<S,E,Element>(
     _ value: Element.Value,
     like prototype: Tensor<S,E>,
-    dtype: Element.Type,
+    type: Element.Type,
     shape: Shape6.Tuple
 ) -> Tensor<Shape6, Element> where S: TensorShape
 {

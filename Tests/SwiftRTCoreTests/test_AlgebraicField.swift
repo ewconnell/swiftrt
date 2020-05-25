@@ -171,8 +171,8 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_addInt32
     func test_addInt32() {
-        let a = array(0..<6, (3, 2), dtype: Int32.self)
-        let b = array(0..<6, (3, 2), dtype: Int32.self)
+        let a = array(0..<6, (3, 2), type: Int32.self)
+        let b = array(0..<6, (3, 2), type: Int32.self)
         let result = a + b
         XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
     }
@@ -180,8 +180,8 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_addUInt8
     func test_addUInt8() {
-        let a = array(0..<6, (3, 2), dtype: UInt8.self)
-        let b = array(0..<6, (3, 2), dtype: UInt8.self)
+        let a = array(0..<6, (3, 2), type: UInt8.self)
+        let b = array(0..<6, (3, 2), type: UInt8.self)
         let result = a + b
         XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
     }
@@ -189,7 +189,7 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_addScalar
     func test_addScalar() {
-        let a = array(1...6, (3, 2), dtype: Float.self)
+        let a = array(1...6, (3, 2), type: Float.self)
         let result = a + 1
         let expected: [[Float]] = [[2, 3], [4, 5], [6, 7]]
         XCTAssert(result == expected)
@@ -273,8 +273,8 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_subtract
     func test_subtract() {
-        let a = array(1..<7, (3, 2), dtype: Float.self)
-        let b = array(0..<6, (3, 2), dtype: Float.self)
+        let a = array(1..<7, (3, 2), type: Float.self)
+        let b = array(0..<6, (3, 2), type: Float.self)
         let result = a - b
         XCTAssert(result.flatArray == [1, 1, 1, 1, 1, 1])
 
@@ -379,13 +379,13 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_div
     func test_div() {
-        let a = array([[1, 4], [9, 16], [25, 36]], dtype: Float.self)
-        let b = array(1...6, (3, 2), dtype: Float.self)
+        let a = array([[1, 4], [9, 16], [25, 36]], type: Float.self)
+        let b = array(1...6, (3, 2), type: Float.self)
         let result = a / b
         XCTAssert(result == [[1, 2], [3, 4], [5, 6]])
 
         let (g1, g2) = pullback(at: a, b, in: { $0 / $1 })(ones(like: a))
-        let g1Expected = array([[1, 0.5], [0.3333333, 0.25], [0.2, 0.1666666]], dtype: Float.self)
+        let g1Expected = array([[1, 0.5], [0.3333333, 0.25], [0.2, 0.1666666]], type: Float.self)
         XCTAssert(abssum(g1 - g1Expected).element <= 1e-6)
         XCTAssert(g2.array == [[-1, -1], [-1, -1], [-1, -1]])
         
@@ -403,7 +403,7 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_divScalar
     func test_divScalar() {
-        let a = array(1...6, (3, 2), dtype: Float.self)
+        let a = array(1...6, (3, 2), type: Float.self)
         let result = a / 2
         XCTAssert(result == [[0.5, 1], [1.5, 2], [2.5, 3]])
     }
@@ -411,7 +411,7 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_divAndAssign
     func test_divAndAssign() {
-        var a = array(1...6, (3, 2), dtype: Float.self)
+        var a = array(1...6, (3, 2), type: Float.self)
         a /= 2
         XCTAssert(a == [[0.5, 1], [1.5, 2], [2.5, 3]])
     }

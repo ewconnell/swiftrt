@@ -32,13 +32,13 @@ import Foundation
 /// - Parameters:
 ///  - elements: a collection of elements used to initialize storage
 ///  - shape: Int or tuple of Int describing the dimensions of the array
-///  - dtype: data-type, optional
+///  - type: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
 ///  - order: { .C, .F }, optional, default .C
 ///    Whether to store multi-dimensional data in row-major (C-style)
 ///    or column-major (Fortran-style) order in memory.
 /// - Returns: Tensor of uninitialized (arbitrary) data of the given shape,
-///   dtype, and order. Elements will not be initialized.
+///   type, and order. Elements will not be initialized.
 
 //******************************************************************************
 // This section converts a flat Collection --> TensorR1
@@ -71,7 +71,7 @@ import Foundation
 // C.Element Bool --> numeric Element.Value
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element == Bool, Element.Value: Numeric
 {
@@ -82,7 +82,7 @@ import Foundation
 // C.Element integer --> numeric Element.Value
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
 {
@@ -93,7 +93,7 @@ import Foundation
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
 {
@@ -104,7 +104,7 @@ import Foundation
 // C.Element floating --> integer Element.Value
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
@@ -148,7 +148,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape2.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Element>
     where C.Element == Bool, Element.Value: Numeric
@@ -161,7 +161,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape2.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
@@ -174,7 +174,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape2.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
@@ -187,7 +187,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape2.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
@@ -228,7 +228,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape3.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Element>
     where C.Element == Bool, Element.Value: Numeric
@@ -241,7 +241,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape3.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
@@ -254,7 +254,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape3.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
@@ -267,7 +267,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape3.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
@@ -308,7 +308,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape4.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Element>
     where C.Element == Bool, Element.Value: Numeric
@@ -321,7 +321,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape4.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
@@ -334,7 +334,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape4.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
@@ -347,7 +347,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape4.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
@@ -388,7 +388,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape5.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Element>
     where C.Element == Bool, Element.Value: Numeric
@@ -401,7 +401,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape5.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
@@ -414,7 +414,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape5.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
@@ -427,7 +427,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape5.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
@@ -468,7 +468,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape6.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Element>
     where C.Element == Bool, Element.Value: Numeric
@@ -481,7 +481,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape6.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
@@ -494,7 +494,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape6.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
@@ -507,7 +507,7 @@ import Foundation
 @inlinable public func array<C: Collection, Element>(
     _ elements: C,
     _ shape: Shape6.Tuple,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
@@ -571,7 +571,7 @@ import Foundation
 // C.Element Bool --> numeric Element.Value
 @inlinable public func array<C,Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Element>
     where
@@ -592,7 +592,7 @@ import Foundation
 // C.Element integer --> numeric Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Element>
     where
@@ -612,7 +612,7 @@ import Foundation
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Element>
     where
@@ -633,7 +633,7 @@ import Foundation
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape2,Element>
     where
@@ -704,7 +704,7 @@ import Foundation
 // C.Element Bool --> numeric Element.Value
 @inlinable public func array<C,Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Element>
     where
@@ -727,7 +727,7 @@ import Foundation
 // C.Element integer --> numeric Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Element>
     where
@@ -749,7 +749,7 @@ import Foundation
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Element>
     where
@@ -772,7 +772,7 @@ import Foundation
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape3,Element>
     where
@@ -849,7 +849,7 @@ import Foundation
 // C.Element Bool --> numeric Element.Value
 @inlinable public func array<C,Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Element>
     where
@@ -874,7 +874,7 @@ import Foundation
 // C.Element integer --> numeric Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Element>
     where
@@ -898,7 +898,7 @@ import Foundation
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Element>
     where
@@ -923,7 +923,7 @@ import Foundation
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape4,Element>
     where
@@ -1006,7 +1006,7 @@ import Foundation
 // C.Element Bool --> numeric Element.Value
 @inlinable public func array<C,Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Element>
     where
@@ -1033,7 +1033,7 @@ import Foundation
 // C.Element integer --> numeric Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Element>
     where
@@ -1059,7 +1059,7 @@ import Foundation
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Element>
     where
@@ -1086,7 +1086,7 @@ import Foundation
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape5,Element>
     where
@@ -1175,7 +1175,7 @@ import Foundation
 // C.Element Bool --> numeric Element.Value
 @inlinable public func array<C,Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Element>
     where
@@ -1204,7 +1204,7 @@ import Foundation
 // C.Element integer --> numeric Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Element>
     where
@@ -1232,7 +1232,7 @@ import Foundation
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Element>
     where
@@ -1261,7 +1261,7 @@ import Foundation
 // C.Element floating --> floating Element.Value
 @inlinable public func array<C, Element>(
     _ elements: C,
-    dtype: Element.Type,
+    type: Element.Type,
     order: StorageOrder = .C
 ) -> Tensor<Shape6,Element>
     where
