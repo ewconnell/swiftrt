@@ -149,13 +149,14 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // test_add
     func test_add() {
-        let a = array([[0.0, 1], [2, 3], [4, 5]])
-        let b = array([[0.0, 1], [2, 3], [4, 5]])
+        let a = array([[0, 1], [2, 3], [4, 5]])
+        let b = array([[0, 1], [2, 3], [4, 5]])
         let result = a + b
         XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
 
         // both
         let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(ones(like: a))
+        
         XCTAssert(g1.flatArray == [1, 1, 1, 1, 1, 1])
         XCTAssert(g2.flatArray == [1, 1, 1, 1, 1, 1])
         
@@ -311,7 +312,9 @@ class test_AlgebraicField: XCTestCase {
             [3, 4],
             [5, 6]
         ])
-        let col = repeating(array(0...2, (3, 1)), (3, 2))
+        let c = array(0...2, (3, 1))
+        print(c)
+        let col = repeating(c, (3, 2))
 
         let result = a - col
         let expected: [[Float]] = [

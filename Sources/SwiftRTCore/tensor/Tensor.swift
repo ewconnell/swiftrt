@@ -18,7 +18,10 @@ import Numerics
 
 //==============================================================================
 /// Tensor
-public struct Tensor<Shape, TensorElement>: TensorProtocol, MutableCollection
+public struct Tensor<Shape, TensorElement>:
+    TensorProtocol,
+    MutableCollection,
+    CustomStringConvertible
 where Shape: TensorShape, TensorElement: StorageElement
 {
     // types
@@ -69,6 +72,10 @@ where Shape: TensorShape, TensorElement: StorageElement
     /// the element storage order
     @inlinable public var layout: Layout { storage.layout }
     
+    // layout indexers
+    @noDerivative public var rowSequential: RowSequential<Shape, TensorElement>?
+    @noDerivative public var colSequential: ColSequential<Shape, TensorElement>?
+
     //--------------------------------------------------------------------------
     /// init(
     /// Used to initialize a collection of dense stored elements
@@ -93,6 +100,11 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.startIndex = Index(Shape.zero, baseOffset)
         self.endIndex = Index(shape, baseOffset + count)
         self.logicalStrides = shape.strides()
+        
+        switch storage.layout {
+        case .row: rowSequential = RowSequential(self)
+        case .col: colSequential = ColSequential(self)
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -111,6 +123,11 @@ where Shape: TensorShape, TensorElement: StorageElement
         storage = StorageBufferType<TensorElement>(single: element)
         storage.name = "Element"
         logicalStrides = shape.strides()
+        
+        switch storage.layout {
+        case .row: rowSequential = RowSequential(self)
+        case .col: colSequential = ColSequential(self)
+        }
     }
 }
 

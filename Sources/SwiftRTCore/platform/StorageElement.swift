@@ -258,7 +258,7 @@ public struct BufferSequential<Shape, TensorElement>: MutableCollection
         hostBuffer = tensor.storage.hostBuffer
         startIndex = tensor.startIndex
         endIndex = tensor.endIndex
-        isSingleElement = tensor.count == 1
+        isSingleElement = tensor.spanCount == 1
     }
     
     @inlinable public init(mutating tensor: Tensor<Shape, TensorElement>) {
@@ -324,7 +324,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         hostBuffer = tensor.storage.hostBuffer
         startIndex = tensor.startIndex
         endIndex = tensor.endIndex
-        isSingleElement = tensor.count == 1
+        isSingleElement = tensor.spanCount == 1
     }
     
     @inlinable public init(mutating tensor: Tensor<Shape, TensorElement>) {
