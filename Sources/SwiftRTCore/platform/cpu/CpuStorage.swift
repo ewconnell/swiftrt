@@ -163,28 +163,28 @@ where Element: StorageElement
     
     //--------------------------------------------------------------------------
     // read
-    @inlinable
-    public func read(at offset: Int, count: Int) -> UnsafeBufferPointer<Element.Stored>
-    {
+    @inlinable public func read(
+        at offset: Int,
+        count: Int
+    ) -> UnsafeBufferPointer<Element.Stored> {
         let start = hostBuffer.baseAddress!.advanced(by: offset)
         return UnsafeBufferPointer(start: start, count: count)
     }
     
     //--------------------------------------------------------------------------
     // read
-    @inlinable
-    public func read(at offset: Int, count: Int,
-                     using queue: PlatformType.Device.Queue)
-        -> UnsafeBufferPointer<Element.Stored>
-    {
+    @inlinable public func read(
+        at offset: Int,
+        count: Int,
+        using queue: PlatformType.Device.Queue
+    ) -> UnsafeBufferPointer<Element.Stored> {
         let start = hostBuffer.baseAddress!.advanced(by: offset)
         return UnsafeBufferPointer(start: start, count: count)
     }
     
     //--------------------------------------------------------------------------
     // readWrite
-    @inlinable
-    public func readWrite(at offset: Int, count: Int)
+    @inlinable public func readWrite(at offset: Int, count: Int)
         -> UnsafeMutableBufferPointer<Element.Stored>
     {
         let start = hostBuffer.baseAddress!.advanced(by: offset)
@@ -193,11 +193,11 @@ where Element: StorageElement
     
     //--------------------------------------------------------------------------
     // readWrite
-    @inlinable
-    public func readWrite(at offset: Int, count: Int, willOverwrite: Bool,
-                          using queue: PlatformType.Device.Queue)
-        -> UnsafeMutableBufferPointer<Element.Stored>
-    {
+    @inlinable public func readWrite(
+        at offset: Int,
+        count: Int,
+        using queue: PlatformType.Device.Queue
+    ) -> UnsafeMutableBufferPointer<Element.Stored> {
         let start = hostBuffer.baseAddress!.advanced(by: offset)
         return UnsafeMutableBufferPointer(start: start, count: count)
     }

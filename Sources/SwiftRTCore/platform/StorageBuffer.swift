@@ -126,17 +126,14 @@ public protocol StorageBuffer: class, Logging {
     func readWrite(at index: Int, count: Int)
         -> UnsafeMutableBufferPointer<Element.Stored>
 
-    /// `readWrite(type:index:count:willOverwrite:queue:
+    /// `readWrite(type:index:count:queue:
     /// - Parameters:
     ///  - index: the buffer base index within storage
     ///  - count: the number of elements to be accessed
     ///  - queue: queue for device placement and synchronization
-    ///  - willOverwrite: `true` if the caller guarantees all
-    ///    buffer elements will be overwritten
     /// - Returns: a mutable buffer pointer to the elements.
     ///   Elements will be valid when the queue reaches this point
     func readWrite(at index: Int, count: Int,
-                   willOverwrite: Bool,
                    using queue: PlatformType.Device.Queue)
         -> UnsafeMutableBufferPointer<Element.Stored>
 }
