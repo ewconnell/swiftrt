@@ -17,7 +17,12 @@
 //
 import Foundation
 
-public struct Float16 : Equatable, Comparable, AdditiveArithmetic {
+public struct Float16 :
+    Equatable,
+    Comparable,
+    AdditiveArithmetic,
+    ExpressibleByFloatLiteral
+{
     // properties
     public let x: UInt16
 
@@ -34,6 +39,9 @@ public struct Float16 : Equatable, Comparable, AdditiveArithmetic {
         guard let v = Float(string) else { return nil }
         self = FloatToFloat16Rnd(v)
 	}
+    @inlinable public init(floatLiteral value: Value) {
+        self.init(value)
+    }
     @inlinable public init(_ v: UInt8)  { self.init(Float(v)) }
     @inlinable public init(_ v: UInt16) { self.init(Float(v)) }
     @inlinable public init(_ v: Int16)  { self.init(Float(v)) }

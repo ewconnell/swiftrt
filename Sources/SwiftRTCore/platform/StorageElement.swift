@@ -173,7 +173,7 @@ public struct UInt4: PackedStorageElement, ExpressibleByIntegerLiteral {
 extension Float16: StorageElement {
     public typealias Stored = Self
     public typealias Value = Float
-    
+
     @inlinable public static func value(
         from stored: Stored, at index: Int
     ) -> Value {
