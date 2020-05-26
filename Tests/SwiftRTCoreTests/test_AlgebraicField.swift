@@ -312,11 +312,14 @@ class test_AlgebraicField: XCTestCase {
             [3, 4],
             [5, 6]
         ])
-        let c = array(0...2, (3, 1))
-        print(c)
-        let col = repeating(c, (3, 2))
+        let cols = repeating(array(0...2, (3, 1)), (3, 2))
+        XCTAssert(cols == [
+            [0.0, 0.0],
+            [1.0, 1.0],
+            [2.0, 2.0]
+        ])
 
-        let result = a - col
+        let result = a - cols
         let expected: [[Float]] = [
             [1, 2],
             [2, 3],
@@ -324,7 +327,7 @@ class test_AlgebraicField: XCTestCase {
         ]
         XCTAssert(result == expected)
 
-        let result2 = col - a
+        let result2 = cols - a
         let expected2: [[Float]] = [
             [-1, -2],
             [-2, -3],

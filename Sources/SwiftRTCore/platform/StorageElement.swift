@@ -138,7 +138,7 @@ public extension PackedStorageElement
 
 //==============================================================================
 // packed bit types that automatically cast to a native type during iteration
-public struct UInt1: PackedStorageElement, ExpressibleByIntegerLiteral {
+public struct UInt1: PackedStorageElement {
     public typealias Stored = UInt8
     public typealias Value = Int
     @inlinable public static var indexShift: Int { 3 }
@@ -146,14 +146,9 @@ public struct UInt1: PackedStorageElement, ExpressibleByIntegerLiteral {
     @inlinable public static var valueMask: Stored { 0x1 }
     @inlinable public static var valueMin: Value { 0 }
     @inlinable public static var valueMax: Value { 1 }
-    public var _value: Value
-    
-    @inlinable public init(integerLiteral value: Value) {
-        _value = value
-    }
 }
 
-public struct UInt4: PackedStorageElement, ExpressibleByIntegerLiteral {
+public struct UInt4: PackedStorageElement {
     public typealias Stored = UInt8
     public typealias Value = Int
     @inlinable public static var indexShift: Int { 1 }
@@ -161,11 +156,6 @@ public struct UInt4: PackedStorageElement, ExpressibleByIntegerLiteral {
     @inlinable public static var valueMask: Stored { 0x0F }
     @inlinable public static var valueMin: Value { 0 }
     @inlinable public static var valueMax: Value { 15 }
-    public var _value: Value
-
-    @inlinable public init(integerLiteral value: Value) {
-        _value = value
-    }
 }
 
 //==============================================================================
