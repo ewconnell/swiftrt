@@ -73,8 +73,8 @@ where Shape: TensorShape, TensorElement: StorageElement
     @inlinable public var layout: Layout { storage.layout }
     
     // layout indexers
-    @noDerivative public var rowSequential: RowSequential<Shape, TensorElement>?
-    @noDerivative public var colSequential: ColSequential<Shape, TensorElement>?
+//    @noDerivative public var rowSequential: RowSequential<Shape, TensorElement>?
+//    @noDerivative public var colSequential: ColSequential<Shape, TensorElement>?
 
     //--------------------------------------------------------------------------
     /// init(
@@ -101,10 +101,10 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.endIndex = Index(shape, baseOffset + count)
         self.logicalStrides = shape.strides()
         
-        switch storage.layout {
-        case .row: rowSequential = RowSequential(self)
-        case .col: colSequential = ColSequential(self)
-        }
+//        switch storage.layout {
+//        case .row: rowSequential = RowSequential(self)
+//        case .col: colSequential = ColSequential(self)
+//        }
     }
     
     //--------------------------------------------------------------------------
@@ -124,10 +124,10 @@ where Shape: TensorShape, TensorElement: StorageElement
         storage.name = "Element"
         logicalStrides = shape.strides()
         
-        switch storage.layout {
-        case .row: rowSequential = RowSequential(self)
-        case .col: colSequential = ColSequential(self)
-        }
+//        switch storage.layout {
+//        case .row: rowSequential = RowSequential(self)
+//        case .col: colSequential = ColSequential(self)
+//        }
     }
 }
 
