@@ -31,6 +31,7 @@ public final class CpuQueue: DeviceQueue, CpuFunctions {
     public let mode: DeviceQueueMode
     public let name: String
     public var queue: DispatchQueue
+    public let usesCpu: Bool
     
     //--------------------------------------------------------------------------
     // initializers
@@ -52,6 +53,7 @@ public final class CpuQueue: DeviceQueue, CpuFunctions {
         self.memoryType = memoryType
         self.mode = mode
         self.queue = DispatchQueue(label: "\(deviceName)_\(name)")
+        self.usesCpu = true
         
         diagnostic("\(createString) queue: \(deviceName)_\(name)",
                    categories: .queueAlloc)

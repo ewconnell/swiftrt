@@ -34,12 +34,24 @@ where Shape: TensorShape, TensorElement: StorageElement
     public let count: Int
     /// the unique storage id
     @inlinable public var id: Int { storage.id }
+    /// `true` if the tensor elements are densely packed
+    @inlinable public var isContiguous: Bool { count == spanCount }
     /// `true` if elements are in row major contiguous order
     // this is a stored property, because it's used during
     // gpu dispatch decision making
     public let isSequential: Bool
+    /// `true` if the view will be shared by by multiple writers
+    @inlinable public var isShared: Bool { _isShared }
+    public var _isShared: Bool
+    /// the element storage order
+    @inlinable public var layout: Layout { storage.layout }
     /// the strides used to subscript the logical shape (used by makeIndex)
     public let logicalStrides: Shape
+    /// the name of the collection
+    @inlinable public var name: String {
+        get { storage.name }
+        set { storage.name = newValue }
+    }
     /// the dimensions of the element space
     @noDerivative public let shape: Shape
     /// The strided number of elements spanned by the shape
@@ -48,33 +60,15 @@ where Shape: TensorShape, TensorElement: StorageElement
     public let strides: Shape
     /// the element storage buffer.
     public var storage: StorageBufferType<TensorElement>
-
-    //-----------------------------------
-    /// `true` if the view will be shared by by multiple writers
-    @inlinable public var isShared: Bool { _isShared }
-    public var _isShared: Bool
-
-    //-----------------------------------
     /// the starting index zero relative to the storage buffer
     public let startIndex: Index
     /// the ending index zero relative to the storage buffer
     public let endIndex: Index
 
-    /// `true` if the tensor elements are densely packed
-    @inlinable public var isContiguous: Bool { count == spanCount }
-
-    /// the name of the collection
-    @inlinable public var name: String {
-        get { storage.name }
-        set { storage.name = newValue }
-    }
-
-    /// the element storage order
-    @inlinable public var layout: Layout { storage.layout }
-    
+    //----------------
     // layout indexers
-//    @noDerivative public var rowSequential: RowSequential<Shape, TensorElement>?
-//    @noDerivative public var colSequential: ColSequential<Shape, TensorElement>?
+    @noDerivative public var rowSequential: RowSequential<Shape,TensorElement>!
+    @noDerivative public var colSequential: ColSequential<Shape,TensorElement>!
 
     //--------------------------------------------------------------------------
     /// init(
@@ -100,11 +94,14 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.startIndex = Index(Shape.zero, baseOffset)
         self.endIndex = Index(shape, baseOffset + count)
         self.logicalStrides = shape.strides()
-        
-//        switch storage.layout {
-//        case .row: rowSequential = RowSequential(self)
-//        case .col: colSequential = ColSequential(self)
-//        }
+
+        // TODO: examine cross queue cases
+        if Context.currentQueue.usesCpu {
+            switch storage.layout {
+            case .row: rowSequential = RowSequential(self)
+            case .col: colSequential = ColSequential(self)
+            }
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -124,10 +121,12 @@ where Shape: TensorShape, TensorElement: StorageElement
         storage.name = "Element"
         logicalStrides = shape.strides()
         
-//        switch storage.layout {
-//        case .row: rowSequential = RowSequential(self)
-//        case .col: colSequential = ColSequential(self)
-//        }
+        if Context.currentQueue.usesCpu {
+            switch storage.layout {
+            case .row: rowSequential = RowSequential(self)
+            case .col: colSequential = ColSequential(self)
+            }
+        }
     }
 }
 
@@ -276,30 +275,27 @@ public extension Tensor {
     /// index(i:
     @inlinable func index(after i: Index) -> Index {
         switch storage.layout {
-        case .row: return RowSequential(self).index(after: i)
-        case .col: return ColSequential(self).index(after: i)
+        case .row: return rowSequential.index(after: i)
+        case .col: return colSequential.index(after: i)
         }
     }
 
     //--------------------------------------------------------------------------
     // elemment subscript
-    // NOTE: with only a single tensor type allowed, lifting the branch out
-    // of this per index function turned out to have worse performance
-    // because it prevented inlining cross module. As is, the branches
-    // don't appear to affect perf numbers.
     @inlinable subscript(i: Index) -> Element {
         get {
-            // designed for adding more layouts
+            read()
             switch storage.layout {
-            case .row: return RowSequential(self)[i]
-            case .col: return ColSequential(self)[i]
+            case .row: return rowSequential[i]
+            case .col: return colSequential[i]
             }
         }
         
         set {
+            readWrite()
             switch storage.layout {
-            case .row: _ = RowSequential(mutating: self, i, newValue)
-            case .col: _ = ColSequential(mutating: self, i, newValue)
+            case .row: rowSequential[i] = newValue
+            case .col: colSequential[i] = newValue
             }
         }
     }
@@ -335,11 +331,11 @@ public extension Tensor {
 
     //--------------------------------------------------------------------------
     /// shared(
+    /// - Returns: a shared copy of `self` with `isShared` set to `true`
     @inlinable mutating func shared() -> Self {
-        // copy self and set the isShared flag to true
-        var sharedDense = self
-        sharedDense._isShared = true
-        return sharedDense
+        var sharedSelf = self
+        sharedSelf._isShared = true
+        return sharedSelf
     }
 
     //--------------------------------------------------------------------------

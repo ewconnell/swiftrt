@@ -40,6 +40,8 @@ public protocol DeviceQueue: Logging {
     var name: String { get }
     /// the asynchronous operation queue
     var queue: DispatchQueue { get set }
+    /// `true` if the queue executes work on the cpu
+    var usesCpu: Bool { get }
 
     //--------------------------------------------------------------------------
     /// allocate(type:count:heapIndex:
