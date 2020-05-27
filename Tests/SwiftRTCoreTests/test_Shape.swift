@@ -206,9 +206,7 @@ class test_Shape: XCTestCase {
         let a = ones(1024 * 1024)
         var count: DType = 0
         self.measure {
-            for value in a {
-                count += value
-            }
+            count = a.reduce(into: 0) { $0 += $1 }
         }
         XCTAssert(count > 0)
         #endif
@@ -223,9 +221,7 @@ class test_Shape: XCTestCase {
         
         // 0.001s
         self.measure {
-            for value in a {
-                count += value
-            }
+            count = a.reduce(into: 0) { $0 += $1 }
         }
         XCTAssert(count > 0)
         #endif
@@ -238,9 +234,7 @@ class test_Shape: XCTestCase {
         let a = repeating(1, (64, 128, 128))
         var count: DType = 0
         self.measure {
-            for value in a {
-                count += value
-            }
+            count = a.reduce(into: 0) { $0 += $1 }
         }
         XCTAssert(count > 0)
         #endif
@@ -253,9 +247,7 @@ class test_Shape: XCTestCase {
         let a = ones((64, 128, 128))
         var count: DType = 0
         self.measure {
-            for value in a {
-                count += value
-            }
+            count = a.reduce(into: 0) { $0 += $1 }
         }
         XCTAssert(count > 0)
         #endif
@@ -268,9 +260,7 @@ class test_Shape: XCTestCase {
         let a = ones((2, 32, 128, 128))
         var count: DType = 0
         self.measure {
-            for value in a {
-                count += value
-            }
+            count = a.reduce(into: 0) { $0 += $1 }
         }
         XCTAssert(count > 0)
         #endif
@@ -283,9 +273,7 @@ class test_Shape: XCTestCase {
         let a = ones((2, 2, 16, 128, 128))
         var count: DType = 0
         self.measure {
-            for value in a {
-                count += value
-            }
+            count = a.reduce(into: 0) { $0 += $1 }
         }
         XCTAssert(count > 0)
         #endif
@@ -314,7 +302,7 @@ class test_Shape: XCTestCase {
         self.measure {
             for _ in 0..<100000 {
                 let a = Tensor1(repeating: 1, to: Shape1(1))
-                count += a.element
+                count += a.first
             }
         }
         XCTAssert(count > 0)
@@ -329,7 +317,7 @@ class test_Shape: XCTestCase {
         self.measure {
             for _ in 0..<100000 {
                 let a = Tensor1(1)
-                count += a.element
+                count += a.first
             }
         }
         XCTAssert(count > 0)
