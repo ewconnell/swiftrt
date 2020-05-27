@@ -267,14 +267,6 @@ public struct BufferSequential<Shape, TensorElement>: MutableCollection
         isSingleElement = tensor.spanCount == 1
     }
     
-    @inlinable public init(
-        mutating tensor: Tensor<Shape, TensorElement>,
-        _ index: Index, _ newValue: Element
-    ) {
-        self.init(mutating: tensor)
-        self[index] = newValue
-    }
-    
     @inlinable public func index(after i: Index) -> Index {
         Index(at: i.sequencePosition &+ 1)
     }
@@ -331,14 +323,6 @@ where Shape: TensorShape, TensorElement: StorageElement
     
     @inlinable public init(mutating tensor: Tensor<Shape, TensorElement>) {
         self.init(tensor)
-    }
-    
-    @inlinable public init(
-        mutating tensor: Tensor<Shape, TensorElement>,
-        _ index: Index, _ newValue: Element
-    ) {
-        self.init(tensor)
-        self[index] = newValue
     }
     
     @inlinable public func index(after i: Index) -> Index {

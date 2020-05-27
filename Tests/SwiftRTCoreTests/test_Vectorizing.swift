@@ -180,9 +180,9 @@ class test_Vectorizing: XCTestCase {
         var count: DType = 0
         
         func mapOp1<S,E>(
-            _ lhs: Tensor<S,E>, _ rhs: E,
-            _ r: inout Tensor<S,E>, _ op: (E, E) -> E)
-        where S: TensorShape, E: AdditiveArithmetic
+            _ lhs: Tensor<S,E>, _ rhs: E.Value,
+            _ r: inout Tensor<S,E>, _ op: (E.Value, E.Value) -> E.Value)
+        where S: TensorShape, E.Value: AdditiveArithmetic
         {
             zip(r.indices, lhs).forEach { r[$0] = $1 + rhs }
         }
@@ -190,7 +190,7 @@ class test_Vectorizing: XCTestCase {
         func mapOp2<S,E>(
             _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
             _ r: inout Tensor<S,E>, _ op: (E, E) -> E)
-        where S: TensorShape, E: Numeric
+        where S: TensorShape, E.Value: Numeric
         {
             zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = $1.0 * $1.1 + 1 }
         }

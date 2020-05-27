@@ -290,7 +290,22 @@ class test_Shape: XCTestCase {
         XCTAssert(count > 0)
         #endif
     }
-    
+
+    //--------------------------------------------------------------------------
+    // test_initEmpty
+    func test_initEmpty() {
+        #if !DEBUG
+        var count: DType = 0
+        self.measure {
+            for _ in 0..<100000 {
+                let a = Tensor2(Shape2(2, 5))
+                count = a.first
+            }
+        }
+        XCTAssert(count != 3.1415926)
+        #endif
+    }
+
     //--------------------------------------------------------------------------
     // test_initRepeating
     func test_initRepeating() {

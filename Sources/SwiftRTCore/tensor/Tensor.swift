@@ -98,8 +98,8 @@ where Shape: TensorShape, TensorElement: StorageElement
         // TODO: examine cross queue cases
         if Context.currentQueue.usesCpu {
             switch storage.layout {
-            case .row: rowSequential = RowSequential(self)
-            case .col: colSequential = ColSequential(self)
+            case .row: rowSequential = RowSequential(mutating: self)
+            case .col: colSequential = ColSequential(mutating: self)
             }
         }
     }
@@ -123,8 +123,8 @@ where Shape: TensorShape, TensorElement: StorageElement
         
         if Context.currentQueue.usesCpu {
             switch storage.layout {
-            case .row: rowSequential = RowSequential(self)
-            case .col: colSequential = ColSequential(self)
+            case .row: rowSequential = RowSequential(mutating: self)
+            case .col: colSequential = ColSequential(mutating: self)
             }
         }
     }
