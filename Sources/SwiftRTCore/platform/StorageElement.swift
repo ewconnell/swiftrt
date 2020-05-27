@@ -75,6 +75,8 @@ public extension StorageElement {
     @inlinable static func storedCount(_ count: Int) -> Int { count }
 }
 
+//-------------------------------------
+// Stored == Value
 public extension StorageElement where Stored == Value {
     @inlinable static func value(
         from stored: Stored,
@@ -161,24 +163,15 @@ public struct UInt4: PackedStorageElement {
 //==============================================================================
 // non native types that automatically cast to a native type during iteration
 extension Float16: StorageElement {
-    public typealias Stored = Self
-    public typealias Value = Float
-
     @inlinable public static func value(
-        from stored: Stored, at index: Int
-    ) -> Value {
-        Value(stored)
-    }
+        from stored: Self, at index: Int
+    ) -> Float { Float(stored) }
     
     @inlinable public static func store(
-        value: Value, at index: Int, to stored: inout Stored
-    ) {
-        stored = Stored(value)
-    }
-    
-    @inlinable public static func stored(value: Value) -> Stored {
-        Stored(value)
-    }
+        value: Float, at index: Int, to stored: inout Self
+    ) { stored = Self(value) }
+
+    @inlinable public static func stored(value: Float) -> Self { Self(value) }
 }
 
 //==============================================================================
