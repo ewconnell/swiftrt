@@ -28,104 +28,111 @@ where Shape: TensorShape, TensorElement: StorageElement
     public typealias Index = ElementIndex<Shape>
     public typealias Element = TensorElement.Value
     
-    /// the storage buffer base offset where this tensor's elements begin
-    public let baseOffset: Int
-    /// the dense number of elements in the shape
+    // properties
+    /// the number of element
     public let count: Int
+    /// `true` if the view will be shared by by multiple writers
+    public var isShared: Bool
+    /// the dimensions of the element space
+    @noDerivative public let shape: Shape
+    /// the element storage buffer.
+    public var storage: StorageBufferType<TensorElement>
+    /// the storage buffer base index where this tensor's elements begin
+    public let storageBase: Int
+    /// the number of storage elements spanned by this tensor
+    public let storageSpanCount: Int
+    /// The distance to the next element along each dimension
+    public let strides: Shape
+
+    //--------------------------------------------------------------------------
+    // functional properties
     /// the unique storage id
     @inlinable public var id: Int { storage.id }
-    /// `true` if the tensor elements are densely packed
-    @inlinable public var isContiguous: Bool { count == spanCount }
-    /// `true` if elements are in row major contiguous order
-    // this is a stored property, because it's used during
-    // gpu dispatch decision making
-    public let isSequential: Bool
-    /// `true` if the view will be shared by by multiple writers
-    @inlinable public var isShared: Bool { _isShared }
-    public var _isShared: Bool
     /// the element storage order
     @inlinable public var layout: Layout { storage.layout }
-    /// the strides used to subscript the logical shape (used by makeIndex)
-    public let logicalStrides: Shape
     /// the name of the collection
     @inlinable public var name: String {
         get { storage.name }
         set { storage.name = newValue }
     }
-    /// the dimensions of the element space
-    @noDerivative public let shape: Shape
-    /// The strided number of elements spanned by the shape
-    public let spanCount: Int
-    /// The distance to the next element along each dimension
-    public let strides: Shape
-    /// the element storage buffer.
-    public var storage: StorageBufferType<TensorElement>
+    /// `true` if the tensor elements are densely packed
+    @inlinable public var isContiguous: Bool { storageSpanCount == count }
+
+    /// `true` if the `buffer` or `mutableBuffer` iterators can be used
+    @inlinable public var isBufferIterable: Bool {
+        storageSpanCount == 1 || storageSpanCount == count
+    }
+
     /// the starting index zero relative to the storage buffer
-    public let startIndex: Index
+    @inlinable public var startIndex: Index {
+        switch self.storage.layout {
+        case .row, .col: return stridedElements.startIndex
+        }
+    }
+    
     /// the ending index zero relative to the storage buffer
-    public let endIndex: Index
+    @inlinable public var endIndex: Index {
+        switch self.storage.layout {
+        case .row, .col: return stridedElements.endIndex
+        }
+    }
 
     //----------------
-    // layout indexers
-    @noDerivative public var rowSequential: RowSequential<Shape,TensorElement>!
-    @noDerivative public var colSequential: ColSequential<Shape,TensorElement>!
+    // Iterates storage elements using logical index coordinates and strides
+    @noDerivative public var stridedElements: StridedElements<Shape,TensorElement>!
+
+    //--------------------------------------------------------------------------
+    // sequential buffer element iterators
+    @inlinable public var buffer: BufferElements<Shape,TensorElement> {
+        BufferElements(self)
+    }
+
+    @inlinable public var mutableBuffer: BufferElements<Shape,TensorElement> {
+        BufferElements(mutating: self)
+    }
 
     //--------------------------------------------------------------------------
     /// init(
-    /// Used to initialize a collection of dense stored elements
+    /// Used to initialize an element collection subview
     @inlinable public init(
         shape: Shape,
         strides: Shape,
         count: Int,
-        spanCount: Int,
         storage: StorageBufferType<TensorElement>,
-        baseOffset: Int,
-        share: Bool,
-        isSequential: Bool
+        storageBase: Int,
+        storageSpanCount: Int,
+        shared: Bool
     ) {
         self.shape = shape
         self.strides = strides
         self.count = count
-        self.spanCount = spanCount
         self.storage = storage
-        self.baseOffset = baseOffset
-        self._isShared = share
-        self.isSequential = isSequential
-        self.startIndex = Index(Shape.zero, baseOffset)
-        self.endIndex = Index(shape, baseOffset + count)
-        self.logicalStrides = shape.strides()
+        self.storageBase = storageBase
+        self.storageSpanCount = storageSpanCount
+        self.isShared = shared
 
-        // TODO: examine cross queue cases
-        if Context.currentQueue.usesCpu {
-            switch storage.layout {
-            case .row: rowSequential = RowSequential(mutating: self)
-            case .col: colSequential = ColSequential(mutating: self)
-            }
+        switch self.storage.layout {
+        case .row, .col:
+            stridedElements = StridedElements(mutating: self)
         }
     }
-    
+
     //--------------------------------------------------------------------------
     /// init(element:shape:
     /// Used to initialize a tensor with a single Element
     @inlinable public init(single element: Element, shape: Shape) {
         self.shape = shape
-        strides = Shape.zero
-        count = shape.elementCount()
-        spanCount = 1
-        baseOffset = 0
-        _isShared = true
-        isSequential = true
-        startIndex = Index(Shape.zero, 0)
-        endIndex = Index(shape, count)
-        storage = StorageBufferType<TensorElement>(single: element)
-        storage.name = "Element"
-        logicalStrides = shape.strides()
+        self.strides = Shape.zero
+        self.storage = StorageBufferType<TensorElement>(single: element)
+        self.storageBase = 0
+        self.isShared = false
+        self.storage.name = "Element"
+        self.count = 1
+        self.storageSpanCount = 1
         
-        if Context.currentQueue.usesCpu {
-            switch storage.layout {
-            case .row: rowSequential = RowSequential(mutating: self)
-            case .col: colSequential = ColSequential(mutating: self)
-            }
+        switch storage.layout {
+        case .row, .col:
+            stridedElements = StridedElements(mutating: self)
         }
     }
 }
@@ -268,15 +275,16 @@ public extension Tensor {
     ///  - position: the n-dimensional coordinate position within `shape`
     /// - Returns: the index
     @inlinable func makeIndex(at position: Shape) -> Index {
-        Index(position, baseOffset + position.index(stridedBy: logicalStrides))
+        switch storage.layout {
+        case .row, .col: return stridedElements.makeIndex(at: position)
+        }
     }
 
     //--------------------------------------------------------------------------
     /// index(i:
     @inlinable func index(after i: Index) -> Index {
         switch storage.layout {
-        case .row: return rowSequential.index(after: i)
-        case .col: return colSequential.index(after: i)
+        case .row, .col: return stridedElements.index(after: i)
         }
     }
 
@@ -286,16 +294,14 @@ public extension Tensor {
         get {
             read()
             switch storage.layout {
-            case .row: return rowSequential[i]
-            case .col: return colSequential[i]
+            case .row, .col: return stridedElements[i]
             }
         }
         
         set {
             readWrite()
             switch storage.layout {
-            case .row: rowSequential[i] = newValue
-            case .col: colSequential[i] = newValue
+            case .row, .col: stridedElements[i] = newValue
             }
         }
     }
@@ -312,30 +318,28 @@ public extension Tensor {
         }
     }
     
-    @inlinable
-    func createView(_ lower: Shape, _ upper: Shape, _ share: Bool) -> Self {
-        let shape = upper &- lower
-        let isSeq = strides.areSequential(for: shape)
-        let count = shape.elementCount()
-        let span = isSeq ? count : shape.spanCount(stridedBy: strides)
-        return Tensor(
-            shape: shape,
-            strides: strides,
-            count: count,
-            spanCount: span,
-            storage: storage,
-            baseOffset: baseOffset + lower.index(stridedBy: strides),
-            share: share,
-            isSequential: isSeq)
-    }
-
     //--------------------------------------------------------------------------
-    /// shared(
-    /// - Returns: a shared copy of `self` with `isShared` set to `true`
-    @inlinable mutating func shared() -> Self {
-        var sharedSelf = self
-        sharedSelf._isShared = true
-        return sharedSelf
+    // creates a tensor subview
+    @inlinable func createView(
+        _ lower: Shape,
+        _ upper: Shape,
+        _ share: Bool
+    ) -> Self {
+        let shape = upper &- lower
+        switch storage.layout {
+        case .row, .col:
+            let count = shape.elementCount()
+            let spanCount = strides.areSequential(for: shape) ? count :
+                    shape.spanCount(stridedBy: strides)
+            return Tensor(
+                shape: shape,
+                strides: strides,
+                count: count,
+                storage: storage,
+                storageBase: storageBase + lower.index(stridedBy: strides),
+                storageSpanCount: spanCount,
+                shared: share)
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -347,13 +351,13 @@ public extension Tensor {
     /// subscripting.
     @inlinable mutating func ensureValidStorage() {
         // if repeated then expand to full dense tensor
-        if spanCount < count {
+        if storageSpanCount < count {
             var expanded = Tensor(like: self)
 
             diagnostic(
                 "\(expandingString) \(name)(\(id)) " +
-                    "\(Element.self)[\(spanCount)] to: \(expanded.name)" +
-                    "(\(expanded.id)) \(Element.self)[\(expanded.count)]",
+                    "\(Element.self)[\(storageSpanCount)] to: \(expanded.name)"
+                    + "(\(expanded.id)) \(Element.self)[\(expanded.count)]",
                 categories: [.dataCopy, .dataExpanding])
 
             // do an indexed copy
@@ -441,7 +445,7 @@ public extension Tensor {
     /// first
     /// - Returns: the first element in the tensor
     @inlinable var first: Element {
-        storage.element(at: baseOffset)
+        storage.element(at: storageBase)
     }
 
     /// element
@@ -452,12 +456,12 @@ public extension Tensor {
         get {
             assert(count == 1, "the `element` property expects " +
                 "the tensor to have a single Element. Use `first` for sets")
-            return storage.element(at: baseOffset)
+            return storage.element(at: storageBase)
         }
         set {
             assert(count == 1, "the `element` property expects " +
                 "the tensor to have a single Element")
-            storage.setElement(value: newValue, at: baseOffset)
+            storage.setElement(value: newValue, at: storageBase)
         }
     }
 

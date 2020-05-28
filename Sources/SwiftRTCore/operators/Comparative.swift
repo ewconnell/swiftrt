@@ -299,7 +299,7 @@ extension Tensor: Equatable where TensorElement.Value: Equatable {
         guard lhs.shape == rhs.shape else { return false }
 
         // if lhs is an alias for rhs, then they match
-        if lhs.storage === rhs.storage && lhs.baseOffset == rhs.baseOffset {
+        if lhs.storage === rhs.storage && lhs.storageBase == rhs.storageBase {
             return true
         }
 

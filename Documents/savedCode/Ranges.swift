@@ -15,48 +15,6 @@
 //
 import Foundation
 
-    
-//    //--------------------------------------------------------------------------
-//    // stepped view subscript
-//    @inlinable subscript(lower: Shape, upper: Shape, steps: Shape) -> Self {
-//        get {
-//            (steps == Shape.one) ?
-//                createView(lower, upper) :
-//                createView(lower, upper, steps)
-//        }
-//        set {
-//            var view = (steps == Shape.one) ?
-//                createView(lower, upper) :
-//                createView(lower, upper, steps)
-//            copy(from: newValue, to: &view)
-//        }
-//    }
-//
-//    @inlinable
-//    func createView(_ lower: Shape, _ upper: Shape, _ steps: Shape) -> Self {
-//        let isSeq = false
-//        var absSteps = steps
-//        for i in 0..<Shape.rank { absSteps[i] = Swift.abs(absSteps[i]) }
-//        var shape = upper &- lower
-//        shape = ((shape &- 1 &+ absSteps) / absSteps) &+ lower
-//        let strides = self.strides &* steps
-//        let count = shape.elementCount()
-//        let span = isSeq ? count : shape.spanCount(stridedBy: strides)
-//        assert(shape.min() > 0, _messageInvalidShape)
-//
-//        return Tensor(
-//            shape: shape,
-//            strides: strides,
-//            elementCount: count,
-//            spanCount: span,
-//            storage: storage,
-//            baseOffset: baseOffset + lower.index(stridedBy: strides),
-//            order: storageOrder,
-//            share: isShared,
-//            isSequential: isSeq)
-//    }
-
-
 //==============================================================================
 /// RangeBound
 public protocol RangeBound: Comparable, Numeric {

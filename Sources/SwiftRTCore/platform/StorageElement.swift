@@ -230,55 +230,69 @@ extension Complex: StorageElement {
 // storage element iterators
 //==============================================================================
 
+@inlinable public func haveSameStorageLayout<S,E0,E1>(
+    _ a: Tensor<S,E0>,
+    _ b: Tensor<S,E1>
+) -> Bool {
+    a.layout == b.layout && a.isBufferIterable && b.isBufferIterable
+}
+
+@inlinable public func haveSameStorageLayout<S,E0, E1, E2>(
+    _ a: Tensor<S,E0>,
+    _ b: Tensor<S,E1>,
+    _ c: Tensor<S,E2>
+) -> Bool {
+    a.layout == b.layout && a.layout == c.layout &&
+        a.isBufferIterable && b.isBufferIterable && c.isBufferIterable
+}
+
 //==============================================================================
-/// BufferSequential
-/// walks the buffer elements in order, independent of logical orientation
+/// BufferElements
+/// Iterates the buffer elements in order, independent of logical orientation
 /// this is used for elementwise operations
 
-// Note: we copy the host buffer so that it can be accessed asynchronously
+// Note: this copies the host buffer so that it can be accessed asynchronously
 // without copy-on-write issues
-public struct BufferSequential<Shape, TensorElement>: MutableCollection
+public struct BufferElements<Shape, TensorElement>: MutableCollection
     where Shape: TensorShape, TensorElement: StorageElement
 {
-    public typealias Index = ElementIndex<Shape>
-    public typealias Element = TensorElement.Value
     public let hostBuffer: UnsafeMutableBufferPointer<TensorElement.Stored>
     public let isSingleElement: Bool
-    public let startIndex: Index
-    public let endIndex: Index
+    public let startIndex: Int
+    public let endIndex: Int
     
     @inlinable public init(_ tensor: Tensor<Shape, TensorElement>) {
-        let buff = tensor.storage.read(at: tensor.baseOffset,
-                                       count: tensor.spanCount)
+        assert(tensor.isBufferIterable)
+        self.isSingleElement = tensor.storageSpanCount == 1
+        let buff = tensor.storage.read(at: tensor.storageBase,
+                                       count: tensor.storageSpanCount)
         // this does not actually mutate
         let p = UnsafeMutablePointer(mutating: buff.baseAddress)
         hostBuffer = UnsafeMutableBufferPointer(start: p, count: buff.count)
-        
-        startIndex = tensor.startIndex
-        endIndex = tensor.endIndex
-        isSingleElement = tensor.spanCount == 1
+        startIndex = tensor.storageBase
+        endIndex = startIndex + tensor.count
     }
     
     @inlinable public init(mutating tensor: Tensor<Shape, TensorElement>) {
-        hostBuffer = tensor.storage.readWrite(at: tensor.baseOffset,
-                                              count: tensor.spanCount)
-        startIndex = tensor.startIndex
-        endIndex = tensor.endIndex
-        isSingleElement = tensor.spanCount == 1
+        assert(tensor.isBufferIterable)
+        self.isSingleElement = tensor.storageSpanCount == 1
+        hostBuffer = tensor.storage.readWrite(at: tensor.storageBase,
+                                              count: tensor.storageSpanCount)
+        startIndex = tensor.storageBase
+        endIndex = startIndex + tensor.count
     }
     
-    @inlinable public func index(after i: Index) -> Index {
-        Index(at: i.sequencePosition &+ 1)
+    @inlinable public func index(after i: Int) -> Int {
+        i + 1
     }
     
-    @inlinable public subscript(position: Index) -> Element {
+    @inlinable public subscript(position: Int) -> TensorElement.Value {
         get {
             if isSingleElement {
                 return TensorElement.value(from: hostBuffer[0], at: 0)
             } else {
-                let i = position.sequencePosition
-                let si = TensorElement.storedIndex(i)
-                return TensorElement.value(from: hostBuffer[si], at: i)
+                let si = TensorElement.storedIndex(position)
+                return TensorElement.value(from: hostBuffer[si], at: position)
             }
         }
         
@@ -286,60 +300,76 @@ public struct BufferSequential<Shape, TensorElement>: MutableCollection
             if isSingleElement {
                 TensorElement.store(value: newValue, at: 0, to: &hostBuffer[0])
             } else {
-                let i = position.sequencePosition
-                let si = TensorElement.storedIndex(i)
-                TensorElement.store(value: newValue, at: i, to: &hostBuffer[si])
+                let si = TensorElement.storedIndex(position)
+                TensorElement.store(value: newValue, at: position,
+                                    to: &hostBuffer[si])
             }
         }
     }
 }
 
 //==============================================================================
-/// RowSequential
-/// walks the buffer elements in logical row major order
-public typealias RowSequential<Shape, TensorElement> =
-    BufferSequential<Shape, TensorElement>
-where Shape: TensorShape, TensorElement: StorageElement
-
-//==============================================================================
-/// ColSequential
-/// walks the col major buffer elements in logical row major order
-public struct ColSequential<Shape, TensorElement>: MutableCollection
+/// StridedElements
+/// Iterates storage elements using logical index coordinates and strides
+public struct StridedElements<Shape, TensorElement>: MutableCollection
 where Shape: TensorShape, TensorElement: StorageElement
 {
     public typealias Index = ElementIndex<Shape>
     public typealias Element = TensorElement.Value
     public let hostBuffer: UnsafeMutableBufferPointer<TensorElement.Stored>
-    public let isSingleElement: Bool
+    public let spanCount: Int
+    public let logicalStrides: Shape
+    public let strides: Shape
     public let startIndex: Index
     public let endIndex: Index
     
     @inlinable public init(_ tensor: Tensor<Shape, TensorElement>) {
-        hostBuffer = tensor.storage.hostBuffer
-        startIndex = tensor.startIndex
-        endIndex = tensor.endIndex
-        isSingleElement = tensor.spanCount == 1
+        self.logicalStrides = tensor.shape.strides(for: tensor.layout)
+        self.strides = tensor.strides
+        self.spanCount = tensor.shape.spanCount(stridedBy: strides)
+        let buff = tensor.storage.read(at: tensor.storageBase, count: spanCount)
+        // this does not actually mutate
+        let p = UnsafeMutablePointer(mutating: buff.baseAddress)
+        hostBuffer = UnsafeMutableBufferPointer(start: p, count: buff.count)
+        startIndex = Index(Shape.zero, tensor.storageBase)
+        endIndex = Index(tensor.shape, tensor.storageBase + tensor.count)
     }
     
     @inlinable public init(mutating tensor: Tensor<Shape, TensorElement>) {
-        self.init(tensor)
+        self.logicalStrides = tensor.shape.strides(for: tensor.layout)
+        self.strides = tensor.strides
+        self.spanCount = tensor.shape.spanCount(stridedBy: strides)
+        hostBuffer = tensor.storage.readWrite(at: tensor.storageBase,
+                                              count: spanCount)
+        startIndex = Index(Shape.zero, tensor.storageBase)
+        endIndex = Index(tensor.shape, tensor.storageBase + tensor.count)
     }
     
+    //--------------------------------------------------------------------------
+    /// makeIndex(position:
+    /// makes an index from a logical position within `shape`
+    /// - Parameters:
+    ///  - position: the n-dimensional coordinate position within `shape`
+    /// - Returns: the index
+    @inlinable func makeIndex(at position: Shape) -> Index {
+        Index(position,  position.index(stridedBy: logicalStrides))
+    }
+
     @inlinable public func index(after i: Index) -> Index {
-        Index(at: i.sequencePosition &+ 1)
+        i.incremented(between: startIndex, and: endIndex)
     }
     
     @inlinable public subscript(position: Index) -> Element {
         get {
-            let i = position.sequencePosition
+            let i = position.linearIndex(strides)
             let si = TensorElement.storedIndex(i)
             return TensorElement.value(from: hostBuffer[si], at: i)
         }
+        
         set(newValue) {
-            let i = position.sequencePosition
+            let i = position.linearIndex(strides)
             let si = TensorElement.storedIndex(i)
             TensorElement.store(value: newValue, at: i, to: &hostBuffer[si])
         }
     }
 }
-

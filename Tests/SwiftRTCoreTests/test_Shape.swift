@@ -24,7 +24,7 @@ class test_Shape: XCTestCase {
         ("test_reshape", test_reshape),
         ("test_reshapeOrder", test_reshapeOrder),
         ("test_expanding", test_expanding),
-        ("test_SequentialViews", test_SequentialViews),
+        ("test_BufferIterableViews", test_BufferIterableViews),
         ("test_transposed", test_transposed),
         ("test_squeeze", test_squeeze),
         ("test_stack", test_stack),
@@ -325,22 +325,22 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_SequentialViews
-    func test_SequentialViews() {
+    // test_BufferIterableViews
+    func test_BufferIterableViews() {
         // vector views are always sequential
         let v = array(0..<6)
         let subv = v[1...2]
-        XCTAssert(subv.isSequential)
+        XCTAssert(subv.isBufferIterable)
         
         // a batch of rows are sequential
         let m = empty((4, 5))
         let mrows = m[1...2, ...]
-        XCTAssert(mrows.isSequential)
+        XCTAssert(mrows.isBufferIterable)
         
         // a batch of columns are not sequential
         let m1 = empty((4, 5))
         let mcols = m1[..., 1...2]
-        XCTAssert(!mcols.isSequential)
+        XCTAssert(!mcols.isBufferIterable)
     }
     
     //--------------------------------------------------------------------------

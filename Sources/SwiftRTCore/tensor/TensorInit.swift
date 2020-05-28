@@ -59,11 +59,10 @@ public extension Tensor {
         self.init(shape: shape,
                   strides: shape.strides(for: layout),
                   count: count,
-                  spanCount: count,
                   storage: StorageBufferType(count: count, layout: layout),
-                  baseOffset: 0,
-                  share: false,
-                  isSequential: layout == .row)
+                  storageBase: 0,
+                  storageSpanCount: count,
+                  shared: false)
     }
     
     //--------------------------------------------------------------------------
@@ -129,11 +128,10 @@ public extension Tensor {
         self.init(shape: shape,
                   strides: repeatedStrides,
                   count: count,
-                  spanCount: shape.spanCount(stridedBy: repeatedStrides),
                   storage: other.storage,
-                  baseOffset: other.baseOffset,
-                  share: other.isShared,
-                  isSequential: count == 1)
+                  storageBase: other.storageBase,
+                  storageSpanCount: shape.spanCount(stridedBy: repeatedStrides),
+                  shared: other.isShared)
     }
     
     //--------------------------------------------------------------------------
@@ -397,8 +395,7 @@ public extension Tensor {
         // determine storage layout
         let layout: Layout =
                 newOrder == .F ||
-                (newOrder.rawValue == Layout.A &&
-                    other.layout == .F && other.isSequential) ? .F : .C
+                (newOrder.rawValue == Layout.A && other.layout == .F) ? .F : .C
 
         // reorder other's elements if needed
         var source = other
@@ -409,11 +406,11 @@ public extension Tensor {
                 shape: other.shape,
                 strides: strides,
                 count: other.count,
-                spanCount: other.spanCount,
-                storage: StorageBufferType<TensorElement>(count: source.count, layout: layout),
-                baseOffset: 0,
-                share: other.isShared,
-                isSequential: strides.areSequential(for: other.shape))
+                storage: StorageBufferType<TensorElement>(count: source.count,
+                                                          layout: layout),
+                storageBase: 0,
+                storageSpanCount: other.storageSpanCount,
+                shared: other.isShared)
             
             // performs an indexed copy which reorders the elements
             Context.local.platform.diagnostic(
@@ -428,11 +425,10 @@ public extension Tensor {
         self.init(shape: shape,
                   strides: shape.strides(for: layout),
                   count: source.count,
-                  spanCount: source.spanCount,
                   storage: source.storage,
-                  baseOffset: source.baseOffset,
-                  share: source.isShared,
-                  isSequential: source.isSequential)
+                  storageBase: source.storageBase,
+                  storageSpanCount: source.storageSpanCount,
+                  shared: source.isShared)
     }
 }
 
@@ -512,11 +508,10 @@ public extension Tensor {
         self.init(shape: shape,
                   strides: strides,
                   count: other.count,
-                  spanCount: other.spanCount,
                   storage: other.storage,
-                  baseOffset: other.baseOffset,
-                  share: other.isShared,
-                  isSequential: other.isSequential)
+                  storageBase: other.storageBase,
+                  storageSpanCount: other.storageSpanCount,
+                  shared: other.isShared)
     }
     
     @differentiable(where TensorElement.Value: DifferentiableElement)
@@ -575,11 +570,10 @@ public extension Tensor {
         self.init(shape: shape,
                   strides: strides,
                   count: other.count,
-                  spanCount: other.count,
                   storage: other.storage,
-                  baseOffset: other.baseOffset,
-                  share: other.isShared,
-                  isSequential: other.isSequential)
+                  storageBase: other.storageBase,
+                  storageSpanCount: other.count,
+                  shared: other.isShared)
     }
     
     @differentiable(where TensorElement.Value: DifferentiableElement)
@@ -764,11 +758,10 @@ public extension Tensor {
         self.init(shape: shape,
                   strides: strides,
                   count: other.count,
-                  spanCount: other.count,
                   storage: other.storage,
-                  baseOffset: other.baseOffset,
-                  share: other.isShared,
-                  isSequential: other.isSequential)
+                  storageBase: other.storageBase,
+                  storageSpanCount: other.count,
+                  shared: other.isShared)
     }
 }
 
@@ -816,11 +809,10 @@ public extension Tensor {
         self.init(shape: shape,
                   strides: strides,
                   count: other.count,
-                  spanCount: other.count,
                   storage: other.storage,
-                  baseOffset: other.baseOffset,
-                  share: other.isShared,
-                  isSequential: strides.areSequential(for: shape))
+                  storageBase: other.storageBase,
+                  storageSpanCount: other.count,
+                  shared: other.isShared)
     }
     
     /// - Returns: transpose of self
@@ -846,11 +838,10 @@ extension Tensor where TensorElement.Value: DifferentiableElement {
             Self(shape: other.shape,
                  strides: other.strides,
                  count: other.count,
-                 spanCount: other.count,
                  storage: $0.storage,
-                 baseOffset: $0.baseOffset,
-                 share: $0.isShared,
-                 isSequential: other.isSequential)
+                 storageBase: $0.storageBase,
+                 storageSpanCount: other.count,
+                 shared: $0.isShared)
         })
     }
 }

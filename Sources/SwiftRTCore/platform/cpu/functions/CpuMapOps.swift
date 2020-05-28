@@ -44,7 +44,7 @@ extension DeviceQueue {
         // queue data transfers and execute
         x.read(using: self)
         result.readWrite(using: self)
-        execute(BufferSequential(x), BufferSequential(mutating: result), op)
+        execute(x.buffer, result.mutableBuffer, op)
     }
 
     //==========================================================================
@@ -54,7 +54,7 @@ extension DeviceQueue {
         _ op: @escaping () -> E.Value
     ) {
         result.readWrite(using: self)
-        var r = BufferSequential(mutating: result)
+        var r = result.mutableBuffer
         if mode == .async {
             queue.async {
                 r.indices.forEach { r[$0] = op() }
@@ -71,7 +71,7 @@ extension DeviceQueue {
         _ result: inout Tensor<S,E>
     ) where C: Collection, C.Element == E.Value {
         result.readWrite(using: self)
-        var r = BufferSequential(mutating: result)
+        var r = result.mutableBuffer
         if mode == .async {
             queue.async {
                 zip(r.indices, elements).forEach { r[$0] = $1 }
@@ -88,7 +88,7 @@ extension DeviceQueue {
         _ op: @escaping (E.Value) -> E.Value
     ) {
         result.readWrite(using: self)
-        var r = BufferSequential(mutating: result)
+        var r = result.mutableBuffer
         if mode == .async {
             queue.async {
                 r.indices.forEach { r[$0] = op(r[$0]) }
@@ -126,7 +126,7 @@ extension DeviceQueue {
         // queue data transfers and execute
         x.read(using: self)
         result.readWrite(using: self)
-        execute(BufferSequential(x), BufferSequential(mutating: result), op)
+        execute(x.buffer, result.mutableBuffer, op)
     }
     
     //==========================================================================
@@ -166,18 +166,14 @@ extension DeviceQueue {
         result.readWrite(using: self)
 
         // execute right layout combination
-        if lhs.layout == rhs.layout {
-            execute(BufferSequential(lhs),
-                    BufferSequential(rhs),
-                    BufferSequential(mutating: result), op)
+        if haveSameStorageLayout(lhs, rhs) {
+            execute(lhs.buffer, rhs.buffer, result.mutableBuffer, op)
         } else {
             switch (lhs.layout, rhs.layout) {
-            case (.row, .col):
-                execute(RowSequential(lhs),
-                        ColSequential(rhs),
-                        RowSequential(mutating: result), op)
             default:
-                fatalError("layout not implemented")
+                execute(lhs.stridedElements,
+                        lhs.stridedElements,
+                        result.stridedElements, op)
             }
         }
     }
@@ -226,11 +222,8 @@ extension DeviceQueue {
         result.readWrite(using: self)
         
         // execute right layout combination
-        if a.layout == b.layout && a.layout == c.layout {
-            execute(BufferSequential(a),
-                    BufferSequential(b),
-                    BufferSequential(c),
-                    BufferSequential(mutating: result), op)
+        if haveSameStorageLayout(a, b, c) {
+            execute(a.buffer, b.buffer, c.buffer, result.mutableBuffer, op)
         } else {
             switch (a.layout, b.layout, c.layout) {
             default:
@@ -292,13 +285,9 @@ extension DeviceQueue {
         r2.readWrite(using: self)
 
         // execute right layout combination
-        if a.layout == b.layout && a.layout == c.layout {
-            execute(BufferSequential(a),
-                    BufferSequential(b),
-                    BufferSequential(c),
-                    BufferSequential(mutating: r1),
-                    BufferSequential(mutating: r2),
-                    op)
+        if haveSameStorageLayout(a, b, c) {
+            execute(a.buffer, b.buffer, c.buffer,
+                    r1.mutableBuffer, r2.mutableBuffer, op)
         } else {
             switch (a.layout, b.layout, c.layout) {
             default:

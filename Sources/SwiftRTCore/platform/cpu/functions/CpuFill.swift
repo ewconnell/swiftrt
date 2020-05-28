@@ -88,7 +88,6 @@ extension CpuFunctions where Self: DeviceQueue {
         _ result: inout Tensor<S,E>,
         offset: Int
     ) where S: TensorShape, E.Value: Numeric {
-        assert(!result.isSequential)
         mapOp(&result) { 0 }
     }
     
