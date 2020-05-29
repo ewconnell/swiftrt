@@ -96,7 +96,7 @@ public func sum<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
         return result
     } else {
         var result = Tensor<S,E>(S.one)
-        Context.currentQueue.reduceSumAll(x, &result)
+        Context.currentQueue.reduceSum(x, &result)
         return result
     }
 }
@@ -264,10 +264,16 @@ public extension Tensor where TensorElement.Value: Numeric {
     alongAxes axes: Set<Int>? = nil
 ) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable
 {
-    var result = Tensor<S,E>(x.reductionShape(alongAxes: axes))
-    copy(from: x[S.zero, result.shape], to: &result)
-    Context.currentQueue.reduce(x, &result, .min, { $0 <= $1 ? $0 : $1 }, nil)
-    return result
+    if let axes = axes {
+        var result = Tensor<S,E>(x.reductionShape(alongAxes: axes))
+        copy(from: x[S.zero, result.shape], to: &result)
+        Context.currentQueue.reduce(x, &result, .min, { Swift.min($0,$1) }, nil)
+        return result
+    } else {
+        var result = Tensor<S,E>(S.one)
+        Context.currentQueue.reduceMin(x, &result)
+        return result
+    }
 }
 
 
@@ -302,10 +308,16 @@ public extension Tensor where TensorElement.Value: Comparable
     alongAxes axes: Set<Int>? = nil
 ) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable
 {
-    var result = Tensor<S,E>(x.reductionShape(alongAxes: axes))
-    copy(from: x[S.zero, result.shape], to: &result)
-    Context.currentQueue.reduce(x, &result, .max, { $0 >= $1 ? $0 : $1 }, nil)
-    return result
+    if let axes = axes {
+        var result = Tensor<S,E>(x.reductionShape(alongAxes: axes))
+        copy(from: x[S.zero, result.shape], to: &result)
+        Context.currentQueue.reduce(x, &result, .max, { Swift.max($0,$1) }, nil)
+        return result
+    } else {
+        var result = Tensor<S,E>(S.one)
+        Context.currentQueue.reduceMax(x, &result)
+        return result
+    }
 }
 
 

@@ -21,8 +21,10 @@ class test_Vectorizing: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_sumTensor2", test_reduceSumAll),
-        ("test_addTensor2", test_AplusBSequential),
+        ("test_reduceSum", test_reduceSum),
+        ("test_reduceMin", test_reduceMin),
+        ("test_reduceMax", test_reduceMax),
+        ("test_AplusBSequential", test_AplusBSequential),
     ]
     
     //--------------------------------------------------------------------------
@@ -33,15 +35,17 @@ class test_Vectorizing: XCTestCase {
         let b = ones((1024, 1024))
         var count: DType = 0
         var result = empty(like: a)
-        
+
         self.measure {
             for _ in 0..<10 {
-                // 0.0388
+                // 0.0255
                 result = a + b
                 
-                // 0.0292  24% better
-                //                zip(result.indices, zip(a, b)).forEach { result[$0] = $1.0 + $1.1 }
-                count = result.first
+                // 0.0221  24% better
+//                var rbuff = result.mutableBuffer
+//                zip(rbuff.indices, zip(a.buffer, b.buffer)).forEach { rbuff[$0] = $1.0 + $1.1 }
+
+                count = result[result.startIndex]
             }
         }
         XCTAssert(count > 0)
@@ -49,38 +53,16 @@ class test_Vectorizing: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_reduceSumAll
-    func test_reduceSumAll() {
+    func test_reduceSum() {
         #if !DEBUG
         let size = 1024
         let x = array(1...(size * size), (size, size))
         var value: DType = 0
-        var result = Tensor2.zero
         
-        // make sure everything is lazy initialized
-        Context.currentQueue.reduceSumAll(x, &result)
-        
-        // 0.00140s
+        // 0.010s
         self.measure {
-            let q = Context.currentQueue
-            
-            // getting it 10 times makes no difference
-//            for _ in 0..<10 {
-//                q = Context.currentQueue
-//            }
             for _ in 0..<10 {
-                // UNCOMMENT THIS AND ITS 4X SLOWER
-//                q = Context.currentQueue
-                
-                // 0.0123
-                q.reduceSumAll(x, &result)
-
-                // 0.00971
-//                globalReduceSumAll(x, &result)
-                
-                // 0.0665
-//                result = x.sum()
-                value += result.element
+                value += x.sum().element
             }
         }
 
@@ -90,23 +72,37 @@ class test_Vectorizing: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_reduceMinAll
-    func test_reduceMinAll() {
+    func test_reduceMin() {
         #if !DEBUG
-        let size = 1024
-        let a = array(1...(size * size), (size, size))
+        let size = 1024 * 1024
+        let a = Tensor1(randomNormal: size)
         var value: DType = 0
         
-        // 0.00192s
+        // 0.010s
         self.measure {
             for _ in 0..<10 {
-                // llvm.experimental.vector.reduce.min
-//                value = a.indices.reduce(into: a[a.startIndex]) { $0 = Swift.min($0, a[$1]) }
-                value = min(a).element
+                value = a.min().element
             }
         }
         
-        XCTAssert(value == 1)
+        XCTAssert(value != -1)
+        #endif
+    }
+    
+    //--------------------------------------------------------------------------
+    func test_reduceMax() {
+        #if !DEBUG
+        let size = 1024 * 1024
+        let a = Tensor1(randomNormal: size)
+        var value: DType = 0
+        
+        // 0.010s
+        self.measure {
+            for _ in 0..<10 {
+                value = a.max().element
+            }
+        }
+        XCTAssert(value != -1)
         #endif
     }
     

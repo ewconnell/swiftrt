@@ -20,10 +20,20 @@ import Foundation
 extension DeviceQueue where Self: CpuFunctions
 {
     //--------------------------------------------------------------------------
-    @inlinable public func reduceSumAll<S,E>(
+    @inlinable public func reduceSum<S,E>(
         _ x: Tensor<S,E>,
         _ result: inout Tensor<S,E>
-    ) where E.Value: AdditiveArithmetic { cpu_reduceSumAll(x, &result) }
+    ) where E.Value: AdditiveArithmetic { cpu_reduceSum(x, &result) }
+    //--------------------------------------------------------------------------
+    @inlinable public func reduceMin<S,E>(
+        _ x: Tensor<S,E>,
+        _ result: inout Tensor<S,E>
+    ) where E.Value: Comparable { cpu_reduceMin(x, &result) }
+    //--------------------------------------------------------------------------
+    @inlinable public func reduceMax<S,E>(
+        _ x: Tensor<S,E>,
+        _ result: inout Tensor<S,E>
+    ) where E.Value: Comparable { cpu_reduceMax(x, &result) }
     //--------------------------------------------------------------------------
     @inlinable func reduce<S,E>(
         _ x: Tensor<S,E>,
@@ -38,15 +48,33 @@ extension DeviceQueue where Self: CpuFunctions
 // Cpu device queue function implementations
 extension CpuFunctions where Self: DeviceQueue {
     //--------------------------------------------------------------------------
-    @inlinable public func cpu_reduceSumAll<S,E>(
+    @inlinable public func cpu_reduceSum<S,E>(
         _ x: Tensor<S,E>,
-        _ result: inout Tensor<S,E>
+        _ r: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
-        result[result.startIndex] = x.indices.reduce(into: E.Value.zero) {
-            $0 += x[$1]
+        r[r.startIndex] = x.buffer.reduce(into: E.Value.zero) { $0 += $1 }
+    }
+    //--------------------------------------------------------------------------
+    @inlinable public func cpu_reduceMin<S,E>(
+        _ x: Tensor<S,E>,
+        _ r: inout Tensor<S,E>
+    ) where E.Value: Comparable {
+        r[r.startIndex] = x.buffer.reduce(into: x[x.startIndex]) {
+            // this is 2X faster than: $0 = $0 <= $1 ? $0 : $1
+            $0 = Swift.min($0, $1)
         }
     }
-    
+    //--------------------------------------------------------------------------
+    @inlinable public func cpu_reduceMax<S,E>(
+        _ x: Tensor<S,E>,
+        _ r: inout Tensor<S,E>
+    ) where E.Value: Comparable {
+        r[r.startIndex] = x.buffer.reduce(into: x[x.startIndex]) {
+            // this is 2X faster than: $0 = Swift.max($0, $1)
+            $0 = $0 > $1 ? $0 : $1
+        }
+    }
+
     //--------------------------------------------------------------------------
     @inlinable func cpu_reduce<S,E>(
         _ x: Tensor<S,E>,
