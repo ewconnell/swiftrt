@@ -22,6 +22,8 @@ class test_AlgebraicField: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_UInt4", test_UInt4),
+        
         ("test_matmul", test_matmul),
         ("test_batchMatmul", test_batchMatmul),
         ("test_leftBatchMatmul", test_leftBatchMatmul),
@@ -49,7 +51,88 @@ class test_AlgebraicField: XCTestCase {
     ]
 
     //--------------------------------------------------------------------------
-    // test_matmul
+    func test_UInt4() {
+        // even packing alignment
+        do {
+            let a = array(0..<4, type: UInt4.self)
+            let b = array(1..<5, type: UInt4.self)
+            let c = a + b
+            XCTAssert(c.storage.hostBuffer.count == 2)
+            XCTAssert(c == [1, 3, 5, 7])
+        }
+
+        // odd packing alignment
+        do {
+            let a = array(0..<5, type: UInt4.self)
+            let b = array(1..<6, type: UInt4.self)
+            let c = a + b
+            XCTAssert(c.storage.hostBuffer.count == 3)
+            XCTAssert(c == [1, 3, 5, 7, 9])
+        }
+        
+        // modify element
+        do {
+            var a = array(0..<4, type: UInt4.self)
+            a[2] = 7
+            XCTAssert(a == [0, 1, 7, 3])
+            a[1] = 5
+            XCTAssert(a == [0, 5, 7, 3])
+        }
+        
+        // modify range across packing boundaries
+        do {
+            var a = array(0..<8, (2, 4), type: UInt4.self)
+            let row = array([3, 3], (1, 2), type: UInt4.self)
+            a[1, 1...2] = row
+            XCTAssert(a == [
+                [0, 1, 2, 3],
+                [4, 3, 3, 7]
+            ])
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    func test_UInt1() {
+        do {
+            let a = array([0, 1, 0, 1], type: UInt1.self)
+            let b = array([1, 0, 0, 0], type: UInt1.self)
+            let c = a + b
+            XCTAssert(c.storage.hostBuffer.count == 1)
+            XCTAssert(c == [1, 1, 0, 1])
+        }
+        
+        // cross packing boundary
+        do {
+            // 10 elements
+            let a = array([0, 0, 0, 1, 0, 0, 0, 1, 1, 0], type: UInt1.self)
+            let b = array([0, 1, 1, 0, 0, 1, 0, 0, 0, 1], type: UInt1.self)
+            let c = a + b
+            XCTAssert(c.storage.hostBuffer.count == 2)
+            XCTAssert(c == [0, 1, 1, 1, 0, 1, 0, 1, 1, 1])
+        }
+        
+        // modify element
+        do {
+            var a = array([0, 1, 0, 1], type: UInt1.self)
+            a[2] = 1
+            XCTAssert(a == [0, 1, 1, 1])
+            a[1] = 0
+            XCTAssert(a == [0, 0, 1, 1])
+        }
+        
+        // modify range across packing boundaries
+        do {
+            var a = array([[0, 0, 0, 1, 0], [0, 0, 1, 1, 0]], type: UInt1.self)
+            let row = array([1, 0, 0], (1, 3), type: UInt1.self)
+            a[1, 1...3] = row
+            XCTAssert(a == [
+                [0, 0, 0, 1, 0],
+                [0, 0, 1, 1, 0]
+            ])
+        }
+    }
+    
+    //--------------------------------------------------------------------------
     func test_matmul() {
         let a = array([0.0, 1, 2, 3, 4, 5], (3, 2))
         let b = array([0.0, 1, 2, 3, 4, 5, 6, 7], (2, 4))
@@ -68,7 +151,6 @@ class test_AlgebraicField: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_batchMatmul
     func test_batchMatmul() {
 //        let a = array(0..<12, (2, 3, 2))
 //        let b = array(0..<16, (2, 2, 4))
@@ -98,7 +180,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_leftBatchMatmul
     func test_leftBatchMatmul() {
 //        let a = array(0..<12, (2, 3, 2))
 //        let b = array(0..<8, (2, 4))
@@ -121,7 +202,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_rightBatchMatmul
     func test_rightBatchMatmul() {
 //        let a = array(0..<6, (3, 2))
 //        let b = array(0..<16, (2, 2, 4))
@@ -147,7 +227,6 @@ class test_AlgebraicField: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_add
     func test_add() {
         let a = array([[0, 1], [2, 3], [4, 5]])
         let b = array([[0, 1], [2, 3], [4, 5]])
@@ -170,7 +249,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_addInt32
     func test_addInt32() {
         let a = array(0..<6, (3, 2), type: Int32.self)
         let b = array(0..<6, (3, 2), type: Int32.self)
@@ -179,7 +257,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_addUInt8
     func test_addUInt8() {
         let a = array(0..<6, (3, 2), type: UInt8.self)
         let b = array(0..<6, (3, 2), type: UInt8.self)
@@ -188,7 +265,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_addScalar
     func test_addScalar() {
         let a = array(1...6, (3, 2))
         let result = a + 1
@@ -200,7 +276,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_addAndAssign
     func test_addAndAssign() {
         var a = array(0...5, (3, 2))
         a += 2
@@ -208,7 +283,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_addSubMulDivComplex
     func test_addSubMulDivComplex() {
         typealias CF = Complex<Float>
         let data: [Complex<Float>] = [1, 2, 3, 4]
@@ -272,7 +346,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_subtract
     func test_subtract() {
         let a = array(1..<7, (3, 2))
         let b = array(0..<6, (3, 2))
@@ -294,7 +367,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_subtractScalar
     func test_subtractScalar() {
         let a = array(1...6, (3, 2))
         let result = a - 1
@@ -305,7 +377,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_subtractVector
     func test_subtractVector() {
         let a = array([
             [1, 2],
@@ -337,7 +408,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_subtractAndAssign
     func test_subtractAndAssign() {
         var a = array(1...6, (3, 2))
         a -= 1
@@ -345,7 +415,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_mul
     func test_mul() {
         let a = array([[0.0, 1], [2, 3], [4, 5]])
         let b = array([[0.0, 1], [2, 3], [4, 5]])
@@ -367,7 +436,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_mulScalar
     func test_mulScalar() {
         let a = array(1...6, (3, 2))
         let result = a * 2
@@ -375,7 +443,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_mulAndAssign
     func test_mulAndAssign() {
         var a = array(1...6, (3, 2))
         a *= 2
@@ -383,7 +450,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_div
     func test_div() {
         let a = array([[1, 4], [9, 16], [25, 36]])
         let b = array(1...6, (3, 2))
@@ -407,7 +473,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_divScalar
     func test_divScalar() {
         let a = array(1...6, (3, 2))
         let result = a / 2
@@ -415,7 +480,6 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_divAndAssign
     func test_divAndAssign() {
         var a = array(1...6, (3, 2))
         a /= 2
