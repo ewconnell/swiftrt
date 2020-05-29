@@ -98,6 +98,7 @@ extension CpuFunctions where Self: DeviceQueue {
         _ r: inout Tensor<S,E>
     ) where E.Value: Comparable {
         r[r.startIndex] = x.buffer.reduce(into: x[x.startIndex]) {
+            // TODO: report this
             // this is 2X faster than: $0 = $0 <= $1 ? $0 : $1
             $0 = Swift.min($0, $1)
         }
@@ -108,6 +109,7 @@ extension CpuFunctions where Self: DeviceQueue {
         _ r: inout Tensor<S,E>
     ) where E.Value: Comparable {
         r[r.startIndex] = x.buffer.reduce(into: x[x.startIndex]) {
+            // TODO: report this
             // this is 2X faster than: $0 = Swift.max($0, $1)
             $0 = $0 > $1 ? $0 : $1
         }

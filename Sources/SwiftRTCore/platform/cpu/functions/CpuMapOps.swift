@@ -19,8 +19,8 @@ extension DeviceQueue {
     //==========================================================================
     // reduction
     @inlinable func mapOp<S,E,RE>(
-        _ x: Tensor<S,E>,
-        _ result: inout Tensor<S,RE>,
+        _ a: Tensor<S,E>,
+        _ r: inout Tensor<S,RE>,
         _ op: @escaping (RE.Value, E.Value) -> RE.Value
     ) {
         //------------------------------------
@@ -42,19 +42,19 @@ extension DeviceQueue {
         }
         
         // queue data transfers and execute
-        x.read(using: self)
-        result.readWrite(using: self)
-        execute(x.buffer, result.mutableBuffer, op)
+        a.read(using: self)
+        r.readWrite(using: self)
+        execute(a.buffer, r.mutableBuffer, op)
     }
 
     //==========================================================================
     // generator
     @inlinable func mapOp<S,E>(
-        _ result: inout Tensor<S,E>,
+        _ r: inout Tensor<S,E>,
         _ op: @escaping () -> E.Value
     ) {
-        result.readWrite(using: self)
-        var r = result.mutableBuffer
+        r.readWrite(using: self)
+        var r = r.mutableBuffer
         if mode == .async {
             queue.async {
                 r.indices.forEach { r[$0] = op() }
@@ -68,10 +68,10 @@ extension DeviceQueue {
     // range
     @inlinable func mapOp<S,E,C>(
         _ elements: C,
-        _ result: inout Tensor<S,E>
+        _ r: inout Tensor<S,E>
     ) where C: Collection, C.Element == E.Value {
-        result.readWrite(using: self)
-        var r = result.mutableBuffer
+        r.readWrite(using: self)
+        var r = r.mutableBuffer
         if mode == .async {
             queue.async {
                 zip(r.indices, elements).forEach { r[$0] = $1 }
@@ -84,11 +84,11 @@ extension DeviceQueue {
     //==========================================================================
     // inplace
     @inlinable func mapOp<S,E>(
-        _ result: inout Tensor<S,E>,
+        _ r: inout Tensor<S,E>,
         _ op: @escaping (E.Value) -> E.Value
     ) {
-        result.readWrite(using: self)
-        var r = result.mutableBuffer
+        r.readWrite(using: self)
+        var r = r.mutableBuffer
         if mode == .async {
             queue.async {
                 r.indices.forEach { r[$0] = op(r[$0]) }
@@ -101,7 +101,7 @@ extension DeviceQueue {
     //==========================================================================
     // mapOp 1
     @inlinable func mapOp<S,E,RE>(
-        _ x: Tensor<S,E>,
+        _ a: Tensor<S,E>,
         _ result: inout Tensor<S,RE>,
         _ op: @escaping (E.Value) -> RE.Value
     ) {
@@ -124,17 +124,17 @@ extension DeviceQueue {
         }
 
         // queue data transfers and execute
-        x.read(using: self)
+        a.read(using: self)
         result.readWrite(using: self)
-        execute(x.buffer, result.mutableBuffer, op)
+        execute(a.buffer, result.mutableBuffer, op)
     }
     
     //==========================================================================
     // mapOp 2
     @inlinable func mapOp<S,E,RE>(
-        _ lhs: Tensor<S,E>,
-        _ rhs: Tensor<S,E>,
-        _ result: inout Tensor<S,RE>,
+        _ a: Tensor<S,E>,
+        _ b: Tensor<S,E>,
+        _ r: inout Tensor<S,RE>,
         _ op: @escaping (E.Value, E.Value) -> RE.Value
     ) {
         //------------------------------------
@@ -161,19 +161,18 @@ extension DeviceQueue {
         
         //------------------------------------
         // queue data transfers
-        lhs.read(using: self)
-        rhs.read(using: self)
-        result.readWrite(using: self)
+        a.read(using: self)
+        b.read(using: self)
+        r.readWrite(using: self)
 
         // execute right layout combination
-        if haveSameStorageLayout(lhs, rhs) {
-            execute(lhs.buffer, rhs.buffer, result.mutableBuffer, op)
+        if haveSameStorageLayout(a, b) {
+            execute(a.buffer, b.buffer, r.mutableBuffer, op)
         } else {
-            switch (lhs.layout, rhs.layout) {
+            switch (a.layout, b.layout) {
             default:
-                execute(lhs.stridedElements,
-                        lhs.stridedElements,
-                        result.stridedElements, op)
+                execute(a.stridedElements, b.stridedElements,
+                        r.stridedElements, op)
             }
         }
     }
@@ -184,7 +183,7 @@ extension DeviceQueue {
         _ a: Tensor<S,E0>,
         _ b: Tensor<S,E1>,
         _ c: Tensor<S,E2>,
-        _ result: inout Tensor<S,R1>,
+        _ r: inout Tensor<S,R1>,
         _ op: @escaping (E0.Value, E1.Value, E2.Value) -> R1.Value
     ) {
         //------------------------------------
@@ -219,11 +218,11 @@ extension DeviceQueue {
         a.read(using: self)
         b.read(using: self)
         c.read(using: self)
-        result.readWrite(using: self)
+        r.readWrite(using: self)
         
         // execute right layout combination
         if haveSameStorageLayout(a, b, c) {
-            execute(a.buffer, b.buffer, c.buffer, result.mutableBuffer, op)
+            execute(a.buffer, b.buffer, c.buffer, r.mutableBuffer, op)
         } else {
             switch (a.layout, b.layout, c.layout) {
             default:
