@@ -21,6 +21,16 @@ import Numerics
 extension DeviceQueue where Self: CpuFunctions
 {
     //--------------------------------------------------------------------------
+    @inlinable public func reduceAll<S>(
+        _ x: Tensor<S,Bool>,
+        _ result: inout Tensor<S,Bool>
+    ) { cpu_reduceAll(x, &result) }
+    //--------------------------------------------------------------------------
+    @inlinable public func reduceAny<S>(
+        _ x: Tensor<S,Bool>,
+        _ result: inout Tensor<S,Bool>
+    ) { cpu_reduceAny(x, &result) }
+    //--------------------------------------------------------------------------
     @inlinable public func reduceSum<S,E>(
         _ x: Tensor<S,E>,
         _ result: inout Tensor<S,E>
@@ -53,6 +63,20 @@ extension DeviceQueue where Self: CpuFunctions
 //==============================================================================
 // Cpu device queue function implementations
 extension CpuFunctions where Self: DeviceQueue {
+    //--------------------------------------------------------------------------
+    @inlinable public func cpu_reduceAll<S>(
+        _ x: Tensor<S,Bool>,
+        _ r: inout Tensor<S,Bool>
+    ) {
+        r[r.startIndex] = x.buffer.reduce(into: x[x.startIndex]) { $0 = $0 && $1 }
+    }
+    //--------------------------------------------------------------------------
+    @inlinable public func cpu_reduceAny<S>(
+        _ x: Tensor<S,Bool>,
+        _ r: inout Tensor<S,Bool>
+    ) {
+        r[r.startIndex] = x.buffer.reduce(into: x[x.startIndex]) { $0 = $0 || $1 }
+    }
     //--------------------------------------------------------------------------
     @inlinable public func cpu_reduceSum<S,E>(
         _ x: Tensor<S,E>,

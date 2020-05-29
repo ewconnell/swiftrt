@@ -27,15 +27,21 @@ public let _messageTensorExtentsMismatch = "tensor shape mismatch"
 /// - Parameter x: value tensor
 /// - Parameter result: the scalar tensor where the result will be written
 /// - Precondition: Each value in `axes` must be in the range `-rank..<rank`.
-@inlinable
-public func all<S>(_ x: Tensor<S,Bool>, alongAxes axes: Set<Int>? = nil)
-    -> Tensor<S,Bool> where S: TensorShape
-{
-    let resultShape = x.reductionShape(alongAxes: axes)
-    var result = Tensor<S,Bool>(resultShape)
-    copy(from: x[S.zero, resultShape], to: &result)
-    Context.currentQueue.reduce(x, &result, .compare, { $0 && $1 }, nil)
-    return result
+@inlinable public func all<S>(
+    _ x: Tensor<S,Bool>,
+    alongAxes axes: Set<Int>? = nil
+) -> Tensor<S,Bool> where S: TensorShape {
+    if let axes = axes {
+        let resultShape = x.reductionShape(alongAxes: axes)
+        var result = Tensor<S,Bool>(resultShape)
+        copy(from: x[S.zero, resultShape], to: &result)
+        Context.currentQueue.reduce(x, &result, .compare, { $0 && $1 }, nil)
+        return result
+    } else {
+        var result = Tensor<S,Bool>(S.one)
+        Context.currentQueue.reduceAll(x, &result)
+        return result
+    }
 }
 
 /// - Parameter along: the axes to operate on
@@ -61,11 +67,17 @@ public extension Tensor where TensorElement == Bool {
 public func any<S>(_ x: Tensor<S,Bool>, alongAxes axes: Set<Int>? = nil)
     -> Tensor<S,Bool> where S: TensorShape
 {
-    let resultShape = x.reductionShape(alongAxes: axes)
-    var result = Tensor<S,Bool>(resultShape)
-    copy(from: x[S.zero, resultShape], to: &result)
-    Context.currentQueue.reduce(x, &result, .compare, { $0 || $1 }, nil)
-    return result
+    if let axes = axes {
+        let resultShape = x.reductionShape(alongAxes: axes)
+        var result = Tensor<S,Bool>(resultShape)
+        copy(from: x[S.zero, resultShape], to: &result)
+        Context.currentQueue.reduce(x, &result, .compare, { $0 || $1 }, nil)
+        return result
+    } else {
+        var result = Tensor<S,Bool>(S.one)
+        Context.currentQueue.reduceAny(x, &result)
+        return result
+    }
 }
 
 /// - Parameter axes: the axes to operate on

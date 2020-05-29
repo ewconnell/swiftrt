@@ -54,6 +54,44 @@ class test_Vectorizing: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
+    func test_reduceAll() {
+        #if !DEBUG
+        let size = 1024
+        let x = array(repeating(true, (size * size)), (size, size))
+        var value: Bool = false
+        
+        // 0.00357s
+        self.measure {
+            for _ in 0..<10 {
+                value = x.all().element
+            }
+        }
+        
+        XCTAssert(value == true)
+        print(value)
+        #endif
+    }
+
+    //--------------------------------------------------------------------------
+    func test_reduceAny() {
+        #if !DEBUG
+        let size = 1024
+        let x = array(repeating(true, (size * size)), (size, size))
+        var value: Bool = false
+        
+        // 0.00354s
+        self.measure {
+            for _ in 0..<10 {
+                value = x.any().element
+            }
+        }
+        
+        XCTAssert(value == true)
+        print(value)
+        #endif
+    }
+    
+    //--------------------------------------------------------------------------
     func test_reduceSum() {
         #if !DEBUG
         let size = 1024
