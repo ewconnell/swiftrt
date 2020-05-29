@@ -35,18 +35,11 @@ class test_Vectorizing: XCTestCase {
         let a = ones((1024, 1024))
         let b = ones((1024, 1024))
         var count: DType = 0
-        var result = empty(like: a)
 
+        // 0.0225
         self.measure {
             for _ in 0..<10 {
-                // 0.0255
-                result = a + b
-                
-                // 0.0221  24% better
-//                var rbuff = result.mutableBuffer
-//                zip(rbuff.indices, zip(a.buffer, b.buffer)).forEach { rbuff[$0] = $1.0 + $1.1 }
-
-                count = result[result.startIndex]
+                count += (a + b).first
             }
         }
         XCTAssert(count > 0)
