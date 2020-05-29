@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 import Foundation
+import Numerics
 
 //==============================================================================
 // DeviceQueue functions with default cpu delegation
@@ -24,6 +25,11 @@ extension DeviceQueue where Self: CpuFunctions
         _ x: Tensor<S,E>,
         _ result: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic { cpu_reduceSum(x, &result) }
+    //--------------------------------------------------------------------------
+    @inlinable public func reduceMean<S,E>(
+        _ x: Tensor<S,E>,
+        _ result: inout Tensor<S,E>
+    ) where E.Value: AlgebraicField { cpu_reduceMean(x, &result) }
     //--------------------------------------------------------------------------
     @inlinable public func reduceMin<S,E>(
         _ x: Tensor<S,E>,
@@ -53,6 +59,14 @@ extension CpuFunctions where Self: DeviceQueue {
         _ r: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
         r[r.startIndex] = x.buffer.reduce(into: E.Value.zero) { $0 += $1 }
+    }
+    //--------------------------------------------------------------------------
+    @inlinable public func cpu_reduceMean<S,E>(
+        _ x: Tensor<S,E>,
+        _ r: inout Tensor<S,E>
+    ) where E.Value: AlgebraicField {
+        let sum = x.buffer.reduce(into: E.Value.zero) { $0 += $1 }
+        r[r.startIndex] = sum / E.Value(exactly: x.count)!
     }
     //--------------------------------------------------------------------------
     @inlinable public func cpu_reduceMin<S,E>(

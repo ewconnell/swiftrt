@@ -135,14 +135,20 @@ public extension Tensor where TensorElement.Value: Numeric {
     alongAxes axes: Set<Int>? = nil
 ) -> Tensor<S,E> where S: TensorShape, E.Value: AlgebraicField
 {
-    // the divisor is the product of the `axes` that are summed
-    let divisor = (axes?.reduce(E.Value.one) {
-        $0 * E.Value(exactly: x.shape[$1])!
-    }) ?? E.Value(exactly: x.count)!
-
-    var result = Tensor<S,E>(zeros: x.reductionShape(alongAxes: axes))
-    Context.currentQueue.reduce(x, &result, .add, +, { $0 / divisor })
-    return result
+    if let axes = axes {
+        // the divisor is the product of the `axes` that are summed
+        let divisor = (axes.reduce(E.Value.one) {
+            $0 * E.Value(exactly: x.shape[$1])!
+        })
+        
+        var result = Tensor<S,E>(zeros: x.reductionShape(alongAxes: axes))
+        Context.currentQueue.reduce(x, &result, .add, +, { $0 / divisor })
+        return result
+    } else {
+        var result = Tensor<S,E>(S.one)
+        Context.currentQueue.reduceMean(x, &result)
+        return result
+    }
 }
 
 @derivative(of: mean)

@@ -22,6 +22,7 @@ class test_Vectorizing: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_reduceSum", test_reduceSum),
+        ("test_reduceMean", test_reduceMean),
         ("test_reduceMin", test_reduceMin),
         ("test_reduceMax", test_reduceMax),
         ("test_AplusBSequential", test_AplusBSequential),
@@ -71,6 +72,25 @@ class test_Vectorizing: XCTestCase {
         #endif
     }
 
+    //--------------------------------------------------------------------------
+    func test_reduceMean() {
+        #if !DEBUG
+        let size = 1024
+        let x = array(1...(size * size), (size, size))
+        var value: DType = 0
+        
+        // 0.010s
+        self.measure {
+            for _ in 0..<10 {
+                value += x.mean().element
+            }
+        }
+        
+        XCTAssert(value > 0)
+        print(value)
+        #endif
+    }
+    
     //--------------------------------------------------------------------------
     func test_reduceMin() {
         #if !DEBUG
