@@ -118,10 +118,16 @@ public func sum<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement
 {
-    let value = sum(x, alongAxes: axes)
-    return (value, { [xshape = x.shape] in
-        Tensor<S,E>(repeating: $0, to: xshape)
-    })
+    let xshape = x.shape
+    if let axes = axes {
+        return (sum(x, alongAxes: axes), {
+            Tensor<S,E>(repeating: $0, to: xshape)
+        })
+    } else {
+        return (sum(x), {
+            Tensor<S,E>(repeating: $0, to: xshape)
+        })
+    }
 }
 
 public extension Tensor where TensorElement.Value: Numeric {
