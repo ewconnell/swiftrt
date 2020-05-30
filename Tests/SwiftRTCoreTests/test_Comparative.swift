@@ -73,10 +73,22 @@ class test_Comparative: XCTestCase {
     //--------------------------------------------------------------------------
     // test_maximum
     func test_max() {
-        let a = array([[0, 1], [-2, -3], [-4, 5]])
-        let b = array([[0, -7], [2, 3], [4, 5]])
+        let a = array([
+            [ 0,  1],
+            [-2, -3],
+            [-4,  5]
+        ])
+        let b = array([
+            [0, -7],
+            [2,  3],
+            [4,  5]
+        ])
         XCTAssert(max(a, b) == [[0, 1], [2, 3], [4, 5]])
-        XCTAssert(max(a, -2) == [[0, 1], [-2, -2], [-2, 5]])
+        XCTAssert(max(a, -2) == [
+            [ 0,  1],
+            [-2, -2],
+            [-2,  5]
+        ])
         
         // both
         let (ga, gb) = pullback(at: a, b, in: { max($0, $1) })(ones(like: a))

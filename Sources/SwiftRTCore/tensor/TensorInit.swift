@@ -265,7 +265,7 @@ public extension Tensor {
         self.init(shape, layout: layout)
         _ = storage.readWrite(at: 0, count: count)
         for (i, value) in elements.enumerated() {
-            storage.setElement(value: Element(value == 0), at: i)
+            storage.setElement(value: Element(value != 0), at: i)
         }
     }
     

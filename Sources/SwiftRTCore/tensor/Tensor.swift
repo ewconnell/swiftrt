@@ -131,7 +131,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.storageBase = 0
         self.isShared = false
         self.storage.name = "Element"
-        self.count = 1
+        self.count = shape.elementCount()
         self.stridedSpanCount = 1
         
         switch storage.layout {

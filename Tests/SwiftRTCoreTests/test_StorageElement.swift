@@ -107,8 +107,8 @@ class test_StorageElement: XCTestCase {
         
         let b = reshape(a, (2, 4))
         XCTAssert(b == [
-            [1, 0, 1, 1],
-            [0, 1, 1, 1],
+            [0, 0, 0, 1],
+            [0, 0, 1, 1],
         ])
     }
 }
