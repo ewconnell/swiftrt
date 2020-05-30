@@ -139,9 +139,7 @@ public extension PackedStorageElement
     }
     
     @inlinable static func storedCount(_ count: Int) -> Int {
-        var storedCount = count >> indexShift
-        if storedCount << indexShift != count { storedCount += 1 }
-        return storedCount
+        storedIndex(count - 1) + 1
     }
     
     @inlinable static func value(from stored: Stored, at index: Int) -> Value {
@@ -165,7 +163,7 @@ public extension PackedStorageElement
     
     
     //--------------------------------------------------------------------------
-    /// storedCount
+    /// storedRange
     /// the stored count will be less than the logical count for packed
     /// bit types such as `Int4`. Unlike `storedIndex`, it rounds up.
     /// - Parameters:
@@ -177,8 +175,7 @@ public extension PackedStorageElement
     -> (storedStart: Int, storedCount: Int)
     {
         let storedStart = storedIndex(start)
-        var storedCount = storedIndex(start + count) - storedStart
-        if storedCount << indexShift != count { storedCount += 1 }
+        let storedCount = storedIndex(start + count - 1) - storedStart + 1
         return (storedStart, storedCount)
     }
 }
@@ -354,8 +351,6 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
         // convert logical base and strided span count to stored.
         // They will not be equal for packed element types like `Int4`
         let (storedBase, storedCount) = TensorElement
-                
-                This is still not computing the count right!
                 .storedRange(start: tensor.storageBase,
                              count: tensor.stridedSpanCount)
 
