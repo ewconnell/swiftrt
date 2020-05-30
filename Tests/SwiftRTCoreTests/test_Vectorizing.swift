@@ -21,16 +21,19 @@ class test_Vectorizing: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_reduceSum", test_reduceSum),
-        ("test_reduceMean", test_reduceMean),
-        ("test_reduceMin", test_reduceMin),
-        ("test_reduceMax", test_reduceMax),
-        ("test_AplusBSequential", test_AplusBSequential),
+        ("test_perfAplusBSequential", test_perfAplusBSequential),
+        ("test_perfAplusB_NonSequential", test_perfAplusB_NonSequential),
+        ("test_perfReduceAll", test_perfReduceAll),
+        ("test_perfReduceAny", test_perfReduceAny),
+        ("test_perfReduceSum", test_perfReduceSum),
+        ("test_perfReduceMean", test_perfReduceMean),
+        ("test_perfReduceMin", test_perfReduceMin),
+        ("test_perfReduceMax", test_perfReduceMax),
+        ("test_perfAlessOrEqualBAny", test_perfAlessOrEqualBAny),
     ]
     
     //--------------------------------------------------------------------------
-    // test_AplusBSequential
-    func test_AplusBSequential() {
+    func test_perfAplusBSequential() {
         #if !DEBUG
         let a = ones((1024, 1024))
         let b = ones((1024, 1024))
@@ -47,7 +50,27 @@ class test_Vectorizing: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    func test_reduceAll() {
+    func test_perfAplusB_NonSequential() {
+        #if !DEBUG
+        let size = 1024
+        let a = array(1...(size * size), (size, size))
+        let b = array(1...(size * size), (size, size), order: .F)
+        var count: DType = 0
+        
+        // 0.180
+        // TODO: walk through this to improve if possible
+        self.measure {
+            for _ in 0..<10 {
+                let result = a + b
+                count = result.first
+            }
+        }
+        XCTAssert(count > 0)
+        #endif
+    }
+
+    //--------------------------------------------------------------------------
+    func test_perfReduceAll() {
         #if !DEBUG
         let size = 1024
         let x = full((size, size), true, type: Bool.self)
@@ -66,7 +89,7 @@ class test_Vectorizing: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    func test_reduceAny() {
+    func test_perfReduceAny() {
         #if !DEBUG
         let size = 1024
         let x = full((size, size), true, type: Bool.self)
@@ -85,7 +108,7 @@ class test_Vectorizing: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    func test_reduceSum() {
+    func test_perfReduceSum() {
         #if !DEBUG
         let size = 1024
         let x = array(1...(size * size), (size, size))
@@ -104,7 +127,7 @@ class test_Vectorizing: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    func test_reduceMean() {
+    func test_perfReduceMean() {
         #if !DEBUG
         let size = 1024
         let x = array(1...(size * size), (size, size))
@@ -123,7 +146,7 @@ class test_Vectorizing: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    func test_reduceMin() {
+    func test_perfReduceMin() {
         #if !DEBUG
         let size = 1024 * 1024
         let a = Tensor1(randomNormal: size)
@@ -141,7 +164,7 @@ class test_Vectorizing: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    func test_reduceMax() {
+    func test_perfReduceMax() {
         #if !DEBUG
         let size = 1024 * 1024
         let a = Tensor1(randomNormal: size)
@@ -158,103 +181,19 @@ class test_Vectorizing: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_AlessOrEqualBAny
-    func test_AlessOrEqualBAny() {
+    func test_perfAlessOrEqualBAny() {
         #if !DEBUG
         let size = 1024
         let a = array(1...(size * size), (size, size))
         let b = array(0..<(size * size), (size, size))
         var value = true
-        
-//        func reductionOp<S,E>(
-//            _ x: Tensor<S,E>,
-//            _ op: @escaping (E, E) -> E
-//        ) -> E
-//        {
-//            // maps to llvm.experimental.vector.reduce.X
-//            x.indices.reduce(into: x[x.startIndex]) { $0 = op($0, x[$1]) }
-//        }
-        func reductionOp<T>(_ x: T) -> T.Element
-        where T: Collection, T.Element == Bool
-        {
-            // maps to llvm.experimental.vector.reduce.X
-            let v = x.indices.reduce(into: x[x.startIndex]) { $0 = $0 && x[$1] }
-            return v
-        }
 
-        // .00418s
+        // .00312s
         self.measure {
-//            value = (a .<= b).any().element
-            
-            let x = a .<= b
-//            value = x.indices.reduce(into: x[x.startIndex]) { $0 = $0 && x[$1] }
-            value = reductionOp(x)
-
-//            value = Context.currentQueue.reductionOp(comp, { $0 && $1 })
-//            value = comp.indices.reduce(into: comp[comp.startIndex]) { $0 = $0 && comp[$1] }
+            value = (a .<= b).any().element
         }
         
         XCTAssert(value == false)
-        #endif
-    }
-    
-    //--------------------------------------------------------------------------
-    // test_AplusBSequential
-    func test_AplusB_NonSequential() {
-        #if !DEBUG
-        let size = 1024
-        let a = array(1...(size * size), (size, size))
-        let b = array(1...(size * size), (size, size), order: .F)
-        var count: DType = 0
-        
-        // 0.107
-        self.measure {
-            for _ in 0..<10 {
-                let result = a + b
-                count = result.first
-            }
-        }
-        XCTAssert(count > 0)
-        #endif
-    }
-    
-    //--------------------------------------------------------------------------
-    // test_multiplyAdd
-    func test_multiplyAdd() {
-        #if !DEBUG
-        let a = ones((1024, 1024))
-        let b = repeating(1, (1024, 1024))
-        var count: DType = 0
-        
-        func mapOp1<S,E>(
-            _ lhs: Tensor<S,E>, _ rhs: E.Value,
-            _ r: inout Tensor<S,E>, _ op: (E.Value, E.Value) -> E.Value)
-        where S: TensorShape, E.Value: AdditiveArithmetic
-        {
-            zip(r.indices, lhs).forEach { r[$0] = $1 + rhs }
-        }
-
-        func mapOp2<S,E>(
-            _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
-            _ r: inout Tensor<S,E>, _ op: (E, E) -> E)
-        where S: TensorShape, E.Value: Numeric
-        {
-            zip(r.indices, zip(lhs, rhs)).forEach { r[$0] = $1.0 * $1.1 + 1 }
-        }
-        
-        // 0.00411
-        self.measure {
-            var result = empty(like: a)
-//            if b.isSingleElement {
-//                mapOp1(a, b[b.startIndex], &result, +)
-//            } else {
-                mapOp2(a, b, &result, +)
-//            }
-
-            // keep things from being optimized away
-            count += result.first
-        }
-        XCTAssert(count > 0)
         #endif
     }
 }
