@@ -36,7 +36,7 @@ class test_Vectorizing: XCTestCase {
         let b = ones((1024, 1024))
         var count: DType = 0
 
-        // 0.0225
+        // 0.0250
         self.measure {
             for _ in 0..<10 {
                 count += (a + b).first
@@ -50,7 +50,7 @@ class test_Vectorizing: XCTestCase {
     func test_reduceAll() {
         #if !DEBUG
         let size = 1024
-        let x = array(repeating(true, (size * size)), (size, size))
+        let x = full((size, size), true, type: Bool.self)
         var value: Bool = false
         
         // 0.00357s
@@ -69,7 +69,7 @@ class test_Vectorizing: XCTestCase {
     func test_reduceAny() {
         #if !DEBUG
         let size = 1024
-        let x = array(repeating(true, (size * size)), (size, size))
+        let x = full((size, size), true, type: Bool.self)
         var value: Bool = false
         
         // 0.00354s

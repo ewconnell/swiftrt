@@ -61,7 +61,7 @@ public extension Tensor {
                   count: count,
                   storage: StorageBufferType(count: count, layout: layout),
                   storageBase: 0,
-                  storageSpanCount: count,
+                  stridedSpanCount: count,
                   shared: false)
     }
     
@@ -130,7 +130,7 @@ public extension Tensor {
                   count: count,
                   storage: other.storage,
                   storageBase: other.storageBase,
-                  storageSpanCount: shape.spanCount(stridedBy: repeatedStrides),
+                  stridedSpanCount: shape.spanCount(stridedBy: repeatedStrides),
                   shared: other.isShared)
     }
     
@@ -409,7 +409,7 @@ public extension Tensor {
                 storage: StorageBufferType<TensorElement>(count: source.count,
                                                           layout: layout),
                 storageBase: 0,
-                storageSpanCount: other.storageSpanCount,
+                stridedSpanCount: other.stridedSpanCount,
                 shared: other.isShared)
             
             // performs an indexed copy which reorders the elements
@@ -427,7 +427,7 @@ public extension Tensor {
                   count: source.count,
                   storage: source.storage,
                   storageBase: source.storageBase,
-                  storageSpanCount: source.storageSpanCount,
+                  stridedSpanCount: source.stridedSpanCount,
                   shared: source.isShared)
     }
 }
@@ -510,7 +510,7 @@ public extension Tensor {
                   count: other.count,
                   storage: other.storage,
                   storageBase: other.storageBase,
-                  storageSpanCount: other.storageSpanCount,
+                  stridedSpanCount: other.stridedSpanCount,
                   shared: other.isShared)
     }
     
@@ -572,7 +572,7 @@ public extension Tensor {
                   count: other.count,
                   storage: other.storage,
                   storageBase: other.storageBase,
-                  storageSpanCount: other.count,
+                  stridedSpanCount: other.count,
                   shared: other.isShared)
     }
     
@@ -760,7 +760,7 @@ public extension Tensor {
                   count: other.count,
                   storage: other.storage,
                   storageBase: other.storageBase,
-                  storageSpanCount: other.count,
+                  stridedSpanCount: other.count,
                   shared: other.isShared)
     }
 }
@@ -811,7 +811,7 @@ public extension Tensor {
                   count: other.count,
                   storage: other.storage,
                   storageBase: other.storageBase,
-                  storageSpanCount: other.count,
+                  stridedSpanCount: other.count,
                   shared: other.isShared)
     }
     
@@ -840,7 +840,7 @@ extension Tensor where TensorElement.Value: DifferentiableElement {
                  count: other.count,
                  storage: $0.storage,
                  storageBase: $0.storageBase,
-                 storageSpanCount: other.count,
+                 stridedSpanCount: other.count,
                  shared: $0.isShared)
         })
     }

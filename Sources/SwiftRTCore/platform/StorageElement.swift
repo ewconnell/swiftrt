@@ -25,6 +25,21 @@ public protocol StorageElement {
     associatedtype Stored
     associatedtype Value
     
+    /// alignment
+    /// the Value alignment with the Stored type for the given logical index
+    /// For example `Int1` the alignment is 0 - 7, Int4 0 - 1
+    /// Normal types like Float are always 0
+    /// - Parameter index: the logical element index
+    /// - Returns: the value position with the stored element
+    static func alignment(_ index: Int) -> Int
+    
+    /// storedCount
+    /// the number of `Stored` elements needed to contain the specified
+    /// number of `Value` elements
+    /// - Parameter count: the number of value elements
+    /// - Returns: the storage count
+    static func storedCount(_ count: Int) -> Int
+    
     /// storedIndex
     /// the stored index will be less than the logical index for packed
     /// bit types such as `Int4`
@@ -32,13 +47,16 @@ public protocol StorageElement {
     /// - Returns: the stored index
     static func storedIndex(_ index: Int) -> Int
     
-    /// storedCount
+    /// storedRange
     /// the stored count will be less than the logical count for packed
-    /// bit types such as `Int4`
-    /// - Parameter count: the logical buffer count
-    /// - Returns: the stored count
-    static func storedCount(_ count: Int) -> Int
-    
+    /// bit types such as `Int4`. Unlike `storedIndex`, it rounds up.
+    /// - Parameters:
+    ///  - start: the logical buffer starting index
+    ///  - count: the number of logical elements spanned
+    /// - Returns: the stored starting index and count
+    static func storedRange(start: Int, count: Int)
+    -> (storedStart: Int, storedCount: Int)
+
     /// value
     /// converts from `Stored` type to `Value` type
     /// - Parameters:
@@ -73,6 +91,7 @@ public protocol StorageElement {
 public extension StorageElement {
     @inlinable static func storedIndex(_ index: Int) -> Int { index }
     @inlinable static func storedCount(_ count: Int) -> Int { count }
+    @inlinable static func alignment(_ index: Int) -> Int { 0 }
 }
 
 //-------------------------------------
@@ -89,7 +108,10 @@ public extension StorageElement where Stored == Value {
         to stored: inout Stored
     ) { stored = value }
 
-    static func stored(value: Value) -> Stored { value }
+    @inlinable static func stored(value: Value) -> Stored { value }
+
+    @inlinable static func storedRange(start: Int, count: Int)
+        -> (storedStart: Int, storedCount: Int) { (start, count) }
 }
 
 //==============================================================================
@@ -104,8 +126,12 @@ public protocol PackedStorageElement: StorageElement {
 public extension PackedStorageElement
     where Value: BinaryInteger, Stored: BinaryInteger
 {
+    @inlinable static func alignment(_ index: Int) -> Int {
+        (index % (1 << indexShift))
+    }
+
     @inlinable static func packedShift(_ index: Int) -> Int {
-        (index % (1 << indexShift)) << maskingShift
+         alignment(index) << maskingShift
     }
     
     @inlinable static func storedIndex(_ index: Int) -> Int {
@@ -136,6 +162,25 @@ public extension PackedStorageElement
     }
     
     @inlinable static func stored(value: Value) -> Stored { Stored(value) }
+    
+    
+    //--------------------------------------------------------------------------
+    /// storedCount
+    /// the stored count will be less than the logical count for packed
+    /// bit types such as `Int4`. Unlike `storedIndex`, it rounds up.
+    /// - Parameters:
+    ///  - start: the logical buffer starting index
+    ///  - count: the number of logical elements spanned
+    /// - Returns: the stored count
+    /// - Returns: the stored count
+    @inlinable static func storedRange(start: Int, count: Int)
+    -> (storedStart: Int, storedCount: Int)
+    {
+        let storedStart = storedIndex(start)
+        var storedCount = storedIndex(start + count) - storedStart
+        if storedCount << indexShift != count { storedCount += 1 }
+        return (storedStart, storedCount)
+    }
 }
 
 //==============================================================================
@@ -172,6 +217,9 @@ extension Float16: StorageElement {
     ) { stored = Self(value) }
 
     @inlinable public static func stored(value: Float) -> Self { Self(value) }
+
+    @inlinable public static func storedRange(start: Int, count: Int)
+    -> (storedStart: Int, storedCount: Int) { (start, count) }
 }
 
 //==============================================================================
@@ -256,49 +304,97 @@ extension Complex: StorageElement {
 public struct BufferElements<Shape, TensorElement>: MutableCollection
     where Shape: TensorShape, TensorElement: StorageElement
 {
+    // properties
     public let hostBuffer: UnsafeMutableBufferPointer<TensorElement.Stored>
     public let isSingleElement: Bool
     public let startIndex: Int
     public let endIndex: Int
     
+    //--------------------------------------------------------------------------
+    /// init(tensor:
+    /// creates a storage buffer iterator for reading tensor elments
+    ///
+    /// - Parameters:
+    ///  - tensor: the tensor that will be read
     @inlinable public init(_ tensor: Tensor<Shape, TensorElement>) {
-        assert(tensor.isBufferIterable)
-        self.isSingleElement = tensor.storageSpanCount == 1
-        let buff = tensor.storage.read(at: tensor.storageBase,
-                                       count: tensor.storageSpanCount)
-        // this does not actually mutate
+        assert(tensor.isBufferIterable, "tensor layout is not buffer iterable")
+        
+        // convert logical base and strided span count to stored.
+        // They will not be equal for packed element types like `Int4`
+        let (storedBase, storedCount) = TensorElement
+                .storedRange(start: tensor.storageBase,
+                             count: tensor.stridedSpanCount)
+        
+        // make the data range available for reading by the cpu
+        let buff = tensor.storage.read(at: storedBase, count: storedCount)
+        
+        // Init members and note that this does not actually mutate, even
+        // though we commonly hold a mutable buffer pointer
         let p = UnsafeMutablePointer(mutating: buff.baseAddress)
         hostBuffer = UnsafeMutableBufferPointer(start: p, count: buff.count)
-        startIndex = tensor.storageBase
+        isSingleElement = tensor.isSingleElement
+        
+        // `startIndex` is the logical position of the first
+        // `Value` type within the `Stored` type.
+        // For Int1 the alignment is 0 - 7, Int4 0 - 1, for
+        // normal types like Float, it is always 0
+        startIndex = TensorElement.alignment(tensor.storageBase)
         endIndex = startIndex + tensor.count
     }
     
+    //--------------------------------------------------------------------------
+    /// init(mutating:
+    /// creates a storage buffer iterator for reading/writing tensor elments
+    ///
+    /// - Parameters:
+    ///  - tensor: the tensor that will be written
     @inlinable public init(mutating tensor: Tensor<Shape, TensorElement>) {
-        assert(tensor.isBufferIterable)
-        self.isSingleElement = tensor.storageSpanCount == 1
-        hostBuffer = tensor.storage.readWrite(at: tensor.storageBase,
-                                              count: tensor.storageSpanCount)
-        startIndex = tensor.storageBase
+        assert(tensor.isBufferIterable, "tensor layout is not buffer iterable")
+
+        // convert logical base and strided span count to stored.
+        // They will not be equal for packed element types like `Int4`
+        let (storedBase, storedCount) = TensorElement
+                
+                This is still not computing the count right!
+                .storedRange(start: tensor.storageBase,
+                             count: tensor.stridedSpanCount)
+
+        // make the data range available for reading/writing by the cpu
+        hostBuffer = tensor.storage.readWrite(at: storedBase, count: storedCount)
+        
+        isSingleElement = tensor.isSingleElement
+
+        // `startIndex` is the logical position of the first
+        // `Value` type within the `Stored` type.
+        // For Int1 the alignment is 0 - 7, Int4 0 - 1, for
+        // normal types like Float, it is always 0
+        startIndex = TensorElement.alignment(tensor.storageBase)
         endIndex = startIndex + tensor.count
     }
     
+    //--------------------------------------------------------------------------
+    // index(after:
     @inlinable public func index(after i: Int) -> Int {
         i + 1
     }
     
+    //--------------------------------------------------------------------------
+    // subscript
     @inlinable public subscript(position: Int) -> TensorElement.Value {
         get {
             if isSingleElement {
-                return TensorElement.value(from: hostBuffer[0], at: 0)
+                return TensorElement.value(from: hostBuffer[startIndex],
+                                           at: startIndex)
             } else {
                 let si = TensorElement.storedIndex(position)
                 return TensorElement.value(from: hostBuffer[si], at: position)
             }
         }
         
-        set(newValue) {
+        set {
             if isSingleElement {
-                TensorElement.store(value: newValue, at: 0, to: &hostBuffer[0])
+                TensorElement.store(value: newValue, at: startIndex,
+                                    to: &hostBuffer[startIndex])
             } else {
                 let si = TensorElement.storedIndex(position)
                 TensorElement.store(value: newValue, at: position,
@@ -314,35 +410,60 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
 public struct StridedElements<Shape, TensorElement>: MutableCollection
 where Shape: TensorShape, TensorElement: StorageElement
 {
+    // properties
     public typealias Index = ElementIndex<Shape>
-    public typealias Element = TensorElement.Value
     public let hostBuffer: UnsafeMutableBufferPointer<TensorElement.Stored>
-    public let spanCount: Int
     public let logicalStrides: Shape
     public let strides: Shape
     public let startIndex: Index
     public let endIndex: Index
     
+    //--------------------------------------------------------------------------
+    /// init(tensor:
+    /// creates a storage buffer iterator for reading tensor elments
+    ///
+    /// - Parameters:
+    ///  - tensor: the tensor that will be read
     @inlinable public init(_ tensor: Tensor<Shape, TensorElement>) {
-        self.logicalStrides = tensor.shape.strides(for: tensor.layout)
-        self.strides = tensor.strides
-        self.spanCount = tensor.shape.spanCount(stridedBy: strides)
-        let buff = tensor.storage.read(at: tensor.storageBase, count: spanCount)
-        // this does not actually mutate
+        // convert logical base and strided span count to stored.
+        // They will not be equal for packed element types like `Int4`
+        let (storedBase, storedCount) = TensorElement
+                .storedRange(start: tensor.storageBase,
+                             count: tensor.stridedSpanCount)
+
+        // make the data range available for reading by the cpu
+        let buff = tensor.storage.read(at: storedBase, count: storedCount)
+        
+        // Init members and note that this does not actually mutate, even
+        // though we commonly hold a mutable buffer pointer
         let p = UnsafeMutablePointer(mutating: buff.baseAddress)
         hostBuffer = UnsafeMutableBufferPointer(start: p, count: buff.count)
-        startIndex = Index(Shape.zero, tensor.storageBase)
-        endIndex = Index(tensor.shape, tensor.storageBase + tensor.count)
+        logicalStrides = tensor.shape.strides(for: tensor.layout)
+        strides = tensor.strides
+        startIndex = Index(Shape.zero, 0)
+        endIndex = Index(tensor.shape, tensor.count)
     }
     
+    //--------------------------------------------------------------------------
+    /// init(mutating:
+    /// creates a storage buffer iterator for reading/writing tensor elments
+    ///
+    /// - Parameters:
+    ///  - tensor: the tensor that will be written
     @inlinable public init(mutating tensor: Tensor<Shape, TensorElement>) {
-        self.logicalStrides = tensor.shape.strides(for: tensor.layout)
-        self.strides = tensor.strides
-        self.spanCount = tensor.shape.spanCount(stridedBy: strides)
-        hostBuffer = tensor.storage.readWrite(at: tensor.storageBase,
-                                              count: spanCount)
-        startIndex = Index(Shape.zero, tensor.storageBase)
-        endIndex = Index(tensor.shape, tensor.storageBase + tensor.count)
+        // convert logical base and strided span count to stored.
+        // They will not be equal for packed element types like `Int4`
+        let (storedBase, storedCount) = TensorElement
+                .storedRange(start: tensor.storageBase,
+                             count: tensor.stridedSpanCount)
+
+        // make the data range available for reading/writing by the cpu
+        hostBuffer = tensor.storage.readWrite(at: storedBase, count: storedCount)
+
+        logicalStrides = tensor.shape.strides(for: tensor.layout)
+        strides = tensor.strides
+        startIndex = Index(Shape.zero, 0)
+        endIndex = Index(tensor.shape, tensor.count)
     }
     
     //--------------------------------------------------------------------------
@@ -355,18 +476,22 @@ where Shape: TensorShape, TensorElement: StorageElement
         Index(position,  position.index(stridedBy: logicalStrides))
     }
 
+    //--------------------------------------------------------------------------
+    // index(after:
     @inlinable public func index(after i: Index) -> Index {
         i.incremented(between: startIndex, and: endIndex)
     }
     
-    @inlinable public subscript(position: Index) -> Element {
+    //--------------------------------------------------------------------------
+    // subscript
+    @inlinable public subscript(position: Index) -> TensorElement.Value {
         get {
             let i = position.linearIndex(strides)
             let si = TensorElement.storedIndex(i)
             return TensorElement.value(from: hostBuffer[si], at: i)
         }
         
-        set(newValue) {
+        set {
             let i = position.linearIndex(strides)
             let si = TensorElement.storedIndex(i)
             TensorElement.store(value: newValue, at: i, to: &hostBuffer[si])
