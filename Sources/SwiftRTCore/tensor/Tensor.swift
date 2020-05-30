@@ -192,8 +192,14 @@ extension Tensor: Codable where Element: Codable {
         try container.encode(storage.name, forKey: .name)
         try container.encode(shape, forKey: .shape)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
-        try self.forEach {
-            try dataContainer.encode($0)
+        if isBufferIterable {
+            try self.buffer.forEach {
+                try dataContainer.encode($0)
+            }
+        } else {
+            try self.forEach {
+                try dataContainer.encode($0)
+            }
         }
     }
     
@@ -206,8 +212,9 @@ extension Tensor: Codable where Element: Codable {
         self.name = name
 
         assert(self.count == dataContainer.count)
-        for i in self.indices {
-            self[i] = try dataContainer.decode(Element.self)
+        var buffer = self.mutableBuffer
+        for i in buffer.indices {
+            buffer[i] = try dataContainer.decode(Element.self)
         }
     }
 }
