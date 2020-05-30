@@ -366,7 +366,7 @@ public extension Tensor {
     @inlinable init<S>(
         reshaping other: Tensor<S,TensorElement>,
         to newShape: Shape,
-        layout newOrder: Layout = .C
+        layout newLayout: Layout = .C
     ) where S: TensorShape
     {
         assert(other.isContiguous, "cannot reshape non contiguous data")
@@ -393,9 +393,9 @@ public extension Tensor {
                "the new shape must have the same number of elements as other")
         
         // determine storage layout
-        let layout: Layout =
-                newOrder == .F ||
-                (newOrder.rawValue == Layout.A && other.layout == .F) ? .F : .C
+        let layout: Layout = newLayout == .col ||
+                (newLayout.rawValue == Layout.A && other.layout == .col) ?
+                .col : .row
 
         // reorder other's elements if needed
         var source = other

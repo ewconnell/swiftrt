@@ -372,8 +372,6 @@ extension CpuFunctions where Self: DeviceQueue
     //--------------------------------------------------------------------------
     @inlinable func cpu_copy<S,E>(from x: Tensor<S,E>, to result: inout Tensor<S,E>)
     where S: TensorShape {
-        x.read(using: self)
-        result.readWrite(using: self)
         mapOp(x, &result) { $0 }
     }
     

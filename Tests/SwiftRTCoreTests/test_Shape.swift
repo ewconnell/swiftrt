@@ -70,11 +70,11 @@ class test_Shape: XCTestCase {
         let a = array([[0, 1, 2], [3, 4, 5]])
         XCTAssert(Array(a.storage.hostBuffer) == [0, 1, 2, 3, 4, 5])
 
-        let b = reshape(a, (2, 3), order: .F)
+        let b = reshape(a, (2, 3), order: .col)
         XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
         XCTAssert(Array(b.storage.hostBuffer) == [0, 3, 1, 4, 2, 5])
         
-        let c = array([[0, 3, 1], [4, 2, 5]], order: .F)
+        let c = array([[0, 3, 1], [4, 2, 5]], order: .col)
         XCTAssert(Array(c.storage.hostBuffer) == [0, 3, 1, 4, 2, 5])
 
         let d = reshape(c, (2, 3))

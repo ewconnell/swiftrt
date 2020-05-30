@@ -102,7 +102,7 @@ extension DeviceQueue {
     // mapOp 1
     @inlinable func mapOp<S,E,RE>(
         _ a: Tensor<S,E>,
-        _ result: inout Tensor<S,RE>,
+        _ r: inout Tensor<S,RE>,
         _ op: @escaping (E.Value) -> RE.Value
     ) {
         //------------------------------------
@@ -125,8 +125,16 @@ extension DeviceQueue {
 
         // queue data transfers and execute
         a.read(using: self)
-        result.readWrite(using: self)
-        execute(a.buffer, result.mutableBuffer, op)
+        r.readWrite(using: self)
+        execute(a.buffer, r.mutableBuffer, op)
+
+        // execute right layout combination
+        if haveSameStorageLayout(a, r) {
+            execute(a.buffer, r.mutableBuffer, op)
+        } else {
+            // TODO: optimize cases
+            execute(a.stridedElements, r.stridedElements, op)
+        }
     }
     
     //==========================================================================
