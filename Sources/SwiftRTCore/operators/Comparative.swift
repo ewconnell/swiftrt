@@ -18,8 +18,8 @@ import Numerics
 //==============================================================================
 /// and
 /// Computes `lhs .&& rhs` element-wise and returns a tensor of Bool values
-@inlinable public func and<S>(_ lhs: Tensor<S,Bool>, _ rhs: Tensor<S,Bool>)
-    -> Tensor<S,Bool> where S: TensorShape
+@inlinable public func and<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+-> Tensor<S,E> where E.Value == Bool
 {
     assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
     var result = Tensor(like: lhs)
@@ -27,19 +27,19 @@ import Numerics
     return result
 }
 
-@inlinable public func and<S>(_ lhs: Tensor<S,Bool>, _ rhs: Bool)
-    -> Tensor<S,Bool> where S: TensorShape
+@inlinable public func and<S,E>(_ lhs: Tensor<S,E>, _ rhs: E.Value)
+    -> Tensor<S,E> where E.Value == Bool
 {
     and(lhs, repeating(rhs, like: lhs))
 }
 
-@inlinable public func and<S>(_ lhs: Bool, _ rhs: Tensor<S,Bool>)
-    -> Tensor<S,Bool> where S: TensorShape
+@inlinable public func and<S,E>(_ lhs: E.Value, _ rhs: Tensor<S,E>)
+    -> Tensor<S,E> where E.Value == Bool
 {
     and(repeating(lhs, like: rhs), rhs)
 }
 
-extension Tensor where TensorElement == Bool {
+extension Tensor where TensorElement.Value == Bool {
     @inlinable
     public static func .&&(_ lhs: Self, _ rhs: Self) -> Self { and(lhs, rhs) }
 
@@ -53,8 +53,8 @@ extension Tensor where TensorElement == Bool {
 //==============================================================================
 /// or
 /// Computes `lhs .|| rhs` element-wise and returns a tensor of Bool values
-@inlinable public func or<S>(_ lhs: Tensor<S,Bool>, _ rhs: Tensor<S,Bool>)
-    -> Tensor<S,Bool> where S: TensorShape
+@inlinable public func or<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+-> Tensor<S,E> where E.Value == Bool
 {
     assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
     var result = Tensor(like: lhs)
@@ -62,19 +62,19 @@ extension Tensor where TensorElement == Bool {
     return result
 }
 
-@inlinable public func or<S>(_ lhs: Tensor<S,Bool>, _ rhs: Bool)
-    -> Tensor<S,Bool> where S: TensorShape
+@inlinable public func or<S,E>(_ lhs: Tensor<S,E>, _ rhs: E.Value)
+-> Tensor<S,E> where E.Value == Bool
 {
     or(lhs, repeating(rhs, like: lhs))
 }
 
-@inlinable public func or<S>(_ lhs: Bool, _ rhs: Tensor<S,Bool>)
-    -> Tensor<S,Bool> where S: TensorShape
+@inlinable public func or<S,E>(_ lhs: E.Value, _ rhs: Tensor<S,E>)
+    -> Tensor<S,E> where E.Value == Bool
 {
     or(repeating(lhs, like: rhs), rhs)
 }
 
-public extension Tensor where TensorElement == Bool {
+public extension Tensor where TensorElement.Value == Bool {
     @inlinable
     static func .||(_ lhs: Self, _ rhs: Self) -> Self { or(lhs, rhs) }
 

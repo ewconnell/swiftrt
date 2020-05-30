@@ -39,9 +39,9 @@ extension DeviceQueue where Self: CpuFunctions
         cpu_add(lhs, rhs, &result)
     }
     //--------------------------------------------------------------------------
-    @inlinable func and<S>(_ lhs: Tensor<S,Bool>, _ rhs: Tensor<S,Bool>,
-                           _ result: inout Tensor<S,Bool>)
-    where S: TensorShape { cpu_and(lhs, rhs, &result) }
+    @inlinable func and<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
+                           _ result: inout Tensor<S,E>)
+    where E.Value == Bool { cpu_and(lhs, rhs, &result) }
     //--------------------------------------------------------------------------
     @inlinable func asin<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real { cpu_asin(x, &result) }
@@ -191,9 +191,9 @@ extension DeviceQueue where Self: CpuFunctions
                                   _ result: inout Tensor<S,Bool>)
     where S: TensorShape, E.Value: Equatable { cpu_notEqual(lhs, rhs, &result) }
     //--------------------------------------------------------------------------
-    @inlinable func or<S>(_ lhs: Tensor<S,Bool>, _ rhs: Tensor<S,Bool>,
-                          _ result: inout Tensor<S,Bool>)
-    where S: TensorShape { cpu_or(lhs, rhs, &result) }
+    @inlinable func or<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
+                          _ result: inout Tensor<S,E>)
+    where E.Value == Bool { cpu_or(lhs, rhs, &result) }
     //--------------------------------------------------------------------------
     @inlinable func pow<S,E>(_ x: Tensor<S,E>, _ y: Tensor<S,E>,
                              _ result: inout Tensor<S,E>)
@@ -312,9 +312,9 @@ extension CpuFunctions where Self: DeviceQueue
     }
     
     //--------------------------------------------------------------------------
-    @inlinable func cpu_and<S>(_ lhs: Tensor<S,Bool>, _ rhs: Tensor<S,Bool>,
-                               _ result: inout Tensor<S,Bool>)
-    where S: TensorShape {
+    @inlinable func cpu_and<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
+                                 _ result: inout Tensor<S,E>)
+    where E.Value == Bool {
         mapOp(lhs, rhs, &result) { $0 && $1 }
     }
     
@@ -609,9 +609,9 @@ extension CpuFunctions where Self: DeviceQueue
     }
     
     //--------------------------------------------------------------------------
-    @inlinable func cpu_or<S>(_ lhs: Tensor<S,Bool>, _ rhs: Tensor<S,Bool>,
-                              _ result: inout Tensor<S,Bool>)
-    where S: TensorShape {
+    @inlinable func cpu_or<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
+                                _ result: inout Tensor<S,E>)
+    where E.Value == Bool {
         mapOp(lhs, rhs, &result) { $0 || $1 }
     }
     

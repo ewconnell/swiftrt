@@ -28,6 +28,7 @@ class test_PackedElements: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_Bool1() {
+        // element wise OR
         do {
             let a = array([false,  true, false,  true], type: Bool1.self)
             let b = array([ true, false, false, false], type: Bool1.self)
@@ -36,7 +37,7 @@ class test_PackedElements: XCTestCase {
             XCTAssert(c == [true, true, false, true])
         }
         
-        // cross packing boundary
+        // element wise AND cross packing boundary
         do {
             // 10 elements
             let a = array([ true, true, true, true, false,
@@ -63,10 +64,6 @@ class test_PackedElements: XCTestCase {
         
         // modify range across packing boundaries
         do {
-            let q = array([
-                false, false, false, true, false,
-                false, false,  true, true, false
-            ], (2, 5), type: Bool1.self)
             var a = array([
                 [false, false, false, true, false],
                 [false, false,  true, true, false]
