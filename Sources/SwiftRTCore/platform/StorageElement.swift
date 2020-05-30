@@ -60,12 +60,12 @@ public protocol StorageElement {
     /// value
     /// converts from `Stored` type to `Value` type
     /// - Parameters:
-    ///  - stored: the stored representation of the element
     ///  - index: the logical buffer index for the element. This is used
+    ///  - stored: the stored representation of the element
     ///    to calculate the subelement position for packed elements
     /// - Returns: the element interchange Value. For example, an `Int1`
     ///   element is interchanged with the caller as an `Int`
-    static func value(from stored: Stored, at index: Int) -> Value
+    static func value(at index: Int, from stored: Stored) -> Value
     
     /// store
     /// writes a value into a storage location
@@ -98,8 +98,7 @@ public extension StorageElement {
 // Stored == Value
 public extension StorageElement where Stored == Value {
     @inlinable static func value(
-        from stored: Stored,
-        at index: Int
+        at index: Int, from stored: Stored
     ) -> Value { stored }
     
     @inlinable static func store(
@@ -142,7 +141,7 @@ public extension PackedStorageElement
         storedIndex(count - 1) + 1
     }
     
-    @inlinable static func value(from stored: Stored, at index: Int) -> Value {
+    @inlinable static func value(at index: Int, from stored: Stored) -> Value {
         Value(stored >> packedShift(index) & valueMask)
     }
     
@@ -169,7 +168,6 @@ public extension PackedStorageElement
     /// - Parameters:
     ///  - start: the logical buffer starting index
     ///  - count: the number of logical elements spanned
-    /// - Returns: the stored count
     /// - Returns: the stored count
     @inlinable static func storedRange(start: Int, count: Int)
     -> (storedStart: Int, storedCount: Int)
@@ -206,7 +204,7 @@ public struct UInt4: PackedStorageElement {
 // non native types that automatically cast to a native type during iteration
 extension Float16: StorageElement {
     @inlinable public static func value(
-        from stored: Self, at index: Int
+        at index: Int, from stored: Self
     ) -> Float { Float(stored) }
     
     @inlinable public static func store(
@@ -318,6 +316,7 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
         
         // convert logical base and strided span count to stored.
         // They will not be equal for packed element types like `Int4`
+        isSingleElement = tensor.isSingleElement
         let (storedBase, storedCount) = TensorElement
                 .storedRange(start: tensor.storageBase,
                              count: tensor.stridedSpanCount)
@@ -329,7 +328,6 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
         // though we commonly hold a mutable buffer pointer
         let p = UnsafeMutablePointer(mutating: buff.baseAddress)
         hostBuffer = UnsafeMutableBufferPointer(start: p, count: buff.count)
-        isSingleElement = tensor.isSingleElement
         
         // `startIndex` is the logical position of the first
         // `Value` type within the `Stored` type.
@@ -350,6 +348,7 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
 
         // convert logical base and strided span count to stored.
         // They will not be equal for packed element types like `Int4`
+        isSingleElement = tensor.isSingleElement
         let (storedBase, storedCount) = TensorElement
                 .storedRange(start: tensor.storageBase,
                              count: tensor.stridedSpanCount)
@@ -357,8 +356,6 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
         // make the data range available for reading/writing by the cpu
         hostBuffer = tensor.storage.readWrite(at: storedBase, count: storedCount)
         
-        isSingleElement = tensor.isSingleElement
-
         // `startIndex` is the logical position of the first
         // `Value` type within the `Stored` type.
         // For Int1 the alignment is 0 - 7, Int4 0 - 1, for
@@ -378,11 +375,11 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
     @inlinable public subscript(position: Int) -> TensorElement.Value {
         get {
             if isSingleElement {
-                return TensorElement.value(from: hostBuffer[startIndex],
-                                           at: startIndex)
+                return TensorElement.value(at: startIndex,
+                                           from: hostBuffer[startIndex])
             } else {
                 let si = TensorElement.storedIndex(position)
-                return TensorElement.value(from: hostBuffer[si], at: position)
+                return TensorElement.value(at: position, from: hostBuffer[si])
             }
         }
         
@@ -483,7 +480,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         get {
             let i = position.linearIndex(strides)
             let si = TensorElement.storedIndex(i)
-            return TensorElement.value(from: hostBuffer[si], at: i)
+            return TensorElement.value(at: i, from: hostBuffer[si])
         }
         
         set {

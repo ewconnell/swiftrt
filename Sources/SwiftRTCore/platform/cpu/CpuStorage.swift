@@ -153,7 +153,7 @@ where Element: StorageElement
     }
     
     @inlinable public func element(at index: Int) -> Element.Value {
-        Element.value(from: hostBuffer[Element.storedIndex(index)], at: index)
+        Element.value(at: index, from: hostBuffer[Element.storedIndex(index)])
     }
     
     @inlinable public func setElement(value: Element.Value, at index: Int) {
