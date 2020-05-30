@@ -22,8 +22,6 @@ class test_AlgebraicField: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_UInt4", test_UInt4),
-        
         ("test_matmul", test_matmul),
         ("test_batchMatmul", test_batchMatmul),
         ("test_leftBatchMatmul", test_leftBatchMatmul),
@@ -50,95 +48,6 @@ class test_AlgebraicField: XCTestCase {
         ("test_divAndAssign", test_divAndAssign),
     ]
 
-    //--------------------------------------------------------------------------
-    func test_UInt4() {
-//        // even packing alignment
-//        do {
-//            let a = array(0..<4, type: UInt4.self)
-//            let b = array(1..<5, type: UInt4.self)
-//            let c = a + b
-//            XCTAssert(c.storage.hostBuffer.count == 2)
-//            XCTAssert(c == [1, 3, 5, 7])
-//        }
-//
-//        // odd packing alignment
-//        do {
-//            let a = array(0..<5, type: UInt4.self)
-//            let b = array(1..<6, type: UInt4.self)
-//            let c = a + b
-//            XCTAssert(c.storage.hostBuffer.count == 3)
-//            XCTAssert(c == [1, 3, 5, 7, 9])
-//        }
-//
-//        // modify element
-//        do {
-//            var a = array(0..<4, type: UInt4.self)
-//            a[2] = 7
-//            XCTAssert(a == [0, 1, 7, 3])
-//            a[1] = 5
-//            XCTAssert(a == [0, 5, 7, 3])
-//        }
-        
-        // modify range across packing boundaries
-        do {
-            var a = array(0..<8, (2, 4), type: UInt4.self)
-            XCTAssert(a.storage.hostBuffer.count == 4)
-            XCTAssert(a == [
-                [0, 1, 2, 3],
-                [4, 5, 6, 7]
-            ])
-            
-            let row = array([3, 3], (1, 2), type: UInt4.self)
-            XCTAssert(row.storage.hostBuffer.count == 1)
-            a[1, 1...2] = row
-            XCTAssert(a == [
-                [0, 1, 2, 3],
-                [4, 3, 3, 7]
-            ])
-        }
-    }
-    
-    //--------------------------------------------------------------------------
-    func test_UInt1() {
-        do {
-            let a = array([0, 1, 0, 1], type: UInt1.self)
-            let b = array([1, 0, 0, 0], type: UInt1.self)
-            let c = a + b
-            XCTAssert(c.storage.hostBuffer.count == 1)
-            XCTAssert(c == [1, 1, 0, 1])
-        }
-        
-        // cross packing boundary
-        do {
-            // 10 elements
-            let a = array([0, 0, 0, 1, 0, 0, 0, 1, 1, 0], type: UInt1.self)
-            let b = array([0, 1, 1, 0, 0, 1, 0, 0, 0, 1], type: UInt1.self)
-            let c = a + b
-            XCTAssert(c.storage.hostBuffer.count == 2)
-            XCTAssert(c == [0, 1, 1, 1, 0, 1, 0, 1, 1, 1])
-        }
-        
-        // modify element
-        do {
-            var a = array([0, 1, 0, 1], type: UInt1.self)
-            a[2] = 1
-            XCTAssert(a == [0, 1, 1, 1])
-            a[1] = 0
-            XCTAssert(a == [0, 0, 1, 1])
-        }
-        
-        // modify range across packing boundaries
-        do {
-            var a = array([[0, 0, 0, 1, 0], [0, 0, 1, 1, 0]], type: UInt1.self)
-            let row = array([1, 0, 0], (1, 3), type: UInt1.self)
-            a[1, 1...3] = row
-            XCTAssert(a == [
-                [0, 0, 0, 1, 0],
-                [0, 0, 1, 1, 0]
-            ])
-        }
-    }
-    
     //--------------------------------------------------------------------------
     func test_matmul() {
         let a = array([0.0, 1, 2, 3, 4, 5], (3, 2))

@@ -111,6 +111,17 @@ numShapes = 6
 }
 
 //---------------------------
+// C.Element Bool --> Bool1
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    type: Element.Type
+) -> Tensor<Shape1,Element>
+    where C.Element == Bool, Element.Value == Bool
+{
+    Tensor<Shape1,Element>(elements, Shape1(elements.count))
+}
+
+//---------------------------
 // C.Element integer --> numeric Element.Value
 @inlinable public func array<C: Collection, Element: StorageElement>(
     _ elements: C,
@@ -220,6 +231,19 @@ numShapes = 6
     order: Layout = .C
 ) -> Tensor<Shape${n},Element>
 where C.Element: Numeric, Element.Value == Bool
+{
+    Tensor<Shape${n},Element>(elements, Shape${n}(shape), layout: order)
+}
+
+//---------------------------
+// C.Element Bool --> Bool Element.Value
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape${n}.Tuple,
+    type: Element.Type,
+    order: Layout = .C
+) -> Tensor<Shape${n},Element>
+where C.Element == Bool, Element.Value == Bool
 {
     Tensor<Shape${n},Element>(elements, Shape${n}(shape), layout: order)
 }
@@ -386,6 +410,28 @@ where C.Element: Numeric, Element.Value == Bool
     let flatElements = elements${'.joined()' * (n - 1)}
     return Tensor<Shape${n},Element>(
         flatElements, shape, layout: order)
+}
+
+//---------------------------
+// C.Element Bool --> Bool
+@inlinable public func array<C, Element>(
+    _ elements: C,
+    type: Element.Type,
+    order: Layout = .C
+) -> Tensor<Shape${n},Element>
+    where
+% for i in range(n):
+    C${'.Element' * i}: Collection,
+% end
+    C${'.Element' * n} == Bool, Element.Value == Bool
+{
+    let shape = Shape${n}(
+% for i in range(n):
+        elements${'.first!' * i}.count${")" if i == n - 1 else ","}
+% end
+
+    let flatElements = elements${'.joined()' * (n - 1)}
+    return Tensor<Shape${n},Element>(flatElements, shape, layout: order)
 }
 
 //---------------------------

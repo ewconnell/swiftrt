@@ -87,7 +87,9 @@ public protocol StorageElement {
 }
 
 //==============================================================================
-// the default behavior for whole elements is simply pass through
+// Note: The default behavior for whole native elements is simply pass through
+// which should be discarded by the compiler and impose no performance
+// penalty
 public extension StorageElement {
     @inlinable static func storedIndex(_ index: Int) -> Int { index }
     @inlinable static func storedCount(_ count: Int) -> Int { count }
@@ -114,23 +116,33 @@ public extension StorageElement where Stored == Value {
 }
 
 //==============================================================================
+/// PackedStorageElement
+/// packed elements are bit field types that are not represented as
+/// whole number types. The associated `Stored` type is used to contain
+/// 2 or more packed values. Examples are the `UInt1` and `UInt4` types.
 public protocol PackedStorageElement: StorageElement {
+    /// the shift count used to transform a logical index into a stored index
     static var indexShift: Int { get }
+    /// the shift count used to shift the value mask for reading and
+    /// writing values to the storage location
     static var maskingShift: Int { get }
+    /// the mask used to isolate a value within the stored type
     static var valueMask: Stored { get }
+    /// the minimum value used for range checking
     static var valueMin: Value { get }
+    /// the maximum value used for range checking
     static var valueMax: Value { get }
 }
 
-public extension PackedStorageElement
-    where Value: BinaryInteger, Stored: BinaryInteger
-{
+//------------------------------------------------------------------------------
+// common implementations
+public extension PackedStorageElement {
     @inlinable static func alignment(_ index: Int) -> Int {
         (index % (1 << indexShift))
     }
-
+    
     @inlinable static func packedShift(_ index: Int) -> Int {
-         alignment(index) << maskingShift
+        alignment(index) << maskingShift
     }
     
     @inlinable static func storedIndex(_ index: Int) -> Int {
@@ -141,34 +153,6 @@ public extension PackedStorageElement
         storedIndex(count - 1) + 1
     }
     
-    @inlinable static func value(at index: Int, from stored: Stored) -> Value {
-        Value(stored >> packedShift(index) & valueMask)
-    }
-    
-    @inlinable static func store(
-        value: Value, at index: Int, to stored: inout Stored
-    ) {
-        assert(value >= valueMin && value <= valueMax)
-        let shiftCount = packedShift(index)
-        if shiftCount == 0 {
-            // init top bits with 0
-            stored = Stored(value)
-        } else {
-            stored |= Stored(value) << shiftCount
-        }
-    }
-    
-    @inlinable static func stored(value: Value) -> Stored { Stored(value) }
-    
-    
-    //--------------------------------------------------------------------------
-    /// storedRange
-    /// the stored count will be less than the logical count for packed
-    /// bit types such as `Int4`. Unlike `storedIndex`, it rounds up.
-    /// - Parameters:
-    ///  - start: the logical buffer starting index
-    ///  - count: the number of logical elements spanned
-    /// - Returns: the stored count
     @inlinable static func storedRange(start: Int, count: Int)
     -> (storedStart: Int, storedCount: Int)
     {
@@ -178,8 +162,64 @@ public extension PackedStorageElement
     }
 }
 
+//------------------------------------------------------------------------------
+// integer conversion implementations
+public extension PackedStorageElement
+    where Value: BinaryInteger, Stored: BinaryInteger
+{
+    @inlinable static func value(at index: Int, from stored: Stored) -> Value {
+        Value(stored >> packedShift(index) & valueMask)
+    }
+    
+    @inlinable static func store(
+        value: Value, at index: Int, to stored: inout Stored
+    ) {
+        assert(value >= valueMin && value <= valueMax)
+        let positionShift = packedShift(index)
+
+        // clear current value
+        stored &= ~(valueMask << positionShift)
+        
+        // write new value
+        stored |= Stored(value) << positionShift
+    }
+    
+    @inlinable static func stored(value: Value) -> Stored { Stored(value) }
+}
+
 //==============================================================================
-// packed bit types that automatically cast to a native type during iteration
+/// Bool1
+/// convenience type processed as `Int1` on the gpu
+public struct Bool1: PackedStorageElement {
+    public typealias Stored = UInt8
+    public typealias Value = Bool
+    @inlinable public static var indexShift: Int { 3 }
+    @inlinable public static var maskingShift: Int { 0 }
+    @inlinable public static var valueMask: Stored { 0x1 }
+    @inlinable public static var valueMin: Value { false }
+    @inlinable public static var valueMax: Value { true }
+    
+    public static func value(at index: Int, from stored: UInt8) -> Bool {
+        (stored >> packedShift(index) & valueMask) != 0
+    }
+    
+    public static func store(value: Bool, at index: Int, to stored: inout UInt8) {
+        let positionShift = packedShift(index)
+        
+        // clear current value
+        stored &= ~(valueMask << positionShift)
+        
+        // write new value
+        stored |= Stored(value ? 1 : 0) << positionShift
+    }
+    
+    public static func stored(value: Bool) -> UInt8 {
+        value ? 1 : 0
+    }
+}
+
+//==============================================================================
+/// UInt1
 public struct UInt1: PackedStorageElement {
     public typealias Stored = UInt8
     public typealias Value = Int
@@ -190,6 +230,8 @@ public struct UInt1: PackedStorageElement {
     @inlinable public static var valueMax: Value { 1 }
 }
 
+//==============================================================================
+/// UInt4
 public struct UInt4: PackedStorageElement {
     public typealias Stored = UInt8
     public typealias Value = Int
@@ -375,22 +417,19 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
     @inlinable public subscript(position: Int) -> TensorElement.Value {
         get {
             if isSingleElement {
-                return TensorElement.value(at: startIndex,
-                                           from: hostBuffer[startIndex])
+                return TensorElement.value(at: startIndex, from: hostBuffer[0])
             } else {
                 let si = TensorElement.storedIndex(position)
                 return TensorElement.value(at: position, from: hostBuffer[si])
             }
         }
         
-        set {
+        set(v) {
             if isSingleElement {
-                TensorElement.store(value: newValue, at: startIndex,
-                                    to: &hostBuffer[startIndex])
+                TensorElement.store(value: v, at: startIndex, to: &hostBuffer[0])
             } else {
                 let si = TensorElement.storedIndex(position)
-                TensorElement.store(value: newValue, at: position,
-                                    to: &hostBuffer[si])
+                TensorElement.store(value: v, at: position, to: &hostBuffer[si])
             }
         }
     }
@@ -404,6 +443,7 @@ where Shape: TensorShape, TensorElement: StorageElement
 {
     // properties
     public typealias Index = ElementIndex<Shape>
+    public let alignment: Int
     public let hostBuffer: UnsafeMutableBufferPointer<TensorElement.Stored>
     public let logicalStrides: Shape
     public let strides: Shape
@@ -430,6 +470,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         // though we commonly hold a mutable buffer pointer
         let p = UnsafeMutablePointer(mutating: buff.baseAddress)
         hostBuffer = UnsafeMutableBufferPointer(start: p, count: buff.count)
+        alignment = TensorElement.alignment(tensor.storageBase)
         logicalStrides = tensor.shape.strides(for: tensor.layout)
         strides = tensor.strides
         startIndex = Index(Shape.zero, 0)
@@ -451,7 +492,7 @@ where Shape: TensorShape, TensorElement: StorageElement
 
         // make the data range available for reading/writing by the cpu
         hostBuffer = tensor.storage.readWrite(at: storedBase, count: storedCount)
-
+        alignment = TensorElement.alignment(tensor.storageBase)
         logicalStrides = tensor.shape.strides(for: tensor.layout)
         strides = tensor.strides
         startIndex = Index(Shape.zero, 0)
@@ -478,13 +519,19 @@ where Shape: TensorShape, TensorElement: StorageElement
     // subscript
     @inlinable public subscript(position: Index) -> TensorElement.Value {
         get {
-            let i = position.linearIndex(strides)
+            // get logical strided linear element position
+            let i = position.linearIndex(strides) + alignment
+            
+            // convert to stored index which might be less for packed elements
             let si = TensorElement.storedIndex(i)
             return TensorElement.value(at: i, from: hostBuffer[si])
         }
         
         set {
-            let i = position.linearIndex(strides)
+            // get logical strided linear element position
+            let i = position.linearIndex(strides) + alignment
+            
+            // convert to stored index which might be less for packed elements
             let si = TensorElement.storedIndex(i)
             TensorElement.store(value: newValue, at: i, to: &hostBuffer[si])
         }
