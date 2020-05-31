@@ -90,15 +90,17 @@ public protocol StorageElement {
 // Note: The default behavior for whole native elements is simply pass through
 // which should be discarded by the compiler and impose no performance
 // penalty
-public extension StorageElement {
+
+// Stored == Value
+public extension StorageElement where Stored == Value {
     @inlinable static func storedIndex(_ index: Int) -> Int { index }
     @inlinable static func storedCount(_ count: Int) -> Int { count }
     @inlinable static func alignment(_ index: Int) -> Int { 0 }
-}
+    @inlinable static func stored(value: Value) -> Stored { value }
 
-//-------------------------------------
-// Stored == Value
-public extension StorageElement where Stored == Value {
+    @inlinable static func storedRange(start: Int, count: Int)
+    -> (storedStart: Int, storedCount: Int) { (start, count) }
+
     @inlinable static func value(
         at index: Int, from stored: Stored
     ) -> Value { stored }
@@ -108,11 +110,6 @@ public extension StorageElement where Stored == Value {
         at index: Int,
         to stored: inout Stored
     ) { stored = value }
-
-    @inlinable static func stored(value: Value) -> Stored { value }
-
-    @inlinable static func storedRange(start: Int, count: Int)
-        -> (storedStart: Int, storedCount: Int) { (start, count) }
 }
 
 //==============================================================================
@@ -199,11 +196,18 @@ public struct Bool1: PackedStorageElement {
     @inlinable public static var valueMin: Value { false }
     @inlinable public static var valueMax: Value { true }
     
-    public static func value(at index: Int, from stored: UInt8) -> Bool {
+    @inlinable public static func value(
+        at index: Int,
+        from stored: UInt8
+    ) -> Bool {
         (stored >> packedShift(index) & valueMask) != 0
     }
     
-    public static func store(value: Bool, at index: Int, to stored: inout UInt8) {
+    @inlinable public static func store(
+        value: Bool,
+        at index: Int,
+        to stored: inout UInt8
+    ) {
         let positionShift = packedShift(index)
         
         // clear current value
@@ -213,7 +217,7 @@ public struct Bool1: PackedStorageElement {
         stored |= Stored(value ? 1 : 0) << positionShift
     }
     
-    public static func stored(value: Bool) -> UInt8 {
+    @inlinable public static func stored(value: Bool) -> UInt8 {
         value ? 1 : 0
     }
 }
@@ -257,6 +261,10 @@ public struct UInt4: PackedStorageElement {
 //==============================================================================
 // non native types that automatically cast to a native type during iteration
 extension Float16: StorageElement {
+    @inlinable public static func storedIndex(_ index: Int) -> Int { index }
+    @inlinable public static func storedCount(_ count: Int) -> Int { count }
+    @inlinable public static func alignment(_ index: Int) -> Int { 0 }
+
     @inlinable public static func value(
         at index: Int, from stored: Self
     ) -> Float { Float(stored) }
