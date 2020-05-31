@@ -590,7 +590,7 @@ extension CpuFunctions where Self: DeviceQueue
     @inlinable func cpu_mul<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                  _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Numeric {
-        mapOp(lhs, rhs, &result, *)
+        mapOpMul(lhs, rhs, &result)
     }
     
     //--------------------------------------------------------------------------

@@ -274,6 +274,47 @@ extension DeviceQueue {
     }
     
     //==========================================================================
+    // mapOpMul
+    // 20% boost over passed in op
+    @inlinable func mapOpMul<S,E>(
+        _ a: Tensor<S,E>,
+        _ b: Tensor<S,E>,
+        _ r: inout Tensor<S,E>
+    ) where E.Value: Numeric {
+        // the op
+        func execute<I: Collection, O: MutableCollection>(
+            _ i0: I, _ i1: I, _ out: O
+        ) where I.Element: Numeric, O.Element == I.Element {
+            var out = out
+            if mode == .async {
+                queue.async {
+                    zip(out.indices, zip(i0, i1)).forEach {
+                        out[$0] = $1.0 * $1.1
+                    }
+                }
+            } else {
+                zip(out.indices, zip(i0, i1)).forEach {
+                    out[$0] = $1.0 * $1.1
+                }
+            }
+        }
+        
+        //------------------------------------
+        // queue data transfers
+        a.read(using: self)
+        b.read(using: self)
+        r.readWrite(using: self)
+        
+        // if layouts match then iterate through buffer elements,
+        // iterate using logical element positions
+        if haveSameStorageLayout(a, b, r) {
+            execute(a.buffer, b.buffer, r.mutableBuffer)
+        } else {
+            execute(a.stridedElements, b.stridedElements, r.stridedElements)
+        }
+    }
+    
+    //==========================================================================
     // mapOp 3
     @inlinable func mapOp<S,E0, E1, E2, R1>(
         _ a: Tensor<S,E0>,
