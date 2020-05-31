@@ -218,6 +218,18 @@ public struct Bool1: PackedStorageElement {
     }
 }
 
+//extension Tensor where TensorElement == Bool1 {
+//    @inlinable public init(_ other: Tensor<Shape, UInt1>) {
+//        shape = other.shape
+//        strides = other.strides
+//        storage = other.storage
+//        storageBase = other.storageBase
+//        isShared = other.isShared
+//        count = other.count
+//        stridedSpanCount = other.stridedSpanCount
+//    }
+//}
+
 //==============================================================================
 /// UInt1
 public struct UInt1: PackedStorageElement {
