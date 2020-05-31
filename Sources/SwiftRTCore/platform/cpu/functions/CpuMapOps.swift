@@ -15,7 +15,106 @@
 //
 import Foundation
 
+//==============================================================================
+// The map operations invoke an `execute` function with suitable storage
+// element iterators. The iterators are non reference counted unsafe buffer
+// pointers to the elements. This is to avoid ARC copy on write when
+// capturing for asynchrnous execution. The async operations are safe,
+// because tensor storage lifetime is gauranteed by the queue.
+// The `execute` function `out` parameter is mutatated but not `inout` to
+// handle async capture requirements.
 extension DeviceQueue {
+
+    //==========================================================================
+    // generator
+    @inlinable func mapOp<S,E>(
+        _ r: inout Tensor<S,E>,
+        _ op: @escaping () -> E.Value
+    ) {
+        // the op
+        func execute<O: MutableCollection>(
+            _ out: O,
+            _ op: @escaping () -> O.Element
+        ) {
+            var out = out
+            if mode == .async {
+                queue.async {
+                    out.indices.forEach { out[$0] = op() }
+                }
+            } else {
+                out.indices.forEach { out[$0] = op() }
+            }
+        }
+        
+        // queue data transfers and execute
+        r.readWrite(using: self)
+        if r.isBufferIterable {
+            execute(r.mutableBuffer, op)
+        } else {
+            execute(r.stridedElements, op)
+        }
+    }
+
+    //==========================================================================
+    // range
+    @inlinable func mapOp<S,E,C>(
+        _ elements: C,
+        _ r: inout Tensor<S,E>
+    ) where C: Collection, C.Element == E.Value {
+        // the op
+        func execute<I0: Collection, O: MutableCollection>(
+            _ i0: I0,
+            _ out: O
+        ) where I0.Element == O.Element {
+            var out = out
+            if mode == .async {
+                queue.async {
+                    zip(out.indices, i0).forEach { out[$0] = $1 }
+                }
+            } else {
+                zip(out.indices, i0).forEach { out[$0] = $1 }
+            }
+        }
+        
+        // queue data transfers and execute
+        r.readWrite(using: self)
+        if r.isBufferIterable {
+            execute(elements, r.mutableBuffer)
+        } else {
+            execute(elements, r.stridedElements)
+        }
+    }
+    
+    //==========================================================================
+    // inplace
+    @inlinable func mapOp<S,E>(
+        _ r: inout Tensor<S,E>,
+        _ op: @escaping (E.Value) -> E.Value
+    ) {
+        // the op
+        func execute<O: MutableCollection>(
+            _ out: O,
+            _ op: @escaping (O.Element) -> O.Element
+        ) {
+            var out = out
+            if mode == .async {
+                queue.async {
+                    out.indices.forEach { out[$0] = op(out[$0]) }
+                }
+            } else {
+                out.indices.forEach { out[$0] = op(out[$0]) }
+            }
+        }
+        
+        // queue data transfers and execute
+        r.readWrite(using: self)
+        if r.isBufferIterable {
+            execute(r.mutableBuffer, op)
+        } else {
+            execute(r.stridedElements, op)
+        }
+    }
+    
     //==========================================================================
     // reduction
     @inlinable func mapOp<S,E,RE>(
@@ -23,10 +122,7 @@ extension DeviceQueue {
         _ r: inout Tensor<S,RE>,
         _ op: @escaping (RE.Value, E.Value) -> RE.Value
     ) {
-        //------------------------------------
-        // the actual operation. `out` is not `inout` because the operation
-        // will be deferred in async mode. This is safe because the operations
-        // are synchronized via the queue
+        // the op
         func execute<I0: Collection, O: MutableCollection>(
             _ i0: I0, _ out: O,
             _ op: @escaping (O.Element, I0.Element) -> O.Element
@@ -37,64 +133,24 @@ extension DeviceQueue {
                     zip(out.indices, i0).forEach { out[$0] = op(out[$0], $1) }
                 }
             } else {
-                zip(out.indices, i0).forEach { out[$0] = op(out[$0], $1) }
+                zip(out.indices, i0).forEach { i, v in
+                    let currentValue = out[i]
+                    let sum = op(currentValue, v)
+                    out[i] = sum
+                }
             }
         }
         
         // queue data transfers and execute
         a.read(using: self)
         r.readWrite(using: self)
-        execute(a.buffer, r.mutableBuffer, op)
-    }
-
-    //==========================================================================
-    // generator
-    @inlinable func mapOp<S,E>(
-        _ r: inout Tensor<S,E>,
-        _ op: @escaping () -> E.Value
-    ) {
-        r.readWrite(using: self)
-        var r = r.mutableBuffer
-        if mode == .async {
-            queue.async {
-                r.indices.forEach { r[$0] = op() }
-            }
+        
+        // if layouts match then iterate through buffer elements,
+        // iterate using logical element positions
+        if haveSameStorageLayout(a, r) {
+            execute(a.buffer, r.mutableBuffer, op)
         } else {
-            r.indices.forEach { r[$0] = op() }
-        }
-    }
-
-    //==========================================================================
-    // range
-    @inlinable func mapOp<S,E,C>(
-        _ elements: C,
-        _ r: inout Tensor<S,E>
-    ) where C: Collection, C.Element == E.Value {
-        r.readWrite(using: self)
-        var r = r.mutableBuffer
-        if mode == .async {
-            queue.async {
-                zip(r.indices, elements).forEach { r[$0] = $1 }
-            }
-        } else {
-            zip(r.indices, elements).forEach { r[$0] = $1 }
-        }
-    }
-    
-    //==========================================================================
-    // inplace
-    @inlinable func mapOp<S,E>(
-        _ r: inout Tensor<S,E>,
-        _ op: @escaping (E.Value) -> E.Value
-    ) {
-        r.readWrite(using: self)
-        var r = r.mutableBuffer
-        if mode == .async {
-            queue.async {
-                r.indices.forEach { r[$0] = op(r[$0]) }
-            }
-        } else {
-            r.indices.forEach { r[$0] = op(r[$0]) }
+            execute(a.stridedElements, r.stridedElements, op)
         }
     }
     
@@ -105,10 +161,7 @@ extension DeviceQueue {
         _ r: inout Tensor<S,RE>,
         _ op: @escaping (E.Value) -> RE.Value
     ) {
-        //------------------------------------
-        // the actual operation. `out` is not `inout` because the operation
-        // will be deferred in async mode. This is safe because the operations
-        // are synchronized via the queue
+        // the op
         func execute<I0: Collection, O: MutableCollection>(
             _ i0: I0, _ out: O,
             _ op: @escaping (I0.Element) -> O.Element
@@ -126,13 +179,12 @@ extension DeviceQueue {
         // queue data transfers and execute
         a.read(using: self)
         r.readWrite(using: self)
-        execute(a.buffer, r.mutableBuffer, op)
 
-        // execute right layout combination
+        // if layouts match then iterate through buffer elements,
+        // iterate using logical element positions
         if haveSameStorageLayout(a, r) {
             execute(a.buffer, r.mutableBuffer, op)
         } else {
-            // TODO: optimize cases
             execute(a.stridedElements, r.stridedElements, op)
         }
     }
@@ -146,10 +198,7 @@ extension DeviceQueue {
         _ r: inout Tensor<S,RE>,
         _ op: @escaping (E.Value, E.Value) -> RE.Value
     ) {
-        //------------------------------------
-        // the actual operation. `out` is not `inout` because the operation
-        // will be deferred in async mode. This is safe because the operations
-        // are synchronized via the queue
+        // the op
         func execute<I0: Collection, I1: Collection, O: MutableCollection>(
             _ i0: I0, _ i1: I1, _ out: O,
             _ op: @escaping (I0.Element, I1.Element) -> O.Element
@@ -174,15 +223,12 @@ extension DeviceQueue {
         b.read(using: self)
         r.readWrite(using: self)
 
-        // execute right layout combination
-        if haveSameStorageLayout(a, b) {
+        // if layouts match then iterate through buffer elements,
+        // iterate using logical element positions
+        if haveSameStorageLayout(a, b, r) {
             execute(a.buffer, b.buffer, r.mutableBuffer, op)
         } else {
-            switch (a.layout, b.layout) {
-            default:
-                execute(a.stridedElements, b.stridedElements,
-                        r.stridedElements, op)
-            }
+            execute(a.stridedElements, b.stridedElements, r.stridedElements, op)
         }
     }
 
@@ -195,10 +241,7 @@ extension DeviceQueue {
         _ r: inout Tensor<S,R1>,
         _ op: @escaping (E0.Value, E1.Value, E2.Value) -> R1.Value
     ) {
-        //------------------------------------
-        // the actual operation. `out` is not `inout` because the operation
-        // will be deferred in async mode. This is safe because the operations
-        // are synchronized via the queue
+        // the op
         func execute<
             I0: Collection,
             I1: Collection,
@@ -222,7 +265,6 @@ extension DeviceQueue {
             }
         }
         
-        //------------------------------------
         // queue data transfers
         a.read(using: self)
         b.read(using: self)
@@ -230,13 +272,11 @@ extension DeviceQueue {
         r.readWrite(using: self)
         
         // execute right layout combination
-        if haveSameStorageLayout(a, b, c) {
+        if haveSameStorageLayout(a, b, c, r) {
             execute(a.buffer, b.buffer, c.buffer, r.mutableBuffer, op)
         } else {
-            switch (a.layout, b.layout, c.layout) {
-            default:
-                fatalError("mixed layout not implemented")
-            }
+            execute(a.stridedElements, b.stridedElements,
+                    c.stridedElements, r.stridedElements, op)
         }
     }
     
@@ -293,14 +333,12 @@ extension DeviceQueue {
         r2.readWrite(using: self)
 
         // execute right layout combination
-        if haveSameStorageLayout(a, b, c) {
+        if haveSameStorageLayout(a, b, c, r1, r2) {
             execute(a.buffer, b.buffer, c.buffer,
                     r1.mutableBuffer, r2.mutableBuffer, op)
         } else {
-            switch (a.layout, b.layout, c.layout) {
-            default:
-                fatalError("mixed layout not implemented")
-            }
+            execute(a.stridedElements, b.stridedElements, c.stridedElements,
+                    r1.stridedElements, r2.stridedElements, op)
         }
     }
 }

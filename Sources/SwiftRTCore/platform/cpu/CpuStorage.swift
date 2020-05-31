@@ -75,7 +75,7 @@ where Element: StorageElement
     @inlinable public init(copying other: CpuStorage) {
         self.count = other.count
         self.layout = other.layout
-        self.id = other.id
+        self.id = Context.nextBufferId
         self.isReadOnly = other.isReadOnly
         self.isReference = other.isReference
         self.name = other.name

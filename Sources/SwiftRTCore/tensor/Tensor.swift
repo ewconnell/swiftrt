@@ -32,7 +32,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     /// the number of element
     public let count: Int
     /// `true` if the view will be shared by by multiple writers
-    public var isShared: Bool
+    public let isShared: Bool
     /// the dimensions of the element space
     @noDerivative public let shape: Shape
     /// the element storage buffer.
@@ -114,11 +114,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.storageBase = storageBase
         self.stridedSpanCount = stridedSpanCount
         self.isShared = shared
-
-        switch self.storage.layout {
-        case .row, .col:
-            stridedElements = StridedElements(mutating: self)
-        }
+        cacheElementIterator()
     }
 
     //--------------------------------------------------------------------------
@@ -133,11 +129,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.storage.name = "Element"
         self.count = shape.elementCount()
         self.stridedSpanCount = 1
-        
-        switch storage.layout {
-        case .row, .col:
-            stridedElements = StridedElements(mutating: self)
-        }
+        cacheElementIterator()
     }
 }
 
@@ -280,6 +272,16 @@ public extension Tensor {
     }
     
     //--------------------------------------------------------------------------
+    /// cacheElementIterator
+    /// creates and caches a suitable element iterator dependent on layout
+    @inlinable mutating func cacheElementIterator() {
+        switch self.storage.layout {
+        case .row, .col:
+            stridedElements = StridedElements(mutating: self)
+        }
+    }
+    
+    //--------------------------------------------------------------------------
     /// makeIndex(position:
     /// makes an index from a logical position within `shape`
     /// - Parameters:
@@ -382,6 +384,9 @@ public extension Tensor {
                        categories: [.dataCopy, .dataMutation])
             
             storage = StorageBufferType(copying: storage)
+            
+            // refresh iterator to point to new buffer
+            cacheElementIterator()
         }
     }
 }

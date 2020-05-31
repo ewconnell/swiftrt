@@ -328,19 +328,44 @@ extension Complex: StorageElement {
 //==============================================================================
 
 @inlinable public func haveSameStorageLayout<S,E0,E1>(
-    _ a: Tensor<S,E0>,
-    _ b: Tensor<S,E1>
+    _ t0: Tensor<S,E0>,
+    _ t1: Tensor<S,E1>
 ) -> Bool {
-    a.layout == b.layout && a.isBufferIterable && b.isBufferIterable
+    t0.layout == t1.layout && t0.isBufferIterable && t1.isBufferIterable
 }
 
 @inlinable public func haveSameStorageLayout<S,E0, E1, E2>(
-    _ a: Tensor<S,E0>,
-    _ b: Tensor<S,E1>,
-    _ c: Tensor<S,E2>
+    _ t0: Tensor<S,E0>,
+    _ t1: Tensor<S,E1>,
+    _ t2: Tensor<S,E2>
 ) -> Bool {
-    a.layout == b.layout && a.layout == c.layout &&
-        a.isBufferIterable && b.isBufferIterable && c.isBufferIterable
+    t0.layout == t1.layout && t0.layout == t2.layout &&
+        t0.isBufferIterable && t1.isBufferIterable && t2.isBufferIterable
+}
+
+@inlinable public func haveSameStorageLayout<S,E0, E1, E2, E3>(
+    _ t0: Tensor<S,E0>,
+    _ t1: Tensor<S,E1>,
+    _ t2: Tensor<S,E2>,
+    _ t3: Tensor<S,E3>
+) -> Bool {
+    t0.layout == t1.layout && t0.layout == t2.layout &&
+        t0.layout == t3.layout &&
+        t0.isBufferIterable && t1.isBufferIterable &&
+        t2.isBufferIterable && t3.isBufferIterable
+}
+
+@inlinable public func haveSameStorageLayout<S,E0, E1, E2, E3, E4>(
+    _ t0: Tensor<S,E0>,
+    _ t1: Tensor<S,E1>,
+    _ t2: Tensor<S,E2>,
+    _ t3: Tensor<S,E3>,
+    _ t4: Tensor<S,E4>
+) -> Bool {
+    t0.layout == t1.layout && t0.layout == t2.layout &&
+        t0.layout == t3.layout && t0.layout == t4.layout &&
+        t0.isBufferIterable && t1.isBufferIterable &&
+        t2.isBufferIterable && t3.isBufferIterable && t4.isBufferIterable
 }
 
 //==============================================================================

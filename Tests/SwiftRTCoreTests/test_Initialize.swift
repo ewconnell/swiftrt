@@ -59,7 +59,7 @@ class test_Initialize: XCTestCase {
     //--------------------------------------------------------------------------
     // test_copyOnWrite
     func test_copyOnWrite() {
-//        Context.log.level = .diagnostic
+        Context.log.level = .diagnostic
         let a = array(0..<6, (3, 2))
         XCTAssert(a[1, 1] == 3)
         
