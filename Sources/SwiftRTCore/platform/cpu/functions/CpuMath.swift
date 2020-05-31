@@ -308,7 +308,7 @@ extension CpuFunctions where Self: DeviceQueue
     @inlinable func cpu_add<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                  _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: AdditiveArithmetic {
-        mapOp(lhs, rhs, &result, +)
+        mapOpAdd(lhs, rhs, &result)
     }
     
     //--------------------------------------------------------------------------
