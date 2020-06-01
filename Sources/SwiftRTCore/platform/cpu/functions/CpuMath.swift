@@ -397,7 +397,7 @@ extension CpuFunctions where Self: DeviceQueue
     @inlinable func cpu_div<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                  _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: AlgebraicField {
-        mapOp(lhs, rhs, &result, /)
+        mapOpDiv(lhs, rhs, &result)
     }
     
     //--------------------------------------------------------------------------
@@ -680,7 +680,7 @@ extension CpuFunctions where Self: DeviceQueue
         _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
         _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: AdditiveArithmetic {
-        mapOp(lhs, rhs, &result, -)
+        mapOpSub(lhs, rhs, &result)
     }
     
     //--------------------------------------------------------------------------

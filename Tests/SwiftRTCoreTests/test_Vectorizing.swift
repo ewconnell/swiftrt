@@ -22,7 +22,9 @@ class test_Vectorizing: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_perfAplusBSequential", test_perfAplusBSequential),
+        ("test_perfAminusBSequential", test_perfAminusBSequential),
         ("test_perfAmulBSequential", test_perfAmulBSequential),
+        ("test_perfAdivBSequential", test_perfAdivBSequential),
         ("test_perfAplusB_NonSequential", test_perfAplusB_NonSequential),
         ("test_perfReduceAll", test_perfReduceAll),
         ("test_perfReduceAny", test_perfReduceAny),
@@ -53,6 +55,23 @@ class test_Vectorizing: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
+    func test_perfAminusBSequential() {
+        #if !DEBUG
+        let a = ones((1024, 1024))
+        let b = ones((1024, 1024))
+        var count: DType = 0
+        
+        // 0.0205
+        self.measure {
+            for _ in 0..<10 {
+                count += (a - b).first
+            }
+        }
+        XCTAssert(count == 0)
+        #endif
+    }
+    
+    //--------------------------------------------------------------------------
     func test_perfAmulBSequential() {
         #if !DEBUG
         let a = ones((1024, 1024))
@@ -63,6 +82,23 @@ class test_Vectorizing: XCTestCase {
         self.measure {
             for _ in 0..<10 {
                 count += (a * b).first
+            }
+        }
+        XCTAssert(count > 0)
+        #endif
+    }
+    
+    //--------------------------------------------------------------------------
+    func test_perfAdivBSequential() {
+        #if !DEBUG
+        let a = ones((1024, 1024))
+        let b = ones((1024, 1024))
+        var count: DType = 0
+        
+        // 0.0205
+        self.measure {
+            for _ in 0..<10 {
+                count += (a / b).first
             }
         }
         XCTAssert(count > 0)

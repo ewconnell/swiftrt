@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 import Foundation
+import Numerics
 
 //==============================================================================
 // The map operations invoke an `execute` function with suitable storage
@@ -274,6 +275,47 @@ extension DeviceQueue {
             execute(a.stridedElements, b.stridedElements, r.stridedElements)
         }
     }
+
+    //==========================================================================
+    // mapOpSub
+    // 20% boost over passed in op
+    @inlinable func mapOpSub<S,E>(
+        _ a: Tensor<S,E>,
+        _ b: Tensor<S,E>,
+        _ r: inout Tensor<S,E>
+    ) where E.Value: AdditiveArithmetic {
+        // the op
+        func execute<I: Collection, O: MutableCollection>(
+            _ i0: I, _ i1: I, _ out: O
+        ) where I.Element: AdditiveArithmetic, O.Element == I.Element {
+            var out = out
+            if mode == .async {
+                queue.async {
+                    zip(out.indices, zip(i0, i1)).forEach {
+                        out[$0] = $1.0 - $1.1
+                    }
+                }
+            } else {
+                zip(out.indices, zip(i0, i1)).forEach {
+                    out[$0] = $1.0 - $1.1
+                }
+            }
+        }
+        
+        //------------------------------------
+        // queue data transfers
+        a.read(using: self)
+        b.read(using: self)
+        r.readWrite(using: self)
+        
+        // if layouts match then iterate through buffer elements,
+        // iterate using logical element positions
+        if haveSameStorageLayout(a, b, r) {
+            execute(a.buffer, b.buffer, r.mutableBuffer)
+        } else {
+            execute(a.stridedElements, b.stridedElements, r.stridedElements)
+        }
+    }
     
     //==========================================================================
     // mapOpMul
@@ -297,6 +339,47 @@ extension DeviceQueue {
             } else {
                 zip(out.indices, zip(i0, i1)).forEach {
                     out[$0] = $1.0 * $1.1
+                }
+            }
+        }
+        
+        //------------------------------------
+        // queue data transfers
+        a.read(using: self)
+        b.read(using: self)
+        r.readWrite(using: self)
+        
+        // if layouts match then iterate through buffer elements,
+        // iterate using logical element positions
+        if haveSameStorageLayout(a, b, r) {
+            execute(a.buffer, b.buffer, r.mutableBuffer)
+        } else {
+            execute(a.stridedElements, b.stridedElements, r.stridedElements)
+        }
+    }
+    
+    //==========================================================================
+    // mapOpDiv
+    // 20% boost over passed in op
+    @inlinable func mapOpDiv<S,E>(
+        _ a: Tensor<S,E>,
+        _ b: Tensor<S,E>,
+        _ r: inout Tensor<S,E>
+    ) where E.Value: AlgebraicField {
+        // the op
+        func execute<I: Collection, O: MutableCollection>(
+            _ i0: I, _ i1: I, _ out: O
+        ) where I.Element: AlgebraicField, O.Element == I.Element {
+            var out = out
+            if mode == .async {
+                queue.async {
+                    zip(out.indices, zip(i0, i1)).forEach {
+                        out[$0] = $1.0 / $1.1
+                    }
+                }
+            } else {
+                zip(out.indices, zip(i0, i1)).forEach {
+                    out[$0] = $1.0 / $1.1
                 }
             }
         }
