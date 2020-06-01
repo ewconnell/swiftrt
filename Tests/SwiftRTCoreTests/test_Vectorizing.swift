@@ -31,6 +31,8 @@ class test_Vectorizing: XCTestCase {
         ("test_perfReduceMin", test_perfReduceMin),
         ("test_perfReduceMax", test_perfReduceMax),
         ("test_perfAlessOrEqualBAny", test_perfAlessOrEqualBAny),
+        ("test_perfMinAB", test_perfMinAB),
+        ("test_perfMaxAB", test_perfMaxAB),
     ]
     
     //--------------------------------------------------------------------------
@@ -40,7 +42,7 @@ class test_Vectorizing: XCTestCase {
         let b = ones((1024, 1024))
         var count: DType = 0
 
-        // 0.0250
+        // 0.0205
         self.measure {
             for _ in 0..<10 {
                 count += (a + b).first
@@ -57,7 +59,7 @@ class test_Vectorizing: XCTestCase {
         let b = ones((1024, 1024))
         var count: DType = 0
         
-        // 0.0250
+        // 0.0205
         self.measure {
             for _ in 0..<10 {
                 count += (a * b).first
@@ -205,13 +207,51 @@ class test_Vectorizing: XCTestCase {
         let a = array(1...(size * size), (size, size))
         let b = array(0..<(size * size), (size, size))
         var value = true
-
-        // .00312s
+        
+        // .0215s
         self.measure {
-            value = (a .<= b).any().element
+            for _ in 0..<10 {
+                value = (a .<= b).any().element
+            }
         }
         
         XCTAssert(value == false)
+        #endif
+    }
+    //--------------------------------------------------------------------------
+    func test_perfMinAB() {
+        #if !DEBUG
+        let size = 1024
+        let a = array(1...(size * size), (size, size))
+        let b = array(0..<(size * size), (size, size))
+        var value: Float = 0
+        
+        // .0230s
+        self.measure {
+            for _ in 0..<10 {
+                value = min(a, b).first
+            }
+        }
+        
+        XCTAssert(value == 0)
+        #endif
+    }
+    //--------------------------------------------------------------------------
+    func test_perfMaxAB() {
+        #if !DEBUG
+        let size = 1024
+        let a = array(1...(size * size), (size, size))
+        let b = array(0..<(size * size), (size, size))
+        var value: Float = 0
+        
+        // .0280s
+        self.measure {
+            for _ in 0..<10 {
+                value = max(a, b).first
+            }
+        }
+        
+        XCTAssert(value > 0)
         #endif
     }
 }

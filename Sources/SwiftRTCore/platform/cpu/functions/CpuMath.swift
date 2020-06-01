@@ -583,7 +583,7 @@ extension CpuFunctions where Self: DeviceQueue
     @inlinable func cpu_min<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                  _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Comparable {
-        mapOp(lhs, rhs, &result) { $0 <= $1 ? $0 : $1 }
+        mapOp(lhs, rhs, &result) { Swift.min($0, $1) }
     }
     
     //--------------------------------------------------------------------------
