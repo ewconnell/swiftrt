@@ -83,7 +83,8 @@ public extension Tensor {
         self.init(shape: shape,
                   strides: shape.strides(for: layout),
                   count: count,
-                  storage: StorageBufferType(count: count, layout: layout),
+                  storage: StorageBufferType(type: TensorElement.self,
+                                             count: count, layout: layout),
                   storageBase: 0,
                   stridedSpanCount: count,
                   shared: false)
@@ -204,7 +205,8 @@ public extension Tensor {
     {
         assert(shape.elementCount() == elements.count)
         self.init(shape, layout: layout)
-        let buffer = storage.readWrite(at: 0, count: count)
+        let buffer = storage.readWrite(type: TensorElement.self,
+                                       at: 0, count: count)
         _ = buffer.initialize(from: elements)
     }
     
@@ -230,9 +232,11 @@ public extension Tensor {
         self.init(shape, layout: layout)
         
         // prepare storage for writing and then write the element values
-        _ = storage.readWrite(at: 0, count: count)
+        _ = storage.readWrite(type: TensorElement.self,
+                              at: 0, count: count)
+        
         for (i, value) in elements.enumerated() {
-            storage.setElement(value: value, at: i)
+            storage.setElement(type: TensorElement.self, value: value, at: i)
         }
     }
     
@@ -251,9 +255,10 @@ public extension Tensor {
     ) where C: Collection, C.Element == Bool, TensorElement.Value: Numeric {
         assert(shape.elementCount() == elements.count)
         self.init(shape, layout: layout)
-        _ = storage.readWrite(at: 0, count: count)
+        _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
         for (i, value) in elements.enumerated() {
-            storage.setElement(value: Element(exactly: value ? 1 : 0)!, at: i)
+            storage.setElement(type: TensorElement.self,
+                               value: Element(exactly: value ? 1 : 0)!, at: i)
         }
     }
     
@@ -272,9 +277,10 @@ public extension Tensor {
     ) where C: Collection, C.Element: Numeric, TensorElement.Value == Bool {
         assert(shape.elementCount() == elements.count)
         self.init(shape, layout: layout)
-        _ = storage.readWrite(at: 0, count: count)
+        _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
         for (i, value) in elements.enumerated() {
-            storage.setElement(value: Element(value != 0), at: i)
+            storage.setElement(type: TensorElement.self,
+                               value: Element(value != 0), at: i)
         }
     }
     
@@ -295,9 +301,10 @@ public extension Tensor {
     {
         assert(shape.elementCount() == elements.count)
         self.init(shape, layout: layout)
-        _ = storage.readWrite(at: 0, count: count)
+        _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
         for (i, value) in elements.enumerated() {
-            storage.setElement(value: Element(exactly: value)!, at: i)
+            storage.setElement(type: TensorElement.self,
+                               value: Element(exactly: value)!, at: i)
         }
     }
 
@@ -319,9 +326,10 @@ public extension Tensor {
     {
         assert(shape.elementCount() == elements.count)
         self.init(shape, layout: layout)
-        _ = storage.readWrite(at: 0, count: count)
+        _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
         for (i, value) in elements.enumerated() {
-            storage.setElement(value: Element(value), at: i)
+            storage.setElement(type: TensorElement.self,
+                               value: Element(value), at: i)
         }
     }
 
@@ -343,9 +351,10 @@ public extension Tensor {
     {
         assert(shape.elementCount() == elements.count)
         self.init(shape, layout: layout)
-        _ = storage.readWrite(at: 0, count: count)
+        _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
         for (i, value) in elements.enumerated() {
-            storage.setElement(value: Element(value), at: i)
+            storage.setElement(type: TensorElement.self,
+                               value: Element(value), at: i)
         }
     }
 }
@@ -415,8 +424,9 @@ public extension Tensor {
                 shape: other.shape,
                 strides: strides,
                 count: other.count,
-                storage: StorageBufferType<TensorElement>(count: source.count,
-                                                          layout: layout),
+                storage: StorageBufferType(type: TensorElement.self,
+                                           count: source.count,
+                                           layout: layout),
                 storageBase: 0,
                 stridedSpanCount: other.stridedSpanCount,
                 shared: other.isShared)

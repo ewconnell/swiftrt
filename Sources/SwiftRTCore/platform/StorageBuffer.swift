@@ -18,12 +18,15 @@ import Foundation
 
 //==============================================================================
 /// StorageBuffer protocol
+/// The storage buffer is a container for tensor elements. It uses raw buffers
+/// and per function type binding, so zero copy casting can be done.
+/// For example casting `RGBA<Float>` to `NHWC` to interact with Cuda,
+/// or `UInt1` to `Bool1` to manipulate bit tensors in different ways.
 public protocol StorageBuffer: class, Logging {
-    /// the type of element stored in the buffer
-    associatedtype Element: StorageElement
-
+    /// memory buffer alignment
+    var alignment: Int { get }
     /// the number of storage elements
-    var count: Int { get }
+    var byteCount: Int { get }
     /// the id of the buffer for diagnostics
     var id: Int { get }
     /// `true` if the buffer is read only
@@ -35,43 +38,57 @@ public protocol StorageBuffer: class, Logging {
     /// specifies the stored element layout order
     var layout: Layout { get }
     
-    /// `init(count:layout:
+    /// countOf(type:
+    /// - Returns: the number of `type` units in the storage
+    func countOf<E: StorageElement>(type: E) -> Int
+    
+    /// `init(type:count:layout:
     /// creates an uninitialized lazily allocated element buffer
     /// - Parameters:
+    ///  - type: the type of storage element. Used to compute byte size
     ///  - count: size of the buffer in `Element` units
     ///  - layout: element layout order
-    init(count: Int, layout: Layout)
+    init<E: StorageElement>(type: E.Type, count: Int, layout: Layout)
     
     /// `init(element:
     /// creates a storage buffer with a single element
     /// - Parameters:
+    ///  - type: the type of storage element
     ///  - element: the initial element value
-    init(single element: Element.Value)
+    init<E: StorageElement>(type: E.Type, single element: E.Value)
     
     /// `init(copying other:`
     /// copy constructor
     init(copying other: Self)
     
-    /// `init(buffer:layout:
+    /// `init(buffer:layout:`
     /// creates an element buffer whose data is managed by the application.
     /// No memory is allocated, so the buffer must point to valid data space.
     /// This can be used to access things like hardware buffers or
     /// memory mapped files, network buffers, database results, without
     /// requiring an additional copy operation.
     /// - Parameters:
+    ///  - type: the type of storage element
     ///  - buffer: a buffer pointer to the data
     ///  - layout: element layout order
-    init(referenceTo buffer: UnsafeBufferPointer<Element.Stored>,
-         layout: Layout)
+    init<E: StorageElement>(
+        type: E.Type,
+        referenceTo buffer: UnsafeBufferPointer<E.Stored>,
+        layout: Layout
+    )
     
-    /// `init(buffer:layout:
+    /// `init(buffer:layout:`
     /// creates an element buffer whose data is managed by the application.
     /// No memory is allocated, so the buffer must point to valid data space.
     /// - Parameters:
+    ///  - type: the type of storage element
     ///  - buffer: a mutable buffer pointer to application data
     ///  - layout: element layout order
-    init(referenceTo buffer: UnsafeMutableBufferPointer<Element.Stored>,
-         layout: Layout)
+    init<E: StorageElement>(
+        type: E.Type,
+        referenceTo buffer: UnsafeMutableBufferPointer<E.Stored>,
+        layout: Layout
+    )
     
     /// `init(blockSize:bufferedBlocks:sequence:`
     /// initializes a streaming device buffer to be used with `stream`
@@ -86,56 +103,83 @@ public protocol StorageBuffer: class, Logging {
     init<S, Stream>(block shape: S, bufferedBlocks: Int, stream: Stream)
         where S: TensorShape, Stream: BufferStream
         
-    /// `element(offset:`
-    /// - Parameter index: the linear storage index of the element
+    /// `element(type:at:`
+    /// - Parameters:
+    ///  - type: the type of element
+    ///  - index: the absolute linear storage index of the element
     /// - Returns: a single element at the specified offset
-    func element(at index: Int) -> Element.Value
+    func element<E: StorageElement>(
+        type: E.Type,
+        at index: Int
+    ) -> E.Value
     
     /// `setElement(value:offset:`
     /// - Parameters:
+    ///  - type: the type of element
     ///  - value: the value to set
-    ///  - index: the linear storage index of the element
-    func setElement(value: Element.Value, at index: Int)
+    ///  - index: the absolute linear storage index of the element
+    func setElement<E: StorageElement>(
+        type: E.Type,
+        value: E.Value,
+        at index: Int
+    )
     
-    /// `read(offset:count:`
+    /// `read(type:index:count:`
     /// gets a buffer pointer blocking the calling thread until synchronized
     /// - Parameters:
-    ///  - offset: the buffer base offset within storage
+    ///  - type: the type of element
+    ///  - base: the base storage index of the returned buffer
     ///  - count: the number of elements to be accessed
     /// - Returns: a buffer pointer to the elements. Elements will be valid
     ///   when the queue reaches this point
-    func read(at offset: Int, count: Int) -> UnsafeBufferPointer<Element.Stored>
+    func read<E: StorageElement>(
+        type: E.Type,
+        at base: Int,
+        count: Int
+    ) -> UnsafeBufferPointer<E.Stored>
     
     /// `read(index:count:queue:`
     /// - Parameters:
-    ///  - index: the buffer base index within storage
+    ///  - type: the type of element
+    ///  - base: the base storage index of the returned buffer
     ///  - count: the number of elements to be accessed
     ///  - queue: queue for device placement and synchronization
     /// - Returns: a buffer pointer to the elements. Elements will be valid
     ///   when the queue reaches this point
-    func read(at index: Int, count: Int,
-              using queue: PlatformType.Device.Queue)
-        -> UnsafeBufferPointer<Element.Stored>
+    func read<E: StorageElement>(
+        type: E.Type,
+        at base: Int,
+        count: Int,
+        using queue: PlatformType.Device.Queue
+    ) -> UnsafeBufferPointer<E.Stored>
     
-    /// `readWrite(type:index:count:willOverwrite:
+    /// `readWrite(type:index:count`
     /// - Parameters:
-    ///  - index: the buffer base offset within storage
+    ///  - type: the type of element
+    ///  - base: the base storage index of the returned buffer
     ///  - count: the number of elements to be accessed
     /// - Returns: a mutable buffer pointer to the elements.
     ///   Elements will be valid when the queue reaches this point
-    func readWrite(at index: Int, count: Int)
-        -> UnsafeMutableBufferPointer<Element.Stored>
+    func readWrite<E: StorageElement>(
+        type: E.Type,
+        at base: Int,
+        count: Int
+    ) -> UnsafeMutableBufferPointer<E.Stored>
 
-    /// `readWrite(type:index:count:queue:
+    /// `readWrite(type:index:count:queue:`
     /// - Parameters:
-    ///  - index: the buffer base index within storage
+    ///  - type: the type of element
+    ///  - base: the base storage index of the returned buffer
     ///  - count: the number of elements to be accessed
     ///  - queue: queue for device placement and synchronization
     /// - Returns: a mutable buffer pointer to the elements.
     ///   Elements will be valid when the queue reaches this point
-    func readWrite(at index: Int, count: Int,
-                   using queue: PlatformType.Device.Queue)
-        -> UnsafeMutableBufferPointer<Element.Stored>
+    func readWrite<E: StorageElement>(
+        type: E.Type,
+        at base: Int,
+        count: Int,
+        using queue: PlatformType.Device.Queue
+    ) -> UnsafeMutableBufferPointer<E.Stored>
 }
 
 public extension StorageBuffer {

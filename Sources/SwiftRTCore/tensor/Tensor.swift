@@ -36,7 +36,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     /// the dimensions of the element space
     @noDerivative public let shape: Shape
     /// the element storage buffer.
-    public var storage: StorageBufferType<TensorElement>
+    public var storage: StorageBufferType
     /// the logical storage buffer base index where this tensor's elements begin
     public let storageBase: Int
     /// The distance to the next element along each dimension
@@ -102,7 +102,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         shape: Shape,
         strides: Shape,
         count: Int,
-        storage: StorageBufferType<TensorElement>,
+        storage: StorageBufferType,
         storageBase: Int,
         stridedSpanCount: Int,
         shared: Bool
@@ -123,7 +123,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     @inlinable public init(single element: Element, shape: Shape) {
         self.shape = shape
         self.strides = Shape.zero
-        self.storage = StorageBufferType<TensorElement>(single: element)
+        self.storage = StorageBufferType(type: TensorElement.self, single: element)
         self.storageBase = 0
         self.isShared = false
         self.storage.name = "Element"
@@ -461,7 +461,7 @@ public extension Tensor {
     /// first
     /// - Returns: the first element in the tensor
     @inlinable var first: Element {
-        storage.element(at: storageBase)
+        storage.element(type: TensorElement.self, at: storageBase)
     }
 
     /// element
@@ -472,12 +472,13 @@ public extension Tensor {
         get {
             assert(count == 1, "the `element` property expects " +
                 "the tensor to have a single Element. Use `first` for sets")
-            return storage.element(at: storageBase)
+            return storage.element(type: TensorElement.self, at: storageBase)
         }
         set {
             assert(count == 1, "the `element` property expects " +
                 "the tensor to have a single Element")
-            storage.setElement(value: newValue, at: storageBase)
+            storage.setElement(type: TensorElement.self,
+                               value: newValue, at: storageBase)
         }
     }
 

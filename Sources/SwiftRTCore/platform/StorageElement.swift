@@ -409,7 +409,8 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
                              count: tensor.stridedSpanCount)
         
         // make the data range available for reading by the cpu
-        let buff = tensor.storage.read(at: storedBase, count: storedCount)
+        let buff = tensor.storage.read(type: TensorElement.self,
+                                       at: storedBase, count: storedCount)
         
         // Init members and note that this does not actually mutate, even
         // though we commonly hold a mutable buffer pointer
@@ -441,7 +442,8 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
                              count: tensor.stridedSpanCount)
 
         // make the data range available for reading/writing by the cpu
-        hostBuffer = tensor.storage.readWrite(at: storedBase, count: storedCount)
+        hostBuffer = tensor.storage.readWrite(type: TensorElement.self,
+                                              at: storedBase, count: storedCount)
         
         // `startIndex` is the logical position of the first
         // `Value` type within the `Stored` type.
@@ -509,7 +511,8 @@ where Shape: TensorShape, TensorElement: StorageElement
                              count: tensor.stridedSpanCount)
 
         // make the data range available for reading by the cpu
-        let buff = tensor.storage.read(at: storedBase, count: storedCount)
+        let buff = tensor.storage.read(type: TensorElement.self,
+                                       at: storedBase, count: storedCount)
         
         // Init members and note that this does not actually mutate, even
         // though we commonly hold a mutable buffer pointer
@@ -536,7 +539,8 @@ where Shape: TensorShape, TensorElement: StorageElement
                              count: tensor.stridedSpanCount)
 
         // make the data range available for reading/writing by the cpu
-        hostBuffer = tensor.storage.readWrite(at: storedBase, count: storedCount)
+        hostBuffer = tensor.storage.readWrite(type: TensorElement.self,
+                                              at: storedBase, count: storedCount)
         alignment = TensorElement.alignment(tensor.storageBase)
         logicalStrides = tensor.shape.strides(for: tensor.layout)
         strides = tensor.strides
@@ -566,7 +570,8 @@ where Shape: TensorShape, TensorElement: StorageElement
                              count: tensor.stridedSpanCount)
         
         // make the data range available for reading/writing by the cpu
-        hostBuffer = tensor.storage.readWrite(at: storedBase, count: storedCount)
+        hostBuffer = tensor.storage.readWrite(type: TensorElement.self,
+                                              at: storedBase, count: storedCount)
         alignment = TensorElement.alignment(tensor.storageBase)
         startIndex = Index(Shape.zero, 0)
         endIndex = Index(shape, shape.elementCount())

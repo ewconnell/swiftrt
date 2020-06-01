@@ -25,11 +25,11 @@ import Darwin.C
 // Platform types
 #if canImport(CCuda)
 public typealias PlatformType = CudaService
-public typealias StorageBufferType<Element> = ReplicatedBuffer<Element>
+public typealias StorageBufferType = DiscreetStorage
 #else
 public typealias PlatformType = CpuService
-//public typealias StorageBufferType<Element: StorageElement> = DiscreetStorage<Element>
-public typealias StorageBufferType<Element: StorageElement> = CpuStorage<Element>
+//public typealias StorageBufferType = DiscreetStorage
+public typealias StorageBufferType = CpuStorage
 #endif
 
 //==============================================================================
