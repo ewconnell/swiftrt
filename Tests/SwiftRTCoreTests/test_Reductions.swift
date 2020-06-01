@@ -235,38 +235,37 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_sumTensor2
     func test_sumTensor2() {
-        Context.log.level = .diagnostic
-
+//        Context.log.level = .diagnostic
         let m = array([
             [0, 1],
             [2, 3],
             [4, 5]
         ])
 
-//        // sum all
-//        do {
-//            let result = m.sum()
-//            XCTAssert(result.shape == [1, 1])
-//            XCTAssert(result.element == 15)
-//        }
-//
+        // sum all
+        do {
+            let result = m.sum()
+            XCTAssert(result.shape == [1, 1])
+            XCTAssert(result.element == 15)
+        }
+
         do {
             let result = m.sum(alongAxes: 0, 1)
             XCTAssert(result.shape == [1, 1])
             XCTAssert(result.element == 15)
         }
-//
-//        // sum cols
-//        do {
-//            let result = m.sum(alongAxes: 1)
-//            XCTAssert(result == [[1], [5], [9]])
-//        }
-//
-//        // sum rows
-//        do {
-//            let result = m.sum(alongAxes: 0)
-//            XCTAssert(result == [[6, 9]])
-//        }
+
+        // sum cols
+        do {
+            let result = m.sum(alongAxes: 1)
+            XCTAssert(result == [[1], [5], [9]])
+        }
+
+        // sum rows
+        do {
+            let result = m.sum(alongAxes: 0)
+            XCTAssert(result == [[6, 9]])
+        }
     }
 
     //--------------------------------------------------------------------------

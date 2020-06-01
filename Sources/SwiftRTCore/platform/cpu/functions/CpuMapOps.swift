@@ -145,12 +145,14 @@ extension DeviceQueue {
         a.read(using: self)
         r.readWrite(using: self)
         
-        // if layouts match then iterate through buffer elements,
-        // iterate using logical element positions
-        if haveSameStorageLayout(a, r) {
-            execute(a.buffer, r.mutableBuffer, op)
+        // repeat `r`s iterator to match `a` to enable operations along axes
+        let rstrides = repeatedStrides(matching: r, to: a.shape)
+        let relements = StridedElements(mutating: r, a.shape, rstrides)
+
+        if a.isBufferIterable {
+            execute(a.buffer, relements, op)
         } else {
-            execute(a.stridedElements, r.stridedElements, op)
+            execute(a.stridedElements, relements, op)
         }
     }
     

@@ -26,7 +26,31 @@ public typealias TensorR5<Element: StorageElement> = Tensor<Shape5, Element>
 public typealias TensorR6<Element: StorageElement> = Tensor<Shape6, Element>
 
 //==============================================================================
-// parameter matching helper
+// parameter matching helpers
+@inlinable public func repeatedStrides<Shape,E>(
+    matching other: Tensor<Shape,E>,
+    to shape: Shape
+) -> Shape {
+    // make sure the bounds are compatible
+    assert({
+        for i in 0..<Shape.rank {
+            if other.shape[i] != 1 && shape[i] != other.shape[i] {
+                return false
+            }
+        }
+        return true
+    }(), "repeated tensor dimensions must be either 1" +
+        " or match the repeated shape")
+    
+    // compute strides, setting stride to 0 for repeated dimensions
+    var repeatedStrides = Shape.zero
+    for i in 0..<Shape.rank where other.shape[i] == shape[i] {
+        repeatedStrides[i] = other.strides[i]
+    }
+    return repeatedStrides
+}
+
+//------------------------------------------------------------------------------
 // TODO: THIS NEEDS TO BE REMOVED. IT'S A HACK FOR AD SUPPORT
 @inlinable public func match<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> (Tensor<S,E>, Tensor<S,E>) where S: TensorShape
@@ -108,29 +132,14 @@ public extension Tensor {
     ///  - shape: the shape of the tensor
     @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable init(repeating other: Self, to shape: Shape) {
-        // make sure the bounds are compatible
-        assert({
-            for i in 0..<Shape.rank {
-                if other.shape[i] != 1 && shape[i] != other.shape[i] {
-                    return false
-                }
-            }
-            return true
-        }(), "repeated tensor dimensions must be either 1" +
-            " or match the repeated shape")
-
-        // compute strides, setting stride to 0 for repeated dimensions
-        var repeatedStrides = Shape.zero
-        for i in 0..<Shape.rank where other.shape[i] == shape[i] {
-            repeatedStrides[i] = other.strides[i]
-        }
+        let strides = repeatedStrides(matching: other, to: shape)
         let count = shape.elementCount()
         self.init(shape: shape,
-                  strides: repeatedStrides,
+                  strides: strides,
                   count: count,
                   storage: other.storage,
                   storageBase: other.storageBase,
-                  stridedSpanCount: shape.spanCount(stridedBy: repeatedStrides),
+                  stridedSpanCount: shape.spanCount(stridedBy: strides),
                   shared: other.isShared)
     }
     

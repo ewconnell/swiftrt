@@ -123,13 +123,7 @@ extension CpuFunctions where Self: DeviceQueue {
         _ opNext: @escaping (E.Value, E.Value) -> E.Value,
         _ opFinal: ReduceOpFinal<Tensor<S,E>>?
     ) {
-        // repeat result to match `x`
-        // this is unusual because we intentionally are writing to
-        // repeated storage for result accumulation
-        var repeatedResult = Tensor<S,E>(repeating: result, to: x.shape)
-        
-        // do the reductions
-        mapOp(x, &repeatedResult, opNext)
+        mapOp(x, &result, opNext)
         
         if let op = opFinal {
             mapOp(&result, op)

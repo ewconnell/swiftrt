@@ -545,6 +545,34 @@ where Shape: TensorShape, TensorElement: StorageElement
     }
     
     //--------------------------------------------------------------------------
+    /// init(mutating:strides:
+    /// creates a storage buffer iterator for reading/writing tensor elments
+    ///
+    /// - Parameters:
+    ///  - tensor: the tensor that will be written
+    @inlinable public init(
+        mutating tensor: Tensor<Shape, TensorElement>,
+        _ shape: Shape,
+        _ strides: Shape
+    ) {
+        // override for reduction projection
+        self.strides = strides
+        logicalStrides = shape.strides(for: tensor.layout)
+        
+        // convert logical base and strided span count to stored.
+        // They will not be equal for packed element types like `Int4`
+        let (storedBase, storedCount) = TensorElement
+                .storedRange(start: tensor.storageBase,
+                             count: tensor.stridedSpanCount)
+        
+        // make the data range available for reading/writing by the cpu
+        hostBuffer = tensor.storage.readWrite(at: storedBase, count: storedCount)
+        alignment = TensorElement.alignment(tensor.storageBase)
+        startIndex = Index(Shape.zero, 0)
+        endIndex = Index(shape, shape.elementCount())
+    }
+    
+    //--------------------------------------------------------------------------
     /// makeIndex(position:
     /// makes an index from a logical position within `shape`
     /// - Parameters:

@@ -77,7 +77,7 @@ class test_Vectorizing: XCTestCase {
         let b = array(1...(size * size), (size, size), order: .F)
         var count: DType = 0
         
-        // 0.180
+        // 0.129
         // TODO: walk through this to improve if possible
         self.measure {
             for _ in 0..<10 {
