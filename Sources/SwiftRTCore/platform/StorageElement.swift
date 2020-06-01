@@ -222,17 +222,18 @@ public struct Bool1: PackedStorageElement {
     }
 }
 
-//extension Tensor where TensorElement == Bool1 {
-//    @inlinable public init(_ other: Tensor<Shape, UInt1>) {
-//        shape = other.shape
-//        strides = other.strides
-//        storage = other.storage
-//        storageBase = other.storageBase
-//        isShared = other.isShared
-//        count = other.count
-//        stridedSpanCount = other.stridedSpanCount
-//    }
-//}
+extension Tensor where TensorElement == Bool1 {
+    @inlinable public init(_ other: Tensor<Shape, UInt1>) {
+        shape = other.shape
+        strides = other.strides
+        storage = other.storage
+        storageBase = other.storageBase
+        isShared = other.isShared
+        count = other.count
+        stridedSpanCount = other.stridedSpanCount
+        cacheElementIterator()
+    }
+}
 
 //==============================================================================
 /// UInt1
@@ -244,6 +245,19 @@ public struct UInt1: PackedStorageElement {
     @inlinable public static var valueMask: Stored { 0x1 }
     @inlinable public static var valueMin: Value { 0 }
     @inlinable public static var valueMax: Value { 1 }
+}
+
+extension Tensor where TensorElement == UInt1 {
+    @inlinable public init(_ other: Tensor<Shape, Bool1>) {
+        shape = other.shape
+        strides = other.strides
+        storage = other.storage
+        storageBase = other.storageBase
+        isShared = other.isShared
+        count = other.count
+        stridedSpanCount = other.stridedSpanCount
+        cacheElementIterator()
+    }
 }
 
 //==============================================================================

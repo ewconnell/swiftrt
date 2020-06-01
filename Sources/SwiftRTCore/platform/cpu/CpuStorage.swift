@@ -28,7 +28,7 @@ public final class CpuStorage: StorageBuffer {
     public let layout: Layout
     public var name: String
     
-    @inlinable public func countOf<E: StorageElement>(type: E) -> Int {
+    @inlinable public func countOf<E: StorageElement>(type: E.Type) -> Int {
         assert(byteCount % MemoryLayout<E>.size == 0,
                "Buffer size is not even multiple of Element type")
         return byteCount / MemoryLayout<E>.size

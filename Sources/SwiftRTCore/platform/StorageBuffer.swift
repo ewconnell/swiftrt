@@ -40,7 +40,7 @@ public protocol StorageBuffer: class, Logging {
     
     /// countOf(type:
     /// - Returns: the number of `type` units in the storage
-    func countOf<E: StorageElement>(type: E) -> Int
+    func countOf<E: StorageElement>(type: E.Type) -> Int
     
     /// `init(type:count:layout:
     /// creates an uninitialized lazily allocated element buffer

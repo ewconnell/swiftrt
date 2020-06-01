@@ -21,11 +21,29 @@ class test_PackedElements: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_castingBool1_UInt1", test_castingBool1_UInt1),
         ("test_Bool1", test_Bool1),
         ("test_UInt1", test_UInt1),
         ("test_UInt4", test_UInt4),
     ]
 
+    //--------------------------------------------------------------------------
+    func test_castingBool1_UInt1() {
+        do {
+            let a = array([false,  true, false,  true], type: Bool1.self)
+            XCTAssert(a.storage.countOf(type: Bool1.Stored.self) == 1)
+            XCTAssert(a == [false,  true, false,  true])
+            
+            let b = TensorR1<UInt1>(a)
+            XCTAssert(b.storage.countOf(type: UInt1.Stored.self) == 1)
+            XCTAssert(b == [0, 1, 0, 1])
+            
+            let c = TensorR1<Bool1>(b)
+            XCTAssert(c.storage.countOf(type: Bool1.Stored.self) == 1)
+            XCTAssert(c == a)
+        }
+    }
+    
     //--------------------------------------------------------------------------
     func test_Bool1() {
         // element wise OR
@@ -33,7 +51,7 @@ class test_PackedElements: XCTestCase {
             let a = array([false,  true, false,  true], type: Bool1.self)
             let b = array([ true, false, false, false], type: Bool1.self)
             let c = a .|| b
-            XCTAssert(c.storage.hostBuffer.count == 1)
+            XCTAssert(c.storage.countOf(type: Bool1.Stored.self) == 1)
             XCTAssert(c == [true, true, false, true])
         }
         
@@ -45,7 +63,7 @@ class test_PackedElements: XCTestCase {
             let b = array([false, true, true, true, false,
                            true, false, false, false, true], type: Bool1.self)
             let c = a .&& b
-            XCTAssert(c.storage.hostBuffer.count == 2)
+            XCTAssert(c.storage.countOf(type: Bool1.Stored.self) == 2)
             XCTAssert(c == [false, true, true, true, false,
                             true, false, false, false, true])
         }
@@ -68,7 +86,7 @@ class test_PackedElements: XCTestCase {
                 [false, false, false, true, false],
                 [false, false,  true, true, false]
             ], type: Bool1.self)
-            XCTAssert(a.storage.hostBuffer.count == 2)
+            XCTAssert(a.storage.countOf(type: Bool1.Stored.self) == 2)
             XCTAssert(a == [
                 [false, false, false, true, false],
                 [false, false,  true, true, false]
@@ -89,7 +107,7 @@ class test_PackedElements: XCTestCase {
             let a = array([0, 1, 0, 1], type: UInt1.self)
             let b = array([1, 0, 0, 0], type: UInt1.self)
             let c = a + b
-            XCTAssert(c.storage.hostBuffer.count == 1)
+            XCTAssert(c.storage.countOf(type: UInt1.Stored.self) == 1)
             XCTAssert(c == [1, 1, 0, 1])
         }
         
@@ -99,7 +117,7 @@ class test_PackedElements: XCTestCase {
             let a = array([0, 0, 0, 1, 0, 0, 0, 1, 1, 0], type: UInt1.self)
             let b = array([0, 1, 1, 0, 0, 1, 0, 0, 0, 1], type: UInt1.self)
             let c = a + b
-            XCTAssert(c.storage.hostBuffer.count == 2)
+            XCTAssert(c.storage.countOf(type: UInt1.Stored.self) == 2)
             XCTAssert(c == [0, 1, 1, 1, 0, 1, 0, 1, 1, 1])
         }
         
@@ -117,7 +135,7 @@ class test_PackedElements: XCTestCase {
         // modify range across packing boundaries
         do {
             var a = array([[0, 0, 0, 1, 0], [0, 0, 1, 1, 0]], type: UInt1.self)
-            XCTAssert(a.storage.hostBuffer.count == 2)
+            XCTAssert(a.storage.countOf(type: UInt1.Stored.self) == 2)
             XCTAssert(a == [
                 [0, 0, 0, 1, 0],
                 [0, 0, 1, 1, 0]
@@ -139,7 +157,7 @@ class test_PackedElements: XCTestCase {
             let a = array(0..<4, type: UInt4.self)
             let b = array(1..<5, type: UInt4.self)
             let c = a + b
-            XCTAssert(c.storage.hostBuffer.count == 2)
+            XCTAssert(c.storage.countOf(type: UInt4.Stored.self) == 2)
             XCTAssert(c == [1, 3, 5, 7])
         }
 
@@ -148,7 +166,7 @@ class test_PackedElements: XCTestCase {
             let a = array(0..<5, type: UInt4.self)
             let b = array(1..<6, type: UInt4.self)
             let c = a + b
-            XCTAssert(c.storage.hostBuffer.count == 3)
+            XCTAssert(c.storage.countOf(type: UInt4.Stored.self) == 3)
             XCTAssert(c == [1, 3, 5, 7, 9])
         }
 
@@ -164,14 +182,14 @@ class test_PackedElements: XCTestCase {
         // modify range across packing boundaries
         do {
             var a = array(0..<8, (2, 4), type: UInt4.self)
-            XCTAssert(a.storage.hostBuffer.count == 4)
+            XCTAssert(a.storage.countOf(type: UInt4.Stored.self) == 4)
             XCTAssert(a == [
                 [0, 1, 2, 3],
                 [4, 5, 6, 7]
             ])
             
             let row = array([3, 3], (1, 2), type: UInt4.self)
-            XCTAssert(row.storage.hostBuffer.count == 1)
+            XCTAssert(row.storage.countOf(type: UInt4.Stored.self) == 1)
             a[1, 1...2] = row
             XCTAssert(a == [
                 [0, 1, 2, 3],
