@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 /// DiscreetStorage
-public final class DiscreetStorage<Element>: StorageBuffer {
+public final class DiscreetStorage<Element: StorageElement>: StorageBuffer {
     /// the number of storage elements
     public let count: Int
     /// unique storage id used in diagnostic messages

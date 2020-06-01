@@ -17,8 +17,7 @@
 //==============================================================================
 /// SyncStorage
 /// A synchronous host memory element storage buffer
-public final class CpuStorage<Element>: StorageBuffer
-where Element: StorageElement
+public final class CpuStorage<Element: StorageElement>: StorageBuffer
 {
     public let count: Int
     public let hostBuffer: UnsafeMutableBufferPointer<Element.Stored>
