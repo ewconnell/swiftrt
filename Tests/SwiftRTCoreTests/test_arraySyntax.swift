@@ -21,6 +21,7 @@ class test_arraySyntax: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_initSyntax", test_initSyntax),
         ("test_array", test_array),
         ("test_empty", test_empty),
         ("test_emptyLike", test_emptyLike),
@@ -36,8 +37,7 @@ class test_arraySyntax: XCTestCase {
     ]
     
     //--------------------------------------------------------------------------
-    // test_arraySyntax
-    func test_arraySyntax() {
+    func test_initSyntax() {
         // stored bit pattern
         let _ = array(stored: [Float16(0), Float16(1)])
         let _ = array(stored: [Float16(0), Float16(1)], (1, 2))
