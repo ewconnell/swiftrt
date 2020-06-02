@@ -69,16 +69,12 @@ where Shape: TensorShape, TensorElement: StorageElement
 
     /// the starting index zero relative to the storage buffer
     @inlinable public var startIndex: Index {
-        switch self.storage.layout {
-        case .row, .col: return stridedElements.startIndex
-        }
+        stridedElements.startIndex
     }
     
     /// the ending index zero relative to the storage buffer
     @inlinable public var endIndex: Index {
-        switch self.storage.layout {
-        case .row, .col: return stridedElements.endIndex
-        }
+        stridedElements.endIndex
     }
 
     //----------------
@@ -123,12 +119,14 @@ where Shape: TensorShape, TensorElement: StorageElement
     @inlinable public init(single element: Element, shape: Shape) {
         self.shape = shape
         self.strides = Shape.zero
-        self.storage = StorageBufferType(type: TensorElement.self, single: element)
         self.storageBase = 0
         self.isShared = false
-        self.storage.name = "Element"
         self.count = shape.elementCount()
         self.stridedSpanCount = 1
+        self.storage = StorageBufferType(type: TensorElement.self,
+                                         count: 1, layout: .any,
+                                         name: "Element")
+        self.storage.setElement(type: TensorElement.self, value: element, at: 0)
         cacheElementIterator()
     }
 }
@@ -275,10 +273,7 @@ public extension Tensor {
     /// cacheElementIterator
     /// creates and caches a suitable element iterator dependent on layout
     @inlinable mutating func cacheElementIterator() {
-        switch self.storage.layout {
-        case .row, .col:
-            stridedElements = StridedElements(mutating: self)
-        }
+        stridedElements = StridedElements(mutating: self)
     }
     
     //--------------------------------------------------------------------------
@@ -288,17 +283,13 @@ public extension Tensor {
     ///  - position: the n-dimensional coordinate position within `shape`
     /// - Returns: the index
     @inlinable func makeIndex(at position: Shape) -> Index {
-        switch storage.layout {
-        case .row, .col: return stridedElements.makeIndex(at: position)
-        }
+        stridedElements.makeIndex(at: position)
     }
 
     //--------------------------------------------------------------------------
     /// index(i:
     @inlinable func index(after i: Index) -> Index {
-        switch storage.layout {
-        case .row, .col: return stridedElements.index(after: i)
-        }
+        stridedElements.index(after: i)
     }
 
     //--------------------------------------------------------------------------
@@ -306,16 +297,12 @@ public extension Tensor {
     @inlinable subscript(i: Index) -> Element {
         get {
             read()
-            switch storage.layout {
-            case .row, .col: return stridedElements[i]
-            }
+            return stridedElements[i]
         }
         
         set {
             readWrite()
-            switch storage.layout {
-            case .row, .col: stridedElements[i] = newValue
-            }
+            stridedElements[i] = newValue
         }
     }
 
@@ -339,20 +326,17 @@ public extension Tensor {
         _ share: Bool
     ) -> Self {
         let shape = upper &- lower
-        switch storage.layout {
-        case .row, .col:
-            let count = shape.elementCount()
-            let spanCount = strides.areSequential(for: shape) ? count :
-                    shape.spanCount(stridedBy: strides)
-            return Tensor(
-                shape: shape,
-                strides: strides,
-                count: count,
-                storage: storage,
-                storageBase: storageBase + lower.index(stridedBy: strides),
-                stridedSpanCount: spanCount,
-                shared: share)
-        }
+        let count = shape.elementCount()
+        let spanCount = strides.areSequential(for: shape) ? count :
+                shape.spanCount(stridedBy: strides)
+        return Tensor(
+            shape: shape,
+            strides: strides,
+            count: count,
+            storage: storage,
+            storageBase: storageBase + lower.index(stridedBy: strides),
+            stridedSpanCount: spanCount,
+            shared: share)
     }
 
     //--------------------------------------------------------------------------

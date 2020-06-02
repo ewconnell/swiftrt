@@ -44,20 +44,20 @@ public protocol DeviceQueue: Logging {
     var usesCpu: Bool { get }
 
     //--------------------------------------------------------------------------
-    /// allocate(type:count:heapIndex:
+    /// allocate(alignment:byteCount:heapIndex:
     /// allocates a block of memory on the associated device. If there is
     /// insufficient storage, a `DeviceError` will be thrown.
     /// - Parameters:
-    ///  - type: the type of element that will be stored. This ensures
+    ///  - alignment: the buffer memory alignment
     ///    correct storage byte size and alignment
-    ///  - count: the number of elements to store
+    ///  - byteCount: the number of bytes to allocate
     ///  - heapIndex: reserved for future use. Should be 0 for now.
     /// - Returns: a device memory object
-    func allocate<Element>(
-        _ type: Element.Type,
-        count: Int,
+    func allocate(
+        alignment: Int,
+        byteCount: Int,
         heapIndex: Int
-    ) throws -> DeviceMemory<Element>
+    ) throws -> DeviceMemory
     
     /// createEvent(options:
     /// creates a queue event used for synchronization and timing measurements
@@ -90,14 +90,15 @@ public protocol DeviceQueue: Logging {
 extension DeviceQueue {
     //--------------------------------------------------------------------------
     // allocate
-    @inlinable public func allocate<Element>(
-        _ type: Element.Type,
-        count: Int,
+    @inlinable public func allocate(
+        alignment: Int,
+        byteCount: Int,
         heapIndex: Int = 0
-    ) throws -> DeviceMemory<Element> {
+    ) throws -> DeviceMemory {
         // allocate an aligned host memory buffer
-        let buff = UnsafeMutableBufferPointer<Element>.allocate(capacity: count)
-        return DeviceMemory(buff, memoryType, { buff.deallocate() })
+        let buffer = UnsafeMutableRawBufferPointer
+                .allocate(byteCount: byteCount, alignment: alignment)
+        return DeviceMemory(buffer, memoryType, { buffer.deallocate() })
     }
     
     //--------------------------------------------------------------------------

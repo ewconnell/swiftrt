@@ -80,11 +80,15 @@ public extension Tensor {
     ///  - layout: the storage layout of the elements
     @inlinable init(_ shape: Shape, layout: Layout = .row) {
         let count = shape.elementCount()
+        let storage = StorageBufferType(
+                type: TensorElement.self,
+                count: count,
+                layout: layout)
+        
         self.init(shape: shape,
                   strides: shape.strides(for: layout),
                   count: count,
-                  storage: StorageBufferType(type: TensorElement.self,
-                                             count: count, layout: layout),
+                  storage: storage,
                   storageBase: 0,
                   stridedSpanCount: count,
                   shared: false)
@@ -205,7 +209,7 @@ public extension Tensor {
     {
         assert(shape.elementCount() == elements.count)
         self.init(shape, layout: layout)
-        let buffer = storage.readWrite(type: TensorElement.self,
+        let buffer = storage.readWrite(type: TensorElement.Stored.self,
                                        at: 0, count: count)
         _ = buffer.initialize(from: elements)
     }
