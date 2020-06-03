@@ -16,6 +16,8 @@
 import Foundation
 import Numerics
 
+public var tensorCount = 0
+
 //==============================================================================
 /// Tensor
 public struct Tensor<Shape, TensorElement>:
@@ -103,6 +105,8 @@ where Shape: TensorShape, TensorElement: StorageElement
         stridedSpanCount: Int,
         shared: Bool
     ) {
+        tensorCount += 1
+        print(tensorCount)
         self.shape = shape
         self.strides = strides
         self.count = count
@@ -117,6 +121,8 @@ where Shape: TensorShape, TensorElement: StorageElement
     /// init(element:shape:
     /// Used to initialize a tensor with a single Element
     @inlinable public init(single element: Element, shape: Shape) {
+        tensorCount += 1
+        print(tensorCount)
         self.shape = shape
         self.strides = Shape.zero
         self.storageBase = 0
