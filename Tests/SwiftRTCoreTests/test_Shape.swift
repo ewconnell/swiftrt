@@ -170,11 +170,14 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_stackingGradients
     func test_stackingGradients() {
-        Context.log.level = .diagnostic
+//        Context.log.level = .diagnostic
         let a1 = array([1, 2, 3, 4, 5])
         let b1 = array([6, 7, 8, 9, 10])
-        let a2 = array([1, 1, 1, 1, 1])
-        let b2 = array([1, 1, 1, 1, 1])
+        let a2 = ones((5))
+        let b2 = ones((5))
+        
+//        let c = stack(a1 * a2, b1 * b2, axis: -1).sum().element
+
         let grads = gradient(at: a2, b2) { a, b in
             stack(a1 * a, b1 * b, axis: -1).sum().element
         }
