@@ -170,6 +170,7 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     // test_stackingGradients
     func test_stackingGradients() {
+        Context.log.level = .diagnostic
         let a1 = array([1, 2, 3, 4, 5])
         let b1 = array([6, 7, 8, 9, 10])
         let a2 = array([1, 1, 1, 1, 1])

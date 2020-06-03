@@ -80,6 +80,7 @@ public extension Tensor {
     ///  - layout: the storage layout of the elements
     @inlinable init(_ shape: Shape, layout: Layout = .row) {
         let count = shape.elementCount()
+        
         let storage = StorageBufferType(
                 type: TensorElement.self,
                 count: count,

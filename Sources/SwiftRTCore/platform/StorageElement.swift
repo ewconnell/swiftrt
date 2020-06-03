@@ -524,9 +524,6 @@ where Shape: TensorShape, TensorElement: StorageElement
                 .storedRange(start: tensor.storageBase,
                              count: tensor.stridedSpanCount)
 
-        if storedBase == 1 {
-            
-        }
         // make the data range available for reading by the cpu
         let buff = tensor.storage.read(type: TensorElement.Stored.self,
                                        at: storedBase,
@@ -555,9 +552,6 @@ where Shape: TensorShape, TensorElement: StorageElement
         let (storedBase, storedCount) = TensorElement
                 .storedRange(start: tensor.storageBase,
                              count: tensor.stridedSpanCount)
-        if storedBase == 1 {
-            
-        }
 
         // make the data range available for reading/writing by the cpu
         hostBuffer = tensor.storage.readWrite(type: TensorElement.Stored.self,

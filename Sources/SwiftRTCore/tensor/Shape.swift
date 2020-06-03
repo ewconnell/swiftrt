@@ -200,7 +200,7 @@ public extension TensorShape {
             return strides
         }
 
-        if layout == .C {
+        if layout == .row {
             // row major
             return computeStrides(for: self)
             

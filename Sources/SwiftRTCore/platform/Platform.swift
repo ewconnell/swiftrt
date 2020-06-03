@@ -130,11 +130,6 @@ public enum NanPropagation: Int, Codable {
 /// or column-major (Fortran-style) order in memory.
 /// These names are following the numpy naming convention
 public enum Layout: Int, Codable {
-    /// single element tensors have layout `any` to signify they are compatible
-    /// with any other layout. Layers describe required layout, and `any`
-    /// can be used where order doesn't matter such as element-wise operations
-    case any
-    
     /// Data is ordered in row-major dense sequential format.
     /// The leading dimension is the stride (in elements) to the beginning
     /// of next row in memory.
