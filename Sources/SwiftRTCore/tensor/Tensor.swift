@@ -312,7 +312,7 @@ public extension Tensor {
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
         get { createView(lower, upper, isShared) }
         set {
-            ensureValidStorage()
+            readWrite()
             var view = createView(lower, upper, true)
             copy(from: newValue, to: &view)
         }
@@ -341,13 +341,13 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
-    /// `ensureValidStorage`
+    /// `prepareForWrite`
     /// called before a write operation to ensure that the storage buffer
     /// is unique for this tensor unless it `isShared`
     /// It also expands repeated tensors to a full dense storage
     /// representation for write, which most often happens via element
     /// subscripting.
-    @inlinable mutating func ensureValidStorage() {
+    @inlinable mutating func prepareForWrite(using queue: DeviceQueue) {
         // if repeated then expand to full dense tensor
         if stridedSpanCount < count {
             var expanded = Tensor(like: self)
@@ -368,7 +368,7 @@ public extension Tensor {
                         "\(Element.self)[\(count)]",
                        categories: [.dataCopy, .dataMutation])
             
-            storage = StorageBufferType(copying: storage)
+            storage = StorageBufferType(copying: storage, using: queue)
             
             // refresh iterator to point to new buffer
             cacheElementIterator()
@@ -398,7 +398,7 @@ extension Tensor where TensorElement.Value: DifferentiableElement {
 public extension Tensor {
     //--------------------------------------------------------------------------
     /// `read`
-    /// Synchronizes the collection of materialized elements for reading.
+    /// Synchronizes the collection of elements with the caller for reading
     /// This function blocks until the elements are available.
     /// `Elements` are accessed by the application using `Collection`
     /// enumeration via `indices` or integer subscripting.
@@ -408,7 +408,7 @@ public extension Tensor {
     
     //--------------------------------------------------------------------------
     /// `read(queue:
-    /// Synchronizes a collection of materialized elements for reading
+    /// Synchronizes the collection of elements for reading
     /// using the specified `queue`. This function is non blocking, and
     /// the elements will be available when the request reaches the
     /// head of the queue.
@@ -419,24 +419,24 @@ public extension Tensor {
 
     //--------------------------------------------------------------------------
     /// `readWrite`
-    /// Synchronizes a collection of materialized elements for read write.
+    /// Synchronizes the collection of elements with the caller for read write
     /// This function blocks until the elements are available.
     /// `Elements` are accessed by the application using `MutableCollection`
     /// enumeration via `indices` or subscripting.
     @inlinable mutating func readWrite() {
-        ensureValidStorage()
+        prepareForWrite(using: Context.cpuQueue(0))
     }
     
     //--------------------------------------------------------------------------
     /// `readWrite(queue:`
-    /// Synchronizes a mutable collection of materialized elements
+    /// Synchronizes the collection of elements with the caller for read write
     /// using the specified `queue`. This function is non blocking, and
     /// the elements will be available when the request reaches the
     /// head of the queue.
     ///
     /// - Parameter queue: the device queue to use for synchronization
     @inlinable mutating func readWrite(using queue: DeviceQueue) {
-        ensureValidStorage()
+        prepareForWrite(using: queue)
     }
 }
 

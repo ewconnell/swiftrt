@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 /// CpuDevice
-public final class CpuDevice: PlatformDevice {
+public final class CpuDevice: ComputeDevice {
     // properties
     public let id: Int
     public let logInfo: LogInfo

@@ -16,6 +16,10 @@
 import Foundation
 
 //==============================================================================
+/// CpuFunctions
+public protocol CpuFunctions { }
+
+//==============================================================================
 /// CpuQueue
 /// a final version of the default device queue which executes functions
 /// synchronously on the cpu
@@ -30,13 +34,12 @@ public final class CpuQueue: DeviceQueue, CpuFunctions {
     public let memoryType: MemoryType
     public let mode: DeviceQueueMode
     public let name: String
-    public var queue: DispatchQueue
+    public let queue: DispatchQueue
     public let usesCpu: Bool
     
     //--------------------------------------------------------------------------
     // initializers
-    @inlinable
-    public init(
+    @inlinable public init(
         parent logInfo: LogInfo,
         deviceId: Int,
         deviceName: String,
@@ -66,8 +69,3 @@ public final class CpuQueue: DeviceQueue, CpuFunctions {
                    categories: .queueAlloc)
     }
 }
-
-//==============================================================================
-/// CpuFunctions
-public protocol CpuFunctions { }
-

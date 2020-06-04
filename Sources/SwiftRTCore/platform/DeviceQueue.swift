@@ -39,7 +39,7 @@ public protocol DeviceQueue: Logging {
     /// the name of the queue for diagnostics
     var name: String { get }
     /// the asynchronous operation queue
-    var queue: DispatchQueue { get set }
+    var queue: DispatchQueue { get }
     /// `true` if the queue executes work on the cpu
     var usesCpu: Bool { get }
 
@@ -58,6 +58,14 @@ public protocol DeviceQueue: Logging {
         byteCount: Int,
         heapIndex: Int
     ) throws -> DeviceMemory
+    
+    //--------------------------------------------------------------------------
+    /// copy(src:dst:
+    /// copies device memory and performs marshalling if needed
+    /// - Parameters:
+    ///  - src: the source buffer
+    ///  - dst: the destination buffer
+    func copy(from src: DeviceMemory, to dst: DeviceMemory)
     
     /// createEvent(options:
     /// creates a queue event used for synchronization and timing measurements
@@ -98,7 +106,14 @@ extension DeviceQueue {
         // allocate an aligned host memory buffer
         let buffer = UnsafeMutableRawBufferPointer
                 .allocate(byteCount: byteCount, alignment: alignment)
-        return DeviceMemory(buffer, memoryType, { buffer.deallocate() })
+        return DeviceMemory(deviceId: 0, buffer: buffer, type: memoryType,
+                            { buffer.deallocate() })
+    }
+    
+    //--------------------------------------------------------------------------
+    // copy
+    public func copy(from src: DeviceMemory, to dst: DeviceMemory) {
+        dst.buffer.copyMemory(from: UnsafeRawBufferPointer(src.buffer))
     }
     
     //--------------------------------------------------------------------------

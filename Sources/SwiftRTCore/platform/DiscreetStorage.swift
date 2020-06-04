@@ -22,8 +22,8 @@ public final class DiscreetStorage: StorageBuffer {
     public let alignment: Int
     public let byteCount: Int
     public let id: Int
-    public let isReadOnly: Bool
-    public let isReference: Bool
+    public var isReadOnly: Bool
+    public var isReference: Bool
     public let layout: Layout
     public var name: String
 
@@ -36,13 +36,6 @@ public final class DiscreetStorage: StorageBuffer {
     public var master: Int
     /// replicated device memory buffers
     public var replicas: [DeviceMemory?]
-
-    /// the host transfer buffer
-    @inlinable public var hostBuffer: UnsafeMutableRawBufferPointer {
-        assert(master == 0, "`read` or `readWrite` on device 0" +
-               " must be called prior to access")
-        return replicas[0]!.buffer
-    }
 
     //--------------------------------------------------------------------------
     // init(type:count:layout:name:
@@ -60,6 +53,7 @@ public final class DiscreetStorage: StorageBuffer {
         isReadOnly = false
         isReference = false
 
+        // setup replica managment
         master = -1
         lastMutatingQueueId = 0
         let numDevices = Context.local.platform.devices.count
@@ -72,43 +66,56 @@ public final class DiscreetStorage: StorageBuffer {
     }
     
     //--------------------------------------------------------------------------
-    // init(other:
-    @inlinable public init(copying other: DiscreetStorage) {
+    // init(copying other:
+    @inlinable public init(
+        copying other: DiscreetStorage,
+        using queue: DeviceQueue
+    ) {
+        id = Context.nextBufferId
         alignment = other.alignment
         layout = other.layout
         byteCount = other.byteCount
-        id = Context.nextBufferId
         isReadOnly = other.isReadOnly
         isReference = other.isReference
         name = other.name
-        fatalError()
 
-//        if isReference {
-//            hostBuffer = other.hostBuffer
-//        } else {
-//            hostBuffer = UnsafeMutableRawBufferPointer.allocate(
-//                byteCount: other.byteCount,
-//                alignment: other.alignment)
-//            hostBuffer.copyMemory(from: UnsafeRawBufferPointer(other.hostBuffer))
-//        }
+        // setup replica managment
+        master = -1
+        lastMutatingQueueId = 0
+        let numDevices = Context.local.platform.devices.count
+        replicas = [DeviceMemory?](repeating: nil, count: numDevices)
+
+        // copy other master to self using the current queue
+        
+        
     }
     
     //--------------------------------------------------------------------------
     // init(buffer:layout:
-    @inlinable public init<Element>(
+    @inlinable public convenience init<Element>(
         referenceTo buffer: UnsafeBufferPointer<Element>,
         layout: Layout
     ) {
-        fatalError()
+        self.init(storedType: Element.self, count: buffer.count,
+                  layout: layout, name: "Reference Tensor")
+        isReadOnly = true
+        isReference = true
+        let p = UnsafeMutableBufferPointer(mutating: buffer)
+        let raw = UnsafeMutableRawBufferPointer(p)
+        replicas[0] = DeviceMemory(deviceId: 0, buffer: raw, type: .unified)
     }
     
     //--------------------------------------------------------------------------
     // init(type:buffer:layout:
-    @inlinable public init<Element>(
+    @inlinable public convenience init<Element>(
         referenceTo buffer: UnsafeMutableBufferPointer<Element>,
         layout: Layout
     ) {
-        fatalError()
+        self.init(storedType: Element.self, count: buffer.count,
+                  layout: layout, name: "Reference Tensor")
+        isReference = true
+        let raw = UnsafeMutableRawBufferPointer(buffer)
+        replicas[0] = DeviceMemory(deviceId: 0, buffer: raw, type: .unified)
     }
     
     //--------------------------------------------------------------------------
@@ -130,22 +137,24 @@ public final class DiscreetStorage: StorageBuffer {
         using queue: PlatformType.Device.Queue
     ) -> UnsafeBufferPointer<Element>
     {
-        fatalError()
-//        let start = getMemory(queue).buffer.baseAddress!.advanced(by: offset)
-//        return UnsafeBufferPointer(start: start, count: count)
+        let start = getMemory(queue).buffer.baseAddress!
+                .bindMemory(to: Element.self, capacity: count)
+                .advanced(by: index)
+        return UnsafeBufferPointer(start: start, count: count)
     }
     
     //--------------------------------------------------------------------------
     //
     @inlinable public func readWrite<Element>(
         type: Element.Type,
-        at base: Int,
+        at index: Int,
         count: Int,
         using queue: PlatformType.Device.Queue
     ) -> UnsafeMutableBufferPointer<Element> {
-        fatalError()
-//        let start = getMemory(queue).buffer.baseAddress!.advanced(by: offset)
-//        return UnsafeMutableBufferPointer(start: start, count: count)
+        let start = getMemory(queue).buffer.baseAddress!
+                .bindMemory(to: Element.self, capacity: count)
+                .advanced(by: index)
+        return UnsafeMutableBufferPointer(start: start, count: count)
     }
     
     //--------------------------------------------------------------------------

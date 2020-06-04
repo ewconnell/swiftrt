@@ -21,7 +21,7 @@ import Foundation
 /// compute node, such as (cpu, cuda, tpu, ...)
 public protocol Platform: class, Logger {
     // types
-    associatedtype Device: PlatformDevice
+    associatedtype Device: ComputeDevice
 
     /// a collection of available compute devices
     var devices: [Device] { get }
@@ -177,10 +177,10 @@ public enum EvaluationMode {
 }
 
 //==============================================================================
-/// PlatformDevice
+/// ComputeDevice
 /// a compute device represents a physical service device installed
 /// on the platform
-public protocol PlatformDevice: class, Logger {
+public protocol ComputeDevice: class, Logger {
     associatedtype Queue: DeviceQueue
     
     /// the id of the device for example dev:0, dev:1, ...
@@ -195,25 +195,33 @@ public protocol PlatformDevice: class, Logger {
 
 //==============================================================================
 /// DeviceMemory
-public struct DeviceMemory {
+public final class DeviceMemory {
     /// base address and size of buffer
     public let buffer: UnsafeMutableRawBufferPointer
     /// function to free the memory
     public let deallocate: () -> Void
+    /// id where memory is located
+    public let deviceId: Int
     /// specifies the device memory type for data transfer
-    public let memoryType: MemoryType
+    public let type: MemoryType
     /// version
     public var version: Int
     
     @inlinable public init(
-        _ buffer: UnsafeMutableRawBufferPointer,
-        _ memoryType: MemoryType,
-        _ deallocate: @escaping () -> Void
+        deviceId: Int,
+        buffer: UnsafeMutableRawBufferPointer,
+        type: MemoryType,
+        _ deallocate: @escaping () -> Void = {}
     ) {
+        self.deviceId = deviceId
         self.buffer = buffer
-        self.memoryType = memoryType
-        self.version = -1
+        self.type = type
+        self.version = 0
         self.deallocate = deallocate
+    }
+    
+    @inlinable deinit {
+        deallocate()
     }
 }
 
@@ -275,11 +283,18 @@ public enum QueueEventError: Error {
 //==============================================================================
 /// MemoryType
 public enum MemoryType {
-    case unified, discreet
+    /// the memory is unified with the cpu address space
+    case unified
+    /// the memory is in a discreet memory address space on another device
+    /// and is not directly accessible by the cpu
+    case discreet
 }
 
 public enum DeviceQueueMode {
-    case async, sync
+    /// the device queue schedule work asynchronously
+    case async
+    /// the device queue will execute work immediately before returning
+    case sync
 }
 
 //==============================================================================

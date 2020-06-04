@@ -62,8 +62,11 @@ public final class CpuStorage: StorageBuffer {
     }
 
     //--------------------------------------------------------------------------
-    // init(other:
-    @inlinable public init(copying other: CpuStorage) {
+    // init(other:queue:
+    @inlinable public init(
+        copying other: CpuStorage,
+        using queue: DeviceQueue
+    ) {
         alignment = other.alignment
         layout = other.layout
         byteCount = other.byteCount

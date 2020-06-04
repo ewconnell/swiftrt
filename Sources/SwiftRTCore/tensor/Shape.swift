@@ -200,12 +200,9 @@ public extension TensorShape {
             return strides
         }
 
-        if layout == .row {
-            // row major
-            return computeStrides(for: self)
-            
-        } else {
-            // col major
+        switch layout {
+        case .row: return computeStrides(for: self)
+        case .col:
             var shape = self
             shape.swapAt(Self.rank - 1, Self.rank - 2)
             var strides = computeStrides(for: shape)
