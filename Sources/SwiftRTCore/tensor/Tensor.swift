@@ -32,7 +32,10 @@ where Shape: TensorShape, TensorElement: StorageElement
     /// the number of element
     public let count: Int
     /// `true` if the view will be shared by by multiple writers
-    public let isShared: Bool
+    public var isShared: Bool
+    /// a collection that maps logical coordinates to storage elements
+    /// via the current storage layout
+    @noDerivative public let logicalElements: LogicalElements<Shape, TensorElement>
     /// the dimensions of the element space
     @noDerivative public let shape: Shape
     /// the element storage buffer.
@@ -69,17 +72,13 @@ where Shape: TensorShape, TensorElement: StorageElement
 
     /// the starting index zero relative to the storage buffer
     @inlinable public var startIndex: Index {
-        stridedElements.startIndex
+        logicalElements.startIndex
     }
     
     /// the ending index zero relative to the storage buffer
     @inlinable public var endIndex: Index {
-        stridedElements.endIndex
+        logicalElements.endIndex
     }
-
-    //----------------
-    // Iterates storage elements using logical index coordinates and strides
-    @noDerivative public var stridedElements: StridedElements<Shape,TensorElement>!
 
     //--------------------------------------------------------------------------
     // sequential buffer element iterators
@@ -110,7 +109,8 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.storageBase = storageBase
         self.stridedSpanCount = stridedSpanCount
         self.isShared = shared
-        cacheElementIterator()
+        self.logicalElements =
+            LogicalElements(count, shape, strides, storage, storageBase)
     }
 
     //--------------------------------------------------------------------------
@@ -127,7 +127,8 @@ where Shape: TensorShape, TensorElement: StorageElement
                                          count: 1, layout: .row,
                                          name: "Element")
         self.storage.setElement(type: TensorElement.self, value: element, at: 0)
-        cacheElementIterator()
+        self.logicalElements =
+            LogicalElements(count, shape, strides, storage, storageBase)
     }
 }
 
@@ -270,38 +271,26 @@ public extension Tensor {
     }
     
     //--------------------------------------------------------------------------
-    /// cacheElementIterator
-    /// creates and caches a suitable element iterator dependent on layout
-    @inlinable mutating func cacheElementIterator() {
-        stridedElements = StridedElements(tensor: &self)
-    }
-    
-    //--------------------------------------------------------------------------
     /// makeIndex(position:
     /// makes an index from a logical position within `shape`
     /// - Parameters:
     ///  - position: the n-dimensional coordinate position within `shape`
     /// - Returns: the index
     @inlinable func makeIndex(at position: Shape) -> Index {
-        stridedElements.makeIndex(at: position)
+        logicalElements.makeIndex(at: position)
     }
 
     //--------------------------------------------------------------------------
     /// index(i:
     @inlinable func index(after i: Index) -> Index {
-        stridedElements.index(after: i)
+        logicalElements.index(after: i)
     }
 
     //--------------------------------------------------------------------------
     // elemment subscript
     @inlinable subscript(i: Index) -> Element {
-        get {
-            return stridedElements[i]
-        }
-        
-        set {
-            stridedElements[i] = newValue
-        }
+        get { logicalElements[i] }
+        set { logicalElements[i] = newValue }
     }
 
     //--------------------------------------------------------------------------
@@ -367,9 +356,7 @@ public extension Tensor {
                        categories: [.dataCopy, .dataMutation])
             
             storage = StorageBufferType(copying: storage, using: queue)
-            
-            // refresh iterator to point to new buffer
-            cacheElementIterator()
+            logicalElements.storage = self.storage
         }
     }
 }

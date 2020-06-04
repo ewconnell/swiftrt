@@ -51,7 +51,7 @@ extension DeviceQueue {
         if r.isBufferIterable {
             execute(r.mutableBuffer, op)
         } else {
-            execute(r.stridedElements, op)
+            execute(r.logicalElements, op)
         }
     }
 
@@ -80,7 +80,7 @@ extension DeviceQueue {
         if r.isBufferIterable {
             execute(elements, r.mutableBuffer)
         } else {
-            execute(elements, r.stridedElements)
+            execute(elements, r.logicalElements)
         }
     }
     
@@ -109,7 +109,7 @@ extension DeviceQueue {
         if r.isBufferIterable {
             execute(r.mutableBuffer, op)
         } else {
-            execute(r.stridedElements, op)
+            execute(r.logicalElements, op)
         }
     }
     
@@ -146,7 +146,7 @@ extension DeviceQueue {
         if a.isBufferIterable {
             execute(a.buffer, relements, op)
         } else {
-            execute(a.stridedElements, relements, op)
+            execute(a.logicalElements, relements, op)
         }
     }
     
@@ -177,7 +177,7 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, r) {
             execute(a.buffer, r.mutableBuffer, op)
         } else {
-            execute(a.stridedElements, r.stridedElements, op)
+            execute(a.logicalElements, r.logicalElements, op)
         }
     }
     
@@ -214,7 +214,7 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, b, r) {
             execute(a.buffer, b.buffer, r.mutableBuffer, op)
         } else {
-            execute(a.stridedElements, b.stridedElements, r.stridedElements, op)
+            execute(a.logicalElements, b.logicalElements, r.logicalElements, op)
         }
     }
 
@@ -249,7 +249,7 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, b, r) {
             execute(a.buffer, b.buffer, r.mutableBuffer)
         } else {
-            execute(a.stridedElements, b.stridedElements, r.stridedElements)
+            execute(a.logicalElements, b.logicalElements, r.logicalElements)
         }
     }
 
@@ -284,7 +284,7 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, b, r) {
             execute(a.buffer, b.buffer, r.mutableBuffer)
         } else {
-            execute(a.stridedElements, b.stridedElements, r.stridedElements)
+            execute(a.logicalElements, b.logicalElements, r.logicalElements)
         }
     }
     
@@ -319,7 +319,7 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, b, r) {
             execute(a.buffer, b.buffer, r.mutableBuffer)
         } else {
-            execute(a.stridedElements, b.stridedElements, r.stridedElements)
+            execute(a.logicalElements, b.logicalElements, r.logicalElements)
         }
     }
     
@@ -354,7 +354,7 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, b, r) {
             execute(a.buffer, b.buffer, r.mutableBuffer)
         } else {
-            execute(a.stridedElements, b.stridedElements, r.stridedElements)
+            execute(a.logicalElements, b.logicalElements, r.logicalElements)
         }
     }
     
@@ -395,8 +395,8 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, b, c, r) {
             execute(a.buffer, b.buffer, c.buffer, r.mutableBuffer, op)
         } else {
-            execute(a.stridedElements, b.stridedElements,
-                    c.stridedElements, r.stridedElements, op)
+            execute(a.logicalElements, b.logicalElements,
+                    c.logicalElements, r.logicalElements, op)
         }
     }
     
@@ -449,8 +449,8 @@ extension DeviceQueue {
             execute(a.buffer, b.buffer, c.buffer,
                     r1.mutableBuffer, r2.mutableBuffer, op)
         } else {
-            execute(a.stridedElements, b.stridedElements, c.stridedElements,
-                    r1.stridedElements, r2.stridedElements, op)
+            execute(a.logicalElements, b.logicalElements, c.logicalElements,
+                    r1.logicalElements, r2.logicalElements, op)
         }
     }
 }

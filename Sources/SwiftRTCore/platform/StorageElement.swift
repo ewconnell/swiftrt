@@ -231,7 +231,8 @@ extension Tensor where TensorElement == Bool1 {
         isShared = other.isShared
         count = other.count
         stridedSpanCount = other.stridedSpanCount
-        cacheElementIterator()
+        self.logicalElements =
+            LogicalElements(count, shape, strides, storage, storageBase)
     }
 }
 
@@ -256,7 +257,8 @@ extension Tensor where TensorElement == UInt1 {
         isShared = other.isShared
         count = other.count
         stridedSpanCount = other.stridedSpanCount
-        cacheElementIterator()
+        self.logicalElements =
+            LogicalElements(count, shape, strides, storage, storageBase)
     }
 }
 
@@ -480,6 +482,93 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
             } else {
                 let si = TensorElement.storedIndex(position)
                 TensorElement.store(value: v, at: position, to: &hostBuffer[si])
+            }
+        }
+    }
+}
+
+//==============================================================================
+/// LogicalElements
+/// a class that maps `ElementIndex`s to storage values via the current
+/// dynamic layout.
+public final class LogicalElements<Shape, TensorElement>: MutableCollection
+where Shape: TensorShape, TensorElement: StorageElement
+{
+    // properties
+    public typealias Index = ElementIndex<Shape>
+    public weak var storage: StorageBufferType!
+    public let storageBase: Int
+    public let strides: Shape
+    public let endIndex: Index
+    public var stridedElements: StridedElements<Shape,TensorElement>!
+
+    @inlinable public var startIndex: Index {
+        switch storage.layout {
+        case .row, .col:
+            // lazy create
+            if stridedElements == nil {
+                stridedElements = StridedElements()
+            }
+        }
+        return Index(Shape.zero, 0)
+    }
+
+    //--------------------------------------------------------------------------
+    /// init(tensor:
+    /// creates a storage buffer iterator for reading tensor elments
+    ///
+    /// - Parameters:
+    ///  - tensor: the tensor that will be read
+    @inlinable public init(
+        _ count: Int,
+        _ shape: Shape,
+        _ strides: Shape,
+        _ storage: StorageBufferType,
+        _ storageBase: Int
+    ) {
+        self.storage = storage
+        self.storageBase = storageBase
+        self.strides = strides
+        self.endIndex = Index(shape, count)
+    }
+
+    //--------------------------------------------------------------------------
+    /// makeIndex(position:
+    /// makes an index from a logical position within `shape`
+    /// - Parameters:
+    ///  - position: the n-dimensional coordinate position within `shape`
+    /// - Returns: the index
+    @inlinable func makeIndex(at position: Shape) -> Index {
+        switch storage.layout {
+        case .row, .col:
+            // lazy create
+            if stridedElements == nil {
+                
+            }
+            return stridedElements.makeIndex(at: position)
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    // index(after:
+    @inlinable public func index(after i: Index) -> Index {
+        switch storage.layout {
+        case .row, .col: return stridedElements.index(after: i)
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    // subscript
+    @inlinable public subscript(position: Index) -> TensorElement.Value {
+        get {
+            switch storage.layout {
+            case .row, .col: return stridedElements[position]
+            }
+        }
+        
+        set {
+            switch storage.layout {
+            case .row, .col: stridedElements[position] = newValue
             }
         }
     }
