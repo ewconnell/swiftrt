@@ -63,10 +63,7 @@ public final class CpuStorage: StorageBuffer {
 
     //--------------------------------------------------------------------------
     // init(other:queue:
-    @inlinable public init(
-        copying other: CpuStorage,
-        using queue: DeviceQueue
-    ) {
+    @inlinable public init(copying other: CpuStorage, using queue: DeviceQueue){
         alignment = other.alignment
         layout = other.layout
         byteCount = other.byteCount
@@ -169,7 +166,7 @@ public final class CpuStorage: StorageBuffer {
         type: Element.Type,
         at index: Int,
         count: Int,
-        using queue: PlatformType.Device.Queue
+        using queue: DeviceQueue
     ) -> UnsafeBufferPointer<Element> {
         read(type: type, at: index, count: count)
     }
@@ -195,7 +192,7 @@ public final class CpuStorage: StorageBuffer {
         type: Element.Type,
         at index: Int,
         count: Int,
-        using queue: PlatformType.Device.Queue
+        using queue: DeviceQueue
     ) -> UnsafeMutableBufferPointer<Element> {
         readWrite(type: type, at: index, count: count)
     }

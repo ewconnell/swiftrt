@@ -119,7 +119,7 @@ public protocol StorageBuffer: class, Logging {
         type: Element.Type,
         at index: Int,
         count: Int,
-        using queue: PlatformType.Device.Queue
+        using queue: DeviceQueue
     ) -> UnsafeBufferPointer<Element>
     
     //--------------------------------------------------------------------------
@@ -137,7 +137,7 @@ public protocol StorageBuffer: class, Logging {
         type: Element.Type,
         at index: Int,
         count: Int,
-        using queue: PlatformType.Device.Queue
+        using queue: DeviceQueue
     ) -> UnsafeMutableBufferPointer<Element>
 }
 

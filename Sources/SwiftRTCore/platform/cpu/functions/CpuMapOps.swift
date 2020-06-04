@@ -48,7 +48,6 @@ extension DeviceQueue {
         }
         
         // queue data transfers and execute
-        r.readWrite(using: self)
         if r.isBufferIterable {
             execute(r.mutableBuffer, op)
         } else {
@@ -78,7 +77,6 @@ extension DeviceQueue {
         }
         
         // queue data transfers and execute
-        r.readWrite(using: self)
         if r.isBufferIterable {
             execute(elements, r.mutableBuffer)
         } else {
@@ -108,7 +106,6 @@ extension DeviceQueue {
         }
         
         // queue data transfers and execute
-        r.readWrite(using: self)
         if r.isBufferIterable {
             execute(r.mutableBuffer, op)
         } else {
@@ -142,10 +139,6 @@ extension DeviceQueue {
             }
         }
         
-        // queue data transfers and execute
-        a.read(using: self)
-        r.readWrite(using: self)
-        
         // repeat `r`s iterator to match `a` to enable operations along axes
         let rstrides = repeatedStrides(matching: r, to: a.shape)
         let relements = StridedElements(mutating: r, a.shape, rstrides)
@@ -178,10 +171,6 @@ extension DeviceQueue {
                 zip(out.indices, i0).forEach { out[$0] = op($1) }
             }
         }
-
-        // queue data transfers and execute
-        a.read(using: self)
-        r.readWrite(using: self)
 
         // if layouts match then iterate through buffer elements,
         // iterate using logical element positions
@@ -220,12 +209,6 @@ extension DeviceQueue {
             }
         }
         
-        //------------------------------------
-        // queue data transfers
-        a.read(using: self)
-        b.read(using: self)
-        r.readWrite(using: self)
-
         // if layouts match then iterate through buffer elements,
         // iterate using logical element positions
         if haveSameStorageLayout(a, b, r) {
@@ -260,12 +243,6 @@ extension DeviceQueue {
                 }
             }
         }
-        
-        //------------------------------------
-        // queue data transfers
-        a.read(using: self)
-        b.read(using: self)
-        r.readWrite(using: self)
         
         // if layouts match then iterate through buffer elements,
         // iterate using logical element positions
@@ -302,12 +279,6 @@ extension DeviceQueue {
             }
         }
         
-        //------------------------------------
-        // queue data transfers
-        a.read(using: self)
-        b.read(using: self)
-        r.readWrite(using: self)
-        
         // if layouts match then iterate through buffer elements,
         // iterate using logical element positions
         if haveSameStorageLayout(a, b, r) {
@@ -343,12 +314,6 @@ extension DeviceQueue {
             }
         }
         
-        //------------------------------------
-        // queue data transfers
-        a.read(using: self)
-        b.read(using: self)
-        r.readWrite(using: self)
-        
         // if layouts match then iterate through buffer elements,
         // iterate using logical element positions
         if haveSameStorageLayout(a, b, r) {
@@ -383,12 +348,6 @@ extension DeviceQueue {
                 }
             }
         }
-        
-        //------------------------------------
-        // queue data transfers
-        a.read(using: self)
-        b.read(using: self)
-        r.readWrite(using: self)
         
         // if layouts match then iterate through buffer elements,
         // iterate using logical element positions
@@ -431,12 +390,6 @@ extension DeviceQueue {
                 }
             }
         }
-        
-        // queue data transfers
-        a.read(using: self)
-        b.read(using: self)
-        c.read(using: self)
-        r.readWrite(using: self)
         
         // execute right layout combination
         if haveSameStorageLayout(a, b, c, r) {
@@ -491,14 +444,6 @@ extension DeviceQueue {
             }
         }
         
-        //------------------------------------
-        // queue data transfers
-        a.read(using: self)
-        b.read(using: self)
-        c.read(using: self)
-        r1.readWrite(using: self)
-        r2.readWrite(using: self)
-
         // execute right layout combination
         if haveSameStorageLayout(a, b, c, r1, r2) {
             execute(a.buffer, b.buffer, c.buffer,

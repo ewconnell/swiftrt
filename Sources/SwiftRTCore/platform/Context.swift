@@ -28,8 +28,8 @@ public typealias PlatformType = CudaService
 public typealias StorageBufferType = DiscreetStorage
 #else
 public typealias PlatformType = CpuService
-public typealias StorageBufferType = DiscreetStorage
-//public typealias StorageBufferType = CpuStorage
+//public typealias StorageBufferType = DiscreetStorage
+public typealias StorageBufferType = CpuStorage
 #endif
 
 //==============================================================================

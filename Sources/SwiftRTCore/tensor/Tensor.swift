@@ -84,11 +84,11 @@ where Shape: TensorShape, TensorElement: StorageElement
     //--------------------------------------------------------------------------
     // sequential buffer element iterators
     @inlinable public var buffer: BufferElements<Shape,TensorElement> {
-        BufferElements(self)
+        BufferElements(tensor: self)
     }
 
     @inlinable public var mutableBuffer: BufferElements<Shape,TensorElement> {
-        BufferElements(mutating: self)
+        mutating get { BufferElements(tensor: &self) }
     }
 
     //--------------------------------------------------------------------------
@@ -273,7 +273,7 @@ public extension Tensor {
     /// cacheElementIterator
     /// creates and caches a suitable element iterator dependent on layout
     @inlinable mutating func cacheElementIterator() {
-        stridedElements = StridedElements(mutating: self)
+        stridedElements = StridedElements(tensor: &self)
     }
     
     //--------------------------------------------------------------------------
@@ -296,12 +296,10 @@ public extension Tensor {
     // elemment subscript
     @inlinable subscript(i: Index) -> Element {
         get {
-            read()
             return stridedElements[i]
         }
         
         set {
-            readWrite()
             stridedElements[i] = newValue
         }
     }
@@ -312,7 +310,7 @@ public extension Tensor {
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
         get { createView(lower, upper, isShared) }
         set {
-            readWrite()
+            prepareForWrite(using: Context.currentQueue)
             var view = createView(lower, upper, true)
             copy(from: newValue, to: &view)
         }
@@ -398,12 +396,16 @@ extension Tensor where TensorElement.Value: DifferentiableElement {
 public extension Tensor {
     //--------------------------------------------------------------------------
     /// `read`
-    /// Synchronizes the collection of elements with the caller for reading
-    /// This function blocks until the elements are available.
+    /// Synchronizes the collection of stored elements with the caller
+    /// for reading. This function blocks until the elements are available.
     /// `Elements` are accessed by the application using `Collection`
     /// enumeration via `indices` or integer subscripting.
-    @inlinable func read() {
+    @inlinable func read() -> UnsafeBufferPointer<TensorElement.Stored> {
+        let (i, storedCount) = TensorElement
+                .storedRange(start: storageBase, count: stridedSpanCount)
         
+        return storage.read(type: TensorElement.Stored.self, at: i,
+                            count: storedCount)
     }
     
     //--------------------------------------------------------------------------
@@ -414,7 +416,14 @@ public extension Tensor {
     /// head of the queue.
     ///
     /// - Parameter queue: the device queue to use for synchronization
-    @inlinable func read(using queue: DeviceQueue) {
+    @inlinable func read(
+        using queue: DeviceQueue
+    ) -> UnsafeBufferPointer<TensorElement.Stored> {
+        let (i, storedCount) = TensorElement
+                .storedRange(start: storageBase, count: stridedSpanCount)
+
+        return storage.read(type: TensorElement.Stored.self, at: i,
+                            count: storedCount, using: queue)
     }
 
     //--------------------------------------------------------------------------
@@ -423,8 +432,16 @@ public extension Tensor {
     /// This function blocks until the elements are available.
     /// `Elements` are accessed by the application using `MutableCollection`
     /// enumeration via `indices` or subscripting.
-    @inlinable mutating func readWrite() {
+    @inlinable mutating func readWrite()
+    -> UnsafeMutableBufferPointer<TensorElement.Stored>
+    {
         prepareForWrite(using: Context.cpuQueue(0))
+
+        let (i, storedCount) = TensorElement
+                .storedRange(start: storageBase, count: stridedSpanCount)
+        
+        return storage.readWrite(type: TensorElement.Stored.self, at: i,
+                                 count: storedCount)
     }
     
     //--------------------------------------------------------------------------
@@ -435,8 +452,16 @@ public extension Tensor {
     /// head of the queue.
     ///
     /// - Parameter queue: the device queue to use for synchronization
-    @inlinable mutating func readWrite(using queue: DeviceQueue) {
+    @inlinable mutating func readWrite(using queue: DeviceQueue)
+    -> UnsafeMutableBufferPointer<TensorElement.Stored>
+    {
         prepareForWrite(using: queue)
+
+        let (i, storedCount) = TensorElement
+                .storedRange(start: storageBase, count: stridedSpanCount)
+        
+        return storage.readWrite(type: TensorElement.Stored.self, at: i,
+                                 count: storedCount, using: queue)
     }
 }
 

@@ -134,7 +134,7 @@ public final class DiscreetStorage: StorageBuffer {
         type: Element.Type,
         at index: Int,
         count: Int,
-        using queue: PlatformType.Device.Queue
+        using queue: DeviceQueue
     ) -> UnsafeBufferPointer<Element>
     {
         let start = getMemory(queue).buffer.baseAddress!
@@ -149,7 +149,7 @@ public final class DiscreetStorage: StorageBuffer {
         type: Element.Type,
         at index: Int,
         count: Int,
-        using queue: PlatformType.Device.Queue
+        using queue: DeviceQueue
     ) -> UnsafeMutableBufferPointer<Element> {
         let start = getMemory(queue).buffer.baseAddress!
                 .bindMemory(to: Element.self, capacity: count)
@@ -161,9 +161,7 @@ public final class DiscreetStorage: StorageBuffer {
     // getMemory
     // Manages an array of replicated device memory indexed by the deviceId
     // assoicated with `stream`. It will lazily create device memory if needed
-    @inlinable public func getMemory(
-        _ queue: PlatformType.Device.Queue
-    ) -> DeviceMemory {
+    @inlinable public func getMemory(_ queue: DeviceQueue) -> DeviceMemory {
         if let memory = replicas[queue.deviceId] {
             if memory.version == replicas[master]!.version {
                 return memory

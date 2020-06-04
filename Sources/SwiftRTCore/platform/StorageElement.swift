@@ -412,24 +412,17 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
     ///
     /// - Parameters:
     ///  - tensor: the tensor that will be read
-    @inlinable public init(_ tensor: Tensor<Shape, TensorElement>) {
+    @inlinable public init(tensor: Tensor<Shape, TensorElement>) {
         assert(tensor.isBufferIterable, "tensor layout is not buffer iterable")
-        
-        // convert logical base and strided span count to stored.
-        // They will not be equal for packed element types like `Int4`
-        isSingleElement = tensor.isSingleElement
-        let (storedBase, storedCount) = TensorElement
-                .storedRange(start: tensor.storageBase,
-                             count: tensor.stridedSpanCount)
-        
+
         // make the data range available for reading by the cpu
-        let buff = tensor.storage.read(type: TensorElement.Stored.self,
-                                       at: storedBase, count: storedCount)
+        isSingleElement = tensor.isSingleElement
+        let buffer = tensor.read()
         
         // Init members and note that this does not actually mutate, even
         // though we commonly hold a mutable buffer pointer
-        let p = UnsafeMutablePointer(mutating: buff.baseAddress)
-        hostBuffer = UnsafeMutableBufferPointer(start: p, count: buff.count)
+        let p = UnsafeMutablePointer(mutating: buffer.baseAddress)
+        hostBuffer = UnsafeMutableBufferPointer(start: p, count: buffer.count)
         
         // `startIndex` is the logical position of the first
         // `Value` type within the `Stored` type.
@@ -445,19 +438,15 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
     ///
     /// - Parameters:
     ///  - tensor: the tensor that will be written
-    @inlinable public init(mutating tensor: Tensor<Shape, TensorElement>) {
+    @inlinable public init(tensor: inout Tensor<Shape, TensorElement>) {
         assert(tensor.isBufferIterable, "tensor layout is not buffer iterable")
 
         // convert logical base and strided span count to stored.
         // They will not be equal for packed element types like `Int4`
         isSingleElement = tensor.isSingleElement
-        let (storedBase, storedCount) = TensorElement
-                .storedRange(start: tensor.storageBase,
-                             count: tensor.stridedSpanCount)
 
         // make the data range available for reading/writing by the cpu
-        hostBuffer = tensor.storage.readWrite(type: TensorElement.Stored.self,
-                                              at: storedBase, count: storedCount)
+        hostBuffer = tensor.readWrite()
         
         // `startIndex` is the logical position of the first
         // `Value` type within the `Stored` type.
@@ -517,20 +506,8 @@ where Shape: TensorShape, TensorElement: StorageElement
     ///
     /// - Parameters:
     ///  - tensor: the tensor that will be read
-    @inlinable public init(_ tensor: Tensor<Shape, TensorElement>) {
-        // convert logical base and strided span count to stored.
-        // They will not be equal for packed element types like `Int4`
-        let (storedBase, storedCount) = TensorElement
-                .storedRange(start: tensor.storageBase,
-                             count: tensor.stridedSpanCount)
-
-        // make the data range available for reading by the cpu
-        let buff = tensor.storage.read(type: TensorElement.Stored.self,
-                                       at: storedBase,
-                                       count: storedCount)
-        
-        // Init members and note that this does not actually mutate, even
-        // though we commonly hold a mutable buffer pointer
+    @inlinable public init(tensor: Tensor<Shape, TensorElement>) {
+        let buff = tensor.read()
         let p = UnsafeMutablePointer(mutating: buff.baseAddress)
         hostBuffer = UnsafeMutableBufferPointer(start: p, count: buff.count)
         alignment = TensorElement.alignment(tensor.storageBase)
@@ -546,18 +523,8 @@ where Shape: TensorShape, TensorElement: StorageElement
     ///
     /// - Parameters:
     ///  - tensor: the tensor that will be written
-    @inlinable public init(mutating tensor: Tensor<Shape, TensorElement>) {
-        // convert logical base and strided span count to stored.
-        // They will not be equal for packed element types like `Int4`
-        let (storedBase, storedCount) = TensorElement
-                .storedRange(start: tensor.storageBase,
-                             count: tensor.stridedSpanCount)
-
-        // make the data range available for reading/writing by the cpu
-        hostBuffer = tensor.storage.readWrite(type: TensorElement.Stored.self,
-                                              at: storedBase,
-                                              count: storedCount)
-        
+    @inlinable public init(tensor: inout Tensor<Shape, TensorElement>) {
+        hostBuffer = tensor.readWrite()
         alignment = TensorElement.alignment(tensor.storageBase)
         logicalStrides = tensor.shape.strides(for: tensor.layout)
         strides = tensor.strides

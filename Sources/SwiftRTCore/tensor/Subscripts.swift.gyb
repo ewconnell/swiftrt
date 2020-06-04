@@ -48,12 +48,10 @@ public extension Tensor where Shape == Shape${n} {
     @inlinable
     subscript(${', '.join(['d' + str(i) + ': Int' for i in range(n)])}) -> Element {
         get {
-            read()
-            return self[makeIndex(at: Shape${n}(${', '.join(['d' + str(i) for i in range(n)])}))]
+            self[makeIndex(at: Shape${n}(${', '.join(['d' + str(i) for i in range(n)])}))]
         }
         set {
-            readWrite()
-            return self[makeIndex(at: Shape${n}(${', '.join(['d' + str(i) for i in range(n)])}))] = newValue
+            self[makeIndex(at: Shape${n}(${', '.join(['d' + str(i) for i in range(n)])}))] = newValue
         }
     }
 

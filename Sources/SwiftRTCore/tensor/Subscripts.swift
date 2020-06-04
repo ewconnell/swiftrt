@@ -44,18 +44,16 @@ public extension Tensor where Shape == Shape1 {
     @inlinable
     subscript(d0: Int) -> Element {
         get {
-            read()
-            return self[makeIndex(at: Shape1(d0))]
+            self[makeIndex(at: Shape1(d0))]
         }
         set {
-            readWrite()
-            return self[makeIndex(at: Shape1(d0))] = newValue
+            self[makeIndex(at: Shape1(d0))] = newValue
         }
     }
 
     /// - Returns: the sub view defined by the range
     @inlinable
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     subscript<R0>(r0: R0) -> Self where
         R0: SignedRangeExpression
     {
@@ -82,18 +80,16 @@ public extension Tensor where Shape == Shape2 {
     @inlinable
     subscript(d0: Int, d1: Int) -> Element {
         get {
-            read()
-            return self[makeIndex(at: Shape2(d0, d1))]
+            self[makeIndex(at: Shape2(d0, d1))]
         }
         set {
-            readWrite()
-            return self[makeIndex(at: Shape2(d0, d1))] = newValue
+            self[makeIndex(at: Shape2(d0, d1))] = newValue
         }
     }
 
     /// - Returns: the sub view defined by the range
     @inlinable
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     subscript<R0, R1>(r0: R0, r1: R1) -> Self where
         R0: SignedRangeExpression,
         R1: SignedRangeExpression
@@ -123,18 +119,16 @@ public extension Tensor where Shape == Shape3 {
     @inlinable
     subscript(d0: Int, d1: Int, d2: Int) -> Element {
         get {
-            read()
-            return self[makeIndex(at: Shape3(d0, d1, d2))]
+            self[makeIndex(at: Shape3(d0, d1, d2))]
         }
         set {
-            readWrite()
-            return self[makeIndex(at: Shape3(d0, d1, d2))] = newValue
+            self[makeIndex(at: Shape3(d0, d1, d2))] = newValue
         }
     }
 
     /// - Returns: the sub view defined by the range
     @inlinable
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     subscript<R0, R1, R2>(r0: R0, r1: R1, r2: R2) -> Self where
         R0: SignedRangeExpression,
         R1: SignedRangeExpression,
@@ -167,18 +161,16 @@ public extension Tensor where Shape == Shape4 {
     @inlinable
     subscript(d0: Int, d1: Int, d2: Int, d3: Int) -> Element {
         get {
-            read()
-            return self[makeIndex(at: Shape4(d0, d1, d2, d3))]
+            self[makeIndex(at: Shape4(d0, d1, d2, d3))]
         }
         set {
-            readWrite()
-            return self[makeIndex(at: Shape4(d0, d1, d2, d3))] = newValue
+            self[makeIndex(at: Shape4(d0, d1, d2, d3))] = newValue
         }
     }
 
     /// - Returns: the sub view defined by the range
     @inlinable
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     subscript<R0, R1, R2, R3>(r0: R0, r1: R1, r2: R2, r3: R3) -> Self where
         R0: SignedRangeExpression,
         R1: SignedRangeExpression,
@@ -214,18 +206,16 @@ public extension Tensor where Shape == Shape5 {
     @inlinable
     subscript(d0: Int, d1: Int, d2: Int, d3: Int, d4: Int) -> Element {
         get {
-            read()
-            return self[makeIndex(at: Shape5(d0, d1, d2, d3, d4))]
+            self[makeIndex(at: Shape5(d0, d1, d2, d3, d4))]
         }
         set {
-            readWrite()
-            return self[makeIndex(at: Shape5(d0, d1, d2, d3, d4))] = newValue
+            self[makeIndex(at: Shape5(d0, d1, d2, d3, d4))] = newValue
         }
     }
 
     /// - Returns: the sub view defined by the range
     @inlinable
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     subscript<R0, R1, R2, R3, R4>(r0: R0, r1: R1, r2: R2, r3: R3, r4: R4) -> Self where
         R0: SignedRangeExpression,
         R1: SignedRangeExpression,
@@ -264,18 +254,16 @@ public extension Tensor where Shape == Shape6 {
     @inlinable
     subscript(d0: Int, d1: Int, d2: Int, d3: Int, d4: Int, d5: Int) -> Element {
         get {
-            read()
-            return self[makeIndex(at: Shape6(d0, d1, d2, d3, d4, d5))]
+            self[makeIndex(at: Shape6(d0, d1, d2, d3, d4, d5))]
         }
         set {
-            readWrite()
-            return self[makeIndex(at: Shape6(d0, d1, d2, d3, d4, d5))] = newValue
+            self[makeIndex(at: Shape6(d0, d1, d2, d3, d4, d5))] = newValue
         }
     }
 
     /// - Returns: the sub view defined by the range
     @inlinable
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where Element: DifferentiableElement)
     subscript<R0, R1, R2, R3, R4, R5>(r0: R0, r1: R1, r2: R2, r3: R3, r4: R4, r5: R5) -> Self where
         R0: SignedRangeExpression,
         R1: SignedRangeExpression,
