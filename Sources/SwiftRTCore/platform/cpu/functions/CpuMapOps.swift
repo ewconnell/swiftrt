@@ -51,7 +51,7 @@ extension DeviceQueue {
         if r.isBufferIterable {
             execute(r.mutableBuffer, op)
         } else {
-            execute(r.logicalElements, op)
+            execute(r.mutableElements, op)
         }
     }
 
@@ -80,7 +80,7 @@ extension DeviceQueue {
         if r.isBufferIterable {
             execute(elements, r.mutableBuffer)
         } else {
-            execute(elements, r.logicalElements)
+            execute(elements, r.mutableElements)
         }
     }
     
@@ -109,7 +109,7 @@ extension DeviceQueue {
         if r.isBufferIterable {
             execute(r.mutableBuffer, op)
         } else {
-            execute(r.logicalElements, op)
+            execute(r.mutableElements, op)
         }
     }
     
@@ -139,14 +139,19 @@ extension DeviceQueue {
             }
         }
         
-        // repeat `r`s iterator to match `a` to enable operations along axes
-        let rstrides = repeatedStrides(matching: r, to: a.shape)
-        let relements = StridedElements(mutating: r, a.shape, rstrides)
+        // repeat `r`s to match `a`'s shape to enable operations along axes
+        let rMutableElements = LogicalElements<S,RE>(
+                r.count,
+                a.shape,
+                repeatedStrides(matching: r, to: a.shape),
+                r.storage,
+                r.storageBase,
+                r.stridedSpanCount)
 
         if a.isBufferIterable {
-            execute(a.buffer, relements, op)
+            execute(a.buffer, rMutableElements, op)
         } else {
-            execute(a.logicalElements, relements, op)
+            execute(a.elements, rMutableElements, op)
         }
     }
     
@@ -177,7 +182,7 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, r) {
             execute(a.buffer, r.mutableBuffer, op)
         } else {
-            execute(a.logicalElements, r.logicalElements, op)
+            execute(a.elements, r.mutableElements, op)
         }
     }
     
@@ -214,7 +219,7 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, b, r) {
             execute(a.buffer, b.buffer, r.mutableBuffer, op)
         } else {
-            execute(a.logicalElements, b.logicalElements, r.logicalElements, op)
+            execute(a.elements, b.elements, r.mutableElements, op)
         }
     }
 
@@ -249,7 +254,7 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, b, r) {
             execute(a.buffer, b.buffer, r.mutableBuffer)
         } else {
-            execute(a.logicalElements, b.logicalElements, r.logicalElements)
+            execute(a.elements, b.elements, r.mutableElements)
         }
     }
 
@@ -284,7 +289,7 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, b, r) {
             execute(a.buffer, b.buffer, r.mutableBuffer)
         } else {
-            execute(a.logicalElements, b.logicalElements, r.logicalElements)
+            execute(a.elements, b.elements, r.mutableElements)
         }
     }
     
@@ -319,7 +324,7 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, b, r) {
             execute(a.buffer, b.buffer, r.mutableBuffer)
         } else {
-            execute(a.logicalElements, b.logicalElements, r.logicalElements)
+            execute(a.elements, b.elements, r.mutableElements)
         }
     }
     
@@ -354,7 +359,7 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, b, r) {
             execute(a.buffer, b.buffer, r.mutableBuffer)
         } else {
-            execute(a.logicalElements, b.logicalElements, r.logicalElements)
+            execute(a.elements, b.elements, r.mutableElements)
         }
     }
     
@@ -395,8 +400,7 @@ extension DeviceQueue {
         if haveSameStorageLayout(a, b, c, r) {
             execute(a.buffer, b.buffer, c.buffer, r.mutableBuffer, op)
         } else {
-            execute(a.logicalElements, b.logicalElements,
-                    c.logicalElements, r.logicalElements, op)
+            execute(a.elements, b.elements, c.elements, r.mutableElements, op)
         }
     }
     
@@ -449,8 +453,8 @@ extension DeviceQueue {
             execute(a.buffer, b.buffer, c.buffer,
                     r1.mutableBuffer, r2.mutableBuffer, op)
         } else {
-            execute(a.logicalElements, b.logicalElements, c.logicalElements,
-                    r1.logicalElements, r2.logicalElements, op)
+            execute(a.elements, b.elements, c.elements,
+                    r1.mutableElements, r2.mutableElements, op)
         }
     }
 }
