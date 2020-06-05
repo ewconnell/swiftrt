@@ -71,30 +71,6 @@ where Shape: TensorShape, TensorElement: StorageElement
     @inlinable public var isBufferIterable: Bool {
         isSingleElement || stridedSpanCount == count
     }
-
-    //--------------------------------------------------------------------------
-    // sequential buffer element iterators
-    @inlinable public var buffer: BufferElements<Shape,TensorElement> {
-        BufferElements(tensor: self)
-    }
-
-    @inlinable public var mutableBuffer: BufferElements<Shape,TensorElement> {
-        mutating get { BufferElements(tensor: &self) }
-    }
-
-    //--------------------------------------------------------------------------
-    // logical coordinate element iterators
-    @inlinable public var elements: LogicalElements<Shape,TensorElement> {
-        logicalElements.synchronizeForRead()
-        return logicalElements
-    }
-    
-    @inlinable public var mutableElements: LogicalElements<Shape,TensorElement> {
-        mutating get {
-            logicalElements.synchronizeForReadWrite()
-            return logicalElements
-        }
-    }
     
     //--------------------------------------------------------------------------
     /// init(
@@ -281,11 +257,29 @@ public struct ElementIndex<Shape>: Comparable, Codable
 // Tensor collection and sub view extensions
 public extension Tensor {
     //--------------------------------------------------------------------------
-    /// - Returns: the collection elements as a 1D Swift array
-    @inlinable var flatArray: [Element] {
-        [Element](self)
+    // sequential buffer element iterators
+    @inlinable var buffer: BufferElements<Shape,TensorElement> {
+        BufferElements(tensor: self)
     }
-        
+    
+    @inlinable var mutableBuffer: BufferElements<Shape,TensorElement> {
+        mutating get { BufferElements(tensor: &self) }
+    }
+    
+    //--------------------------------------------------------------------------
+    // logical coordinate element iterators
+    @inlinable var elements: LogicalElements<Shape,TensorElement> {
+        logicalElements.synchronizeForRead()
+        return logicalElements
+    }
+    
+    @inlinable var mutableElements: LogicalElements<Shape,TensorElement> {
+        mutating get {
+            logicalElements.synchronizeForReadWrite()
+            return logicalElements
+        }
+    }
+
     //--------------------------------------------------------------------------
     /// the starting index zero relative to the storage buffer
     @inlinable var startIndex: Index {
@@ -388,6 +382,12 @@ public extension Tensor {
             storage = StorageBufferType(copying: storage, using: queue)
             logicalElements.storage = self.storage
         }
+    }
+
+    //--------------------------------------------------------------------------
+    /// - Returns: the collection elements as a 1D Swift array
+    @inlinable var flatArray: [Element] {
+        [Element](self)
     }
 }
 
