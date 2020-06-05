@@ -35,7 +35,9 @@ where Shape: TensorShape, TensorElement: StorageElement
     public var isShared: Bool
     /// a collection that maps logical coordinates to storage elements
     /// via the current storage layout
-    @noDerivative public let logicalElements: LogicalElements<Shape, TensorElement>
+    public let logicalElements: LogicalElements<Shape, TensorElement>
+    /// the strides to traverse `shape` in logical coordinates
+    public let logicalStrides: Shape
     /// the dimensions of the element space
     @noDerivative public let shape: Shape
     /// the element storage buffer.
@@ -70,16 +72,6 @@ where Shape: TensorShape, TensorElement: StorageElement
         isSingleElement || stridedSpanCount == count
     }
 
-    /// the starting index zero relative to the storage buffer
-    @inlinable public var startIndex: Index {
-        logicalElements.startIndex
-    }
-    
-    /// the ending index zero relative to the storage buffer
-    @inlinable public var endIndex: Index {
-        logicalElements.endIndex
-    }
-
     //--------------------------------------------------------------------------
     // sequential buffer element iterators
     @inlinable public var buffer: BufferElements<Shape,TensorElement> {
@@ -90,6 +82,20 @@ where Shape: TensorShape, TensorElement: StorageElement
         mutating get { BufferElements(tensor: &self) }
     }
 
+    //--------------------------------------------------------------------------
+    // logical coordinate element iterators
+    @inlinable public var elements: LogicalElements<Shape,TensorElement> {
+        logicalElements.synchronizeForRead()
+        return logicalElements
+    }
+    
+    @inlinable public var mutableElements: LogicalElements<Shape,TensorElement> {
+        mutating get {
+            logicalElements.synchronizeForReadWrite()
+            return logicalElements
+        }
+    }
+    
     //--------------------------------------------------------------------------
     /// init(
     /// Used to initialize an element collection subview
@@ -109,8 +115,13 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.storageBase = storageBase
         self.stridedSpanCount = stridedSpanCount
         self.isShared = shared
-        self.logicalElements =
-            LogicalElements(count, shape, strides, storage, storageBase)
+        logicalStrides = shape.strides(for: storage.layout)
+        logicalElements = LogicalElements(count,
+                                          shape,
+                                          strides,
+                                          storage,
+                                          storageBase,
+                                          stridedSpanCount)
     }
 
     //--------------------------------------------------------------------------
@@ -127,8 +138,13 @@ where Shape: TensorShape, TensorElement: StorageElement
                                          count: 1, layout: .row,
                                          name: "Element")
         self.storage.setElement(type: TensorElement.self, value: element, at: 0)
-        self.logicalElements =
-            LogicalElements(count, shape, strides, storage, storageBase)
+        logicalStrides = shape.strides(for: storage.layout)
+        logicalElements = LogicalElements(count,
+                                          shape,
+                                          strides,
+                                          storage,
+                                          storageBase,
+                                          stridedSpanCount)
     }
 }
 
@@ -269,7 +285,20 @@ public extension Tensor {
     @inlinable var flatArray: [Element] {
         [Element](self)
     }
+        
+    //--------------------------------------------------------------------------
+    /// the starting index zero relative to the storage buffer
+    @inlinable var startIndex: Index {
+        logicalElements.synchronizeForReadWrite()
+        return logicalElements.startIndex
+    }
     
+    //--------------------------------------------------------------------------
+    /// the ending index zero relative to the storage buffer
+    @inlinable var endIndex: Index {
+        logicalElements.endIndex
+    }
+
     //--------------------------------------------------------------------------
     /// makeIndex(position:
     /// makes an index from a logical position within `shape`
@@ -277,7 +306,8 @@ public extension Tensor {
     ///  - position: the n-dimensional coordinate position within `shape`
     /// - Returns: the index
     @inlinable func makeIndex(at position: Shape) -> Index {
-        logicalElements.makeIndex(at: position)
+        logicalElements.synchronizeForReadWrite()
+        return Index(position, position.index(stridedBy: logicalStrides))
     }
 
     //--------------------------------------------------------------------------

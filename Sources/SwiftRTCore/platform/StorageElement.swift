@@ -231,8 +231,13 @@ extension Tensor where TensorElement == Bool1 {
         isShared = other.isShared
         count = other.count
         stridedSpanCount = other.stridedSpanCount
-        self.logicalElements =
-            LogicalElements(count, shape, strides, storage, storageBase)
+        logicalStrides = other.logicalStrides
+        logicalElements = LogicalElements(count,
+                                          shape,
+                                          strides,
+                                          storage,
+                                          storageBase,
+                                          stridedSpanCount)
     }
 }
 
@@ -257,8 +262,13 @@ extension Tensor where TensorElement == UInt1 {
         isShared = other.isShared
         count = other.count
         stridedSpanCount = other.stridedSpanCount
-        self.logicalElements =
-            LogicalElements(count, shape, strides, storage, storageBase)
+        logicalStrides = other.logicalStrides
+        logicalElements = LogicalElements(count,
+                                          shape,
+                                          strides,
+                                          storage,
+                                          storageBase,
+                                          stridedSpanCount)
     }
 }
 
@@ -496,22 +506,14 @@ where Shape: TensorShape, TensorElement: StorageElement
 {
     // properties
     public typealias Index = ElementIndex<Shape>
+    public let alignment: Int
+    public var hostBuffer: UnsafeMutableBufferPointer<TensorElement.Stored>
     public weak var storage: StorageBufferType!
-    public let storageBase: Int
+    public let storedBase: Int
+    public let storedCount: Int
     public let strides: Shape
+    public let startIndex: Index
     public let endIndex: Index
-    public var stridedElements: StridedElements<Shape,TensorElement>!
-
-    @inlinable public var startIndex: Index {
-        switch storage.layout {
-        case .row, .col:
-            // lazy create
-            if stridedElements == nil {
-                stridedElements = StridedElements()
-            }
-        }
-        return Index(Shape.zero, 0)
-    }
 
     //--------------------------------------------------------------------------
     /// init(tensor:
@@ -519,41 +521,67 @@ where Shape: TensorShape, TensorElement: StorageElement
     ///
     /// - Parameters:
     ///  - tensor: the tensor that will be read
+    @inlinable public convenience init(tensor: Tensor<Shape, TensorElement>) {
+        self.init(tensor.count,
+                  tensor.shape,
+                  tensor.strides,
+                  tensor.storage,
+                  tensor.storageBase,
+                  tensor.stridedSpanCount)
+    }
+    
+    //--------------------------------------------------------------------------
+    /// init
+    /// This initializer is called by `Tensor` initializers to setup for
+    /// possible direct element indexing by the user. The host buffer is
+    /// set to `nil` and requires that `synchronizeForReadWrite` be called
+    /// before any access to storage.
+    /// `Tensor.startIndex` and `Tensor.makeIndex` call this function each
+    /// time to transparently sync for the user.
     @inlinable public init(
         _ count: Int,
         _ shape: Shape,
         _ strides: Shape,
         _ storage: StorageBufferType,
-        _ storageBase: Int
+        _ storageBase: Int,
+        _ stridedSpanCount: Int
     ) {
-        self.storage = storage
-        self.storageBase = storageBase
+        self.alignment = TensorElement.alignment(storageBase)
         self.strides = strides
-        self.endIndex = Index(shape, count)
+        self.storage = storage
+        let (storedBase, storedCount) =
+                TensorElement.storedRange(start: storageBase,
+                                          count: stridedSpanCount)
+        self.storedBase = storedBase
+        self.storedCount = storedCount
+        startIndex = Index(Shape.zero, 0)
+        endIndex = Index(shape, count)
+        hostBuffer = UnsafeMutableBufferPointer(start: nil, count: 0)
     }
-
+    
     //--------------------------------------------------------------------------
-    /// makeIndex(position:
-    /// makes an index from a logical position within `shape`
-    /// - Parameters:
-    ///  - position: the n-dimensional coordinate position within `shape`
-    /// - Returns: the index
-    @inlinable func makeIndex(at position: Shape) -> Index {
-        switch storage.layout {
-        case .row, .col:
-            // lazy create
-            if stridedElements == nil {
-                
-            }
-            return stridedElements.makeIndex(at: position)
-        }
+    // synchronizeForRead
+    @inlinable public func synchronizeForRead() {
+        let buff = storage.read(type: TensorElement.Stored.self,
+                                at: storedBase, count: storedCount)
+        // this never actually mutates
+        let p = UnsafeMutablePointer(mutating: buff.baseAddress)
+        hostBuffer = UnsafeMutableBufferPointer(start: p, count: buff.count)
+    }
+    
+    //--------------------------------------------------------------------------
+    // synchronizeForReadWrite
+    @inlinable public func synchronizeForReadWrite() {
+        hostBuffer = storage.readWrite(type: TensorElement.Stored.self,
+                                       at: storedBase, count: storedCount)
     }
     
     //--------------------------------------------------------------------------
     // index(after:
     @inlinable public func index(after i: Index) -> Index {
         switch storage.layout {
-        case .row, .col: return stridedElements.index(after: i)
+        case .row, .col:
+            return i.incremented(between: startIndex, and: endIndex)
         }
     }
     
@@ -562,13 +590,25 @@ where Shape: TensorShape, TensorElement: StorageElement
     @inlinable public subscript(position: Index) -> TensorElement.Value {
         get {
             switch storage.layout {
-            case .row, .col: return stridedElements[position]
+            case .row, .col:
+                // get logical strided linear element position
+                let i = position.linearIndex(strides) + alignment
+                
+                // convert to stored index which might be less for packed elements
+                let si = TensorElement.storedIndex(i)
+                return TensorElement.value(at: i, from: hostBuffer[si])
             }
         }
         
         set {
             switch storage.layout {
-            case .row, .col: stridedElements[position] = newValue
+            case .row, .col:
+                // get logical strided linear element position
+                let i = position.linearIndex(strides) + alignment
+                
+                // convert to stored index which might be less for packed elements
+                let si = TensorElement.storedIndex(i)
+                TensorElement.store(value: newValue, at: i, to: &hostBuffer[si])
             }
         }
     }
@@ -584,7 +624,6 @@ where Shape: TensorShape, TensorElement: StorageElement
     public typealias Index = ElementIndex<Shape>
     public let alignment: Int
     public let hostBuffer: UnsafeMutableBufferPointer<TensorElement.Stored>
-    public let logicalStrides: Shape
     public let strides: Shape
     public let startIndex: Index
     public let endIndex: Index
@@ -600,7 +639,6 @@ where Shape: TensorShape, TensorElement: StorageElement
         let p = UnsafeMutablePointer(mutating: buff.baseAddress)
         hostBuffer = UnsafeMutableBufferPointer(start: p, count: buff.count)
         alignment = TensorElement.alignment(tensor.storageBase)
-        logicalStrides = tensor.shape.strides(for: tensor.layout)
         strides = tensor.strides
         startIndex = Index(Shape.zero, 0)
         endIndex = Index(tensor.shape, tensor.count)
@@ -615,7 +653,6 @@ where Shape: TensorShape, TensorElement: StorageElement
     @inlinable public init(tensor: inout Tensor<Shape, TensorElement>) {
         hostBuffer = tensor.readWrite()
         alignment = TensorElement.alignment(tensor.storageBase)
-        logicalStrides = tensor.shape.strides(for: tensor.layout)
         strides = tensor.strides
         startIndex = Index(Shape.zero, 0)
         endIndex = Index(tensor.shape, tensor.count)
@@ -634,7 +671,6 @@ where Shape: TensorShape, TensorElement: StorageElement
     ) {
         // override for reduction projection
         self.strides = strides
-        logicalStrides = shape.strides(for: tensor.layout)
         
         // convert logical base and strided span count to stored.
         // They will not be equal for packed element types like `Int4`
@@ -650,16 +686,6 @@ where Shape: TensorShape, TensorElement: StorageElement
         endIndex = Index(shape, shape.elementCount())
     }
     
-    //--------------------------------------------------------------------------
-    /// makeIndex(position:
-    /// makes an index from a logical position within `shape`
-    /// - Parameters:
-    ///  - position: the n-dimensional coordinate position within `shape`
-    /// - Returns: the index
-    @inlinable func makeIndex(at position: Shape) -> Index {
-        Index(position,  position.index(stridedBy: logicalStrides))
-    }
-
     //--------------------------------------------------------------------------
     // index(after:
     @inlinable public func index(after i: Index) -> Index {
