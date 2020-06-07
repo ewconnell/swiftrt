@@ -141,12 +141,14 @@ extension DeviceQueue {
         
         // repeat `r`s to match `a`'s shape to enable operations along axes
         let rMutableElements = LogicalElements<S,RE>(
-                r.count,
+                a.count,
                 a.shape,
                 repeatedStrides(matching: r, to: a.shape),
                 r.storage,
                 r.storageBase,
                 r.stridedSpanCount)
+        
+        rMutableElements.synchronizeForReadWrite()
 
         if a.isBufferIterable {
             execute(a.buffer, rMutableElements, op)

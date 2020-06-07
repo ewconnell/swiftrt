@@ -546,6 +546,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         _ storageBase: Int,
         _ stridedSpanCount: Int
     ) {
+        assert(shape.elementCount() == count, "shape count mismatch")
         self.alignment = TensorElement.alignment(storageBase)
         self.strides = strides
         self.storage = storage

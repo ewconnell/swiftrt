@@ -35,7 +35,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     public var isShared: Bool
     /// a collection that maps logical coordinates to storage elements
     /// via the current storage layout
-    public let logicalElements: LogicalElements<Shape, TensorElement>
+    public var logicalElements: LogicalElements<Shape, TensorElement>
     /// the strides to traverse `shape` in logical coordinates
     public let logicalStrides: Shape
     /// the dimensions of the element space
@@ -300,8 +300,7 @@ public extension Tensor {
     ///  - position: the n-dimensional coordinate position within `shape`
     /// - Returns: the index
     @inlinable func makeIndex(at position: Shape) -> Index {
-        logicalElements.synchronizeForReadWrite()
-        return Index(position, position.index(stridedBy: logicalStrides))
+        Index(position, position.index(stridedBy: logicalStrides))
     }
 
     //--------------------------------------------------------------------------
@@ -313,8 +312,15 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     // elemment subscript
     @inlinable subscript(i: Index) -> Element {
-        get { logicalElements[i] }
-        set { logicalElements[i] = newValue }
+        get {
+            logicalElements.synchronizeForRead()
+            return logicalElements[i]
+        }
+        set {
+            prepareForWrite(using: Context.currentQueue)
+            logicalElements.synchronizeForReadWrite()
+            logicalElements[i] = newValue
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -380,7 +386,7 @@ public extension Tensor {
                        categories: [.dataCopy, .dataMutation])
             
             storage = StorageBufferType(copying: storage, using: queue)
-            logicalElements.storage = self.storage
+            logicalElements = LogicalElements(tensor: self)
         }
     }
 

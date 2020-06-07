@@ -93,7 +93,8 @@ class test_Reductions: XCTestCase {
               [ 5,   6]]])
 
         // sum depths
-        XCTAssert(v.sum(alongAxes: 0) == [
+        let s0 = v.sum(alongAxes: 0)
+        XCTAssert(s0 == [
             [
                 [11,  4],
                 [ 6,  8],
