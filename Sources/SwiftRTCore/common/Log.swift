@@ -387,13 +387,14 @@ public struct LogCategories: OptionSet {
     public static let dataAlloc     = LogCategories(rawValue: 1 << 0)
     public static let dataCopy      = LogCategories(rawValue: 1 << 1)
     public static let dataExpanding = LogCategories(rawValue: 1 << 2)
-    public static let dataMutation  = LogCategories(rawValue: 1 << 3)
-    public static let dataReorder   = LogCategories(rawValue: 1 << 4)
-    public static let initialize    = LogCategories(rawValue: 1 << 5)
-    public static let properties    = LogCategories(rawValue: 1 << 6)
-    public static let queueAlloc    = LogCategories(rawValue: 1 << 7)
-    public static let queueSync     = LogCategories(rawValue: 1 << 8)
-    public static let scheduling    = LogCategories(rawValue: 1 << 9)
+    public static let dataLayout    = LogCategories(rawValue: 1 << 3)
+    public static let dataMutation  = LogCategories(rawValue: 1 << 4)
+    public static let dataReorder   = LogCategories(rawValue: 1 << 5)
+    public static let initialize    = LogCategories(rawValue: 1 << 6)
+    public static let properties    = LogCategories(rawValue: 1 << 7)
+    public static let queueAlloc    = LogCategories(rawValue: 1 << 8)
+    public static let queueSync     = LogCategories(rawValue: 1 << 9)
+    public static let scheduling    = LogCategories(rawValue: 1 << 10)
 }
 
 // strings
@@ -401,6 +402,7 @@ public let allocString      = "[\(setText("ALLOCATE ", color: .cyan))]"
 public let blockString      = "[\(setText("BLOCK    ", color: .red))]"
 public let copyString       = "[\(setText("COPY     ", color: .blue))]"
 public let createString     = "[\(setText("CREATE   ", color: .cyan))]"
+public let layoutString     = "[\(setText("LAYOUT   ", color: .yellow))]"
 public let mutationString   = "[\(setText("MUTATE   ", color: .blue))]"
 public let expandingString  = "[\(setText("EXPANDING", color: .cyan))]"
 public let recordString     = "[\(setText("RECORD   ", color: .cyan))]"
