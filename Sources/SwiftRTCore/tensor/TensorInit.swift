@@ -78,13 +78,12 @@ public extension Tensor {
     /// - Parameters:
     ///  - shape: the n-dimensional shape of the tensor
     ///  - layout: the storage layout of the elements
-    @inlinable init(_ shape: Shape, layout: Layout = .row) {
+    @inlinable init(
+        _ shape: Shape,
+        layout: Layout = Layout.defaultValue
+    ) {
         let count = shape.elementCount()
-        
-        let storage = StorageBufferType(
-                type: TensorElement.self,
-                count: count,
-                layout: layout)
+        let storage = StorageBufferType(type: TensorElement.self, count: count)
         
         self.init(shape: shape,
                   strides: shape.strides(for: layout),
@@ -92,6 +91,7 @@ public extension Tensor {
                   storage: storage,
                   storageBase: 0,
                   stridedSpanCount: count,
+                  layout: layout,
                   shared: false)
     }
     
@@ -102,21 +102,25 @@ public extension Tensor {
     }
     
     //--------------------------------------------------------------------------
-    /// init(like:layout:
+    /// init(like:
     /// convenience initializer to initialize with the shape and type as `other`
     /// - Parameters:
     ///  - other: a tensor to copy attributes from
-    ///  - layout: the storage layout of the elements
     @inlinable init(like other: Self) {
         self.init(other.shape, layout: other.layout)
     }
     
     //--------------------------------------------------------------------------
     /// init(element:
-    /// creates a tensor with a single scalar value
-    /// - Parameter element: the single element value for the tensor
-    @inlinable init(_ element: Element) {
-        self.init(single: element, shape: Shape.one)
+    /// creates a tensor with a single element value
+    /// - Parameters:
+    ///  - element: the element value for the tensor
+    ///  - layout: the storage layout of the elements
+    @inlinable init(
+        _ element: Element,
+        layout: Layout = Layout.defaultValue
+    ) {
+        self.init(single: element, shape: Shape.one, layout: layout)
     }
 
     //--------------------------------------------------------------------------
@@ -125,9 +129,14 @@ public extension Tensor {
     /// - Parameters:
     ///  - element: the element value to repeat while indexing
     ///  - shape: the shape of the tensor
+    ///  - layout: the storage layout of the elements
     @differentiable(where TensorElement.Value: DifferentiableElement)
-    @inlinable init(repeating element: Element, to shape: Shape) {
-        self.init(single: element, shape: shape)
+    @inlinable init(
+        repeating element: Element,
+        to shape: Shape,
+        layout: Layout = Layout.defaultValue
+    ) {
+        self.init(single: element, shape: shape, layout: layout)
     }
 
     //--------------------------------------------------------------------------
@@ -146,6 +155,7 @@ public extension Tensor {
                   storage: other.storage,
                   storageBase: other.storageBase,
                   stridedSpanCount: shape.spanCount(stridedBy: strides),
+                  layout: other.layout,
                   shared: other.isShared)
     }
     
@@ -164,11 +174,16 @@ public extension Tensor {
 
 extension Tensor where TensorElement.Value: DifferentiableElement
 {
-    @derivative(of: init(repeating:to:))
-    @inlinable static func _vjpInit(repeating value: Element, to shape: Shape)
-        -> (value: Self, pullback: (Self) -> (Element))
+    @derivative(of: init(repeating:to:layout:))
+    @inlinable static func _vjpInit(
+        repeating element: Element,
+        to shape: Shape,
+        layout: Layout
+    ) -> (value: Self, pullback: (Self) -> (Element))
     {
-        (Self(repeating: value, to: shape), { $0.sum().element })
+        (Self(repeating: element, to: shape, layout: layout), {
+            $0.sum().element
+        })
     }
     
     @derivative(of: init(repeating:to:))
@@ -201,12 +216,12 @@ public extension Tensor {
     ///  is expected to be of type `Float16`
     ///
     ///  - shape: the shape of the tensor
-    ///  - layout: the storage layout
+    ///  - layout: the storage layout of the elements
     @inlinable init<C>(
         stored elements: C,
         _ shape: Shape,
-        layout: Layout = .C)
-    where C: Collection, C.Element == TensorElement.Stored
+        layout: Layout = Layout.defaultValue
+    ) where C: Collection, C.Element == TensorElement.Stored
     {
         assert(shape.elementCount() == elements.count)
         self.init(shape, layout: layout)
@@ -227,11 +242,11 @@ public extension Tensor {
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
-    ///  - layout: the storage layout
+    ///  - layout: the storage layout of the elements
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        layout: Layout = .C
+        layout: Layout = Layout.defaultValue
     ) where C: Collection, C.Element == TensorElement.Value {
         assert(shape.elementCount() == elements.count)
         self.init(shape, layout: layout)
@@ -252,11 +267,11 @@ public extension Tensor {
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
-    ///  - layout: the storage layout
+    ///  - layout: the storage layout of the elements
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        layout: Layout = .C
+        layout: Layout = Layout.defaultValue
     ) where C: Collection, C.Element == Bool, TensorElement.Value: Numeric {
         assert(shape.elementCount() == elements.count)
         self.init(shape, layout: layout)
@@ -274,11 +289,11 @@ public extension Tensor {
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
-    ///  - layout: the storage layout
+    ///  - layout: the storage layout of the elements
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        layout: Layout = .C
+        layout: Layout = Layout.defaultValue
     ) where C: Collection, C.Element: Numeric, TensorElement.Value == Bool {
         assert(shape.elementCount() == elements.count)
         self.init(shape, layout: layout)
@@ -296,11 +311,11 @@ public extension Tensor {
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
-    ///  - layout: the storage layout
+    ///  - layout: the storage layout of the elements
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        layout: Layout = .C
+        layout: Layout = Layout.defaultValue
     ) where C: Collection, C.Element: BinaryInteger,
             TensorElement.Value: Numeric
     {
@@ -320,12 +335,12 @@ public extension Tensor {
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
-    ///  - layout: the storage layout
+    ///  - layout: the storage layout of the elements
     // Note: to handle the case of Double <--> Float
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        layout: Layout = .C
+        layout: Layout = Layout.defaultValue
     ) where C: Collection, C.Element: BinaryFloatingPoint,
             TensorElement.Value: BinaryFloatingPoint
     {
@@ -345,12 +360,12 @@ public extension Tensor {
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
-    ///  - layout: the storage layout
+    ///  - layout: the storage layout of the elements
     // Note: to handle the case of Double <--> Float
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        layout: Layout = .C
+        layout: Layout = Layout.defaultValue
     ) where C: Collection, C.Element: BinaryFloatingPoint,
             TensorElement.Value: BinaryInteger
     {
@@ -389,9 +404,8 @@ public extension Tensor {
     @inlinable init<S>(
         reshaping other: Tensor<S,TensorElement>,
         to newShape: Shape,
-        layout newLayout: Layout = .C
-    ) where S: TensorShape
-    {
+        layout newLayout: Layout = Layout.defaultValue
+    ) where S: TensorShape {
         assert(other.isContiguous, "cannot reshape non contiguous data")
         assert(
             {
@@ -430,10 +444,10 @@ public extension Tensor {
                 strides: strides,
                 count: other.count,
                 storage: StorageBufferType(type: TensorElement.self,
-                                           count: source.count,
-                                           layout: layout),
+                                           count: source.count),
                 storageBase: 0,
                 stridedSpanCount: other.stridedSpanCount,
+                layout: layout,
                 shared: other.isShared)
             
             // performs an indexed copy which reorders the elements
@@ -452,6 +466,7 @@ public extension Tensor {
                   storage: source.storage,
                   storageBase: source.storageBase,
                   stridedSpanCount: source.stridedSpanCount,
+                  layout: source.layout,
                   shared: source.isShared)
     }
 }
@@ -535,6 +550,7 @@ public extension Tensor {
                   storage: other.storage,
                   storageBase: other.storageBase,
                   stridedSpanCount: other.stridedSpanCount,
+                  layout: other.layout,
                   shared: other.isShared)
     }
     
@@ -597,6 +613,7 @@ public extension Tensor {
                   storage: other.storage,
                   storageBase: other.storageBase,
                   stridedSpanCount: other.count,
+                  layout: other.layout,
                   shared: other.isShared)
     }
     
@@ -638,7 +655,8 @@ public extension Tensor {
         let positiveAxis = axis < 0 ? axis + S.rank : axis
         // create tensor of stacked shape and copy
         self = withoutDerivative(
-            at: Self(stackedShape(of: others, along: positiveAxis)))
+            at: Self(stackedShape(of: others, along: positiveAxis),
+                     layout: others[0].layout))
         stack(others, axis: positiveAxis, into: &self)
     }
     
@@ -785,6 +803,7 @@ public extension Tensor {
                   storage: other.storage,
                   storageBase: other.storageBase,
                   stridedSpanCount: other.count,
+                  layout: other.layout,
                   shared: other.isShared)
     }
 }
@@ -836,6 +855,7 @@ public extension Tensor {
                   storage: other.storage,
                   storageBase: other.storageBase,
                   stridedSpanCount: other.count,
+                  layout: other.layout,
                   shared: other.isShared)
     }
     
@@ -865,6 +885,7 @@ extension Tensor where TensorElement.Value: DifferentiableElement {
                  storage: $0.storage,
                  storageBase: $0.storageBase,
                  stridedSpanCount: other.count,
+                 layout: other.layout,
                  shared: $0.isShared)
         })
     }
@@ -879,7 +900,10 @@ extension Tensor where TensorElement.Value: Numeric {
     /// - Parameters:
     ///  - shape: the n-dimensional shape of the tensor to be filled
     ///  - layout: the storage layout of the elements
-    @inlinable public init(zeros shape: Shape, layout: Layout = .C) {
+    @inlinable public init(
+        zeros shape: Shape,
+        layout: Layout = Layout.defaultValue
+    ) {
         self.init(shape, layout: layout)
         fill(&self, with: 0)
     }
@@ -890,7 +914,10 @@ extension Tensor where TensorElement.Value: Numeric {
     /// - Parameters:
     ///  - shape: the n-dimensional shape of the tensor to be filled
     ///  - layout: the storage layout of the elements
-    @inlinable public init(ones shape: Shape, layout: Layout = .C) {
+    @inlinable public init(
+        ones shape: Shape,
+        layout: Layout = Layout.defaultValue
+    ) {
         self.init(shape, layout: layout)
         fill(&self, with: 1)
     }
@@ -905,7 +932,7 @@ extension Tensor where TensorElement.Value: Numeric {
     @inlinable public init(
         eye shape: Shape,
         offset: Int = 0,
-        layout: Layout = .C
+        layout: Layout = Layout.defaultValue
     ) {
         self.init(shape, layout: layout)
         Context.currentQueue.eye(&self, offset: offset)

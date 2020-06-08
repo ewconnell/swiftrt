@@ -148,16 +148,19 @@ where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 ///
 ///- Returns: A truncated normal parameter initializer function.
 public func truncatedNormalInitializer<S,E>(
-    mean: Tensor<S,E> = Tensor<S,E>(0),
-    standardDeviation: Tensor<S,E> = Tensor<S,E>(1),
-    seed: RandomSeed = Context.randomSeed)
--> ParameterInitializer<S,E>
+    mean: Tensor<S,E>? = nil,
+    std: Tensor<S,E>? = nil,
+    layout: Layout = Layout.defaultValue,
+    seed: RandomSeed = Context.randomSeed
+) -> ParameterInitializer<S,E>
 where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
     {
+        // TODO: which element init is being called??
         Tensor<S,E>(randomTruncatedNormal: $0,
-                    mean: mean,
-                    standardDeviation: standardDeviation,
+                    mean: mean ?? Tensor<S,E>(0, layout: layout),
+                    std: std ?? Tensor<S,E>(1, layout: layout),
+                    layout: layout,
                     seed: seed)
     }
 }

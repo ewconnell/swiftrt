@@ -35,23 +35,19 @@ public protocol StorageBuffer: class, Logging {
     var isReference: Bool { get }
     /// the buffer name used in diagnostic messages
     var name: String { get set }
-    /// specifies the stored element layout order
-    var layout: Layout { get }
     
     //--------------------------------------------------------------------------
-    /// `init(type:count:layout:
+    /// `init(type:count:
     /// creates an uninitialized lazily allocated buffer to hold `count`
     /// number of `Element`s
     /// - Parameters:
     ///  - storedType: the type of storage `Element`
     ///    This is used to compute buffer byte size and alignment.
     ///  - storedCount: the number of `Element`s stored in the buffer.
-    ///  - layout: element memory layout order
     ///  - name: the name of the tensor
     init<Element>(
         storedType: Element.Type,
         count: Int,
-        layout: Layout,
         name: String
     )
     
@@ -64,7 +60,7 @@ public protocol StorageBuffer: class, Logging {
     init(copying other: Self, using queue: DeviceQueue)
     
     //--------------------------------------------------------------------------
-    /// `init(buffer:layout:`
+    /// `init(buffer:
     /// creates an element buffer whose data is managed by the application.
     /// No memory is allocated, so the buffer must point to valid data space.
     /// This can be used to access things like hardware buffers or
@@ -72,11 +68,7 @@ public protocol StorageBuffer: class, Logging {
     /// requiring an additional copy operation.
     /// - Parameters:
     ///  - buffer: the referenced `Element` buffer
-    ///  - layout: element layout order
-    init<Element>(
-        referenceTo buffer: UnsafeBufferPointer<Element>,
-        layout: Layout
-    )
+    init<Element>(referenceTo buffer: UnsafeBufferPointer<Element>)
     
     //--------------------------------------------------------------------------
     /// `init(buffer:layout:`
@@ -84,11 +76,7 @@ public protocol StorageBuffer: class, Logging {
     /// No memory is allocated, so the buffer must point to valid data space.
     /// - Parameters:
     ///  - buffer: the referenced `Element` buffer
-    ///  - layout: element layout order
-    init<Element>(
-        referenceTo buffer: UnsafeMutableBufferPointer<Element>,
-        layout: Layout
-    )
+    init<Element>(referenceTo buffer: UnsafeMutableBufferPointer<Element>)
     
     //--------------------------------------------------------------------------
     /// `init(blockSize:bufferedBlocks:sequence:`
@@ -160,12 +148,11 @@ public extension StorageBuffer {
     @inlinable init<Element: StorageElement>(
         type: Element.Type,
         count: Int,
-        layout: Layout,
         name: String = "Tensor"
     ) {
         self.init(storedType: Element.Stored.self,
                   count: Element.storedCount(count),
-                  layout: layout, name: name)
+                  name: name)
     }
 
     //--------------------------------------------------------------------------

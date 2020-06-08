@@ -33,6 +33,8 @@ where Shape: TensorShape, TensorElement: StorageElement
     public let count: Int
     /// `true` if the view will be shared by by multiple writers
     public var isShared: Bool
+    /// layout order of the elements in storage
+    @noDerivative public let layout: Layout
     /// a collection that maps logical coordinates to storage elements
     /// via the current storage layout
     public var logicalElements: LogicalElements<Shape, TensorElement>
@@ -53,8 +55,6 @@ where Shape: TensorShape, TensorElement: StorageElement
     // functional properties
     /// the unique storage id
     @inlinable public var id: Int { storage.id }
-    /// the element storage order
-    @inlinable public var layout: Layout { storage.layout }
     /// the name of the collection
     @inlinable public var name: String {
         get { storage.name }
@@ -66,11 +66,6 @@ where Shape: TensorShape, TensorElement: StorageElement
     /// `true` if the tensor contains a single stored element. This is
     /// common for scalar tensors that are repeated.
     @inlinable public var isSingleElement: Bool { stridedSpanCount == 1 }
-
-    /// `true` if the `buffer` or `mutableBuffer` iterators can be used
-    @inlinable public var isBufferIterable: Bool {
-        isSingleElement || stridedSpanCount == count
-    }
     
     //--------------------------------------------------------------------------
     /// init(
@@ -82,6 +77,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         storage: StorageBufferType,
         storageBase: Int,
         stridedSpanCount: Int,
+        layout: Layout,
         shared: Bool
     ) {
         self.shape = shape
@@ -91,37 +87,71 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.storageBase = storageBase
         self.stridedSpanCount = stridedSpanCount
         self.isShared = shared
-        logicalStrides = shape.strides(for: storage.layout)
+        self.layout = layout
+        logicalStrides = shape.strides(for: layout)
         logicalElements = LogicalElements(count,
                                           shape,
                                           strides,
                                           storage,
                                           storageBase,
+                                          layout,
                                           stridedSpanCount)
     }
 
     //--------------------------------------------------------------------------
     /// init(element:shape:
     /// Used to initialize a tensor with a single Element
-    @inlinable public init(single element: Element, shape: Shape) {
+    @inlinable public init(
+        single element: Element,
+        shape: Shape,
+        layout: Layout
+    ) {
         self.shape = shape
         self.strides = Shape.zero
         self.storageBase = 0
         self.isShared = false
         self.count = shape.elementCount()
         self.stridedSpanCount = 1
+        self.layout = layout
         self.storage = StorageBufferType(type: TensorElement.self,
-                                         count: 1, layout: .row,
-                                         name: "Element")
+                                         count: 1, name: "Element")
         self.storage.setElement(type: TensorElement.self, value: element, at: 0)
-        logicalStrides = shape.strides(for: storage.layout)
+        logicalStrides = shape.strides(for: layout)
         logicalElements = LogicalElements(count,
                                           shape,
                                           strides,
                                           storage,
                                           storageBase,
+                                          layout,
                                           stridedSpanCount)
     }
+}
+
+//==============================================================================
+/// Layout
+/// Specifies how to store multi-dimensional data in row-major (C-style)
+/// or column-major (Fortran-style) order in memory.
+/// These names are following the numpy naming convention
+public enum Layout: Int, Codable {
+    /// Data is ordered in row-major dense sequential format.
+    /// The leading dimension is the stride (in elements) to the beginning
+    /// of next row in memory.
+    case row
+    
+    /// Data is ordered in column-major dense sequential format.
+    /// The leading dimension is the stride (in elements) to the beginning
+    /// of next column in memory.
+    case col
+    
+    public static let C = row, F = col, A = -1
+    
+    public static var defaultValue = Layout.row
+}
+
+public let _messageLayoutsMustMatch = "input layouts must match"
+
+@inlinable public func layoutsMatch(_ layouts: Layout...) -> Bool {
+    layouts.first(where: { $0 != layouts[0] }) == nil
 }
 
 //==============================================================================
@@ -166,7 +196,9 @@ extension Tensor: AdditiveArithmetic where Element: Numeric {
 
 //==============================================================================
 // Tensor Codable
-public enum TensorCodingKeys: String, CodingKey { case data, shape, name }
+public enum TensorCodingKeys: String, CodingKey {
+    case data, shape, name, layout
+}
 
 extension Tensor: Codable where Element: Codable {
     /// encodes the contents of the array
@@ -174,6 +206,7 @@ extension Tensor: Codable where Element: Codable {
         var container = encoder.container(keyedBy: TensorCodingKeys.self)
         try container.encode(storage.name, forKey: .name)
         try container.encode(shape, forKey: .shape)
+        try container.encode(layout, forKey: .layout)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
         if isBufferIterable {
             try self.buffer.forEach {
@@ -190,8 +223,9 @@ extension Tensor: Codable where Element: Codable {
         let container = try decoder.container(keyedBy: TensorCodingKeys.self)
         let name = try container.decode(String.self, forKey: .name)
         let shape = try container.decode(Shape.self, forKey: .shape)
+        let layout = try container.decode(Layout.self, forKey: .layout)
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
-        self = Self(shape)
+        self = Self(shape, layout: layout)
         self.name = name
 
         assert(self.count == dataContainer.count)
@@ -256,6 +290,10 @@ public struct ElementIndex<Shape>: Comparable, Codable
 //==============================================================================
 // Tensor collection and sub view extensions
 public extension Tensor {
+    @inlinable var isBufferIterable: Bool {
+        isSingleElement || isContiguous
+    }
+    
     //--------------------------------------------------------------------------
     // sequential buffer element iterators
     @inlinable var buffer: BufferElements<Shape,TensorElement> {
@@ -354,6 +392,7 @@ public extension Tensor {
             storage: storage,
             storageBase: storageBase + lower.index(stridedBy: strides),
             stridedSpanCount: spanCount,
+            layout: layout,
             shared: share)
     }
 

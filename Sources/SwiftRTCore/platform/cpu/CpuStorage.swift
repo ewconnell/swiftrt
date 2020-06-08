@@ -24,7 +24,6 @@ public final class CpuStorage: StorageBuffer {
     public let id: Int
     public let isReadOnly: Bool
     public let isReference: Bool
-    public let layout: Layout
     public var name: String
 
     //--------------------------------------------------------------------------
@@ -34,16 +33,14 @@ public final class CpuStorage: StorageBuffer {
     public let hostBuffer: UnsafeMutableRawBufferPointer
 
     //--------------------------------------------------------------------------
-    // init(type:count:layout:name:
+    // init(type:count:name:
     @inlinable public init<Element>(
         storedType: Element.Type,
         count: Int,
-        layout: Layout,
         name: String
     ) {
         assert(MemoryLayout<Element>.size != 0,
                "type: \(Element.self) is size 0")
-        self.layout = layout
         self.name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * count
@@ -65,7 +62,6 @@ public final class CpuStorage: StorageBuffer {
     // init(other:queue:
     @inlinable public init(copying other: CpuStorage, using queue: DeviceQueue){
         alignment = other.alignment
-        layout = other.layout
         byteCount = other.byteCount
         id = Context.nextBufferId
         isReadOnly = other.isReadOnly
@@ -82,12 +78,10 @@ public final class CpuStorage: StorageBuffer {
     }
 
     //--------------------------------------------------------------------------
-    // init(buffer:layout:
+    // init(buffer:
     @inlinable public init<Element>(
-        referenceTo buffer: UnsafeBufferPointer<Element>,
-        layout: Layout
+        referenceTo buffer: UnsafeBufferPointer<Element>
     ) {
-        self.layout = layout
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * buffer.count
         let buff = UnsafeMutableBufferPointer(mutating: buffer)
@@ -104,12 +98,10 @@ public final class CpuStorage: StorageBuffer {
     }
     
     //--------------------------------------------------------------------------
-    // init(type:buffer:layout:
+    // init(type:buffer:
     @inlinable public init<Element>(
-        referenceTo buffer: UnsafeMutableBufferPointer<Element>,
-        layout: Layout
+        referenceTo buffer: UnsafeMutableBufferPointer<Element>
     ) {
-        self.layout = layout
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * buffer.count
         self.hostBuffer = UnsafeMutableRawBufferPointer(buffer)

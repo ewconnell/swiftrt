@@ -25,7 +25,7 @@ import Darwin.C
 // Platform types
 #if canImport(CCuda)
 public typealias PlatformType = CudaService
-public typealias StorageBufferType = DiscreetStorage
+public typealias StorageBufferType = DiscreteStorage
 #else
 public typealias PlatformType = CpuService
 //public typealias StorageBufferType = DiscreetStorage

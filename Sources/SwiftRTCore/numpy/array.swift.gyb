@@ -168,7 +168,7 @@ numShapes = 6
 @inlinable public func array<C: Collection>(
     stored elements: C,
     _ shape: Shape${n}.Tuple,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},C.Element> where C.Element == C.Element.Stored
 {
     Tensor<Shape${n},C.Element>(stored: elements, Shape${n}(shape), layout: order)
@@ -179,7 +179,7 @@ numShapes = 6
 @inlinable public func array<C: Collection>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},C.Element> where C.Element == C.Element.Value
 {
     Tensor<Shape${n},C.Element>(elements, Shape${n}(shape), layout: order)
@@ -190,7 +190,7 @@ numShapes = 6
 @inlinable public func array<C: Collection>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},DType> where C.Element == Int
 {
     Tensor<Shape${n},DType>(elements, Shape${n}(shape), layout: order)
@@ -201,7 +201,7 @@ numShapes = 6
 @inlinable public func array<C: Collection>(
     _ elements: C,
     _ shape: Shape${n}.Tuple,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},DType> where C.Element == Double
 {
     Tensor<Shape${n},DType>(elements, Shape${n}(shape), layout: order)
@@ -215,7 +215,7 @@ numShapes = 6
     _ elements: C,
     _ shape: Shape${n}.Tuple,
     type: Element.Type,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},Element>
     where C.Element == Bool, Element.Value: Numeric
 {
@@ -228,7 +228,7 @@ numShapes = 6
     _ elements: C,
     _ shape: Shape${n}.Tuple,
     type: Element.Type,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},Element>
 where C.Element: Numeric, Element.Value == Bool
 {
@@ -241,7 +241,7 @@ where C.Element: Numeric, Element.Value == Bool
     _ elements: C,
     _ shape: Shape${n}.Tuple,
     type: Element.Type,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},Element>
 where C.Element == Bool, Element.Value == Bool
 {
@@ -254,7 +254,7 @@ where C.Element == Bool, Element.Value == Bool
     _ elements: C,
     _ shape: Shape${n}.Tuple,
     type: Element.Type,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
 {
@@ -267,7 +267,7 @@ where C.Element == Bool, Element.Value == Bool
     _ elements: C,
     _ shape: Shape${n}.Tuple,
     type: Element.Type,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
 {
@@ -280,7 +280,7 @@ where C.Element == Bool, Element.Value == Bool
     _ elements: C,
     _ shape: Shape${n}.Tuple,
     type: Element.Type,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
@@ -303,7 +303,7 @@ where C.Element == Bool, Element.Value == Bool
 // C.Element == Element.Stored
 @inlinable public func array<C>(
     stored elements: C,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},C${'.Element' * n}>
     where
 % for i in range(n):
@@ -325,7 +325,7 @@ where C.Element == Bool, Element.Value == Bool
 // C.Element == Element.Value
 @inlinable public func array<C>(
     _ elements: C,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},C${'.Element' * n}>
     where
 % for i in range(n):
@@ -347,7 +347,7 @@ where C.Element == Bool, Element.Value == Bool
 // C.Element == Int --> DType
 @inlinable public func array<C>(
     _ elements: C,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},DType>
     where
 % for i in range(n):
@@ -369,7 +369,7 @@ where C.Element == Bool, Element.Value == Bool
 // C.Element == Double --> DType
 @inlinable public func array<C>(
     _ elements: C,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},DType>
     where
 % for i in range(n):
@@ -394,7 +394,7 @@ where C.Element == Bool, Element.Value == Bool
 @inlinable public func array<C,Element>(
     _ elements: C,
     type: Element.Type,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},Element>
     where
 % for i in range(n):
@@ -417,7 +417,7 @@ where C.Element == Bool, Element.Value == Bool
 @inlinable public func array<C, Element>(
     _ elements: C,
     type: Element.Type,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},Element>
     where
 % for i in range(n):
@@ -439,7 +439,7 @@ where C.Element == Bool, Element.Value == Bool
 @inlinable public func array<C, Element>(
     _ elements: C,
     type: Element.Type,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},Element>
     where
 % for i in range(n):
@@ -461,7 +461,7 @@ where C.Element == Bool, Element.Value == Bool
 @inlinable public func array<C, Element>(
     _ elements: C,
     type: Element.Type,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},Element>
     where
 % for i in range(n):
@@ -484,7 +484,7 @@ where C.Element == Bool, Element.Value == Bool
 @inlinable public func array<C, Element>(
     _ elements: C,
     type: Element.Type,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n},Element>
     where
 % for i in range(n):

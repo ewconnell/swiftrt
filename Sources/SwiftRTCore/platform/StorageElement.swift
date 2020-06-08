@@ -228,6 +228,7 @@ extension Tensor where TensorElement == Bool1 {
         strides = other.strides
         storage = other.storage
         storageBase = other.storageBase
+        layout = other.layout
         isShared = other.isShared
         count = other.count
         stridedSpanCount = other.stridedSpanCount
@@ -237,6 +238,7 @@ extension Tensor where TensorElement == Bool1 {
                                           strides,
                                           storage,
                                           storageBase,
+                                          layout,
                                           stridedSpanCount)
     }
 }
@@ -259,6 +261,7 @@ extension Tensor where TensorElement == UInt1 {
         strides = other.strides
         storage = other.storage
         storageBase = other.storageBase
+        layout = other.layout
         isShared = other.isShared
         count = other.count
         stridedSpanCount = other.stridedSpanCount
@@ -268,6 +271,7 @@ extension Tensor where TensorElement == UInt1 {
                                           strides,
                                           storage,
                                           storageBase,
+                                          layout,
                                           stridedSpanCount)
     }
 }
@@ -355,51 +359,6 @@ extension Double: StorageElement {
 extension Complex: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-}
-
-//==============================================================================
-// storage element iterators
-//==============================================================================
-
-@inlinable public func haveSameStorageLayout<S,E0,E1>(
-    _ t0: Tensor<S,E0>,
-    _ t1: Tensor<S,E1>
-) -> Bool {
-    t0.layout == t1.layout && t0.isBufferIterable && t1.isBufferIterable
-}
-
-@inlinable public func haveSameStorageLayout<S,E0, E1, E2>(
-    _ t0: Tensor<S,E0>,
-    _ t1: Tensor<S,E1>,
-    _ t2: Tensor<S,E2>
-) -> Bool {
-    t0.layout == t1.layout && t0.layout == t2.layout &&
-        t0.isBufferIterable && t1.isBufferIterable && t2.isBufferIterable
-}
-
-@inlinable public func haveSameStorageLayout<S,E0, E1, E2, E3>(
-    _ t0: Tensor<S,E0>,
-    _ t1: Tensor<S,E1>,
-    _ t2: Tensor<S,E2>,
-    _ t3: Tensor<S,E3>
-) -> Bool {
-    t0.layout == t1.layout && t0.layout == t2.layout &&
-        t0.layout == t3.layout &&
-        t0.isBufferIterable && t1.isBufferIterable &&
-        t2.isBufferIterable && t3.isBufferIterable
-}
-
-@inlinable public func haveSameStorageLayout<S,E0, E1, E2, E3, E4>(
-    _ t0: Tensor<S,E0>,
-    _ t1: Tensor<S,E1>,
-    _ t2: Tensor<S,E2>,
-    _ t3: Tensor<S,E3>,
-    _ t4: Tensor<S,E4>
-) -> Bool {
-    t0.layout == t1.layout && t0.layout == t2.layout &&
-        t0.layout == t3.layout && t0.layout == t4.layout &&
-        t0.isBufferIterable && t1.isBufferIterable &&
-        t2.isBufferIterable && t3.isBufferIterable && t4.isBufferIterable
 }
 
 //==============================================================================
@@ -512,6 +471,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     public let storedBase: Int
     public let storedCount: Int
     public let strides: Shape
+    public let layout: Layout
     public let startIndex: Index
     public let endIndex: Index
 
@@ -527,6 +487,7 @@ where Shape: TensorShape, TensorElement: StorageElement
                   tensor.strides,
                   tensor.storage,
                   tensor.storageBase,
+                  tensor.layout,
                   tensor.stridedSpanCount)
     }
     
@@ -544,12 +505,14 @@ where Shape: TensorShape, TensorElement: StorageElement
         _ strides: Shape,
         _ storage: StorageBufferType,
         _ storageBase: Int,
+        _ layout: Layout,
         _ stridedSpanCount: Int
     ) {
         assert(shape.elementCount() == count, "shape count mismatch")
         self.alignment = TensorElement.alignment(storageBase)
         self.strides = strides
         self.storage = storage
+        self.layout = layout
         let (storedBase, storedCount) =
                 TensorElement.storedRange(start: storageBase,
                                           count: stridedSpanCount)
@@ -580,7 +543,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     //--------------------------------------------------------------------------
     // index(after:
     @inlinable public func index(after i: Index) -> Index {
-        switch storage.layout {
+        switch layout {
         case .row, .col:
             return i.incremented(between: startIndex, and: endIndex)
         }
@@ -590,7 +553,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     // subscript
     @inlinable public subscript(position: Index) -> TensorElement.Value {
         get {
-            switch storage.layout {
+            switch layout {
             case .row, .col:
                 // get logical strided linear element position
                 let i = position.linearIndex(strides) + alignment
@@ -602,7 +565,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         }
         
         set {
-            switch storage.layout {
+            switch layout {
             case .row, .col:
                 // get logical strided linear element position
                 let i = position.linearIndex(strides) + alignment

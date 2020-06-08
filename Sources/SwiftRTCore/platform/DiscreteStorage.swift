@@ -16,15 +16,14 @@
 import Foundation
 
 //==============================================================================
-/// DiscreetStorage
-public final class DiscreetStorage: StorageBuffer {
+/// DiscreteStorage
+public final class DiscreteStorage: StorageBuffer {
     // StorageBuffer protocol properties
     public let alignment: Int
     public let byteCount: Int
     public let id: Int
     public var isReadOnly: Bool
     public var isReference: Bool
-    public let layout: Layout
     public var name: String
 
     //--------------------------------------------------------------------------
@@ -42,10 +41,8 @@ public final class DiscreetStorage: StorageBuffer {
     @inlinable public init<Element>(
         storedType: Element.Type,
         count: Int,
-        layout: Layout,
         name: String = "Tensor"
     ) {
-        self.layout = layout
         self.name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * count
@@ -68,12 +65,11 @@ public final class DiscreetStorage: StorageBuffer {
     //--------------------------------------------------------------------------
     // init(copying other:
     @inlinable public init(
-        copying other: DiscreetStorage,
+        copying other: DiscreteStorage,
         using queue: DeviceQueue
     ) {
         id = Context.nextBufferId
         alignment = other.alignment
-        layout = other.layout
         byteCount = other.byteCount
         isReadOnly = other.isReadOnly
         isReference = other.isReference
@@ -93,11 +89,10 @@ public final class DiscreetStorage: StorageBuffer {
     //--------------------------------------------------------------------------
     // init(buffer:layout:
     @inlinable public convenience init<Element>(
-        referenceTo buffer: UnsafeBufferPointer<Element>,
-        layout: Layout
+        referenceTo buffer: UnsafeBufferPointer<Element>
     ) {
         self.init(storedType: Element.self, count: buffer.count,
-                  layout: layout, name: "Reference Tensor")
+                  name: "Reference Tensor")
         isReadOnly = true
         isReference = true
         let p = UnsafeMutableBufferPointer(mutating: buffer)
@@ -108,11 +103,10 @@ public final class DiscreetStorage: StorageBuffer {
     //--------------------------------------------------------------------------
     // init(type:buffer:layout:
     @inlinable public convenience init<Element>(
-        referenceTo buffer: UnsafeMutableBufferPointer<Element>,
-        layout: Layout
+        referenceTo buffer: UnsafeMutableBufferPointer<Element>
     ) {
         self.init(storedType: Element.self, count: buffer.count,
-                  layout: layout, name: "Reference Tensor")
+                  name: "Reference Tensor")
         isReference = true
         let raw = UnsafeMutableRawBufferPointer(buffer)
         replicas[0] = DeviceMemory(deviceId: 0, buffer: raw, type: .unified)

@@ -64,7 +64,8 @@ where E.Value: DifferentiableElement
     let lhsShape = transposeLhs ? lhs.shape.t : lhs.shape
     let rhsShape = transposeRhs ? rhs.shape.t : rhs.shape
     assert(lhsShape[1] == rhsShape[0], "matmul inner dimensions must be equal")
-    var result = TensorR2<E>(Shape2(lhsShape[0], rhsShape[1]))
+    var result = TensorR2<E>(Shape2(lhsShape[0], rhsShape[1]),
+                             layout: lhs.layout)
     Context.currentQueue.matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
     return result
 }
@@ -124,7 +125,8 @@ where E.Value: DifferentiableElement
     let lhsShape = transposeLhs ? lhs.shape.t : lhs.shape
     let rhsShape = transposeRhs ? rhs.shape.t : rhs.shape
     assert(lhsShape[1] == rhsShape[0], "matmul inner dimensions must be equal")
-    var result = TensorR2<E>(Shape2(lhsShape[0], rhsShape[1]))
+    var result = TensorR2<E>(Shape2(lhsShape[0], rhsShape[1]),
+                             layout: lhs.layout)
     Context.currentQueue.matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
     return result
 }

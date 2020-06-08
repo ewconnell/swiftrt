@@ -28,13 +28,15 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
     ///  - shape: The dimensions of the tensor
     ///  - lower: The lower bound of the distribution
     ///  - upper: The upper bound of the distribution
+    ///  - layout: element storage layout
     ///  - seed: The seed value
     init(randomUniform shape: Shape,
          lower: Element = 0,
          upper: Element = 1,
+         layout: Layout = Layout.defaultValue,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape)
+        self = Self(shape, layout: layout)
         Context.currentQueue.fill(randomUniform: &self, lower, upper, seed)
     }
     
@@ -45,28 +47,29 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
     /// - Parameters:
     ///  - shape: The dimensions of the tensor
     ///  - mean: The mean of the distribution
-    ///  - standardDeviation: The standard deviation of the distribution
+    ///  - std: The standard deviation of the distribution
+    ///  - layout: element storage layout
     ///  - seed: The seed value
     init(randomNormal shape: Shape,
          mean: Element = 0,
-         standardDeviation: Element = 1,
+         std: Element = 1,
+         layout: Layout = Layout.defaultValue,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape)
-        Context.currentQueue
-            .fill(randomNormal: &self, mean, standardDeviation, seed)
+        self = Self(shape, layout: layout)
+        Context.currentQueue.fill(randomNormal: &self, mean, std, seed)
     }
     
     //------------------------------------
     // tensor parameter version
     init(randomNormal shape: Shape,
          mean: Self,
-         standardDeviation: Self,
+         std: Self,
+         layout: Layout = Layout.defaultValue,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape)
-        Context.currentQueue
-            .fill(randomNormal: &self, mean, standardDeviation, seed)
+        self = Self(shape, layout: layout)
+        Context.currentQueue.fill(randomNormal: &self, mean, std, seed)
     }
     
     //--------------------------------------------------------------------------
@@ -76,28 +79,29 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
     /// - Parameters:
     ///  - shape: The dimensions of the tensor.
     ///  - mean: The mean of the distribution.
-    ///  - standardDeviation: The standard deviation of the distribution.
+    ///  - std: The standard deviation of the distribution.
+    ///  - layout: element storage layout
     ///  - seed: The seed value.
     init(randomTruncatedNormal shape: Shape,
          mean: Element = 0,
-         standardDeviation: Element = 1,
+         std: Element = 1,
+         layout: Layout = Layout.defaultValue,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape)
-        Context.currentQueue
-            .fill(randomTruncatedNormal: &self, mean, standardDeviation, seed)
+        self = Self(shape, layout: layout)
+        Context.currentQueue.fill(randomTruncatedNormal: &self, mean, std, seed)
     }
     
     //------------------------------------
     // tensor parameter version
     init(randomTruncatedNormal shape: Shape,
          mean: Self,
-         standardDeviation: Self,
+         std: Self,
+         layout: Layout = Layout.defaultValue,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape)
-        Context.currentQueue
-            .fill(randomTruncatedNormal: &self, mean, standardDeviation, seed)
+        self = Self(shape, layout: layout)
+        Context.currentQueue.fill(randomTruncatedNormal: &self, mean, std, seed)
     }
 }
 
@@ -110,6 +114,7 @@ public extension Tensor where Element == DeviceIndex {
     ///     [batchSize, classCount]`.  Each slice `[i, :]` represents the
     ///      unnormalized log probabilities for all classes.
     ///   - sampleCount: 0-D.  Number of independent samples to draw
+    ///   - layout: element storage layout
     ///     for each row slice.
     ///   - seed: The seed value.
     ///
@@ -118,6 +123,7 @@ public extension Tensor where Element == DeviceIndex {
     ///   range `[0, classCount)`.
     init<E>(randomCategorialLogits: Tensor<Shape,E>,
             sampleCount: Int,
+            layout: Layout = Layout.defaultValue,
             seed: RandomSeed = Context.randomSeed)
     where E: Numeric
     {
@@ -169,13 +175,18 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///
     /// - Parameters:
     ///   - shape: The dimensions of the tensor.
+    ///   - layout: element storage layout
     ///   - seed: The seed value.
-    init(glorotUniform shape: Shape, seed: RandomSeed = Context.randomSeed) {
+    init(glorotUniform shape: Shape,
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
         let (fanIn, fanOut) = shape.fans()
         let limit = Element.sqrt(6 / Element(fanIn + fanOut))
         self.init(randomUniform: shape,
                   lower: -limit,
                   upper: limit,
+                  layout: layout,
                   seed: seed)
     }
     
@@ -195,17 +206,21 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///
     /// - Parameters:
     ///   - shape: The dimensions of the tensor.
+    ///   - layout: element storage layout
     ///   - seed: The seed value.
-    init(glorotNormal shape: Shape, seed: RandomSeed = Context.randomSeed) {
+    init(glorotNormal shape: Shape,
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
         let (fanIn, fanOut) = shape.fans()
-        var standardDeviation = Element.sqrt(2 / Element(fanIn + fanOut))
+        var std = Element.sqrt(2 / Element(fanIn + fanOut))
         // Standard deviation of truncated standard normal between
         // `-2` and `2` standard deviations.
         let truncationDeviation = Element(0.87962566103423978)
         // Smooth the tails of the clipped normal.
-        standardDeviation /= truncationDeviation
+        std /= truncationDeviation
         self.init(randomTruncatedNormal: shape,
-                  mean: 0, standardDeviation: standardDeviation, seed: seed)
+                  mean: 0, std: std, layout: layout, seed: seed)
     }
     
     //--------------------------------------------------------------------------
@@ -224,12 +239,16 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///
     /// - Parameters:
     ///   - shape: The dimensions of the tensor.
+    ///   - layout: element storage layout
     ///   - seed: The seed value.
-    init(heUniform shape: Shape, seed: RandomSeed = Context.randomSeed) {
+    init(heUniform shape: Shape,
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
         let (fanIn, _) = shape.fans()
         let limit = Element.sqrt(6 / Element(fanIn))
         self.init(randomUniform: shape, lower: -limit,
-                  upper: limit, seed: seed)
+                  upper: limit, layout: layout, seed: seed)
     }
     
     //--------------------------------------------------------------------------
@@ -247,16 +266,20 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///
     /// - Parameters:
     ///   - shape: The dimensions of the tensor.
+    ///   - layout: element storage layout
     ///   - seed: The seed value.
-    init(heNormal shape: Shape, seed: RandomSeed = Context.randomSeed) {
+    init(heNormal shape: Shape,
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
         let (fanIn, _) = shape.fans()
-        var standardDeviation = Element.sqrt(2 / Element(fanIn))
+        var std = Element.sqrt(2 / Element(fanIn))
         // Standard deviation of truncated standard normal between `-2` and `2` standard deviations.
         let truncationDeviation = Element(0.87962566103423978)
         // Smooth the tails of the clipped normal.
-        standardDeviation /= truncationDeviation
+        std /= truncationDeviation
         self.init(randomTruncatedNormal: shape,
-                  mean: 0, standardDeviation: standardDeviation,
+                  mean: 0, std: std, layout: layout,
                   seed: seed)
     }
     
@@ -273,12 +296,16 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///
     /// - Parameters:
     ///   - shape: The dimensions of the tensor.
+    ///   - layout: element storage layout
     ///   - seed: The seed value.
-    init(leCunUniform shape: Shape, seed: RandomSeed = Context.randomSeed) {
+    init(leCunUniform shape: Shape,
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
         let (fanIn, _) = shape.fans()
         let limit = Element.sqrt(3 / Element(fanIn))
         self.init(randomUniform: shape, lower: -limit,
-                  upper: limit, seed: seed)
+                  upper: limit, layout: layout, seed: seed)
     }
     
     //--------------------------------------------------------------------------
@@ -294,17 +321,21 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///
     /// - Parameters:
     ///   - shape: The dimensions of the tensor.
+    ///   - layout: element storage layout
     ///   - seed: The seed value.
-    init(leCunNormal shape: Shape, seed: RandomSeed = Context.randomSeed) {
+    init(leCunNormal shape: Shape,
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
         let (fanIn, _) = shape.fans()
-        var standardDeviation = Element.sqrt(1 / Element(fanIn))
+        var std = Element.sqrt(1 / Element(fanIn))
         // Standard deviation of truncated standard normal between
         // `-2` and `2` standard deviations.
         let truncationDeviation = Element(0.87962566103423978)
         // Smooth the tails of the clipped normal.
-        standardDeviation /= truncationDeviation
+        std /= truncationDeviation
         self.init(randomTruncatedNormal: shape,
-                  mean: 0, standardDeviation: standardDeviation,
+                  mean: 0, std: std, layout: layout,
                   seed: seed)
     }
 }
@@ -315,73 +346,96 @@ public extension Tensor where
     Shape == Shape1,
     TensorElement.Value: Real & BinaryFloatingPoint
 {
-    init(randomTruncatedNormal shape: Int,
-         mean: Self, standardDeviation: Self,
-         seed: RandomSeed = Context.randomSeed)
-    {
+    init(
+        randomTruncatedNormal shape: Int,
+        mean: Self,
+        std: Self,
+        layout: Layout = Layout.defaultValue,
+        seed: RandomSeed = Context.randomSeed
+    ) {
         self.init(randomTruncatedNormal: Shape(shape),
-                  mean: mean, standardDeviation: standardDeviation, seed: seed)
+                  mean: mean, std: std, layout: layout, seed: seed)
     }
 
     init(randomTruncatedNormal shape: Int,
-         mean: Element = 0, standardDeviation: Element = 1,
-         seed: RandomSeed = Context.randomSeed)
-    {
+         mean: Element = 0,
+         std: Element = 1,
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
         self.init(randomTruncatedNormal: Shape(shape),
-                  mean: mean, standardDeviation: standardDeviation, seed: seed)
+                  mean: mean, std: std, layout: layout, seed: seed)
     }
 
     init(randomNormal shape: Int, mean: Self,
-         standardDeviation: Self, seed: RandomSeed = Context.randomSeed)
-    {
+         std: Self,
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
         self.init(randomNormal: Shape(shape),
-                  mean: mean, standardDeviation: standardDeviation, seed: seed)
+                  mean: mean, std: std, layout: layout, seed: seed)
     }
 
     init(randomNormal shape: Int,
          mean: Element = 0,
-         standardDeviation: Element = 1,
-         seed: RandomSeed = Context.randomSeed)
-    {
+         std: Element = 1,
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
         self.init(randomNormal: Shape(shape),
-                  mean: mean, standardDeviation: standardDeviation, seed: seed)
+                  mean: mean, std: std, layout: layout, seed: seed)
     }
 
     init(randomUniform shape: Int,
          lower: Element = 0,
          upper: Element = 1,
-         seed: RandomSeed = Context.randomSeed)
-    {
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
         self.init(randomUniform: Shape(shape),
-                  lower: lower, upper: upper, seed: seed)
+                  lower: lower, upper: upper, layout: layout, seed: seed)
     }
 
     init(glorotUniform shape: Int,
-         seed: RandomSeed = Context.randomSeed)
-    {
-        self.init(glorotUniform: Shape(shape), seed: seed)
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
+        self.init(glorotUniform: Shape(shape), layout: layout, seed: seed)
     }
         
     init(glorotNormal shape: Int,
-         seed: RandomSeed = Context.randomSeed)
-    {
-        self.init(glorotNormal: Shape(shape), seed: seed)
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
+        self.init(glorotNormal: Shape(shape), layout: layout, seed: seed)
     }
     
-    init(heUniform shape: Int, seed: RandomSeed = Context.randomSeed) {
-        self.init(heUniform: Shape(shape), seed: seed)
+    init(heUniform shape: Int,
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
+        self.init(heUniform: Shape(shape), layout: layout, seed: seed)
     }
     
-    init(heNormal shape: Int, seed: RandomSeed = Context.randomSeed) {
-        self.init(heNormal: Shape(shape), seed: seed)
+    init(heNormal shape: Int,
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
+        self.init(heNormal: Shape(shape), layout: layout, seed: seed)
     }
     
-    init(leCunUniform shape: Int, seed: RandomSeed = Context.randomSeed) {
-        self.init(leCunUniform: Shape(shape), seed: seed)
+    init(leCunUniform shape: Int,
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
+        self.init(leCunUniform: Shape(shape), layout: layout, seed: seed)
     }
     
-    init(leCunNormal shape: Int, seed: RandomSeed = Context.randomSeed) {
-        self.init(leCunNormal: Shape(shape), seed: seed)
+    init(leCunNormal shape: Int,
+         layout: Layout = Layout.defaultValue,
+         seed: RandomSeed = Context.randomSeed
+    ) {
+        self.init(leCunNormal: Shape(shape), layout: layout, seed: seed)
     }
 }
 

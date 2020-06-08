@@ -63,7 +63,7 @@ numShapes = 6
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape${n}, E>,
     _ newShape: ${shapeType},
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${i}, E> {
     Tensor<Shape${i}, E>(reshaping: a, to: Shape${i}(newShape), layout: order)
 }
@@ -194,18 +194,20 @@ numShapes = 6
 @differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<Element>(
     _ value: Element,
-    _ shape: Shape${n}.Tuple
+    _ shape: Shape${n}.Tuple,
+    _ layout: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n}, Element> where Element == Element.Value {
-    Tensor<Shape${n},Element>(repeating: value, to: Shape${n}(shape))
+    Tensor<Shape${n},Element>(repeating: value, to: Shape${n}(shape), layout: layout)
 }
 
 //---------------------------
 // Int --> DType
 @inlinable public func repeating(
     _ value: Int,
-    _ shape: Shape${n}.Tuple
+    _ shape: Shape${n}.Tuple,
+    _ layout: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n}, DType> {
-    Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape))
+    Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape), layout: layout)
 }
 
 //---------------------------
@@ -213,9 +215,10 @@ numShapes = 6
 // @differentiable
 @inlinable public func repeating(
     _ value: Double,
-    _ shape: Shape${n}.Tuple
+    _ shape: Shape${n}.Tuple,
+    _ layout: Layout = Layout.defaultValue
 ) -> Tensor<Shape${n}, DType> {
-    Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape))
+    Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape), layout: layout)
 }
 
 //************************** Explicit typing
@@ -224,9 +227,10 @@ numShapes = 6
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape${n}.Tuple,
+    _ layout: Layout = Layout.defaultValue,
     type: Element.Type
 ) -> Tensor<Shape${n},Element> {
-    Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape))
+    Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape), layout: layout)
 }
 
 %end
@@ -249,7 +253,8 @@ numShapes = 6
     like prototype: Tensor<S,Element>
 ) -> Tensor<S,Element> where S: TensorShape
 {
-    Tensor<S,Element>(repeating: value, to: prototype.shape)
+    Tensor<S,Element>(repeating: value, to: prototype.shape,
+                      layout: prototype.layout)
 }
 
 // different type same shape
@@ -260,7 +265,8 @@ numShapes = 6
     type: Element.Type
 ) -> Tensor<S,Element> where S: TensorShape
 {
-    Tensor<S,Element>(repeating: value, to: prototype.shape)
+    Tensor<S,Element>(repeating: value, to: prototype.shape,
+                      layout: prototype.layout)
 }
 
 //------------------------------------------------------------------------------
@@ -275,7 +281,8 @@ numShapes = 6
 ) -> Tensor<Shape${n}, E> where S: TensorShape
 {
     assert(prototype.count == Shape${n}(shape).elementCount())
-    return Tensor<Shape${n}, E>(repeating: value, to: Shape${n}(shape))
+    return Tensor<Shape${n}, E>(repeating: value, to: Shape${n}(shape),
+                             layout: prototype.layout)
 }
 
 %end
@@ -293,7 +300,8 @@ numShapes = 6
 ) -> Tensor<Shape${n}, Element> where S: TensorShape
 {
     assert(prototype.count == Shape${n}(shape).elementCount())
-    return Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape))
+    return Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape),
+                      layout: prototype.layout)
 }
 
 %end

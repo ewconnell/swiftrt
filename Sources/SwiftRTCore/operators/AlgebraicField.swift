@@ -302,7 +302,7 @@ public extension Tensor where TensorElement.Value: AlgebraicField {
     @differentiable(where TensorElement.Value: DifferentiableElement)
     @differentiable(wrt: lhs where TensorElement.Value: DifferentiableElement)
     @inlinable static func / (lhs: Self, rhs: TensorElement.Value) -> Self {
-        div(lhs, Self(repeating: rhs, to: lhs.shape))
+        div(lhs, repeating(rhs, like: lhs))
     }
 
     @derivative(of: /, wrt: lhs)
@@ -317,7 +317,7 @@ public extension Tensor where TensorElement.Value: AlgebraicField {
     @differentiable(where TensorElement.Value: DifferentiableElement)
     @differentiable(wrt: rhs where TensorElement.Value: DifferentiableElement)
     @inlinable static func / (lhs: TensorElement.Value, rhs: Self) -> Self {
-        div(Self(repeating: lhs, to: rhs.shape), rhs)
+        div(repeating(lhs, like: rhs), rhs)
     }
 
     @derivative(of: /, wrt: rhs)

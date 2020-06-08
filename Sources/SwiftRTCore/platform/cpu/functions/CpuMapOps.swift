@@ -120,6 +120,7 @@ extension DeviceQueue {
         _ r: inout Tensor<S,RE>,
         _ op: @escaping (RE.Value, E.Value) -> RE.Value
     ) {
+        assert(a.layout == r.layout)
         // the op
         func execute<I0: Collection, O: MutableCollection>(
             _ i0: I0, _ out: O,
@@ -146,6 +147,7 @@ extension DeviceQueue {
                 repeatedStrides(matching: r, to: a.shape),
                 r.storage,
                 r.storageBase,
+                r.layout,
                 r.stridedSpanCount)
         
         rMutableElements.synchronizeForReadWrite()
@@ -179,10 +181,21 @@ extension DeviceQueue {
             }
         }
 
-        // if layouts match then iterate through buffer elements,
-        // iterate using logical element positions
-        if haveSameStorageLayout(a, r) {
-            execute(a.buffer, r.mutableBuffer, op)
+        // check layouts because they will not match for layout conversion ops
+        if a.layout == r.layout {
+            if a.isBufferIterable {
+                if r.isBufferIterable {
+                    execute(a.buffer, r.mutableBuffer, op)
+                } else {
+                    execute(a.buffer, r.mutableElements, op)
+                }
+            } else {
+                if r.isBufferIterable {
+                    execute(a.elements, r.mutableBuffer, op)
+                } else {
+                    execute(a.elements, r.mutableElements, op)
+                }
+            }
         } else {
             execute(a.elements, r.mutableElements, op)
         }
@@ -197,6 +210,7 @@ extension DeviceQueue {
         _ r: inout Tensor<S,RE>,
         _ op: @escaping (E.Value, E.Value) -> RE.Value
     ) {
+        assert(a.layout == b.layout && a.layout == r.layout)
         // the op
         func execute<I0: Collection, I1: Collection, O: MutableCollection>(
             _ i0: I0, _ i1: I1, _ out: O,
@@ -216,12 +230,34 @@ extension DeviceQueue {
             }
         }
         
-        // if layouts match then iterate through buffer elements,
-        // iterate using logical element positions
-        if haveSameStorageLayout(a, b, r) {
-            execute(a.buffer, b.buffer, r.mutableBuffer, op)
+        if a.isBufferIterable {
+            if b.isBufferIterable {
+                if r.isBufferIterable {
+                    execute(a.buffer, b.buffer, r.mutableBuffer, op)
+                } else {
+                    execute(a.buffer, b.buffer, r.mutableElements, op)
+                }
+            } else {
+                if r.isBufferIterable {
+                    execute(a.buffer, b.elements, r.mutableBuffer, op)
+                } else {
+                    execute(a.buffer, b.elements, r.mutableElements, op)
+                }
+            }
         } else {
-            execute(a.elements, b.elements, r.mutableElements, op)
+            if b.isBufferIterable {
+                if r.isBufferIterable {
+                    execute(a.elements, b.buffer, r.mutableBuffer, op)
+                } else {
+                    execute(a.elements, b.buffer, r.mutableElements, op)
+                }
+            } else {
+                if r.isBufferIterable {
+                    execute(a.elements, b.elements, r.mutableBuffer, op)
+                } else {
+                    execute(a.elements, b.elements, r.mutableElements, op)
+                }
+            }
         }
     }
 
@@ -233,10 +269,14 @@ extension DeviceQueue {
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
+        assert(a.layout == b.layout && a.layout == r.layout)
+
         // the op
-        func execute<I: Collection, O: MutableCollection>(
-            _ i0: I, _ i1: I, _ out: O
-        ) where I.Element: AdditiveArithmetic, O.Element == I.Element {
+        func execute<I0: Collection, I1: Collection, O: MutableCollection>(
+            _ i0: I0, _ i1: I1, _ out: O
+        ) where I0.Element: AdditiveArithmetic,
+                I0.Element == I1.Element, O.Element == I0.Element
+        {
             var out = out
             if mode == .async {
                 queue.async {
@@ -251,12 +291,34 @@ extension DeviceQueue {
             }
         }
         
-        // if layouts match then iterate through buffer elements,
-        // iterate using logical element positions
-        if haveSameStorageLayout(a, b, r) {
-            execute(a.buffer, b.buffer, r.mutableBuffer)
+        if a.isBufferIterable {
+            if b.isBufferIterable {
+                if r.isBufferIterable {
+                    execute(a.buffer, b.buffer, r.mutableBuffer)
+                } else {
+                    execute(a.buffer, b.buffer, r.mutableElements)
+                }
+            } else {
+                if r.isBufferIterable {
+                    execute(a.buffer, b.elements, r.mutableBuffer)
+                } else {
+                    execute(a.buffer, b.elements, r.mutableElements)
+                }
+            }
         } else {
-            execute(a.elements, b.elements, r.mutableElements)
+            if b.isBufferIterable {
+                if r.isBufferIterable {
+                    execute(a.elements, b.buffer, r.mutableBuffer)
+                } else {
+                    execute(a.elements, b.buffer, r.mutableElements)
+                }
+            } else {
+                if r.isBufferIterable {
+                    execute(a.elements, b.elements, r.mutableBuffer)
+                } else {
+                    execute(a.elements, b.elements, r.mutableElements)
+                }
+            }
         }
     }
 
@@ -268,10 +330,13 @@ extension DeviceQueue {
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
+        assert(a.layout == b.layout && a.layout == r.layout)
         // the op
-        func execute<I: Collection, O: MutableCollection>(
-            _ i0: I, _ i1: I, _ out: O
-        ) where I.Element: AdditiveArithmetic, O.Element == I.Element {
+        func execute<I0: Collection, I1: Collection, O: MutableCollection>(
+            _ i0: I0, _ i1: I1, _ out: O
+        ) where I0.Element: AdditiveArithmetic,
+                I0.Element == I1.Element, O.Element == I0.Element
+        {
             var out = out
             if mode == .async {
                 queue.async {
@@ -286,12 +351,34 @@ extension DeviceQueue {
             }
         }
         
-        // if layouts match then iterate through buffer elements,
-        // iterate using logical element positions
-        if haveSameStorageLayout(a, b, r) {
-            execute(a.buffer, b.buffer, r.mutableBuffer)
+        if a.isBufferIterable {
+            if b.isBufferIterable {
+                if r.isBufferIterable {
+                    execute(a.buffer, b.buffer, r.mutableBuffer)
+                } else {
+                    execute(a.buffer, b.buffer, r.mutableElements)
+                }
+            } else {
+                if r.isBufferIterable {
+                    execute(a.buffer, b.elements, r.mutableBuffer)
+                } else {
+                    execute(a.buffer, b.elements, r.mutableElements)
+                }
+            }
         } else {
-            execute(a.elements, b.elements, r.mutableElements)
+            if b.isBufferIterable {
+                if r.isBufferIterable {
+                    execute(a.elements, b.buffer, r.mutableBuffer)
+                } else {
+                    execute(a.elements, b.buffer, r.mutableElements)
+                }
+            } else {
+                if r.isBufferIterable {
+                    execute(a.elements, b.elements, r.mutableBuffer)
+                } else {
+                    execute(a.elements, b.elements, r.mutableElements)
+                }
+            }
         }
     }
     
@@ -303,10 +390,13 @@ extension DeviceQueue {
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
     ) where E.Value: Numeric {
+        assert(a.layout == b.layout && a.layout == r.layout)
         // the op
-        func execute<I: Collection, O: MutableCollection>(
-            _ i0: I, _ i1: I, _ out: O
-        ) where I.Element: Numeric, O.Element == I.Element {
+        func execute<I0: Collection, I1: Collection, O: MutableCollection>(
+            _ i0: I0, _ i1: I1, _ out: O
+        ) where I0.Element: Numeric,
+                I0.Element == I1.Element, O.Element == I0.Element
+        {
             var out = out
             if mode == .async {
                 queue.async {
@@ -321,12 +411,34 @@ extension DeviceQueue {
             }
         }
         
-        // if layouts match then iterate through buffer elements,
-        // iterate using logical element positions
-        if haveSameStorageLayout(a, b, r) {
-            execute(a.buffer, b.buffer, r.mutableBuffer)
+        if a.isBufferIterable {
+            if b.isBufferIterable {
+                if r.isBufferIterable {
+                    execute(a.buffer, b.buffer, r.mutableBuffer)
+                } else {
+                    execute(a.buffer, b.buffer, r.mutableElements)
+                }
+            } else {
+                if r.isBufferIterable {
+                    execute(a.buffer, b.elements, r.mutableBuffer)
+                } else {
+                    execute(a.buffer, b.elements, r.mutableElements)
+                }
+            }
         } else {
-            execute(a.elements, b.elements, r.mutableElements)
+            if b.isBufferIterable {
+                if r.isBufferIterable {
+                    execute(a.elements, b.buffer, r.mutableBuffer)
+                } else {
+                    execute(a.elements, b.buffer, r.mutableElements)
+                }
+            } else {
+                if r.isBufferIterable {
+                    execute(a.elements, b.elements, r.mutableBuffer)
+                } else {
+                    execute(a.elements, b.elements, r.mutableElements)
+                }
+            }
         }
     }
     
@@ -338,10 +450,13 @@ extension DeviceQueue {
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
     ) where E.Value: AlgebraicField {
+        assert(a.layout == b.layout && a.layout == r.layout)
         // the op
-        func execute<I: Collection, O: MutableCollection>(
-            _ i0: I, _ i1: I, _ out: O
-        ) where I.Element: AlgebraicField, O.Element == I.Element {
+        func execute<I0: Collection, I1: Collection, O: MutableCollection>(
+            _ i0: I0, _ i1: I1, _ out: O
+        ) where I0.Element: AlgebraicField,
+                I0.Element == I1.Element, O.Element == I0.Element
+        {
             var out = out
             if mode == .async {
                 queue.async {
@@ -356,14 +471,36 @@ extension DeviceQueue {
             }
         }
         
-        // if layouts match then iterate through buffer elements,
-        // iterate using logical element positions
-        if haveSameStorageLayout(a, b, r) {
-            execute(a.buffer, b.buffer, r.mutableBuffer)
+        if a.isBufferIterable {
+            if b.isBufferIterable {
+                if r.isBufferIterable {
+                    execute(a.buffer, b.buffer, r.mutableBuffer)
+                } else {
+                    execute(a.buffer, b.buffer, r.mutableElements)
+                }
+            } else {
+                if r.isBufferIterable {
+                    execute(a.buffer, b.elements, r.mutableBuffer)
+                } else {
+                    execute(a.buffer, b.elements, r.mutableElements)
+                }
+            }
         } else {
-            execute(a.elements, b.elements, r.mutableElements)
+            if b.isBufferIterable {
+                if r.isBufferIterable {
+                    execute(a.elements, b.buffer, r.mutableBuffer)
+                } else {
+                    execute(a.elements, b.buffer, r.mutableElements)
+                }
+            } else {
+                if r.isBufferIterable {
+                    execute(a.elements, b.elements, r.mutableBuffer)
+                } else {
+                    execute(a.elements, b.elements, r.mutableElements)
+                }
+            }
         }
-    }
+   }
     
     //==========================================================================
     // mapOp 3
@@ -398,11 +535,66 @@ extension DeviceQueue {
             }
         }
         
-        // execute right layout combination
-        if haveSameStorageLayout(a, b, c, r) {
-            execute(a.buffer, b.buffer, c.buffer, r.mutableBuffer, op)
+        if a.isBufferIterable {
+            if b.isBufferIterable {
+                if c.isBufferIterable {
+                    if r.isBufferIterable {
+                        execute(a.buffer, b.buffer, c.buffer, r.mutableBuffer, op)
+                    } else {
+                        execute(a.buffer, b.buffer, c.buffer, r.mutableElements, op)
+                    }
+                } else {
+                    if r.isBufferIterable {
+                        execute(a.buffer, b.buffer, c.elements, r.mutableBuffer, op)
+                    } else {
+                        execute(a.buffer, b.buffer, c.elements, r.mutableElements, op)
+                    }
+                }
+            } else {
+                if c.isBufferIterable {
+                    if r.isBufferIterable {
+                        execute(a.buffer, b.elements, c.buffer, r.mutableBuffer, op)
+                    } else {
+                        execute(a.buffer, b.elements, c.buffer, r.mutableElements, op)
+                    }
+                } else {
+                    if r.isBufferIterable {
+                        execute(a.buffer, b.elements, c.elements, r.mutableBuffer, op)
+                    } else {
+                        execute(a.buffer, b.elements, c.elements, r.mutableElements, op)
+                    }
+                }
+            }
         } else {
-            execute(a.elements, b.elements, c.elements, r.mutableElements, op)
+            if b.isBufferIterable {
+                if c.isBufferIterable {
+                    if r.isBufferIterable {
+                        execute(a.elements, b.buffer, c.buffer, r.mutableBuffer, op)
+                    } else {
+                        execute(a.elements, b.buffer, c.buffer, r.mutableElements, op)
+                    }
+                } else {
+                    if r.isBufferIterable {
+                        execute(a.elements, b.buffer, c.elements, r.mutableBuffer, op)
+                    } else {
+                        execute(a.elements, b.buffer, c.elements, r.mutableElements, op)
+                    }
+                }
+            } else {
+                if c.isBufferIterable {
+                    if r.isBufferIterable {
+                        execute(a.elements, b.elements, c.buffer, r.mutableBuffer, op)
+                    } else {
+                        execute(a.elements, b.elements, c.buffer, r.mutableElements, op)
+                    }
+                } else {
+                    if r.isBufferIterable {
+                        execute(a.elements, b.elements, c.elements, r.mutableBuffer, op)
+                    } else {
+                        execute(a.elements, b.elements, c.elements, r.mutableElements, op)
+                    }
+                }
+            }
         }
     }
     
@@ -451,12 +643,9 @@ extension DeviceQueue {
         }
         
         // execute right layout combination
-        if haveSameStorageLayout(a, b, c, r1, r2) {
-            execute(a.buffer, b.buffer, c.buffer,
-                    r1.mutableBuffer, r2.mutableBuffer, op)
-        } else {
-            execute(a.elements, b.elements, c.elements,
-                    r1.mutableElements, r2.mutableElements, op)
-        }
+        assert(a.isBufferIterable && b.isBufferIterable && c.isBufferIterable &&
+                r1.isBufferIterable && r2.isBufferIterable)
+        execute(a.buffer, b.buffer, c.buffer,
+                r1.mutableBuffer, r2.mutableBuffer, op)
     }
 }

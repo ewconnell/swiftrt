@@ -32,7 +32,7 @@ import Foundation
 /// - Returns: the identity tensor
 @inlinable public func identity(
     _ n: Int,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape2, DType> {
     eye(n, n, order: order)
 }
@@ -40,7 +40,7 @@ import Foundation
 @inlinable public func identity<Element>(
     _ n: Int,
     type: Element.Type,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape2, Element>
 where Element: StorageElement, Element.Value: Numeric
 {
@@ -66,7 +66,7 @@ where Element: StorageElement, Element.Value: Numeric
 /// - Returns: the identity tensor
 @inlinable public func eye(
     _ N: Int, _ M: Int? = nil, k: Int = 0,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape2,DType>
 {
     Tensor<Shape2,DType>(eye: Shape2(N, M ?? N), offset: k, layout: order)
@@ -75,7 +75,7 @@ where Element: StorageElement, Element.Value: Numeric
 @inlinable public func eye<Element>(
     _ N: Int, _ M: Int? = nil, k: Int = 0,
     type: Element.Type,
-    order: Layout = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape2, Element>
 where Element: StorageElement, Element.Value: Numeric
 {
