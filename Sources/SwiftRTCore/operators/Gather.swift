@@ -29,7 +29,7 @@ where S: TensorShape
     let axis = axis < 0 ? axis + S.rank : axis
     var shape = tensor.shape
     shape[axis] = indices.count
-    var result = Tensor<S,E>(shape, layout: tensor.layout)
+    var result = Tensor<S,E>(shape: shape, layout: tensor.layout)
     var rlower = S.zero, tlower = S.zero
     var rupper = tensor.shape, tupper = tensor.shape
     for (ri, ti) in indices.enumerated() {

@@ -205,7 +205,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 @inlinable public func cast<S,E,OE>(_ other: Tensor<S,OE>) -> Tensor<S,E>
 where S: TensorShape, E.Value: BinaryFloatingPoint, OE.Value: BinaryInteger
 {
-    var result = Tensor<S,E>(other.shape)
+    var result = Tensor<S,E>(shape: other.shape)
     Context.currentQueue.cast(from: other, to: &result)
     return result
 }
@@ -213,7 +213,7 @@ where S: TensorShape, E.Value: BinaryFloatingPoint, OE.Value: BinaryInteger
 @inlinable public func cast<S,E,OE>(_ other: Tensor<S,OE>) -> Tensor<S,E>
 where S: TensorShape, E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint
 {
-    var result = Tensor<S,E>(other.shape)
+    var result = Tensor<S,E>(shape: other.shape)
     Context.currentQueue.cast(from: other, to: &result)
     return result
 }

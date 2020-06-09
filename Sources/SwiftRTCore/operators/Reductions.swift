@@ -33,12 +33,12 @@ public let _messageTensorExtentsMismatch = "tensor shape mismatch"
 ) -> Tensor<S,Bool> where S: TensorShape {
     if let axes = axes {
         let resultShape = x.reductionShape(alongAxes: axes)
-        var result = Tensor<S,Bool>(resultShape)
+        var result = Tensor<S,Bool>(shape: resultShape)
         copy(from: x[S.zero, resultShape], to: &result)
         Context.currentQueue.reduce(x, &result, .compare, { $0 && $1 }, nil)
         return result
     } else {
-        var result = Tensor<S,Bool>(S.one)
+        var result = Tensor<S,Bool>(shape: S.one)
         Context.currentQueue.reduceAll(x, &result)
         return result
     }
@@ -69,12 +69,12 @@ public func any<S>(_ x: Tensor<S,Bool>, alongAxes axes: Set<Int>? = nil)
 {
     if let axes = axes {
         let resultShape = x.reductionShape(alongAxes: axes)
-        var result = Tensor<S,Bool>(resultShape)
+        var result = Tensor<S,Bool>(shape: resultShape)
         copy(from: x[S.zero, resultShape], to: &result)
         Context.currentQueue.reduce(x, &result, .compare, { $0 || $1 }, nil)
         return result
     } else {
-        var result = Tensor<S,Bool>(S.one)
+        var result = Tensor<S,Bool>(shape: S.one)
         Context.currentQueue.reduceAny(x, &result)
         return result
     }
@@ -107,7 +107,7 @@ public func sum<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
         Context.currentQueue.reduce(x, &result, .add, +, nil)
         return result
     } else {
-        var result = Tensor<S,E>(S.one)
+        var result = Tensor<S,E>(shape: S.one)
         Context.currentQueue.reduceSum(x, &result)
         return result
     }
@@ -163,7 +163,7 @@ public extension Tensor where TensorElement.Value: Numeric {
         Context.currentQueue.reduce(x, &result, .add, +, { $0 / divisor })
         return result
     } else {
-        var result = Tensor<S,E>(S.one)
+        var result = Tensor<S,E>(shape: S.one)
         Context.currentQueue.reduceMean(x, &result)
         return result
     }
@@ -289,12 +289,12 @@ public extension Tensor where TensorElement.Value: Numeric {
 ) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable
 {
     if let axes = axes {
-        var result = Tensor<S,E>(x.reductionShape(alongAxes: axes))
+        var result = Tensor<S,E>(shape: x.reductionShape(alongAxes: axes))
         copy(from: x[S.zero, result.shape], to: &result)
         Context.currentQueue.reduce(x, &result, .min, { Swift.min($0,$1) }, nil)
         return result
     } else {
-        var result = Tensor<S,E>(S.one)
+        var result = Tensor<S,E>(shape: S.one)
         Context.currentQueue.reduceMin(x, &result)
         return result
     }
@@ -333,12 +333,12 @@ public extension Tensor where TensorElement.Value: Comparable
 ) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable
 {
     if let axes = axes {
-        var result = Tensor<S,E>(x.reductionShape(alongAxes: axes))
+        var result = Tensor<S,E>(shape: x.reductionShape(alongAxes: axes))
         copy(from: x[S.zero, result.shape], to: &result)
         Context.currentQueue.reduce(x, &result, .max, { Swift.max($0,$1) }, nil)
         return result
     } else {
-        var result = Tensor<S,E>(S.one)
+        var result = Tensor<S,E>(shape: S.one)
         Context.currentQueue.reduceMax(x, &result)
         return result
     }
@@ -376,7 +376,7 @@ public extension Tensor where TensorElement.Value: Comparable
     alongAxes axes: Set<Int>? = nil
 ) -> Tensor<S,E> where S: TensorShape, E.Value: SignedNumeric & Comparable
 {
-    var result = Tensor<S,E>(x.reductionShape(alongAxes: axes))
+    var result = Tensor<S,E>(shape: x.reductionShape(alongAxes: axes))
     copy(from: x[S.zero, result.shape], to: &result)
     Context.currentQueue.reduce(x, &result, .amax, {
         Swift.max(Swift.abs($0), Swift.abs($1))

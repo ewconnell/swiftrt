@@ -280,7 +280,7 @@ public func equal<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,Bool>
 where S: TensorShape, E.Value: Equatable
 {
     assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
-    var result = Tensor<S, Bool>(lhs.shape, layout: lhs.layout)
+    var result = Tensor<S, Bool>(shape: lhs.shape, layout: lhs.layout)
     Context.currentQueue.equal(lhs, rhs, &result)
     return result
 }
@@ -319,7 +319,7 @@ extension Tensor: Equatable where TensorElement.Value: Equatable {
 ) -> Tensor<S,Bool>
 where S: TensorShape, E.Value: SignedNumeric & Comparable {
     assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
-    var result = Tensor<S,Bool>(lhs.shape, layout: lhs.layout)
+    var result = Tensor<S,Bool>(shape: lhs.shape, layout: lhs.layout)
     Context.currentQueue.elementsAlmostEqual(lhs, rhs, tolerance, &result)
     return result
 }
@@ -341,7 +341,7 @@ public extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
 -> Tensor<S,Bool> where S: TensorShape, E.Value: Equatable
 {
     assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
-    var result = Tensor<S,Bool>(lhs.shape, layout: lhs.layout)
+    var result = Tensor<S,Bool>(shape: lhs.shape, layout: lhs.layout)
     Context.currentQueue.notEqual(lhs, rhs, &result)
     return result
 }
@@ -358,7 +358,7 @@ public extension Tensor where TensorElement.Value: Equatable {
 @inlinable public func greater<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
 -> Tensor<S,Bool> where S: TensorShape, E.Value: Comparable
 {
-    var result = Tensor<S,Bool>(lhs.shape, layout: lhs.layout)
+    var result = Tensor<S,Bool>(shape: lhs.shape, layout: lhs.layout)
     Context.currentQueue.greater(lhs, rhs, &result)
     return result
 }
@@ -375,7 +375,7 @@ public extension Tensor where TensorElement.Value: Comparable {
 @inlinable public func greaterOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
 -> Tensor<S, Bool> where S: TensorShape, E.Value: Comparable
 {
-    var result = Tensor<S,Bool>(lhs.shape, layout: lhs.layout)
+    var result = Tensor<S,Bool>(shape: lhs.shape, layout: lhs.layout)
     Context.currentQueue.greaterOrEqual(lhs, rhs, &result)
     return result
 }
@@ -392,7 +392,7 @@ public extension Tensor where TensorElement.Value: Comparable {
 @inlinable public func less<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
 -> Tensor<S,Bool> where S: TensorShape, E.Value: Comparable
 {
-    var result = Tensor<S,Bool>(lhs.shape, layout: lhs.layout)
+    var result = Tensor<S,Bool>(shape: lhs.shape, layout: lhs.layout)
     Context.currentQueue.less(lhs, rhs, &result)
     return result
 }
@@ -409,7 +409,7 @@ public extension Tensor where TensorElement.Value: Comparable {
 @inlinable public func lessOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
 -> Tensor<S,Bool> where S: TensorShape, E.Value: Comparable
 {
-    var result = Tensor<S,Bool>(lhs.shape, layout: lhs.layout)
+    var result = Tensor<S,Bool>(shape: lhs.shape, layout: lhs.layout)
     Context.currentQueue.lessOrEqual(lhs, rhs, &result)
     return result
 }
