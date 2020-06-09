@@ -145,7 +145,7 @@ public enum Layout: Int, Codable {
     
     public static let C = row, F = col, A = -1
     
-    public static var defaultValue = Layout.row
+    @inlinable public static var defaultValue: Layout { Layout.row }
 }
 
 public let _messageLayoutsMustMatch = "input layouts must match"

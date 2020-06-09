@@ -120,7 +120,7 @@ extension DeviceQueue {
         _ r: inout Tensor<S,RE>,
         _ op: @escaping (RE.Value, E.Value) -> RE.Value
     ) {
-        assert(a.layout == r.layout)
+        precondition(a.layout == r.layout)
         // the op
         func execute<I0: Collection, O: MutableCollection>(
             _ i0: I0, _ out: O,
@@ -210,7 +210,8 @@ extension DeviceQueue {
         _ r: inout Tensor<S,RE>,
         _ op: @escaping (E.Value, E.Value) -> RE.Value
     ) {
-        assert(a.layout == b.layout && a.layout == r.layout)
+        precondition(a.layout == b.layout && a.layout == r.layout,
+                     _messageLayoutsMustMatch)
         // the op
         func execute<I0: Collection, I1: Collection, O: MutableCollection>(
             _ i0: I0, _ i1: I1, _ out: O,
@@ -269,7 +270,8 @@ extension DeviceQueue {
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
-        assert(a.layout == b.layout && a.layout == r.layout)
+        precondition(a.layout == b.layout && a.layout == r.layout,
+                     _messageLayoutsMustMatch)
 
         // the op
         func execute<I0: Collection, I1: Collection, O: MutableCollection>(
@@ -330,7 +332,7 @@ extension DeviceQueue {
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
-        assert(a.layout == b.layout && a.layout == r.layout)
+        precondition(a.layout == b.layout && a.layout == r.layout)
         // the op
         func execute<I0: Collection, I1: Collection, O: MutableCollection>(
             _ i0: I0, _ i1: I1, _ out: O
@@ -390,7 +392,7 @@ extension DeviceQueue {
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
     ) where E.Value: Numeric {
-        assert(a.layout == b.layout && a.layout == r.layout)
+        precondition(a.layout == b.layout && a.layout == r.layout)
         // the op
         func execute<I0: Collection, I1: Collection, O: MutableCollection>(
             _ i0: I0, _ i1: I1, _ out: O
@@ -450,7 +452,7 @@ extension DeviceQueue {
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
     ) where E.Value: AlgebraicField {
-        assert(a.layout == b.layout && a.layout == r.layout)
+        precondition(a.layout == b.layout && a.layout == r.layout)
         // the op
         func execute<I0: Collection, I1: Collection, O: MutableCollection>(
             _ i0: I0, _ i1: I1, _ out: O
@@ -511,6 +513,8 @@ extension DeviceQueue {
         _ r: inout Tensor<S,R1>,
         _ op: @escaping (E0.Value, E1.Value, E2.Value) -> R1.Value
     ) {
+        precondition(a.layout == b.layout && a.layout == c.layout &&
+                     a.layout == r.layout)
         // the op
         func execute<
             I0: Collection,
