@@ -176,11 +176,8 @@ public protocol DifferentiableElement:
 extension Float: DifferentiableElement {}
 extension Double: DifferentiableElement {}
 
-// this is defined with the typealias because of AD same file
-// compiler requirements. Hopefully fixed in the future
-extension Complex: DifferentiableElement {
-  public typealias TangentVector = Self
-}
+extension Complex: DifferentiableElement
+where RealType: Differentiable, RealType.TangentVector == RealType {}
 
 // Differentiable conformance
 extension Tensor: Differentiable & DifferentiableTensor
