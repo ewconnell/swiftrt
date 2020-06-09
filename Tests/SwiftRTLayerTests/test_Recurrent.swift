@@ -35,24 +35,29 @@ let initialLSTMCellFusedWeights = array(
             0.103300214,    0.2272774,  -0.07694018,    -0.463426,   0.16690546,    0.2600751]])
 
 class test_Recurrent: XCTestCase {
-    //==========================================================================
     // support terminal test run
     static var allTests = [
         ("test_LSTMEncoder", test_LSTMEncoder),
     ]
 
-    //==========================================================================
-    // test_LSTMEncoder
+    //--------------------------------------------------------------------------
     func test_Embedding() {
-//        let alphabet = Alphabet([sentence], eos: "</s>", eow: "</w>", pad: "</pad>")
-//        let characterSequence =
-//            try! CharacterSequence(alphabet: alphabet, appendingEoSTo: sentence)
-//        let encoder = Embedding<Float>(vocabularySize: alphabet.count, embeddingSize: ndim)
-//        let embedded = encoder(characterSequence)
+        let vocabSize = 4
+        let encoder = Embedding<Float>(
+                vocabularySize: vocabSize,
+                embeddingSize: ndim,
+                embeddingsInitializer: {
+                    array(0..<($0[0] * $0[1]), ($0[0], $0[1]))
+                })
+        let sequence = array([1, 3], type: DeviceIndex.self)
+        let embedded = encoder(sequence)
+        XCTAssert(embedded == [
+            [3.0, 4.0, 5.0],
+            [9.0, 10.0, 11.0]
+        ])
     }
     
-    //==========================================================================
-    // test_LSTMEncoder
+    //--------------------------------------------------------------------------
     func test_LSTMEncoder() {
 //        var lstmEncoder = LSTM<Float>(LSTMCell(inputSize: ndim, hiddenSize: ndim))
 //        XCTAssert(lstmEncoder.cell.fusedWeight.shape == [6, 12])
