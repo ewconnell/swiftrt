@@ -19,7 +19,7 @@ import SwiftRT
 import Numerics
 
 class test_AlgebraicField: XCTestCase {
-    //==========================================================================
+    //--------------------------------------------------------------------------
     // support terminal test run
     static var allTests = [
         ("test_matmul", test_matmul),
@@ -27,12 +27,12 @@ class test_AlgebraicField: XCTestCase {
         ("test_leftBatchMatmul", test_leftBatchMatmul),
         ("test_rightBatchMatmul", test_rightBatchMatmul),
 
-        ("test_addSubMulDivComplex", test_addSubMulDivComplex),
         ("test_add", test_add),
         ("test_addInt32", test_addInt32),
         ("test_addUInt8", test_addUInt8),
         ("test_addScalar", test_addScalar),
         ("test_addAndAssign", test_addAndAssign),
+        ("test_addSubMulDivComplex", test_addSubMulDivComplex),
 
         ("test_subtract", test_subtract),
         ("test_subtractScalar", test_subtractScalar),

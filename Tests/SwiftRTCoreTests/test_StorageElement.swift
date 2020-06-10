@@ -22,6 +22,9 @@ class test_StorageElement: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_Int1StorageSize", test_Int1StorageSize),
+        ("test_Int1Add", test_Int1Add),
+        ("test_Int1Bool", test_Int1Bool),
+        ("test_Int1Reshape", test_Int1Reshape),
     ]
     
     //--------------------------------------------------------------------------

@@ -31,7 +31,6 @@ class test_Comparative: XCTestCase {
     ]
 
     //--------------------------------------------------------------------------
-    // test_elementsAlmostEqual
     func test_elementWiseAndOr() {
         let a = array([true, false, true, false, true])
         let b = array([false, true, false, true, true])
@@ -40,7 +39,6 @@ class test_Comparative: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_elementsAlmostEqual
     func test_elementsAlmostEqual() {
         let a = array([[0, 1.05], [2.0, -3], [4.2, 5.001]])
         let b = array([[0, 1.00], [2.1,  3], [4.0, 4.999]])
@@ -49,7 +47,6 @@ class test_Comparative: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_equality
     func test_equality() {
         // compare by value
         let a = array(0..<6, (3, 2))
@@ -71,7 +68,6 @@ class test_Comparative: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_maximum
     func test_max() {
         let a = array([
             [ 0,  1],

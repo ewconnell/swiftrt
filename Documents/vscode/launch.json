@@ -8,7 +8,7 @@
             "type": "lldb",
             "request": "launch",
             "name": "Debug tests on Linux",
-            "program": "${workspaceFolder}/.build/debug/SwiftRTPackageTests.xctest",
+            "program": "${workspaceFolder}/.build/debug/SwiftRTPackageTests.product",
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "swift-build-tests"
         }

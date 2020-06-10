@@ -21,14 +21,16 @@ class test_Subscripting: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_perfTensorSubview", test_perfTensorSubview),
         ("test_perfTensor1AddRange", test_perfTensor1AddRange),
+        ("test_writeToRepeated", test_writeToRepeated),
         ("test_negativeIndexRelativeRange", test_negativeIndexRelativeRange),
         ("test_AssignDataToTensor3Item", test_AssignDataToTensor3Item),
         ("test_AssignDataToTensor3Range", test_AssignDataToTensor3Range),
         ("test_Tensor1Range", test_Tensor1Range),
         ("test_Tensor1RangeGradient", test_Tensor1RangeGradient),
-        ("test_Tensor1WriteRange", test_Tensor1WriteRange),
         ("test_Tensor2Range", test_Tensor2Range),
+        ("test_Tensor1WriteRange", test_Tensor1WriteRange),
     ]
     
     //--------------------------------------------------------------------------
