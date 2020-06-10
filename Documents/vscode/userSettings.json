@@ -1,0 +1,18 @@
+{
+    "editor.minimap.enabled": false,
+    "editor.fontSize": 11,
+    "editor.formatOnPaste": true,
+    "editor.rulers": [
+        80
+    ],
+    "workbench.colorCustomizations": {
+        "editorRuler.foreground": "#2F2F2F"
+    },
+    "editor.renderIndentGuides": false,
+    "editor.matchBrackets": "never",
+    "window.zoomLevel": -1,
+    "sourcekit-lsp.toolchainPath": "/home/ed/swift",
+    "sourcekit-lsp.serverPath": "/home/ed/swift/usr/bin/sourcekit-lsp",
+    "terminal.integrated.cursorStyle": "underline",
+    "terminal.integrated.fontSize": 10
+}

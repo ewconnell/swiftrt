@@ -29,12 +29,12 @@ class test_Initialize: XCTestCase {
         ("test_perfCreateTensorR2", test_perfCreateTensorR2),
         ("test_perfReadOnlyAccess", test_perfReadOnlyAccess),
         ("test_perfReadWriteAccess", test_perfReadWriteAccess),
-        ("test_concatenateMatrixRows", test_concatenateMatrixRows),
-        ("test_concatenateMatrixCols", test_concatenateMatrixCols),
-        ("test_concatenateGradients", test_concatenateGradients),
         ("test_repeatElement", test_repeatElement),
         ("test_repeatRowVector", test_repeatRowVector),
         ("test_repeatColVector", test_repeatColVector),
+        ("test_concatenateMatrixRows", test_concatenateMatrixRows),
+        ("test_concatenateMatrixCols", test_concatenateMatrixCols),
+        ("test_concatenateGradients", test_concatenateGradients),
     ]
     
 
@@ -71,7 +71,6 @@ class test_Initialize: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_columnMajorDataView
     //   0, 1,
     //   2, 3,
     //   4, 5
@@ -180,6 +179,18 @@ class test_Initialize: XCTestCase {
         
         
     }
+    
+    //--------------------------------------------------------------------------
+    func test_concatenateMatrixCols() {
+        let a = array(1...6, (2, 3))
+        let b = array(7...12, (2, 3))
+        let c = concatenate(a, b, axis: 1)
+        XCTAssert(c.shape == [2, 6])
+        XCTAssert(c == [
+            [1,  2,  3, 7,  8,  9],
+            [4,  5,  6, 10, 11, 12],
+        ])
+    }
 
     //--------------------------------------------------------------------------
     func test_concatenateGradients() {
@@ -192,17 +203,5 @@ class test_Initialize: XCTestCase {
         }
         XCTAssertEqual(a1, g1)
         XCTAssertEqual(b1, g2)
-    }
-    
-    //--------------------------------------------------------------------------
-    func test_concatenateMatrixCols() {
-        let a = array(1...6, (2, 3))
-        let b = array(7...12, (2, 3))
-        let c = concatenate(a, b, axis: 1)
-        XCTAssert(c.shape == [2, 6])
-        XCTAssert(c == [
-            [1,  2,  3, 7,  8,  9],
-            [4,  5,  6, 10, 11, 12],
-        ])
     }
 }

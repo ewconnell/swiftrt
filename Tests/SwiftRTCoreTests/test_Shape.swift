@@ -24,17 +24,25 @@ class test_Shape: XCTestCase {
         ("test_reshape", test_reshape),
         ("test_reshapeOrder", test_reshapeOrder),
         ("test_expanding", test_expanding),
-        ("test_BufferIterableViews", test_BufferIterableViews),
-        ("test_transposed", test_transposed),
         ("test_squeeze", test_squeeze),
         ("test_stack", test_stack),
         ("test_stackingGradients", test_stackingGradients),
         ("test_stackingExpression", test_stackingExpression),
+        ("test_perfTensor1", test_perfTensor1),
+        ("test_perfTensor2", test_perfTensor2),
+        ("test_perfRepeatedTensor3", test_perfRepeatedTensor3),
+        ("test_perfTensor3", test_perfTensor3),
+        ("test_perfTensor4", test_perfTensor4),
+        ("test_perfTensor5", test_perfTensor5),
+        ("test_initEmpty", test_initEmpty),
+        ("test_initRepeating", test_initRepeating),
+        ("test_initSingle", test_initSingle),
+        ("test_BufferIterableViews", test_BufferIterableViews),
+        ("test_transposed", test_transposed),
         ("testTransposedPullback", testTransposedPullback),
     ]
 
     //--------------------------------------------------------------------------
-    // test_reshape
     func test_reshape() {
         let a3 = array(0..<12, (2, 3, 2))
 
@@ -64,7 +72,6 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_reshapeOrder
     func test_reshapeOrder() {
 //        Context.log.level = .diagnostic
         let a = array([[0, 1, 2], [3, 4, 5]])
@@ -87,7 +94,6 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_expanding
     func test_expanding() {
         let a = array(0..<4)
         let b = expand(dims: a, axis: 0)
@@ -108,7 +114,6 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_squeeze
     func test_squeeze() {
         let a = array(0..<24, (2, 3, 4))
 
@@ -143,7 +148,6 @@ class test_Shape: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_stack
     func test_stack() {
         let a = array(0..<6, (2, 3))
         let b = array(6..<12, (2, 3))
@@ -168,7 +172,6 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_stackingGradients
     func test_stackingGradients() {
 //        Context.log.level = .diagnostic
         let a1 = array([1, 2, 3, 4, 5])
@@ -186,7 +189,6 @@ class test_Shape: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_stackingExpression
     func test_stackingExpression() {
 //        Context.log.level = .diagnostic
         let i = 3
@@ -208,7 +210,6 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_perfTensor1
     func test_perfTensor1() {
         #if !DEBUG
         let a = ones(1024 * 1024)
@@ -221,7 +222,6 @@ class test_Shape: XCTestCase {
     }
         
     //--------------------------------------------------------------------------
-    // test_perfTensor2
     func test_perfTensor2() {
         #if !DEBUG
         let a = ones((1024, 1024))
@@ -236,7 +236,6 @@ class test_Shape: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_perfRepeatedTensor3
     func test_perfRepeatedTensor3() {
         #if !DEBUG
         let a = repeating(1, (64, 128, 128))
@@ -249,7 +248,6 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_perfTensor3
     func test_perfTensor3() {
         #if !DEBUG
         let a = ones((64, 128, 128))
@@ -262,7 +260,6 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_perfTensor4
     func test_perfTensor4() {
         #if !DEBUG
         let a = ones((2, 32, 128, 128))
@@ -275,7 +272,6 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_perfTensor5
     func test_perfTensor5() {
         #if !DEBUG
         let a = ones((2, 2, 16, 128, 128))
@@ -288,7 +284,6 @@ class test_Shape: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_initEmpty
     func test_initEmpty() {
         #if !DEBUG
         var count: DType = 0
@@ -303,7 +298,6 @@ class test_Shape: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_initRepeating
     func test_initRepeating() {
         #if !DEBUG
         var count: DType = 0
@@ -318,7 +312,6 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_initSingle
     func test_initSingle() {
         #if !DEBUG
         var count: DType = 0
@@ -333,7 +326,6 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_BufferIterableViews
     func test_BufferIterableViews() {
         // vector views are always sequential
         let v = array(0..<6)
@@ -352,7 +344,6 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_transposed
     func test_transposed() {
         let m = array(0..<9, (3, 3))
         XCTAssert(m.t == [[0,3,6], [1,4,7], [2,5,8]])
@@ -377,7 +368,6 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // testTransposedPullback
     func testTransposedPullback() {
         let input = ones((2, 3))
         let transposed = ones((3, 2))

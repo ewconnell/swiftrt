@@ -21,6 +21,7 @@ class test_Reductions: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_gather", test_gather),
         ("test_sumTensor3AlongAxes", test_sumTensor3AlongAxes),
         ("test_minTensor3AlongAxes", test_minTensor3AlongAxes),
         ("test_maxTensor3AlongAxes", test_maxTensor3AlongAxes),
@@ -124,6 +125,55 @@ class test_Reductions: XCTestCase {
                 [11]]
         ])
     }
+
+    //--------------------------------------------------------------------------
+    // test_minTensor3AlongAxes
+    func test_minTensor3AlongAxes() {
+        let v = array([
+            [
+                [10,   2],
+                [ 3,   4],
+                [ 5,  -6]
+            ],
+            [
+                [ 1,   2],
+                [ 3,   4],
+                [ 5,   6]
+            ]
+        ])
+        
+        // depths
+        XCTAssert(v.min(alongAxes: 0) == [
+            [
+                [1,  2],
+                [3,  4],
+                [5, -6]
+            ]
+        ])
+        
+        // rows
+        XCTAssert(v.min(alongAxes: 1) == [
+            [
+                [3, -6]
+            ],
+            [
+                [1, 2]
+            ]
+        ])
+        
+        // columns
+        XCTAssert(v.min(alongAxes: 2) == [
+            [
+                [ 2],
+                [ 3],
+                [-6]],
+            [
+                [1],
+                [3],
+                [5]
+            ]
+        ])
+    }
     
     //--------------------------------------------------------------------------
     // test_maxTensor3AlongAxes
@@ -171,55 +221,6 @@ class test_Reductions: XCTestCase {
                 [ 2],
                 [ 4],
                 [ 6]
-            ]
-        ])
-    }
-
-    //--------------------------------------------------------------------------
-    // test_minTensor3AlongAxes
-    func test_minTensor3AlongAxes() {
-        let v = array([
-            [
-                [10,   2],
-                [ 3,   4],
-                [ 5,  -6]
-            ],
-            [
-                [ 1,   2],
-                [ 3,   4],
-                [ 5,   6]
-            ]
-        ])
-        
-        // depths
-        XCTAssert(v.min(alongAxes: 0) == [
-            [
-                [1,  2],
-                [3,  4],
-                [5, -6]
-            ]
-        ])
-        
-        // rows
-        XCTAssert(v.min(alongAxes: 1) == [
-            [
-                [3, -6]
-            ],
-            [
-                [1, 2]
-            ]
-        ])
-        
-        // columns
-        XCTAssert(v.min(alongAxes: 2) == [
-            [
-                [ 2],
-                [ 3],
-                [-6]],
-            [
-                [1],
-                [3],
-                [5]
             ]
         ])
     }
@@ -330,6 +331,41 @@ class test_Reductions: XCTestCase {
         XCTAssert(a2.any().element == false)
     }
     
+    //----------------------------------------------------------------------
+    // test_meanTensor2
+    func test_meanTensor2() {
+        let m = array([
+            [0, 1],
+            [2, 3],
+            [4, 5]
+        ])
+        
+        // mean all
+        do {
+            let result = m.mean()
+            XCTAssert(result.shape == [1, 1])
+            XCTAssert(result.element == 15 / 6)
+        }
+        
+        do {
+            let result = m.mean(alongAxes: 0, 1)
+            XCTAssert(result.shape == [1, 1])
+            XCTAssert(result.element == 15 / 6)
+        }
+        
+        // mean cols
+        do {
+            let result = m.mean(alongAxes: 1)
+            XCTAssert(result == [[0.5], [2.5], [4.5]])
+        }
+        
+        // mean rows
+        do {
+            let result = m.mean(alongAxes: 0)
+            XCTAssert(result == [[2, 3]])
+        }
+    }
+    
     //--------------------------------------------------------------------------
     // test_maxTensor2
     func test_maxTensor2() {
@@ -366,41 +402,6 @@ class test_Reductions: XCTestCase {
         XCTAssert(m.absmax().element == 6)
     }
         
-    //----------------------------------------------------------------------
-    // test_meanTensor2
-    func test_meanTensor2() {
-        let m = array([
-            [0, 1],
-            [2, 3],
-            [4, 5]
-        ])
-        
-        // mean all
-        do {
-            let result = m.mean()
-            XCTAssert(result.shape == [1, 1])
-            XCTAssert(result.element == 15 / 6)
-        }
-        
-        do {
-            let result = m.mean(alongAxes: 0, 1)
-            XCTAssert(result.shape == [1, 1])
-            XCTAssert(result.element == 15 / 6)
-        }
-        
-        // mean cols
-        do {
-            let result = m.mean(alongAxes: 1)
-            XCTAssert(result == [[0.5], [2.5], [4.5]])
-        }
-        
-        // mean rows
-        do {
-            let result = m.mean(alongAxes: 0)
-            XCTAssert(result == [[2, 3]])
-        }
-    }
-    
     //--------------------------------------------------------------------------
     // test_sqrtSumSquaresTensor2
     func test_sqrtSumSquaresTensor2() {
