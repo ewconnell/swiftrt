@@ -23,11 +23,10 @@ public class CpuService: Platform {
     public var devices: [CpuDevice]
     public let logInfo: LogInfo
     public let name: String
-    public var queueStack: [Device.Queue]
+    public var queueStack: [CpuQueue]
 
     //--------------------------------------------------------------------------
-    @inlinable
-    public init() {
+    @inlinable public init() {
         name = "CpuService"
         logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
                           namePath: name, nestingLevel: 0)
@@ -37,7 +36,6 @@ public class CpuService: Platform {
         ]
         
         // select device 0 queue 0 by default
-        queueStack = []
-        queueStack = [validQueue(0, 0)]
+        queueStack = [devices[0].queues[0]]
     }
 }

@@ -167,9 +167,7 @@ public final class DiscreteStorage: StorageBuffer {
             do {
                 // allocate the buffer for the target device
                 // and save in the replica list
-                let memory = try queue.allocate(alignment: alignment,
-                                                byteCount: byteCount,
-                                                heapIndex: 0)
+                let memory = try queue.allocate(byteCount: byteCount)
                 replicas[queue.deviceId] = memory
                 
                 // the new buffer is now the master version
@@ -179,7 +177,7 @@ public final class DiscreteStorage: StorageBuffer {
                 // Fail for now
                 writeLog("Failed to allocate memory on \(queue.deviceName)")
                 fatalError("TODO: implement LRU host migration" +
-                            " and discreet memory discard")
+                            " and discrete memory discard")
             }
         }
     }

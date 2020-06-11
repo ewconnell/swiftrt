@@ -237,7 +237,7 @@ public extension Tensor {
     /// For example in the `Float16` case, `C.Element` would be type `Float`
     /// but the stored type will be the `Float16` bit pattern.
     /// So floats go in, and a buffer with `Float16` pattern is
-    /// ready for use on a discreet device with native `Float16` support.
+    /// ready for use on a discrete device with native `Float16` support.
     ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage

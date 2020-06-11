@@ -115,7 +115,7 @@ public extension Platform {
 }
 
 //==============================================================================
-/// the type used for memory indexing on discreet devices
+/// the type used for memory indexing on discrete devices
 public typealias DeviceIndex = Int32
 
 //==============================================================================
@@ -266,9 +266,9 @@ public enum QueueEventError: Error {
 public enum MemoryType {
     /// the memory is unified with the cpu address space
     case unified
-    /// the memory is in a discreet memory address space on another device
+    /// the memory is in a discrete memory address space on another device
     /// and is not directly accessible by the cpu
-    case discreet
+    case discrete
 }
 
 public enum DeviceQueueMode {

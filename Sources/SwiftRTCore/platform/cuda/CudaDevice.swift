@@ -17,13 +17,13 @@ import Foundation
 
 //==============================================================================
 /// CudaDevice
-public class CudaDevice: ServiceDevice {
+public class CudaDevice: ComputeDevice {
     // properties
     public let id: Int
     public let logInfo: LogInfo
     public let memoryType: MemoryType
     public let name: String
-    public var queues: [DeviceQueue]
+    public var queues: [CudaQueue]
 
     public init(parent parentLogInfo: LogInfo, id: Int) {
         self.id = id
@@ -37,24 +37,22 @@ public class CudaDevice: ServiceDevice {
             memoryType = .unified
             numQueues = 1
         } else {
-            memoryType = .discreet
+            memoryType = .discrete
             numQueues = 3
         }
         
         self.queues = []
         do {
-            for i in 0..<numQueues {
-                try queues.append(CudaQueue(id: i, parent: logInfo,
-                                            deviceId: self.id,
-                                            deviceName: name,
-                                            useGpu: !isCpuDevice))
+            for _ in 0..<numQueues {
+                try queues.append(
+                    CudaQueue(parent: logInfo,
+                              deviceId: self.id,
+                              deviceName: name,
+                              mode: .async,
+                              useGpu: !isCpuDevice))
             }
         } catch {
             writeLog("\(error)")
         }
-    }
-    
-    public func allocate(byteCount: Int, heapIndex: Int) -> DeviceMemory {
-        fatalError()
     }
 }
