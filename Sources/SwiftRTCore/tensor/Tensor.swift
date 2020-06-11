@@ -145,7 +145,7 @@ public enum Layout: Int, Codable {
     
     public static let C = row, F = col, A = -1
     
-    public static var defaultValue = Layout.row
+    public static var defaultValue: Layout = Layout.row
 }
 
 public let _messageLayoutsMustMatch = "input layouts must match"
@@ -222,7 +222,7 @@ extension Tensor: Codable where Element: Codable {
         let shape = try container.decode(Shape.self, forKey: .shape)
         let layout = try container.decode(Layout.self, forKey: .layout)
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
-        self = Self(shape, layout: layout)
+        self = Self(shape: shape, layout: layout)
         self.name = name
 
         assert(self.count == dataContainer.count)

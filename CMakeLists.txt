@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.5)
 project(swiftrt)
 
 #####################
@@ -16,6 +16,10 @@ file(GLOB_RECURSE MODULES_HEADERS
 
 #####################
 # Cuda
+cmake_policy(SET CMP0074 NEW)
+# set(ENV{SWIFTRT_PLATFORM} cuda)
+# message( $ENV{SWIFTRT_PLATFORM} )
+
 find_package(CUDA QUIET REQUIRED)
 set(CUDA_KERNELS_LIB_NAME CudaKernels)
 set(CUDA_KERNELS_DIR ${MODULES_DIR}/${CUDA_KERNELS_LIB_NAME})

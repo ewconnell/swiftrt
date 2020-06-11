@@ -79,7 +79,7 @@ public extension Tensor {
     ///  - shape: the n-dimensional shape of the tensor
     ///  - layout: the storage layout of the elements
     @inlinable init(
-        _ shape: Shape,
+        shape: Shape,
         layout: Layout = Layout.defaultValue
     ) {
         let count = shape.elementCount()
@@ -98,7 +98,7 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     /// init
     @inlinable init() {
-        self.init(Shape.zero)
+        self.init(shape: Shape.zero)
     }
     
     //--------------------------------------------------------------------------
@@ -107,7 +107,7 @@ public extension Tensor {
     /// - Parameters:
     ///  - other: a tensor to copy attributes from
     @inlinable init(like other: Self) {
-        self.init(other.shape, layout: other.layout)
+        self.init(shape: other.shape, layout: other.layout)
     }
     
     //--------------------------------------------------------------------------
@@ -224,7 +224,7 @@ public extension Tensor {
     ) where C: Collection, C.Element == TensorElement.Stored
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, layout: layout)
+        self.init(shape: shape, layout: layout)
         let buffer = storage.readWrite(type: TensorElement.Stored.self,
                                        at: 0, count: count)
         _ = buffer.initialize(from: elements)
@@ -249,7 +249,7 @@ public extension Tensor {
         layout: Layout = Layout.defaultValue
     ) where C: Collection, C.Element == TensorElement.Value {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, layout: layout)
+        self.init(shape: shape, layout: layout)
         
         // prepare storage for writing and then write the element values
         _ = storage.readWrite(type: TensorElement.self,
@@ -274,7 +274,7 @@ public extension Tensor {
         layout: Layout = Layout.defaultValue
     ) where C: Collection, C.Element == Bool, TensorElement.Value: Numeric {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, layout: layout)
+        self.init(shape: shape, layout: layout)
         _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
         for (i, value) in elements.enumerated() {
             storage.setElement(type: TensorElement.self,
@@ -296,7 +296,7 @@ public extension Tensor {
         layout: Layout = Layout.defaultValue
     ) where C: Collection, C.Element: Numeric, TensorElement.Value == Bool {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, layout: layout)
+        self.init(shape: shape, layout: layout)
         _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
         for (i, value) in elements.enumerated() {
             storage.setElement(type: TensorElement.self,
@@ -320,7 +320,7 @@ public extension Tensor {
             TensorElement.Value: Numeric
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, layout: layout)
+        self.init(shape: shape, layout: layout)
         _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
         for (i, value) in elements.enumerated() {
             storage.setElement(type: TensorElement.self,
@@ -345,7 +345,7 @@ public extension Tensor {
             TensorElement.Value: BinaryFloatingPoint
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, layout: layout)
+        self.init(shape: shape, layout: layout)
         _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
         for (i, value) in elements.enumerated() {
             storage.setElement(type: TensorElement.self,
@@ -370,7 +370,7 @@ public extension Tensor {
             TensorElement.Value: BinaryInteger
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape, layout: layout)
+        self.init(shape: shape, layout: layout)
         _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
         for (i, value) in elements.enumerated() {
             storage.setElement(type: TensorElement.self,
@@ -655,7 +655,7 @@ public extension Tensor {
         let positiveAxis = axis < 0 ? axis + S.rank : axis
         // create tensor of stacked shape and copy
         self = withoutDerivative(
-            at: Self(stackedShape(of: others, along: positiveAxis),
+            at: Self(shape: stackedShape(of: others, along: positiveAxis),
                      layout: others[0].layout))
         stack(others, axis: positiveAxis, into: &self)
     }
@@ -904,7 +904,7 @@ extension Tensor where TensorElement.Value: Numeric {
         zeros shape: Shape,
         layout: Layout = Layout.defaultValue
     ) {
-        self.init(shape, layout: layout)
+        self.init(shape: shape, layout: layout)
         fill(&self, with: 0)
     }
 
@@ -918,7 +918,7 @@ extension Tensor where TensorElement.Value: Numeric {
         ones shape: Shape,
         layout: Layout = Layout.defaultValue
     ) {
-        self.init(shape, layout: layout)
+        self.init(shape: shape, layout: layout)
         fill(&self, with: 1)
     }
     
@@ -934,7 +934,7 @@ extension Tensor where TensorElement.Value: Numeric {
         offset: Int = 0,
         layout: Layout = Layout.defaultValue
     ) {
-        self.init(shape, layout: layout)
+        self.init(shape: shape, layout: layout)
         Context.currentQueue.eye(&self, offset: offset)
     }
 }

@@ -34,7 +34,7 @@ public func constantInitializer<S,E>(
     value: E.Value
 ) -> ParameterInitializer<S,E> where S: TensorShape {
     {
-        var tensor = Tensor<S,E>($0)
+        var tensor = Tensor<S,E>(shape: $0)
         fill(&tensor, with: value)
         return tensor
     }
@@ -48,7 +48,7 @@ public func constantInitializer<S,E>(value: Tensor<S,E>)
     {
         guard value.count < $0.elementCount() else { return value }
         // parameters are inherently mutated, so the storage should be dense
-        var tensor = Tensor<S,E>($0)
+        var tensor = Tensor<S,E>(shape: $0)
         copy(from: Tensor<S,E>(repeating: value, to: $0), to: &tensor)
         return tensor
     }

@@ -51,7 +51,7 @@ import Foundation
 {
     let axis = axis < 0 ? axis + S.rank : axis
     var result = withoutDerivative(
-            at: Tensor<S,E>(concatenatedShape(tensors,axis)))
+            at: Tensor<S,E>(shape: concatenatedShape(tensors,axis)))
     concatenate(tensors, axis: axis, into: &result)
     return result
 }

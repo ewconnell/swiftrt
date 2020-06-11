@@ -36,7 +36,7 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
          layout: Layout = Layout.defaultValue,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape, layout: layout)
+        self = Self(shape: shape, layout: layout)
         Context.currentQueue.fill(randomUniform: &self, lower, upper, seed)
     }
     
@@ -56,7 +56,7 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
          layout: Layout = Layout.defaultValue,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape, layout: layout)
+        self = Self(shape: shape, layout: layout)
         Context.currentQueue.fill(randomNormal: &self, mean, std, seed)
     }
     
@@ -68,7 +68,7 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
          layout: Layout = Layout.defaultValue,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape, layout: layout)
+        self = Self(shape: shape, layout: layout)
         Context.currentQueue.fill(randomNormal: &self, mean, std, seed)
     }
     
@@ -88,7 +88,7 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
          layout: Layout = Layout.defaultValue,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape, layout: layout)
+        self = Self(shape: shape, layout: layout)
         Context.currentQueue.fill(randomTruncatedNormal: &self, mean, std, seed)
     }
     
@@ -100,7 +100,7 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
          layout: Layout = Layout.defaultValue,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape, layout: layout)
+        self = Self(shape: shape, layout: layout)
         Context.currentQueue.fill(randomTruncatedNormal: &self, mean, std, seed)
     }
 }

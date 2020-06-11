@@ -37,7 +37,7 @@ if buildCuda {
     products.append(.library(name: "CCuda", targets: ["CCuda"]))
     coreDependencies.append("CCuda")
     testDependencies.append("CCuda")
-
+    
     targets.append(
         .systemLibrary(name: "CCuda", path: "Modules/Cuda", pkgConfig: "cuda"))
 } else {

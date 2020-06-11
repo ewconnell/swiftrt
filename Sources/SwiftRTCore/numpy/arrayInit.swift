@@ -62,7 +62,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     _ type: Element.Type,
     _ order: Layout = Layout.defaultValue
 ) -> Tensor<Shape, Element> {
-    Tensor(shape, layout: order)
+    Tensor(shape: shape, layout: order)
 }
 
 //---------------------------------------
@@ -420,7 +420,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     _ type: Element.Type,
     _ order: Layout = .C
 ) -> Tensor<Shape, Element> {
-    var tensor = Tensor<Shape, Element>(shape, layout: order)
+    var tensor = Tensor<Shape, Element>(shape: shape, layout: order)
     fill(&tensor, with: value)
     return tensor
 }
