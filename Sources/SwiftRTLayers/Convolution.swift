@@ -29,8 +29,7 @@ public struct Convolution<Shape, Element, FilterElement>
 where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
 {
     // types
-    public typealias Input = Tensor<Shape,Element>
-    public typealias Output = Tensor<Shape,Element>
+    public typealias Data = Tensor<Shape,Element>
     public typealias Filter = Tensor<Shape,FilterElement>
     public typealias Bias = TensorR1<FilterElement>
     public typealias DeviceOp = DeviceConvolution<Shape, Element, FilterElement>
@@ -122,7 +121,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
     
     //--------------------------------------------------------------------------
     ///
-    @inlinable public func callAsFunction(_ input: Input) -> Output {
-        deviceOp
+    @inlinable public func callAsFunction(_ input: Data) -> Data {
+        return input
     }
 }
