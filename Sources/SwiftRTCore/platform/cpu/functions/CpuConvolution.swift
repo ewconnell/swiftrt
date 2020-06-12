@@ -209,7 +209,7 @@ where Shape: TensorShape,
         x: Data,
         filter: Filter,
         bias: Bias
-    ) throws -> Data {
+    ) -> Data {
         fatalError("abstract not implemented")
     }
 
@@ -232,7 +232,7 @@ where Shape: TensorShape,
         biasDiff: inout Bias,
         x: Data,
         xDiff: inout Data
-    ) throws {
+    ) {
         fatalError("abstract not implemented")
     }
 }

@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 import Foundation
-//import Numerics
+import Numerics
 import SwiftRTCore
 
 //==============================================================================
@@ -25,19 +25,22 @@ public typealias Convolution3 = Convolution<Shape3,Float,Float>
 
 //==============================================================================
 /// Convolution
-public struct Convolution<Shape, Element, FilterElement>
-where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
+public struct Convolution<Shape, Element, FilterElement>: Logging
+where Shape: TensorShape,
+      Element: ScalarElement,
+      FilterElement: ScalarElement,
+      FilterElement.Value: BinaryFloatingPoint
 {
     // types
     public typealias Data = Tensor<Shape,Element>
     public typealias Filter = Tensor<Shape,FilterElement>
     public typealias Bias = TensorR1<FilterElement>
-    public typealias DeviceOp = DeviceConvolution<Shape, Element, FilterElement>
+    public typealias Op = DeviceConvolution<Shape, Element, FilterElement>
 
     /// The convolution filter
     public var filter: Filter
     /// The bias vector
-    public var bias: Bias?
+    public var bias: Bias
     /// The element-wise activation function type
     @noDerivative public let activation: ActivationType
     /// The strides of the sliding window for spatial dimensions.
@@ -47,7 +50,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
     /// The dilation factor for spatial dimensions.
     @noDerivative public let dilations: Shape
     /// device specific convolution operator
-    @noDerivative public let deviceOp: DeviceOp
+    @noDerivative public let convolutionOp: Op
 
     //--------------------------------------------------------------------------
     /// Creates a `Convolution` layer with the specified filter, bias,
@@ -71,14 +74,17 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         properties: ConvolutionProperties = ConvolutionProperties())
     {
         self.filter = filter
-        self.bias = bias
         self.activation = activation
         self.strides = strides
         self.padding = padding
         self.dilations = dilations
-        
+
+        self.bias = bias ??
+            TensorR1<FilterElement>(zeros: [filter.shape[1]],
+                                    layout: filter.layout)
+
         // create the device op and save the output shape
-        self.deviceOp = Context.currentQueue.convolution(
+        self.convolutionOp = Context.currentQueue.convolution(
             activation: activation,
             strides: self.strides,
             padding: padding,
@@ -88,6 +94,14 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             filterBiasBackpropQueueIndex: 2)
     }
     
+    //--------------------------------------------------------------------------
+    ///
+    @inlinable public func callAsFunction(_ input: Data) -> Data {
+        convolutionOp.forward(x: input, filter: filter, bias: bias)
+    }
+}
+
+extension Convolution where FilterElement.Value: Real & BinaryFloatingPoint {
     //--------------------------------------------------------------------------
     /// Creates a `Convolution` layer with the specified filter shape,
     /// stride, padding, dilation and element-wise activation function.
@@ -107,7 +121,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         padding: Padding = .valid,
         dilation: Int = 1,
         activation: ActivationType = .identity,
-        filterInitializer: ParameterInitializer<Shape,FilterElement>,
+        filterInitializer: ParameterInitializer<Shape,FilterElement> = glorotUniform(),
         biasInitializer: ParameterInitializer<Shape1,FilterElement>? = nil
     ) {
         let biasShape = Shape1(filterShape[Shape.rank - 1])
@@ -117,11 +131,5 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
                   strides: Shape(repeating: stride),
                   padding: padding,
                   dilations: Shape(repeating: dilation))
-    }
-    
-    //--------------------------------------------------------------------------
-    ///
-    @inlinable public func callAsFunction(_ input: Data) -> Data {
-        return input
     }
 }

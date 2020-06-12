@@ -135,44 +135,49 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         x: Data,
         filter: Filter,
         bias: Bias
-    ) throws -> Data {
-        // setup any time the input shape changes
-        if x.shape != inputShape {
-            try setupForward(x, filter, bias)
+    ) -> Data {
+        do {
+            // setup any time the input shape changes
+            if x.shape != inputShape {
+                try setupForward(x, filter, bias)
+            }
+
+            try cudaCheck(status: cudnnConvolutionBiasActivationForward(
+                dataQueue.cudnn.handle,
+                // alpha1
+                Element.onePointer,
+                // x
+                xTensorDescriptor.desc,
+                x.deviceRead(using: dataQueue),
+                // filter weights
+                filterDescriptor.desc,
+                filter.deviceRead(using: dataQueue),
+                // convDesc
+                convolutionDescriptor.desc,
+                // algo
+                fwdAlgo,
+                // workspace device array
+                fwdWorkspace?.pointer,
+                // workspace size in bytes
+                fwdWorkspaceSize,
+                // alpha2
+                Element.zeroPointer,
+                // z used for activation (TODO: inplace on y?? find out what's right)
+                yTensorDescriptor.desc,
+                y.deviceRead(using: dataQueue),
+                // bias
+                biasTensorDescriptor.desc,
+                bias.deviceRead(using: dataQueue),
+                // activation
+                activationDescriptor.desc,
+                // y
+                yTensorDescriptor.desc,
+                y.deviceReadWrite(using: dataQueue)))
+        } catch {
+            writeLog("\(error)")
+            // TODO: is there a better way to handle this??
+            fatalError("unrecoverable error")
         }
-
-        try cudaCheck(status: cudnnConvolutionBiasActivationForward(
-            dataQueue.cudnn.handle,
-            // alpha1
-            Element.onePointer,
-            // x
-            xTensorDescriptor.desc,
-            x.deviceRead(using: dataQueue),
-            // filter weights
-            filterDescriptor.desc,
-            filter.deviceRead(using: dataQueue),
-            // convDesc
-            convolutionDescriptor.desc,
-            // algo
-            fwdAlgo,
-            // workspace device array
-            fwdWorkspace?.pointer,
-            // workspace size in bytes
-            fwdWorkspaceSize,
-            // alpha2
-            Element.zeroPointer,
-            // z used for activation (TODO: inplace on y?? find out what's right)
-            yTensorDescriptor.desc,
-            y.deviceRead(using: dataQueue),
-            // bias
-            biasTensorDescriptor.desc,
-            bias.deviceRead(using: dataQueue),
-            // activation
-            activationDescriptor.desc,
-            // y
-            yTensorDescriptor.desc,
-            y.deviceReadWrite(using: dataQueue)))
-
         return y
     }
 
@@ -188,68 +193,74 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         biasDiff: inout Bias,
         x: Data,
         xDiff: inout Data
-    ) throws {
-        // data
-        try cudaCheck(status: cudnnConvolutionBackwardData(
-            dataQueue.cudnn.handle,
-            // alpha
-            Element.onePointer,
+    ) {
+        do {
+            // data
+            try cudaCheck(status: cudnnConvolutionBackwardData(
+                dataQueue.cudnn.handle,
+                // alpha
+                Element.onePointer,
+                // filter
+                filterDescriptor.desc,
+                filter.deviceRead(using: dataQueue),
+                // yDiff
+                yTensorDescriptor.desc,
+                yDiff.deviceRead(using: dataQueue),
+                // conv
+                convolutionDescriptor.desc,
+                // algo
+                bwdDataAlgo,
+                // workspace
+                bwdDataWorkspace?.pointer,
+                bwdDataWorkspaceSize,
+                // beta
+                Element.zeroPointer,
+                // xDiff
+                xTensorDescriptor.desc,
+                xDiff.deviceReadWrite(using: dataQueue)))
+
             // filter
-            filterDescriptor.desc,
-            filter.deviceRead(using: dataQueue),
-            // yDiff
-            yTensorDescriptor.desc,
-            yDiff.deviceRead(using: dataQueue),
-            // conv
-            convolutionDescriptor.desc,
-            // algo
-            bwdDataAlgo,
-            // workspace
-            bwdDataWorkspace?.pointer,
-            bwdDataWorkspaceSize,
-            // beta
-            Element.zeroPointer,
-            // xDiff
-            xTensorDescriptor.desc,
-            xDiff.deviceReadWrite(using: dataQueue)))
+            try cudaCheck(status: cudnnConvolutionBackwardFilter(
+                filterBiasBackQueue.cudnn.handle,
+                // alpha
+                Element.onePointer,
+                // x
+                xTensorDescriptor.desc,
+                x.deviceRead(using: dataQueue),
+                // yDiff
+                yTensorDescriptor.desc,
+                yDiff.deviceRead(using: dataQueue),
+                // conv
+                convolutionDescriptor.desc,
+                // algo
+                bwdFilterAlgo,
+                // workspace
+                bwdFilterWorkspace?.pointer,
+                bwdFilterWorkspaceSize,
+                // beta
+                Element.zeroPointer,
+                // filterDiff
+                filterDescriptor.desc,
+                filterDiff.deviceReadWrite(using: dataQueue)))
 
-        // filter
-        try cudaCheck(status: cudnnConvolutionBackwardFilter(
-            filterBiasBackQueue.cudnn.handle,
-            // alpha
-            Element.onePointer,
-            // x
-            xTensorDescriptor.desc,
-            x.deviceRead(using: dataQueue),
-            // yDiff
-            yTensorDescriptor.desc,
-            yDiff.deviceRead(using: dataQueue),
-            // conv
-            convolutionDescriptor.desc,
-            // algo
-            bwdFilterAlgo,
-            // workspace
-            bwdFilterWorkspace?.pointer,
-            bwdFilterWorkspaceSize,
-            // beta
-            Element.zeroPointer,
-            // filterDiff
-            filterDescriptor.desc,
-            filterDiff.deviceReadWrite(using: dataQueue)))
-
-        // bias
-        try cudaCheck(status: cudnnConvolutionBackwardBias(
-            filterBiasBackQueue.cudnn.handle,
-            // alpha
-            Element.onePointer,
-            // yDiff
-            yTensorDescriptor.desc,
-            yDiff.deviceRead(using: dataQueue),
-            // beta
-            Element.zeroPointer,
-            //
-            biasTensorDescriptor.desc,
-            biasDiff.deviceReadWrite(using: dataQueue)))
+            // bias
+            try cudaCheck(status: cudnnConvolutionBackwardBias(
+                filterBiasBackQueue.cudnn.handle,
+                // alpha
+                Element.onePointer,
+                // yDiff
+                yTensorDescriptor.desc,
+                yDiff.deviceRead(using: dataQueue),
+                // beta
+                Element.zeroPointer,
+                //
+                biasTensorDescriptor.desc,
+                biasDiff.deviceReadWrite(using: dataQueue)))
+        } catch {
+            writeLog("\(error)")
+            // TODO: is there a better way to handle this??
+            fatalError("unrecoverable error")
+        }
     }
 
     //--------------------------------------------------------------------------

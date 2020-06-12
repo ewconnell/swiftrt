@@ -25,12 +25,22 @@ class test_Convolution: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_Tensor2() {
-//        let c = Convolution2(filterShape: [3, 3], filterInitializer: glorotUniform())
-//        let i = Convolution<Shape2,Int8,Float>(filterShape: [3, 3],
-//                                               filterInitializer: glorotUniform())
+        let a = array(0..<81, (9, 9))
+        let conv = Convolution2(filterShape: [3, 3])
+        let b = conv(a)
+        print(b)
+        
+        let c = array(0..<81, (9, 9), type: UInt8.self)
+        let convi = Convolution<Shape2,UInt8,Float>(filterShape: [3, 3])
+        let d = convi(c)
+        print(d)
     }
 
     //--------------------------------------------------------------------------
     func test_Image() {
+//        typealias Pixel = RGB<UInt8>
+//        var image = empty((9, 9), type: Pixel.self)
+//        let conv = Convolution<Shape2,Pixel,Float>(filterShape: [3, 3])
+//        let a = conv(image)
     }
 }
