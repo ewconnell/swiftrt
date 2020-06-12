@@ -90,28 +90,4 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
 //        return try CudaActivationInferring(x: x, y: &y, mode: mode,
 //                                           nan: nan, reluCeiling: reluCeiling)
 //    }
-//
-//    //==========================================================================
-//    // convolution
-//    public func convolution<T, F>(
-//        activation: ActivationType,
-//        strides: T.Bounds,
-//        padding: Padding,
-//        dilations: T.Bounds,
-//        properties: ConvolutionProperties,
-//        device: ServiceDevice,
-//        filterBiasBackpropQueueIndex: Int) throws -> CudaConvolution<T, F>
-//        where
-//        T: DifferentiableTensorView, T.Element: ScalarElement,
-//        F: TensorView, F.Bounds == T.Bounds, F.Element: ScalarElement
-//    {
-//        try CudaConvolution(
-//            activation: activation,
-//            strides: strides,
-//            padding: padding,
-//            dilations: dilations,
-//            properties: properties,
-//            device: device,
-//            filterBiasBackpropQueueIndex: filterBiasBackpropQueueIndex)
-//    }
 }

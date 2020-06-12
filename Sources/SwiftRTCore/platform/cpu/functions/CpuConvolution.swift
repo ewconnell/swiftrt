@@ -115,9 +115,12 @@ extension DeviceQueue where Self: CpuFunctions
           FilterElement: ScalarElement
     {
         CpuConvolution<Shape, Element, FilterElement>(
-            activation: activation, strides: strides,
-            padding: padding, dilations: dilations,
-            properties: properties, deviceId: deviceId,
+            activation: activation,
+            strides: strides,
+            padding: padding,
+            dilations: dilations,
+            properties: properties,
+            deviceId: deviceId,
             filterBiasBackpropQueueIndex: filterBiasBackpropQueueIndex)
     }
 }
