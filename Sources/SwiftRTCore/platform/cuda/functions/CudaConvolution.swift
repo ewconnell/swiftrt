@@ -16,7 +16,7 @@
 import CCuda
 
 //==============================================================================
-// DeviceQueue functions with default cpu delegation
+// CudaQueue `convolution` implementation
 extension CudaQueue
 {
     public func convolution<Shape, Element, FilterElement>(
@@ -32,14 +32,25 @@ extension CudaQueue
           Element: ScalarElement,
           FilterElement: ScalarElement
     {
-        CudaConvolution<Shape,Element,FilterElement>(
-            activation: activation,
-            strides: strides,
-            padding: padding,
-            dilations: dilations,
-            properties: properties,
-            deviceId: deviceId,
-            filterBiasBackpropQueueIndex: filterBiasBackpropQueueIndex)
+        if useGpu {
+            return CudaConvolution<Shape,Element,FilterElement>(
+                activation: activation,
+                strides: strides,
+                padding: padding,
+                dilations: dilations,
+                properties: properties,
+                deviceId: deviceId,
+                filterBiasBackpropQueueIndex: filterBiasBackpropQueueIndex)
+        } else {
+            return CpuConvolution<Shape,Element,FilterElement>(
+                activation: activation,
+                strides: strides,
+                padding: padding,
+                dilations: dilations,
+                properties: properties,
+                deviceId: 0,
+                filterBiasBackpropQueueIndex: filterBiasBackpropQueueIndex)
+        }
     }
 }
 
