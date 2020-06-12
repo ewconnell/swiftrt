@@ -270,9 +270,9 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         _ filter: Filter,
         _ bias: Bias
     ) throws {
-        xTensorDescriptor = try x.createTensorDescriptor()
-        filterDescriptor = try FilterDescriptor(filter)
-        biasTensorDescriptor = try bias.createTensorDescriptor()
+        xTensorDescriptor = x.createTensorDescriptor()
+        filterDescriptor = FilterDescriptor(filter)
+        biasTensorDescriptor = bias.createTensorDescriptor()
 
         //----------------------------------
         // create convolution descriptor
@@ -303,7 +303,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         // return the shape of the output y and create a tensorDescriptor
         // with the same scalarType for y as x
         let yShape = Shape(yExtent.map { Int($0) })
-        yTensorDescriptor = try x.createTensorDescriptor(asShape: yShape)
+        yTensorDescriptor = x.createTensorDescriptor(asShape: yShape)
 
         try selectForwardAlgorithm(x: x, properties: properties)
 

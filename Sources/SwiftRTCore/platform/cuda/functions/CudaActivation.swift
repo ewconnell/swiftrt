@@ -17,7 +17,7 @@ import CCuda
 
 //==============================================================================
 /// CudaActivation
-public final class CudaActivation<Shape, Element>
+public final class CudaActivation<Shape, Element>: Logging
 where Shape: TensorShape, Element: ScalarElement & FloatingPoint
 {
     // types
@@ -41,7 +41,7 @@ where Shape: TensorShape, Element: ScalarElement & FloatingPoint
         mode: ActivationType,
         nan: NanPropagation,
         reluCeiling: Double = 0
-    ) throws {
+    ) {
         deviceQueue = Context.currentQueue
         inputShape = Shape.zero
         
@@ -54,38 +54,42 @@ where Shape: TensorShape, Element: ScalarElement & FloatingPoint
     //--------------------------------------------------------------------------
     // forward
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnActivationForward
-    @inlinable public func forward(x: Input) throws -> Output {
-        // setup any time the input shape changes
-        if x.shape != inputShape {
-            try setupForward(x)
+    @inlinable public func forward(x: Input) -> Output {
+        do {
+            // setup any time the input shape changes
+            if x.shape != inputShape {
+                setupForward(x)
+            }
+            
+            try cudaCheck(status: cudnnActivationForward(
+                deviceQueue.cudnn.handle,
+                activationDescriptor.desc,
+                // alpha
+                Element.onePointer,
+                // x
+                xyTensorDescriptor.desc,
+                x.deviceRead(using: deviceQueue),
+                // beta
+                Element.zeroPointer,
+                // y
+                xyTensorDescriptor.desc,
+                y.deviceReadWrite(using: deviceQueue)))
+        } catch {
+            writeLog("\(error)")
+            fatalError()
         }
-        
-        try cudaCheck(status: cudnnActivationForward(
-            deviceQueue.cudnn.handle,
-            activationDescriptor.desc,
-            // alpha
-            Element.onePointer,
-            // x
-            xyTensorDescriptor.desc,
-            x.deviceRead(using: deviceQueue),
-            // beta
-            Element.zeroPointer,
-            // y
-            xyTensorDescriptor.desc,
-            y.deviceReadWrite(using: deviceQueue)))
-        
         return y
     }
     
     //--------------------------------------------------------------------------
     // setupForward
-    @inlinable public func setupForward(_ x: Input) throws {
+    @inlinable public func setupForward(_ x: Input) {
         // TODO: figure out how S4TF wants to handle layouts
         // create tensor descriptors
         //        let tensorShape = inData.layout != .matrix ? inData.shape :
         //            Shape(extent: [inData.rows, inData.cols, 1, 1], layout: .nchw)
         
-        xyTensorDescriptor = try x.createTensorDescriptor()
+        xyTensorDescriptor = x.createTensorDescriptor()
         y = Tensor(like: x)
     }
     
@@ -97,29 +101,33 @@ where Shape: TensorShape, Element: ScalarElement & FloatingPoint
         yDiff: Output,
         x: Input,
         xDiff: inout Input
-    ) throws {
-        try cudaCheck(status: cudnnActivationBackward(
-            deviceQueue.cudnn.handle,
-            activationDescriptor.desc,
-            // alpha
-            Element.onePointer,
-            // y
-            xyTensorDescriptor.desc,
-            y.deviceRead(using: deviceQueue),
-            // dy
-            xyTensorDescriptor.desc,
-            yDiff.deviceRead(using: deviceQueue),
-            // x
-            xyTensorDescriptor.desc,
-            x.deviceRead(using: deviceQueue),
-            // beta
-            Element.zeroPointer,
-            // dx
-            xyTensorDescriptor.desc,
-            xDiff.deviceReadWrite(using: deviceQueue)))
+    ) {
+        do {
+            try cudaCheck(status: cudnnActivationBackward(
+                deviceQueue.cudnn.handle,
+                activationDescriptor.desc,
+                // alpha
+                Element.onePointer,
+                // y
+                xyTensorDescriptor.desc,
+                y.deviceRead(using: deviceQueue),
+                // dy
+                xyTensorDescriptor.desc,
+                yDiff.deviceRead(using: deviceQueue),
+                // x
+                xyTensorDescriptor.desc,
+                x.deviceRead(using: deviceQueue),
+                // beta
+                Element.zeroPointer,
+                // dx
+                xyTensorDescriptor.desc,
+                xDiff.deviceReadWrite(using: deviceQueue)))
+        } catch {
+            writeLog("\(error)")
+            fatalError()
+        }
     }
 }
-
 
 //==============================================================================
 // ActivationDescriptor
@@ -144,7 +152,7 @@ public final class ActivationDescriptor {
                             desc, mode.cudnn, nan.cudnn, reluCeiling))
         } catch {
             Context.currentQueue.writeLog(
-                "\(releaseString) \(Self.self) \(error)")
+                "\(createString) \(Self.self) \(error)")
             fatalError()
         }
     }
@@ -162,17 +170,15 @@ public final class ActivationDescriptor {
 //==============================================================================
 extension ActivationType {
     public var cudnn: cudnnActivationMode_t {
-        get {
-            let modes: [ActivationType: cudnnActivationMode_t] = [
-                .sigmoid: CUDNN_ACTIVATION_SIGMOID,
-                .relu: CUDNN_ACTIVATION_RELU,
-                .tanh: CUDNN_ACTIVATION_TANH,
-                .clippedRelu: CUDNN_ACTIVATION_CLIPPED_RELU,
-                .elu: CUDNN_ACTIVATION_ELU,
-                .identity: CUDNN_ACTIVATION_IDENTITY,
-            ]
-            return modes[self]!
-        }
+        let modes: [ActivationType: cudnnActivationMode_t] = [
+            .sigmoid: CUDNN_ACTIVATION_SIGMOID,
+            .relu: CUDNN_ACTIVATION_RELU,
+            .tanh: CUDNN_ACTIVATION_TANH,
+            .clippedRelu: CUDNN_ACTIVATION_CLIPPED_RELU,
+            .elu: CUDNN_ACTIVATION_ELU,
+            .identity: CUDNN_ACTIVATION_IDENTITY,
+        ]
+        return modes[self]!
     }
 }
 

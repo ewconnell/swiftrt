@@ -86,9 +86,9 @@ where Shape: TensorShape,
         // create the device op and save the output shape
         self.convolutionOp = Context.currentQueue.convolution(
             activation: activation,
-            strides: self.strides,
+            strides: strides,
             padding: padding,
-            dilations: self.dilations,
+            dilations: dilations,
             properties: properties,
             deviceId: Context.currentQueue.deviceId,
             filterBiasBackpropQueueIndex: 2)
@@ -122,11 +122,11 @@ extension Convolution where FilterElement.Value: Real & BinaryFloatingPoint {
         dilation: Int = 1,
         activation: ActivationType = .identity,
         filterInitializer: ParameterInitializer<Shape,FilterElement> = glorotUniform(),
-        biasInitializer: ParameterInitializer<Shape1,FilterElement>? = nil
+        biasInitializer: ParameterInitializer<Shape1,FilterElement> = zeros()
     ) {
         let biasShape = Shape1(filterShape[Shape.rank - 1])
         self.init(filter: filterInitializer(filterShape),
-                  bias: biasInitializer?(biasShape),
+                  bias: biasInitializer(biasShape),
                   activation: activation,
                   strides: Shape(repeating: stride),
                   padding: padding,

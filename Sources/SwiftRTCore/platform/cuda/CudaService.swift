@@ -274,14 +274,19 @@ public final class CudnnHandle {
     /// - Parameters:
     ///  - deviceId: the associated device
     ///  - stream: the associated stream
-    @inlinable init(deviceId: Int, using stream: cudaStream_t) throws {
-        self.deviceId = deviceId
-        try cudaCheck(status: cudaSetDevice(Int32(deviceId)))
+    @inlinable init(deviceId: Int, using stream: cudaStream_t) {
+        do {
+            self.deviceId = deviceId
+            try cudaCheck(status: cudaSetDevice(Int32(deviceId)))
 
-        var temp: cudnnHandle_t?
-        try cudaCheck(status: cudnnCreate(&temp))
-        handle = temp!
-        try cudaCheck(status: cudnnSetStream(handle, stream))
+            var temp: cudnnHandle_t?
+            try cudaCheck(status: cudnnCreate(&temp))
+            handle = temp!
+            try cudaCheck(status: cudnnSetStream(handle, stream))
+        } catch {
+            Context.currentQueue.writeLog("\(createString) \(error)")
+            fatalError()
+        }
     }
 
     // deinit
@@ -309,14 +314,19 @@ public final class CublasHandle {
     /// - Parameters:
     ///  - deviceId: the associated device
     ///  - stream: the associated stream
-    @inlinable public init(deviceId: Int, using stream: cudaStream_t) throws {
-        self.deviceId = deviceId
-        try cudaCheck(status: cudaSetDevice(Int32(deviceId)))
+    @inlinable public init(deviceId: Int, using stream: cudaStream_t) {
+        do {
+            self.deviceId = deviceId
+            try cudaCheck(status: cudaSetDevice(Int32(deviceId)))
 
-        var temp: cublasHandle_t?
-        try cudaCheck(status: cublasCreate_v2(&temp))
-        handle = temp!
-        try cudaCheck(status: cublasSetStream_v2(handle, stream))
+            var temp: cublasHandle_t?
+            try cudaCheck(status: cublasCreate_v2(&temp))
+            handle = temp!
+            try cudaCheck(status: cublasSetStream_v2(handle, stream))
+        } catch {
+            Context.currentQueue.writeLog("\(createString) \(error)")
+            fatalError()
+        }
     }
 
     // deinit
@@ -344,29 +354,34 @@ public class DropoutDescriptor {
         drop: Double,
         seed: UInt64,
         tensorDesc: TensorDescriptor
-    ) throws {
-        // create the descriptor
-        var temp: cudnnDropoutDescriptor_t?
-        try cudaCheck(status: cudnnCreateDropoutDescriptor(&temp))
-        desc = temp!
+    ) {
+        do {
+            // create the descriptor
+            var temp: cudnnDropoutDescriptor_t?
+            try cudaCheck(status: cudnnCreateDropoutDescriptor(&temp))
+            desc = temp!
 
-        // get states size
-        var stateSizeInBytes = 0
-        try cudaCheck(status: cudnnDropoutGetStatesSize(
-            tensorDesc.desc, &stateSizeInBytes))
+            // get states size
+            var stateSizeInBytes = 0
+            try cudaCheck(status: cudnnDropoutGetStatesSize(
+                tensorDesc.desc, &stateSizeInBytes))
 
-        // create states array
-        states = try stream.allocate(byteCount: stateSizeInBytes)
+            // create states array
+            states = try stream.allocate(byteCount: stateSizeInBytes)
 
-        // initialize
-        try cudaCheck(status: cudnnSetDropoutDescriptor(
-            desc,
-            stream.cudnn.handle,
-            Float(drop),
-            states.buffer.baseAddress!,
-            states.buffer.count,
-            seed
-        ))
+            // initialize
+            try cudaCheck(status: cudnnSetDropoutDescriptor(
+                desc,
+                stream.cudnn.handle,
+                Float(drop),
+                states.buffer.baseAddress!,
+                states.buffer.count,
+                seed
+            ))
+        } catch {
+            Context.currentQueue.writeLog("\(createString) \(error)")
+            fatalError()
+        }
     }
 
     @inlinable deinit {
@@ -386,19 +401,24 @@ public final class FilterDescriptor {
     public let desc: cudnnFilterDescriptor_t
 
     // initializers
-    @inlinable public init<S,E: ScalarElement>(_ tensor: Tensor<S,E>) throws {
-        // create the descriptor
-        var temp: cudnnFilterDescriptor_t?
-        try cudaCheck(status: cudnnCreateFilterDescriptor(&temp))
-        desc = temp!
+    @inlinable public init<S,E: ScalarElement>(_ tensor: Tensor<S,E>) {
+        do {
+            // create the descriptor
+            var temp: cudnnFilterDescriptor_t?
+            try cudaCheck(status: cudnnCreateFilterDescriptor(&temp))
+            desc = temp!
 
-        // initialize
-        try cudaCheck(status: cudnnSetFilterNdDescriptor(
-            desc,
-            E.type.cudnn,
-            CUDNN_TENSOR_NHWC,
-            Int32(tensor.count),
-            tensor.shape.asDeviceIndex))
+            // initialize
+            try cudaCheck(status: cudnnSetFilterNdDescriptor(
+                desc,
+                E.type.cudnn,
+                CUDNN_TENSOR_NHWC,
+                Int32(tensor.count),
+                tensor.shape.asDeviceIndex))
+        } catch {
+            Context.currentQueue.writeLog("\(createString) \(error)")
+            fatalError()
+        }
     }
 
     @inlinable deinit {
@@ -419,30 +439,34 @@ public final class LRNDescriptor {
     public let desc: cudnnLRNDescriptor_t
 
     // initializers
-    @inlinable public init(N: Int, alpha: Double, beta: Double, K: Double) throws
-    {
-        guard N >= Int(CUDNN_LRN_MIN_N) && N <= Int(CUDNN_LRN_MAX_N) else {
-            throw ServiceError.rangeError(
-                "N = \(N) is invalid. Range \(CUDNN_LRN_MIN_N) " +
-                        "to \(CUDNN_LRN_MAX_N)")
-        }
-        guard K >= CUDNN_LRN_MIN_K else {
-            throw ServiceError.rangeError(
-                "K = \(K) is invalid. Must be >= to \(CUDNN_LRN_MIN_K)")
-        }
-        guard beta >= CUDNN_LRN_MIN_BETA else {
-            throw ServiceError.rangeError(
-                "beta = \(beta) is invalid. Must be >= to \(CUDNN_LRN_MIN_BETA)")
-        }
+    @inlinable public init(N: Int, alpha: Double, beta: Double, K: Double) {
+        do {
+            guard N >= Int(CUDNN_LRN_MIN_N) && N <= Int(CUDNN_LRN_MAX_N) else {
+                throw ServiceError.rangeError(
+                    "N = \(N) is invalid. Range \(CUDNN_LRN_MIN_N) " +
+                            "to \(CUDNN_LRN_MAX_N)")
+            }
+            guard K >= CUDNN_LRN_MIN_K else {
+                throw ServiceError.rangeError(
+                    "K = \(K) is invalid. Must be >= to \(CUDNN_LRN_MIN_K)")
+            }
+            guard beta >= CUDNN_LRN_MIN_BETA else {
+                throw ServiceError.rangeError(
+                    "beta = \(beta) is invalid. Must be >= to \(CUDNN_LRN_MIN_BETA)")
+            }
 
-        // create the descriptor
-        var temp: cudnnLRNDescriptor_t?
-        try cudaCheck(status: cudnnCreateLRNDescriptor(&temp))
-        desc = temp!
+            // create the descriptor
+            var temp: cudnnLRNDescriptor_t?
+            try cudaCheck(status: cudnnCreateLRNDescriptor(&temp))
+            desc = temp!
 
-        // initialize
-        try cudaCheck(status: cudnnSetLRNDescriptor(
-            desc, CUnsignedInt(N), alpha, beta, K))
+            // initialize
+            try cudaCheck(status: cudnnSetLRNDescriptor(
+                desc, CUnsignedInt(N), alpha, beta, K))
+        } catch {
+            Context.currentQueue.writeLog("\(createString) \(error)")
+            fatalError()
+        }
     }
 
     @inlinable deinit {
@@ -467,19 +491,24 @@ public final class TensorDescriptor {
         shape: S,
         strides: S,
         scalarType: ScalarType
-    ) throws {
-        // create the descriptor
-        var temp: cudnnTensorDescriptor_t?
-        try cudaCheck(status: cudnnCreateTensorDescriptor(&temp))
-        self.desc = temp!
+    ) {
+        do {
+            // create the descriptor
+            var temp: cudnnTensorDescriptor_t?
+            try cudaCheck(status: cudnnCreateTensorDescriptor(&temp))
+            self.desc = temp!
 
-        // initialize
-        try cudaCheck(status: cudnnSetTensorNdDescriptor(
-            self.desc,
-            scalarType.cudnn,
-            Int32(shape.count),
-            shape.asDeviceIndex,
-            strides.asDeviceIndex))
+            // initialize
+            try cudaCheck(status: cudnnSetTensorNdDescriptor(
+                self.desc,
+                scalarType.cudnn,
+                Int32(shape.count),
+                shape.asDeviceIndex,
+                strides.asDeviceIndex))
+        } catch {
+            Context.currentQueue.writeLog("\(createString) \(error)")
+            fatalError()
+        }
     }
 
     @inlinable public init(owning desc: cudnnTensorDescriptor_t) {
@@ -498,7 +527,7 @@ public final class TensorDescriptor {
 
     //--------------------------------------------------------------------------
     // getInfo
-    @inlinable public func getInfo() throws
+    @inlinable public func getInfo()
     -> (extent: [Int], strides: [Int], ScalarType)
     {
         let reqDims = Int(CUDNN_DIM_MAX)
@@ -507,18 +536,23 @@ public final class TensorDescriptor {
         var type = cudnnDataType_t(0)
         var numDims: Int32 = 0
 
-        try cudaCheck(status: cudnnGetTensorNdDescriptor(
-            desc,
-            Int32(reqDims),
-            &type,
-            &numDims,
-            &dims,
-            &strides
-        ))
+        do {
+            try cudaCheck(status: cudnnGetTensorNdDescriptor(
+                desc,
+                Int32(reqDims),
+                &type,
+                &numDims,
+                &dims,
+                &strides
+            ))
 
-        return (dims[0..<Int(numDims)].map { Int($0) },
-                strides[0..<Int(numDims)].map { Int($0) },
-                ScalarType(cudnn: type))
+            return (dims[0..<Int(numDims)].map { Int($0) },
+                    strides[0..<Int(numDims)].map { Int($0) },
+                    ScalarType(cudnn: type))
+        } catch {
+            Context.currentQueue.writeLog("\(createString) \(error)")
+            fatalError()
+        }
     }
 }
 
@@ -528,11 +562,11 @@ public final class TensorDescriptor {
 extension Tensor where TensorElement: ScalarElement {
     @inlinable public func createTensorDescriptor(
         asShape newShape: Shape? = nil
-    ) throws -> TensorDescriptor {
+    ) -> TensorDescriptor {
         assert(newShape == nil || newShape!.count == shape.count)
-        return try TensorDescriptor(shape: newShape ?? shape,
-                                    strides: strides,
-                                    scalarType: TensorElement.type)
+        return TensorDescriptor(shape: newShape ?? shape,
+                                strides: strides,
+                                scalarType: TensorElement.type)
     }
 }
 

@@ -67,8 +67,8 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
         var cudaStream: cudaStream_t?
         try cudaCheck(status: cudaStreamCreateWithFlags(&cudaStream, flags))
         stream = cudaStream!
-        cudnn = try CudnnHandle(deviceId: deviceId, using: stream)
-        cublas = try CublasHandle(deviceId: deviceId, using: stream)
+        cudnn = CudnnHandle(deviceId: deviceId, using: stream)
+        cublas = CublasHandle(deviceId: deviceId, using: stream)
     }
     
     //--------------------------------------------------------------------------
