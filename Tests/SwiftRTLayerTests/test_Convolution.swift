@@ -37,6 +37,7 @@ class test_Convolution: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
+    // TODO: added specialized conv for FixedVector conforming types
     func test_Image() {
 //        typealias Pixel = RGB<UInt8>
 //        var image = empty((9, 9), type: Pixel.self)
