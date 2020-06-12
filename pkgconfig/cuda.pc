@@ -4,6 +4,6 @@ includedir=${prefix}/include
 
 Name: cuda
 Description: Cuda SDK
-Version: 10
+Version: 11
 Libs: -L${libdir} -lcudart -lcublas -lcurand -lcudnn
 Cflags: -I${includedir}

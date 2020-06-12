@@ -1,13 +1,10 @@
 In .bashrc
-	export SWIFTRT_PLATFORM=cuda
+export SWIFTRT_PLATFORM=cuda
+export SWIFT_HOME=$HOME/swift
+export CUDA_ROOT=/usr/local/cuda
+export PATH=$SWIFT_HOME/usr/bin:$CUDA_ROOT/bin:$HOME/Downloads/cmake-3.17.3-Linux-x86_64/bin:$PATH
 
-Either
----------
-copy cuda.pc into the "/usr/local/lib/pkgconfig" directory
-The directory may not exist, so you might have to create it first
-
-Or
----------
-# pkgconfig
+export SWIFTRT_HOME=$HOME/swiftrt
 export PKG_CONFIG_PATH=${SWIFTRT_HOME}/pkgconfig\
 	${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}
+
