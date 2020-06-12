@@ -112,7 +112,7 @@ extension DeviceQueue where Self: CpuFunctions
     ) -> DeviceConvolution<Shape, Element, FilterElement>
     where Shape: TensorShape,
           Element: ScalarElement,
-          FilterElement: ScalarElement & BinaryFloatingPoint
+          FilterElement: ScalarElement
     {
         CpuConvolution<Shape, Element, FilterElement>(
             activation: activation, strides: strides,
@@ -128,7 +128,7 @@ public final class CpuConvolution<Shape, Element, FilterElement>:
     DeviceConvolution<Shape, Element, FilterElement>
 where Shape: TensorShape,
       Element: ScalarElement,
-      FilterElement: ScalarElement & BinaryFloatingPoint {}
+      FilterElement: ScalarElement {}
 
 //==============================================================================
 /// DeviceConvolution
@@ -142,7 +142,7 @@ where Shape: TensorShape,
 public class DeviceConvolution<Shape, Element, FilterElement>
 where Shape: TensorShape,
       Element: ScalarElement,
-      FilterElement: ScalarElement & BinaryFloatingPoint
+      FilterElement: ScalarElement
 {
     public typealias Data = Tensor<Shape, Element>
     public typealias Filter = Tensor<Shape, FilterElement>

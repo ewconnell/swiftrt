@@ -18,17 +18,27 @@ import Foundation
 import SwiftRTCore
 
 //==============================================================================
+// convenience types
+public typealias Convolution1 = Convolution<Shape1,Float,Float>
+public typealias Convolution2 = Convolution<Shape2,Float,Float>
+public typealias Convolution3 = Convolution<Shape3,Float,Float>
+
+//==============================================================================
 /// Convolution
-public struct Convolution<Shape,E,FE> where
-    Shape: TensorShape,
-    E: ScalarElement, FE: ScalarElement & BinaryFloatingPoint
+public struct Convolution<Shape, Element, FilterElement>
+where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
 {
-    public typealias Filter = Tensor<Shape, FE>
-    public typealias BiasVector = TensorR1<FE>
+    // types
+    public typealias Input = Tensor<Shape,Element>
+    public typealias Output = Tensor<Shape,Element>
+    public typealias Filter = Tensor<Shape,FilterElement>
+    public typealias Bias = TensorR1<FilterElement>
+    public typealias DeviceOp = DeviceConvolution<Shape, Element, FilterElement>
+
     /// The convolution filter
     public var filter: Filter
     /// The bias vector
-    public var bias: BiasVector?
+    public var bias: Bias?
     /// The element-wise activation function type
     @noDerivative public let activation: ActivationType
     /// The strides of the sliding window for spatial dimensions.
@@ -38,7 +48,7 @@ public struct Convolution<Shape,E,FE> where
     /// The dilation factor for spatial dimensions.
     @noDerivative public let dilations: Shape
     /// device specific convolution operator
-    @noDerivative public let deviceOp: DeviceConvolution<Shape,E,FE>
+    @noDerivative public let deviceOp: DeviceOp
 
     //--------------------------------------------------------------------------
     /// Creates a `Convolution` layer with the specified filter, bias,
@@ -52,10 +62,9 @@ public struct Convolution<Shape,E,FE> where
     ///   - strides: The stride of the sliding window for the temporal dimension.
     ///   - padding: The padding algorithm for convolution.
     ///   - dilation: The dilation factor for the temporal dimension.
-    @inlinable
-    public init(
+    @inlinable public init(
         filter: Filter,
-        bias: BiasVector? = nil,
+        bias: Bias? = nil,
         activation: ActivationType = .identity,
         strides: Shape = Shape.one,
         padding: Padding = .valid,
@@ -93,15 +102,14 @@ public struct Convolution<Shape,E,FE> where
     ///   - activation: The element-wise activation function.
     ///   - filterInitializer: Initializer to use for the filter parameters.
     ///   - biasInitializer: Initializer to use for the bias parameters.
-    @inlinable
-    init(
+    @inlinable public init(
         filterShape: Shape,
         stride: Int = 1,
         padding: Padding = .valid,
         dilation: Int = 1,
         activation: ActivationType = .identity,
-        filterInitializer: ParameterInitializer<Shape,FE>,
-        biasInitializer: ParameterInitializer<Shape1,FE>? = nil
+        filterInitializer: ParameterInitializer<Shape,FilterElement>,
+        biasInitializer: ParameterInitializer<Shape1,FilterElement>? = nil
     ) {
         let biasShape = Shape1(filterShape[Shape.rank - 1])
         self.init(filter: filterInitializer(filterShape),
@@ -110,5 +118,11 @@ public struct Convolution<Shape,E,FE> where
                   strides: Shape(repeating: stride),
                   padding: padding,
                   dilations: Shape(repeating: dilation))
+    }
+    
+    //--------------------------------------------------------------------------
+    ///
+    @inlinable public func callAsFunction(_ input: Input) -> Output {
+        deviceOp
     }
 }

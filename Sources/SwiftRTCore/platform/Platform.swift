@@ -329,6 +329,30 @@ public protocol ScalarElement: StorageElement {
     static var onePointer: UnsafeRawPointer { get }
 }
 
+extension Int8: ScalarElement {
+    @inlinable public static var type: ScalarType { .real8I }
+    
+    public static var zero: Self = 0
+    @inlinable public
+    static var zeroPointer: UnsafeRawPointer { UnsafeRawPointer(&zero) }
+    
+    public static var one: Self = 1
+    @inlinable public
+    static var onePointer: UnsafeRawPointer { UnsafeRawPointer(&one) }
+}
+
+extension UInt8: ScalarElement {
+    @inlinable public static var type: ScalarType { .real8U }
+    
+    public static var zero: Self = 0
+    @inlinable public
+    static var zeroPointer: UnsafeRawPointer { UnsafeRawPointer(&zero) }
+    
+    public static var one: Self = 1
+    @inlinable public
+    static var onePointer: UnsafeRawPointer { UnsafeRawPointer(&one) }
+}
+
 extension Float: ScalarElement {
     @inlinable public static var type: ScalarType { .real32F }
     
