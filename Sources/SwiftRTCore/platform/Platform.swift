@@ -188,6 +188,11 @@ public final class DeviceMemory {
     /// version
     public var version: Int
     
+    /// mutable raw pointer to memory buffer to simplify driver calls
+    @inlinable public var pointer: UnsafeMutableRawPointer {
+        UnsafeMutableRawPointer(buffer.baseAddress!)
+    }
+
     @inlinable public init(
         deviceId: Int,
         buffer: UnsafeMutableRawBufferPointer,

@@ -34,7 +34,7 @@ class test_StorageElement: XCTestCase {
             [0, 1],
             [1, 0],
         ], type: UInt1.self)
-        XCTAssert(a.storage.hostBuffer.count == 1)
+        XCTAssert(a.read().count == 1)
 
         let b = array([
             [0, 0],
@@ -42,16 +42,16 @@ class test_StorageElement: XCTestCase {
             [1, 0],
             [1, 1]
         ], type: UInt1.self)
-        XCTAssert(b.storage.hostBuffer.count == 1)
+        XCTAssert(b.read().count == 1)
 
         let c = array([0, 1, 0, 1, 0, 1, 0], type: UInt1.self)
-        XCTAssert(c.storage.hostBuffer.count == 1)
+        XCTAssert(c.read().count == 1)
         
         let d = array([0, 1, 0, 1, 0, 1, 0, 1], type: UInt1.self)
-        XCTAssert(d.storage.hostBuffer.count == 1)
+        XCTAssert(d.read().count == 1)
         
         let e = array([0, 1, 0, 1, 0, 1, 0, 1, 0], type: UInt1.self)
-        XCTAssert(e.storage.hostBuffer.count == 2)
+        XCTAssert(e.read().count == 2)
     }
     
     //--------------------------------------------------------------------------

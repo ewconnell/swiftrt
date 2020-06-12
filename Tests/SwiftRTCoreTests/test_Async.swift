@@ -24,23 +24,23 @@ class test_Async: XCTestCase {
         ("test_add", test_add),
     ]
     
-    // append and use a discrete async cpu device for these tests
-    override func setUpWithError() throws {
-        Context.log.level = .diagnostic
-        // append a cpu device
-        let asyncDiscreetCpu = Context.devices.count
-        let logInfo = Context.local.platform.logInfo
-        let testDevice = CpuDevice(parent: logInfo, memoryType: .discrete,
-                                   id: asyncDiscreetCpu, queueMode: .async)
-        Context.local.platform.devices.append(testDevice)
-        use(device: asyncDiscreetCpu)
-    }
-    
-    override func tearDownWithError() throws {
-        Context.local.platform.devices.removeLast()
-        use(device: 0)
-        Context.log.level = .error
-    }
+//    // append and use a discrete async cpu device for these tests
+//    override func setUpWithError() throws {
+//        Context.log.level = .diagnostic
+//        // append a cpu device
+//        let asyncDiscreetCpu = Context.devices.count
+//        let logInfo = Context.local.platform.logInfo
+//        let testDevice = CpuDevice(parent: logInfo, memoryType: .discrete,
+//                                   id: asyncDiscreetCpu, queueMode: .async)
+//        Context.local.platform.devices.append(testDevice)
+//        use(device: asyncDiscreetCpu)
+//    }
+//
+//    override func tearDownWithError() throws {
+//        Context.local.platform.devices.removeLast()
+//        use(device: 0)
+//        Context.log.level = .error
+//    }
 
     //--------------------------------------------------------------------------
     func test_add() {

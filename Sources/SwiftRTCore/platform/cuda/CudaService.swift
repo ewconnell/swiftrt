@@ -525,14 +525,14 @@ public final class TensorDescriptor {
 //==============================================================================
 /// createTensorDescriptor
 /// creates a cudnn tensor descriptor for the associated Tensor
-extension Tensor where TensorElement.Stored: ScalarElement {
+extension Tensor where TensorElement: ScalarElement {
     @inlinable public func createTensorDescriptor(
         asShape newShape: Shape? = nil
     ) throws -> TensorDescriptor {
         assert(newShape == nil || newShape!.count == shape.count)
         return try TensorDescriptor(shape: newShape ?? shape,
                                     strides: strides,
-                                    scalarType: TensorElement.Stored.type)
+                                    scalarType: TensorElement.type)
     }
 }
 

@@ -486,6 +486,18 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
+    /// `deviceRead(queue:
+    /// Synchronizes the collection of elements for reading
+    /// using the specified `queue`. This function is non blocking, and
+    /// the elements will be available when the request reaches the
+    /// head of the queue.
+    ///
+    /// - Parameter queue: the device queue to use for synchronization
+    @inlinable func deviceRead(using queue: DeviceQueue) -> UnsafeRawPointer {
+        UnsafeRawPointer(read(using: queue).baseAddress!)
+    }
+    
+    //--------------------------------------------------------------------------
     /// `readWrite`
     /// Synchronizes the collection of elements with the caller for read write
     /// This function blocks until the elements are available.
@@ -521,6 +533,20 @@ public extension Tensor {
         
         return storage.readWrite(type: TensorElement.Stored.self, at: i,
                                  count: storedCount, using: queue)
+    }
+    
+    //--------------------------------------------------------------------------
+    /// `deviceReadWrite(queue:`
+    /// Synchronizes the collection of elements with the caller for read write
+    /// using the specified `queue`. This function is non blocking, and
+    /// the elements will be available when the request reaches the
+    /// head of the queue.
+    ///
+    /// - Parameter queue: the device queue to use for synchronization
+    @inlinable mutating func deviceReadWrite(
+        using queue: DeviceQueue
+    ) -> UnsafeMutableRawPointer {
+        UnsafeMutableRawPointer(readWrite(using: queue).baseAddress!)
     }
 }
 
