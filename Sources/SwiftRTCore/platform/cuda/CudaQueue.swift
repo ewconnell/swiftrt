@@ -54,12 +54,13 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
         self.deviceName = deviceName
         self.creatorThread = Thread.current
         self.defaultQueueEventOptions = QueueEventOptions()
-        self.memoryType = .discrete
+        self.memoryType = useGpu ? .discrete : .unified
         self.mode = mode
         self.queue = DispatchQueue(label: "\(deviceName)_\(name)")
         self.useGpu = useGpu
         
         // select the specified device
+        print(deviceId)
         try cudaCheck(status: cudaSetDevice(Int32(deviceId)))
         
         // create a queue associated with the device
