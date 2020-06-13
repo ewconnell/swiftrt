@@ -35,6 +35,8 @@ ELSE()
 ENDIF()
 set(SWIFT ${SWIFT_HOME}/usr/bin/swift)
 set(SWIFTC ${SWIFT_HOME}/usr/bin/swiftc)
+# set(SWIFT_CLANG_INCLUDE ${SWIFT_HOME}/usr/lib/swift/clang/include)
+#        -Xswiftc -I${SWIFT_CLANG_INCLUDE}
 
 # configuration specific swift flags
 set(SWIFT_CONFIG_FLAGS
@@ -42,9 +44,9 @@ set(SWIFT_CONFIG_FLAGS
         -Xswiftc -j12
         -Xswiftc -I/usr/local/include
         -Xswiftc -L/usr/local/lib
-        -Xswiftc -I${CUDA_KERNELS_DIR}
-        -Xswiftc -I${MODULES_DIR}/Cuda
-        -Xswiftc -I${TARGET_DIR}
+        -Xswiftc -I${MODULES_DIR}/CudaKernels/include
+        -Xswiftc -I${MODULES_DIR}/Cuda/include
+        -Xswiftc -I${MODULES_DIR}
         -Xswiftc -L${TARGET_DIR}
         -Xlinker -l${CUDA_KERNELS_LIB_NAME}
         -Xswiftc -I${CUDA_INCLUDE_DIRS}
@@ -96,7 +98,7 @@ file(GLOB_RECURSE SWIFTRT_TEST_SOURCES
 #set(TEST_CASE -s ${SWIFTRT_TESTS_NAME}.TestSetup/test_mnistForward)
 
 add_custom_target(${SWIFTRT_TESTS_NAME}
-        COMMAND ${SWIFT} test ${TEST_CASE} ${SWIFTRT_FLAGS}
+        COMMAND ${SWIFT} build --build-tests ${SWIFTRT_FLAGS}
         SOURCES ${SWIFTRT_TEST_SOURCES})
 
 add_dependencies(${SWIFTRT_TESTS_NAME} ${SWIFTRT_NAME} ${CUDA_KERNELS_LIB_NAME})
