@@ -34,10 +34,8 @@ public class CudaService: Platform {
         logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
                           namePath: name, nestingLevel: 0)
         
-        // add a device whose queue is synchronized with the application
-        devices = [CudaDevice(parent: logInfo, id: 0)]
-
         // query cuda to get number of installed devices
+        devices = []
         queueStack = []
         var deviceCount: CInt = 0
         do {
@@ -49,18 +47,39 @@ public class CudaService: Platform {
             fatalError()
         }
         
-        if deviceCount > 0 {
+        if deviceCount == 0 {
             writeLog("There are no '\(self.name)' devices installed",
                 level: .warning)
         }
         
+        // add a device whose queue is synchronized with the application
+        devices.append(CudaDevice(parent: logInfo, id: 0))
+
         // add device object for each id reported
         for i in 0..<Int(deviceCount) {
             devices.append(CudaDevice(parent: logInfo, id: i + 1))
         }
         
         // select device 1 queue 0 by default
-        queueStack = [validQueue(0, 0)]
+        queueStack = [validQueue(deviceCount == 0 ? 0 : 1, 0)]
+
+        // report device stats
+        if willLog(level: .diagnostic) {
+            for device in devices {
+                diagnostic("\(deviceString) \(device.name)", categories: .device)
+                diagnostic("    device name:   \(device.properties[.deviceName] ?? "cpu hardware name")", categories: .device)
+                diagnostic("    global memory: \(device.properties[.globalMemory] ?? "cpu global memory")", categories: .device)
+                if let computeCapability = device.properties[.computeCapability] {
+                    diagnostic("    compute capability: \(computeCapability)", categories: .device)
+                }
+                if let multiprocessors = device.properties[.multiprocessors] {
+                    diagnostic("    multiprocessors:    \(multiprocessors)", categories: .device)
+                }
+                if let addressing = device.properties[.unifiedAddressing] {
+                    diagnostic("    unified addressing: \(addressing)", categories: .device)
+                }
+            }
+        }
     }
 }
 

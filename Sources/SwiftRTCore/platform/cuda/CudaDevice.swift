@@ -14,45 +14,83 @@
 // limitations under the License.
 //
 import Foundation
+import CCuda
 
 //==============================================================================
 /// CudaDevice
 public class CudaDevice: ComputeDevice {
     // properties
     public let id: Int
+    public let gpuId: Int
     public let logInfo: LogInfo
     public let memoryType: MemoryType
     public let name: String
     public var queues: [CudaQueue]
+    public var properties: [CudaDeviceProperties : String]
 
-    public init(parent parentLogInfo: LogInfo, id: Int) {
+    @inlinable public init(parent parentLogInfo: LogInfo, id: Int) {
+        let isCpuDevice = id == 0
         self.id = id
-        self.name = "gpu:\(id)"
+        self.gpuId = id - 1
+        self.name = isCpuDevice ? "cpu:0" : "gpu:\(gpuId)"
         self.logInfo = parentLogInfo.child(name)
+        self.properties = [:]
 
         // create queues
-        let isCpuDevice = id == 0
         var numQueues: Int
         if isCpuDevice {
+            //------------------------------------------------------------------
             memoryType = .unified
             numQueues = 1
+            self.queues = [CudaQueue(parent: logInfo,
+                                     gpuDeviceId: 0,
+                                     deviceName: name,
+                                     cpuQueueMode: .async,
+                                     useGpu: false)]
         } else {
+            //------------------------------------------------------------------
             memoryType = .discrete
             numQueues = 3
-        }
-        
-        self.queues = []
-        do {
+            self.queues = []
             for _ in 0..<numQueues {
-                try queues.append(
-                    CudaQueue(parent: logInfo,
-                              deviceId: self.id,
+                queues.append(CudaQueue(parent: logInfo,
+                              gpuDeviceId: gpuId,
                               deviceName: name,
-                              mode: .async,
+                              cpuQueueMode: .async,
                               useGpu: !isCpuDevice))
             }
-        } catch {
-            writeLog("\(error)")
+            getCudaDeviceProperties()
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable func getCudaDeviceProperties() {
+        do {
+            // get device properties
+            var props = cudaDeviceProp()
+            try cudaCheck(status: cudaGetDeviceProperties(&props, 0))
+            let nameCapacity = MemoryLayout.size(ofValue: props.name)
+            let deviceName = withUnsafePointer(to: &props.name) {
+                $0.withMemoryRebound(to: UInt8.self, capacity: nameCapacity) {
+                    String(cString: $0)
+                }
+            }
+            properties = [
+                .deviceName : deviceName,
+                .computeCapability : "\(props.major).\(props.minor)",
+                .globalMemory : "\(props.totalGlobalMem / (1024 * 1024)) MB",
+                .multiprocessors : "\(props.multiProcessorCount)",
+                .unifiedAddressing : "\(memoryType == .unified ? "yes" : "no")",
+            ]
+		} catch {
+            writeLog("Failed to read device properites. \(error)")
         }
     }
 }
+
+//==============================================================================
+// CudaDeviceProperties
+public enum CudaDeviceProperties: Int {
+    case deviceName, globalMemory, computeCapability, multiprocessors, unifiedAddressing
+}
+

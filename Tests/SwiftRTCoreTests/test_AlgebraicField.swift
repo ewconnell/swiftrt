@@ -22,12 +22,13 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // support terminal test run
     static var allTests = [
+        ("test_add", test_add),
+
         ("test_matmul", test_matmul),
         ("test_batchMatmul", test_batchMatmul),
         ("test_leftBatchMatmul", test_leftBatchMatmul),
         ("test_rightBatchMatmul", test_rightBatchMatmul),
 
-        ("test_add", test_add),
         ("test_addInt32", test_addInt32),
         ("test_addUInt8", test_addUInt8),
         ("test_addScalar", test_addScalar),
@@ -144,7 +145,7 @@ class test_AlgebraicField: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_add() {
-//        Context.log.level = .diagnostic
+        Context.log.level = .diagnostic
         let a = array([[0, 1], [2, 3], [4, 5]])
         let b = array([[0, 1], [2, 3], [4, 5]])
         let result = a + b
