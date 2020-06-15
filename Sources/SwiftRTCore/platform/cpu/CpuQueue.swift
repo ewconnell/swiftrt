@@ -58,8 +58,8 @@ public final class CpuQueue: DeviceQueue, CpuFunctions {
         self.queue = DispatchQueue(label: "\(deviceName)_\(name)")
         self.usesCpu = true
         
-        diagnostic("\(createString) queue: \(deviceName)_\(name)",
-                   categories: .queueAlloc)
+        diagnostic("\(createString) queue: \(deviceName)_\(name)  " +
+                    "mode: \(mode)", categories: .queueAlloc)
     }
     
     deinit {

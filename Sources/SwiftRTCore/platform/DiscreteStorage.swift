@@ -30,7 +30,7 @@ public final class DiscreteStorage: StorageBuffer {
     // implementation properties
     
     /// the last queue used to mutate the storage
-    public var lastMutatingQueueId: Int
+    public var lastMutatingQueue: DeviceQueue?
     /// the index of the last memory buffer written to
     public var master: Int
     /// replicated device memory buffers
@@ -52,7 +52,7 @@ public final class DiscreteStorage: StorageBuffer {
 
         // setup replica managment
         master = -1
-        lastMutatingQueueId = 0
+        lastMutatingQueue = nil
         let numDevices = Context.local.platform.devices.count
         replicas = [DeviceMemory?](repeating: nil, count: numDevices)
 
@@ -77,7 +77,7 @@ public final class DiscreteStorage: StorageBuffer {
 
         // setup replica managment
         master = -1
-        lastMutatingQueueId = 0
+        lastMutatingQueue = nil
         let numDevices = Context.local.platform.devices.count
         replicas = [DeviceMemory?](repeating: nil, count: numDevices)
 
@@ -131,7 +131,8 @@ public final class DiscreteStorage: StorageBuffer {
         using queue: DeviceQueue
     ) -> UnsafeBufferPointer<Element>
     {
-        let start = getMemory(queue).buffer.baseAddress!
+        let memory = getMemory(type, using: queue, willMutate: false)
+        let start = memory.buffer.baseAddress!
                 .bindMemory(to: Element.self, capacity: count)
                 .advanced(by: index)
         return UnsafeBufferPointer(start: start, count: count)
@@ -145,7 +146,8 @@ public final class DiscreteStorage: StorageBuffer {
         count: Int,
         using queue: DeviceQueue
     ) -> UnsafeMutableBufferPointer<Element> {
-        let start = getMemory(queue).buffer.baseAddress!
+        let memory = getMemory(type, using: queue, willMutate: true)
+        let start = memory.buffer.baseAddress!
                 .bindMemory(to: Element.self, capacity: count)
                 .advanced(by: index)
         return UnsafeMutableBufferPointer(start: start, count: count)
@@ -155,9 +157,24 @@ public final class DiscreteStorage: StorageBuffer {
     // getMemory
     // Manages an array of replicated device memory indexed by the deviceId
     // assoicated with `stream`. It will lazily create device memory if needed
-    @inlinable public func getMemory(_ queue: DeviceQueue) -> DeviceMemory {
+    @inlinable public func getMemory<Element>(
+        _ type: Element.Type,
+        using queue: DeviceQueue,
+        willMutate: Bool
+    ) -> DeviceMemory {
         if let memory = replicas[queue.deviceId] {
             if memory.version == replicas[master]!.version {
+                // if the data is requested on a different queue,
+                // then sync queues
+                if willMutate {
+                    if let lastQueue = lastMutatingQueue,
+                       queue.id != lastQueue.id
+                    {
+                        let event = queue.createEvent()
+                        queue.wait(for: lastQueue.record(event: event))
+                    }
+                    lastMutatingQueue = queue
+                }
                 return memory
             } else {
                 // migrate
@@ -170,6 +187,14 @@ public final class DiscreteStorage: StorageBuffer {
                 let memory = try queue.allocate(byteCount: byteCount)
                 replicas[queue.deviceId] = memory
                 
+                if willLog(level: .diagnostic) {
+                    let count = byteCount / MemoryLayout<Element>.size
+                    diagnostic(
+                        "\(allocString) \(name)(\(id)) allocating " +
+                            "\(Element.self)[\(count)] on \(queue.deviceName)",
+                        categories: .dataAlloc)
+                }
+
                 // the new buffer is now the master version
                 master = queue.deviceId
                 return memory

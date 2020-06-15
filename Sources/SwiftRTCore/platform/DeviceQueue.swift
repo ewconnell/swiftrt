@@ -121,6 +121,10 @@ extension DeviceQueue {
                     "\(deviceName)_\(name)", categories: .queueAlloc)
         return event
     }
+
+    @inlinable public func createEvent() -> QueueEvent {
+        createEvent(options: defaultQueueEventOptions)
+    }
     
     //--------------------------------------------------------------------------
     /// deviceName

@@ -266,6 +266,7 @@ extension DeviceQueue {
     // mapOpAdd
     // 20% boost over passed in op
     @inlinable func mapOpAdd<S,E>(
+        _ opName: String,
         _ a: Tensor<S,E>,
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
@@ -281,6 +282,9 @@ extension DeviceQueue {
         {
             var out = out
             if mode == .async {
+                diagnostic("\(functionString) queuing \(opName) on" +
+                            " \(deviceName)_\(name)",
+                           categories: .queueFunc)
                 queue.async {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = $1.0 + $1.1
