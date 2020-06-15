@@ -28,14 +28,15 @@ public typealias PlatformType = CudaService
 public typealias StorageBufferType = DiscreteStorage
 #else
 public typealias PlatformType = CpuService
-//public typealias StorageBufferType = DiscreetStorage
-public typealias StorageBufferType = CpuStorage
+public typealias StorageBufferType = DiscreteStorage
+//public typealias StorageBufferType = CpuStorage
 #endif
 
 //==============================================================================
 /// Context
 /// Manages the scope for the current devices, log, and error handlers
 public final class Context {
+    public static var cpuQueueMode = PlatformType.defaultCpuQueueMode
     /// TODO: evaluate perf of making thread local
     public static let local: Context = Context()
     

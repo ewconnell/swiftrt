@@ -158,9 +158,6 @@ where Shape: TensorShape,
     public let strides: Shape
     public let dilations: Shape
     public var inputShape: Shape
-    
-    // descriptors
-    public let activationDescriptor: ActivationDescriptor
 
     //--------------------------------------------------------------------------
     /// init
@@ -189,13 +186,6 @@ where Shape: TensorShape,
         self.strides = strides
         self.dilations = dilations
         self.inputShape = Shape.zero
-        
-        //----------------------------------
-        // create activation descriptor
-        self.activationDescriptor = ActivationDescriptor(
-            mode: activation,
-            nan: properties.activationNan,
-            reluCeiling: properties.activationReluCeiling)
     }
     
     //--------------------------------------------------------------------------

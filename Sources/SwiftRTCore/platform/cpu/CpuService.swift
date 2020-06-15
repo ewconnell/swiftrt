@@ -20,6 +20,7 @@
 /// on the machine where the process is being run.
 public class CpuService: Platform {
     // properties
+    public static let defaultCpuQueueMode: DeviceQueueMode = .sync
     public var devices: [CpuDevice]
     public let logInfo: LogInfo
     public let name: String
@@ -31,8 +32,10 @@ public class CpuService: Platform {
         logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
                           namePath: name, nestingLevel: 0)
         devices = [
-            CpuDevice(parent: logInfo, memoryType: .unified,
-                      id: 0, queueMode: .sync)
+            CpuDevice(id: 0,
+                      parent: logInfo,
+                      memoryType: .unified,
+                      queueMode: Context.cpuQueueMode)
         ]
         
         // select device 0 queue 0 by default

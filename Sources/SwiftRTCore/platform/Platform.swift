@@ -23,6 +23,8 @@ public protocol Platform: class, Logger {
     // types
     associatedtype Device: ComputeDevice
 
+    /// specifies how to schedule work on the cpu
+    static var defaultCpuQueueMode: DeviceQueueMode { get }
     /// a collection of available compute devices
     var devices: [Device] { get }
     /// name used for logging

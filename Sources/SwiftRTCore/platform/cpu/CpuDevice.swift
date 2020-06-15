@@ -26,9 +26,9 @@ public final class CpuDevice: ComputeDevice {
     public let queues: [CpuQueue]
 
     @inlinable public init(
+        id: Int,
         parent logInfo: LogInfo,
         memoryType: MemoryType,
-        id: Int,
         queueMode: DeviceQueueMode
     ) {
         self.id = id

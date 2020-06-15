@@ -60,6 +60,9 @@ public final class CudaConvolution<Shape, Element, FilterElement>:
     DeviceConvolution<Shape, Element, FilterElement>
 where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
 {
+    // descriptors
+    public let activationDescriptor: ActivationDescriptor
+
     // retained tensors
     public var y: Data!
     
@@ -115,6 +118,13 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         self.dataQueue = defaultQueue
         self.filterBiasBackQueue = defaultQueue
 
+        //----------------------------------
+        // create activation descriptor
+        self.activationDescriptor = ActivationDescriptor(
+            mode: activation,
+            nan: properties.activationNan,
+            reluCeiling: properties.activationReluCeiling)
+        
         //----------------------------------
         // stored common properties
         super.init(

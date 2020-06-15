@@ -22,6 +22,7 @@ import CCuda
 /// on the machine where the process is being run.
 public class CudaService: Platform {
     // properties
+    public static let defaultCpuQueueMode: DeviceQueueMode = .async
     public var devices: [CudaDevice]
     public let logInfo: LogInfo
     public let name: String
@@ -53,11 +54,13 @@ public class CudaService: Platform {
         }
         
         // add a device whose queue is synchronized with the application
-        devices.append(CudaDevice(parent: logInfo, id: 0))
+        devices.append(CudaDevice(id: 0, parent: logInfo,
+                                  queueMode: Context.cpuQueueMode))
 
         // add device object for each id reported
         for i in 0..<Int(deviceCount) {
-            devices.append(CudaDevice(parent: logInfo, id: i + 1))
+            devices.append(CudaDevice(id: i + 1, parent: logInfo,
+                                      queueMode: Context.cpuQueueMode))
         }
         
         // select device 1 queue 0 by default
