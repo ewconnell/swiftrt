@@ -26,15 +26,35 @@ public final class DiscreteStorage: StorageBuffer {
     public var isReference: Bool
     public var name: String
 
-    //--------------------------------------------------------------------------
-    // implementation properties
-    
-    /// the last queue used to mutate the storage
-    public var lastMutatingQueue: DeviceQueue?
-    /// the index of the last memory buffer written to
-    public var master: Int
+    //------------------------------------
+    // private properties
     /// replicated device memory buffers
     public var replicas: [DeviceMemory?]
+
+    /// the last queue used to mutate the storage
+    public var lastMutatingQueue: DeviceQueue?
+
+    /// whenever a buffer write pointer is taken, the associated DeviceArray
+    /// becomes the master copy for replication. Synchronization across threads
+    /// is still required for taking multiple write pointers, however
+    /// this does automatically synchronize data migrations.
+    /// The value will be `nil` if no access has been taken yet
+    public var master: DeviceMemory?
+
+    /// this is incremented each time a write pointer is taken
+    /// all replicated buffers will stay in sync with this version
+    public var masterVersion: Int
+
+    //------------------------------------
+    // testing properties
+    
+    /// testing: `true` if the last access caused the contents of the
+    /// buffer to be copied
+    @usableFromInline var lastAccessCopiedBuffer = false
+    /// testing: is `true` if the last data access caused the view's underlying
+    /// tensorArray object to be copied. It's stored here instead of on the
+    /// view, because the view is immutable when taking a read only pointer
+    @usableFromInline var lastAccessMutatedView: Bool = false
 
     //--------------------------------------------------------------------------
     // init(type:count:layout:name:
@@ -49,10 +69,9 @@ public final class DiscreteStorage: StorageBuffer {
         id = Context.nextBufferId
         isReadOnly = false
         isReference = false
+        masterVersion = -1
 
         // setup replica managment
-        master = -1
-        lastMutatingQueue = nil
         let numDevices = Context.local.platform.devices.count
         replicas = [DeviceMemory?](repeating: nil, count: numDevices)
 
@@ -74,10 +93,9 @@ public final class DiscreteStorage: StorageBuffer {
         isReadOnly = other.isReadOnly
         isReference = other.isReference
         name = other.name
-
+        masterVersion = -1
+        
         // setup replica managment
-        master = -1
-        lastMutatingQueue = nil
         let numDevices = Context.local.platform.devices.count
         replicas = [DeviceMemory?](repeating: nil, count: numDevices)
 
@@ -129,12 +147,10 @@ public final class DiscreteStorage: StorageBuffer {
         at index: Int,
         count: Int,
         using queue: DeviceQueue
-    ) -> UnsafeBufferPointer<Element>
-    {
-        let memory = getMemory(type, using: queue, willMutate: false)
-        let start = memory.buffer.baseAddress!
-                .bindMemory(to: Element.self, capacity: count)
-                .advanced(by: index)
+    ) -> UnsafeBufferPointer<Element> {
+        let buffer = migrate(type, readOnly: true, using: queue)
+        assert(index + count <= buffer.count)
+        let start = buffer.baseAddress!.advanced(by: index)
         return UnsafeBufferPointer(start: start, count: count)
     }
     
@@ -146,42 +162,90 @@ public final class DiscreteStorage: StorageBuffer {
         count: Int,
         using queue: DeviceQueue
     ) -> UnsafeMutableBufferPointer<Element> {
-        let memory = getMemory(type, using: queue, willMutate: true)
-        let start = memory.buffer.baseAddress!
-                .bindMemory(to: Element.self, capacity: count)
-                .advanced(by: index)
+        let buffer = migrate(type, readOnly: false, using: queue)
+        lastMutatingQueue = queue
+        assert(index + count <= buffer.count)
+        let start = buffer.baseAddress!.advanced(by: index)
         return UnsafeMutableBufferPointer(start: start, count: count)
     }
     
     //--------------------------------------------------------------------------
+    /// synchronize
+    /// If the queue is changing, then this creates an event and
+    /// records it onto the end of the lastQueue, then records a wait
+    /// on the new queue. This insures storage mutations from the lastQueue
+    /// finishes before the new one begins.
+    @inlinable public func synchronize(with queue: DeviceQueue) throws {
+        if let lastQueue = lastMutatingQueue, queue.id != lastQueue.id {
+            let event = lastQueue.createEvent()
+            diagnostic(
+                "\(queue.deviceName)_\(queue.name) will wait for " +
+                    "\(lastQueue.deviceName)_\(lastQueue.name) " +
+                    "using QueueEvent(\(event.id))",
+                categories: .queueSync)
+            queue.wait(for: lastQueue.record(event: event))
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    /// migrate
+    /// This migrates the master version of the data from wherever it is to
+    /// the device associated with `queue`
+    ///
+    /// - Returns: a buffer pointer to the data
+    @inlinable public func migrate<Element>(
+        _ type: Element.Type,
+        readOnly: Bool,
+        using queue: DeviceQueue
+    ) -> UnsafeMutableBufferPointer<Element> {
+        do {
+            // synchronize queue with last mutating queue
+            try synchronize(with: queue)
+            
+            // Get the buffer for this tensor on the device associated
+            // with `queue`. This is a synchronous operation.
+            let replica = try getDeviceMemory(type, queue)
+            
+            // copy from the master to the replica if the versions don't match
+            if let master = master,
+               replica.version != master.version &&
+                replica.deviceId != master.deviceId
+            {
+                // we shouldn't get here if both buffers are in unified memory
+                assert(master.type == .discrete || replica.type == .discrete)
+                lastAccessCopiedBuffer = true
+                try queue.copyAsync(from: master, to: replica)
+                diagnostic(
+                    "\(copyString) \(name)(\(id)) " +
+                        "\(master.device.name)" +
+                        "\(setText(" --> ", color: .blue))" +
+                        "\(queue.deviceName)_s\(queue.id) " +
+                        "\(Element.self)[\(replica.buffer.count)]",
+                    categories: .dataCopy)
+            }
+            
+            // set version
+            if !readOnly { master = replica; masterVersion += 1 }
+            replica.version = masterVersion
+            return replica.buffer.bindMemory(to: Element.self)
+        } catch {
+            // Fail for now
+            writeLog("Failed to access memory")
+            fatalError()
+        }
+    }
+
+    //--------------------------------------------------------------------------
     // getMemory
     // Manages an array of replicated device memory indexed by the deviceId
     // assoicated with `stream`. It will lazily create device memory if needed
-    @inlinable public func getMemory<Element>(
+    @inlinable public func getDeviceMemory<Element>(
         _ type: Element.Type,
-        using queue: DeviceQueue,
-        willMutate: Bool
-    ) -> DeviceMemory {
+        _ queue: DeviceQueue
+    ) throws -> DeviceMemory {
         if let memory = replicas[queue.deviceId] {
-            if memory.version == replicas[master]!.version {
-                // if the data is requested on a different queue,
-                // then sync queues
-                if willMutate {
-                    if let lastQueue = lastMutatingQueue,
-                       queue.id != lastQueue.id
-                    {
-                        let event = queue.createEvent()
-                        queue.wait(for: lastQueue.record(event: event))
-                    }
-                    lastMutatingQueue = queue
-                }
-                return memory
-            } else {
-                // migrate
-                fatalError()
-            }
+            return memory
         } else {
-            do {
                 // allocate the buffer for the target device
                 // and save in the replica list
                 let memory = try queue.allocate(byteCount: byteCount)
@@ -196,14 +260,8 @@ public final class DiscreteStorage: StorageBuffer {
                 }
 
                 // the new buffer is now the master version
-                master = queue.deviceId
+                master = memory
                 return memory
-            } catch {
-                // Fail for now
-                writeLog("Failed to allocate memory on \(queue.deviceName)")
-                fatalError("TODO: implement LRU host migration" +
-                            " and discrete memory discard")
-            }
         }
     }
 }

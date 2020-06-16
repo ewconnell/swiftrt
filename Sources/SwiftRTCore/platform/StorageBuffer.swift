@@ -209,11 +209,16 @@ public extension StorageBuffer {
         at base: Int,
         count: Int
     ) -> UnsafeBufferPointer<Element> {
-        read(type: type, at: base, count: count, using: Context.cpuQueue(0))
+        let queue = Context.cpuQueue(0)
+        let buffer = read(type: type, at: base, count: count, using: queue)
+        queue.waitUntilQueueIsComplete()
+        return buffer
     }
     
     //--------------------------------------------------------------------------
     /// `readWrite(type:index:count`
+    /// gets a mutable buffer pointer blocking the calling thread
+    /// until synchronized
     /// - Parameters:
     ///  - type: the type of storage element
     ///  - base: the base storage index of the returned buffer
@@ -225,7 +230,10 @@ public extension StorageBuffer {
         at base: Int,
         count: Int
     ) -> UnsafeMutableBufferPointer<Element> {
-        readWrite(type: type, at: base, count: count, using: Context.cpuQueue(0))
+        let queue = Context.cpuQueue(0)
+        let buffer = readWrite(type: type, at: base, count: count, using: queue)
+        queue.waitUntilQueueIsComplete()
+        return buffer
     }
 }
 

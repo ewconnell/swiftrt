@@ -189,6 +189,11 @@ public final class DeviceMemory {
     public let type: MemoryType
     /// version
     public var version: Int
+
+    /// convenience helper
+    @inlinable public var device: PlatformType.Device {
+        Context.devices[deviceId]
+    }
     
     /// mutable raw pointer to memory buffer to simplify driver calls
     @inlinable public var pointer: UnsafeMutableRawPointer {
