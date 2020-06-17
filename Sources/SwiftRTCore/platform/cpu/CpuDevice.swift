@@ -43,3 +43,48 @@ public final class CpuDevice: ComputeDevice {
     }
 }
 
+//==============================================================================
+/// CpuDeviceMemory
+public final class CpuDeviceMemory: DeviceMemory {
+    /// base address and size of buffer
+    public let buffer: UnsafeMutableRawBufferPointer
+    /// device where memory is located
+    public let deviceId: Int
+    /// the name of the device for diagnostics
+    public let deviceName: String
+    /// specifies the device memory type for data transfer
+    public let type: MemoryType
+    /// version
+    public var version: Int
+    /// `true` if the buffer is a reference
+    public let isReference: Bool
+    /// mutable raw pointer to memory buffer to simplify driver calls
+    @inlinable public var pointer: UnsafeMutableRawPointer {
+        UnsafeMutableRawPointer(buffer.baseAddress!)
+    }
+
+    /// device where memory is located
+    @inlinable public var device: PlatformType.Device {
+        Context.devices[deviceId]
+    }
+
+    @inlinable public init(
+        _ deviceId: Int,
+        _ deviceName: String,
+        buffer: UnsafeMutableRawBufferPointer,
+        isReference: Bool = false
+    ) {
+        self.deviceId = deviceId
+        self.deviceName = deviceName
+        self.buffer = buffer
+        self.type = .unified
+        self.isReference = isReference
+        self.version = 0
+    }
+    
+    @inlinable deinit {
+        if !isReference {
+            buffer.deallocate()
+        }
+    }
+}

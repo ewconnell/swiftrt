@@ -178,44 +178,19 @@ public protocol ComputeDevice: class, Logger {
 
 //==============================================================================
 /// DeviceMemory
-public final class DeviceMemory {
+public protocol DeviceMemory: class {
     /// base address and size of buffer
-    public let buffer: UnsafeMutableRawBufferPointer
-    /// function to free the memory
-    public let deallocate: () -> Void
-    /// id where memory is located
-    public let deviceId: Int
-    /// specifies the device memory type for data transfer
-    public let type: MemoryType
-    /// version
-    public var version: Int
-
-    /// convenience helper
-    @inlinable public var device: PlatformType.Device {
-        Context.devices[deviceId]
-    }
-    
+    var buffer: UnsafeMutableRawBufferPointer { get }
+    /// device where memory is located
+    var deviceId: Int { get }
+    /// device where memory is located
+    var deviceName: String { get }
     /// mutable raw pointer to memory buffer to simplify driver calls
-    @inlinable public var pointer: UnsafeMutableRawPointer {
-        UnsafeMutableRawPointer(buffer.baseAddress!)
-    }
-
-    @inlinable public init(
-        deviceId: Int,
-        buffer: UnsafeMutableRawBufferPointer,
-        type: MemoryType,
-        _ deallocate: @escaping () -> Void = {}
-    ) {
-        self.deviceId = deviceId
-        self.buffer = buffer
-        self.type = type
-        self.version = 0
-        self.deallocate = deallocate
-    }
-    
-    @inlinable deinit {
-        deallocate()
-    }
+    var pointer: UnsafeMutableRawPointer { get }
+    /// specifies the device memory type for data transfer
+    var type: MemoryType { get }
+    /// version
+    var version: Int { get set }
 }
 
 //==============================================================================

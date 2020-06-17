@@ -115,7 +115,9 @@ public final class DiscreteStorage: StorageBuffer {
         isReference = true
         let p = UnsafeMutableBufferPointer(mutating: buffer)
         let raw = UnsafeMutableRawBufferPointer(p)
-        replicas[0] = DeviceMemory(deviceId: 0, buffer: raw, type: .unified)
+        let device = Context.devices[0]
+        replicas[0] = CpuDeviceMemory(device.id, device.name,
+                                      buffer: raw, isReference: true)
     }
     
     //--------------------------------------------------------------------------
@@ -127,7 +129,9 @@ public final class DiscreteStorage: StorageBuffer {
                   name: "Reference Tensor")
         isReference = true
         let raw = UnsafeMutableRawBufferPointer(buffer)
-        replicas[0] = DeviceMemory(deviceId: 0, buffer: raw, type: .unified)
+        let device = Context.devices[0]
+        replicas[0] = CpuDeviceMemory(device.id, device.name,
+                                      buffer: raw, isReference: true)
     }
     
     //--------------------------------------------------------------------------
@@ -217,7 +221,7 @@ public final class DiscreteStorage: StorageBuffer {
                 try queue.copyAsync(from: master, to: replica)
                 diagnostic(
                     "\(copyString) \(name)(\(id)) " +
-                        "\(master.device.name)" +
+                        "\(master.deviceName)" +
                         "\(setText(" --> ", color: .blue))" +
                         "\(queue.deviceName)_s\(queue.id) " +
                         "\(Element.self)[\(replica.buffer.count)]",

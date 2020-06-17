@@ -100,8 +100,7 @@ extension DeviceQueue {
         let buffer = UnsafeMutableRawBufferPointer
                 .allocate(byteCount: byteCount,
                           alignment: MemoryLayout<Int>.alignment)
-        return DeviceMemory(deviceId: 0, buffer: buffer, type: memoryType,
-                            { buffer.deallocate() })
+        return CpuDeviceMemory(deviceId, deviceName, buffer: buffer)
     }
     
     //--------------------------------------------------------------------------
