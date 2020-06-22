@@ -194,37 +194,6 @@ public extension StorageBuffer {
                "Buffer size is not even multiple of Element type")
         return byteCount / MemoryLayout<Element>.size
     }
-
-    //--------------------------------------------------------------------------
-    /// `element(type:at:`
-    /// - Parameters:
-    ///  - type: the type of tensor `Element` (e.g. Float, UInt8, etc..)
-    ///  - index: the absolute logical linear storage index of the element
-    /// - Returns: a single element at the specified offset
-    @inlinable func element<E: StorageElement>(
-        type: E.Type,
-        at index: Int
-    ) -> E.Value {
-        let i = E.storedIndex(index)
-        let buffer = read(type: E.Stored.self, at: i, count: 1)
-        return E.value(at: index, from: buffer[0])
-    }
-    
-    //--------------------------------------------------------------------------
-    /// `setElement(type:value:offset:`
-    /// - Parameters:
-    ///  - type: the type of tensor `Element` (e.g. Float, UInt8, etc..)
-    ///  - value: the value to set
-    ///  - index: the absolute logical linear storage index of the element
-    @inlinable func setElement<E: StorageElement>(
-        type: E.Type,
-        value: E.Value,
-        at index: Int
-    ) {
-        let i = E.storedIndex(index)
-        let mutableBuffer = readWrite(type: E.Stored.self, at: i, count: 1)
-        E.store(value: value, at: index, to: &mutableBuffer[0])
-    }
 }
 
 //==============================================================================
