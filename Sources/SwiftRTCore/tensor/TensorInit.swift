@@ -224,7 +224,7 @@ public extension Tensor {
     ) where C: Collection, C.Element == TensorElement.Stored
     {
         self.init(shape: shape, layout: layout)
-        let buffer = readWrite()
+        let buffer = readWrite(using: Context.cpuQueue(0))
         assert(buffer.count == elements.count)
         _ = buffer.initialize(from: elements)
     }
@@ -251,7 +251,7 @@ public extension Tensor {
         self.init(shape: shape, layout: layout)
         
         // get the storage buffer and set the values
-        let buffer = readWrite()
+        let buffer = readWrite(using: Context.cpuQueue(0))
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: v, in: buffer, at: i)
         }
@@ -274,7 +274,7 @@ public extension Tensor {
         self.init(shape: shape, layout: layout)
         
         // get the storage buffer and set the values
-        let buffer = readWrite()
+        let buffer = readWrite(using: Context.cpuQueue(0))
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(exactly: v ? 1 : 0)!,
                               in: buffer, at: i)
@@ -298,7 +298,7 @@ public extension Tensor {
         self.init(shape: shape, layout: layout)
         
         // get the storage buffer and set the values
-        let buffer = readWrite()
+        let buffer = readWrite(using: Context.cpuQueue(0))
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(v != 0), in: buffer, at: i)
         }
@@ -323,7 +323,7 @@ public extension Tensor {
         self.init(shape: shape, layout: layout)
         
         // get the storage buffer and set the values
-        let buffer = readWrite()
+        let buffer = readWrite(using: Context.cpuQueue(0))
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(exactly: v)!, in: buffer, at: i)
         }
@@ -349,7 +349,7 @@ public extension Tensor {
         self.init(shape: shape, layout: layout)
         
         // get the storage buffer and set the values
-        let buffer = readWrite()
+        let buffer = readWrite(using: Context.cpuQueue(0))
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(v), in: buffer, at: i)
         }
@@ -375,7 +375,7 @@ public extension Tensor {
         self.init(shape: shape, layout: layout)
         
         // get the storage buffer and set the values
-        let buffer = readWrite()
+        let buffer = readWrite(using: Context.cpuQueue(0))
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(v), in: buffer, at: i)
         }

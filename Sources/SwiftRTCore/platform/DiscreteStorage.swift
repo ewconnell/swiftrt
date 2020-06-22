@@ -303,7 +303,7 @@ public final class DiscreteStorage: StorageBuffer {
                 if willLog(level: .diagnostic) {
                     let count = byteCount / MemoryLayout<Element>.size
                     diagnostic(
-                        "\(allocString) \(name)(\(id)) allocating " +
+                        "\(allocString) \(name)(\(id)) " +
                             "\(Element.self)[\(count)] on \(queue.deviceName)",
                         categories: .dataAlloc)
                 }

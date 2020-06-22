@@ -123,7 +123,8 @@ where Shape: TensorShape, TensorElement: StorageElement
                                           storageBase,
                                           layout,
                                           stridedSpanCount)
-        TensorElement.set(value: element, in: readWrite(), at: 0)
+        let buffer = readWrite(using: Context.cpuQueue(0))
+        TensorElement.set(value: element, in: buffer, at: 0)
     }
 }
 
@@ -460,11 +461,9 @@ public extension Tensor {
     /// `Elements` are accessed by the application using `Collection`
     /// enumeration via `indices` or integer subscripting.
     @inlinable func read() -> UnsafeBufferPointer<TensorElement.Stored> {
-        let (i, storedCount) = TensorElement
-                .storedRange(start: storageBase, count: stridedSpanCount)
-        
-        return storage.read(type: TensorElement.Stored.self,
-                            at: i, count: storedCount)
+        let queue = Context.cpuQueue(0)
+        defer { queue.waitUntilQueueIsComplete() }
+        return read(using: queue)
     }
     
     //--------------------------------------------------------------------------
@@ -506,13 +505,9 @@ public extension Tensor {
     @inlinable mutating func readWrite()
     -> UnsafeMutableBufferPointer<TensorElement.Stored>
     {
-        prepareForWrite(using: Context.cpuQueue(0))
-
-        let (i, storedCount) = TensorElement
-                .storedRange(start: storageBase, count: stridedSpanCount)
-        
-        return storage.readWrite(type: TensorElement.Stored.self,
-                                 at: i, count: storedCount)
+        let queue = Context.cpuQueue(0)
+        defer { queue.waitUntilQueueIsComplete() }
+        return readWrite(using: queue)
     }
     
     //--------------------------------------------------------------------------
