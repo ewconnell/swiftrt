@@ -74,11 +74,6 @@ public final class DiscreteStorage: StorageBuffer {
         // setup replica managment
         let numDevices = Context.local.platform.devices.count
         replicas = [DeviceMemory?](repeating: nil, count: numDevices)
-
-        #if DEBUG
-        diagnostic("\(createString) \(diagnosticName) " +
-                    "\(Element.self)[\(count)]", categories: .dataAlloc)
-        #endif
     }
     
     //--------------------------------------------------------------------------
@@ -118,6 +113,10 @@ public final class DiscreteStorage: StorageBuffer {
         let device = Context.devices[0]
         replicas[0] = CpuDeviceMemory(device.id, device.name,
                                       buffer: raw, isReference: true)
+        diagnostic(
+            "\(referenceString) \(name)(\(id)) " +
+                "\(Element.self)[\(buffer.count)]",
+            categories: .dataAlloc)
     }
     
     //--------------------------------------------------------------------------
@@ -132,6 +131,10 @@ public final class DiscreteStorage: StorageBuffer {
         let device = Context.devices[0]
         replicas[0] = CpuDeviceMemory(device.id, device.name,
                                       buffer: raw, isReference: true)
+        diagnostic(
+            "\(referenceString) \(name)(\(id)) " +
+                "\(Element.self)[\(buffer.count)]",
+            categories: .dataAlloc)
     }
     
     //--------------------------------------------------------------------------
@@ -216,6 +219,13 @@ public final class DiscreteStorage: StorageBuffer {
             queue.waitUntilQueueIsComplete()
         }
         return buffer
+    }
+
+    //--------------------------------------------------------------------------
+    /// waitForCompletion
+    /// blocks the caller until pending write operations have completed
+    @inlinable public func waitForCompletion() {
+        lastMutatingQueue?.waitUntilQueueIsComplete()
     }
 
     //--------------------------------------------------------------------------

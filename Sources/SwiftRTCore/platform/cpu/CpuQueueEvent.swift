@@ -35,6 +35,10 @@ public class CpuQueueEvent: QueueEvent {
 
     // signals that the event has occurred
     public func signal() {
+        #if DEBUG
+        Context.currentQueue.diagnostic(
+            "\(signaledString) QueueEvent(\(id))", categories: .queueSync)
+        #endif
         occurred = true
         semaphore.signal()
     }

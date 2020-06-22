@@ -1944,9 +1944,17 @@ public extension Tensor where Shape == Shape1 {
 public extension Tensor where Shape == Shape2 {
     @inlinable var array: [[Element]] {
         var array2 = [[Element]]()
-        for d0 in 0..<shape[0] {
-            let row = [Element](self[d0, 0...])
-            array2.append(row)
+        storage.waitForCompletion()
+        if isBufferIterable {
+            for d0 in 0..<shape[0] {
+                let row = [Element](self[d0, 0...].buffer)
+                array2.append(row)
+            }
+        } else {
+            for d0 in 0..<shape[0] {
+                let row = [Element](self[d0, 0...].elements)
+                array2.append(row)
+            }
         }
         return array2
     }

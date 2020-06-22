@@ -53,7 +53,7 @@ public final class CpuStorage: StorageBuffer {
             alignment: alignment)
 
         #if DEBUG
-        diagnostic("\(createString) \(diagnosticName) " +
+        diagnostic("\(allocString) \(diagnosticName) " +
             "\(Element.self)[\(count)]", categories: .dataAlloc)
         #endif
     }
@@ -92,7 +92,7 @@ public final class CpuStorage: StorageBuffer {
         self.name = "Tensor"
 
         #if DEBUG
-        diagnostic("\(createString) Reference \(diagnosticName) " +
+        diagnostic("\(referenceString) \(diagnosticName) " +
             "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
         #endif
     }
@@ -111,7 +111,7 @@ public final class CpuStorage: StorageBuffer {
         self.name = "Tensor"
 
         #if DEBUG
-        diagnostic("\(createString) Reference \(diagnosticName) " +
+        diagnostic("\(referenceString) \(diagnosticName) " +
             "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
         #endif
     }

@@ -158,6 +158,11 @@ public protocol StorageBuffer: class, Logging {
         count: Int,
         using queue: DeviceQueue
     ) -> UnsafeMutableBufferPointer<Element>
+    
+    //--------------------------------------------------------------------------
+    /// waitForCompletion
+    /// blocks the caller until pending write operations have completed
+    func waitForCompletion()
 }
 
 //==============================================================================
@@ -194,6 +199,11 @@ public extension StorageBuffer {
                "Buffer size is not even multiple of Element type")
         return byteCount / MemoryLayout<Element>.size
     }
+    
+    //--------------------------------------------------------------------------
+    /// waitForCompletion
+    /// blocks the caller until pending write operations have completed
+    @inlinable func waitForCompletion() { }
 }
 
 //==============================================================================
