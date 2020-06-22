@@ -115,7 +115,6 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.layout = layout
         self.storage = StorageBufferType(type: TensorElement.self,
                                          count: 1, name: "Element")
-        self.storage.setElement(type: TensorElement.self, value: element, at: 0)
         logicalStrides = shape.strides(for: layout)
         logicalElements = LogicalElements(count,
                                           shape,
@@ -124,6 +123,7 @@ where Shape: TensorShape, TensorElement: StorageElement
                                           storageBase,
                                           layout,
                                           stridedSpanCount)
+        TensorElement.set(value: element, in: readWrite(), at: 0)
     }
 }
 
@@ -463,8 +463,8 @@ public extension Tensor {
         let (i, storedCount) = TensorElement
                 .storedRange(start: storageBase, count: stridedSpanCount)
         
-        return storage.read(type: TensorElement.Stored.self, at: i,
-                            count: storedCount)
+        return storage.read(type: TensorElement.Stored.self,
+                            at: i, count: storedCount)
     }
     
     //--------------------------------------------------------------------------
@@ -481,8 +481,8 @@ public extension Tensor {
         let (i, storedCount) = TensorElement
                 .storedRange(start: storageBase, count: stridedSpanCount)
 
-        return storage.read(type: TensorElement.Stored.self, at: i,
-                            count: storedCount, using: queue)
+        return storage.read(type: TensorElement.Stored.self,
+                            at: i, count: storedCount, using: queue)
     }
 
     //--------------------------------------------------------------------------
@@ -511,8 +511,8 @@ public extension Tensor {
         let (i, storedCount) = TensorElement
                 .storedRange(start: storageBase, count: stridedSpanCount)
         
-        return storage.readWrite(type: TensorElement.Stored.self, at: i,
-                                 count: storedCount)
+        return storage.readWrite(type: TensorElement.Stored.self,
+                                 at: i, count: storedCount)
     }
     
     //--------------------------------------------------------------------------
@@ -531,8 +531,8 @@ public extension Tensor {
         let (i, storedCount) = TensorElement
                 .storedRange(start: storageBase, count: stridedSpanCount)
         
-        return storage.readWrite(type: TensorElement.Stored.self, at: i,
-                                 count: storedCount, using: queue)
+        return storage.readWrite(type: TensorElement.Stored.self,
+                                 at: i, count: storedCount, using: queue)
     }
     
     //--------------------------------------------------------------------------
@@ -556,7 +556,7 @@ public extension Tensor {
     /// first
     /// - Returns: the first element in the tensor
     @inlinable var first: Element {
-        storage.element(type: TensorElement.self, at: storageBase)
+        TensorElement.getValue(from: read(), at: storageBase)
     }
 
     /// element
@@ -567,13 +567,12 @@ public extension Tensor {
         get {
             assert(count == 1, "the `element` property expects " +
                 "the tensor to have a single Element. Use `first` for sets")
-            return storage.element(type: TensorElement.self, at: storageBase)
+            return TensorElement.getValue(from: read(), at: storageBase)
         }
         set {
             assert(count == 1, "the `element` property expects " +
                 "the tensor to have a single Element")
-            storage.setElement(type: TensorElement.self,
-                               value: newValue, at: storageBase)
+            TensorElement.set(value: newValue, in: readWrite(), at: storageBase)
         }
     }
 

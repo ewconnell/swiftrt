@@ -75,22 +75,18 @@ class test_Shape: XCTestCase {
     func test_reshapeOrder() {
 //        Context.log.level = .diagnostic
         let a = array([[0, 1, 2], [3, 4, 5]])
-        XCTAssert(Array(a.storage.read(type: DType.self, at: 0, count: a.count))
-                    == [0, 1, 2, 3, 4, 5])
+        XCTAssert(Array(a.read()) == [0, 1, 2, 3, 4, 5])
 
         let b = reshape(a, (2, 3), order: .col)
         XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
-        XCTAssert(Array(b.storage.read(type: DType.self, at: 0, count: b.count))
-                    == [0, 3, 1, 4, 2, 5])
+        XCTAssert(Array(b.read()) == [0, 3, 1, 4, 2, 5])
         
         let c = array([[0, 3, 1], [4, 2, 5]], order: .col)
-        XCTAssert(Array(c.storage.read(type: DType.self, at: 0, count: c.count))
-                    == [0, 3, 1, 4, 2, 5])
+        XCTAssert(Array(c.read()) == [0, 3, 1, 4, 2, 5])
 
         let d = reshape(c, (2, 3))
         XCTAssert(d == [[0, 1, 2], [3, 4, 5]])
-        XCTAssert(Array(d.storage.read(type: DType.self, at: 0, count: d.count))
-                    == [0, 1, 2, 3, 4, 5])
+        XCTAssert(Array(d.read()) == [0, 1, 2, 3, 4, 5])
     }
     
     //--------------------------------------------------------------------------

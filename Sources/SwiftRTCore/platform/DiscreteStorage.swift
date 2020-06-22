@@ -174,6 +174,51 @@ public final class DiscreteStorage: StorageBuffer {
     }
     
     //--------------------------------------------------------------------------
+    /// `read(type:index:count:`
+    /// gets a buffer pointer blocking the calling thread until synchronized
+    /// - Parameters:
+    ///  - type: the type of storage element
+    ///  - base: the base storage index of the returned buffer
+    ///  - count: the number of elements to be accessed
+    /// - Returns: a buffer pointer to the elements. Elements will be valid
+    ///   when the queue reaches this point
+    @inlinable public func read<Element>(
+        type: Element.Type,
+        at base: Int,
+        count: Int
+    ) -> UnsafeBufferPointer<Element> {
+        let queue = Context.cpuQueue(0)
+        let buffer = read(type: type, at: base, count: count, using: queue)
+        if queue.mode == .async {
+            queue.waitUntilQueueIsComplete()
+        }
+        return buffer
+    }
+    
+    //--------------------------------------------------------------------------
+    /// `readWrite(type:index:count`
+    /// gets a mutable buffer pointer blocking the calling thread
+    /// until synchronized
+    /// - Parameters:
+    ///  - type: the type of storage element
+    ///  - base: the base storage index of the returned buffer
+    ///  - count: the number of elements to be accessed
+    /// - Returns: a mutable buffer pointer to the elements.
+    ///   Elements will be valid when the queue reaches this point
+    @inlinable public func readWrite<Element>(
+        type: Element.Type,
+        at base: Int,
+        count: Int
+    ) -> UnsafeMutableBufferPointer<Element> {
+        let queue = Context.cpuQueue(0)
+        let buffer = readWrite(type: type, at: base, count: count, using: queue)
+        if queue.mode == .async {
+            queue.waitUntilQueueIsComplete()
+        }
+        return buffer
+    }
+
+    //--------------------------------------------------------------------------
     /// synchronize
     /// If the queue is changing, then this creates an event and
     /// records it onto the end of the lastQueue, then records a wait

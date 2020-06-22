@@ -223,10 +223,9 @@ public extension Tensor {
         layout: Layout = Layout.defaultValue
     ) where C: Collection, C.Element == TensorElement.Stored
     {
-        assert(shape.elementCount() == elements.count)
         self.init(shape: shape, layout: layout)
-        let buffer = storage.readWrite(type: TensorElement.Stored.self,
-                                       at: 0, count: count)
+        let buffer = readWrite()
+        assert(buffer.count == elements.count)
         _ = buffer.initialize(from: elements)
     }
     
@@ -251,12 +250,10 @@ public extension Tensor {
         assert(shape.elementCount() == elements.count)
         self.init(shape: shape, layout: layout)
         
-        // prepare storage for writing and then write the element values
-        _ = storage.readWrite(type: TensorElement.self,
-                              at: 0, count: count)
-        
-        for (i, value) in elements.enumerated() {
-            storage.setElement(type: TensorElement.self, value: value, at: i)
+        // get the storage buffer and set the values
+        let buffer = readWrite()
+        for (i, v) in elements.enumerated() {
+            TensorElement.set(value: v, in: buffer, at: i)
         }
     }
     
@@ -275,10 +272,12 @@ public extension Tensor {
     ) where C: Collection, C.Element == Bool, TensorElement.Value: Numeric {
         assert(shape.elementCount() == elements.count)
         self.init(shape: shape, layout: layout)
-        _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
-        for (i, value) in elements.enumerated() {
-            storage.setElement(type: TensorElement.self,
-                               value: Element(exactly: value ? 1 : 0)!, at: i)
+        
+        // get the storage buffer and set the values
+        let buffer = readWrite()
+        for (i, v) in elements.enumerated() {
+            TensorElement.set(value: Element(exactly: v ? 1 : 0)!,
+                              in: buffer, at: i)
         }
     }
     
@@ -297,10 +296,11 @@ public extension Tensor {
     ) where C: Collection, C.Element: Numeric, TensorElement.Value == Bool {
         assert(shape.elementCount() == elements.count)
         self.init(shape: shape, layout: layout)
-        _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
-        for (i, value) in elements.enumerated() {
-            storage.setElement(type: TensorElement.self,
-                               value: Element(value != 0), at: i)
+        
+        // get the storage buffer and set the values
+        let buffer = readWrite()
+        for (i, v) in elements.enumerated() {
+            TensorElement.set(value: Element(v != 0), in: buffer, at: i)
         }
     }
     
@@ -321,10 +321,11 @@ public extension Tensor {
     {
         assert(shape.elementCount() == elements.count)
         self.init(shape: shape, layout: layout)
-        _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
-        for (i, value) in elements.enumerated() {
-            storage.setElement(type: TensorElement.self,
-                               value: Element(exactly: value)!, at: i)
+        
+        // get the storage buffer and set the values
+        let buffer = readWrite()
+        for (i, v) in elements.enumerated() {
+            TensorElement.set(value: Element(exactly: v)!, in: buffer, at: i)
         }
     }
 
@@ -346,10 +347,11 @@ public extension Tensor {
     {
         assert(shape.elementCount() == elements.count)
         self.init(shape: shape, layout: layout)
-        _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
-        for (i, value) in elements.enumerated() {
-            storage.setElement(type: TensorElement.self,
-                               value: Element(value), at: i)
+        
+        // get the storage buffer and set the values
+        let buffer = readWrite()
+        for (i, v) in elements.enumerated() {
+            TensorElement.set(value: Element(v), in: buffer, at: i)
         }
     }
 
@@ -371,10 +373,11 @@ public extension Tensor {
     {
         assert(shape.elementCount() == elements.count)
         self.init(shape: shape, layout: layout)
-        _ = storage.readWrite(type: TensorElement.self, at: 0, count: count)
-        for (i, value) in elements.enumerated() {
-            storage.setElement(type: TensorElement.self,
-                               value: Element(value), at: i)
+        
+        // get the storage buffer and set the values
+        let buffer = readWrite()
+        for (i, v) in elements.enumerated() {
+            TensorElement.set(value: Element(v), in: buffer, at: i)
         }
     }
 }

@@ -84,6 +84,34 @@ public protocol StorageElement {
     /// - Parameters:
     ///  - value: the element value to store
     static func stored(value: Value) -> Stored
+    
+    //--------------------------------------------------------------------------
+    /// `getValue(from:at:`
+    /// - Parameters:
+    ///  - buffer: the storage buffer
+    ///  - index: the absolute logical storage index of the element in `buffer`
+    ///  This is the unpacked logical index, which will be greater than
+    ///  `buffer.count` for packed element types.
+    /// - Returns: the element value at the specified index
+    static func getValue(
+        from buffer: UnsafeBufferPointer<Stored>,
+        at index: Int
+    ) -> Value
+
+    //--------------------------------------------------------------------------
+    /// `setValue(value:in:at:`
+    /// - Parameters:
+    ///  - value: the value to set
+    ///  - buffer: the storage buffer
+    ///  - index: the absolute logical storage index of the element in `buffer`
+    ///  This is the unpacked logical index, which will be greater than
+    ///  `buffer.count` for packed element types.
+    /// - Returns: the element value at the specified index
+    static func set(
+        value: Value,
+        in buffer: UnsafeMutableBufferPointer<Stored>,
+        at index: Int
+    )
 }
 
 //==============================================================================
@@ -110,6 +138,21 @@ public extension StorageElement where Stored == Value {
         at index: Int,
         to stored: inout Stored
     ) { stored = value }
+    
+    @inlinable static func getValue(
+        from buffer: UnsafeBufferPointer<Stored>,
+        at index: Int
+    ) -> Value {
+        buffer[index]
+    }
+
+    @inlinable static func set(
+        value: Value,
+        in buffer: UnsafeMutableBufferPointer<Stored>,
+        at index: Int
+    ) {
+        buffer[index] = value
+    }
 }
 
 //==============================================================================
@@ -156,6 +199,22 @@ public extension PackedStorageElement {
         let storedStart = storedIndex(start)
         let storedCount = storedIndex(start + count - 1) - storedStart + 1
         return (storedStart, storedCount)
+    }
+    
+    
+    @inlinable static func getValue(
+        from buffer: UnsafeBufferPointer<Stored>,
+        at index: Int
+    ) -> Value {
+        value(at: index, from: buffer[storedIndex(index)])
+    }
+    
+    @inlinable static func set(
+        value: Value,
+        in buffer: UnsafeMutableBufferPointer<Stored>,
+        at index: Int
+    ) {
+        store(value: value, at: index, to: &buffer[storedIndex(index)])
     }
 }
 
@@ -307,6 +366,21 @@ extension Float16: StorageElement {
 
     @inlinable public static func storedRange(start: Int, count: Int)
     -> (storedStart: Int, storedCount: Int) { (start, count) }
+    
+    @inlinable public static func getValue(
+        from buffer: UnsafeBufferPointer<Float16>,
+        at index: Int
+    ) -> Float {
+        Float(buffer[index])
+    }
+    
+    @inlinable public static func set(
+        value: Float,
+        in buffer: UnsafeMutableBufferPointer<Float16>,
+        at index: Int
+    ) {
+        buffer[index] = Float16(value)
+    }
 }
 
 //==============================================================================
