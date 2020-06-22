@@ -512,7 +512,8 @@ where C.Element == Bool, Element.Value == Bool
 // Rank1 to Swift Array
 public extension Tensor where Shape == Shape1 {
     @inlinable var array: [Element] {
-        [Element](self)
+        storage.waitForCompletion()
+        return isBufferIterable ? [Element](buffer) : [Element](elements)
     }
 }
 
@@ -521,12 +522,16 @@ public extension Tensor where Shape == Shape1 {
 // Rank${n} to Swift Array
 public extension Tensor where Shape == Shape${n} {
     @inlinable var array: ${'[' * n}Element${']' * n} {
+        storage.waitForCompletion()
 % for i in range(n - 1):
 %  indent = '    ' * i
         ${indent}var array${n - i} = ${'[' * (n - i)}Element${']' * (n - i)}()
         ${indent}for d${i} in 0..<shape[${i}] {
 % end
-        ${'    ' * (i + 1)}let row = [Element](self[${', '.join(['d' + str(j) for j in range(n - 1)])}, 0...])
+        ${'    ' * (i + 1)}let row = isBufferIterable ?
+        ${'    ' * (i + 2)}[Element](self[${', '.join(['d' + str(j) for j in range(n - 1)])}, 0...].buffer) :
+        ${'    ' * (i + 2)}[Element](self[${', '.join(['d' + str(j) for j in range(n - 1)])}, 0...].elements)
+        
         ${'    ' * (i + 1)}array${n - i}.append(row)
 % for i in reversed(range(n - 1)):
 %  indent = '    ' * i
