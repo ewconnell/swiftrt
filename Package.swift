@@ -30,7 +30,7 @@ var testDependencies: [Target.Dependency] = ["SwiftRT"]
 var exclusions: [String] = ["*.gyb"]
 
 //==============================================================================
-// Cuda service module
+// Cuda platform module
 if buildCuda {
     //---------------------------------------
     // add Cuda system module

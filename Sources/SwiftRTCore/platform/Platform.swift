@@ -144,9 +144,9 @@ public enum ReductionOp: Int, Codable {
 public typealias ReduceOpFinal<R: MutableCollection> = (R.Element) -> R.Element
 
 //==============================================================================
-/// ServiceError
+/// PlatformError
 /// platform errors
-public enum ServiceError : Error {
+public enum PlatformError : Error {
     case functionFailure(location: String, message: String)
     case rangeError(String)
 }
@@ -161,8 +161,7 @@ public enum EvaluationMode {
 
 //==============================================================================
 /// ComputeDevice
-/// a compute device represents a physical service device installed
-/// on the platform
+/// a compute device represents a physical platform device (cpu, gpu, ...)
 public protocol ComputeDevice: class, Logger {
     associatedtype Queue: DeviceQueue
     
@@ -267,8 +266,8 @@ public enum DeviceQueueMode {
 
 //==============================================================================
 /// QueueId
-/// a unique service device queue identifier that is used to index
-/// through the service device tree for directing workflow
+/// a unique device queue identifier that is used to index
+/// through the platform device tree for directing workflow
 public struct QueueId {
     public let device: Int
     public let queue: Int

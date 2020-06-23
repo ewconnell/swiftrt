@@ -15,10 +15,10 @@
 //
 
 //==============================================================================
-/// CpuService
+/// CpuPlatform
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public class CpuService: Platform {
+public class CpuPlatform: Platform {
     // properties
     public static let defaultCpuQueueMode: DeviceQueueMode = .sync
     public var devices: [CpuDevice]
@@ -28,7 +28,7 @@ public class CpuService: Platform {
 
     //--------------------------------------------------------------------------
     @inlinable public init() {
-        name = "CpuService"
+        name = "\(Self.self)"
         logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
                           namePath: name, nestingLevel: 0)
         devices = [

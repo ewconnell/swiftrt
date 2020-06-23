@@ -17,10 +17,10 @@ import Foundation
 import CCuda
 
 //==============================================================================
-/// CudaService
+/// CudaPlatform
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public class CudaService: Platform {
+public class CudaPlatform: Platform {
     // properties
     public static let defaultCpuQueueMode: DeviceQueueMode = .async
     public var devices: [CudaDevice]
@@ -31,7 +31,7 @@ public class CudaService: Platform {
     //--------------------------------------------------------------------------
     // initializer
     @inlinable public init() {
-        name = "Cuda"
+        name = "\(Self.self)"
         logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
                           namePath: name, nestingLevel: 0)
         
@@ -98,7 +98,7 @@ public class CudaService: Platform {
         let location = "CUDA error in \(file) at \(function):\(line)"
         let message = String(utf8String: cudaGetErrorString(status))!
         cudaDeviceReset()
-        throw ServiceError.functionFailure(location: location, message: message)
+        throw PlatformError.functionFailure(location: location, message: message)
     }
 }
 
@@ -115,7 +115,7 @@ throws {
         let message = String(utf8String: cudnnGetErrorString(status))!
         print(message)
         cudaDeviceReset()
-        throw ServiceError.functionFailure(location: location, message: message)
+        throw PlatformError.functionFailure(location: location, message: message)
     }
 }
 
@@ -132,7 +132,7 @@ throws {
         let message = String(utf8String: cublasGetErrorString(status))!
             + "code=(\(status))"
         cudaDeviceReset()
-        throw ServiceError.functionFailure(location: location, message: message)
+        throw PlatformError.functionFailure(location: location, message: message)
     }
 }
 
@@ -168,7 +168,7 @@ throws {
         let message = String(utf8String: curandGetErrorString(status))!
             + "code=(\(status))"
         cudaDeviceReset()
-        throw ServiceError.functionFailure(location: location, message: message)
+        throw PlatformError.functionFailure(location: location, message: message)
     }
 }
 
@@ -464,16 +464,16 @@ public final class LRNDescriptor {
     @inlinable public init(N: Int, alpha: Double, beta: Double, K: Double) {
         do {
             guard N >= Int(CUDNN_LRN_MIN_N) && N <= Int(CUDNN_LRN_MAX_N) else {
-                throw ServiceError.rangeError(
+                throw PlatformError.rangeError(
                     "N = \(N) is invalid. Range \(CUDNN_LRN_MIN_N) " +
                             "to \(CUDNN_LRN_MAX_N)")
             }
             guard K >= CUDNN_LRN_MIN_K else {
-                throw ServiceError.rangeError(
+                throw PlatformError.rangeError(
                     "K = \(K) is invalid. Must be >= to \(CUDNN_LRN_MIN_K)")
             }
             guard beta >= CUDNN_LRN_MIN_BETA else {
-                throw ServiceError.rangeError(
+                throw PlatformError.rangeError(
                     "beta = \(beta) is invalid. Must be >= to \(CUDNN_LRN_MIN_BETA)")
             }
 
