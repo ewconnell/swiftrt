@@ -19,7 +19,7 @@ import Foundation
 // CpuQueueEvent
 /// a queue event behaves like a barrier. The first caller to wait takes
 /// the wait semaphore
-public class CpuQueueEvent: QueueEvent {
+public class CpuQueueEvent: QueueEvent, Logging {
     // properties
     public var occurred: Bool
     public var recordedTime: Date?
@@ -36,8 +36,7 @@ public class CpuQueueEvent: QueueEvent {
     // signals that the event has occurred
     public func signal() {
         #if DEBUG
-        Context.currentQueue.diagnostic(
-            "\(signaledString) QueueEvent(\(id))", categories: .queueSync)
+        diagnostic("\(signaledString) QueueEvent(\(id))", categories: .queueSync)
         #endif
         occurred = true
         semaphore.signal()

@@ -21,7 +21,8 @@ import Numerics
 public struct Tensor<Shape, TensorElement>:
     TensorProtocol,
     MutableCollection,
-    CustomStringConvertible
+    CustomStringConvertible,
+    Logging
 where Shape: TensorShape, TensorElement: StorageElement
 {
     // types

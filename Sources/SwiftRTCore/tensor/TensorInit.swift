@@ -454,7 +454,7 @@ public extension Tensor {
                 shared: other.isShared)
             
             // performs an indexed copy which reorders the elements
-            Context.local.platform.diagnostic(
+            Context.currentQueue.diagnostic(
                 "\(reorderString) copying \(other.diagnosticName) --> " +
                     "\(source.diagnosticName) \(Element.self)[\(source.count)]",
                 categories: [.dataCopy, .dataReorder])
