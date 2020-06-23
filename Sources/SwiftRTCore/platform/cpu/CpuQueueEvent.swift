@@ -19,7 +19,7 @@ import Foundation
 // CpuQueueEvent
 /// a queue event behaves like a barrier. The first caller to wait takes
 /// the wait semaphore
-public class CpuQueueEvent: QueueEvent, Logging {
+public class CpuQueueEvent: QueueEvent {
     // properties
     public var occurred: Bool
     public var recordedTime: Date?

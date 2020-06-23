@@ -23,7 +23,7 @@ public final class CpuDevice: ComputeDevice {
     public let logInfo: LogInfo
     public let memoryType: MemoryType
     public let name: String
-    public let queues: [CpuQueue]
+    public var queues: [CpuQueue]
 
     @inlinable public init(
         id: Int,
@@ -35,11 +35,14 @@ public final class CpuDevice: ComputeDevice {
         self.name = "cpu:\(id)"
         self.logInfo = logInfo.flat(name)
         self.memoryType = memoryType
-        self.queues = [CpuQueue(parent: self.logInfo,
-                                deviceId: id,
-                                deviceName: name,
-                                memoryType: memoryType,
-                                mode: queueMode)]
+        self.queues = []
+        for _ in 0..<Context.queuesPerDevice {
+            queues.append(CpuQueue(parent: self.logInfo,
+                                   deviceId: id,
+                                   deviceName: name,
+                                   memoryType: memoryType,
+                                   mode: queueMode))
+        }
     }
 }
 

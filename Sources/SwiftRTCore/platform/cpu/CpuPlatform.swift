@@ -20,7 +20,7 @@
 /// on the machine where the process is being run.
 public class CpuPlatform: Platform {
     // properties
-    public static let defaultCpuQueueMode: DeviceQueueMode = .sync
+    public static let cpuQueueMode: DeviceQueueMode = .sync
     public var devices: [CpuDevice]
     public let logInfo: LogInfo
     public let name: String

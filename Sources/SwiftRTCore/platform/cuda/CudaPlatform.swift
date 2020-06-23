@@ -22,7 +22,7 @@ import CCuda
 /// on the machine where the process is being run.
 public class CudaPlatform: Platform {
     // properties
-    public static let defaultCpuQueueMode: DeviceQueueMode = .async
+    public static let cpuQueueMode: DeviceQueueMode = .async
     public var devices: [CudaDevice]
     public let logInfo: LogInfo
     public let name: String

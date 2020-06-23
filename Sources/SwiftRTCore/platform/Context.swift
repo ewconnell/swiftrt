@@ -36,7 +36,7 @@ public typealias StorageBufferType = DiscreteStorage
 /// Context
 /// Manages the scope for the current devices, log, and error handlers
 public final class Context: Logging {
-    public static var cpuQueueMode = PlatformType.defaultCpuQueueMode
+    public static var cpuQueueMode = PlatformType.cpuQueueMode
     /// TODO: evaluate perf of making thread local
     public static let local: Context = Context()
     
@@ -55,6 +55,8 @@ public final class Context: Logging {
     public static var queueCounter: Int = 0
     /// a platform instance unique id for queue events
     public static var queueEventCounter: Int = 0
+    /// the number of queues to create for each device
+    public static var queuesPerDevice: Int = 2
 
     /// a static instance of the compute platform
     /// The platform type is specified in Types.swift and selected

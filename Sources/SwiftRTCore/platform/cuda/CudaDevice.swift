@@ -41,11 +41,9 @@ public class CudaDevice: ComputeDevice {
         self.properties = [:]
 
         // create queues
-        var numQueues: Int
         if isCpuDevice {
             //------------------------------------------------------------------
             memoryType = .unified
-            numQueues = 1
             self.queues = [CudaQueue(parent: logInfo,
                                      gpuDeviceId: 0,
                                      deviceName: name,
@@ -54,9 +52,8 @@ public class CudaDevice: ComputeDevice {
         } else {
             //------------------------------------------------------------------
             memoryType = .discrete
-            numQueues = 3
             self.queues = []
-            for _ in 0..<numQueues {
+            for _ in 0..<Context.queuesPerDevice {
                 queues.append(CudaQueue(parent: logInfo,
                               gpuDeviceId: gpuId,
                               deviceName: name,

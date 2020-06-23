@@ -24,7 +24,7 @@ public protocol Platform: class, Logger {
     associatedtype Device: ComputeDevice
 
     /// specifies how to schedule work on the cpu
-    static var defaultCpuQueueMode: DeviceQueueMode { get }
+    static var cpuQueueMode: DeviceQueueMode { get }
     /// a collection of available compute devices
     var devices: [Device] { get }
     /// name used for logging
@@ -43,18 +43,57 @@ public extension Platform {
 
     /// the currently active queue that platform functions will use
     /// - Returns: the current device queue
-    @inlinable @_transparent
-    var currentQueue: Device.Queue {
-        queueStack.last!
+    @inlinable var currentQueue: Device.Queue {
+        assert(Thread.current == queueStack.last!.creatorThread,
+               "queues may not be shared across threads")
+        return queueStack.last!
+    }
+    
+    /// selects the specified device queue for output
+    /// - Parameters:
+    ///  - device: the device to use. Device 0 is the cpu
+    ///  - queue: the queue on the device to use
+    @inlinable func use(device: Int, queue: Int = 0) {
+        queueStack[queueStack.count - 1] = validQueue(device, queue)
+    }
+    
+    /// selects the specified device queue for output within the scope of
+    /// the body
+    /// - Parameters:
+    ///  - device: the device to use. Device 0 is the cpu
+    ///  - queue: the queue on the device to use
+    ///  - body: a closure where the device queue will be used
+    @inlinable func using<R>(device: Int, queue: Int = 0, _ body: () -> R) -> R {
+        // push the selection onto the queue stack
+        queueStack.append(validQueue(device, queue))
+        defer { _ = queueStack.popLast() }
+        return body()
+    }
+    
+    /// selects the specified queue on the current device for output
+    /// within the scope of the body
+    /// - Parameters:
+    ///  - queue: the queue on the device to use
+    ///  - body: a closure where the device queue will be used
+    @inlinable func using<R>(queue: Int, _ body: () -> R) -> R {
+        // push the selection onto the queue stack
+        queueStack.append(validQueue(currentQueue.deviceId, queue))
+        defer { _ = queueStack.popLast() }
+        return body()
+    }
+
+    // peforms a mod on the indexes to guarantee they are mapped into bounds
+    @inlinable func validQueue(
+        _ deviceId: Int,
+        _ queueId: Int
+    ) -> Device.Queue {
+        let device = devices[deviceId % devices.count]
+        return device.queues[queueId % device.queues.count]
     }
 }
 
 //==============================================================================
 // queue API
-@inlinable public func useCpu() {
-    Context.local.platform.useCpu()
-}
-
 @inlinable public func use(device: Int, queue: Int = 0) {
     Context.local.platform.use(device: device, queue: queue)
 }
@@ -66,54 +105,6 @@ public extension Platform {
 
 @inlinable public func using<R>(queue: Int, _ body: () -> R) -> R {
     Context.local.platform.using(queue: queue, body)
-}
-
-// Platform extensions
-public extension Platform {
-    /// changes the current device/queue to use cpu:0
-    @inlinable
-    func useCpu() {
-        queueStack[queueStack.count - 1] = validQueue(0, 0)
-    }
-    /// selects the specified device queue for output
-    /// - Parameter device: the device to use. Device 0 is the cpu
-    /// - Parameter queue: the queue on the device to use
-    @inlinable
-    func use(device: Int, queue: Int = 0) {
-        queueStack[queueStack.count - 1] = validQueue(device, queue)
-    }
-    /// selects the specified device queue for output within the scope of
-    /// the body
-    /// - Parameter device: the device to use. Device 0 is the cpu
-    /// - Parameter queue: the queue on the device to use
-    /// - Parameter body: a closure where the device queue will be used
-    @inlinable
-    func using<R>(device: Int, queue: Int = 0, _ body: () -> R) -> R {
-        // push the selection onto the queue stack
-        queueStack.append(validQueue(device, queue))
-        defer { _ = queueStack.popLast() }
-        return body()
-    }
-    /// selects the specified queue on the current device for output
-    /// within the scope of the body
-    /// - Parameter queue: the queue on the device to use
-    /// - Parameter body: a closure where the device queue will be used
-    @inlinable
-    func using<R>(queue: Int, _ body: () -> R) -> R {
-        // push the selection onto the queue stack
-        queueStack.append(validQueue(currentQueue.deviceId, queue))
-        defer { _ = queueStack.popLast() }
-        return body()
-    }
-    
-    // peforms a mod on the indexes to guarantee they are mapped into bounds
-    @inlinable func validQueue(
-        _ deviceId: Int,
-        _ queueId: Int
-    ) -> Device.Queue {
-        let device = devices[deviceId % devices.count]
-        return device.queues[queueId % device.queues.count]
-    }
 }
 
 //==============================================================================
@@ -173,6 +164,8 @@ public protocol ComputeDevice: class, Logger {
     var queues: [Queue] { get }
     /// specifies the type of device memory for data transfer
     var memoryType: MemoryType { get }
+    /// the number of queues available for execution. The user can set
+    /// this value to change the number of queues available for execution.
 }
 
 //==============================================================================
@@ -198,7 +191,7 @@ public protocol DeviceMemory: class {
 /// - created by a `DeviceQueue`
 /// - recorded on a queue to create a barrier
 /// - waited on by one or more threads for group synchronization
-public protocol QueueEvent: class {
+public protocol QueueEvent: class, Logging {
     /// the id of the event for diagnostics
     var id: Int { get }
     /// is `true` if the even has occurred, used for polling
