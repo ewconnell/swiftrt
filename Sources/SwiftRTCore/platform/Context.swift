@@ -50,11 +50,11 @@ public final class Context: Logging {
 
     //-------------------------------------
     /// counter for unique buffer ids
-    public static var bufferIdCounter: Int = 0
+    public static var bufferIdCounter: Int = -1
     /// a platform instance unique id for queue events
-    public static var queueCounter: Int = 0
+    public static var queueCounter: Int = -1
     /// a platform instance unique id for queue events
-    public static var queueEventCounter: Int = 0
+    public static var queueEventCounter: Int = -1
     /// the number of queues to create for each device
     public static var queuesPerDevice: Int = 2
 
@@ -79,19 +79,19 @@ public final class Context: Logging {
 
     /// a counter used to uniquely identify queue events for diagnostics
     @inlinable static var nextQueueId: Int {
-        defer { queueCounter += 1 }
+        queueCounter += 1
         return queueCounter
     }
     
     /// a counter used to uniquely identify queue events for diagnostics
     @inlinable static var nextQueueEventId: Int {
-        defer { queueEventCounter += 1 }
+        queueEventCounter += 1
         return queueEventCounter
     }
     
     /// nextBufferId
     @inlinable public static var nextBufferId: Int {
-        defer { bufferIdCounter += 1 }
+        bufferIdCounter += 1
         return bufferIdCounter
     }
 
