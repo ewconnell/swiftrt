@@ -195,7 +195,7 @@ public final class DiscreteStorage: StorageBuffer {
             diagnostic(
                 "\(queue.deviceName)_\(queue.name) will wait for " +
                     "\(lastQueue.deviceName)_\(lastQueue.name) " +
-                    "using QueueEvent(\(event.id))",
+                    "using event(\(event.id))",
                 categories: .queueSync)
             queue.wait(for: lastQueue.record(event: event))
         }

@@ -116,8 +116,7 @@ extension DeviceQueue {
         options: QueueEventOptions
     ) -> QueueEvent {
         let event = CpuQueueEvent(options: options)
-        diagnostic("\(createString) QueueEvent(\(event.id)) on " +
-                    "\(deviceName)_\(name)", categories: .queueAlloc)
+        diagnostic("\(createString) event(\(event.id))", categories: .queueAlloc)
         return event
     }
 
@@ -136,7 +135,7 @@ extension DeviceQueue {
     /// record(event:
     @discardableResult
     @inlinable public func record(event: QueueEvent) -> QueueEvent {
-        diagnostic("\(recordString) QueueEvent(\(event.id)) on " +
+        diagnostic("\(recordString) event(\(event.id)) on " +
                     "\(deviceName)_\(name)", categories: .queueSync)
         
         // set event time
@@ -157,7 +156,7 @@ extension DeviceQueue {
     /// waits until the event has occurred
     @inlinable public func wait(for event: QueueEvent) {
         guard !event.occurred else { return }
-        diagnostic("\(waitString) QueueEvent(\(event.id)) on " +
+        diagnostic("\(waitString) for event(\(event.id)) on " +
                     "\(deviceName)_\(name)", categories: .queueSync)
         event.wait()
     }
