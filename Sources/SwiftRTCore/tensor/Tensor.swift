@@ -124,7 +124,7 @@ where Shape: TensorShape, TensorElement: StorageElement
                                           storageBase,
                                           layout,
                                           stridedSpanCount)
-        let buffer = readWrite(using: Context.cpuQueue(0))
+        let buffer = readWrite(using: Context.syncQueue)
         TensorElement.set(value: element, in: buffer, at: 0)
     }
 }
@@ -462,7 +462,7 @@ public extension Tensor {
     /// `Elements` are accessed by the application using `Collection`
     /// enumeration via `indices` or integer subscripting.
     @inlinable func read() -> UnsafeBufferPointer<TensorElement.Stored> {
-        read(using: Context.cpuQueue(0))
+        read(using: Context.syncQueue)
     }
     
     //--------------------------------------------------------------------------
@@ -503,7 +503,7 @@ public extension Tensor {
     /// enumeration via `indices` or subscripting.
     @inlinable mutating func readWrite()
         -> UnsafeMutableBufferPointer<TensorElement.Stored> {
-        readWrite(using: Context.cpuQueue(0))
+        readWrite(using: Context.syncQueue)
     }
     
     //--------------------------------------------------------------------------

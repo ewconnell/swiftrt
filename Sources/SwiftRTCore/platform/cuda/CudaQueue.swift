@@ -41,6 +41,7 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     //--------------------------------------------------------------------------
     // initializers
     @inlinable public init(
+        queueId: Int = Context.nextQueueId,
         parent logInfo: LogInfo,
         gpuDeviceId: Int,
         deviceName: String,
@@ -48,7 +49,7 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
         useGpu: Bool
     ) {
         do {
-            self.id = Context.nextQueueId
+            self.id = queueId
             self.name = "q\(id)"
             self.logInfo = logInfo.flat(name)
             self.deviceId = gpuDeviceId

@@ -40,13 +40,14 @@ public final class CpuQueue: DeviceQueue, CpuFunctions {
     //--------------------------------------------------------------------------
     // initializers
     @inlinable public init(
+        queueId: Int = Context.nextQueueId,
         parent logInfo: LogInfo,
         deviceId: Int,
         deviceName: String,
         memoryType: MemoryType,
         mode: DeviceQueueMode
     ) {
-        self.id = Context.nextQueueId
+        self.id = queueId
         self.name = "q\(id)"
         self.logInfo = logInfo.flat(name)
         self.deviceId = deviceId

@@ -36,7 +36,6 @@ public typealias StorageBufferType = DiscreteStorage
 /// Context
 /// Manages the scope for the current devices, log, and error handlers
 public final class Context: Logging {
-    public static var cpuQueueMode = PlatformType.cpuQueueMode
     /// TODO: evaluate perf of making thread local
     public static let local: Context = Context()
     
@@ -78,13 +77,13 @@ public final class Context: Logging {
     }
 
     /// a counter used to uniquely identify queue events for diagnostics
-    @inlinable static var nextQueueId: Int {
+    @inlinable public static var nextQueueId: Int {
         queueCounter += 1
         return queueCounter
     }
     
     /// a counter used to uniquely identify queue events for diagnostics
-    @inlinable static var nextQueueEventId: Int {
+    @inlinable public static var nextQueueEventId: Int {
         queueEventCounter += 1
         return queueEventCounter
     }
@@ -95,6 +94,7 @@ public final class Context: Logging {
         return bufferIdCounter
     }
 
+    //--------------------------------------------------------------------------
     /// the currently scoped device that platform functions will use
     /// - Returns: the current device queue
     @inlinable public static var currentDevice: PlatformType.Device {
@@ -112,12 +112,9 @@ public final class Context: Logging {
         Context.local.platform.currentQueue
     }
 
-    /// - Returns: the selected cpu device queue
-    @inlinable public static func cpuQueue(_ id: Int)
-    -> PlatformType.Device.Queue
-    {
-        let qid = id % Context.local.platform.devices[0].queues.count
-        return Context.local.platform.devices[0].queues[qid]
+    /// the application thread data interchange queue
+    @inlinable public static var syncQueue: PlatformType.Device.Queue {
+        Context.local.platform.syncQueue
     }
 
     //--------------------------------------------------------------------------

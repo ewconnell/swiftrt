@@ -91,21 +91,6 @@ public protocol StorageBuffer: class, Logging {
     ///  - stream: the I/O object for read/write operations
     init<S, Stream>(block shape: S, bufferedBlocks: Int, stream: Stream)
         where S: TensorShape, Stream: BufferStream
-        
-    //--------------------------------------------------------------------------
-    /// `read(type:index:count:`
-    /// gets a buffer pointer blocking the calling thread until synchronized
-    /// - Parameters:
-    ///  - type: the type of storage element
-    ///  - base: the base storage index of the returned buffer
-    ///  - count: the number of elements to be accessed
-    /// - Returns: a buffer pointer to the elements. Elements will be valid
-    ///   when the queue reaches this point
-    func read<Element>(
-        type: Element.Type,
-        at base: Int,
-        count: Int
-    ) -> UnsafeBufferPointer<Element>
 
     //--------------------------------------------------------------------------
     /// `read(type:index:count:queue:`
@@ -124,22 +109,6 @@ public protocol StorageBuffer: class, Logging {
         count: Int,
         using queue: DeviceQueue
     ) -> UnsafeBufferPointer<Element>
-
-    //--------------------------------------------------------------------------
-    /// `readWrite(type:index:count`
-    /// gets a mutable buffer pointer blocking the calling thread
-    /// until synchronized
-    /// - Parameters:
-    ///  - type: the type of storage element
-    ///  - base: the base storage index of the returned buffer
-    ///  - count: the number of elements to be accessed
-    /// - Returns: a mutable buffer pointer to the elements.
-    ///   Elements will be valid when the queue reaches this point
-    func readWrite<Element>(
-        type: Element.Type,
-        at base: Int,
-        count: Int
-    ) -> UnsafeMutableBufferPointer<Element>
 
     //--------------------------------------------------------------------------
     /// `readWrite(type:index:count:queue:`

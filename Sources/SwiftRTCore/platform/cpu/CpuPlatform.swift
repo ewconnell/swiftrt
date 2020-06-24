@@ -20,25 +20,36 @@
 /// on the machine where the process is being run.
 public class CpuPlatform: Platform {
     // properties
-    public static let cpuQueueMode: DeviceQueueMode = .sync
     public var devices: [CpuDevice]
     public let logInfo: LogInfo
     public let name: String
     public var queueStack: [CpuQueue]
+    public let syncQueue: CpuQueue
 
     //--------------------------------------------------------------------------
     @inlinable public init() {
         name = "\(Self.self)"
         logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
                           namePath: name, nestingLevel: 0)
-        devices = [
-            CpuDevice(id: 0,
-                      parent: logInfo,
-                      memoryType: .unified,
-                      queueMode: Context.cpuQueueMode)
-        ]
         
-        // select device 0 queue 0 by default
-        queueStack = [devices[0].queues[0]]
+        // make the first queue the sync queue so diagnostics are
+        // easier to read
+        let syncQueueId = Context.nextQueueId
+        
+        // create the device and default number of async queues
+        let device = CpuDevice(id: 0, parent: logInfo, memoryType: .unified)
+        devices = [device]
+
+        // create the application thread data interchange queue
+        syncQueue = CpuQueue(queueId: syncQueueId,
+                             parent: device.logInfo,
+                             deviceId: device.id,
+                             deviceName: device.name,
+                             memoryType: .unified,
+                             mode: .sync)
+        
+        // if the number of requested async queues is 0, then make the
+        // syncQueue the default
+        queueStack = device.queues.count == 0 ? [syncQueue] : [device.queues[0]]
     }
 }

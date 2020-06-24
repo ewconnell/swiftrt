@@ -601,7 +601,9 @@ where Shape: TensorShape, TensorElement: StorageElement
     // synchronizeForRead
     @inlinable public func synchronizeForRead() {
         let buff = storage.read(type: TensorElement.Stored.self,
-                                at: storedBase, count: storedCount)
+                                at: storedBase,
+                                count: storedCount,
+                                using: Context.syncQueue)
         // this never actually mutates
         let p = UnsafeMutablePointer(mutating: buff.baseAddress)
         hostBuffer = UnsafeMutableBufferPointer(start: p, count: buff.count)
@@ -611,7 +613,9 @@ where Shape: TensorShape, TensorElement: StorageElement
     // synchronizeForReadWrite
     @inlinable public func synchronizeForReadWrite() {
         hostBuffer = storage.readWrite(type: TensorElement.Stored.self,
-                                       at: storedBase, count: storedCount)
+                                       at: storedBase,
+                                       count: storedCount,
+                                       using: Context.syncQueue)
     }
     
     //--------------------------------------------------------------------------

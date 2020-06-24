@@ -29,25 +29,24 @@ public class CudaDevice: ComputeDevice {
     public var properties: [CudaDeviceProperties : String]
 
     @inlinable public init(
-        id: Int,
-        parent parentLogInfo: LogInfo,
-        queueMode: DeviceQueueMode
+        deviceId: Int,
+        gpuId: Int,
+        parent parentLogInfo: LogInfo
     ) {
-        let isCpuDevice = id == 0
-        self.id = id
-        self.gpuId = id - 1
-        self.name = isCpuDevice ? "cpu:0" : "gpu:\(gpuId)"
+        self.id = deviceId
+        self.gpuId = gpuId
+        self.name = deviceId == 0 ? "cpu:0" : "gpu:\(gpuId)"
         self.logInfo = parentLogInfo.child(name)
         self.properties = [:]
 
         // create queues
-        if isCpuDevice {
+        if deviceId == 0 {
             //------------------------------------------------------------------
             memoryType = .unified
             self.queues = [CudaQueue(parent: logInfo,
                                      gpuDeviceId: 0,
                                      deviceName: name,
-                                     cpuQueueMode: queueMode,
+                                     cpuQueueMode: .async,
                                      useGpu: false)]
         } else {
             //------------------------------------------------------------------
@@ -57,8 +56,8 @@ public class CudaDevice: ComputeDevice {
                 queues.append(CudaQueue(parent: logInfo,
                               gpuDeviceId: gpuId,
                               deviceName: name,
-                              cpuQueueMode: queueMode,
-                              useGpu: !isCpuDevice))
+                              cpuQueueMode: .async,
+                              useGpu: true))
             }
             getCudaDeviceProperties()
         }

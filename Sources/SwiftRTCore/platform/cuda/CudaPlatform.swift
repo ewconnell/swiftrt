@@ -27,6 +27,7 @@ public class CudaPlatform: Platform {
     public let logInfo: LogInfo
     public let name: String
     public var queueStack: [CudaQueue]
+    public let syncQueue: CudaQueue
 
     //--------------------------------------------------------------------------
     // initializer
@@ -34,38 +35,57 @@ public class CudaPlatform: Platform {
         name = "\(Self.self)"
         logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
                           namePath: name, nestingLevel: 0)
+
+        // make the first queue the sync queue so diagnostics are
+        // easier to read. Do this before creating devices.
+        let syncQueueId = Context.nextQueueId
+
+        //----------------------------
+        // CudaDevice is overloaded to avoid using Swift existentials
+        // to support both cpu and gpu operations.
+        // Device 0 is the cpu
+        let cpuDevice = CudaDevice(deviceId: 0, gpuId: 0, parent: logInfo)
+        devices = [cpuDevice]
         
+        syncQueue = CudaQueue(queueId: syncQueueId,
+                              parent: cpuDevice.logInfo,
+                              gpuDeviceId: cpuDevice.id,
+                              deviceName: cpuDevice.name,
+                              cpuQueueMode: .sync,
+                              useGpu: false)
+        
+        //----------------------------
         // query cuda to get number of installed devices
-        devices = []
         queueStack = []
-        var deviceCount: CInt = 0
+        var gpuDeviceCount: CInt = 0
         do {
-            try cudaCheck(status: cudaGetDeviceCount(&deviceCount))
+            try cudaCheck(status: cudaGetDeviceCount(&gpuDeviceCount))
         } catch {
             writeLog("cudaGetDeviceCount failed. " +
-                "The Cuda driver may be in an unstable state",
-                     level: .error)
+                "The Cuda driver may be in an unstable state")
             fatalError()
         }
         
-        if deviceCount == 0 {
+        // add device for each reported gpu
+        for gpuId in 0..<Int(gpuDeviceCount) {
+            devices.append(CudaDevice(deviceId: gpuId - 1,
+                                      gpuId: gpuId,
+                                      parent: logInfo))
+        }
+        
+        //----------------------------
+        // select first gpu queue 0 as default
+        if gpuDeviceCount == 0 {
             writeLog("There are no '\(self.name)' devices installed",
-                level: .warning)
+                     level: .warning)
+            queueStack = [syncQueue]
+        } else if devices[0].queues.count > 0 {
+            queueStack = [devices[1].queues[0]]
+        } else {
+            queueStack = [syncQueue]
         }
-        
-        // add a device whose queue is synchronized with the application
-        devices.append(CudaDevice(id: 0, parent: logInfo,
-                                  queueMode: Context.cpuQueueMode))
 
-        // add device object for each id reported
-        for i in 0..<Int(deviceCount) {
-            devices.append(CudaDevice(id: i + 1, parent: logInfo,
-                                      queueMode: Context.cpuQueueMode))
-        }
-        
-        // select device 1 queue 0 by default
-        queueStack = [validQueue(deviceCount == 0 ? 0 : 1, 0)]
-
+        //----------------------------
         // report device stats
         if willLog(level: .diagnostic) {
             for device in devices {

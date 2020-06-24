@@ -23,14 +23,14 @@ public protocol Platform: class, Logger {
     // types
     associatedtype Device: ComputeDevice
 
-    /// specifies how to schedule work on the cpu
-    static var cpuQueueMode: DeviceQueueMode { get }
     /// a collection of available compute devices
     var devices: [Device] { get }
     /// name used for logging
     var name: String { get }
     /// the current device queue to direct work
     var queueStack: [Device.Queue] { get set }
+    /// queue used to synchronize data interchange with the application thread
+    var syncQueue: Device.Queue { get }
 }
 
 public extension Platform {
@@ -55,6 +55,16 @@ public extension Platform {
     ///  - queue: the queue on the device to use
     @inlinable func use(device: Int, queue: Int = 0) {
         queueStack[queueStack.count - 1] = validQueue(device, queue)
+    }
+    
+    /// selects the application thread data interchange queue within
+    /// the scope of the body
+    /// - Parameters:
+    ///  - body: a closure where the device queue will be used
+    @inlinable func usingSyncQueue<R>(_ body: () -> R) -> R {
+        queueStack.append(syncQueue)
+        defer { _ = queueStack.popLast() }
+        return body()
     }
     
     /// selects the specified device queue for output within the scope of

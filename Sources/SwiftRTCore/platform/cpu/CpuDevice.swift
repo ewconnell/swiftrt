@@ -28,8 +28,7 @@ public final class CpuDevice: ComputeDevice {
     @inlinable public init(
         id: Int,
         parent logInfo: LogInfo,
-        memoryType: MemoryType,
-        queueMode: DeviceQueueMode
+        memoryType: MemoryType
     ) {
         self.id = id
         self.name = "cpu:\(id)"
@@ -41,7 +40,7 @@ public final class CpuDevice: ComputeDevice {
                                    deviceId: id,
                                    deviceName: name,
                                    memoryType: memoryType,
-                                   mode: queueMode))
+                                   mode: .async))
         }
     }
 }
