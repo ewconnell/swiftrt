@@ -20,6 +20,7 @@
 /// on the machine where the process is being run.
 public class CpuPlatform: Platform {
     // properties
+    public static let defaultQueuesPerDevice: Int = 0
     public var devices: [CpuDevice]
     public let logInfo: LogInfo
     public let name: String

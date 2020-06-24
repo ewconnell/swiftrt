@@ -59,6 +59,14 @@ public final class CpuStorage: StorageBuffer {
     }
 
     //--------------------------------------------------------------------------
+    /// `init(storedElement:name:
+    public convenience init<Element>(storedElement: Element, name: String) {
+        // TODO: change to data member to avoid heap alloc
+        self.init(storedType: Element.self, count: 1, name: name)
+        hostBuffer.bindMemory(to: Element.self)[0] = storedElement
+    }
+    
+    //--------------------------------------------------------------------------
     // init(other:queue:
     @inlinable public init(copying other: CpuStorage, using queue: DeviceQueue){
         alignment = other.alignment

@@ -52,6 +52,17 @@ public protocol StorageBuffer: class, Logging {
     )
     
     //--------------------------------------------------------------------------
+    /// `init(single:name:
+    /// creates storage for a single element value
+    /// - Parameters:
+    ///  - storedElement: the stored element
+    ///  - name: the name of the tensor
+    init<Element>(
+        storedElement: Element,
+        name: String
+    )
+    
+    //--------------------------------------------------------------------------
     /// `init(other:queue:
     /// creates a copy of the storage using `Context.currentQueue`
     /// - Parameters:

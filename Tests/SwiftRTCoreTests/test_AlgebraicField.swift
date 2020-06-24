@@ -51,9 +51,6 @@ class test_AlgebraicField: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_add() {
-        Context.log.level = .diagnostic
-        Context.queuesPerDevice = 0
-        
         let a = array([[0, 1], [2, 3], [4, 5]])
         let b = array([[0, 1], [2, 3], [4, 5]])
         let result = a + b

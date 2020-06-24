@@ -28,8 +28,8 @@ public typealias PlatformType = CudaPlatform
 public typealias StorageBufferType = DiscreteStorage
 #else
 public typealias PlatformType = CpuPlatform
-public typealias StorageBufferType = DiscreteStorage
-//public typealias StorageBufferType = CpuStorage
+//public typealias StorageBufferType = DiscreteStorage
+public typealias StorageBufferType = CpuStorage
 #endif
 
 //==============================================================================
@@ -55,7 +55,7 @@ public final class Context: Logging {
     /// a platform instance unique id for queue events
     public static var queueEventCounter: Int = -1
     /// the number of queues to create for each device
-    public static var queuesPerDevice: Int = 2
+    public static var queuesPerDevice: Int = PlatformType.defaultQueuesPerDevice
 
     /// a static instance of the compute platform
     /// The platform type is specified in Types.swift and selected

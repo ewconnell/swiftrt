@@ -23,6 +23,8 @@ public protocol Platform: class, Logger {
     // types
     associatedtype Device: ComputeDevice
 
+    /// the number of queues per device to create
+    static var defaultQueuesPerDevice: Int { get }
     /// a collection of available compute devices
     var devices: [Device] { get }
     /// name used for logging

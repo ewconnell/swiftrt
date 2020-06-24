@@ -1936,7 +1936,8 @@ where C.Element == Bool, Element.Value == Bool
 public extension Tensor where Shape == Shape1 {
     @inlinable var array: [Element] {
         usingSyncQueue {
-            isBufferIterable ? [Element](buffer) : [Element](elements)
+            isBufferIterable && layout == .row ?
+                [Element](buffer) : [Element](elements)
         }
     }
 }
@@ -1948,11 +1949,10 @@ public extension Tensor where Shape == Shape2 {
         usingSyncQueue {
             var array2 = [[Element]]()
             for d0 in 0..<shape[0] {
-                let row = isBufferIterable ?
-                    [Element](self[d0, 0...].buffer) :
-                    [Element](self[d0, 0...].elements)
-        
-                array2.append(row)
+                let row = self[d0, 0...]
+                let elements = row.isBufferIterable && row.layout == .row ?
+                    [Element](row.buffer) : [Element](row.elements)
+                array2.append(elements)
             }
             return array2
         }
@@ -1968,11 +1968,10 @@ public extension Tensor where Shape == Shape3 {
             for d0 in 0..<shape[0] {
                 var array2 = [[Element]]()
                 for d1 in 0..<shape[1] {
-                    let row = isBufferIterable ?
-                        [Element](self[d0, d1, 0...].buffer) :
-                        [Element](self[d0, d1, 0...].elements)
-        
-                    array2.append(row)
+                    let row = self[d0, d1, 0...]
+                    let elements = row.isBufferIterable && row.layout == .row ?
+                        [Element](row.buffer) : [Element](row.elements)
+                    array2.append(elements)
                 }
                 array3.append(array2)
             }
@@ -1992,11 +1991,10 @@ public extension Tensor where Shape == Shape4 {
                 for d1 in 0..<shape[1] {
                     var array2 = [[Element]]()
                     for d2 in 0..<shape[2] {
-                        let row = isBufferIterable ?
-                            [Element](self[d0, d1, d2, 0...].buffer) :
-                            [Element](self[d0, d1, d2, 0...].elements)
-        
-                        array2.append(row)
+                        let row = self[d0, d1, d2, 0...]
+                        let elements = row.isBufferIterable && row.layout == .row ?
+                            [Element](row.buffer) : [Element](row.elements)
+                        array2.append(elements)
                     }
                     array3.append(array2)
                 }
@@ -2020,11 +2018,10 @@ public extension Tensor where Shape == Shape5 {
                     for d2 in 0..<shape[2] {
                         var array2 = [[Element]]()
                         for d3 in 0..<shape[3] {
-                            let row = isBufferIterable ?
-                                [Element](self[d0, d1, d2, d3, 0...].buffer) :
-                                [Element](self[d0, d1, d2, d3, 0...].elements)
-        
-                            array2.append(row)
+                            let row = self[d0, d1, d2, d3, 0...]
+                            let elements = row.isBufferIterable && row.layout == .row ?
+                                [Element](row.buffer) : [Element](row.elements)
+                            array2.append(elements)
                         }
                         array3.append(array2)
                     }
@@ -2052,11 +2049,10 @@ public extension Tensor where Shape == Shape6 {
                         for d3 in 0..<shape[3] {
                             var array2 = [[Element]]()
                             for d4 in 0..<shape[4] {
-                                let row = isBufferIterable ?
-                                    [Element](self[d0, d1, d2, d3, d4, 0...].buffer) :
-                                    [Element](self[d0, d1, d2, d3, d4, 0...].elements)
-        
-                                array2.append(row)
+                                let row = self[d0, d1, d2, d3, d4, 0...]
+                                let elements = row.isBufferIterable && row.layout == .row ?
+                                    [Element](row.buffer) : [Element](row.elements)
+                                array2.append(elements)
                             }
                             array3.append(array2)
                         }

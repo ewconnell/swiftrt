@@ -77,6 +77,12 @@ public final class DiscreteStorage: StorageBuffer {
     }
     
     //--------------------------------------------------------------------------
+    /// `init(storedElement:name:
+    public init<Element>(storedElement: Element, name: String) {
+        fatalError()
+    }
+    
+    //--------------------------------------------------------------------------
     // init(copying other:
     @inlinable public init(
         copying other: DiscreteStorage,

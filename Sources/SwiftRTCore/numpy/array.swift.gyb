@@ -513,7 +513,8 @@ where C.Element == Bool, Element.Value == Bool
 public extension Tensor where Shape == Shape1 {
     @inlinable var array: [Element] {
         usingSyncQueue {
-            isBufferIterable ? [Element](buffer) : [Element](elements)
+            isBufferIterable && layout == .row ?
+                [Element](buffer) : [Element](elements)
         }
     }
 }
@@ -529,11 +530,10 @@ public extension Tensor where Shape == Shape${n} {
         ${indent}var array${n - i} = ${'[' * (n - i)}Element${']' * (n - i)}()
         ${indent}for d${i} in 0..<shape[${i}] {
 % end
-        ${'    ' * (i + 2)}let row = isBufferIterable ?
-        ${'    ' * (i + 3)}[Element](self[${', '.join(['d' + str(j) for j in range(n - 1)])}, 0...].buffer) :
-        ${'    ' * (i + 3)}[Element](self[${', '.join(['d' + str(j) for j in range(n - 1)])}, 0...].elements)
-        
-        ${'    ' * (i + 2)}array${n - i}.append(row)
+        ${'    ' * (i + 2)}let row = self[${', '.join(['d' + str(j) for j in range(n - 1)])}, 0...]
+        ${'    ' * (i + 2)}let elements = row.isBufferIterable && row.layout == .row ?
+        ${'    ' * (i + 3)}[Element](row.buffer) : [Element](row.elements)
+        ${'    ' * (i + 2)}array${n - i}.append(elements)
 % for i in reversed(range(n - 1)):
 %  indent = '    ' * (i + 1)
         ${indent}}

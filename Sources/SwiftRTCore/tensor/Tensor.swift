@@ -103,7 +103,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     /// init(element:shape:
     /// Used to initialize a tensor with a single Element
     @inlinable public init(
-        single element: Element,
+        single value: TensorElement.Value,
         shape: Shape,
         layout: Layout
     ) {
@@ -114,8 +114,8 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.count = shape.elementCount()
         self.stridedSpanCount = 1
         self.layout = layout
-        self.storage = StorageBufferType(type: TensorElement.self,
-                                         count: 1, name: "Element")
+        let stored = TensorElement.stored(value: value)
+        self.storage = StorageBufferType(storedElement: stored, name: "Element")
         logicalStrides = shape.strides(for: layout)
         logicalElements = LogicalElements(count,
                                           shape,
@@ -124,8 +124,6 @@ where Shape: TensorShape, TensorElement: StorageElement
                                           storageBase,
                                           layout,
                                           stridedSpanCount)
-        let buffer = readWrite(using: Context.syncQueue)
-        TensorElement.set(value: element, in: buffer, at: 0)
     }
 }
 

@@ -117,7 +117,7 @@ public extension Tensor {
     ///  - element: the element value for the tensor
     ///  - layout: the storage layout of the elements
     @inlinable init(
-        _ element: Element,
+        _ element: TensorElement.Value,
         layout: Layout = Layout.defaultValue
     ) {
         self.init(single: element, shape: Shape.one, layout: layout)
@@ -132,7 +132,7 @@ public extension Tensor {
     ///  - layout: the storage layout of the elements
     @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable init(
-        repeating element: Element,
+        repeating element: TensorElement.Value,
         to shape: Shape,
         layout: Layout = Layout.defaultValue
     ) {
