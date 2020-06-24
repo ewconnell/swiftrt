@@ -108,6 +108,10 @@ public extension Platform {
     Context.local.platform.use(device: device, queue: queue)
 }
 
+@inlinable func usingSyncQueue<R>(_ body: () -> R) -> R {
+    Context.local.platform.usingSyncQueue(body)
+}
+
 @inlinable public func using<R>(device: Int, queue: Int = 0,
                                 _ body: () -> R) -> R {
     Context.local.platform.using(device: device, queue: queue, body)

@@ -1935,8 +1935,9 @@ where C.Element == Bool, Element.Value == Bool
 // Rank1 to Swift Array
 public extension Tensor where Shape == Shape1 {
     @inlinable var array: [Element] {
-        storage.waitForCompletion()
-        return isBufferIterable ? [Element](buffer) : [Element](elements)
+        usingSyncQueue {
+            isBufferIterable ? [Element](buffer) : [Element](elements)
+        }
     }
 }
 
@@ -1944,16 +1945,17 @@ public extension Tensor where Shape == Shape1 {
 // Rank2 to Swift Array
 public extension Tensor where Shape == Shape2 {
     @inlinable var array: [[Element]] {
-        storage.waitForCompletion()
-        var array2 = [[Element]]()
-        for d0 in 0..<shape[0] {
-            let row = isBufferIterable ?
-                [Element](self[d0, 0...].buffer) :
-                [Element](self[d0, 0...].elements)
+        usingSyncQueue {
+            var array2 = [[Element]]()
+            for d0 in 0..<shape[0] {
+                let row = isBufferIterable ?
+                    [Element](self[d0, 0...].buffer) :
+                    [Element](self[d0, 0...].elements)
         
-            array2.append(row)
+                array2.append(row)
+            }
+            return array2
         }
-        return array2
     }
 }
 
@@ -1961,20 +1963,21 @@ public extension Tensor where Shape == Shape2 {
 // Rank3 to Swift Array
 public extension Tensor where Shape == Shape3 {
     @inlinable var array: [[[Element]]] {
-        storage.waitForCompletion()
-        var array3 = [[[Element]]]()
-        for d0 in 0..<shape[0] {
-            var array2 = [[Element]]()
-            for d1 in 0..<shape[1] {
-                let row = isBufferIterable ?
-                    [Element](self[d0, d1, 0...].buffer) :
-                    [Element](self[d0, d1, 0...].elements)
+        usingSyncQueue {
+            var array3 = [[[Element]]]()
+            for d0 in 0..<shape[0] {
+                var array2 = [[Element]]()
+                for d1 in 0..<shape[1] {
+                    let row = isBufferIterable ?
+                        [Element](self[d0, d1, 0...].buffer) :
+                        [Element](self[d0, d1, 0...].elements)
         
-                array2.append(row)
+                    array2.append(row)
+                }
+                array3.append(array2)
             }
-            array3.append(array2)
+            return array3
         }
-        return array3
     }
 }
 
@@ -1982,43 +1985,16 @@ public extension Tensor where Shape == Shape3 {
 // Rank4 to Swift Array
 public extension Tensor where Shape == Shape4 {
     @inlinable var array: [[[[Element]]]] {
-        storage.waitForCompletion()
-        var array4 = [[[[Element]]]]()
-        for d0 in 0..<shape[0] {
-            var array3 = [[[Element]]]()
-            for d1 in 0..<shape[1] {
-                var array2 = [[Element]]()
-                for d2 in 0..<shape[2] {
-                    let row = isBufferIterable ?
-                        [Element](self[d0, d1, d2, 0...].buffer) :
-                        [Element](self[d0, d1, d2, 0...].elements)
-        
-                    array2.append(row)
-                }
-                array3.append(array2)
-            }
-            array4.append(array3)
-        }
-        return array4
-    }
-}
-
-//------------------------------------------------------------------------------
-// Rank5 to Swift Array
-public extension Tensor where Shape == Shape5 {
-    @inlinable var array: [[[[[Element]]]]] {
-        storage.waitForCompletion()
-        var array5 = [[[[[Element]]]]]()
-        for d0 in 0..<shape[0] {
+        usingSyncQueue {
             var array4 = [[[[Element]]]]()
-            for d1 in 0..<shape[1] {
+            for d0 in 0..<shape[0] {
                 var array3 = [[[Element]]]()
-                for d2 in 0..<shape[2] {
+                for d1 in 0..<shape[1] {
                     var array2 = [[Element]]()
-                    for d3 in 0..<shape[3] {
+                    for d2 in 0..<shape[2] {
                         let row = isBufferIterable ?
-                            [Element](self[d0, d1, d2, d3, 0...].buffer) :
-                            [Element](self[d0, d1, d2, d3, 0...].elements)
+                            [Element](self[d0, d1, d2, 0...].buffer) :
+                            [Element](self[d0, d1, d2, 0...].elements)
         
                         array2.append(row)
                     }
@@ -2026,30 +2002,27 @@ public extension Tensor where Shape == Shape5 {
                 }
                 array4.append(array3)
             }
-            array5.append(array4)
+            return array4
         }
-        return array5
     }
 }
 
 //------------------------------------------------------------------------------
-// Rank6 to Swift Array
-public extension Tensor where Shape == Shape6 {
-    @inlinable var array: [[[[[[Element]]]]]] {
-        storage.waitForCompletion()
-        var array6 = [[[[[[Element]]]]]]()
-        for d0 in 0..<shape[0] {
+// Rank5 to Swift Array
+public extension Tensor where Shape == Shape5 {
+    @inlinable var array: [[[[[Element]]]]] {
+        usingSyncQueue {
             var array5 = [[[[[Element]]]]]()
-            for d1 in 0..<shape[1] {
+            for d0 in 0..<shape[0] {
                 var array4 = [[[[Element]]]]()
-                for d2 in 0..<shape[2] {
+                for d1 in 0..<shape[1] {
                     var array3 = [[[Element]]]()
-                    for d3 in 0..<shape[3] {
+                    for d2 in 0..<shape[2] {
                         var array2 = [[Element]]()
-                        for d4 in 0..<shape[4] {
+                        for d3 in 0..<shape[3] {
                             let row = isBufferIterable ?
-                                [Element](self[d0, d1, d2, d3, d4, 0...].buffer) :
-                                [Element](self[d0, d1, d2, d3, d4, 0...].elements)
+                                [Element](self[d0, d1, d2, d3, 0...].buffer) :
+                                [Element](self[d0, d1, d2, d3, 0...].elements)
         
                             array2.append(row)
                         }
@@ -2059,9 +2032,42 @@ public extension Tensor where Shape == Shape6 {
                 }
                 array5.append(array4)
             }
-            array6.append(array5)
+            return array5
         }
-        return array6
+    }
+}
+
+//------------------------------------------------------------------------------
+// Rank6 to Swift Array
+public extension Tensor where Shape == Shape6 {
+    @inlinable var array: [[[[[[Element]]]]]] {
+        usingSyncQueue {
+            var array6 = [[[[[[Element]]]]]]()
+            for d0 in 0..<shape[0] {
+                var array5 = [[[[[Element]]]]]()
+                for d1 in 0..<shape[1] {
+                    var array4 = [[[[Element]]]]()
+                    for d2 in 0..<shape[2] {
+                        var array3 = [[[Element]]]()
+                        for d3 in 0..<shape[3] {
+                            var array2 = [[Element]]()
+                            for d4 in 0..<shape[4] {
+                                let row = isBufferIterable ?
+                                    [Element](self[d0, d1, d2, d3, d4, 0...].buffer) :
+                                    [Element](self[d0, d1, d2, d3, d4, 0...].elements)
+        
+                                array2.append(row)
+                            }
+                            array3.append(array2)
+                        }
+                        array4.append(array3)
+                    }
+                    array5.append(array4)
+                }
+                array6.append(array5)
+            }
+            return array6
+        }
     }
 }
 
