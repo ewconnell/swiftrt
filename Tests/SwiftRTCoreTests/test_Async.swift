@@ -24,32 +24,37 @@ class test_Async: XCTestCase {
         ("test_add", test_add),
     ]
     
-//    // append and use a discrete async cpu device for these tests
-//    override func setUpWithError() throws {
-//        Context.log.level = .diagnostic
-//        // append a cpu device
-//        let asyncDiscreetCpu = Context.devices.count
-//        let logInfo = Context.local.platform.logInfo
-//        let testDevice = CpuDevice(parent: logInfo, memoryType: .discrete,
-//                                   id: asyncDiscreetCpu, queueMode: .async)
-//        Context.local.platform.devices.append(testDevice)
-//        use(device: asyncDiscreetCpu)
-//    }
-//
-//    override func tearDownWithError() throws {
-//        Context.local.platform.devices.removeLast()
-//        use(device: 0)
-//        Context.log.level = .error
-//    }
+    // append and use a discrete async cpu device for these tests
+    override func setUpWithError() throws {
+        Context.log.level = .diagnostic
+        Context.queuesPerDevice = 1
+        use(device: 0, queue: 0)
+    }
+
+    override func tearDownWithError() throws {
+        useSyncQueue()
+        Context.log.level = .error
+    }
 
     //--------------------------------------------------------------------------
     func test_add() {
-//        let a = array(0..<6)
-//        let b = array(0..<6)
-//        let c = a + b
-//
-//        // sync with caller
-//        let result = c.array
-//        XCTAssert(result == [0, 2, 4, 6, 8, 10])
+        let a = array([[0, 1], [2, 3], [4, 5]])
+        let b = array([[0, 1], [2, 3], [4, 5]])
+        let result = a + b
+        XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
+        
+        // both
+        let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(ones(like: a))
+        
+        XCTAssert(g1.flatArray == [1, 1, 1, 1, 1, 1])
+        XCTAssert(g2.flatArray == [1, 1, 1, 1, 1, 1])
+        
+        // lhs
+        let glhs = pullback(at: a, in: { $0 + 2 })(ones(like: a))
+        XCTAssert(glhs.flatArray == [1, 1, 1, 1, 1, 1])
+        
+        // rhs
+        let grhs = pullback(at: a, in: { 2 + $0 })(ones(like: a))
+        XCTAssert(grhs.flatArray == [1, 1, 1, 1, 1, 1])
     }
 }

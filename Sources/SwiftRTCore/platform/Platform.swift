@@ -61,6 +61,12 @@ public extension Platform {
     
     /// selects the application thread data interchange queue within
     /// the scope of the body
+    @inlinable func useSyncQueue() {
+        queueStack[queueStack.count - 1] = syncQueue
+    }
+    
+    /// selects the application thread data interchange queue within
+    /// the scope of the body
     /// - Parameters:
     ///  - body: a closure where the device queue will be used
     @inlinable func usingSyncQueue<R>(_ body: () -> R) -> R {
@@ -110,7 +116,9 @@ public extension Platform {
     Context.local.platform.use(device: device, queue: queue)
 }
 
-@inlinable func usingSyncQueue<R>(_ body: () -> R) -> R {
+@inlinable public func useSyncQueue() { Context.local.platform.useSyncQueue() }
+
+@inlinable public func usingSyncQueue<R>(_ body: () -> R) -> R {
     Context.local.platform.usingSyncQueue(body)
 }
 

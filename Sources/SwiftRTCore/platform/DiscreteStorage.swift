@@ -200,7 +200,9 @@ public final class DiscreteStorage: StorageBuffer {
     /// on the new queue. This insures storage mutations from the lastQueue
     /// finishes before the new one begins.
     @inlinable public func synchronize(with queue: DeviceQueue) throws {
-        if let lastQueue = lastMutatingQueue, queue.id != lastQueue.id {
+        if let lastQueue = lastMutatingQueue,
+           lastQueue.mode == .async && queue.id != lastQueue.id
+        {
             let event = lastQueue.createEvent()
             diagnostic(
                 "\(queue.deviceName)_\(queue.name) will wait for " +
