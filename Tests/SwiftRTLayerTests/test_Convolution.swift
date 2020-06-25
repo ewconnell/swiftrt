@@ -35,11 +35,11 @@ class test_Convolution: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_Tensor2() {
-        let a = array(0..<81, (9, 9))
-        let conv = Convolution2(filterShape: [3, 3])
-        let b = conv(a)
-        print(b)
-        XCTAssert(b == expected9_9)
+//        let a = array(0..<81, (9, 9))
+//        let conv = Convolution2(filterShape: [3, 3])
+//        let b = conv(a)
+//        print(b)
+//        XCTAssert(b == expected9_9)
         
 //        let c = array(0..<81, (9, 9), type: UInt8.self)
 //        let convi = Convolution<Shape2,UInt8,Float>(filterShape: [3, 3])
