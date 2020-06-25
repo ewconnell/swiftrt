@@ -78,8 +78,12 @@ public final class DiscreteStorage: StorageBuffer {
     
     //--------------------------------------------------------------------------
     /// `init(storedElement:name:
-    public init<Element>(storedElement: Element, name: String) {
-        fatalError()
+    public convenience init<Element>(storedElement: Element, name: String) {
+        // TODO: change this to cache single scalars
+        self.init(storedType: Element.self, count: 1, name: name)
+        let buffer = readWrite(type: Element.self, at: 0, count: 1,
+                               using: Context.syncQueue)
+        buffer[0] = storedElement
     }
     
     //--------------------------------------------------------------------------

@@ -28,8 +28,8 @@ public typealias PlatformType = CudaPlatform
 public typealias StorageBufferType = DiscreteStorage
 #else
 public typealias PlatformType = CpuPlatform
-//public typealias StorageBufferType = DiscreteStorage
-public typealias StorageBufferType = CpuStorage
+public typealias StorageBufferType = DiscreteStorage
+//public typealias StorageBufferType = CpuStorage
 #endif
 
 //==============================================================================
