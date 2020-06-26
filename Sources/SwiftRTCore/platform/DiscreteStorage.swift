@@ -34,7 +34,7 @@ public final class DiscreteStorage: StorageBuffer {
     /// the last queue used to access storage
     public var lastQueue: DeviceQueue?
 
-    /// whenever a buffer write pointer is taken, the associated DeviceArray
+    /// whenever a buffer write pointer is taken, the associated DeviceMemory
     /// becomes the master copy for replication. Synchronization across threads
     /// is still required for taking multiple write pointers, however
     /// this does automatically synchronize data migrations.
@@ -193,7 +193,6 @@ public final class DiscreteStorage: StorageBuffer {
         using queue: DeviceQueue
     ) -> UnsafeMutableBufferPointer<Element> {
         let buffer = migrate(type, willMutate: true, using: queue)
-        lastQueue = queue
         assert(index + count <= buffer.count)
         let start = buffer.baseAddress!.advanced(by: index)
         return UnsafeMutableBufferPointer(start: start, count: count)
@@ -246,6 +245,19 @@ public final class DiscreteStorage: StorageBuffer {
         assert(willMutate || master != nil,
                "attempting to read uninitialized memory")
         do {
+            // synchronize queues if switching
+            if let lastQueue = lastQueue,
+               lastQueue.mode == .async && queue.id != lastQueue.id
+            {
+                let event = lastQueue.createEvent()
+                diagnostic(
+                    "\(queue.deviceName)_\(queue.name) will wait for " +
+                        "\(lastQueue.deviceName)_\(lastQueue.name) " +
+                        "using event(\(event.id))",
+                    categories: .queueSync)
+                queue.wait(for: lastQueue.record(event: event))
+            }
+            
             // Get a buffer for this tensor on the device associated
             // with `queue`. This is a synchronous operation.
             let replica = try getDeviceMemory(type, queue)
@@ -275,6 +287,11 @@ public final class DiscreteStorage: StorageBuffer {
             // the replica version either matches the master by copying
             // or is the new master
             replica.version = masterVersion
+
+            // store a reference to the accessing queue for safe shutdown
+            lastQueue = queue
+
+            // bind to the element type
             return replica.buffer.bindMemory(to: Element.self)
         } catch {
             // Fail for now

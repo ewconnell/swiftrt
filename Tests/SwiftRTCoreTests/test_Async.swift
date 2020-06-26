@@ -21,13 +21,13 @@ class test_Async: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_add", test_add),
+        ("test_multiQueue", test_multiQueue),
     ]
     
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
         Context.log.level = .diagnostic
-        Context.queuesPerDevice = 1
+        Context.queuesPerDevice = 2
         use(device: 0, queue: 0)
     }
 
@@ -35,28 +35,21 @@ class test_Async: XCTestCase {
         useSyncQueue()
         Context.log.level = .error
     }
-    
+
     //--------------------------------------------------------------------------
-    func test_add() {
+    func test_multiQueue() {
         let a = array([[0, 1], [2, 3], [4, 5]])
-        let b = array([[0, 1], [2, 3], [4, 5]])
-        do {
-            let result = a + b
-            XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
+
+        let c = using(queue: 0) { () -> Tensor2 in
+            let b = array([[0, 1], [2, 3], [4, 5]])
+            return a + b
+        }
+
+        let d = using(queue: 1) {
+            a + c
         }
         
-        // both
-        let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(ones(like: a))
-        
-        XCTAssert(g1.flatArray == [1, 1, 1, 1, 1, 1])
-        XCTAssert(g2.flatArray == [1, 1, 1, 1, 1, 1])
-        
-        // lhs
-        let glhs = pullback(at: a, in: { $0 + 2 })(ones(like: a))
-        XCTAssert(glhs.flatArray == [1, 1, 1, 1, 1, 1])
-        
-        // rhs
-        let grhs = pullback(at: a, in: { 2 + $0 })(ones(like: a))
-        XCTAssert(grhs.flatArray == [1, 1, 1, 1, 1, 1])
+        let result = d.array
+        print(result)
     }
 }
