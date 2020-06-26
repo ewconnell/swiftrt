@@ -31,8 +31,8 @@ public final class DiscreteStorage: StorageBuffer {
     /// replicated device memory buffers
     public var replicas: [DeviceMemory?]
 
-    /// the last queue used to mutate the storage
-    public var lastMutatingQueue: DeviceQueue?
+    /// the last queue used to access storage
+    public var lastQueue: DeviceQueue?
 
     /// whenever a buffer write pointer is taken, the associated DeviceArray
     /// becomes the master copy for replication. Synchronization across threads
@@ -146,7 +146,14 @@ public final class DiscreteStorage: StorageBuffer {
                 "\(Element.self)[\(buffer.count)]",
             categories: .dataAlloc)
     }
-    
+
+    //--------------------------------------------------------------------------
+    /// waitForCompletion
+    /// blocks the caller until pending write operations have completed
+    @inlinable public func waitForCompletion() {
+        lastQueue?.waitForCompletion()
+    }
+
     //--------------------------------------------------------------------------
     //
     @inlinable public init<S, Stream>(
@@ -160,7 +167,7 @@ public final class DiscreteStorage: StorageBuffer {
     //--------------------------------------------------------------------------
     // ensure that all pending work is complete before releasing memory
     @inlinable deinit {
-        lastMutatingQueue?.waitUntilComplete()
+        waitForCompletion()
     }
     
     //--------------------------------------------------------------------------
@@ -186,17 +193,10 @@ public final class DiscreteStorage: StorageBuffer {
         using queue: DeviceQueue
     ) -> UnsafeMutableBufferPointer<Element> {
         let buffer = migrate(type, willMutate: true, using: queue)
-        lastMutatingQueue = queue
+        lastQueue = queue
         assert(index + count <= buffer.count)
         let start = buffer.baseAddress!.advanced(by: index)
         return UnsafeMutableBufferPointer(start: start, count: count)
-    }
-
-    //--------------------------------------------------------------------------
-    /// waitForCompletion
-    /// blocks the caller until pending write operations have completed
-    @inlinable public func waitForCompletion() {
-        lastMutatingQueue?.waitUntilComplete()
     }
 
     //--------------------------------------------------------------------------

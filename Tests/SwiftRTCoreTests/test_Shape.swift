@@ -285,7 +285,7 @@ class test_Shape: XCTestCase {
         var count: DType = 0
         self.measure {
             for _ in 0..<100000 {
-                let a = Tensor2(Shape2(2, 5))
+                let a = Tensor2(shape: Shape2(2, 5))
                 count = a.first
             }
         }

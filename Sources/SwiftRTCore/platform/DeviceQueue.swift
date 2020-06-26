@@ -82,9 +82,9 @@ public protocol DeviceQueue: Logging {
     ///  - event: the event to wait for
     func wait(for event: QueueEvent)
     
-    /// waitUntilComplete
+    /// waitForCompletion
     /// blocks the caller until all events in the queue have completed
-    func waitUntilComplete()
+    func waitForCompletion()
 }
 
 //==============================================================================
@@ -162,10 +162,10 @@ extension DeviceQueue {
     }
     
     //--------------------------------------------------------------------------
-    // waitUntilComplete
+    // waitForCompletion
     // the synchronous queue completes work as it is queued,
     // so it is always complete
-    @inlinable public func waitUntilComplete() {
+    @inlinable public func waitForCompletion() {
         if mode == .async {
             wait(for: record(event: createEvent(options: QueueEventOptions())))
         }
