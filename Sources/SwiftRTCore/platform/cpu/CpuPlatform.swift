@@ -32,20 +32,16 @@ public class CpuPlatform: Platform {
         name = "\(Self.self)"
         logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
                           namePath: name, nestingLevel: 0)
-        
-        // make the first queue the sync queue so diagnostics are
-        // easier to read
-        let syncQueueId = Context.nextQueueId
-        
+
         // create the device and default number of async queues
         let device = CpuDevice(id: 0, parent: logInfo, memoryType: .discrete)
         devices = [device]
 
         // create the application thread data interchange queue
-        syncQueue = CpuQueue(queueId: syncQueueId,
+        syncQueue = CpuQueue(id: Context.nextQueueId,
                              parent: device.logInfo,
                              deviceId: device.id,
-                             deviceName: device.name,
+                             name: "application",
                              memoryType: .unified,
                              mode: .sync)
         

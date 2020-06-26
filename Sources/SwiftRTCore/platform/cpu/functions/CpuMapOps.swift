@@ -282,8 +282,7 @@ extension DeviceQueue {
         {
             var out = out
             if mode == .async {
-                diagnostic("\(queueString) \(opName) on" +
-                            " \(deviceName)_\(name)",
+                diagnostic("\(queueString) \(opName) on \(name)",
                            categories: .queueFunc)
                 queue.async {
                     zip(out.indices, zip(i0, i1)).forEach {

@@ -36,9 +36,11 @@ public final class CpuDevice: ComputeDevice {
         self.memoryType = memoryType
         self.queues = []
         for _ in 0..<Context.queuesPerDevice {
-            queues.append(CpuQueue(parent: self.logInfo,
+            let queueId = Context.nextQueueId
+            queues.append(CpuQueue(id: queueId,
+                                   parent: self.logInfo,
                                    deviceId: id,
-                                   deviceName: name,
+                                   name: "\(name)_q\(queueId)",
                                    memoryType: memoryType,
                                    mode: .async))
         }

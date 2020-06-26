@@ -28,7 +28,6 @@ public final class CpuQueue: DeviceQueue, CpuFunctions {
     public let creatorThread: Thread
     public var defaultQueueEventOptions: QueueEventOptions
     public let deviceId: Int
-    public let deviceName: String
     public let id: Int
     public let logInfo: LogInfo
     public let memoryType: MemoryType
@@ -40,33 +39,31 @@ public final class CpuQueue: DeviceQueue, CpuFunctions {
     //--------------------------------------------------------------------------
     // initializers
     @inlinable public init(
-        queueId: Int = Context.nextQueueId,
+        id: Int,
         parent logInfo: LogInfo,
         deviceId: Int,
-        deviceName: String,
+        name: String,
         memoryType: MemoryType,
         mode: DeviceQueueMode
     ) {
-        self.id = queueId
-        self.name = "q\(id)"
-        self.logInfo = logInfo.flat(name)
+        self.id = id
+        self.name = name
+        self.logInfo = logInfo.flat("q\(id)")
         self.deviceId = deviceId
-        self.deviceName = deviceName
         self.creatorThread = Thread.current
         self.defaultQueueEventOptions = QueueEventOptions()
         self.memoryType = memoryType
         self.mode = mode
-        self.queue = DispatchQueue(label: "\(deviceName)_\(name)")
+        self.queue = DispatchQueue(label: "\(name)")
         self.usesCpu = true
         
-        diagnostic("\(createString) device queue: \(deviceName)_\(name)  " +
+        diagnostic("\(createString) device queue: \(name)  " +
                     "mode: \(mode)", categories: .queueAlloc)
     }
     
     deinit {
         // make sure all scheduled work is complete before exiting
         waitForCompletion()
-        diagnostic("\(releaseString) queue: \(deviceName)_\(name)",
-                   categories: .queueAlloc)
+        diagnostic("\(releaseString) queue: \(name)", categories: .queueAlloc)
     }
 }

@@ -136,7 +136,7 @@ extension DeviceQueue {
     @discardableResult
     @inlinable public func record(event: QueueEvent) -> QueueEvent {
         diagnostic("\(recordString) event(\(event.id)) on " +
-                    "\(deviceName)_\(name)", categories: .queueSync)
+                    "\(name)", categories: .queueSync)
         
         // set event time
         if defaultQueueEventOptions.contains(.timing) {
@@ -157,7 +157,7 @@ extension DeviceQueue {
     @inlinable public func wait(for event: QueueEvent) {
         guard !event.occurred else { return }
         diagnostic("\(waitString) for event(\(event.id)) on " +
-                    "\(deviceName)_\(name)", categories: .queueSync)
+                    "\(name)", categories: .queueSync)
         event.wait()
     }
     

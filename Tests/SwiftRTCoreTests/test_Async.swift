@@ -50,6 +50,6 @@ class test_Async: XCTestCase {
         }
         
         let result = d.array
-        print(result)
+        XCTAssert(result == [[0.0, 3.0], [6.0, 9.0], [12.0, 15.0]])
     }
 }
