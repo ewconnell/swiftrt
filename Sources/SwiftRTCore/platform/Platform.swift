@@ -106,6 +106,7 @@ public extension Platform {
         _ queueId: Int
     ) -> Device.Queue {
         let device = devices[deviceId % devices.count]
+        assert(device.queues.count > 0, "the number of available queues is 0")
         return device.queues[queueId % device.queues.count]
     }
 }
@@ -194,7 +195,7 @@ public protocol ComputeDevice: class, Logger {
 
 //==============================================================================
 /// DeviceMemory
-public protocol DeviceMemory: class {
+public protocol DeviceMemory: class, Logging {
     /// base address and size of buffer
     var buffer: UnsafeMutableRawBufferPointer { get }
     /// device where memory is located
@@ -203,6 +204,8 @@ public protocol DeviceMemory: class {
     var deviceName: String { get }
     /// mutable raw pointer to memory buffer to simplify driver calls
     var pointer: UnsafeMutableRawPointer { get }
+    /// optional string for diagnostics
+    var releaseMessage: String? { get set }
     /// specifies the device memory type for data transfer
     var type: MemoryType { get }
     /// version

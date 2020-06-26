@@ -54,6 +54,8 @@ public final class CpuDeviceMemory: DeviceMemory {
     public let deviceId: Int
     /// the name of the device for diagnostics
     public let deviceName: String
+    /// diagnostic message
+    public var releaseMessage: String?
     /// specifies the device memory type for data transfer
     public let type: MemoryType
     /// version
@@ -82,11 +84,15 @@ public final class CpuDeviceMemory: DeviceMemory {
         self.type = .unified
         self.isReference = isReference
         self.version = 0
+        self.releaseMessage = nil
     }
     
     @inlinable deinit {
         if !isReference {
             buffer.deallocate()
+            if let msg = releaseMessage {
+                diagnostic(msg, categories: .dataAlloc)
+            }
         }
     }
 }

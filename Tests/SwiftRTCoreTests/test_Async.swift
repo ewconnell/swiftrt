@@ -35,13 +35,15 @@ class test_Async: XCTestCase {
         useSyncQueue()
         Context.log.level = .error
     }
-
+    
     //--------------------------------------------------------------------------
     func test_add() {
         let a = array([[0, 1], [2, 3], [4, 5]])
         let b = array([[0, 1], [2, 3], [4, 5]])
-        let result = a + b
-        XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
+        do {
+            let result = a + b
+            XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
+        }
         
         // both
         let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(ones(like: a))

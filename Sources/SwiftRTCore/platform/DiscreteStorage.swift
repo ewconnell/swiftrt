@@ -158,6 +158,12 @@ public final class DiscreteStorage: StorageBuffer {
     }
     
     //--------------------------------------------------------------------------
+    // ensure that all pending work is complete before releasing memory
+    @inlinable deinit {
+        lastMutatingQueue?.waitUntilComplete()
+    }
+    
+    //--------------------------------------------------------------------------
     //
     @inlinable public func read<Element>(
         type: Element.Type,
@@ -165,7 +171,7 @@ public final class DiscreteStorage: StorageBuffer {
         count: Int,
         using queue: DeviceQueue
     ) -> UnsafeBufferPointer<Element> {
-        let buffer = migrate(type, readOnly: true, using: queue)
+        let buffer = migrate(type, willMutate: false, using: queue)
         assert(index + count <= buffer.count)
         let start = buffer.baseAddress!.advanced(by: index)
         return UnsafeBufferPointer(start: start, count: count)
@@ -179,7 +185,7 @@ public final class DiscreteStorage: StorageBuffer {
         count: Int,
         using queue: DeviceQueue
     ) -> UnsafeMutableBufferPointer<Element> {
-        let buffer = migrate(type, readOnly: false, using: queue)
+        let buffer = migrate(type, willMutate: true, using: queue)
         lastMutatingQueue = queue
         assert(index + count <= buffer.count)
         let start = buffer.baseAddress!.advanced(by: index)
@@ -190,53 +196,63 @@ public final class DiscreteStorage: StorageBuffer {
     /// waitForCompletion
     /// blocks the caller until pending write operations have completed
     @inlinable public func waitForCompletion() {
-        lastMutatingQueue?.waitUntilQueueIsComplete()
+        lastMutatingQueue?.waitUntilComplete()
     }
 
     //--------------------------------------------------------------------------
-    /// synchronize
-    /// If the queue is changing, then this creates an event and
-    /// records it onto the end of the lastQueue, then records a wait
-    /// on the new queue. This insures storage mutations from the lastQueue
-    /// finishes before the new one begins.
-    @inlinable public func synchronize(with queue: DeviceQueue) throws {
-        if let lastQueue = lastMutatingQueue,
-           lastQueue.mode == .async && queue.id != lastQueue.id
-        {
-            let event = lastQueue.createEvent()
-            diagnostic(
-                "\(queue.deviceName)_\(queue.name) will wait for " +
-                    "\(lastQueue.deviceName)_\(lastQueue.name) " +
-                    "using event(\(event.id))",
-                categories: .queueSync)
-            queue.wait(for: lastQueue.record(event: event))
+    // getDeviceMemory
+    // Manages an array of replicated device memory indexed by the deviceId
+    // associated with `queue`. It will lazily create device memory if needed
+    @inlinable public func getDeviceMemory<Element>(
+        _ type: Element.Type,
+        _ queue: DeviceQueue
+    ) throws -> DeviceMemory {
+        if let memory = replicas[queue.deviceId] {
+            return memory
+        } else {
+            // allocate the buffer for the target device
+            // and save in the replica list
+            let memory = try queue.allocate(byteCount: byteCount)
+            replicas[queue.deviceId] = memory
+            
+            if willLog(level: .diagnostic) {
+                let count = byteCount / MemoryLayout<Element>.size
+                let msg = "\(name)(\(id)) \(Element.self)[\(count)] " +
+                    "on \(queue.deviceName)"
+                diagnostic("\(allocString) \(msg)", categories: .dataAlloc)
+                memory.releaseMessage = "\(releaseString) \(msg)"
+            }
+            return memory
         }
     }
-    
+
     //--------------------------------------------------------------------------
-    /// migrate
-    /// This migrates the master version of the data from wherever it is to
-    /// the device associated with `queue`
+    /// migrate(type:readOnly:queue:
+    /// returns a buffer on the device associated with `queue`, lazily
+    /// allocating it if it does not exist. The buffer contents will match
+    /// the contents of the master version (most recently mutated).
+    ///
+    /// - Parameters:
+    ///  - type: the `Element` type
+    ///  - willMutate: `true` if the returned buffer will be mutated
+    ///  - queue: the queue that the returned buffer will be used
     ///
     /// - Returns: a buffer pointer to the data
     @inlinable public func migrate<Element>(
         _ type: Element.Type,
-        readOnly: Bool,
+        willMutate: Bool,
         using queue: DeviceQueue
     ) -> UnsafeMutableBufferPointer<Element> {
+        assert(willMutate || master != nil,
+               "attempting to read uninitialized memory")
         do {
-            // synchronize queue with last mutating queue
-            try synchronize(with: queue)
-            
-            // Get the buffer for this tensor on the device associated
+            // Get a buffer for this tensor on the device associated
             // with `queue`. This is a synchronous operation.
             let replica = try getDeviceMemory(type, queue)
             
-            // copy from the master to the replica if the versions don't match
-            if let master = master,
-               replica.version != master.version &&
-                replica.deviceId != master.deviceId
-            {
+            // copy contents from the master to the replica
+            // if the versions don't match
+            if let master = master, replica.version != master.version {
                 // we shouldn't get here if both buffers are in unified memory
                 assert(master.type == .discrete || replica.type == .discrete)
                 lastAccessCopiedBuffer = true
@@ -250,44 +266,20 @@ public final class DiscreteStorage: StorageBuffer {
                     categories: .dataCopy)
             }
             
-            // set version
-            if !readOnly { master = replica; masterVersion += 1 }
+            // increment version if mutating
+            if willMutate {
+                masterVersion += 1
+                master = replica
+            }
+            
+            // the replica version either matches the master by copying
+            // or is the new master
             replica.version = masterVersion
             return replica.buffer.bindMemory(to: Element.self)
         } catch {
             // Fail for now
             writeLog("Failed to access memory")
             fatalError()
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    // getMemory
-    // Manages an array of replicated device memory indexed by the deviceId
-    // assoicated with `stream`. It will lazily create device memory if needed
-    @inlinable public func getDeviceMemory<Element>(
-        _ type: Element.Type,
-        _ queue: DeviceQueue
-    ) throws -> DeviceMemory {
-        if let memory = replicas[queue.deviceId] {
-            return memory
-        } else {
-                // allocate the buffer for the target device
-                // and save in the replica list
-                let memory = try queue.allocate(byteCount: byteCount)
-                replicas[queue.deviceId] = memory
-                
-                if willLog(level: .diagnostic) {
-                    let count = byteCount / MemoryLayout<Element>.size
-                    diagnostic(
-                        "\(allocString) \(name)(\(id)) " +
-                            "\(Element.self)[\(count)] on \(queue.deviceName)",
-                        categories: .dataAlloc)
-                }
-
-                // the new buffer is now the master version
-                master = memory
-                return memory
         }
     }
 }

@@ -65,7 +65,7 @@ public final class CpuQueue: DeviceQueue, CpuFunctions {
     
     deinit {
         // make sure all scheduled work is complete before exiting
-        waitUntilQueueIsComplete()
+        waitUntilComplete()
         diagnostic("\(releaseString) queue: \(deviceName)_\(name)",
                    categories: .queueAlloc)
     }
