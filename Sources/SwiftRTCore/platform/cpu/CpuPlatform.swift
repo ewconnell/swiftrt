@@ -41,7 +41,7 @@ public class CpuPlatform: Platform {
         syncQueue = CpuQueue(id: Context.nextQueueId,
                              parent: device.logInfo,
                              deviceId: device.id,
-                             name: "application",
+                             name: "appThread",
                              memoryType: .unified,
                              mode: .sync)
         

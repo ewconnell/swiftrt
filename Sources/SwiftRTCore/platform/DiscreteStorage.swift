@@ -250,11 +250,10 @@ public final class DiscreteStorage: StorageBuffer {
                lastQueue.mode == .async && queue.id != lastQueue.id
             {
                 let event = lastQueue.createEvent()
-                diagnostic(
-                    "\(queue.deviceName)_\(queue.name) will wait for " +
-                        "\(lastQueue.deviceName)_\(lastQueue.name) " +
-                        "using event(\(event.id))",
-                    categories: .queueSync)
+                diagnostic("\(syncString) \(queue.name) will wait for" +
+                            " event(\(event.id)) to be signaled on" +
+                            " \(lastQueue.name)",
+                           categories: .queueSync)
                 queue.wait(for: lastQueue.record(event: event))
             }
             
