@@ -95,9 +95,11 @@ public final class CpuDeviceMemory: DeviceMemory {
     @inlinable deinit {
         if !isReference {
             buffer.deallocate()
-            if let name = name, let msg = releaseMessage {
-                diagnostic("\(releaseString) \(name) \(msg)",
-                           categories: .dataAlloc)
+            if willLog(level: .diagnostic) {
+                if let name = name, let msg = releaseMessage {
+                    diagnostic("\(releaseString) \(name) \(msg)",
+                               categories: .dataAlloc)
+                }
             }
         }
     }
