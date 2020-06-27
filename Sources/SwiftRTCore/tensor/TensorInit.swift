@@ -78,12 +78,15 @@ public extension Tensor {
     /// - Parameters:
     ///  - shape: the n-dimensional shape of the tensor
     ///  - layout: the storage layout of the elements
+    ///  - name: the name of the tensor
     @inlinable init(
         shape: Shape,
-        layout: Layout = Layout.defaultValue
+        layout: Layout = Layout.defaultValue,
+        name: String = defaultTensorName
     ) {
         let count = shape.elementCount()
-        let storage = StorageBufferType(type: TensorElement.self, count: count)
+        let storage = StorageBufferType(type: TensorElement.self,
+                                        count: count, name: name)
         
         self.init(shape: shape,
                   strides: shape.strides(for: layout),
@@ -116,11 +119,13 @@ public extension Tensor {
     /// - Parameters:
     ///  - element: the element value for the tensor
     ///  - layout: the storage layout of the elements
+    ///  - name: the name of the tensor
     @inlinable init(
         _ element: TensorElement.Value,
-        layout: Layout = Layout.defaultValue
+        layout: Layout = Layout.defaultValue,
+        name: String = defaultElementName
     ) {
-        self.init(single: element, shape: Shape.one, layout: layout)
+        self.init(single: element, shape: Shape.one, layout: layout, name: name)
     }
 
     //--------------------------------------------------------------------------
@@ -130,13 +135,15 @@ public extension Tensor {
     ///  - element: the element value to repeat while indexing
     ///  - shape: the shape of the tensor
     ///  - layout: the storage layout of the elements
+    ///  - name: the name of the tensor
     @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable init(
         repeating element: TensorElement.Value,
         to shape: Shape,
-        layout: Layout = Layout.defaultValue
+        layout: Layout = Layout.defaultValue,
+        name: String = defaultElementName
     ) {
-        self.init(single: element, shape: shape, layout: layout)
+        self.init(single: element, shape: shape, layout: layout, name: name)
     }
 
     //--------------------------------------------------------------------------
@@ -174,14 +181,15 @@ public extension Tensor {
 
 extension Tensor where TensorElement.Value: DifferentiableElement
 {
-    @derivative(of: init(repeating:to:layout:))
+    @derivative(of: init(repeating:to:layout:name:))
     @inlinable static func _vjpInit(
         repeating element: Element,
         to shape: Shape,
-        layout: Layout
+        layout: Layout,
+        name: String
     ) -> (value: Self, pullback: (Self) -> (Element))
     {
-        (Self(repeating: element, to: shape, layout: layout), {
+        (Self(repeating: element, to: shape, layout: layout, name: name), {
             $0.sum().element
         })
     }
@@ -201,7 +209,7 @@ extension Tensor where TensorElement.Value: DifferentiableElement
 
 public extension Tensor {
     //--------------------------------------------------------------------------
-    /// init(storage:shape:layout:
+    /// `init(storage:shape:layout:name:`
     /// initializes the tensor storage buffer with `storage elements`
     ///
     /// - Parameters:
@@ -217,20 +225,22 @@ public extension Tensor {
     ///
     ///  - shape: the shape of the tensor
     ///  - layout: the storage layout of the elements
+    ///  - name: the name of the tensor
     @inlinable init<C>(
         stored elements: C,
         _ shape: Shape,
-        layout: Layout = Layout.defaultValue
+        layout: Layout = Layout.defaultValue,
+        name: String = defaultTensorName
     ) where C: Collection, C.Element == TensorElement.Stored
     {
-        self.init(shape: shape, layout: layout)
+        self.init(shape: shape, layout: layout, name: name)
         let buffer = readWrite(using: Context.syncQueue)
         assert(buffer.count == elements.count)
         _ = buffer.initialize(from: elements)
     }
     
     //--------------------------------------------------------------------------
-    /// init(elements:shape:layout:
+    /// `init(elements:shape:layout:name:`
     /// initializes the tensor with the given `elements while
     /// converting them to `TensorElement.Stored` type.
     /// For example in the `Float16` case, `C.Element` would be type `Float`
@@ -242,13 +252,15 @@ public extension Tensor {
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
     ///  - layout: the storage layout of the elements
+    ///  - name: the name of the tensor
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        layout: Layout = Layout.defaultValue
+        layout: Layout = Layout.defaultValue,
+        name: String = defaultTensorName
     ) where C: Collection, C.Element == TensorElement.Value {
         assert(shape.elementCount() == elements.count)
-        self.init(shape: shape, layout: layout)
+        self.init(shape: shape, layout: layout, name: name)
         
         // get the storage buffer and set the values
         let buffer = readWrite(using: Context.syncQueue)
@@ -258,20 +270,22 @@ public extension Tensor {
     }
     
     //--------------------------------------------------------------------------
-    /// init(elements:shape:layout:
+    /// `init(elements:shape:layout:name:`
     /// implicitly casts from C.Element Bool -> Numeric TensorElement.Value
     ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
     ///  - layout: the storage layout of the elements
+    ///  - name: the name of the tensor
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        layout: Layout = Layout.defaultValue
+        layout: Layout = Layout.defaultValue,
+        name: String = defaultTensorName
     ) where C: Collection, C.Element == Bool, TensorElement.Value: Numeric {
         assert(shape.elementCount() == elements.count)
-        self.init(shape: shape, layout: layout)
+        self.init(shape: shape, layout: layout, name: name)
         
         // get the storage buffer and set the values
         let buffer = readWrite(using: Context.syncQueue)
@@ -282,20 +296,22 @@ public extension Tensor {
     }
     
     //--------------------------------------------------------------------------
-    /// init(elements:shape:layout:
+    /// `init(elements:shape:layout:name:`
     /// implicitly casts from C.Element Numeric -> Bool TensorElement.Value
     ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
     ///  - layout: the storage layout of the elements
+    ///  - name: the name of the tensor
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        layout: Layout = Layout.defaultValue
+        layout: Layout = Layout.defaultValue,
+        name: String = defaultTensorName
     ) where C: Collection, C.Element: Numeric, TensorElement.Value == Bool {
         assert(shape.elementCount() == elements.count)
-        self.init(shape: shape, layout: layout)
+        self.init(shape: shape, layout: layout, name: name)
         
         // get the storage buffer and set the values
         let buffer = readWrite(using: Context.syncQueue)
@@ -305,22 +321,24 @@ public extension Tensor {
     }
     
     //--------------------------------------------------------------------------
-    /// init(elements:shape:layout:
+    /// `init(elements:shape:layout:name:`
     /// implicitly casts from C.Element integer -> TensorElement.Value
     ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
     ///  - layout: the storage layout of the elements
+    ///  - name: the name of the tensor
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        layout: Layout = Layout.defaultValue
+        layout: Layout = Layout.defaultValue,
+        name: String = defaultTensorName
     ) where C: Collection, C.Element: BinaryInteger,
             TensorElement.Value: Numeric
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape: shape, layout: layout)
+        self.init(shape: shape, layout: layout, name: name)
         
         // get the storage buffer and set the values
         let buffer = readWrite(using: Context.syncQueue)
@@ -330,23 +348,25 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
-    /// init(elements:shape:layout:
+    /// `init(elements:shape:layout:name:`
     /// implicitly casts from floating C.Element -> floating TensorElement.Value
     ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
     ///  - layout: the storage layout of the elements
+    ///  - name: the name of the tensor
     // Note: to handle the case of Double <--> Float
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        layout: Layout = Layout.defaultValue
+        layout: Layout = Layout.defaultValue,
+        name: String = defaultTensorName
     ) where C: Collection, C.Element: BinaryFloatingPoint,
             TensorElement.Value: BinaryFloatingPoint
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape: shape, layout: layout)
+        self.init(shape: shape, layout: layout, name: name)
         
         // get the storage buffer and set the values
         let buffer = readWrite(using: Context.syncQueue)
@@ -356,23 +376,25 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
-    /// init(elements:shape:layout:
+    /// `init(elements:shape:layout:name:`
     /// implicitly casts from C.Element float -> integer TensorElement.Value
     ///
     /// - Parameters:
     ///  - elements: the value collection used to initialize storage
     ///  - shape: the shape of the tensor
     ///  - layout: the storage layout of the elements
+    ///  - name: the name of the tensor
     // Note: to handle the case of Double <--> Float
     @inlinable init<C>(
         _ elements: C,
         _ shape: Shape,
-        layout: Layout = Layout.defaultValue
+        layout: Layout = Layout.defaultValue,
+        name: String = defaultTensorName
     ) where C: Collection, C.Element: BinaryFloatingPoint,
             TensorElement.Value: BinaryInteger
     {
         assert(shape.elementCount() == elements.count)
-        self.init(shape: shape, layout: layout)
+        self.init(shape: shape, layout: layout, name: name)
         
         // get the storage buffer and set the values
         let buffer = readWrite(using: Context.syncQueue)
@@ -447,7 +469,8 @@ public extension Tensor {
                 strides: strides,
                 count: other.count,
                 storage: StorageBufferType(type: TensorElement.self,
-                                           count: source.count),
+                                           count: source.count,
+                                           name: other.name),
                 storageBase: 0,
                 stridedSpanCount: other.stridedSpanCount,
                 layout: layout,

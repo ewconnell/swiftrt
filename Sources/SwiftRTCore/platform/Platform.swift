@@ -202,6 +202,8 @@ public protocol DeviceMemory: class, Logging {
     var deviceId: Int { get }
     /// device where memory is located
     var deviceName: String { get }
+    /// the diagnostic name of the memory
+    var name: String? { get set }
     /// mutable raw pointer to memory buffer to simplify driver calls
     var pointer: UnsafeMutableRawPointer { get }
     /// optional string for diagnostics

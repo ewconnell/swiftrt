@@ -86,9 +86,10 @@ public final class CpuStorage: StorageBuffer {
     }
 
     //--------------------------------------------------------------------------
-    // init(buffer:
+    // init(buffer:name:
     @inlinable public init<Element>(
-        referenceTo buffer: UnsafeBufferPointer<Element>
+        referenceTo buffer: UnsafeBufferPointer<Element>,
+        name: String
     ) {
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * buffer.count
@@ -97,7 +98,7 @@ public final class CpuStorage: StorageBuffer {
         self.id = Context.nextBufferId
         self.isReadOnly = true
         self.isReference = true
-        self.name = "Tensor"
+        self.name = name
 
         #if DEBUG
         diagnostic("\(referenceString) \(diagnosticName) " +
@@ -106,9 +107,10 @@ public final class CpuStorage: StorageBuffer {
     }
     
     //--------------------------------------------------------------------------
-    // init(type:buffer:
+    // init(type:buffer:name:
     @inlinable public init<Element>(
-        referenceTo buffer: UnsafeMutableBufferPointer<Element>
+        referenceTo buffer: UnsafeMutableBufferPointer<Element>,
+        name: String
     ) {
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * buffer.count
@@ -116,7 +118,7 @@ public final class CpuStorage: StorageBuffer {
         self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = true
-        self.name = "Tensor"
+        self.name = name
 
         #if DEBUG
         diagnostic("\(referenceString) \(diagnosticName) " +

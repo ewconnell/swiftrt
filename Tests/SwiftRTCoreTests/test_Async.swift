@@ -21,7 +21,7 @@ class test_Async: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_multiQueue", test_multiQueue),
+        ("test_multiQueueDependency", test_multiQueueDependency),
     ]
     
     // append and use a discrete async cpu device for these tests
@@ -37,19 +37,23 @@ class test_Async: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    func test_multiQueue() {
-        let a = array([[0, 1], [2, 3], [4, 5]])
-
-        let c = using(queue: 0) { () -> Tensor2 in
-            let b = array([[0, 1], [2, 3], [4, 5]])
-            return a + b
+    func test_multiQueueDependency() {
+        do {
+            let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
+            
+            var c: Tensor2 = using(queue: 0) {
+                let b = array([[0, 1], [2, 3], [4, 5]], name: "b")
+                return a + b
+            }
+            c.name = "c"
+            
+            var d = using(queue: 1) {
+                a + c
+            }
+            d.name = "d"
+            
+            let result = d.array
+            XCTAssert(result == [[0.0, 3.0], [6.0, 9.0], [12.0, 15.0]])
         }
-
-        let d = using(queue: 1) {
-            a + c
-        }
-        
-        let result = d.array
-        XCTAssert(result == [[0.0, 3.0], [6.0, 9.0], [12.0, 15.0]])
     }
 }

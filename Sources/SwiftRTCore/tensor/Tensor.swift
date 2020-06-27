@@ -16,6 +16,11 @@
 import Foundation
 import Numerics
 
+
+public let defaultElementName = "Element"
+public let defaultTensorName = "Tensor"
+public let defaultReferenceTensorName = "Reference"
+
 //==============================================================================
 /// Tensor
 public struct Tensor<Shape, TensorElement>:
@@ -100,12 +105,13 @@ where Shape: TensorShape, TensorElement: StorageElement
     }
 
     //--------------------------------------------------------------------------
-    /// init(element:shape:
+    /// init(value:shape:layout:name
     /// Used to initialize a tensor with a single Element
     @inlinable public init(
         single value: TensorElement.Value,
         shape: Shape,
-        layout: Layout
+        layout: Layout,
+        name: String
     ) {
         self.shape = shape
         self.strides = Shape.zero
@@ -115,7 +121,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.stridedSpanCount = 1
         self.layout = layout
         let stored = TensorElement.stored(value: value)
-        self.storage = StorageBufferType(storedElement: stored, name: "Element")
+        self.storage = StorageBufferType(storedElement: stored, name: name)
         logicalStrides = shape.strides(for: layout)
         logicalElements = LogicalElements(count,
                                           shape,

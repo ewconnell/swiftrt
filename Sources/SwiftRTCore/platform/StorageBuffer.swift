@@ -63,7 +63,7 @@ public protocol StorageBuffer: class, Logging {
     )
     
     //--------------------------------------------------------------------------
-    /// `init(other:queue:
+    /// `init(other:queue:`
     /// creates a copy of the storage using `Context.currentQueue`
     /// - Parameters:
     ///  - other: the storage to copy
@@ -71,7 +71,7 @@ public protocol StorageBuffer: class, Logging {
     init(copying other: Self, using queue: DeviceQueue)
     
     //--------------------------------------------------------------------------
-    /// `init(buffer:
+    /// `init(buffer:name:`
     /// creates an element buffer whose data is managed by the application.
     /// No memory is allocated, so the buffer must point to valid data space.
     /// This can be used to access things like hardware buffers or
@@ -79,15 +79,19 @@ public protocol StorageBuffer: class, Logging {
     /// requiring an additional copy operation.
     /// - Parameters:
     ///  - buffer: the referenced `Element` buffer
-    init<Element>(referenceTo buffer: UnsafeBufferPointer<Element>)
+    ///  - name: the name of the tensor
+    init<Element>(referenceTo buffer: UnsafeBufferPointer<Element>,
+                  name: String)
     
     //--------------------------------------------------------------------------
-    /// `init(buffer:layout:`
+    /// `init(buffer:layout:name:`
     /// creates an element buffer whose data is managed by the application.
     /// No memory is allocated, so the buffer must point to valid data space.
     /// - Parameters:
     ///  - buffer: the referenced `Element` buffer
-    init<Element>(referenceTo buffer: UnsafeMutableBufferPointer<Element>)
+    ///  - name: the name of the tensor
+    init<Element>(referenceTo buffer: UnsafeMutableBufferPointer<Element>,
+                  name: String)
     
     //--------------------------------------------------------------------------
     /// `init(blockSize:bufferedBlocks:sequence:`
@@ -159,12 +163,11 @@ public extension StorageBuffer {
     ///  - type: the type of tensor `Element`
     ///    This is used to compute buffer byte size and alignment.
     ///  - count: the number of `Element`s stored in the buffer.
-    ///  - layout: element memory layout order
     ///  - name: the name of the tensor
     @inlinable init<Element: StorageElement>(
         type: Element.Type,
         count: Int,
-        name: String = "Tensor"
+        name: String
     ) {
         self.init(storedType: Element.Stored.self,
                   count: Element.storedCount(count),

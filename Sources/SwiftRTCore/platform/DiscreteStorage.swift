@@ -24,7 +24,10 @@ public final class DiscreteStorage: StorageBuffer {
     public let id: Int
     public var isReadOnly: Bool
     public var isReference: Bool
-    public var name: String
+    
+    public var name: String {
+        didSet { replicas.forEach { $0?.name = name } }
+    }
 
     //------------------------------------
     // private properties
@@ -61,7 +64,7 @@ public final class DiscreteStorage: StorageBuffer {
     @inlinable public init<Element>(
         storedType: Element.Type,
         count: Int,
-        name: String = "Tensor"
+        name: String
     ) {
         self.name = name
         alignment = MemoryLayout<Element>.alignment
@@ -112,10 +115,10 @@ public final class DiscreteStorage: StorageBuffer {
     //--------------------------------------------------------------------------
     // init(buffer:layout:
     @inlinable public convenience init<Element>(
-        referenceTo buffer: UnsafeBufferPointer<Element>
+        referenceTo buffer: UnsafeBufferPointer<Element>,
+        name: String
     ) {
-        self.init(storedType: Element.self, count: buffer.count,
-                  name: "Reference Tensor")
+        self.init(storedType: Element.self, count: buffer.count, name: name)
         isReadOnly = true
         isReference = true
         let p = UnsafeMutableBufferPointer(mutating: buffer)
@@ -123,28 +126,24 @@ public final class DiscreteStorage: StorageBuffer {
         let device = Context.devices[0]
         replicas[0] = CpuDeviceMemory(device.id, device.name,
                                       buffer: raw, isReference: true)
-        diagnostic(
-            "\(referenceString) \(name)(\(id)) " +
-                "\(Element.self)[\(buffer.count)]",
-            categories: .dataAlloc)
+        diagnostic("\(referenceString) \(name)(\(id)) " +
+                    "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
     }
     
     //--------------------------------------------------------------------------
     // init(type:buffer:layout:
     @inlinable public convenience init<Element>(
-        referenceTo buffer: UnsafeMutableBufferPointer<Element>
+        referenceTo buffer: UnsafeMutableBufferPointer<Element>,
+        name: String
     ) {
-        self.init(storedType: Element.self, count: buffer.count,
-                  name: "Reference Tensor")
+        self.init(storedType: Element.self, count: buffer.count, name: name)
         isReference = true
         let raw = UnsafeMutableRawBufferPointer(buffer)
         let device = Context.devices[0]
         replicas[0] = CpuDeviceMemory(device.id, device.name,
                                       buffer: raw, isReference: true)
-        diagnostic(
-            "\(referenceString) \(name)(\(id)) " +
-                "\(Element.self)[\(buffer.count)]",
-            categories: .dataAlloc)
+        diagnostic("\(referenceString) \(name)(\(id)) " +
+                    "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
     }
 
     //--------------------------------------------------------------------------
@@ -216,10 +215,10 @@ public final class DiscreteStorage: StorageBuffer {
             
             if willLog(level: .diagnostic) {
                 let count = byteCount / MemoryLayout<Element>.size
-                let msg = "\(name)(\(id)) \(Element.self)[\(count)] " +
-                    "on \(queue.deviceName)"
-                diagnostic("\(allocString) \(msg)", categories: .dataAlloc)
-                memory.releaseMessage = "\(releaseString) \(msg)"
+                let msg = "(\(id)) \(Element.self)[\(count)] on \(queue.deviceName)"
+                diagnostic("\(allocString) \(name)\(msg)", categories: .dataAlloc)
+                memory.name = name
+                memory.releaseMessage = msg
             }
             return memory
         }
