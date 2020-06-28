@@ -926,11 +926,13 @@ extension Tensor where TensorElement.Value: Numeric {
     /// - Parameters:
     ///  - shape: the n-dimensional shape of the tensor to be filled
     ///  - layout: the storage layout of the elements
+    ///  - name: the name of the tensor
     @inlinable public init(
         zeros shape: Shape,
-        layout: Layout = Layout.defaultValue
+        layout: Layout = Layout.defaultValue,
+        name: String = defaultTensorName
     ) {
-        self.init(shape: shape, layout: layout)
+        self.init(shape: shape, layout: layout, name: name)
         fill(&self, with: 0)
     }
 
@@ -940,11 +942,13 @@ extension Tensor where TensorElement.Value: Numeric {
     /// - Parameters:
     ///  - shape: the n-dimensional shape of the tensor to be filled
     ///  - layout: the storage layout of the elements
+    ///  - name: the name of the tensor
     @inlinable public init(
         ones shape: Shape,
-        layout: Layout = Layout.defaultValue
+        layout: Layout = Layout.defaultValue,
+        name: String = defaultTensorName
     ) {
-        self.init(shape: shape, layout: layout)
+        self.init(shape: shape, layout: layout, name: name)
         fill(&self, with: 1)
     }
     
@@ -955,26 +959,16 @@ extension Tensor where TensorElement.Value: Numeric {
     ///  - shape: the shape of the array
     ///  - offset: the offset of the diagonal
     ///  - layout: the storage layout of the new tensor
+    ///  - name: the name of the tensor
     @inlinable public init(
         eye shape: Shape,
         offset: Int = 0,
-        layout: Layout = Layout.defaultValue
+        layout: Layout = Layout.defaultValue,
+        name: String = defaultTensorName
     ) {
-        self.init(shape: shape, layout: layout)
+        self.init(shape: shape, layout: layout, name: name)
         Context.currentQueue.eye(&self, offset: offset)
     }
-}
-
-@inlinable public func zeros<S,E>(like other: Tensor<S,E>) -> Tensor<S,E>
-where E.Value: Numeric
-{
-    Tensor<S,E>(zeros: other.shape, layout: other.layout)
-}
-
-@inlinable public func ones<S,E>(like other: Tensor<S,E>) -> Tensor<S,E>
-where E.Value: Numeric
-{
-    Tensor<S,E>(ones: other.shape, layout: other.layout)
 }
 
 //==============================================================================

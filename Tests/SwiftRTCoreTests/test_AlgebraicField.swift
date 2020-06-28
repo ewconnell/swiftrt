@@ -22,6 +22,7 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // support terminal test run
     static var allTests = [
+        ("test_minimalAddVJP", test_minimalAddVJP),
         ("test_add", test_add),
 
         ("test_matmul", test_matmul),
@@ -48,7 +49,26 @@ class test_AlgebraicField: XCTestCase {
         ("test_divScalar", test_divScalar),
         ("test_divAndAssign", test_divAndAssign),
     ]
-    
+
+    //--------------------------------------------------------------------------
+    func test_minimalAdd() {
+//        Context.log.level = .diagnostic
+        let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
+        let b = a + 2
+        XCTAssert(b == [[2, 3], [4, 5], [6, 7]])
+    }
+
+    //--------------------------------------------------------------------------
+    func test_minimalAddVJP() {
+//        Context.log.level = .diagnostic
+        let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
+        let v = ones(like: a, name: "ones")
+        
+        // only wrt lhs
+        let g = pullback(at: a, in: { $0 + 2 })(v)
+        XCTAssert(g == [[1, 1], [1, 1], [1, 1]])
+    }
+
     //--------------------------------------------------------------------------
     func test_add() {
         let a = array([[0, 1], [2, 3], [4, 5]])
@@ -259,6 +279,7 @@ class test_AlgebraicField: XCTestCase {
             let g2Expected = -array(data, (2, 2))
             let g2sumdiff = sum(g2 - g2Expected).element
             XCTAssert(abs(g2sumdiff.real) <= 1e-6 && g2sumdiff.imaginary == 0)
+            print(g2sumdiff)
         }
     }
 

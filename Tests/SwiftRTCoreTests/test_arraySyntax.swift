@@ -171,8 +171,8 @@ class test_arraySyntax: XCTestCase {
     // test_ones
     func test_ones() {
         // T0
-        let _ = ones()
-        let _ = ones(type: Int32.self)
+        let _ = one()
+        let _ = one(type: Int32.self)
 
         // T1
         let _ = ones(3)
@@ -214,8 +214,8 @@ class test_arraySyntax: XCTestCase {
     // test_zeros
     func test_zeros() {
         // T0
-        let _ = zeros()
-        let _ = zeros(type: Int32.self)
+        let _ = zero()
+        let _ = zero(type: Int32.self)
 
         // T1
         let _ = zeros(3)

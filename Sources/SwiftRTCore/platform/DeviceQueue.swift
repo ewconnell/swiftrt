@@ -115,9 +115,7 @@ extension DeviceQueue {
     @inlinable public func createEvent(
         options: QueueEventOptions
     ) -> QueueEvent {
-        let event = CpuQueueEvent(options: options)
-        diagnostic("\(createString) event(\(event.id))", categories: .queueAlloc)
-        return event
+        CpuQueueEvent(options: options)
     }
 
     @inlinable public func createEvent() -> QueueEvent {
@@ -144,10 +142,13 @@ extension DeviceQueue {
         }
         
         // record the event
-        queue.async {
+        if mode == .async {
+            queue.async {
+                event.signal()
+            }
+        } else {
             event.signal()
         }
-        
         return event
     }
     
@@ -156,8 +157,8 @@ extension DeviceQueue {
     /// waits until the event has occurred
     @inlinable public func wait(for event: QueueEvent) {
         guard !event.occurred else { return }
-        diagnostic("\(waitString) for event(\(event.id)) on " +
-                    "\(name)", categories: .queueSync)
+        diagnostic("\(waitString) \(name) waiting for event(\(event.id))",
+                   categories: .queueSync)
         event.wait()
     }
     
