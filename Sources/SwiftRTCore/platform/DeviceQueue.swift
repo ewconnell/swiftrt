@@ -143,7 +143,11 @@ extension DeviceQueue {
         
         // record the event
         if mode == .async {
-            queue.async {
+            queue.async { [eventId = event.id] in
+                #if DEBUG
+                diagnostic("\(signaledString) event(\(eventId))",
+                           categories: .queueSync)
+                #endif
                 event.signal()
             }
         } else {
@@ -156,9 +160,12 @@ extension DeviceQueue {
     /// wait(for event:
     /// waits until the event has occurred
     @inlinable public func wait(for event: QueueEvent) {
-        guard !event.occurred else { return }
-        diagnostic("\(waitString) \(name) waiting for event(\(event.id))",
-                   categories: .queueSync)
+        #if DEBUG
+        if !event.occurred {
+            diagnostic("\(waitString) \(name) waiting for event(\(event.id))",
+                       categories: .queueSync)
+        }
+        #endif
         event.wait()
     }
     
