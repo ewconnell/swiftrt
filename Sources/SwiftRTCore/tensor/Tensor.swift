@@ -193,8 +193,8 @@ extension Tensor: Differentiable & DifferentiableTensor
 }
 
 extension Tensor: AdditiveArithmetic where Element: Numeric {
-    @inlinable public static var zero: Self { Tensor(0) }
-    @inlinable public static var one: Self { Tensor(1) }
+    @inlinable public static var zero: Self { Tensor(0, name: "Zero") }
+    @inlinable public static var one: Self { Tensor(1, name: "One") }
 }
 
 //==============================================================================

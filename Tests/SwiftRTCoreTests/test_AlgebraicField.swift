@@ -60,7 +60,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_minimalAddVJP() {
-//        Context.log.level = .diagnostic
+        Context.log.level = .diagnostic
         let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
         let v = ones(like: a, name: "ones")
         

@@ -28,6 +28,8 @@ public protocol DeviceQueue: Logging {
     var deviceId: Int { get }
     /// the name of the associated device, used in diagnostics
     var deviceName: String { get }
+    /// the async cpu `queue` dispatch group used to wait for queue completion
+    var group: DispatchGroup { get }
     /// the id of the queue
     var id: Int { get }
     /// the logging configuration for the queue
@@ -143,11 +145,7 @@ extension DeviceQueue {
         
         // record the event
         if mode == .async {
-            queue.async { [eventId = event.id] in
-                #if DEBUG
-                diagnostic("\(signaledString) event(\(eventId))",
-                           categories: .queueSync)
-                #endif
+            queue.async(group: group) {
                 event.signal()
             }
         } else {
@@ -173,7 +171,7 @@ extension DeviceQueue {
     // so it is always complete
     @inlinable public func waitForCompletion() {
         if mode == .async {
-            wait(for: record(event: createEvent(options: QueueEventOptions())))
+            group.wait()
         }
     }
 }

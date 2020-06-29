@@ -39,7 +39,7 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
-                queue.async {
+                queue.async(group: group) {
                     out.indices.forEach { out[$0] = op() }
                 }
             } else {
@@ -68,7 +68,7 @@ extension DeviceQueue {
         ) where I0.Element == O.Element {
             var out = out
             if mode == .async {
-                queue.async {
+                queue.async(group: group) {
                     zip(out.indices, i0).forEach { out[$0] = $1 }
                 }
             } else {
@@ -97,7 +97,7 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
-                queue.async {
+                queue.async(group: group) {
                     out.indices.forEach { out[$0] = op(out[$0]) }
                 }
             } else {
@@ -128,7 +128,7 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
-                queue.async {
+                queue.async(group: group) {
                     zip(out.indices, i0).forEach { out[$0] = op(out[$0], $1) }
                 }
             } else {
@@ -173,7 +173,7 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
-                queue.async {
+                queue.async(group: group) {
                     zip(out.indices, i0).forEach { out[$0] = op($1) }
                 }
             } else {
@@ -219,7 +219,7 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
-                queue.async {
+                queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = op($1.0, $1.1)
                     }
@@ -284,7 +284,7 @@ extension DeviceQueue {
             if mode == .async {
                 diagnostic("\(queueString) \(opName) on \(name)",
                            categories: .queueFunc)
-                queue.async {
+                queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = $1.0 + $1.1
                     }
@@ -344,7 +344,7 @@ extension DeviceQueue {
         {
             var out = out
             if mode == .async {
-                queue.async {
+                queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = $1.0 - $1.1
                     }
@@ -404,7 +404,7 @@ extension DeviceQueue {
         {
             var out = out
             if mode == .async {
-                queue.async {
+                queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = $1.0 * $1.1
                     }
@@ -464,7 +464,7 @@ extension DeviceQueue {
         {
             var out = out
             if mode == .async {
-                queue.async {
+                queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = $1.0 / $1.1
                     }
@@ -530,7 +530,7 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
-                queue.async {
+                queue.async(group: group) {
                     zip(out.indices, zip(i0, zip(i1, i2))).forEach {
                         out[$0] = op($1.0, $1.1.0, $1.1.1)
                     }
@@ -632,7 +632,7 @@ extension DeviceQueue {
         ) {
             var o1 = o1, o2 = o2
             if mode == .async {
-                queue.async {
+                queue.async(group: group) {
                     zip(zip(o1.indices, o2.indices), zip(i0, zip(i1, i2))).forEach
                     {
                         let (o1v, o2v) = op2($1.0, $1.1.0, $1.1.1)

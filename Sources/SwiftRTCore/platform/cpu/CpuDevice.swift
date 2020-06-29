@@ -97,7 +97,7 @@ public final class CpuDeviceMemory: DeviceMemory {
             buffer.deallocate()
             if willLog(level: .diagnostic) {
                 if let name = name, let msg = releaseMessage {
-                    diagnostic("\(releaseString) \(name) \(msg)",
+                    diagnostic("\(releaseString) \(name)\(msg)",
                                categories: .dataAlloc)
                 }
             }
