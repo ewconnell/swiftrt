@@ -161,10 +161,8 @@ extension DeviceQueue {
     /// waits until the event has occurred
     @inlinable public func wait(for event: QueueEvent) {
         #if DEBUG
-        if !event.occurred {
-            diagnostic("\(waitString) \(name) waiting for event(\(event.id))",
-                       categories: .queueSync)
-        }
+        diagnostic("\(waitString) \(name) will wait for event(\(event.id))",
+                   categories: .queueSync)
         #endif
         event.wait()
     }

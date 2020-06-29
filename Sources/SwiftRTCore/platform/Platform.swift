@@ -223,8 +223,6 @@ public protocol DeviceMemory: class, Logging {
 public protocol QueueEvent: class, Logging {
     /// the id of the event for diagnostics
     var id: Int { get }
-    /// is `true` if the even has occurred, used for polling
-    var occurred: Bool { get }
     /// the last time the event was recorded
     var recordedTime: Date? { get set }
 
@@ -246,8 +244,7 @@ public extension QueueEvent {
     /// - Parameter other: the other event used to compute the interval
     /// - Returns: the elapsed interval. Will return `nil` if this event or
     ///   the other have not been recorded.
-    @inlinable
-    func elapsedTime(since other: QueueEvent) -> TimeInterval? {
+    @inlinable func elapsedTime(since other: QueueEvent) -> TimeInterval? {
         guard let time = recordedTime,
             let other = other.recordedTime else { return nil }
         return time.timeIntervalSince(other)
