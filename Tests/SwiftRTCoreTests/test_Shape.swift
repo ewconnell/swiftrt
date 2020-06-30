@@ -211,12 +211,12 @@ class test_Shape: XCTestCase {
         let a = ones(1024 * 1024)
         var count: DType = 0
         self.measure {
-            count = a.reduce(into: 0) { $0 += $1 }
+            count = a.sum().element
         }
         XCTAssert(count > 0)
         #endif
     }
-        
+    
     //--------------------------------------------------------------------------
     func test_perfTensor2() {
         #if !DEBUG
@@ -225,7 +225,7 @@ class test_Shape: XCTestCase {
         
         // 0.001s
         self.measure {
-            count = a.reduce(into: 0) { $0 += $1 }
+            count = a.sum().element
         }
         XCTAssert(count > 0)
         #endif
@@ -237,7 +237,7 @@ class test_Shape: XCTestCase {
         let a = repeating(1, (64, 128, 128))
         var count: DType = 0
         self.measure {
-            count = a.reduce(into: 0) { $0 += $1 }
+            count = a.sum().element
         }
         XCTAssert(count > 0)
         #endif
@@ -249,7 +249,7 @@ class test_Shape: XCTestCase {
         let a = ones((64, 128, 128))
         var count: DType = 0
         self.measure {
-            count = a.reduce(into: 0) { $0 += $1 }
+            count = a.sum().element
         }
         XCTAssert(count > 0)
         #endif
@@ -261,7 +261,7 @@ class test_Shape: XCTestCase {
         let a = ones((2, 32, 128, 128))
         var count: DType = 0
         self.measure {
-            count = a.reduce(into: 0) { $0 += $1 }
+            count = a.sum().element
         }
         XCTAssert(count > 0)
         #endif
@@ -273,7 +273,7 @@ class test_Shape: XCTestCase {
         let a = ones((2, 2, 16, 128, 128))
         var count: DType = 0
         self.measure {
-            count = a.reduce(into: 0) { $0 += $1 }
+            count = a.sum().element
         }
         XCTAssert(count > 0)
         #endif

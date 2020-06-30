@@ -42,7 +42,7 @@ class test_Vectorizing: XCTestCase {
         #if !DEBUG
         // adding a queue causes change from sync to async by default
         // overhead for this case is 28%
-        //        Context.queuesPerDevice = 1
+//                Context.queuesPerDevice = 1
         let a = ones((1024, 1024))
         let b = ones((1024, 1024))
         var count: DType = 0

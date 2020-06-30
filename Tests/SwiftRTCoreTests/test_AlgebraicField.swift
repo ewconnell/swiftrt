@@ -60,7 +60,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_minimalAddVJP() {
-        Context.log.level = .diagnostic
+//        Context.log.level = .diagnostic
         let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
         let v = ones(like: a, name: "ones")
         
@@ -218,7 +218,7 @@ class test_AlgebraicField: XCTestCase {
         a += 2
         XCTAssert(a == [[2, 3], [4, 5], [6, 7]])
     }
-
+    
     //--------------------------------------------------------------------------
     func test_addSubMulDivComplex() {
         typealias CF = Complex<Float>
