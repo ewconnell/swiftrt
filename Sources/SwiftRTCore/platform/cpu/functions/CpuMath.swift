@@ -397,7 +397,7 @@ extension CpuFunctions where Self: DeviceQueue
     @inlinable func cpu_div<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                  _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: AlgebraicField {
-        mapOpDiv(lhs, rhs, &result)
+        mapOpDiv("cpu_div", lhs, rhs, &result)
     }
     
     //--------------------------------------------------------------------------
@@ -590,7 +590,7 @@ extension CpuFunctions where Self: DeviceQueue
     @inlinable func cpu_mul<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                  _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Numeric {
-        mapOpMul(lhs, rhs, &result)
+        mapOpMul("cpu_mul", lhs, rhs, &result)
     }
     
     //--------------------------------------------------------------------------
@@ -680,7 +680,7 @@ extension CpuFunctions where Self: DeviceQueue
         _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
         _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: AdditiveArithmetic {
-        mapOpSub(lhs, rhs, &result)
+        mapOpSub("cpu_subtract", lhs, rhs, &result)
     }
     
     //--------------------------------------------------------------------------

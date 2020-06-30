@@ -279,7 +279,6 @@ class test_AlgebraicField: XCTestCase {
             let g2Expected = -array(data, (2, 2))
             let g2sumdiff = sum(g2 - g2Expected).element
             XCTAssert(abs(g2sumdiff.real) <= 1e-6 && g2sumdiff.imaginary == 0)
-            print(g2sumdiff)
         }
     }
 

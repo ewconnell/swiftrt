@@ -331,6 +331,7 @@ extension DeviceQueue {
     // mapOpSub
     // 20% boost over passed in op
     @inlinable func mapOpSub<S,E>(
+        _ opName: String,
         _ a: Tensor<S,E>,
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
@@ -344,6 +345,8 @@ extension DeviceQueue {
         {
             var out = out
             if mode == .async {
+                diagnostic("\(queueString) \(opName) on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = $1.0 - $1.1
@@ -391,6 +394,7 @@ extension DeviceQueue {
     // mapOpMul
     // 20% boost over passed in op
     @inlinable func mapOpMul<S,E>(
+        _ opName: String,
         _ a: Tensor<S,E>,
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
@@ -404,6 +408,8 @@ extension DeviceQueue {
         {
             var out = out
             if mode == .async {
+                diagnostic("\(queueString) \(opName) on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = $1.0 * $1.1
@@ -451,6 +457,7 @@ extension DeviceQueue {
     // mapOpDiv
     // 20% boost over passed in op
     @inlinable func mapOpDiv<S,E>(
+        _ opName: String,
         _ a: Tensor<S,E>,
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
@@ -464,6 +471,8 @@ extension DeviceQueue {
         {
             var out = out
             if mode == .async {
+                diagnostic("\(queueString) \(opName) on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = $1.0 / $1.1
