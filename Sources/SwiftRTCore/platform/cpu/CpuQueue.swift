@@ -44,7 +44,8 @@ public final class CpuQueue: DeviceQueue, CpuFunctions {
         parent logInfo: LogInfo,
         deviceId: Int,
         name: String,
-        mode: DeviceQueueMode
+        mode: DeviceQueueMode,
+        memoryType: MemoryType
     ) {
         self.id = id
         self.name = name
@@ -52,7 +53,7 @@ public final class CpuQueue: DeviceQueue, CpuFunctions {
         self.deviceId = deviceId
         self.creatorThread = Thread.current
         self.defaultQueueEventOptions = QueueEventOptions()
-        self.memoryType = .unified
+        self.memoryType = memoryType
         self.mode = mode
         self.queue = DispatchQueue(label: "\(name)")
         self.group = DispatchGroup()

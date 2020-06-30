@@ -153,7 +153,11 @@ public protocol StorageBuffer: class, Logging {
 // convenience extensions
 //
 public extension StorageBuffer {
+    /// the name used to identify the tensor in diagnostic messages
     @inlinable var diagnosticName: String { "\(name)(\(id))" }
+    /// used for unit tests. `true` if a read/write operation caused
+    /// memory to be copied between devices
+    @inlinable var testLastAccessCopiedDeviceMemory: Bool { false }
     
     //--------------------------------------------------------------------------
     /// `init(type:count:layout:

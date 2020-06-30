@@ -50,14 +50,13 @@ public final class DiscreteStorage: StorageBuffer {
 
     //------------------------------------
     // testing properties
-    
     /// testing: `true` if the last access caused the contents of the
     /// buffer to be copied
-    @usableFromInline var lastAccessCopiedBuffer = false
-    /// testing: is `true` if the last data access caused the view's underlying
-    /// tensorArray object to be copied. It's stored here instead of on the
-    /// view, because the view is immutable when taking a read only pointer
-    @usableFromInline var lastAccessMutatedView: Bool = false
+    @inlinable public var testLastAccessCopiedDeviceMemory: Bool {
+        _lastAccessCopiedMemory
+    }
+    public var _lastAccessCopiedMemory: Bool
+    
 
     //--------------------------------------------------------------------------
     // init(type:count:layout:name:
@@ -73,6 +72,7 @@ public final class DiscreteStorage: StorageBuffer {
         isReadOnly = false
         isReference = false
         masterVersion = -1
+        _lastAccessCopiedMemory = false
 
         // setup replica managment
         let numDevices = Context.local.platform.devices.count
@@ -102,7 +102,8 @@ public final class DiscreteStorage: StorageBuffer {
         isReference = other.isReference
         name = other.name
         masterVersion = -1
-        
+        _lastAccessCopiedMemory = false
+
         // setup replica managment
         let numDevices = Context.local.platform.devices.count
         replicas = [DeviceMemory?](repeating: nil, count: numDevices)
@@ -125,7 +126,8 @@ public final class DiscreteStorage: StorageBuffer {
         let raw = UnsafeMutableRawBufferPointer(p)
         let device = Context.devices[0]
         replicas[0] = CpuDeviceMemory(device.id, device.name,
-                                      buffer: raw, isReference: true)
+                                      buffer: raw, isReference: true,
+                                      memoryType: .unified)
         diagnostic("\(referenceString) \(name)(\(id)) " +
                     "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
     }
@@ -141,7 +143,8 @@ public final class DiscreteStorage: StorageBuffer {
         let raw = UnsafeMutableRawBufferPointer(buffer)
         let device = Context.devices[0]
         replicas[0] = CpuDeviceMemory(device.id, device.name,
-                                      buffer: raw, isReference: true)
+                                      buffer: raw, isReference: true,
+                                      memoryType: .unified)
         diagnostic("\(referenceString) \(name)(\(id)) " +
                     "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
     }
@@ -212,6 +215,9 @@ public final class DiscreteStorage: StorageBuffer {
             // and save in the replica list
             let memory = try queue.allocate(byteCount: byteCount)
             replicas[queue.deviceId] = memory
+
+            // set version to -1 to indicate that it is uninitialized
+            memory.version = -1
             
             if willLog(level: .diagnostic) {
                 let count = byteCount / MemoryLayout<Element>.size
@@ -263,15 +269,19 @@ public final class DiscreteStorage: StorageBuffer {
             if let master = master, replica.version != master.version {
                 // we shouldn't get here if both buffers are in unified memory
                 assert(master.type == .discrete || replica.type == .discrete)
-                lastAccessCopiedBuffer = true
+                _lastAccessCopiedMemory = true
                 try queue.copyAsync(from: master, to: replica)
-                diagnostic(
-                    "\(copyString) \(name)(\(id)) " +
-                        "\(master.deviceName)" +
-                        "\(setText(" --> ", color: .blue))" +
-                        "\(queue.deviceName)_s\(queue.id) " +
-                        "\(Element.self)[\(replica.buffer.count)]",
-                    categories: .dataCopy)
+                if willLog(level: .diagnostic) {
+                    let elementCount = replica.buffer.count /
+                        MemoryLayout<Element>.size
+                    diagnostic(
+                        "\(copyString) \(name)(\(id)) " +
+                            "\(master.deviceName)" +
+                            "\(setText(" --> ", color: .blue))" +
+                            "\(queue.deviceName)_q\(queue.id) " +
+                            "\(Element.self)[\(elementCount)]",
+                        categories: .dataCopy)
+                }
             }
             
             // increment version if mutating

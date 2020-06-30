@@ -21,12 +21,13 @@ class test_Async: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_discreteMemoryReplication", test_discreteMemoryReplication),
         ("test_multiQueueDependency", test_multiQueueDependency),
     ]
     
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
-//        Context.log.level = .diagnostic
+        Context.log.level = .diagnostic
         Context.cpuQueueCount = 2
         use(device: 0, queue: 0)
     }
@@ -37,23 +38,36 @@ class test_Async: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    func test_multiQueueDependency() {
-        do {
-            let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
-            
-            var c: Tensor2 = using(queue: 0) {
-                let b = array([[0, 1], [2, 3], [4, 5]], name: "b")
-                return a + b
-            }
-            c.name = "c"
-            
-            var d = using(queue: 1) {
-                a + c
-            }
-            d.name = "d"
-            
-            let result = d.array
-            XCTAssert(result == [[0.0, 3.0], [6.0, 9.0], [12.0, 15.0]])
+    func test_discreteMemoryReplication() {
+        let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
+        let b = array([[0, 1], [2, 3], [4, 5]], name: "b")
+        let c: Tensor2 = using(device: 1) {
+            let result = a + b
+            XCTAssert(a.storage.testLastAccessCopiedDeviceMemory)
+            XCTAssert(b.storage.testLastAccessCopiedDeviceMemory)
+            return result
         }
+        let expected = c.array
+        XCTAssert(c.storage.testLastAccessCopiedDeviceMemory)
+        XCTAssert(expected == [[0, 2], [4, 6], [8, 10]])
+    }
+    
+    //--------------------------------------------------------------------------
+    func test_multiQueueDependency() {
+        let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
+        
+        var c: Tensor2 = using(queue: 0) {
+            let b = array([[0, 1], [2, 3], [4, 5]], name: "b")
+            return a + b
+        }
+        c.name = "c"
+        
+        var d = using(queue: 1) {
+            a + c
+        }
+        d.name = "d"
+        
+        let result = d.array
+        XCTAssert(result == [[0.0, 3.0], [6.0, 9.0], [12.0, 15.0]])
     }
 }

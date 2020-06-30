@@ -25,11 +25,15 @@ public final class CpuDevice: ComputeDevice {
     public let name: String
     public var queues: [CpuQueue]
 
-    @inlinable public init(id: Int, parent logInfo: LogInfo) {
+    @inlinable public init(
+        id: Int,
+        parent logInfo: LogInfo,
+        memoryType: MemoryType
+    ) {
         self.id = id
         self.name = "cpu:\(id)"
         self.logInfo = logInfo.flat(name)
-        self.memoryType = .unified
+        self.memoryType = memoryType
         self.queues = []
         for _ in 0..<Context.cpuQueueCount {
             let queueId = Context.nextQueueId
@@ -37,7 +41,8 @@ public final class CpuDevice: ComputeDevice {
                                    parent: self.logInfo,
                                    deviceId: id,
                                    name: "\(name)_q\(queueId)",
-                                   mode: .async))
+                                   mode: .async,
+                                   memoryType: memoryType))
         }
     }
 }
@@ -75,12 +80,13 @@ public final class CpuDeviceMemory: DeviceMemory {
         _ deviceId: Int,
         _ deviceName: String,
         buffer: UnsafeMutableRawBufferPointer,
-        isReference: Bool = false
+        isReference: Bool = false,
+        memoryType: MemoryType
     ) {
         self.deviceId = deviceId
         self.deviceName = deviceName
         self.buffer = buffer
-        self.type = .unified
+        self.type = memoryType
         self.isReference = isReference
         self.version = 0
         self.name = nil
