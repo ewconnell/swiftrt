@@ -289,19 +289,19 @@ extension CpuFunctions where Self: DeviceQueue
     //--------------------------------------------------------------------------
     @inlinable func cpu_abs<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Comparable & SignedNumeric {
-        mapOp(x, &result) { Swift.abs($0) }
+        mapOp("cpu_abs", x, &result) { Swift.abs($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_acos<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .acos($0) }
+        mapOp("cpu_acos", x, &result) { .acos($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_acosh<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .acosh($0) }
+        mapOp("cpu_acosh", x, &result) { .acosh($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -315,38 +315,38 @@ extension CpuFunctions where Self: DeviceQueue
     @inlinable func cpu_and<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                  _ result: inout Tensor<S,E>)
     where E.Value == Bool {
-        mapOp(lhs, rhs, &result) { $0 && $1 }
+        mapOp("cpu_and", lhs, rhs, &result) { $0 && $1 }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_asin<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .asin($0) }
+        mapOp("cpu_asin", x, &result) { .asin($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_asinh<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .asinh($0) }
+        mapOp("cpu_asinh", x, &result) { .asinh($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_atan<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .atan($0) }
+        mapOp("cpu_atan", x, &result) { .atan($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_atan2<S,E>(_ y: Tensor<S,E>, _ x: Tensor<S,E>,
                                    _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(y, x, &result) { .atan2(y: $0, x: $1) }
+        mapOp("cpu_atan2", y, x, &result) { .atan2(y: $0, x: $1) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_atanh<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .atanh($0) }
+        mapOp("cpu_atanh", x, &result) { .atanh($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -356,7 +356,7 @@ extension CpuFunctions where Self: DeviceQueue
         to result: inout Tensor<S,RE>
     ) where S: TensorShape, E.Value: BinaryFloatingPoint,
             RE.Value: BinaryInteger {
-        mapOp(buffer, &result) { RE.Value($0) }
+        mapOp("cpu_cast", buffer, &result) { RE.Value($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -366,25 +366,25 @@ extension CpuFunctions where Self: DeviceQueue
         to result: inout Tensor<S,RE>
     ) where S: TensorShape, E.Value: BinaryInteger,
             RE.Value: BinaryFloatingPoint {
-        mapOp(buffer, &result) { RE.Value($0) }
+        mapOp("cpu_cast", buffer, &result) { RE.Value($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_copy<S,E>(from x: Tensor<S,E>, to result: inout Tensor<S,E>)
     where S: TensorShape {
-        mapOp(x, &result) { $0 }
+        mapOp("cpu_copy", x, &result) { $0 }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_cos<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .cos($0) }
+        mapOp("cpu_cos", x, &result) { .cos($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_cosh<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .cosh($0) }
+        mapOp("cpu_cosh", x, &result) { .cosh($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -407,63 +407,64 @@ extension CpuFunctions where Self: DeviceQueue
         _ tolerance: E.Value,
         _ result: inout Tensor<S,Bool>)
     where S: TensorShape, E.Value: SignedNumeric & Comparable {
-        mapOp(lhs, rhs, &result) { Swift.abs($0 - $1) <= tolerance }
+        mapOp("cpu_elementsAlmostEqual",
+              lhs, rhs, &result) { Swift.abs($0 - $1) <= tolerance }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_equal<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                    _ result: inout Tensor<S,Bool>)
     where S: TensorShape, E.Value: Equatable {
-        mapOp(lhs, rhs, &result, ==)
+        mapOp("cpu_equal", lhs, rhs, &result, ==)
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_erf<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .erf($0) }
+        mapOp("cpu_erf", x, &result) { .erf($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_erfc<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .erfc($0) }
+        mapOp("cpu_erfc", x, &result) { .erfc($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_exp<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .exp($0) }
+        mapOp("cpu_exp", x, &result) { .exp($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_exp2<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .exp2($0) }
+        mapOp("cpu_exp2", x, &result) { .exp2($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_exp10<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .exp10($0) }
+        mapOp("cpu_exp10", x, &result) { .exp10($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_expMinusOne<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .expMinusOne($0) }
+        mapOp("cpu_expMinusOne", x, &result) { .expMinusOne($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_gamma<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .gamma($0) }
+        mapOp("cpu_gamma", x, &result) { .gamma($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_greater<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                      _ result: inout Tensor<S,Bool>)
     where S: TensorShape, E.Value: Comparable {
-        mapOp(lhs, rhs, &result, >)
+        mapOp("cpu_greater", lhs, rhs, &result, >)
     }
     
     //--------------------------------------------------------------------------
@@ -471,58 +472,58 @@ extension CpuFunctions where Self: DeviceQueue
         _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
         _ result: inout Tensor<S,Bool>)
     where S: TensorShape, E.Value: Comparable {
-        mapOp(lhs, rhs, &result, >=)
+        mapOp("cpu_greaterOrEqual", lhs, rhs, &result, >=)
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_hypot<S,E>(_ x: Tensor<S,E>, _ y: Tensor<S,E>,
                                    _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, y, &result) { .hypot($0, $1) }
+        mapOp("cpu_hypot", x, y, &result) { .hypot($0, $1) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_less<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                   _ result: inout Tensor<S,Bool>)
     where S: TensorShape, E.Value: Comparable {
-        mapOp(lhs, rhs, &result, <)
+        mapOp("cpu_less", lhs, rhs, &result, <)
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_lessOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                          _ result: inout Tensor<S,Bool>)
     where S: TensorShape, E.Value: Comparable {
-        mapOp(lhs, rhs, &result, <=)
+        mapOp("cpu_lessOrEqual", lhs, rhs, &result, <=)
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_log<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .log($0) }
+        mapOp("cpu_log", x, &result) { .log($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_log<S,E>(onePlus x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .log(onePlus: $0) }
+        mapOp("cpu_log", x, &result) { .log(onePlus: $0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_log2<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .log2($0) }
+        mapOp("cpu_log2", x, &result) { .log2($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_log10<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .log10($0) }
+        mapOp("cpu_log10", x, &result) { .log10($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_logGamma<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .logGamma($0) }
+        mapOp("cpu_logGamma", x, &result) { .logGamma($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -576,14 +577,14 @@ extension CpuFunctions where Self: DeviceQueue
     @inlinable func cpu_max<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                  _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Comparable {
-        mapOp(lhs, rhs, &result) { $0 >= $1 ? $0 : $1 }
+        mapOp("cpu_max", lhs, rhs, &result) { $0 >= $1 ? $0 : $1 }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_min<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                  _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Comparable {
-        mapOp(lhs, rhs, &result) { Swift.min($0, $1) }
+        mapOp("cpu_min", lhs, rhs, &result) { Swift.min($0, $1) }
     }
     
     //--------------------------------------------------------------------------
@@ -596,35 +597,35 @@ extension CpuFunctions where Self: DeviceQueue
     //--------------------------------------------------------------------------
     @inlinable func cpu_neg<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: SignedNumeric {
-        mapOp(x, &result, -)
+        mapOp("cpu_neg", x, &result, -)
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_notEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                       _ result: inout Tensor<S,Bool>)
     where S: TensorShape, E.Value: Equatable {
-        mapOp(lhs, rhs, &result, !=)
+        mapOp("cpu_notEqual", lhs, rhs, &result, !=)
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_or<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
                                 _ result: inout Tensor<S,E>)
     where E.Value == Bool {
-        mapOp(lhs, rhs, &result) { $0 || $1 }
+        mapOp("cpu_or", lhs, rhs, &result) { $0 || $1 }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_pow<S,E>(_ x: Tensor<S,E>, _ y: Tensor<S,E>,
                                  _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, y, &result) { .pow($0, $1) }
+        mapOp("cpu_pow", x, y, &result) { .pow($0, $1) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_pow<S, E>(_ x: Tensor<S,E>, _ n: Int,
                                   _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .pow($0, n) }
+        mapOp("cpu_pow", x, &result) { .pow($0, n) }
     }
     
     //--------------------------------------------------------------------------
@@ -633,26 +634,26 @@ extension CpuFunctions where Self: DeviceQueue
         _ condition: Tensor<S,Bool>,
         _ result: inout Tensor<S,E>)
     {
-        mapOp(condition, y, x, &result) { $0 ? $1 : $2 }
+        mapOp("cpu_replace", condition, y, x, &result) { $0 ? $1 : $2 }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_root<S,E>(_ x: Tensor<S,E>, _ n: Int,
                                   _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .root($0, n) }
+        mapOp("cpu_root", x, &result) { .root($0, n) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_sigmoid<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { 1 / (1 + .exp(-$0)) }
+        mapOp("cpu_sigmoid", x, &result) { 1 / (1 + .exp(-$0)) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_sign<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Comparable & SignedNumeric {
-        mapOp(x, &result) { $0 < 0 ? -1 : 1 }
+        mapOp("cpu_sign", x, &result) { $0 < 0 ? -1 : 1 }
     }
     
     //--------------------------------------------------------------------------
@@ -666,13 +667,13 @@ extension CpuFunctions where Self: DeviceQueue
     //--------------------------------------------------------------------------
     @inlinable func cpu_sin<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .sin($0) }
+        mapOp("cpu_sin", x, &result) { .sin($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_sinh<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .sinh($0) }
+        mapOp("cpu_sinh", x, &result) { .sinh($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -686,24 +687,24 @@ extension CpuFunctions where Self: DeviceQueue
     //--------------------------------------------------------------------------
     @inlinable func cpu_sqrt<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .sqrt($0) }
+        mapOp("cpu_sqrt", x, &result) { .sqrt($0) }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_squared<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Numeric {
-        mapOp(x, &result) { $0 * $0 }
+        mapOp("cpu_squared", x, &result) { $0 * $0 }
     }
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_tan<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .tan($0) }
+        mapOp("cpu_tan", x, &result) { .tan($0) }
     }
     
     @inlinable func cpu_tanh<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real {
-        mapOp(x, &result) { .tanh($0) }
+        mapOp("cpu_tanh", x, &result) { .tanh($0) }
     }
     
     //==========================================================================
@@ -714,14 +715,14 @@ extension CpuFunctions where Self: DeviceQueue
         _ x: Tensor<S,E>, _ y: Tensor<S,E>, _ scale: Tensor<S,E>,
         _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Comparable & Numeric {
-        mapOp(x, y, scale, &result) { $0 <= $1 ? $2 : E.Value.zero }
+        mapOp("cpu_vjpMin", x, y, scale, &result) { $0 <= $1 ? $2 : E.Value.zero }
     }
     /// cpu_vjpMin
     @inlinable func cpu_vjpMin<S,E>(
         _ x: Tensor<S,E>, _ y: Tensor<S,E>, _ scale: Tensor<S,E>,
         _ resultTrue: inout Tensor<S,E>, _ resultFalse: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Comparable & Numeric {
-        mapOp(x, y, scale, &resultTrue, &resultFalse) {
+        mapOp("cpu_vjpMin", x, y, scale, &resultTrue, &resultFalse) {
             $0 <= $1 ? ($2, E.Value.zero) : (E.Value.zero, $2)
         }
     }
@@ -732,14 +733,14 @@ extension CpuFunctions where Self: DeviceQueue
         _ x: Tensor<S,E>, _ y: Tensor<S,E>, _ scale: Tensor<S,E>,
         _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Comparable & Numeric {
-        mapOp(x, y, scale, &result) { $0 >= $1 ? $2 : E.Value.zero }
+        mapOp("cpu_vjpMax", x, y, scale, &result) { $0 >= $1 ? $2 : E.Value.zero }
     }
     /// cpu_vjpMax
     @inlinable func cpu_vjpMax<S,E>(
         _ x: Tensor<S,E>, _ y: Tensor<S,E>, _ scale: Tensor<S,E>,
         _ resultTrue: inout Tensor<S,E>, _ resultFalse: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Comparable & Numeric {
-        mapOp(x, y, scale, &resultTrue, &resultFalse) {
+        mapOp("cpu_vjpMax", x, y, scale, &resultTrue, &resultFalse) {
             $0 >= $1 ? ($2, E.Value.zero) : (E.Value.zero, $2)
         }
     }

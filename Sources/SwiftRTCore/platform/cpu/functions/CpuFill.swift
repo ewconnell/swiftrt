@@ -88,7 +88,7 @@ extension CpuFunctions where Self: DeviceQueue {
         _ result: inout Tensor<S,E>,
         offset: Int
     ) where S: TensorShape, E.Value: Numeric {
-        mapOp(&result) { 0 }
+        mapOp("cpu_eye", &result) { 0 }
     }
     
     //--------------------------------------------------------------------------
@@ -96,7 +96,7 @@ extension CpuFunctions where Self: DeviceQueue {
         _ result: inout Tensor<S,E>,
         with element: E.Value
     ) where S: TensorShape {
-        mapOp(&result) { element }
+        mapOp("cpu_fill element", &result) { element }
     }
     
     //--------------------------------------------------------------------------
@@ -106,7 +106,7 @@ extension CpuFunctions where Self: DeviceQueue {
     ) where S: TensorShape, E.Value: Numeric,
             B: SignedInteger, B.Stride: SignedInteger
     {
-        mapOp(range.lazy.map { E.Value(exactly: $0)! }, &result)
+        mapOp("cpu_fill range", range.lazy.map { E.Value(exactly: $0)! }, &result)
     }
     //--------------------------------------------------------------------------
     @inlinable func cpu_fill<S,E>(
@@ -118,7 +118,9 @@ extension CpuFunctions where Self: DeviceQueue {
     {
         let scale = Double(upper - lower) / Double(UInt64.max)
         var generator = Context.createRandomNumberGenerator(using: seed)
-        mapOp(&result) { E.Value(Double(generator.next()) * scale) + lower }
+        mapOp("cpu_fill randomUniform", &result) {
+            E.Value(Double(generator.next()) * scale) + lower
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -131,7 +133,9 @@ extension CpuFunctions where Self: DeviceQueue {
     {
         let scale = Double(standardDeviation) / Double(UInt64.max)
         var generator = Context.createRandomNumberGenerator(using: seed)
-        mapOp(&result) { E.Value(Double(generator.next()) * scale) + mean }
+        mapOp("cpu_fill randomNormal", &result) {
+            E.Value(Double(generator.next()) * scale) + mean
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -147,7 +151,7 @@ extension CpuFunctions where Self: DeviceQueue {
         assert(standardDeviation.count == 1 && mean.count == 1)
         let scale = Double(standardDeviation.element) / Double(UInt64.max)
         var generator = Context.createRandomNumberGenerator(using: seed)
-        mapOp(&result) {
+        mapOp("cpu_fill randomNormal", &result) {
             E.Value(Double(generator.next()) * scale) + mean.element
         }
     }
@@ -163,7 +167,7 @@ extension CpuFunctions where Self: DeviceQueue {
         let std2x = standardDeviation * 2
         let scale = Double(standardDeviation) / Double(UInt64.max)
         var generator = Context.createRandomNumberGenerator(using: seed)
-        mapOp(&result) {
+        mapOp("cpu_fill randomTruncatedNormal", &result) {
             let a = Double(generator.next()) * scale
             return E.Value(a).clamped(to: -std2x...std2x) + mean
         }
@@ -181,7 +185,7 @@ extension CpuFunctions where Self: DeviceQueue {
         let std2x = standardDeviation.element * 2
         let scale = Double(standardDeviation.element) / Double(UInt64.max)
         var generator = Context.createRandomNumberGenerator(using: seed)
-        mapOp(&result) {
+        mapOp("cpu_fill randomTruncatedNormal", &result) {
             let a = Double(generator.next()) * scale
             return E.Value(a).clamped(to: -std2x...std2x) + mean.element
         }

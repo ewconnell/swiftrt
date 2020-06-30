@@ -73,6 +73,20 @@ public final class Context: Logging {
     }
     
     //--------------------------------------------------------------------------
+    @inlinable public static func getDiscreteMemoryDevice() -> Int {
+        let plat = local.platform
+        if let device = plat.devices.first(where: { $0.memoryType == .discrete }) {
+            return device.id
+        } else {
+            let test = CpuDevice(id: plat.devices.count,
+                                 parent: plat.logInfo.flat("test"),
+                                 memoryType: .discrete)
+            plat.devices.append(test)
+            return test.id
+        }
+    }
+    
+    //--------------------------------------------------------------------------
     /// the Platform log writing object
     @inlinable public static var log: Log {
         get { logWriter }

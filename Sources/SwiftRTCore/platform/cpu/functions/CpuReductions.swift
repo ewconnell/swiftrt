@@ -52,12 +52,13 @@ extension DeviceQueue where Self: CpuFunctions
     ) where E.Value: Comparable { cpu_reduceMax(x, &result) }
     //--------------------------------------------------------------------------
     @inlinable func reduce<S,E>(
+        _ opName: String,
         _ x: Tensor<S,E>,
         _ result: inout Tensor<S,E>,
         _ opId: ReductionOp,
         _ opNext: @escaping (E.Value, E.Value) -> E.Value,
         _ opFinal: ReduceOpFinal<Tensor<S,E>>?
-    ) { cpu_reduce(x, &result, opId, opNext, opFinal) }
+    ) { cpu_reduce(opName, x, &result, opId, opNext, opFinal) }
 }
 
 //==============================================================================
@@ -75,6 +76,8 @@ extension CpuFunctions where Self: DeviceQueue {
             let first = i0[i0.startIndex]
             let start = out.startIndex
             if mode == .async {
+                diagnostic("\(queueString) cpu_reduceAll on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     out[start] = i0.reduce(into: first) { $0 = $0 && $1 }
                 }
@@ -102,6 +105,8 @@ extension CpuFunctions where Self: DeviceQueue {
             let first = i0[i0.startIndex]
             let start = out.startIndex
             if mode == .async {
+                diagnostic("\(queueString) cpu_reduceAny on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     out[start] = i0.reduce(into: first) { $0 = $0 || $1 }
                 }
@@ -129,6 +134,8 @@ extension CpuFunctions where Self: DeviceQueue {
             var out = out
             let start = out.startIndex
             if mode == .async {
+                diagnostic("\(queueString) cpu_reduceSum on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     out[start] = i0.reduce(into: I0.Element.zero) { $0 += $1 }
                 }
@@ -157,6 +164,8 @@ extension CpuFunctions where Self: DeviceQueue {
             let start = out.startIndex
             let count = I0.Element(exactly: i0.count)!
             if mode == .async {
+                diagnostic("\(queueString) cpu_reduceMean on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     let sum = i0.reduce(into: I0.Element.zero) { $0 += $1 }
                     out[start] = sum / count
@@ -187,6 +196,8 @@ extension CpuFunctions where Self: DeviceQueue {
             let first = i0[i0.startIndex]
             let start = out.startIndex
             if mode == .async {
+                diagnostic("\(queueString) cpu_reduceMin on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     out[start] = i0.reduce(into: first){ $0 = Swift.min($0, $1)}
                 }
@@ -216,6 +227,8 @@ extension CpuFunctions where Self: DeviceQueue {
             let first = i0[i0.startIndex]
             let start = out.startIndex
             if mode == .async {
+                diagnostic("\(queueString) cpu_reduceMax on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     out[start] = i0.reduce(into: first){ $0 = $0 > $1 ? $0 : $1}
                 }
@@ -235,16 +248,17 @@ extension CpuFunctions where Self: DeviceQueue {
 
     //--------------------------------------------------------------------------
     @inlinable func cpu_reduce<S,E>(
+        _ opName: String,
         _ x: Tensor<S,E>,
         _ result: inout Tensor<S,E>,
         _ opId: ReductionOp,
         _ opNext: @escaping (E.Value, E.Value) -> E.Value,
         _ opFinal: ReduceOpFinal<Tensor<S,E>>?
     ) {
-        mapOp(x, &result, opNext)
+        mapOp(opName, x, &result, opNext)
         
         if let op = opFinal {
-            mapOp(&result, op)
+            mapOp(opName, &result, op)
         }
     }
 }

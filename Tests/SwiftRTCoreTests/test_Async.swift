@@ -24,24 +24,23 @@ class test_Async: XCTestCase {
         ("test_discreteMemoryReplication", test_discreteMemoryReplication),
         ("test_multiQueueDependency", test_multiQueueDependency),
     ]
-    
+
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
-        Context.log.level = .diagnostic
+//        Context.log.level = .diagnostic
         Context.cpuQueueCount = 2
-        use(device: 0, queue: 0)
     }
 
     override func tearDownWithError() throws {
-        useSyncQueue()
-        Context.log.level = .error
+//        Context.log.level = .error
     }
 
     //--------------------------------------------------------------------------
     func test_discreteMemoryReplication() {
+        let discreteMemoryDevice = Context.getDiscreteMemoryDevice()
         let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
         let b = array([[0, 1], [2, 3], [4, 5]], name: "b")
-        let c: Tensor2 = using(device: 1) {
+        let c: Tensor2 = using(device: discreteMemoryDevice) {
             let result = a + b
             XCTAssert(a.storage.testLastAccessCopiedDeviceMemory)
             XCTAssert(b.storage.testLastAccessCopiedDeviceMemory)

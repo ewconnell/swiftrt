@@ -36,8 +36,7 @@ public class CpuPlatform: Platform {
 
         // create the device and default number of async queues
         let device = CpuDevice(id: 0, parent: logInfo, memoryType: .unified)
-        let test = CpuDevice(id: 1, parent: logInfo, memoryType: .discrete)
-        devices = [device, test]
+        devices = [device]
 
         // create the application thread data interchange queue
         syncQueue = CpuQueue(id: Context.nextQueueId,

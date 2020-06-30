@@ -29,6 +29,7 @@ extension DeviceQueue {
     //==========================================================================
     // generator
     @inlinable func mapOp<S,E>(
+        _ opName: String,
         _ r: inout Tensor<S,E>,
         _ op: @escaping () -> E.Value
     ) {
@@ -39,6 +40,8 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
+                diagnostic("\(queueString) \(opName) on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     out.indices.forEach { out[$0] = op() }
                 }
@@ -58,6 +61,7 @@ extension DeviceQueue {
     //==========================================================================
     // range
     @inlinable func mapOp<S,E,C>(
+        _ opName: String,
         _ elements: C,
         _ r: inout Tensor<S,E>
     ) where C: Collection, C.Element == E.Value {
@@ -69,6 +73,8 @@ extension DeviceQueue {
             var out = out
             if mode == .async {
                 queue.async(group: group) {
+                    diagnostic("\(queueString) \(opName) on \(name)",
+                               categories: .queueFunc)
                     zip(out.indices, i0).forEach { out[$0] = $1 }
                 }
             } else {
@@ -87,6 +93,7 @@ extension DeviceQueue {
     //==========================================================================
     // inplace
     @inlinable func mapOp<S,E>(
+        _ opName: String,
         _ r: inout Tensor<S,E>,
         _ op: @escaping (E.Value) -> E.Value
     ) {
@@ -97,6 +104,8 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
+                diagnostic("\(queueString) \(opName) on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     out.indices.forEach { out[$0] = op(out[$0]) }
                 }
@@ -116,6 +125,7 @@ extension DeviceQueue {
     //==========================================================================
     // reduction
     @inlinable func mapOp<S,E,RE>(
+        _ opName: String,
         _ a: Tensor<S,E>,
         _ r: inout Tensor<S,RE>,
         _ op: @escaping (RE.Value, E.Value) -> RE.Value
@@ -128,15 +138,13 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
+                diagnostic("\(queueString) \(opName) on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     zip(out.indices, i0).forEach { out[$0] = op(out[$0], $1) }
                 }
             } else {
-                zip(out.indices, i0).forEach { i, v in
-                    let currentValue = out[i]
-                    let sum = op(currentValue, v)
-                    out[i] = sum
-                }
+                zip(out.indices, i0).forEach { out[$0] = op(out[$0], $1) }
             }
         }
         
@@ -151,7 +159,7 @@ extension DeviceQueue {
                 r.stridedSpanCount)
         
         rMutableElements.synchronizeForReadWrite()
-
+        
         if a.isBufferIterable {
             execute(a.buffer, rMutableElements, op)
         } else {
@@ -162,6 +170,7 @@ extension DeviceQueue {
     //==========================================================================
     // mapOp 1
     @inlinable func mapOp<S,E,RE>(
+        _ opName: String,
         _ a: Tensor<S,E>,
         _ r: inout Tensor<S,RE>,
         _ op: @escaping (E.Value) -> RE.Value
@@ -173,6 +182,8 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
+                diagnostic("\(queueString) \(opName) on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     zip(out.indices, i0).forEach { out[$0] = op($1) }
                 }
@@ -205,6 +216,7 @@ extension DeviceQueue {
     // mapOp 2
     // TODO: specialize for + - * / to gain 10% perf boost
     @inlinable func mapOp<S,E,RE>(
+        _ opName: String,
         _ a: Tensor<S,E>,
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,RE>,
@@ -219,6 +231,8 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
+                diagnostic("\(queueString) \(opName) on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = op($1.0, $1.1)
@@ -519,6 +533,7 @@ extension DeviceQueue {
     //==========================================================================
     // mapOp 3
     @inlinable func mapOp<S,E0, E1, E2, R1>(
+        _ opName: String,
         _ a: Tensor<S,E0>,
         _ b: Tensor<S,E1>,
         _ c: Tensor<S,E2>,
@@ -539,6 +554,8 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
+                diagnostic("\(queueString) \(opName) on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     zip(out.indices, zip(i0, zip(i1, i2))).forEach {
                         out[$0] = op($1.0, $1.1.0, $1.1.1)
@@ -617,6 +634,7 @@ extension DeviceQueue {
     //==========================================================================
     // mapOp 3
     @inlinable func mapOp<S,E0, E1, E2, R1, R2>(
+        _ opName: String,
         _ a: Tensor<S,E0>,
         _ b: Tensor<S,E1>,
         _ c: Tensor<S,E2>,
@@ -641,6 +659,8 @@ extension DeviceQueue {
         ) {
             var o1 = o1, o2 = o2
             if mode == .async {
+                diagnostic("\(queueString) \(opName) on \(name)",
+                           categories: .queueFunc)
                 queue.async(group: group) {
                     zip(zip(o1.indices, o2.indices), zip(i0, zip(i1, i2))).forEach
                     {

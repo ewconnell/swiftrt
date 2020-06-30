@@ -256,7 +256,8 @@ public final class DiscreteStorage: StorageBuffer {
             {
                 let event = lastQueue.createEvent()
                 diagnostic("\(syncString) \(queue.name) synchronizing with" +
-                            " \(lastQueue.name)", categories: .queueSync)
+                            " \(lastQueue.name) to access \(name)(\(id))",
+                           categories: .queueSync)
                 queue.wait(for: lastQueue.record(event: event))
             }
             
