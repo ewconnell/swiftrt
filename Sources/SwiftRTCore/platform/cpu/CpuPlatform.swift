@@ -20,7 +20,8 @@
 /// on the machine where the process is being run.
 public class CpuPlatform: Platform {
     // properties
-    public static let defaultQueuesPerDevice: Int = 1
+    public static var defaultCpuQueueCount: Int = 1
+    public static var defaultAcceleratorQueueCount: Int = 0
     public var devices: [CpuDevice]
     public let logInfo: LogInfo
     public let name: String
@@ -34,7 +35,7 @@ public class CpuPlatform: Platform {
                           namePath: name, nestingLevel: 0)
 
         // create the device and default number of async queues
-        let device = CpuDevice(id: 0, parent: logInfo, memoryType: .discrete)
+        let device = CpuDevice(id: 0, parent: logInfo)
         devices = [device]
 
         // create the application thread data interchange queue
@@ -42,7 +43,6 @@ public class CpuPlatform: Platform {
                              parent: device.logInfo,
                              deviceId: device.id,
                              name: "appThread",
-                             memoryType: .unified,
                              mode: .sync)
         
         // if the number of requested async queues is 0, then make the

@@ -54,8 +54,11 @@ public final class Context: Logging {
     public static var queueCounter: Int = -1
     /// a platform instance unique id for queue events
     public static var queueEventCounter: Int = -1
-    /// the number of queues to create for each device
-    public static var queuesPerDevice: Int = PlatformType.defaultQueuesPerDevice
+    /// the number of async cpu queues to create
+    public static var cpuQueueCount: Int = PlatformType.defaultCpuQueueCount
+    /// the number of async cpu queues to create
+    public static var acceleratorQueueCount: Int =
+        PlatformType.defaultAcceleratorQueueCount
 
     /// a static instance of the compute platform
     /// The platform type is specified in Types.swift and selected

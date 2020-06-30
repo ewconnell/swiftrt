@@ -31,6 +31,7 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     public let mode: DeviceQueueMode
     public let name: String
     public let queue: DispatchQueue
+    public let group: DispatchGroup
     public let useGpu: Bool
     
     public let stream: cudaStream_t
@@ -59,6 +60,7 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
             self.memoryType = useGpu ? .discrete : .unified
             self.mode = cpuQueueMode
             self.queue = DispatchQueue(label: "\(deviceName)_\(name)")
+            self.group = DispatchGroup()
             self.useGpu = useGpu
             
             // select the specified device

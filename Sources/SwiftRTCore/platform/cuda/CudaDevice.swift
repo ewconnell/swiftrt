@@ -52,7 +52,7 @@ public class CudaDevice: ComputeDevice {
             //------------------------------------------------------------------
             memoryType = .discrete
             self.queues = []
-            for _ in 0..<Context.queuesPerDevice {
+            for _ in 0..<Context.cpuQueueCount {
                 queues.append(CudaQueue(parent: logInfo,
                               gpuDeviceId: gpuId,
                               deviceName: name,

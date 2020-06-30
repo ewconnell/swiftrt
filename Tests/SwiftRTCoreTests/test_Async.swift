@@ -27,7 +27,7 @@ class test_Async: XCTestCase {
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
 //        Context.log.level = .diagnostic
-        Context.queuesPerDevice = 2
+        Context.cpuQueueCount = 2
         use(device: 0, queue: 0)
     }
 

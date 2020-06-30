@@ -23,8 +23,10 @@ public protocol Platform: class, Logger {
     // types
     associatedtype Device: ComputeDevice
 
-    /// the number of queues per device to create
-    static var defaultQueuesPerDevice: Int { get }
+    /// the number of async cpu queues to create
+    static var defaultCpuQueueCount: Int { get }
+    /// the number of queues per accelerator device to create
+    static var defaultAcceleratorQueueCount: Int { get }
     /// a collection of available compute devices
     var devices: [Device] { get }
     /// name used for logging
