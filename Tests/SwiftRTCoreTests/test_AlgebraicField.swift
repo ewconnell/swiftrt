@@ -22,6 +22,7 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // support terminal test run
     static var allTests = [
+        ("test_minimalAdd", test_minimalAdd),
         ("test_minimalAddVJP", test_minimalAddVJP),
         ("test_add", test_add),
 
@@ -52,7 +53,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_minimalAdd() {
-//        Context.log.level = .diagnostic
+        Context.log.level = .diagnostic
         let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
         let b = a + 2
         XCTAssert(b == [[2, 3], [4, 5], [6, 7]])

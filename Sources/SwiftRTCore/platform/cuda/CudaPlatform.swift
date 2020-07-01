@@ -90,19 +90,13 @@ public class CudaPlatform: Platform {
         //----------------------------
         // report device stats
         if willLog(level: .diagnostic) {
-            for device in devices {
+            for device in devices[1...] {
                 diagnostic("\(deviceString) \(device.name)", categories: .device)
-                diagnostic("    device name:   \(device.properties[.deviceName] ?? "cpu hardware name")", categories: .device)
-                diagnostic("    global memory: \(device.properties[.globalMemory] ?? "cpu global memory")", categories: .device)
-                if let computeCapability = device.properties[.computeCapability] {
-                    diagnostic("    compute capability: \(computeCapability)", categories: .device)
-                }
-                if let multiprocessors = device.properties[.multiprocessors] {
-                    diagnostic("    multiprocessors:    \(multiprocessors)", categories: .device)
-                }
-                if let addressing = device.properties[.unifiedAddressing] {
-                    diagnostic("    unified addressing: \(addressing)", categories: .device)
-                }
+                diagnostic(" device type       : \(device.properties[.deviceName]!)", categories: .device)
+                diagnostic(" global memory     : \(device.properties[.globalMemory]!)", categories: .device)
+                diagnostic(" compute capability: \(device.properties[.computeCapability]!)", categories: .device)
+                diagnostic(" multiprocessors   : \(device.properties[.multiprocessors]!)", categories: .device)
+                diagnostic(" unified addressing: \(device.properties[.unifiedAddressing]!)", categories: .device)
             }
         }
     }
