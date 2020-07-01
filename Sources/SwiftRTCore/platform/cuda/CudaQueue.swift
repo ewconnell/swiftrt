@@ -24,7 +24,6 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     public let creatorThread: Thread
     public var defaultQueueEventOptions: QueueEventOptions
     public let deviceId: Int
-    public let deviceName: String
     public let id: Int
     public let logInfo: LogInfo
     public let memoryType: MemoryType
@@ -42,24 +41,23 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     //--------------------------------------------------------------------------
     // initializers
     @inlinable public init(
-        queueId: Int = Context.nextQueueId,
+        id: Int,
         parent logInfo: LogInfo,
-        gpuDeviceId: Int,
-        deviceName: String,
-        cpuQueueMode: DeviceQueueMode,
+        gpuId: Int,
+        name: String,
+        mode: DeviceQueueMode,
         useGpu: Bool
     ) {
         do {
-            self.id = queueId
-            self.name = "q\(id)"
+            self.id = id
+            self.name = name
             self.logInfo = logInfo.flat(name)
-            self.deviceId = gpuDeviceId
-            self.deviceName = deviceName
+            self.deviceId = gpuId
             self.creatorThread = Thread.current
             self.defaultQueueEventOptions = QueueEventOptions()
             self.memoryType = useGpu ? .discrete : .unified
-            self.mode = cpuQueueMode
-            self.queue = DispatchQueue(label: "\(deviceName)_\(name)")
+            self.mode = mode
+            self.queue = DispatchQueue(label: name)
             self.group = DispatchGroup()
             self.useGpu = useGpu
             
@@ -78,8 +76,7 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
             fatalError()
         }
 
-        diagnostic("\(createString) queue: \(deviceName)_\(name)",
-            categories: .queueAlloc)
+        diagnostic("\(createString) queue: \(name)", categories: .queueAlloc)
     }
     
     //--------------------------------------------------------------------------
