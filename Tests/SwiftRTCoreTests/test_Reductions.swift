@@ -393,7 +393,6 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_absmaxTensor2
     func test_absmaxTensor2() {
-        Context.log.level = .diagnostic
         let m = array([
             [-1,  3, -6],
             [ 1, -3,  6],
