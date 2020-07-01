@@ -37,10 +37,9 @@ class test_Async: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_discreteMemoryReplication() {
-        let discreteMemoryDevice = Context.getDiscreteMemoryDevice()
         let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
         let b = array([[0, 1], [2, 3], [4, 5]], name: "b")
-        let c: Tensor2 = using(device: discreteMemoryDevice) {
+        let c: Tensor2 = using(device: Context.discreteMemoryDeviceId) {
             let result = a + b
             XCTAssert(a.storage.testLastAccessCopiedDeviceMemory)
             XCTAssert(b.storage.testLastAccessCopiedDeviceMemory)

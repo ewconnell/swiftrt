@@ -24,6 +24,7 @@ public class CudaPlatform: Platform {
     // properties
     public static var defaultCpuQueueCount: Int = 1
     public static var defaultAcceleratorQueueCount: Int = 2
+    public var discreteMemoryDeviceId: Int = 1
     public var devices: [CudaDevice]
     public let logInfo: LogInfo
     public let name: String
@@ -47,14 +48,14 @@ public class CudaPlatform: Platform {
         // Device 0 is the cpu
         let cpuDevice = CudaDevice(deviceId: 0, gpuId: 0, parent: logInfo)
         devices = [cpuDevice]
-        
+
         syncQueue = CudaQueue(queueId: syncQueueId,
                               parent: cpuDevice.logInfo,
                               gpuDeviceId: cpuDevice.id,
                               deviceName: cpuDevice.name,
                               cpuQueueMode: .sync,
                               useGpu: false)
-        
+
         //----------------------------
         // query cuda to get number of installed devices
         queueStack = []
@@ -66,14 +67,14 @@ public class CudaPlatform: Platform {
                 "The Cuda driver may be in an unstable state")
             fatalError()
         }
-        
+
         // add device for each reported gpu
         for gpuId in 0..<Int(gpuDeviceCount) {
             devices.append(CudaDevice(deviceId: gpuId - 1,
                                       gpuId: gpuId,
                                       parent: logInfo))
         }
-        
+
         //----------------------------
         // select first gpu queue 0 as default
         if gpuDeviceCount == 0 {

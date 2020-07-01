@@ -29,6 +29,19 @@ public class CpuPlatform: Platform {
     public let syncQueue: CpuQueue
 
     //--------------------------------------------------------------------------
+    public var discreteMemoryDeviceId: Int {
+        if let device = devices.first(where: { $0.memoryType == .discrete }) {
+            return device.id
+        } else {
+            let test = CpuDevice(id: devices.count,
+                                 parent: logInfo.flat("test"),
+                                 memoryType: .discrete)
+            devices.append(test)
+            return test.id
+        }
+    }
+
+    //--------------------------------------------------------------------------
     @inlinable public init() {
         name = "\(Self.self)"
         logInfo = LogInfo(logWriter: Context.log, logLevel: .error,

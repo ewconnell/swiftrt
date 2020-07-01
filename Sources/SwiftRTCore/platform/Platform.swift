@@ -29,6 +29,8 @@ public protocol Platform: class, Logger {
     static var defaultAcceleratorQueueCount: Int { get }
     /// a collection of available compute devices
     var devices: [Device] { get }
+    /// returns an id to a discrete memory device to support unit tests
+    var discreteMemoryDeviceId: Int { get }
     /// name used for logging
     var name: String { get }
     /// the current device queue to direct work
