@@ -293,11 +293,11 @@ class test_AlgebraicField: XCTestCase {
         let (g1, g2) = pullback(at: a, b, in: { $0 - $1 })(ones(like: a))
         XCTAssert(g1.flatArray == [1, 1, 1, 1, 1, 1])
         XCTAssert(g2.flatArray == [-1, -1, -1, -1, -1, -1])
-        
+
         // lhs
         let glhs = pullback(at: a, in: { $0 - 2 })(ones(like: a))
         XCTAssert(glhs.flatArray == [1, 1, 1, 1, 1, 1])
-        
+
         // rhs
         let grhs = pullback(at: a, in: { 2 - $0 })(ones(like: a))
         XCTAssert(grhs.flatArray == [-1, -1, -1, -1, -1, -1])

@@ -214,7 +214,6 @@ extension DeviceQueue {
     
     //==========================================================================
     // mapOp 2
-    // TODO: specialize for + - * / to gain 10% perf boost
     @inlinable func mapOp<S,E,RE>(
         _ opName: String,
         _ a: Tensor<S,E>,

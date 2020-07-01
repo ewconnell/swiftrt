@@ -2046,8 +2046,7 @@ where C.Element == Bool, Element.Value == Bool
 public extension Tensor where Shape == Shape1 {
     @inlinable var array: [Element] {
         usingSyncQueue {
-            isBufferIterable && layout == .row ?
-                [Element](buffer) : [Element](elements)
+            isBufferIterable ? [Element](buffer) : [Element](elements)
         }
     }
 }

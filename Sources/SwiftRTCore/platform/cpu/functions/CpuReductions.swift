@@ -73,16 +73,18 @@ extension CpuFunctions where Self: DeviceQueue {
         where I0.Element == Bool, O.Element == I0.Element
         {
             var out = out
-            let first = i0[i0.startIndex]
-            let start = out.startIndex
             if mode == .async {
                 diagnostic("\(queueString) cpu_reduceAll on \(name)",
                            categories: .queueFunc)
                 queue.async(group: group) {
-                    out[start] = i0.reduce(into: first) { $0 = $0 && $1 }
+                    out[out.startIndex] = i0.reduce(into: i0[i0.startIndex]) {
+                        $0 = $0 && $1
+                    }
                 }
             } else {
-                out[start] = i0.reduce(into: first) { $0 = $0 && $1 }
+                out[out.startIndex] = i0.reduce(into: i0[i0.startIndex]) {
+                    $0 = $0 && $1
+                }
             }
         }
         
@@ -102,16 +104,18 @@ extension CpuFunctions where Self: DeviceQueue {
         where I0.Element == Bool, O.Element == I0.Element
         {
             var out = out
-            let first = i0[i0.startIndex]
-            let start = out.startIndex
             if mode == .async {
                 diagnostic("\(queueString) cpu_reduceAny on \(name)",
                            categories: .queueFunc)
                 queue.async(group: group) {
-                    out[start] = i0.reduce(into: first) { $0 = $0 || $1 }
+                    out[out.startIndex] = i0.reduce(into: i0[i0.startIndex]) {
+                        $0 = $0 || $1
+                    }
                 }
             } else {
-                out[start] = i0.reduce(into: first) { $0 = $0 || $1 }
+                out[out.startIndex] = i0.reduce(into: i0[i0.startIndex]) {
+                    $0 = $0 || $1
+                }
             }
         }
         
@@ -193,18 +197,20 @@ extension CpuFunctions where Self: DeviceQueue {
         where I0.Element: Comparable, O.Element == I0.Element
         {
             var out = out
-            let first = i0[i0.startIndex]
-            let start = out.startIndex
             if mode == .async {
                 diagnostic("\(queueString) cpu_reduceMin on \(name)",
                            categories: .queueFunc)
                 queue.async(group: group) {
-                    out[start] = i0.reduce(into: first){ $0 = Swift.min($0, $1)}
+                    out[out.startIndex] = i0.reduce(into: i0[i0.startIndex]) {
+                        $0 = Swift.min($0, $1)
+                    }
                 }
             } else {
                 // TODO: report this
                 // this is 2X faster than: $0 = $0 <= $1 ? $0 : $1
-                out[start] = i0.reduce(into: first){ $0 = Swift.min($0, $1) }
+                out[out.startIndex] = i0.reduce(into: i0[i0.startIndex]) {
+                    $0 = Swift.min($0, $1)
+                }
             }
         }
         
@@ -224,18 +230,20 @@ extension CpuFunctions where Self: DeviceQueue {
         where I0.Element: Comparable, O.Element == I0.Element
         {
             var out = out
-            let first = i0[i0.startIndex]
-            let start = out.startIndex
             if mode == .async {
                 diagnostic("\(queueString) cpu_reduceMax on \(name)",
                            categories: .queueFunc)
                 queue.async(group: group) {
-                    out[start] = i0.reduce(into: first){ $0 = $0 > $1 ? $0 : $1}
+                    out[out.startIndex] = i0.reduce(into: i0[i0.startIndex]) {
+                        $0 = $0 > $1 ? $0 : $1
+                    }
                 }
             } else {
                 // TODO: report this
                 // this is 2X faster than: $0 = Swift.max($0, $1)
-                out[start] = i0.reduce(into: first){ $0 = $0 > $1 ? $0 : $1}
+                out[out.startIndex] = i0.reduce(into: i0[i0.startIndex]) {
+                    $0 = $0 > $1 ? $0 : $1
+                }
             }
         }
         

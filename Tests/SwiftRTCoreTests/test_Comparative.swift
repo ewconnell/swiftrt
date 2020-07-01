@@ -49,14 +49,9 @@ class test_Comparative: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_boolEquality() {
-        Context.log.level = .diagnostic
-//        let a = array([1, 2, 3, 4, 5], name: "A")
-//        let b = array([1, 2, 3, 4, 5], name: "B")
-//        let c = a .== b
-        let fred = array([true, true, true, true, true])
-
-        let e = fred.all()
-        XCTAssert(e.element)
+        let a = array([1, 2, 3, 4, 5], name: "A")
+        let b = array([1, 2, 3, 4, 5], name: "B")
+        XCTAssert(a == b)
     }
     
     //--------------------------------------------------------------------------

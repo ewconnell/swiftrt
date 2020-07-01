@@ -435,7 +435,9 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     /// - Returns: the collection elements as a 1D Swift array
     @inlinable var flatArray: [Element] {
-        [Element](self)
+        usingSyncQueue {
+            isBufferIterable ? [Element](buffer) : [Element](elements)
+        }
     }
 }
 
