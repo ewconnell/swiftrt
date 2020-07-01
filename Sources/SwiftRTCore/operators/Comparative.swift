@@ -303,15 +303,8 @@ extension Tensor: Equatable where TensorElement.Value: Equatable {
             return true
         }
 
-        print("before test")
         // compare elements
-        let pw = lhs .== rhs
-        let a = pw.all()
-        let e = a.element
-//        let e = (lhs .== rhs).all().element
-        print(e)
-        return e
-//        return (lhs .== rhs).all().element
+        return (lhs .== rhs).all().element
     }
 }
 

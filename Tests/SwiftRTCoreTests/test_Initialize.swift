@@ -194,15 +194,14 @@ class test_Initialize: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_concatenateGradients() {
-        Context.log.level = .diagnostic
-//        let a1 = array([1, 2, 3, 4, 5])
-//        let b1 = array([6, 7, 8, 9, 10])
+        let a1 = array([1, 2, 3, 4, 5])
+        let b1 = array([6, 7, 8, 9, 10])
         let a2 = array([1, 1, 1, 1, 1])
         let b2 = array([1, 1, 1, 1, 1])
-//        let (g1, g2) = gradient(at: a2, b2) { a, b in
-//            concatenate(a1 * a, b1 * b, axis: -1).sum().element
-//        }
-        XCTAssertEqual(a2, b2)
-//        XCTAssertEqual(b1, g2)
+        let (g1, g2) = gradient(at: a2, b2) { a, b in
+            concatenate(a1 * a, b1 * b, axis: -1).sum().element
+        }
+        XCTAssertEqual(a1, g1)
+        XCTAssertEqual(b1, g2)
     }
 }

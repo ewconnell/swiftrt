@@ -215,9 +215,6 @@ public final class DiscreteStorage: StorageBuffer {
             // and save in the replica list
             let memory = try queue.allocate(byteCount: byteCount)
             replicas[queue.deviceId] = memory
-
-            // set version to -1 to indicate that it is uninitialized
-            memory.version = -1
             
             if willLog(level: .diagnostic) {
                 let count = byteCount / MemoryLayout<Element>.size
@@ -256,7 +253,8 @@ public final class DiscreteStorage: StorageBuffer {
             {
                 let event = lastQueue.createEvent()
                 diagnostic("\(syncString) \(queue.name) synchronizing with" +
-                            " \(lastQueue.name) to access \(name)(\(id))",
+                            " \(lastQueue.name) to " +
+                            "\(willMutate ? "write" : "read") \(name)(\(id))",
                            categories: .queueSync)
                 queue.wait(for: lastQueue.record(event: event))
             }

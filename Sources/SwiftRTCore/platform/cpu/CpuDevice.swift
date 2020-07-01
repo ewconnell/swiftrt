@@ -88,7 +88,7 @@ public final class CpuDeviceMemory: DeviceMemory {
         self.buffer = buffer
         self.type = memoryType
         self.isReference = isReference
-        self.version = 0
+        self.version = -1
         self.name = nil
         self.releaseMessage = nil
     }

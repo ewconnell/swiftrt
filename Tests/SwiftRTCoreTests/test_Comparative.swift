@@ -23,6 +23,7 @@ class test_Comparative: XCTestCase {
     static var allTests = [
         ("test_elementWiseAndOr", test_elementWiseAndOr),
         ("test_elementsAlmostEqual", test_elementsAlmostEqual),
+        ("test_boolEquality", test_boolEquality),
         ("test_equality", test_equality),
         ("test_max", test_max),
         ("test_maxScalar", test_maxScalar),
@@ -44,6 +45,18 @@ class test_Comparative: XCTestCase {
         let b = array([[0, 1.00], [2.1,  3], [4.0, 4.999]])
         let result = elementsAlmostEqual(a, b, tolerance: 0.1)
         XCTAssert(result == [[true, true], [true, false], [false, true]])
+    }
+    
+    //--------------------------------------------------------------------------
+    func test_boolEquality() {
+        Context.log.level = .diagnostic
+//        let a = array([1, 2, 3, 4, 5], name: "A")
+//        let b = array([1, 2, 3, 4, 5], name: "B")
+//        let c = a .== b
+        let fred = array([true, true, true, true, true])
+
+        let e = fred.all()
+        XCTAssert(e.element)
     }
     
     //--------------------------------------------------------------------------

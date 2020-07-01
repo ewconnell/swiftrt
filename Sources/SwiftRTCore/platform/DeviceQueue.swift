@@ -163,7 +163,13 @@ extension DeviceQueue {
         diagnostic("\(waitString) \(name) will wait for event(\(event.id))",
                    categories: .queueSync)
         #endif
-        event.wait()
+        if mode == .async {
+            queue.async(group: group) {
+                event.wait()
+            }
+        } else {
+            event.wait()
+        }
     }
     
     //--------------------------------------------------------------------------
