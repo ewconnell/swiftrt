@@ -26,19 +26,15 @@ public class CudaDevice: ComputeDevice {
     public let memoryType: MemoryType
     public let name: String
     public var queues: [CudaQueue]
-    public var properties: [CudaDeviceProperties : String]
+    public var properties: [String]
 
-    @inlinable public init(
-        id: Int,
-        gpuId: Int,
-        parent logInfo: LogInfo
-    ) {
+    @inlinable public init(id: Int, parent logInfo: LogInfo) {
         self.id = id
-        name = id == 0 ? "cpu:\(id)" : "gpu:\(gpuId)"
-        memoryType = id == 0 ? .unified : .discrete
+        self.gpuId = id - 1
+        self.name = "dev:\(id)"
+        self.memoryType = id == 0 ? .unified : .discrete
         self.logInfo = logInfo.flat(name)
-        self.gpuId = gpuId
-        self.properties = [:]
+        properties = []
         queues = []
 
         if id == 0 {
@@ -52,6 +48,7 @@ public class CudaDevice: ComputeDevice {
                                         mode: .async,
                                         useGpu: false))
             }
+            properties = ["device type       : cpu"]
         } else {
             // gpu device case
             for _ in 0..<Context.acceleratorQueueCount {
@@ -63,12 +60,12 @@ public class CudaDevice: ComputeDevice {
                                         mode: .async,
                                         useGpu: true))
             }
-            getCudaDeviceProperties()
+            properties = getCudaDeviceProperties()
         }
     }
 
     //--------------------------------------------------------------------------
-    @inlinable func getCudaDeviceProperties() {
+    @inlinable func getCudaDeviceProperties() -> [String] {
         do {
             // get device properties
             var props = cudaDeviceProp()
@@ -79,22 +76,16 @@ public class CudaDevice: ComputeDevice {
                     String(cString: $0)
                 }
             }
-            properties = [
-                .deviceName : deviceName,
-                .computeCapability : "\(props.major).\(props.minor)",
-                .globalMemory : "\(props.totalGlobalMem / (1024 * 1024)) MB",
-                .multiprocessors : "\(props.multiProcessorCount)",
-                .unifiedAddressing : "\(memoryType == .unified ? "yes" : "no")",
+            return [
+                "device type       : \(deviceName)",
+                "global memory     : \(props.major).\(props.minor)",
+                "compute capability: \(props.totalGlobalMem / (1024 * 1024)) MB",
+                "multiprocessors   : \(props.multiProcessorCount)",
+                "unified addressing: \(memoryType == .unified ? "yes" : "no")",
             ]
 		} catch {
             writeLog("Failed to read device properites. \(error)")
+            return []
         }
     }
 }
-
-//==============================================================================
-// CudaDeviceProperties
-public enum CudaDeviceProperties: Int {
-    case deviceName, globalMemory, computeCapability, multiprocessors, unifiedAddressing
-}
-

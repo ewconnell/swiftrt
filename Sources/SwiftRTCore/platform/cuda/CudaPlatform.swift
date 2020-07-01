@@ -46,7 +46,7 @@ public class CudaPlatform: Platform {
         // CudaDevice is overloaded to avoid using Swift existentials
         // to support both cpu and gpu operations.
         // Device 0 is the cpu
-        let cpuDevice = CudaDevice(id: 0, gpuId: 0, parent: logInfo)
+        let cpuDevice = CudaDevice(id: 0, parent: logInfo)
         devices = [cpuDevice]
 
         syncQueue = CudaQueue(id: syncQueueId,
@@ -69,10 +69,8 @@ public class CudaPlatform: Platform {
         }
 
         // add device for each reported gpu
-        for gpuId in 0..<Int(gpuDeviceCount) {
-            devices.append(CudaDevice(id: gpuId + 1,
-                                      gpuId: gpuId,
-                                      parent: logInfo))
+        for id in 1..<Int(gpuDeviceCount + 1) {
+            devices.append(CudaDevice(id: id, parent: logInfo))
         }
 
         //----------------------------
@@ -90,13 +88,11 @@ public class CudaPlatform: Platform {
         //----------------------------
         // report device stats
         if willLog(level: .diagnostic) {
-            for device in devices[1...] {
+            for device in devices {
                 diagnostic("\(deviceString) \(device.name)", categories: .device)
-                diagnostic(" device type       : \(device.properties[.deviceName]!)", categories: .device)
-                diagnostic(" global memory     : \(device.properties[.globalMemory]!)", categories: .device)
-                diagnostic(" compute capability: \(device.properties[.computeCapability]!)", categories: .device)
-                diagnostic(" multiprocessors   : \(device.properties[.multiprocessors]!)", categories: .device)
-                diagnostic(" unified addressing: \(device.properties[.unifiedAddressing]!)", categories: .device)
+                device.properties.forEach {
+                    diagnostic(" \($0)", categories: .device)
+                }
             }
         }
     }

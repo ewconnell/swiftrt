@@ -31,7 +31,7 @@ public final class CpuDevice: ComputeDevice {
         memoryType: MemoryType
     ) {
         self.id = id
-        self.name = "cpu:\(id)"
+        self.name = "dev:\(id)"
         self.logInfo = logInfo.flat(name)
         self.memoryType = memoryType
         self.queues = []
