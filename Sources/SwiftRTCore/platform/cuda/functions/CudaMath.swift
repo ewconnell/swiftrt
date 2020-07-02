@@ -24,4 +24,29 @@ extension CudaQueue {
     ) where S: TensorShape, E.Value: AdditiveArithmetic {
         guard useGpu else { cpu_add(lhs, rhs, &result); return }
     }
+
+    //--------------------------------------------------------------------------
+    @inlinable func matmul<E>(
+        _ lhs: TensorR2<E>, _ transposeLhs: Bool,
+        _ rhs: TensorR2<E>, _ transposeRhs: Bool,
+        _ result: inout TensorR2<E>
+    ) where E.Value: Numeric {
+        guard useGpu else {
+            cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
+            return 
+        }
+        
+    }
+    //--------------------------------------------------------------------------
+    @inlinable func matmul<E>(
+        _ lhs: TensorR3<E>, _ transposeLhs: Bool,
+        _ rhs: TensorR3<E>, _ transposeRhs: Bool,
+        _ result: inout TensorR3<E>
+    ) where E.Value: Numeric {
+        guard useGpu else {
+            cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
+            return 
+        }
+
+    }
 }

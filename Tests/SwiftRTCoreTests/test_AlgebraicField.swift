@@ -22,15 +22,15 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // support terminal test run
     static var allTests = [
-        ("test_minimalAdd", test_minimalAdd),
+        // ("test_minimalAdd", test_minimalAdd),
         ("test_minimalAddVJP", test_minimalAddVJP),
-        ("test_add", test_add),
 
         ("test_matmul", test_matmul),
         ("test_batchMatmul", test_batchMatmul),
         ("test_leftBatchMatmul", test_leftBatchMatmul),
         ("test_rightBatchMatmul", test_rightBatchMatmul),
 
+        ("test_add", test_add),
         ("test_addInt32", test_addInt32),
         ("test_addUInt8", test_addUInt8),
         ("test_addScalar", test_addScalar),
@@ -53,7 +53,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_minimalAdd() {
-//        Context.log.level = .diagnostic
+        Context.log.level = .diagnostic
         let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
         let b = a + 2
         XCTAssert(b == [[2, 3], [4, 5], [6, 7]])
@@ -71,29 +71,8 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    func test_add() {
-        let a = array([[0, 1], [2, 3], [4, 5]])
-        let b = array([[0, 1], [2, 3], [4, 5]])
-        let result = a + b
-        XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
-        
-        // both
-        let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(ones(like: a))
-        
-        XCTAssert(g1.flatArray == [1, 1, 1, 1, 1, 1])
-        XCTAssert(g2.flatArray == [1, 1, 1, 1, 1, 1])
-        
-        // lhs
-        let glhs = pullback(at: a, in: { $0 + 2 })(ones(like: a))
-        XCTAssert(glhs.flatArray == [1, 1, 1, 1, 1, 1])
-        
-        // rhs
-        let grhs = pullback(at: a, in: { 2 + $0 })(ones(like: a))
-        XCTAssert(grhs.flatArray == [1, 1, 1, 1, 1, 1])
-    }
-
-    //--------------------------------------------------------------------------
     func test_matmul() {
+        Context.log.level = .diagnostic
         let a = array([0.0, 1, 2, 3, 4, 5], (3, 2))
         let b = array([0.0, 1, 2, 3, 4, 5, 6, 7], (2, 4))
         let c = matmul(a, b)
@@ -184,6 +163,28 @@ class test_AlgebraicField: XCTestCase {
 //                         
 //                         [[6.0, 6.0, 6.0, 6.0],
 //                          [9.0, 9.0, 9.0, 9.0]]])
+    }
+
+    //--------------------------------------------------------------------------
+    func test_add() {
+        let a = array([[0, 1], [2, 3], [4, 5]])
+        let b = array([[0, 1], [2, 3], [4, 5]])
+        let result = a + b
+        XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
+        
+        // both
+        let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(ones(like: a))
+        
+        XCTAssert(g1.flatArray == [1, 1, 1, 1, 1, 1])
+        XCTAssert(g2.flatArray == [1, 1, 1, 1, 1, 1])
+        
+        // lhs
+        let glhs = pullback(at: a, in: { $0 + 2 })(ones(like: a))
+        XCTAssert(glhs.flatArray == [1, 1, 1, 1, 1, 1])
+        
+        // rhs
+        let grhs = pullback(at: a, in: { 2 + $0 })(ones(like: a))
+        XCTAssert(grhs.flatArray == [1, 1, 1, 1, 1, 1])
     }
 
     //--------------------------------------------------------------------------
