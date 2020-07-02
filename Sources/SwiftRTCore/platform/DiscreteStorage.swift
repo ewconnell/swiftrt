@@ -124,10 +124,7 @@ public final class DiscreteStorage: StorageBuffer {
         isReference = true
         let p = UnsafeMutableBufferPointer(mutating: buffer)
         let raw = UnsafeMutableRawBufferPointer(p)
-        let device = Context.devices[0]
-        replicas[0] = CpuDeviceMemory(device.id, device.name,
-                                      buffer: raw, isReference: true,
-                                      memoryType: .unified)
+        replicas[0] = CpuDeviceMemory(0, raw, .unified, isReference: true)
         diagnostic("\(referenceString) \(name)(\(id)) " +
                     "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
     }
@@ -141,10 +138,7 @@ public final class DiscreteStorage: StorageBuffer {
         self.init(storedType: Element.self, count: buffer.count, name: name)
         isReference = true
         let raw = UnsafeMutableRawBufferPointer(buffer)
-        let device = Context.devices[0]
-        replicas[0] = CpuDeviceMemory(device.id, device.name,
-                                      buffer: raw, isReference: true,
-                                      memoryType: .unified)
+        replicas[0] = CpuDeviceMemory(0, raw, .unified, isReference: true)
         diagnostic("\(referenceString) \(name)(\(id)) " +
                     "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
     }
@@ -208,13 +202,13 @@ public final class DiscreteStorage: StorageBuffer {
         _ type: Element.Type,
         _ queue: DeviceQueue
     ) throws -> DeviceMemory {
-        if let memory = replicas[queue.deviceId] {
+        if let memory = replicas[queue.deviceIndex] {
             return memory
         } else {
             // allocate the buffer for the target device
             // and save in the replica list
             let memory = try queue.allocate(byteCount: byteCount)
-            replicas[queue.deviceId] = memory
+            replicas[queue.deviceIndex] = memory
             
             if willLog(level: .diagnostic) {
                 let count = byteCount / MemoryLayout<Element>.size
@@ -275,7 +269,7 @@ public final class DiscreteStorage: StorageBuffer {
                         MemoryLayout<Element>.size
                     diagnostic(
                         "\(copyString) \(name)(\(id)) " +
-                            "\(master.deviceName)" +
+                            "dev:\(master.deviceIndex)" +
                             "\(setText(" --> ", color: .blue))" +
                             "\(queue.deviceName)_q\(queue.id) " +
                             "\(Element.self)[\(elementCount)]",

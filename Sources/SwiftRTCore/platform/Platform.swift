@@ -44,7 +44,7 @@ public extension Platform {
     /// - Returns: the current device queue
     @inlinable @_transparent
     var currentDevice: Device {
-        devices[queueStack.last!.deviceId]
+        devices[queueStack.last!.deviceIndex]
     }
 
     /// the currently active queue that platform functions will use
@@ -99,7 +99,7 @@ public extension Platform {
     ///  - body: a closure where the device queue will be used
     @inlinable func using<R>(queue: Int, _ body: () -> R) -> R {
         // push the selection onto the queue stack
-        queueStack.append(validQueue(currentQueue.deviceId, queue))
+        queueStack.append(validQueue(currentQueue.deviceIndex, queue))
         defer { _ = queueStack.popLast() }
         return body()
     }
@@ -185,9 +185,9 @@ public enum EvaluationMode {
 public protocol ComputeDevice: class, Logger {
     associatedtype Queue: DeviceQueue
     
-    /// the id of the device for example dev:0, dev:1, ...
-    var id: Int { get }
-    /// name used logging
+    /// the index of the device in the `devices` collection
+    var index: Int { get }
+    /// name used for diagnostics
     var name: String { get }
     /// a collection of device queues for scheduling work
     var queues: [Queue] { get }
@@ -202,10 +202,8 @@ public protocol ComputeDevice: class, Logger {
 public protocol DeviceMemory: class, Logging {
     /// base address and size of buffer
     var buffer: UnsafeMutableRawBufferPointer { get }
-    /// device where memory is located
-    var deviceId: Int { get }
-    /// device where memory is located
-    var deviceName: String { get }
+    /// index of device where memory is located
+    var deviceIndex: Int { get }
     /// the diagnostic name of the memory
     var name: String? { get set }
     /// mutable raw pointer to memory buffer to simplify driver calls

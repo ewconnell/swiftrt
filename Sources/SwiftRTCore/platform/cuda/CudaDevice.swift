@@ -20,44 +20,39 @@ import CCuda
 /// CudaDevice
 public class CudaDevice: ComputeDevice {
     // properties
-    public let id: Int
-    public let gpuId: Int
+    public let index: Int
     public let logInfo: LogInfo
     public let memoryType: MemoryType
     public let name: String
     public var queues: [CudaQueue]
     public var properties: [String]
 
-    @inlinable public init(id: Int, parent logInfo: LogInfo) {
-        self.id = id
-        self.gpuId = id - 1
-        self.name = "dev:\(id)"
-        self.memoryType = id == 0 ? .unified : .discrete
+    @inlinable public init(index: Int, parent logInfo: LogInfo) {
+        let isCpu = index == 0
+        self.index = index
+        self.name = "dev:\(index)"
+        self.memoryType = isCpu ? .unified : .discrete
         self.logInfo = logInfo.flat(name)
         properties = []
         queues = []
 
-        if id == 0 {
+        if isCpu {
             // cpu device case
-            for _ in 0..<Context.cpuQueueCount {
-                let queueId = Context.nextQueueId
-                queues.append(CudaQueue(id: queueId,
-                                        parent: logInfo,
-                                        gpuId: 0,
-                                        name: "\(name)_q\(queueId)",
-                                        mode: .async,
+            for i in 0..<Context.cpuQueueCount {
+                queues.append(CudaQueue(deviceIndex: index,
+                                        logInfo: logInfo,
+                                        name: "\(name)_q\(i)",
+                                        queueMode: .async,
                                         useGpu: false))
             }
             properties = ["device type       : cpu"]
         } else {
             // gpu device case
-            for _ in 0..<Context.acceleratorQueueCount {
-                let queueId = Context.nextQueueId
-                queues.append(CudaQueue(id: queueId,
-                                        parent: logInfo,
-                                        gpuId: gpuId,
-                                        name: "\(name)_q\(queueId)",
-                                        mode: .async,
+            for i in 0..<Context.acceleratorQueueCount {
+                queues.append(CudaQueue(deviceIndex: index,
+                                        logInfo: logInfo,
+                                        name: "\(name)_q\(i)",
+                                        queueMode: .async,
                                         useGpu: true))
             }
             properties = getCudaDeviceProperties()

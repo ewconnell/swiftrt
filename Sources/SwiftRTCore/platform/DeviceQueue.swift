@@ -24,13 +24,13 @@ public protocol DeviceQueue: Logging {
     var creatorThread: Thread { get }
     /// used to configure event creation
     var defaultQueueEventOptions: QueueEventOptions { get set }
-    /// the id of the associated device
-    var deviceId: Int { get }
+    /// the index of the parent device in the `devices` collection
+    var deviceIndex: Int { get }
     /// the name of the associated device, used in diagnostics
     var deviceName: String { get }
     /// the async cpu `queue` dispatch group used to wait for queue completion
     var group: DispatchGroup { get }
-    /// the id of the queue
+    /// a unique queue id used to identify data movement across queues
     var id: Int { get }
     /// the logging configuration for the queue
     var logInfo: LogInfo { get }
@@ -102,8 +102,7 @@ extension DeviceQueue {
         let buffer = UnsafeMutableRawBufferPointer
                 .allocate(byteCount: byteCount,
                           alignment: MemoryLayout<Int>.alignment)
-        return CpuDeviceMemory(deviceId, deviceName, buffer: buffer,
-                               memoryType: memoryType)
+        return CpuDeviceMemory(deviceIndex, buffer, memoryType)
     }
     
     //--------------------------------------------------------------------------
@@ -129,7 +128,7 @@ extension DeviceQueue {
     /// deviceName
     /// returns a diagnostic name for the device assoicated with this queue
     @inlinable public var deviceName: String {
-        Context.local.platform.devices[deviceId].name
+        Context.local.platform.devices[deviceIndex].name
     }
     
     //--------------------------------------------------------------------------

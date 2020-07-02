@@ -23,7 +23,7 @@ import Numerics
 public final class CudaQueue: DeviceQueue, CpuFunctions {
     public let creatorThread: Thread
     public var defaultQueueEventOptions: QueueEventOptions
-    public let deviceId: Int
+    public let deviceIndex: Int
     public let id: Int
     public let logInfo: LogInfo
     public let memoryType: MemoryType
@@ -33,6 +33,7 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     public let group: DispatchGroup
     public let useGpu: Bool
     
+    public let gpuId: Int
     public let stream: cudaStream_t
     public let cudnn: CudnnHandle
     public let cublas: CublasHandle
@@ -41,36 +42,36 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     //--------------------------------------------------------------------------
     // initializers
     @inlinable public init(
-        id: Int,
-        parent logInfo: LogInfo,
-        gpuId: Int,
+        deviceIndex: Int,
+        logInfo: LogInfo,
         name: String,
-        mode: DeviceQueueMode,
+        queueMode: DeviceQueueMode,
         useGpu: Bool
     ) {
         do {
-            self.id = id
+            self.id = Context.nextQueueId
             self.name = name
             self.logInfo = logInfo.flat(name)
-            self.deviceId = gpuId
+            self.deviceIndex = deviceIndex
+            self.gpuId = deviceIndex - 1
             self.creatorThread = Thread.current
             self.defaultQueueEventOptions = QueueEventOptions()
             self.memoryType = useGpu ? .discrete : .unified
-            self.mode = mode
+            self.mode = queueMode
             self.queue = DispatchQueue(label: name)
             self.group = DispatchGroup()
             self.useGpu = useGpu
             
             // select the specified device
-            try cudaCheck(status: cudaSetDevice(Int32(deviceId)))
+            try cudaCheck(status: cudaSetDevice(Int32(gpuId)))
             
             // create a queue associated with the device
             let flags = UInt32(cudaStreamNonBlocking)
             var cudaStream: cudaStream_t?
             try cudaCheck(status: cudaStreamCreateWithFlags(&cudaStream, flags))
             stream = cudaStream!
-            cudnn = CudnnHandle(deviceId: deviceId, using: stream)
-            cublas = CublasHandle(deviceId: deviceId, using: stream)
+            cudnn = CudnnHandle(gpuId: gpuId, using: stream)
+            cublas = CublasHandle(gpuId: gpuId, using: stream)
         } catch {
             Context.currentDevice.writeLog("\(error)")
             fatalError()
@@ -82,7 +83,7 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     //--------------------------------------------------------------------------
     // select
     public func selectDevice() throws {
-        try cudaCheck(status: cudaSetDevice(Int32(self.deviceId)))
+        try cudaCheck(status: cudaSetDevice(Int32(gpuId)))
     }
     
     //==========================================================================

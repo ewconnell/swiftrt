@@ -23,11 +23,11 @@ public protocol CpuFunctions { }
 /// CpuQueue
 /// a final version of the default device queue which executes functions
 /// synchronously on the cpu
-public final class CpuQueue: DeviceQueue, CpuFunctions {
-    // properties
+public final class CpuQueue: DeviceQueue, CpuFunctions
+{
     public let creatorThread: Thread
     public var defaultQueueEventOptions: QueueEventOptions
-    public let deviceId: Int
+    public let deviceIndex: Int
     public let id: Int
     public let logInfo: LogInfo
     public let memoryType: MemoryType
@@ -40,28 +40,27 @@ public final class CpuQueue: DeviceQueue, CpuFunctions {
     //--------------------------------------------------------------------------
     // initializers
     @inlinable public init(
-        id: Int,
-        parent logInfo: LogInfo,
-        deviceId: Int,
+        deviceIndex: Int,
+        logInfo: LogInfo,
         name: String,
-        mode: DeviceQueueMode,
+        queueMode: DeviceQueueMode,
         memoryType: MemoryType
     ) {
-        self.id = id
+        self.id = Context.nextQueueId
         self.name = name
-        self.logInfo = logInfo.flat("q\(id)")
-        self.deviceId = deviceId
+        self.logInfo = logInfo
+        self.deviceIndex = deviceIndex
         self.creatorThread = Thread.current
         self.defaultQueueEventOptions = QueueEventOptions()
         self.memoryType = memoryType
-        self.mode = mode
+        self.mode = queueMode
         self.queue = DispatchQueue(label: "\(name)")
         self.group = DispatchGroup()
         self.usesCpu = true
         
-        diagnostic(
-            "\(createString) \(mode == .async ? "asynchronous" : "synchronous")"
-            + " queue: \(name)  ", categories: .queueAlloc)
+        let modeLabel = queueMode == .async ? "asynchronous" : "synchronous"
+        diagnostic("\(createString) \(modeLabel) queue: \(name)",
+                   categories: .queueAlloc)
     }
     
     deinit {

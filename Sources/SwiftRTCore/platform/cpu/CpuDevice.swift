@@ -19,30 +19,30 @@ import Foundation
 /// CpuDevice
 public final class CpuDevice: ComputeDevice {
     // properties
-    public let id: Int
+    public let index: Int
     public let logInfo: LogInfo
     public let memoryType: MemoryType
     public let name: String
     public var queues: [CpuQueue]
 
     @inlinable public init(
-        id: Int,
+        index: Int,
         parent logInfo: LogInfo,
         memoryType: MemoryType
     ) {
-        self.id = id
-        self.name = "dev:\(id)"
+        self.index = index
+        self.name = "dev:\(index)"
         self.logInfo = logInfo.flat(name)
         self.memoryType = memoryType
         self.queues = []
-        for _ in 0..<Context.cpuQueueCount {
-            let queueId = Context.nextQueueId
-            queues.append(CpuQueue(id: queueId,
-                                   parent: self.logInfo,
-                                   deviceId: id,
-                                   name: "\(name)_q\(queueId)",
-                                   mode: .async,
-                                   memoryType: memoryType))
+        for i in 0..<Context.cpuQueueCount {
+            let queue = CpuQueue(
+                deviceIndex: index,
+                logInfo: self.logInfo.flat("q\(i)"),
+                name: "\(name)_q\(i)",
+                queueMode: .async,
+                memoryType: memoryType)
+            queues.append(queue)
         }
     }
 }
@@ -52,10 +52,8 @@ public final class CpuDevice: ComputeDevice {
 public final class CpuDeviceMemory: DeviceMemory {
     /// base address and size of buffer
     public let buffer: UnsafeMutableRawBufferPointer
-    /// device where memory is located
-    public let deviceId: Int
-    /// the name of the device for diagnostics
-    public let deviceName: String
+    /// index of device where memory is located
+    public let deviceIndex: Int
     /// diagnostic name
     public var name: String?
     /// diagnostic message
@@ -73,20 +71,18 @@ public final class CpuDeviceMemory: DeviceMemory {
 
     /// device where memory is located
     @inlinable public var device: PlatformType.Device {
-        Context.devices[deviceId]
+        Context.devices[deviceIndex]
     }
 
     @inlinable public init(
-        _ deviceId: Int,
-        _ deviceName: String,
-        buffer: UnsafeMutableRawBufferPointer,
-        isReference: Bool = false,
-        memoryType: MemoryType
+        _ deviceIndex: Int,
+        _ buffer: UnsafeMutableRawBufferPointer,
+        _ type: MemoryType,
+        isReference: Bool = false
     ) {
-        self.deviceId = deviceId
-        self.deviceName = deviceName
+        self.deviceIndex = deviceIndex
         self.buffer = buffer
-        self.type = memoryType
+        self.type = type
         self.isReference = isReference
         self.version = -1
         self.name = nil

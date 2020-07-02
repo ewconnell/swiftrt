@@ -38,22 +38,17 @@ public class CudaPlatform: Platform {
         logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
                           namePath: name, nestingLevel: 0)
 
-        // make the first queue the sync queue so diagnostics are
-        // easier to read. Do this before creating devices.
-        let syncQueueId = Context.nextQueueId
-
         //----------------------------
         // CudaDevice is overloaded to avoid using Swift existentials
         // to support both cpu and gpu operations.
         // Device 0 is the cpu
-        let cpuDevice = CudaDevice(id: 0, parent: logInfo)
+        let cpuDevice = CudaDevice(index: 0, parent: logInfo)
         devices = [cpuDevice]
 
-        syncQueue = CudaQueue(id: syncQueueId,
-                              parent: cpuDevice.logInfo,
-                              gpuId: 0,
-                              name: "\(cpuDevice.name)_q\(syncQueueId)",
-                              mode: .sync,
+        syncQueue = CudaQueue(deviceIndex: 0,
+                              logInfo: cpuDevice.logInfo.flat("appThread"),
+                              name: "appThread",
+                              queueMode: .sync,
                               useGpu: false)
 
         //----------------------------
@@ -69,8 +64,8 @@ public class CudaPlatform: Platform {
         }
 
         // add device for each reported gpu
-        for id in 1..<Int(gpuDeviceCount + 1) {
-            devices.append(CudaDevice(id: id, parent: logInfo))
+        for i in 1..<Int(gpuDeviceCount + 1) {
+            devices.append(CudaDevice(index: i, parent: logInfo))
         }
 
         //----------------------------
@@ -300,18 +295,18 @@ extension TransposeOp {
 /// creates and manages the lifetime of a cudnn handle
 public final class CudnnHandle {
     // properties
-    public let deviceId: Int
+    public let gpuId: Int
     public let handle: cudnnHandle_t
 
     //--------------------------------------------------------------------------
     /// init
     /// - Parameters:
-    ///  - deviceId: the associated device
+    ///  - gpuId: the associated device
     ///  - stream: the associated stream
-    @inlinable init(deviceId: Int, using stream: cudaStream_t) {
+    @inlinable init(gpuId: Int, using stream: cudaStream_t) {
         do {
-            self.deviceId = deviceId
-            try cudaCheck(status: cudaSetDevice(Int32(deviceId)))
+            self.gpuId = gpuId
+            try cudaCheck(status: cudaSetDevice(Int32(gpuId)))
 
             var temp: cudnnHandle_t?
             try cudaCheck(status: cudnnCreate(&temp))
@@ -326,7 +321,7 @@ public final class CudnnHandle {
     // deinit
     @inlinable deinit {
         do {
-            try cudaCheck(status: cudaSetDevice(Int32(deviceId)))
+            try cudaCheck(status: cudaSetDevice(Int32(gpuId)))
             try cudaCheck(status: cudnnDestroy(handle))
         } catch {
             Context.currentQueue.writeLog(
@@ -340,18 +335,18 @@ public final class CudnnHandle {
 /// creates and manages the lifetime of a cublas handle
 public final class CublasHandle {
     // properties
-    public let deviceId: Int
+    public let gpuId: Int
     public let handle: cublasHandle_t
 
     //--------------------------------------------------------------------------
     /// init
     /// - Parameters:
-    ///  - deviceId: the associated device
+    ///  - gpuId: the associated device
     ///  - stream: the associated stream
-    @inlinable public init(deviceId: Int, using stream: cudaStream_t) {
+    @inlinable public init(gpuId: Int, using stream: cudaStream_t) {
         do {
-            self.deviceId = deviceId
-            try cudaCheck(status: cudaSetDevice(Int32(deviceId)))
+            self.gpuId = gpuId
+            try cudaCheck(status: cudaSetDevice(Int32(gpuId)))
 
             var temp: cublasHandle_t?
             try cudaCheck(status: cublasCreate_v2(&temp))
@@ -366,7 +361,7 @@ public final class CublasHandle {
     // deinit
     @inlinable deinit {
         do {
-            try cudaCheck(status: cudaSetDevice(Int32(deviceId)))
+            try cudaCheck(status: cudaSetDevice(Int32(gpuId)))
             try cudaCheck(status: cublasDestroy_v2(handle))
         } catch {
             Context.currentQueue.writeLog(

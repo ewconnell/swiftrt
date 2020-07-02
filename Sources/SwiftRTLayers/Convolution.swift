@@ -90,7 +90,7 @@ where Shape: TensorShape,
             padding: padding,
             dilations: dilations,
             properties: properties,
-            deviceId: Context.currentQueue.deviceId,
+            deviceId: Context.currentQueue.deviceIndex,
             filterBiasBackpropQueueIndex: 2)
     }
     
