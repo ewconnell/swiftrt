@@ -25,7 +25,6 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     public var defaultQueueEventOptions: QueueEventOptions
     public let deviceIndex: Int
     public let id: Int
-    public let logInfo: LogInfo
     public let memoryType: MemoryType
     public let mode: DeviceQueueMode
     public let name: String
@@ -43,7 +42,6 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     // initializers
     @inlinable public init(
         deviceIndex: Int,
-        logInfo: LogInfo,
         name: String,
         queueMode: DeviceQueueMode,
         useGpu: Bool
@@ -51,9 +49,8 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
         do {
             self.id = Context.nextQueueId
             self.name = name
-            self.logInfo = logInfo.flat(name)
             self.deviceIndex = deviceIndex
-            self.gpuId = deviceIndex - 1
+            self.gpuId = Swift.max(0, deviceIndex - 1)
             self.creatorThread = Thread.current
             self.defaultQueueEventOptions = QueueEventOptions()
             self.memoryType = useGpu ? .discrete : .unified
@@ -73,7 +70,7 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
             cudnn = CudnnHandle(gpuId: gpuId, using: stream)
             cublas = CublasHandle(gpuId: gpuId, using: stream)
         } catch {
-            Context.currentDevice.writeLog("\(error)")
+            Context.log.write(level: .error, message: "\(error)")
             fatalError()
         }
 

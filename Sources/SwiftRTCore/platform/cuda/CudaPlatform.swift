@@ -42,11 +42,10 @@ public class CudaPlatform: Platform {
         // CudaDevice is overloaded to avoid using Swift existentials
         // to support both cpu and gpu operations.
         // Device 0 is the cpu
-        let cpuDevice = CudaDevice(index: 0, parent: logInfo)
+        let cpuDevice = CudaDevice(index: 0)
         devices = [cpuDevice]
 
         syncQueue = CudaQueue(deviceIndex: 0,
-                              logInfo: cpuDevice.logInfo.flat("appThread"),
                               name: "appThread",
                               queueMode: .sync,
                               useGpu: false)
@@ -65,7 +64,7 @@ public class CudaPlatform: Platform {
 
         // add device for each reported gpu
         for i in 1..<Int(gpuDeviceCount + 1) {
-            devices.append(CudaDevice(index: i, parent: logInfo))
+            devices.append(CudaDevice(index: i))
         }
 
         //----------------------------
@@ -89,6 +88,9 @@ public class CudaPlatform: Platform {
                     diagnostic(" \($0)", categories: .device)
                 }
             }
+
+            diagnostic("\(deviceString) default: \(queueStack[0].name)",
+                       categories: .device)
         }
     }
 }

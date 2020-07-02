@@ -21,18 +21,16 @@ import CCuda
 public class CudaDevice: ComputeDevice {
     // properties
     public let index: Int
-    public let logInfo: LogInfo
     public let memoryType: MemoryType
     public let name: String
     public var queues: [CudaQueue]
     public var properties: [String]
 
-    @inlinable public init(index: Int, parent logInfo: LogInfo) {
+    @inlinable public init(index: Int) {
         let isCpu = index == 0
         self.index = index
         self.name = "dev:\(index)"
         self.memoryType = isCpu ? .unified : .discrete
-        self.logInfo = logInfo.flat(name)
         properties = []
         queues = []
 
@@ -40,7 +38,6 @@ public class CudaDevice: ComputeDevice {
             // cpu device case
             for i in 0..<Context.cpuQueueCount {
                 queues.append(CudaQueue(deviceIndex: index,
-                                        logInfo: logInfo,
                                         name: "\(name)_q\(i)",
                                         queueMode: .async,
                                         useGpu: false))
@@ -50,7 +47,6 @@ public class CudaDevice: ComputeDevice {
             // gpu device case
             for i in 0..<Context.acceleratorQueueCount {
                 queues.append(CudaQueue(deviceIndex: index,
-                                        logInfo: logInfo,
                                         name: "\(name)_q\(i)",
                                         queueMode: .async,
                                         useGpu: true))
