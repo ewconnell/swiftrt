@@ -20,25 +20,20 @@ import Foundation
 public final class CpuDevice: ComputeDevice {
     // properties
     public let index: Int
-    public let logInfo: LogInfo
     public let memoryType: MemoryType
     public let name: String
     public var queues: [CpuQueue]
 
-    @inlinable public init(
-        index: Int,
-        parent logInfo: LogInfo,
-        memoryType: MemoryType
-    ) {
+    @inlinable public init(index: Int, memoryType: MemoryType) {
         self.index = index
         self.name = "dev:\(index)"
-        self.logInfo = logInfo.flat(name)
         self.memoryType = memoryType
         self.queues = []
+        diagnostic("\(deviceString) create \(name)  memory: \(memoryType)",
+                   categories: .device)
         for i in 0..<Context.cpuQueueCount {
             let queue = CpuQueue(
                 deviceIndex: index,
-                logInfo: self.logInfo.flat("q\(i)"),
                 name: "\(name)_q\(i)",
                 queueMode: .async,
                 memoryType: memoryType)

@@ -29,7 +29,6 @@ public final class CpuQueue: DeviceQueue, CpuFunctions
     public var defaultQueueEventOptions: QueueEventOptions
     public let deviceIndex: Int
     public let id: Int
-    public let logInfo: LogInfo
     public let memoryType: MemoryType
     public let mode: DeviceQueueMode
     public let name: String
@@ -41,14 +40,12 @@ public final class CpuQueue: DeviceQueue, CpuFunctions
     // initializers
     @inlinable public init(
         deviceIndex: Int,
-        logInfo: LogInfo,
         name: String,
         queueMode: DeviceQueueMode,
         memoryType: MemoryType
     ) {
         self.id = Context.nextQueueId
         self.name = name
-        self.logInfo = logInfo
         self.deviceIndex = deviceIndex
         self.creatorThread = Thread.current
         self.defaultQueueEventOptions = QueueEventOptions()

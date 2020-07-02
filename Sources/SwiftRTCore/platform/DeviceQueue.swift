@@ -32,8 +32,6 @@ public protocol DeviceQueue: Logging {
     var group: DispatchGroup { get }
     /// a unique queue id used to identify data movement across queues
     var id: Int { get }
-    /// the logging configuration for the queue
-    var logInfo: LogInfo { get }
     /// the type of memory associated with the queue's device
     var memoryType: MemoryType { get }
     /// specifies if work is queued sync or async

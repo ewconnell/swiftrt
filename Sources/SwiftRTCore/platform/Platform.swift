@@ -19,7 +19,7 @@ import Foundation
 /// Platform
 /// a platform represents a collection of installed devices on a
 /// compute node, such as (cpu, cuda, tpu, ...)
-public protocol Platform: class, Logger {
+public protocol Platform: class, Logging {
     // types
     associatedtype Device: ComputeDevice
 
@@ -182,7 +182,7 @@ public enum EvaluationMode {
 //==============================================================================
 /// ComputeDevice
 /// a compute device represents a physical platform device (cpu, gpu, ...)
-public protocol ComputeDevice: class, Logger {
+public protocol ComputeDevice: class, Logging {
     associatedtype Queue: DeviceQueue
     
     /// the index of the device in the `devices` collection

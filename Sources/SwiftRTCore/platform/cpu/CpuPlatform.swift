@@ -24,7 +24,6 @@ public class CpuPlatform: Platform {
     public static var defaultAcceleratorQueueCount: Int = 0
     public var discreteMemoryDeviceId: Int { 1 }
     public var devices: [CpuDevice]
-    public let logInfo: LogInfo
     public let name: String
     public var queueStack: [CpuQueue]
     public let syncQueue: CpuQueue
@@ -32,20 +31,15 @@ public class CpuPlatform: Platform {
     //--------------------------------------------------------------------------
     @inlinable public init() {
         name = "\(Self.self)"
-        logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
-                          namePath: name, nestingLevel: 0)
-
+        
         // create the device and default number of async queues
-        let device = CpuDevice(index: 0, parent: logInfo, memoryType: .unified)
+        let device = CpuDevice(index: 0, memoryType: .unified)
 
-        let test = CpuDevice(index: 1,
-                             parent: logInfo.flat("test"),
-                             memoryType: .discrete)
+        let test = CpuDevice(index: 1, memoryType: .discrete)
         devices = [device, test]
 
         // create the application thread data interchange queue
         syncQueue = CpuQueue(deviceIndex: 0,
-                             logInfo: device.logInfo.flat("appThread"),
                              name: "appThread",
                              queueMode: .sync,
                              memoryType: .unified)

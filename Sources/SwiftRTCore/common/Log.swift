@@ -67,20 +67,19 @@ public protocol _Logging {
 public extension _Logging {
     //--------------------------------------------------------------------------
     /// writeLog
-    @inlinable
-    func willLog(level: LogLevel) -> Bool {
+    @inlinable func willLog(level: LogLevel) -> Bool {
         level <= logWriter.level || level <= logLevel
     }
     
     //--------------------------------------------------------------------------
     /// writeLog
-    @inlinable
-    func writeLog(_ message: @autoclosure () -> String,
-                  level: LogLevel = .error,
-                  indent: Int = 0,
-                  trailing: String = "",
-                  minCount: Int = 80)
-    {
+    @inlinable func writeLog(
+        _ message: @autoclosure () -> String,
+        level: LogLevel = .error,
+        indent: Int = 0,
+        trailing: String = "",
+        minCount: Int = 80
+    ) {
         guard willLog(level: level) else { return }
         logWriter.write(level: level,
                         message: message(),
@@ -91,13 +90,13 @@ public extension _Logging {
     //--------------------------------------------------------------------------
     // diagnostic
     #if DEBUG
-    @inlinable
-    func diagnostic(_ message: @autoclosure () -> String,
-                    categories: LogCategories,
-                    indent: Int = 0,
-                    trailing: String = "",
-                    minCount: Int = 80)
-    {
+    @inlinable func diagnostic(
+        _ message: @autoclosure () -> String,
+        categories: LogCategories,
+        indent: Int = 0,
+        trailing: String = "",
+        minCount: Int = 80
+    ) {
         guard willLog(level: .diagnostic) else { return}
         // if subcategories have been selected on the logWriter object
         // then make sure the caller's category is desired
@@ -110,12 +109,12 @@ public extension _Logging {
                         trailing: trailing, minCount: minCount)
     }
     #else
-    @inlinable
-    func diagnostic(_ message: @autoclosure () -> String,
-                    categories: LogCategories,
-                    indent: Int = 0,
-                    trailing: String = "",
-                    minCount: Int = 80) { }
+    @inlinable func diagnostic(
+        _ message: @autoclosure () -> String,
+        categories: LogCategories,
+        indent: Int = 0,
+        trailing: String = "",
+        minCount: Int = 80) { }
     #endif
 }
 
