@@ -34,6 +34,16 @@ public class CudaDevice: ComputeDevice {
         properties = []
         queues = []
 
+        //----------------------------
+        // report device stats
+        diagnostic("\(deviceString) \(name)", categories: .device)
+        properties = isCpu ? getCpuProperties() : getCudaDeviceProperties()
+        properties.forEach {
+            diagnostic(" \($0)", categories: .device)
+        }
+
+        //----------------------------
+        // create queues
         if isCpu {
             // cpu device case
             for i in 0..<Context.cpuQueueCount {
@@ -42,7 +52,6 @@ public class CudaDevice: ComputeDevice {
                                         queueMode: .async,
                                         useGpu: false))
             }
-            properties = ["device type       : cpu"]
         } else {
             // gpu device case
             for i in 0..<Context.acceleratorQueueCount {
@@ -51,8 +60,21 @@ public class CudaDevice: ComputeDevice {
                                         queueMode: .async,
                                         useGpu: true))
             }
-            properties = getCudaDeviceProperties()
         }
+    }
+
+    //--------------------------------------------------------------------------
+    // note: physicalMemory is being under reported on Ubuntu by ~750MB, so
+    // we add one
+    @inlinable func getCpuProperties() -> [String] {
+        let info = ProcessInfo.processInfo
+        let oneGB = UInt64(1.GB)
+        return [
+            "device type       : cpu",
+            "physical memory   : \(info.physicalMemory / oneGB + 1) GB",
+            "active cores      : \(info.activeProcessorCount)",
+            "memory addressing : \(memoryType)",
+        ]
     }
 
     //--------------------------------------------------------------------------
@@ -72,7 +94,7 @@ public class CudaDevice: ComputeDevice {
                 "global memory     : \(props.major).\(props.minor)",
                 "compute capability: \(props.totalGlobalMem / (1024 * 1024)) MB",
                 "multiprocessors   : \(props.multiProcessorCount)",
-                "unified addressing: \(memoryType == .unified ? "yes" : "no")",
+                "memory addressing : \(memoryType)",
             ]
 		} catch {
             writeLog("Failed to read device properites. \(error)")

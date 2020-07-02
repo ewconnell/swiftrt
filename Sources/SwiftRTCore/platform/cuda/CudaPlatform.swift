@@ -79,19 +79,8 @@ public class CudaPlatform: Platform {
             queueStack = [syncQueue]
         }
 
-        //----------------------------
-        // report device stats
-        if willLog(level: .diagnostic) {
-            for device in devices {
-                diagnostic("\(deviceString) \(device.name)", categories: .device)
-                device.properties.forEach {
-                    diagnostic(" \($0)", categories: .device)
-                }
-            }
-
-            diagnostic("\(deviceString) default: \(queueStack[0].name)",
-                       categories: .device)
-        }
+        diagnostic("\(deviceString) default: \(queueStack[0].name)",
+                    categories: .device)
     }
 }
 
