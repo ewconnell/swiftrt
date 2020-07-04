@@ -850,9 +850,9 @@ public final class ConvolutionDescriptor<Shape: TensorShape> {
         try cudaCheck(status: cudnnSetConvolutionNdDescriptor(
             desc,
             Int32(rank),
-            padding.asDeviceIndex,
-            strides.asDeviceIndex,
-            dilations.asDeviceIndex,
+            padding.asInt32,
+            strides.asInt32,
+            dilations.asInt32,
             mode.cudnn,
             scalarType.cudnn))
     }

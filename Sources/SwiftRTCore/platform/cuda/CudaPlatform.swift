@@ -434,7 +434,7 @@ public final class FilterDescriptor {
                 E.type.cudnn,
                 CUDNN_TENSOR_NHWC,
                 Int32(tensor.count),
-                tensor.shape.asDeviceIndex))
+                tensor.shape.asInt32))
         } catch {
             Context.currentQueue.writeLog("\(createString) \(error)")
             fatalError()
@@ -512,6 +512,8 @@ public final class TensorDescriptor {
         strides: S,
         scalarType: ScalarType
     ) {
+        assert(shape.count >= 4 && shape.count <= CUDNN_DIM_MAX,
+            "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
         do {
             // create the descriptor
             var temp: cudnnTensorDescriptor_t?
@@ -523,8 +525,8 @@ public final class TensorDescriptor {
                 self.desc,
                 scalarType.cudnn,
                 Int32(shape.count),
-                shape.asDeviceIndex,
-                strides.asDeviceIndex))
+                shape.asInt32,
+                strides.asInt32))
         } catch {
             Context.currentQueue.writeLog("\(createString) \(error)")
             fatalError()

@@ -19,9 +19,18 @@ import SwiftRTCore
 
 //==============================================================================
 // convenience types
-public typealias Convolution1 = Convolution<Shape1,Float,Float>
-public typealias Convolution2 = Convolution<Shape2,Float,Float>
-public typealias Convolution3 = Convolution<Shape3,Float,Float>
+public typealias Conv1 = Convolution<Shape1,Float,Float>
+public typealias Conv2 = Convolution<Shape2,Float,Float>
+public typealias Conv3 = Convolution<Shape3,Float,Float>
+
+public typealias ConvR1<E,FE> = Convolution<Shape1,E,FE>
+    where E: ScalarElement, FE: ScalarElement, FE.Value: BinaryFloatingPoint
+
+public typealias ConvR2<E,FE> = Convolution<Shape2,E,FE>
+    where E: ScalarElement, FE: ScalarElement, FE.Value: BinaryFloatingPoint
+    
+public typealias ConvR3<E,FE> = Convolution<Shape3,E,FE>
+    where E: ScalarElement, FE: ScalarElement, FE.Value: BinaryFloatingPoint
 
 //==============================================================================
 /// Convolution
@@ -133,3 +142,39 @@ extension Convolution where FilterElement.Value: Real & BinaryFloatingPoint {
                   dilations: Shape(repeating: dilation))
     }
 }
+
+// extension Convolution 
+//     where Element: FixedSizeVector, Element.Scalar.Stored: ScalarElement,
+//           FilterElement.Stored: Real & BinaryFloatingPoint 
+// {
+//     //--------------------------------------------------------------------------
+//     /// Creates a `Convolution` layer with the specified filter shape,
+//     /// stride, padding, dilation and element-wise activation function.
+//     ///
+//     /// - Parameters:
+//     ///   - filterShape: The 3-D shape of the filter, representing
+//     ///     (filter width, input channel count, output channel count).
+//     ///   - stride: The stride of the sliding window for the temporal dimension.
+//     ///   - padding: The padding algorithm for convolution.
+//     ///   - dilation: The dilation factor for the temporal dimension.
+//     ///   - activation: The element-wise activation function.
+//     ///   - filterInitializer: Initializer to use for the filter parameters.
+//     ///   - biasInitializer: Initializer to use for the bias parameters.
+//     @inlinable public init(
+//         filterShape: Shape,
+//         stride: Int = 1,
+//         padding: Padding = .valid,
+//         dilation: Int = 1,
+//         activation: ActivationType = .identity,
+//         filterInitializer: ParameterInitializer<Shape,FilterElement> = glorotUniform(),
+//         biasInitializer: ParameterInitializer<Shape1,FilterElement> = zeros()
+//     ) {
+//         let biasShape = Shape1(filterShape[Shape.rank - 1])
+//         self.init(filter: filterInitializer(filterShape),
+//                   bias: biasInitializer(biasShape),
+//                   activation: activation,
+//                   strides: Shape(repeating: stride),
+//                   padding: padding,
+//                   dilations: Shape(repeating: dilation))
+//     }
+// }

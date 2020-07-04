@@ -35,24 +35,25 @@ class test_Convolution: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_Tensor2() {
-//        let a = array(0..<81, (9, 9))
-//        let conv = Convolution2(filterShape: [3, 3])
-//        let b = conv(a)
-//        print(b)
-//        XCTAssert(b == expected9_9)
-        
-//        let c = array(0..<81, (9, 9), type: UInt8.self)
-//        let convi = Convolution<Shape2,UInt8,Float>(filterShape: [3, 3])
-//        let d = convi(c)
-//        print(d)
+        Context.log.level = .diagnostic
+        let a = array(0..<81, (9, 9))
+        let conv = Conv2(filterShape: [3, 3])
+        let b = conv(a)
+        print(b)
+        XCTAssert(b == expected9_9)
+
+        let c = array(0..<81, (9, 9), type: UInt8.self)
+        let convi = ConvR2<UInt8,Float>(filterShape: [3, 3])
+        let d = convi(c)
+        print(d)
     }
 
     //--------------------------------------------------------------------------
     // TODO: added specialized conv for FixedVector conforming types
     func test_Image() {
-//        typealias Pixel = RGB<UInt8>
-//        var image = empty((9, 9), type: Pixel.self)
-//        let conv = Convolution<Shape2,Pixel,Float>(filterShape: [3, 3])
-//        let a = conv(image)
+    //    typealias Pixel = RGB<UInt8>
+    //    var image = empty((9, 9), type: Pixel.self)
+    //    let conv = ConvR2<Pixel, Float>(filterShape: [3, 3])
+    //    let a = conv(image)
     }
 }
