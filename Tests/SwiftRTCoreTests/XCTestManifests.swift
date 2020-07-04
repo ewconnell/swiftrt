@@ -31,6 +31,7 @@ public func allTests() -> [XCTestCaseEntry] {
         testCase(test_Shape.allTests),
         testCase(test_StorageElement.allTests),
         testCase(test_Subscripting.allTests),
+        testCase(test_VectorElement.allTests),
         testCase(test_Vectorizing.allTests),
     ]
 }

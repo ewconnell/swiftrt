@@ -73,8 +73,8 @@ class test_Codable: XCTestCase {
             typealias Image = TensorR2<Pixel>
             let jsonEncoder = JSONEncoder()
             let pixels = [[Pixel(0, 0.5, 1), Pixel(0.25, 0.5, 0.75)]]
-            var image = array(pixels)
-            image.name = "pixels"
+            let image = array(pixels, name: "pxiels")
+            XCTAssert(image[0, 1].b == 0.75)
             let jsonData = try jsonEncoder.encode(image)
 //            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
 //            print(jsonVectorString)
@@ -95,8 +95,7 @@ class test_Codable: XCTestCase {
             typealias Image = TensorR2<Pixel>
             let jsonEncoder = JSONEncoder()
             let pixels = [[Pixel(0, 0.25, 0.5, 1), Pixel(0.25, 0.5, 0.75, 1)]]
-            var image = array(pixels)
-            image.name = "pixels"
+            let image = array(pixels, name: "pxiels")
             let jsonData = try jsonEncoder.encode(image)
 //            let jsonVectorString = String(data: jsonData, encoding: .utf8)!
 //            print(jsonVectorString)
