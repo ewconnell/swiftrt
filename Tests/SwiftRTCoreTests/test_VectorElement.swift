@@ -28,13 +28,13 @@ class test_VectorElement: XCTestCase {
     // adds a value to each image pixel
     // TODO: RGB needs additional conformances to support + - * /
     func test_addPixel() {
-        typealias Pixel = RGB<Float>
+        typealias Pixel = RGBA<Float>
         typealias Image = TensorR2<Pixel>
-        let value = Pixel(0.25, 0.5, 0.75)
+        let value = Pixel(0.25, 0.5, 0.75, 1)
 
         let pixels = [
-            [Pixel(0, 0.5, 1), Pixel(0.25, 0.5, 0.75)],
-            [Pixel(1, 1.5, 2), Pixel(1.25, 1.5, 1.75)]
+            [Pixel(0, 0.5, 1, 1), Pixel(0.25, 0.5, 0.75, 1)],
+            [Pixel(1, 1.5, 2, 1), Pixel(1.25, 1.5, 1.75, 1)]
         ]
         let image = array(pixels, name: "pixels")
         XCTAssert(image[1, 1].b == 1.75)

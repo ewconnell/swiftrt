@@ -69,10 +69,10 @@ class test_Codable: XCTestCase {
     // encodes and decodes
     func test_RGBImage() {
         do {
-            typealias Pixel = RGB<Float>
+            typealias Pixel = RGBA<Float>
             typealias Image = TensorR2<Pixel>
             let jsonEncoder = JSONEncoder()
-            let pixels = [[Pixel(0, 0.5, 1), Pixel(0.25, 0.5, 0.75)]]
+            let pixels = [[Pixel(0, 0.5, 1, 1), Pixel(0.25, 0.5, 0.75, 1)]]
             let image = array(pixels, name: "pxiels")
             XCTAssert(image[0, 1].b == 0.75)
             let jsonData = try jsonEncoder.encode(image)

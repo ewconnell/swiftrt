@@ -72,13 +72,13 @@ class test_arraySyntax: XCTestCase {
         let _ = array([0, 1, 2])
         let _ = array([Float](arrayLiteral: 0, 1, 2))
         let _ = array([0.0, 1.5, 2.5])
-        let _ = array([RGB<UInt8>(0, 127, 255), RGB<UInt8>(63, 127, 191)])
-        let _ = array([RGB<Float>(0, 0.5, 1), RGB<Float>(0.25, 0.5, 0.75)])
+        let _ = array([RGBA<UInt8>(0, 127, 255, 255), RGBA<UInt8>(63, 127, 191, 255)])
+        let _ = array([RGBA<Float>(0, 0.5, 1, 1), RGBA<Float>(0.25, 0.5, 0.75, 1)])
         
         // implicit shaped
         let _ = array([true, false], (1, 2))
-        let _ = array([RGB<UInt8>(0, 127, 255), RGB<UInt8>(63, 127, 191)], (1, 2))
-        let _ = array([RGB<Float>(0, 0.5, 1), RGB<Float>(0.25, 0.5, 0.75)], (1, 2))
+        let _ = array([RGBA<UInt8>(0, 127, 255, 255), RGBA<UInt8>(63, 127, 191, 255)], (1, 2))
+        let _ = array([RGBA<Float>(0, 0.5, 1, 1), RGBA<Float>(0.25, 0.5, 0.75, 1)], (1, 2))
 
         // integer conversions to Element
         let _ = array([0, 1, 2], type: Bool.self)
