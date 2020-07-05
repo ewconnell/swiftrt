@@ -61,15 +61,6 @@ where Scalar: SIMDScalar & StorageElement
         _storage = Scalar.SIMD4Storage()
     }
     
-    @_transparent
-    public init(_ v0: Scalar, _ v1: Scalar, _ v2: Scalar, _ v3: Scalar) {
-        self.init()
-        self[0] = v0
-        self[1] = v1
-        self[2] = v2
-        self[3] = v3
-    }
-    
     /// Accesses the scalar at the specified position.
     public subscript(index: Int) -> Scalar {
         @_transparent get {
@@ -80,6 +71,36 @@ where Scalar: SIMDScalar & StorageElement
             assert(indices.contains(index))
             _storage[index] = newValue
         }
+    }
+}
+
+extension RGBA where Scalar: FixedWidthInteger {
+    @_transparent public init(
+        _ r: Scalar,
+        _ g: Scalar,
+        _ b: Scalar,
+        _ a: Scalar = Scalar.max
+    ) {
+        self.init()
+        self[0] = r
+        self[1] = g
+        self[2] = b
+        self[3] = a
+    }
+}
+
+extension RGBA where Scalar: BinaryFloatingPoint {
+    @_transparent public init(
+        _ r: Scalar,
+        _ g: Scalar,
+        _ b: Scalar,
+        _ a: Scalar = 1
+    ) {
+        self.init()
+        self[0] = r
+        self[1] = g
+        self[2] = b
+        self[3] = a
     }
 }
 
