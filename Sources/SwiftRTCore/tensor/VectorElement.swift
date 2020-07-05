@@ -35,6 +35,7 @@ import Numerics
 public protocol VectorElement: StorageElement {
     associatedtype Scalar: StorageElement
     
+    /// The number of scalars, or elements, in a vector of this type.
     static var scalarCount: Int { get }
 }
 
