@@ -16,86 +16,31 @@
 import Foundation
 import Numerics
 
-public protocol VectorElement: SIMD & StorageElement where
-    Scalar: SIMDScalar & StorageElement { }
+//==============================================================================
+/// VectorElement
+/// Conforming types can be used as short vector tensor elements
+///
+/// Comments
+/// At this time, an `RGB` vector element is not implemented because
+/// we need to determine how memory alignment would work and if it is
+/// sensible. With a byte sized `Scalar` like `UInt8`, we want to be
+/// 32 bit aligned, so `scalarCount == 4` is required.
+/// With a 16 bit `Scalar` like `Float16` or `BFloat16`,
+/// `scalarCount == 4` is still required for 32 bit alignment.
+/// With a 32 bit `Scalar` like `Float`, the scalars are already aligned so
+/// an RGB layout would be desirable to minimize memory overhead on the
+/// cpu and gpu. On the cpu, it does not appear that llvm suppports
+/// a packed 3 element `SIMD` vector (need to fully investigate this).
+///
+public protocol VectorElement: StorageElement {
+    associatedtype Scalar: StorageElement
+    
+    static var scalarCount: Int { get }
+}
 
-////==============================================================================
-//// RGB
-//public protocol RGBProtocol: SIMD {
-//    var r: Scalar { get set }
-//    var g: Scalar { get set }
-//    var b: Scalar { get set }
-//}
-//
-//extension SIMD3: VectorElement & StorageElement where Scalar: StorageElement {
-//    public typealias Stored = Self
-//    public typealias Value = Self
-//}
-//
-//public typealias RGB2<Scalar> = SIMD3<Scalar> where
-//    Scalar: SIMDScalar & StorageElement
-//
-//extension RGB2: RGBProtocol {
-//    @_transparent public var r: Scalar { get { self[0] } set(v) { self[0] = v }}
-//    @_transparent public var g: Scalar { get { self[1] } set(v) { self[1] = v }}
-//    @_transparent public var b: Scalar { get { self[2] } set(v) { self[2] = v }}
-//
-//    @_transparent public init(_ v0: Scalar, _ v1: Scalar, _ v2: Scalar) {
-//        self.init()
-//        self[0] = v0
-//        self[1] = v1
-//        self[2] = v2
-//    }
-//}
-//
-////==============================================================================
-//// RGB
-//// TODO!!: need to implement SIMD3Storage so that gpu memory is packed
-//@frozen public struct RGB<Scalar>: VectorElement
-//where Scalar: SIMDScalar & StorageElement
-//{
-//    public typealias Stored = Self
-//    public typealias Value = Self
-//
-//    public var _storage: Scalar.SIMD4Storage
-//    public typealias MaskStorage = SIMD4<Scalar.SIMDMaskScalar>
-//
-//    /// The number of scalars in the vector.
-//    @_transparent public var scalarCount: Int { 3 }
-//    @_transparent public var r: Scalar { get { self[0] } set(v) { self[0] = v }}
-//    @_transparent public var g: Scalar { get { self[1] } set(v) { self[1] = v }}
-//    @_transparent public var b: Scalar { get { self[2] } set(v) { self[2] = v }}
-//
-//    /// Creates a pixel with zero in all lanes
-//    @_transparent public init() {
-//        _storage = Scalar.SIMD4Storage()
-//    }
-//
-//    @_transparent public init(_ v0: Scalar, _ v1: Scalar, _ v2: Scalar) {
-//        self.init()
-//        self[0] = v0
-//        self[1] = v1
-//        self[2] = v2
-//    }
-//
-//    /// Accesses the scalar at the specified position.
-//    public subscript(index: Int) -> Scalar {
-//        @_transparent get {
-//            assert(indices.contains(index))
-//            return _storage[index]
-//        }
-//        @_transparent set {
-//            assert(indices.contains(index))
-//            _storage[index] = newValue
-//        }
-//    }
-//}
-//
-//extension RGB: AdditiveArithmetic where Scalar: FloatingPoint { }
-//
 //==============================================================================
 // RGBA
-@frozen public struct RGBA<Scalar>: VectorElement
+@frozen public struct RGBA<Scalar>: VectorElement, SIMD
 where Scalar: SIMDScalar & StorageElement
 {
     public typealias Stored = Self
@@ -142,7 +87,7 @@ extension RGBA: AdditiveArithmetic where Scalar: FloatingPoint { }
 
 //==============================================================================
 // Stereo
-@frozen public struct Stereo<Scalar>: VectorElement
+@frozen public struct Stereo<Scalar>: VectorElement, SIMD
 where Scalar: SIMDScalar & StorageElement
 {
     public typealias Stored = Self
