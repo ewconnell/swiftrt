@@ -72,7 +72,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_matmul() {
-        Context.log.level = .diagnostic
+//        Context.log.level = .diagnostic
         let a = array([0.0, 1, 2, 3, 4, 5], (3, 2))
         let b = array([0.0, 1, 2, 3, 4, 5, 6, 7], (2, 4))
         let c = matmul(a, b)
