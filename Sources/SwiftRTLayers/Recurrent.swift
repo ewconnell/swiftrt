@@ -112,31 +112,8 @@ where Element: StorageElement,
     public var weight: TensorR2<Element>
     public var bias: TensorR2<Element>
 
-    // TODO(TF-507): Revert to `typealias State = Tensor<Scalar>` after SR-10697 is fixed.
-    public struct State:
-    Equatable, Differentiable, VectorProtocol, KeyPathIterable
-    {
-        @inlinable public func adding(_ x: Element.Value) -> Self {
-            State(value + x)
-        }
-        
-        @inlinable public func subtracting(_ x: Element.Value) -> Self {
-            State(value - x)
-        }
-        
-        @inlinable public func scaled(by scalar: Element.Value) -> Self {
-            State(value * scalar)
-        }
-        
-        public typealias VectorSpaceScalar = Element.Value
-        public var value: TensorR2<Element>
-        @differentiable
-        @inlinable public init(_ value: TensorR2<Element>) {
-            self.value = value
-        }
-    }
-
-    public typealias TimeStepInput = TensorR2<Element>
+    public typealias State = TensorR2<Element>
+    public typealias TimeStepInput = State
     public typealias TimeStepOutput = State
     public typealias Input = RNNCellInput<TimeStepInput, State>
     public typealias Output = RNNCellOutput<TimeStepOutput, State>
@@ -165,7 +142,7 @@ where Element: StorageElement,
     @inlinable public func zeroState(
         for input: TensorR2<Element>
     ) -> State {
-        State(TensorR2<Element>(zeros: Shape2(input.shape[0], weight.shape[1])))
+        TensorR2<Element>(zeros: Shape2(input.shape[0], weight.shape[1]))
     }
     
     //--------------------------------------------------------------------------
@@ -176,8 +153,8 @@ where Element: StorageElement,
     @differentiable
     @inlinable public func callAsFunction(_ input: Input) -> Output {
         let concatenatedInput = input.input
-                .concatenated(with: input.state.value, alongAxis: 1)
-        let newState = State(tanh(matmul(concatenatedInput, weight) + bias))
+                .concatenated(with: input.state, alongAxis: 1)
+        let newState = tanh(matmul(concatenatedInput, weight) + bias)
         return Output(output: newState, state: newState)
     }
 }
@@ -306,10 +283,11 @@ where Element: StorageElement,
     public func zeroState(
         for input: TensorR2<Element>
     ) -> State {
-        State(hidden: TensorR2<Element>(zeros: stateShape))
+        TensorR2<Element>(zeros: stateShape)
     }
     
-    public typealias TimeStepInput = TensorR2<Element>
+    public typealias State = TensorR2<Element>
+    public typealias TimeStepInput = State
     public typealias TimeStepOutput = State
     public typealias Input = RNNCellInput<TimeStepInput, State>
     public typealias Output = RNNCellOutput<TimeStepOutput, State>
@@ -338,30 +316,6 @@ where Element: StorageElement,
         self.outputBias = biasInitializer(gateBiasShape)
     }
     
-    // TODO(TF-507): Revert to `typealias State = Tensor<Scalar>` after
-    // SR-10697 is fixed.
-    public struct State: Equatable, Differentiable, VectorProtocol, KeyPathIterable {
-        public func adding(_ x: Element.Value) -> Self {
-            State(hidden: hidden + x)
-        }
-        
-        public func subtracting(_ x: Element.Value) -> Self {
-            State(hidden: hidden - x)
-        }
-        
-        public func scaled(by scalar: Element.Value) -> Self {
-            State(hidden: hidden * scalar)
-        }
-        
-        public typealias VectorSpaceScalar = Element.Value
-        public var hidden: TensorR2<Element>
-        
-        @differentiable
-        public init(hidden: TensorR2<Element>) {
-            self.hidden = hidden
-        }
-    }
-    
     /// Returns the output obtained from applying the layer to the given input.
     ///
     /// - Parameter input: The input to the layer.
@@ -370,19 +324,16 @@ where Element: StorageElement,
     public func callAsFunction(_ input: Input) -> Output {
         let resetGate = sigmoid(
             matmul(input.input, resetWeight1) +
-                matmul(input.state.hidden, resetWeight2, bias: resetBias))
-        
+                matmul(input.state, resetWeight2, bias: resetBias))
         let updateGate = sigmoid(
                 matmul(input.input, updateWeight1) +
-                    matmul(input.state.hidden, updateWeight2, bias: updateBias))
-        
+                    matmul(input.state, updateWeight2, bias: updateBias))
         let outputGate = tanh(
                 matmul(input.input, outputWeight1, bias: outputBias) +
-                    matmul(resetGate * input.state.hidden, outputWeight2))
-        
-        let updateHidden = (1 - updateGate) * input.state.hidden
+                    matmul(resetGate * input.state, outputWeight2))
+        let updateHidden = (1 - updateGate) * input.state
         let updateOutput = (1 - updateGate) * outputGate
-        let newState = State(hidden: updateHidden + updateOutput)
+        let newState = updateHidden + updateOutput
         return Output(output: newState, state: newState)
     }
 }
