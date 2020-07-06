@@ -24,7 +24,7 @@ import Foundation
 /// - Parameters:
 ///  - n: Int or tuple of Int
 ///    Shape of the empty array, e.g., (2, 3) or 2.
-///  - dtype: data-type, optional
+///  - type: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
 ///  - order: { .C, .F }, optional, default .C
 ///    Whether to store multi-dimensional data in row-major (C-style)
@@ -32,18 +32,19 @@ import Foundation
 /// - Returns: the identity tensor
 @inlinable public func identity(
     _ n: Int,
-    order: StorageOrder = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape2, DType> {
     eye(n, n, order: order)
 }
 
 @inlinable public func identity<Element>(
     _ n: Int,
-    dtype: Element.Type,
-    order: StorageOrder = .C
-) -> Tensor<Shape2, Element> where Element: Numeric
+    type: Element.Type,
+    order: Layout = Layout.defaultValue
+) -> Tensor<Shape2, Element>
+where Element: StorageElement, Element.Value: Numeric
 {
-    eye(n, n, dtype: dtype, order: order)
+    eye(n, n, type: type, order: order)
 }
 
 //==============================================================================
@@ -57,7 +58,7 @@ import Foundation
 ///  - k: Index of the diagonal: 0 (the default) refers to the main diagonal,
 ///    a positive value refers to an upper diagonal, and a negative
 ///    value to a lower diagonal.
-///  - dtype: data-type, optional
+///  - type: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
 ///  - order: { .C, .F }, optional, default .C
 ///    Whether to store multi-dimensional data in row-major (C-style)
@@ -65,17 +66,18 @@ import Foundation
 /// - Returns: the identity tensor
 @inlinable public func eye(
     _ N: Int, _ M: Int? = nil, k: Int = 0,
-    order: StorageOrder = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape2,DType>
 {
-    Tensor<Shape2,DType>(eye: Shape2(N, M ?? N), offset: k, order: order)
+    Tensor<Shape2,DType>(eye: Shape2(N, M ?? N), offset: k, layout: order)
 }
 
 @inlinable public func eye<Element>(
     _ N: Int, _ M: Int? = nil, k: Int = 0,
-    dtype: Element.Type,
-    order: StorageOrder = .C
-) -> Tensor<Shape2, Element> where Element: Numeric
+    type: Element.Type,
+    order: Layout = Layout.defaultValue
+) -> Tensor<Shape2, Element>
+where Element: StorageElement, Element.Value: Numeric
 {
-    Tensor<Shape2, Element>(eye: Shape2(N, M ?? N), offset: k, order: order)
+    Tensor<Shape2, Element>(eye: Shape2(N, M ?? N), offset: k, layout: order)
 }

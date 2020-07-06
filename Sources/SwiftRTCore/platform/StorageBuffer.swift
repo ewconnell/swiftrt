@@ -18,12 +18,15 @@ import Foundation
 
 //==============================================================================
 /// StorageBuffer protocol
+/// The storage buffer is a container for tensor elements. It uses raw buffers
+/// and per function type binding, so zero copy casting can be done.
+/// For example casting `RGBA<Float>` to `NHWC` to interact with Cuda,
+/// or `UInt1` to `Bool1` to manipulate bit tensors in different ways.
 public protocol StorageBuffer: class, Logging {
-    /// the type of element stored in the buffer
-    associatedtype Element
-
-    /// the host transfer buffer
-    var hostBuffer: UnsafeMutableBufferPointer<Element> { get }
+    /// memory buffer alignment
+    var alignment: Int { get }
+    /// the number of storage elements
+    var byteCount: Int { get }
     /// the id of the buffer for diagnostics
     var id: Int { get }
     /// `true` if the buffer is read only
@@ -33,39 +36,64 @@ public protocol StorageBuffer: class, Logging {
     /// the buffer name used in diagnostic messages
     var name: String { get set }
     
-    /// `init(count:
-    /// creates an uninitialized lazily allocated element buffer
+    //--------------------------------------------------------------------------
+    /// `init(type:count:
+    /// creates an uninitialized lazily allocated buffer to hold `count`
+    /// number of `Element`s
     /// - Parameters:
-    ///  - count: size of the buffer in `Element` units
-    init(count: Int)
+    ///  - storedType: the type of storage `Element`
+    ///    This is used to compute buffer byte size and alignment.
+    ///  - storedCount: the number of `Element`s stored in the buffer.
+    ///  - name: the name of the tensor
+    init<Element>(
+        storedType: Element.Type,
+        count: Int,
+        name: String
+    )
     
-    /// `init(element:
-    /// creates a storage buffer with a single element
+    //--------------------------------------------------------------------------
+    /// `init(single:name:
+    /// creates storage for a single element value
     /// - Parameters:
-    ///  - element: the initial element value
-    init(single element: Element)
+    ///  - storedElement: the stored element
+    ///  - name: the name of the tensor
+    init<Element>(
+        storedElement: Element,
+        name: String
+    )
     
-    /// `init(copying other:`
-    /// copy constructor
-    init(copying other: Self)
+    //--------------------------------------------------------------------------
+    /// `init(other:queue:`
+    /// creates a copy of the storage using `Context.currentQueue`
+    /// - Parameters:
+    ///  - other: the storage to copy
+    ///  - queue: the device queue to use
+    init(copying other: Self, using queue: DeviceQueue)
     
-    /// `init(buffer:`
+    //--------------------------------------------------------------------------
+    /// `init(buffer:name:`
     /// creates an element buffer whose data is managed by the application.
     /// No memory is allocated, so the buffer must point to valid data space.
     /// This can be used to access things like hardware buffers or
     /// memory mapped files, network buffers, database results, without
     /// requiring an additional copy operation.
     /// - Parameters:
-    ///  - buffer: a buffer pointer to the data
-    init(referenceTo buffer: UnsafeBufferPointer<Element>)
+    ///  - buffer: the referenced `Element` buffer
+    ///  - name: the name of the tensor
+    init<Element>(referenceTo buffer: UnsafeBufferPointer<Element>,
+                  name: String)
     
-    /// `init(buffer:`
+    //--------------------------------------------------------------------------
+    /// `init(buffer:layout:name:`
     /// creates an element buffer whose data is managed by the application.
     /// No memory is allocated, so the buffer must point to valid data space.
     /// - Parameters:
-    ///  - buffer: a mutable buffer pointer to application data
-    init(referenceTo buffer: UnsafeMutableBufferPointer<Element>)
+    ///  - buffer: the referenced `Element` buffer
+    ///  - name: the name of the tensor
+    init<Element>(referenceTo buffer: UnsafeMutableBufferPointer<Element>,
+                  name: String)
     
+    //--------------------------------------------------------------------------
     /// `init(blockSize:bufferedBlocks:sequence:`
     /// initializes a streaming device buffer to be used with `stream`
     /// - Parameters:
@@ -78,62 +106,91 @@ public protocol StorageBuffer: class, Logging {
     ///  - stream: the I/O object for read/write operations
     init<S, Stream>(block shape: S, bufferedBlocks: Int, stream: Stream)
         where S: TensorShape, Stream: BufferStream
-        
-    /// `element(offset:`
-    /// - Parameter offset: the linear storage index of the element
-    /// - Returns: a single element at the specified offset
-    func element(at offset: Int) -> Element
-    
-    /// `setElement(value:offset:`
-    /// - Parameters:
-    ///  - value: the value to set
-    ///  - offset: the linear storage index of the element
-    func setElement(value: Element, at offset: Int)
-    
-    /// `read(offset:count:`
-    /// gets a buffer pointer blocking the calling thread until synchronized
-    /// - Parameters:
-    ///  - offset: the buffer base offset within storage
-    ///  - count: the number of elements to be accessed
-    /// - Returns: a buffer pointer to the elements. Elements will be valid
-    ///   when the queue reaches this point
-    func read(at offset: Int, count: Int) -> UnsafeBufferPointer<Element>
-    
-    /// `read(offset:count:queue:`
-    /// - Parameters:
-    ///  - offset: the buffer base offset within storage
-    ///  - count: the number of elements to be accessed
-    ///  - queue: queue for device placement and synchronization
-    /// - Returns: a buffer pointer to the elements. Elements will be valid
-    ///   when the queue reaches this point
-    func read(at offset: Int, count: Int, using queue: DeviceQueue)
-        -> UnsafeBufferPointer<Element>
-    
-    /// `readWrite(type:offset:count:willOverwrite:
-    /// - Parameters:
-    ///  - offset: the buffer base offset within storage
-    ///  - count: the number of elements to be accessed
-    /// - Returns: a mutable buffer pointer to the elements.
-    ///   Elements will be valid when the queue reaches this point
-    func readWrite(at offset: Int, count: Int)
-        -> UnsafeMutableBufferPointer<Element>
 
-    /// `readWrite(type:offset:count:willOverwrite:queue:
+    //--------------------------------------------------------------------------
+    /// `read(type:index:count:queue:`
     /// - Parameters:
-    ///  - offset: the buffer base offset within storage
+    ///  - type: the element type to bind
+    ///  - index: the element index where the returned buffer will start
     ///  - count: the number of elements to be accessed
     ///  - queue: queue for device placement and synchronization
-    ///  - willOverwrite: `true` if the caller guarantees all
-    ///    buffer elements will be overwritten
-    /// - Returns: a mutable buffer pointer to the elements.
-    ///   Elements will be valid when the queue reaches this point
-    func readWrite(at offset: Int, count: Int,
-                   willOverwrite: Bool, using queue: DeviceQueue)
-        -> UnsafeMutableBufferPointer<Element>
+    /// - Returns: an element buffer pointer. The caller
+    ///   is required to do appropriate index transformations for packed
+    ///   element types. Any required memory transfers are added to the
+    ///   specified queue.
+    func read<Element>(
+        type: Element.Type,
+        at index: Int,
+        count: Int,
+        using queue: DeviceQueue
+    ) -> UnsafeBufferPointer<Element>
+
+    //--------------------------------------------------------------------------
+    /// `readWrite(type:index:count:queue:`
+    /// - Parameters:
+    ///  - type: the element type to bind
+    ///  - index: the element index where the returned buffer will start
+    ///  - count: the number of elements to be accessed
+    ///  - queue: queue for device placement and synchronization
+    /// - Returns: a mutable buffer pointer to elements. The caller
+    ///   is required to do appropriate index transformations for packed
+    ///   element types. Any required memory transfers are added to the
+    ///   specified queue.
+    func readWrite<Element>(
+        type: Element.Type,
+        at index: Int,
+        count: Int,
+        using queue: DeviceQueue
+    ) -> UnsafeMutableBufferPointer<Element>
+    
+    //--------------------------------------------------------------------------
+    /// waitForCompletion
+    /// blocks the caller until pending write operations have completed
+    func waitForCompletion()
 }
 
+//==============================================================================
+// convenience extensions
+//
 public extension StorageBuffer {
+    /// the name used to identify the tensor in diagnostic messages
     @inlinable var diagnosticName: String { "\(name)(\(id))" }
+    /// used for unit tests. `true` if a read/write operation caused
+    /// memory to be copied between devices
+    @inlinable var testLastAccessCopiedDeviceMemory: Bool { false }
+    
+    //--------------------------------------------------------------------------
+    /// `init(type:count:layout:
+    /// creates an uninitialized lazily allocated buffer to hold `count`
+    /// number of tensor `Element`s
+    /// - Parameters:
+    ///  - type: the type of tensor `Element`
+    ///    This is used to compute buffer byte size and alignment.
+    ///  - count: the number of `Element`s stored in the buffer.
+    ///  - name: the name of the tensor
+    @inlinable init<Element: StorageElement>(
+        type: Element.Type,
+        count: Int,
+        name: String
+    ) {
+        self.init(storedType: Element.Stored.self,
+                  count: Element.storedCount(count),
+                  name: name)
+    }
+
+    //--------------------------------------------------------------------------
+    /// countOf(type:
+    /// - Returns: the number of `Element`s in the storage
+    @inlinable func countOf<Element>(type: Element.Type) -> Int {
+        assert(byteCount % MemoryLayout<Element>.size == 0,
+               "Buffer size is not even multiple of Element type")
+        return byteCount / MemoryLayout<Element>.size
+    }
+    
+    //--------------------------------------------------------------------------
+    /// waitForCompletion
+    /// blocks the caller until pending write operations have completed
+    @inlinable func waitForCompletion() { }
 }
 
 //==============================================================================

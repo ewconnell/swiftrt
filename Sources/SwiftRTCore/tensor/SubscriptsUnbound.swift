@@ -29,31 +29,10 @@ import Foundation
 //==============================================================================
 // These subscripts do a mutli-dimensional selection based on item indexes
 // from dimension 0
-public extension TensorType
-{
+public extension Tensor {
 //    @differentiable(where Self: DifferentiableTensor)
     @inlinable subscript(range: UnboundedRange) -> Self { self }
     
-//    @differentiable(where Self: DifferentiableTensor)
-    @inlinable subscript<R>(range: R) -> Self where R: SignedRangeExpression {
-        get {
-            let (start, end) = getItemRange(range.relativeTo(0..<shape[0]))
-            return self[start, end]
-        }
-    }
-    
-    @_semantics("autodiff.nonvarying")
-    @inlinable func getItemRange(_ range: Range<Int>) -> (Shape, Shape) {
-        var lower = Shape.zero
-        var upper = self.shape
-        lower[0] = range.lowerBound
-        upper[0] = range.upperBound
-        return (lower, upper)
-    }
-}
-
-public extension MutableTensorType
-{
 //    @differentiable(where Self: DifferentiableTensor)
     @inlinable subscript<R>(range: R) -> Self where R: SignedRangeExpression {
         get {
@@ -65,20 +44,29 @@ public extension MutableTensorType
             self[start, end] = newValue
         }
     }
+
+    @_semantics("autodiff.nonvarying")
+    @inlinable func getItemRange(_ range: Range<Int>) -> (Shape, Shape) {
+        var lower = Shape.zero
+        var upper = self.shape
+        lower[0] = range.lowerBound
+        upper[0] = range.upperBound
+        return (lower, upper)
+    }
 }
 
 //==============================================================================
 // Rank2 array property and subscripts
 public extension Tensor where Shape == Shape2 {
 
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable subscript<R0>(r0: R0, r1: UnboundedRange) -> Self
         where R0: SignedRangeExpression {
         get { self[r0, 0...] }
         set { self[r0, 0...] = newValue }
     }
 
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable subscript<R1>(r0: UnboundedRange, r1: R1) -> Self
         where R1: SignedRangeExpression {
         get { self[0..., r1] }
@@ -91,7 +79,7 @@ public extension Tensor where Shape == Shape2 {
 public extension Tensor where Shape == Shape3 {
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R0>(r0: R0, r1: UnboundedRange, r2: UnboundedRange) -> Self
         where R0: SignedRangeExpression {
         get { self[r0, 0..., 0...] }
@@ -99,7 +87,7 @@ public extension Tensor where Shape == Shape3 {
     }
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R0, R1>(r0: R0, r1: R1, r2: UnboundedRange) -> Self
         where
         R0: SignedRangeExpression,
@@ -109,7 +97,7 @@ public extension Tensor where Shape == Shape3 {
     }
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R0, R2>(r0: R0, r1: UnboundedRange, r2: R2) -> Self
         where
         R0: SignedRangeExpression,
@@ -119,7 +107,7 @@ public extension Tensor where Shape == Shape3 {
     }
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R1>(r0: UnboundedRange, r1: R1, r2: UnboundedRange) -> Self
         where R1: SignedRangeExpression {
         get { self[0..., r1, 0...] }
@@ -127,7 +115,7 @@ public extension Tensor where Shape == Shape3 {
     }
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R2>(r0: UnboundedRange, r1: UnboundedRange, r2: R2) -> Self
         where R2: SignedRangeExpression {
         get { self[0..., 0..., r2] }
@@ -140,7 +128,7 @@ public extension Tensor where Shape == Shape3 {
 public extension Tensor where Shape == Shape4 {
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R0>(r0: R0, r1: UnboundedRange, r2: UnboundedRange,
         r3: UnboundedRange) -> Self
         where R0: SignedRangeExpression {
@@ -149,7 +137,7 @@ public extension Tensor where Shape == Shape4 {
     }
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R0, R1>(r0: R0, r1: R1, r2: UnboundedRange,
         r3: UnboundedRange) -> Self where
         R0: SignedRangeExpression,
@@ -159,7 +147,7 @@ public extension Tensor where Shape == Shape4 {
     }
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R0, R2>(r0: R0, r1: UnboundedRange, r2: R2,
         r3: UnboundedRange) -> Self where
         R0: SignedRangeExpression,
@@ -169,7 +157,7 @@ public extension Tensor where Shape == Shape4 {
     }
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R1>(r0: UnboundedRange, r1: R1, r2: UnboundedRange,
         r3: UnboundedRange) -> Self
         where R1: SignedRangeExpression {
@@ -178,7 +166,7 @@ public extension Tensor where Shape == Shape4 {
     }
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R2>(r0: UnboundedRange, r1: UnboundedRange, r2: R2,
         r3: UnboundedRange) -> Self
         where R2: SignedRangeExpression {
@@ -187,7 +175,7 @@ public extension Tensor where Shape == Shape4 {
     }
     
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R0,R3>(r0: R0, r1: UnboundedRange, r2: UnboundedRange, r3: R3)
         -> Self where
         R0: SignedRangeExpression,
@@ -197,7 +185,7 @@ public extension Tensor where Shape == Shape4 {
     }
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R0,R1,R3>(r0: R0, r1: R1, r2: UnboundedRange, r3: R3) -> Self
         where
         R0: SignedRangeExpression,
@@ -208,7 +196,7 @@ public extension Tensor where Shape == Shape4 {
     }
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R0,R2,R3>(r0: R0, r1: UnboundedRange, r2: R2, r3: R3) -> Self
         where
         R0: SignedRangeExpression,
@@ -219,7 +207,7 @@ public extension Tensor where Shape == Shape4 {
     }
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R1,R3>(r0: UnboundedRange, r1: R1, r2: UnboundedRange,
         r3: R3) -> Self where
         R1: SignedRangeExpression,
@@ -229,7 +217,7 @@ public extension Tensor where Shape == Shape4 {
     }
 
     @inlinable
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     subscript<R2,R3>(r0: UnboundedRange, r1: UnboundedRange, r2: R2,
         r3: R3) -> Self where
         R2: SignedRangeExpression,

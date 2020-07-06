@@ -99,7 +99,7 @@ public enum ConvolutionMode: Int, Codable, CaseIterable {
 
 //==============================================================================
 // DeviceQueue functions with default cpu delegation
-extension DeviceQueue where Self: CpuFunctions & CpuMapOps
+extension DeviceQueue where Self: CpuFunctions
 {
     public func convolution<Shape, Element, FilterElement>(
         activation: ActivationType,
@@ -112,12 +112,15 @@ extension DeviceQueue where Self: CpuFunctions & CpuMapOps
     ) -> DeviceConvolution<Shape, Element, FilterElement>
     where Shape: TensorShape,
           Element: ScalarElement,
-          FilterElement: ScalarElement & BinaryFloatingPoint
+          FilterElement: ScalarElement
     {
         CpuConvolution<Shape, Element, FilterElement>(
-            activation: activation, strides: strides,
-            padding: padding, dilations: dilations,
-            properties: properties, deviceId: deviceId,
+            activation: activation,
+            strides: strides,
+            padding: padding,
+            dilations: dilations,
+            properties: properties,
+            deviceId: deviceId,
             filterBiasBackpropQueueIndex: filterBiasBackpropQueueIndex)
     }
 }
@@ -128,7 +131,7 @@ public final class CpuConvolution<Shape, Element, FilterElement>:
     DeviceConvolution<Shape, Element, FilterElement>
 where Shape: TensorShape,
       Element: ScalarElement,
-      FilterElement: ScalarElement & BinaryFloatingPoint {}
+      FilterElement: ScalarElement {}
 
 //==============================================================================
 /// DeviceConvolution
@@ -139,37 +142,50 @@ where Shape: TensorShape,
 /// [filter width, input channels, output channels]
 /// [filter width, filter width, input channels, output channels]
 /// [filter depth, filter width, filter width, input channels, output channels]
-public class DeviceConvolution<Shape, Element, FilterElement>
+public class DeviceConvolution<Shape, Element, FilterElement>: Logging
 where Shape: TensorShape,
       Element: ScalarElement,
-      FilterElement: ScalarElement & BinaryFloatingPoint
+      FilterElement: ScalarElement
 {
+    // types
     public typealias Data = Tensor<Shape, Element>
     public typealias Filter = Tensor<Shape, FilterElement>
     public typealias Bias = TensorR1<FilterElement>
     
+    // properties
+    public let properties: ConvolutionProperties
+    public let padding: Padding
+    public let strides: Shape
+    public let dilations: Shape
+    public var inputShape: Shape
+
     //--------------------------------------------------------------------------
     /// init
-    /// initializes the device function `y = convolution(x)`
-    /// - Parameter filter: the convolution filter
-    /// - Parameter bias: the filter bias vector
-    /// - Parameter activation: the activation to be applied to the result
-    /// - Parameter strides: the filter window strides
-    /// - Parameter padding: the padding surrounding `x`
-    /// - Parameter dilations: the dilations for the filter
-    /// - Parameter properties: convolution customization properties
-    /// - Parameter device: the device where the convolution will execute
-    /// - Parameter filterBiasBackpropQueueIndex: the queue to use for filter
+    /// - Parameters:
+    ///  - activation: the activation to be applied to the result
+    ///  - strides: the filter window strides
+    ///  - padding: the padding surrounding `x`
+    ///  - dilations: the dilations for the filter
+    ///  - properties: convolution customization properties
+    ///  - device: the device where the convolution will execute
+    ///  - filterBiasBackpropQueueIndex: the queue to use for filter
     /// and bias backpropagation
-    public init(activation: ActivationType,
-                strides: Shape,
-                padding: Padding,
-                dilations: Shape,
-                properties: ConvolutionProperties,
-                deviceId: Int,
-                filterBiasBackpropQueueIndex: Int)
-    {
-        fatalError("not implemented")
+    @inlinable public init(
+        activation: ActivationType,
+        strides: Shape,
+        padding: Padding,
+        dilations: Shape,
+        properties: ConvolutionProperties,
+        deviceId: Int,
+        filterBiasBackpropQueueIndex: Int
+    ) {
+        //----------------------------------
+        // save properties
+        self.properties = properties
+        self.padding = padding
+        self.strides = strides
+        self.dilations = dilations
+        self.inputShape = Shape.zero
     }
     
     //--------------------------------------------------------------------------
@@ -179,11 +195,14 @@ where Shape: TensorShape,
     /// - Parameter filter: the convolution filter
     /// - Parameter bias: the filter bias
     //    @differentiable
-    public func infer(from x: Data, with filter: Filter, and bias: Bias) -> Data
-    {
-        fatalError("not implemented")
+    @inlinable public func forward(
+        x: Data,
+        filter: Filter,
+        bias: Bias
+    ) -> Data {
+        fatalError("abstract not implemented")
     }
-    
+
     //--------------------------------------------------------------------------
     /// backPropagate
     /// - Parameter y: the output tensor
@@ -194,7 +213,7 @@ where Shape: TensorShape,
     /// - Parameter biasDiff: the filter bias differential
     /// - Parameter x: the input tensor
     /// - Parameter x: the input tensor differential
-    public func backPropagate(
+    @inlinable public func backward(
         y: Data,
         yDiff: Data,
         filter: Filter,
@@ -204,6 +223,6 @@ where Shape: TensorShape,
         x: Data,
         xDiff: inout Data
     ) {
-        fatalError("not implemented")
+        fatalError("abstract not implemented")
     }
 }

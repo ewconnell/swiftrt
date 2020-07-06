@@ -24,17 +24,25 @@ class test_Shape: XCTestCase {
         ("test_reshape", test_reshape),
         ("test_reshapeOrder", test_reshapeOrder),
         ("test_expanding", test_expanding),
-        ("test_SequentialViews", test_SequentialViews),
-        ("test_transposed", test_transposed),
         ("test_squeeze", test_squeeze),
         ("test_stack", test_stack),
         ("test_stackingGradients", test_stackingGradients),
         ("test_stackingExpression", test_stackingExpression),
+        ("test_perfTensor1", test_perfTensor1),
+        ("test_perfTensor2", test_perfTensor2),
+        ("test_perfRepeatedTensor3", test_perfRepeatedTensor3),
+        ("test_perfTensor3", test_perfTensor3),
+        ("test_perfTensor4", test_perfTensor4),
+        ("test_perfTensor5", test_perfTensor5),
+        ("test_initEmpty", test_initEmpty),
+        ("test_initRepeating", test_initRepeating),
+        ("test_initSingle", test_initSingle),
+        ("test_BufferIterableViews", test_BufferIterableViews),
+        ("test_transposed", test_transposed),
         ("testTransposedPullback", testTransposedPullback),
     ]
 
     //--------------------------------------------------------------------------
-    // test_reshape
     func test_reshape() {
         let a3 = array(0..<12, (2, 3, 2))
 
@@ -64,26 +72,24 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_reshapeOrder
     func test_reshapeOrder() {
 //        Context.log.level = .diagnostic
         let a = array([[0, 1, 2], [3, 4, 5]])
-        XCTAssert(Array(a.storage.hostBuffer) == [0, 1, 2, 3, 4, 5])
+        XCTAssert(Array(a.read()) == [0, 1, 2, 3, 4, 5])
 
-        let b = reshape(a, (2, 3), order: .F)
+        let b = reshape(a, (2, 3), order: .col)
         XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
-        XCTAssert(Array(b.storage.hostBuffer) == [0, 3, 1, 4, 2, 5])
+        XCTAssert(Array(b.read()) == [0, 3, 1, 4, 2, 5])
         
-        let c = array([[0, 3, 1], [4, 2, 5]], order: .F)
-        XCTAssert(Array(c.storage.hostBuffer) == [0, 3, 1, 4, 2, 5])
+        let c = array([[0, 3, 1], [4, 2, 5]], order: .col)
+        XCTAssert(Array(c.read()) == [0, 3, 1, 4, 2, 5])
 
         let d = reshape(c, (2, 3))
         XCTAssert(d == [[0, 1, 2], [3, 4, 5]])
-        XCTAssert(Array(d.storage.hostBuffer) == [0, 1, 2, 3, 4, 5])
+        XCTAssert(Array(d.read()) == [0, 1, 2, 3, 4, 5])
     }
     
     //--------------------------------------------------------------------------
-    // test_expanding
     func test_expanding() {
         let a = array(0..<4)
         let b = expand(dims: a, axis: 0)
@@ -104,7 +110,6 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_squeeze
     func test_squeeze() {
         let a = array(0..<24, (2, 3, 4))
 
@@ -139,7 +144,6 @@ class test_Shape: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_stack
     func test_stack() {
         let a = array(0..<6, (2, 3))
         let b = array(6..<12, (2, 3))
@@ -164,12 +168,15 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_stackingGradients
     func test_stackingGradients() {
+//        Context.log.level = .diagnostic
         let a1 = array([1, 2, 3, 4, 5])
         let b1 = array([6, 7, 8, 9, 10])
-        let a2 = array([1, 1, 1, 1, 1])
-        let b2 = array([1, 1, 1, 1, 1])
+        let a2 = ones((5))
+        let b2 = ones((5))
+        
+//        let c = stack(a1 * a2, b1 * b2, axis: -1).sum().element
+
         let grads = gradient(at: a2, b2) { a, b in
             stack(a1 * a, b1 * b, axis: -1).sum().element
         }
@@ -178,7 +185,6 @@ class test_Shape: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_stackingExpression
     func test_stackingExpression() {
 //        Context.log.level = .diagnostic
         let i = 3
@@ -200,22 +206,18 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_perfTensor1
     func test_perfTensor1() {
         #if !DEBUG
         let a = ones(1024 * 1024)
         var count: DType = 0
         self.measure {
-            for value in a {
-                count += value
-            }
+            count = a.sum().element
         }
         XCTAssert(count > 0)
         #endif
     }
-        
+    
     //--------------------------------------------------------------------------
-    // test_perfTensor2
     func test_perfTensor2() {
         #if !DEBUG
         let a = ones((1024, 1024))
@@ -223,83 +225,82 @@ class test_Shape: XCTestCase {
         
         // 0.001s
         self.measure {
-            for value in a {
-                count += value
-            }
+            count = a.sum().element
         }
         XCTAssert(count > 0)
         #endif
     }
 
     //--------------------------------------------------------------------------
-    // test_perfRepeatedTensor3
     func test_perfRepeatedTensor3() {
         #if !DEBUG
         let a = repeating(1, (64, 128, 128))
         var count: DType = 0
         self.measure {
-            for value in a {
-                count += value
-            }
+            count = a.sum().element
         }
         XCTAssert(count > 0)
         #endif
     }
     
     //--------------------------------------------------------------------------
-    // test_perfTensor3
     func test_perfTensor3() {
         #if !DEBUG
         let a = ones((64, 128, 128))
         var count: DType = 0
         self.measure {
-            for value in a {
-                count += value
-            }
+            count = a.sum().element
         }
         XCTAssert(count > 0)
         #endif
     }
     
     //--------------------------------------------------------------------------
-    // test_perfTensor4
     func test_perfTensor4() {
         #if !DEBUG
         let a = ones((2, 32, 128, 128))
         var count: DType = 0
         self.measure {
-            for value in a {
-                count += value
-            }
+            count = a.sum().element
         }
         XCTAssert(count > 0)
         #endif
     }
     
     //--------------------------------------------------------------------------
-    // test_perfTensor5
     func test_perfTensor5() {
         #if !DEBUG
         let a = ones((2, 2, 16, 128, 128))
         var count: DType = 0
         self.measure {
-            for value in a {
-                count += value
-            }
+            count = a.sum().element
         }
         XCTAssert(count > 0)
         #endif
     }
-    
+
     //--------------------------------------------------------------------------
-    // test_initRepeating
+    func test_initEmpty() {
+        #if !DEBUG
+        var count: DType = 0
+        self.measure {
+            for _ in 0..<100000 {
+                let a = Tensor2(shape: Shape2(2, 5))
+                count = a.first
+            }
+        }
+        XCTAssert(count != 3.1415926)
+        #endif
+    }
+
+    //--------------------------------------------------------------------------
     func test_initRepeating() {
         #if !DEBUG
         var count: DType = 0
         self.measure {
             for _ in 0..<100000 {
                 let a = Tensor1(repeating: 1, to: Shape1(1))
-                count += a.element
+                count += a.first
             }
         }
         XCTAssert(count > 0)
@@ -307,14 +308,13 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_initSingle
     func test_initSingle() {
         #if !DEBUG
         var count: DType = 0
         self.measure {
             for _ in 0..<100000 {
                 let a = Tensor1(1)
-                count += a.element
+                count += a.first
             }
         }
         XCTAssert(count > 0)
@@ -322,32 +322,30 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_SequentialViews
-    func test_SequentialViews() {
+    func test_BufferIterableViews() {
         // vector views are always sequential
         let v = array(0..<6)
         let subv = v[1...2]
-        XCTAssert(subv.isSequential)
+        XCTAssert(subv.isBufferIterable)
         
         // a batch of rows are sequential
         let m = empty((4, 5))
         let mrows = m[1...2, ...]
-        XCTAssert(mrows.isSequential)
+        XCTAssert(mrows.isBufferIterable)
         
         // a batch of columns are not sequential
         let m1 = empty((4, 5))
         let mcols = m1[..., 1...2]
-        XCTAssert(!mcols.isSequential)
+        XCTAssert(!mcols.isBufferIterable)
     }
     
     //--------------------------------------------------------------------------
-    // test_transposed
     func test_transposed() {
         let m = array(0..<9, (3, 3))
         XCTAssert(m.t == [[0,3,6], [1,4,7], [2,5,8]])
         
         let a = array(0..<24, (2,3,4))
-        let transA = a.transposed(permutatedBy: (2,1,0))
+        let transA = a.transposed(permutatedBy: [2, 1, 0])
         XCTAssert(transA == [[[ 0.0, 12.0],
                               [ 4.0, 16.0],
                               [ 8.0, 20.0]],
@@ -366,16 +364,15 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // testTransposedPullback
     func testTransposedPullback() {
         let input = ones((2, 3))
         let transposed = ones((3, 2))
         let transposedPullback = pullback(at: input) { $0.t }
         let transposedPermutationsPullback = pullback(at: input) {
-            $0.transposed(permutatedBy: (1, 0))
+            $0.transposed(permutatedBy: [1, 0])
         }
         let transposedVariadicsPullback = pullback(at: input) {
-            $0.transposed(permutatedBy: (1, 0))
+            $0.transposed(permutatedBy: [1, 0])
         }
         
         XCTAssertEqual(input, transposedPullback(transposed))

@@ -26,20 +26,19 @@ class test_Initialize: XCTestCase {
         ("test_copyOnWrite", test_copyOnWrite),
         ("test_columnMajorDataView", test_columnMajorDataView),
         ("test_indenting", test_indenting),
-        ("test_perfCreateMatrix", test_perfCreateMatrix),
+        ("test_perfCreateTensorR2", test_perfCreateTensorR2),
         ("test_perfReadOnlyAccess", test_perfReadOnlyAccess),
         ("test_perfReadWriteAccess", test_perfReadWriteAccess),
-        ("test_concatenateMatrixRows", test_concatenateMatrixRows),
-        ("test_concatenateMatrixCols", test_concatenateMatrixCols),
-        ("test_concatenateGradients", test_concatenateGradients),
         ("test_repeatElement", test_repeatElement),
         ("test_repeatRowVector", test_repeatRowVector),
         ("test_repeatColVector", test_repeatColVector),
+        ("test_concatenateMatrixRows", test_concatenateMatrixRows),
+        ("test_concatenateMatrixCols", test_concatenateMatrixCols),
+        ("test_concatenateGradients", test_concatenateGradients),
     ]
     
 
     //--------------------------------------------------------------------------
-    // test_castElements
     func test_castElements() {
         let fMatrix = array(0..<6, (3, 2))
         let iMatrix = TensorR2<Int32>(fMatrix)
@@ -47,8 +46,6 @@ class test_Initialize: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_copy
-    // tests copying from source to destination view
     func test_copy() {
         let a = array(1...3)
         var b = array(repeatElement(0, count: 3))
@@ -57,7 +54,6 @@ class test_Initialize: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_copyOnWrite
     func test_copyOnWrite() {
 //        Context.log.level = .diagnostic
         let a = array(0..<6, (3, 2))
@@ -75,17 +71,15 @@ class test_Initialize: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_columnMajorDataView
     //   0, 1,
     //   2, 3,
     //   4, 5
     func test_columnMajorDataView() {
-        let cm = array([0, 2, 4, 1, 3, 5], (3, 2), dtype: Int.self, order: .F)
+        let cm = array([0, 2, 4, 1, 3, 5], (3, 2), type: Int32.self, order: .F)
         XCTAssert(cm == [[0, 1], [2, 3], [4, 5]])
     }
 
     //--------------------------------------------------------------------------
-    // test_indenting
     func test_indenting() {
         let a = array(0..<4)
         let b = Tensor2(indenting: a)
@@ -93,23 +87,21 @@ class test_Initialize: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_perfCreateMatrix
-    func test_perfCreateMatrix() {
+    func test_perfCreateTensorR2() {
         #if !DEBUG
-        let iterations = 10000
+        let iterations = 100000
         var count = 0
         measure {
-            for i in 1...iterations {
-                let a = ones((1, i))
-                count = a.count
+            for _ in 0..<iterations {
+                let a = empty((2, 2))
+                count += a.count
             }
         }
-        XCTAssert(count == iterations)
+        XCTAssert(count > 0)
         #endif
     }
     
     //--------------------------------------------------------------------------
-    // test_perfReadOnlyAccess
     func test_perfReadOnlyAccess() {
         #if !DEBUG
         let iterations = 100000
@@ -126,7 +118,6 @@ class test_Initialize: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_perfReadWriteAccess
     func test_perfReadWriteAccess() {
         #if !DEBUG
         let iterations = 100000
@@ -143,15 +134,13 @@ class test_Initialize: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_repeatElement
     func test_repeatElement() {
-        let a = repeating(42, (2, 3, 10), dtype: Int32.self)
+        let a = repeating(42, (2, 3, 10), type: Int32.self)
         let expected = [Int32](repeating: 42, count: a.count)
         XCTAssert(a.flatArray == expected)
     }
     
     //--------------------------------------------------------------------------
-    // test_repeatRowVector
     func test_repeatRowVector() {
         let m = repeating(array(0...4, (1, 5)), (5, 5))
         XCTAssert(m == [
@@ -164,7 +153,6 @@ class test_Initialize: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_repeatColVector
     func test_repeatColVector() {
         let m = repeating(array(0...4, (5, 1)), (5, 5))
         XCTAssert(m == [
@@ -177,7 +165,6 @@ class test_Initialize: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_concatMatrixRows
     func test_concatenateMatrixRows() {
         let a = array(1...6, (2, 3))
         let b = array(7...12, (2, 3))
@@ -192,9 +179,20 @@ class test_Initialize: XCTestCase {
         
         
     }
+    
+    //--------------------------------------------------------------------------
+    func test_concatenateMatrixCols() {
+        let a = array(1...6, (2, 3))
+        let b = array(7...12, (2, 3))
+        let c = concatenate(a, b, axis: 1)
+        XCTAssert(c.shape == [2, 6])
+        XCTAssert(c == [
+            [1,  2,  3, 7,  8,  9],
+            [4,  5,  6, 10, 11, 12],
+        ])
+    }
 
     //--------------------------------------------------------------------------
-    // test_concatenateGradients
     func test_concatenateGradients() {
         let a1 = array([1, 2, 3, 4, 5])
         let b1 = array([6, 7, 8, 9, 10])
@@ -205,18 +203,5 @@ class test_Initialize: XCTestCase {
         }
         XCTAssertEqual(a1, g1)
         XCTAssertEqual(b1, g2)
-    }
-    
-    //--------------------------------------------------------------------------
-    // test_concatMatrixCols
-    func test_concatenateMatrixCols() {
-        let a = array(1...6, (2, 3))
-        let b = array(7...12, (2, 3))
-        let c = concatenate(a, b, axis: 1)
-        XCTAssert(c.shape == [2, 6])
-        XCTAssert(c == [
-            [1,  2,  3, 7,  8,  9],
-            [4,  5,  6, 10, 11, 12],
-        ])
     }
 }

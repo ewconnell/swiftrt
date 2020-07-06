@@ -1,5 +1,5 @@
 //******************************************************************************
-// Copyright 2020 Google LLC
+// Copyright 2019 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,28 +15,13 @@
 //
 
 //==============================================================================
-/// CpuService
-/// The collection of compute resources available to the application
-/// on the machine where the process is being run.
-public class CpuService: Platform {
-    // properties
-    public let devices: [CpuDevice]
-    public let logInfo: LogInfo
-    public let name: String
-    public var queueStack: [Device.Queue]
-
+// DeviceQueue functions with default cpu delegation
+extension CudaQueue {
     //--------------------------------------------------------------------------
-    @inlinable
-    public init() {
-        name = "CpuService"
-        logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
-                          namePath: name, nestingLevel: 0)
-        devices = [
-            CpuDevice(parent: logInfo, memoryType: .unified, id: 0)
-        ]
-        
-        // select device 0 queue 0 by default
-        queueStack = []
-        queueStack = [validQueue(0, 0)]
+    @inlinable public func add<S,E>(
+        _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
+        _ result: inout Tensor<S,E>
+    ) where S: TensorShape, E.Value: AdditiveArithmetic {
+        guard useGpu else { cpu_add(lhs, rhs, &result); return }
     }
 }

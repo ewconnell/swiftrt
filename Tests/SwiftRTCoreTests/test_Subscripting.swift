@@ -21,18 +21,19 @@ class test_Subscripting: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_perfTensorSubview", test_perfTensorSubview),
         ("test_perfTensor1AddRange", test_perfTensor1AddRange),
+        ("test_writeToRepeated", test_writeToRepeated),
         ("test_negativeIndexRelativeRange", test_negativeIndexRelativeRange),
         ("test_AssignDataToTensor3Item", test_AssignDataToTensor3Item),
         ("test_AssignDataToTensor3Range", test_AssignDataToTensor3Range),
         ("test_Tensor1Range", test_Tensor1Range),
         ("test_Tensor1RangeGradient", test_Tensor1RangeGradient),
-        ("test_Tensor1WriteRange", test_Tensor1WriteRange),
         ("test_Tensor2Range", test_Tensor2Range),
+        ("test_Tensor1WriteRange", test_Tensor1WriteRange),
     ]
-
-    //==========================================================================
-    // test_perfTensorSubview
+    
+    //--------------------------------------------------------------------------
     func test_perfTensorSubview() {
         #if !DEBUG
         let a = array(0..<6, (2, 3))
@@ -48,8 +49,7 @@ class test_Subscripting: XCTestCase {
         #endif
     }
     
-    //==========================================================================
-    // test_perfTensor1AddRange
+    //--------------------------------------------------------------------------
     func test_perfTensor1AddRange() {
         #if !DEBUG
         let a = array(1...20)
@@ -66,8 +66,7 @@ class test_Subscripting: XCTestCase {
         #endif
     }
 
-    //==========================================================================
-    // test_writeToRepeated
+    //--------------------------------------------------------------------------
     func test_writeToRepeated() {
 //        Context.log.level = .diagnostic
         // test through subscript
@@ -80,16 +79,14 @@ class test_Subscripting: XCTestCase {
         XCTAssert(a == [[2, 2, 2], [1, 42, 1]])
     }
     
-    //==========================================================================
-    // test_negativeIndexRelativeRange
+    //--------------------------------------------------------------------------
     func test_negativeIndexRelativeRange() {
         let m = array(0..<9, (3, 3))
         let v = m[-2..+1, ...]
         XCTAssert(v == [[3, 4, 5]])
     }
     
-    //==========================================================================
-    // test_AssignDataToTensor3Item
+    //--------------------------------------------------------------------------
     func test_AssignDataToTensor3Item() {
         var a3 = array(0..<24, (2, 3, 4))
         
@@ -112,8 +109,7 @@ class test_Subscripting: XCTestCase {
         XCTAssert(g.flatArray == [Float](repeating: 1, count: 12))
     }
     
-    //==========================================================================
-    // test_AssignDataToTensor3Range
+    //--------------------------------------------------------------------------
     func test_AssignDataToTensor3Range() {
         var volume = array(0..<24, (2, 3, 4))
 
@@ -139,8 +135,7 @@ class test_Subscripting: XCTestCase {
         ])
     }
     
-    //==========================================================================
-    // test_Tensor1Range
+    //--------------------------------------------------------------------------
     func test_Tensor1Range() {
         let a = array(0..<10)
         
@@ -161,8 +156,7 @@ class test_Subscripting: XCTestCase {
         XCTAssert(a[2..+3] == array(2...4))
     }
     
-    //==========================================================================
-    // test_Tensor1RangeGradient
+    //--------------------------------------------------------------------------
     func test_Tensor1RangeGradient() {
         let v = array(0..<10)
 
@@ -178,8 +172,7 @@ class test_Subscripting: XCTestCase {
                                2.7182817, 2.7182817, 2.7182817, 2.7182817]))
     }
 
-    //==========================================================================
-    // test_Tensor2Range
+    //--------------------------------------------------------------------------
     func test_Tensor2Range() {
         let m1 = array([
             0, 1,  2,  3,
@@ -201,7 +194,6 @@ class test_Subscripting: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_Tensor1WriteRange
     func test_Tensor1WriteRange() {
 //        Platform.log.level = .diagnostic
         var v1 = array(0...6)

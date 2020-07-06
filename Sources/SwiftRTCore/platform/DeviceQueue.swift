@@ -24,34 +24,67 @@ public protocol DeviceQueue: Logging {
     var creatorThread: Thread { get }
     /// used to configure event creation
     var defaultQueueEventOptions: QueueEventOptions { get set }
-    /// the id of the associated device
-    var deviceId: Int { get }
+    /// the index of the parent device in the `devices` collection
+    var deviceIndex: Int { get }
     /// the name of the associated device, used in diagnostics
     var deviceName: String { get }
-    /// the id of the queue
+    /// the async cpu `queue` dispatch group used to wait for queue completion
+    var group: DispatchGroup { get }
+    /// a unique queue id used to identify data movement across queues
     var id: Int { get }
-    /// the logging configuration for the queue
-    var logInfo: LogInfo { get }
     /// the type of memory associated with the queue's device
     var memoryType: MemoryType { get }
+    /// specifies if work is queued sync or async
+    var mode: DeviceQueueMode { get }
     /// the name of the queue for diagnostics
     var name: String { get }
+    /// the asynchronous operation queue
+    var queue: DispatchQueue { get }
+    /// `true` if the queue executes work on the cpu
+    var usesCpu: Bool { get }
 
     //--------------------------------------------------------------------------
-    /// allocate
-    func allocate<Element>(
-        _ type: Element.Type,
-        count: Int,
-        heapIndex: Int
-    ) throws -> DeviceMemory<Element>
-    ///
+    /// allocate(alignment:byteCount:heapIndex:
+    /// allocates a block of memory on the associated device. If there is
+    /// insufficient storage, a `DeviceError` will be thrown.
+    /// - Parameters:
+    ///  - byteCount: the number of bytes to allocate
+    ///  - heapIndex: reserved for future use. Should be 0 for now.
+    /// - Returns: a device memory object
+    func allocate(byteCount: Int, heapIndex: Int) throws -> DeviceMemory
+    
+    //--------------------------------------------------------------------------
+    /// copy(src:dst:
+    /// copies device memory and performs marshalling if needed
+    /// - Parameters:
+    ///  - src: the source buffer
+    ///  - dst: the destination buffer
+    func copyAsync(from src: DeviceMemory, to dst: DeviceMemory) throws
+    
+    /// createEvent(options:
+    /// creates a queue event used for synchronization and timing measurements
+    /// - Parameters:
+    ///  - options: event creation options
+    /// - Returns: a new queue event
     func createEvent(options: QueueEventOptions) -> QueueEvent
-    ///
+    
+    /// record(event:
+    /// adds `event` to the queue and returns immediately
+    /// - Parameters:
+    ///  - event: the event to record
+    /// - Returns: `event` so that calls to `record` can be nested
     func record(event: QueueEvent) -> QueueEvent
-    ///
+    
+    /// wait(event:
+    /// queues an operation to wait for the specified event. This function
+    /// does not block the calller if queue `mode` is `.async`
+    /// - Parameters:
+    ///  - event: the event to wait for
     func wait(for event: QueueEvent)
-    ///
-    func waitUntilQueueIsComplete()
+    
+    /// waitForCompletion
+    /// blocks the caller until all events in the queue have completed
+    func waitForCompletion()
 }
 
 //==============================================================================
@@ -59,14 +92,21 @@ public protocol DeviceQueue: Logging {
 extension DeviceQueue {
     //--------------------------------------------------------------------------
     // allocate
-    @inlinable public func allocate<Element>(
-        _ type: Element.Type,
-        count: Int,
+    @inlinable public func allocate(
+        byteCount: Int,
         heapIndex: Int = 0
-    ) throws -> DeviceMemory<Element> {
-        // allocate an aligned host memory buffer
-        let buff = UnsafeMutableBufferPointer<Element>.allocate(capacity: count)
-        return DeviceMemory(buff, memoryType, { buff.deallocate() })
+    ) throws -> DeviceMemory {
+        // allocate a host memory buffer suitably aligned for any type
+        let buffer = UnsafeMutableRawBufferPointer
+                .allocate(byteCount: byteCount,
+                          alignment: MemoryLayout<Int>.alignment)
+        return CpuDeviceMemory(deviceIndex, buffer, memoryType)
+    }
+    
+    //--------------------------------------------------------------------------
+    /// copyAsync
+    public func copyAsync(from src: DeviceMemory, to dst: DeviceMemory) throws {
+        dst.buffer.copyMemory(from: UnsafeRawBufferPointer(src.buffer))
     }
     
     //--------------------------------------------------------------------------
@@ -75,59 +115,67 @@ extension DeviceQueue {
     @inlinable public func createEvent(
         options: QueueEventOptions
     ) -> QueueEvent {
-        let event = CpuQueueEvent(options: options)
-        diagnostic("\(createString) QueueEvent(\(event.id)) on " +
-                    "\(deviceName)_\(name)", categories: .queueAlloc)
-        return event
+        CpuQueueEvent(options: options)
+    }
+
+    @inlinable public func createEvent() -> QueueEvent {
+        createEvent(options: defaultQueueEventOptions)
     }
     
     //--------------------------------------------------------------------------
     /// deviceName
     /// returns a diagnostic name for the device assoicated with this queue
     @inlinable public var deviceName: String {
-        Context.local.platform.devices[deviceId].name
+        Context.local.platform.devices[deviceIndex].name
     }
     
     //--------------------------------------------------------------------------
     /// record(event:
     @discardableResult
-    @inlinable public func record(
-        event: QueueEvent
-    ) -> QueueEvent {
-        diagnostic("\(recordString) QueueEvent(\(event.id)) on " +
-                    "\(deviceName)_\(name)", categories: .queueSync)
+    @inlinable public func record(event: QueueEvent) -> QueueEvent {
+        diagnostic("\(recordString) event(\(event.id)) on " +
+                    "\(name)", categories: .queueSync)
         
         // set event time
         if defaultQueueEventOptions.contains(.timing) {
-            var timeStampedEvent = event
-            timeStampedEvent.recordedTime = Date()
-            return timeStampedEvent
-        } else {
-            return event
+            event.recordedTime = Date()
         }
+        
+        // record the event
+        if mode == .async {
+            queue.async(group: group) {
+                event.signal()
+            }
+        } else {
+            event.signal()
+        }
+        return event
     }
     
     //--------------------------------------------------------------------------
     /// wait(for event:
     /// waits until the event has occurred
-    @inlinable public func wait(
-        for event: QueueEvent
-    ) {
-        guard !event.occurred else { return }
-        diagnostic("\(waitString) QueueEvent(\(event.id)) on " +
-                    "\(deviceName)_\(name)", categories: .queueSync)
-        do {
-            try event.wait()
-        } catch {
-            // there is no recovery here
-            writeLog("\(error)")
-            fatalError()
+    @inlinable public func wait(for event: QueueEvent) {
+        #if DEBUG
+        diagnostic("\(waitString) \(name) will wait for event(\(event.id))",
+                   categories: .queueSync)
+        #endif
+        if mode == .async {
+            queue.async(group: group) {
+                event.wait()
+            }
+        } else {
+            event.wait()
         }
     }
     
     //--------------------------------------------------------------------------
-    // waitUntilQueueIsComplete
+    // waitForCompletion
     // the synchronous queue completes work as it is queued,
     // so it is always complete
-    @inlinable public func waitUntilQueueIsComplete() { }
+    @inlinable public func waitForCompletion() {
+        if mode == .async {
+            group.wait()
+        }
+    }
 }

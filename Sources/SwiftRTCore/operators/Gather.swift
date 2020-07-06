@@ -18,7 +18,7 @@ import Foundation
 //==============================================================================
 /// gather(from:indices:axis:
 /// consolidates the specified slices
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func gather<S,E>(
     from tensor: Tensor<S,E>,
     indices: TensorR1<DeviceIndex>,
@@ -29,7 +29,7 @@ where S: TensorShape
     let axis = axis < 0 ? axis + S.rank : axis
     var shape = tensor.shape
     shape[axis] = indices.count
-    var result = Tensor<S,E>(shape)
+    var result = Tensor<S,E>(shape: shape, layout: tensor.layout)
     var rlower = S.zero, tlower = S.zero
     var rupper = tensor.shape, tupper = tensor.shape
     for (ri, ti) in indices.enumerated() {
@@ -49,13 +49,13 @@ where S: TensorShape
     indices: TensorR1<DeviceIndex>,
     axis: Int = 0
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-where S: TensorShape, E: DifferentiableElement
+where S: TensorShape, E.Value: DifferentiableElement
 {
     let axis = axis < 0 ? axis + S.rank : axis
     let value = gather(from: tensor, indices: indices, axis: axis)
     let shape = tensor.shape
     return (value, {
-        var result = Tensor<S,E>(zeros: shape)
+        var result = Tensor<S,E>(zeros: shape, layout: tensor.layout)
         var rlower = S.zero, tlower = S.zero
         var rupper = shape, tupper = shape
         for (ti, ri) in indices.enumerated() {
@@ -70,7 +70,7 @@ where S: TensorShape, E: DifferentiableElement
 }
 
 public extension Tensor {
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable func gathering(
         indices: TensorR1<DeviceIndex>,
         axis: Int = 0

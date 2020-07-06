@@ -42,7 +42,7 @@ class test_Random: XCTestCase {
         let someData = array(0..<100)
         let dataMean = mean(someData)
         let dataStd = dataMean //standardDeviation(someData)
-        let _ = Tensor1(randomNormal: 100, mean: dataMean, standardDeviation: dataStd)
+        let _ = Tensor1(randomNormal: 100, mean: dataMean, std: dataStd)
 //        print(weights)
     }
 

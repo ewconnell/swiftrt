@@ -1,0 +1,22 @@
+# swift
+export SWIFTRT_PLATFORM=cuda
+export SWIFT_HOME=$HOME/swift
+
+# cuda
+export CUDA_ROOT=/usr/local/cuda
+export C_INCLUDE_PATH=$CUDA_ROOT/include
+export CPLUS_INCLUDE_PATH=$CUDA_ROOT/include
+export LIBRARY_PATH=$CUDA_ROOT/lib64
+
+# path
+export PATH=$SWIFT_HOME/usr/bin:$CUDA_ROOT/bin:$HOME/Downloads/cmake-3.17.3-Linux-x86_64/bin:$PATH
+
+# SwiftRT
+export SWIFTRT_HOME=$HOME/swiftrt
+export PKG_CONFIG_PATH=${SWIFTRT_HOME}/pkgconfig
+
+# aliases
+alias srt="cd ${SWIFTRT_HOME}"
+alias core="cd ${SWIFTRT_HOME}/Sources/SwiftRTCore"
+alias cm="srt && cmake --build cmake-build-debug --target SwiftRT -- -j 12"
+alias srtm="cd ~/swiftrt-models"

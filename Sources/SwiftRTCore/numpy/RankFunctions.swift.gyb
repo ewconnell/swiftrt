@@ -59,13 +59,13 @@ numShapes = 6
 % for i in range(1, numShapes + 1):
 %  if not(n == 1 and i == 1):
 %   shapeType = 'Int' if i == 1 else ('Shape' + str(i) + '.Tuple')
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape${n}, E>,
     _ newShape: ${shapeType},
-    order: StorageOrder = .C
+    order: Layout = Layout.defaultValue
 ) -> Tensor<Shape${i}, E> {
-    Tensor<Shape${i}, E>(reshaping: a, to: Shape${i}(newShape), order: order)
+    Tensor<Shape${i}, E>(reshaping: a, to: Shape${i}(newShape), layout: order)
 }
 
 %  end
@@ -83,14 +83,20 @@ numShapes = 6
 %for n in range(1, numShapes):
 //==============================================================================
 // Rank${n}
-@differentiable(where E: DifferentiableElement)
-@inlinable public func expand<E>(dims a: Tensor<Shape${n}, E>, axis: Int) -> Tensor<Shape${n + 1},E> {
+@differentiable(where E.Value: DifferentiableElement)
+@inlinable public func expand<E>(
+    dims a: Tensor<Shape${n}, E>,
+    axis: Int
+) -> Tensor<Shape${n + 1},E> {
     Tensor<Shape${n + 1}, E>(expanding: a, axes: Shape1(axis))
 }
 
 % for i in range(2, numShapes + 1 - n):
-@differentiable(where E: DifferentiableElement)
-@inlinable public func expand<E>(dims a: Tensor<Shape${n}, E>, axes: Shape${i}.Tuple) -> Tensor<Shape${n + i},E> {
+@differentiable(where E.Value: DifferentiableElement)
+@inlinable public func expand<E>(
+    dims a: Tensor<Shape${n}, E>,
+    axes: Shape${i}.Tuple
+) -> Tensor<Shape${n + i},E> {
     Tensor<Shape${n + i},E>(expanding: a, axes: Shape${i}(axes))
 }
 
@@ -111,21 +117,21 @@ numShapes = 6
 %for n in range(1, numShapes):
 //==============================================================================
 // Rank${n}
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: [Tensor<Shape${n}, E>], axis: Int = 0)
     -> Tensor<Shape${n + 1}, E>
 {
     Tensor<Shape${n + 1}, E>(stacking: arrays, axis: axis)
 }
 
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(_ arrays: Tensor<Shape${n}, E>..., axis: Int = 0)
     -> Tensor<Shape${n + 1}, E>
 {
     Tensor<Shape${n + 1}, E>(stacking: arrays, axis: axis)
 }
 
-//@differentiable(where E: DifferentiableElement)
+//@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func stack<E>(
     _ arrays: [Tensor<Shape${n}, E>],
     axis: Int = 0,
@@ -147,14 +153,20 @@ numShapes = 6
 %for n in range(2, numShapes + 1):
 //==============================================================================
 // Rank${n}
-@differentiable(where E: DifferentiableElement)
-@inlinable public func squeeze<E>(_ a: Tensor<Shape${n},E>, axis: Int) -> Tensor<Shape${n - 1},E> {
+@differentiable(where E.Value: DifferentiableElement)
+@inlinable public func squeeze<E>(
+    _ a: Tensor<Shape${n},E>,
+    axis: Int
+) -> Tensor<Shape${n - 1},E> {
     Tensor<Shape${n - 1},E>(squeezing: a, axes: Shape1(axis))
 }
 
 % for i in range(2, n):
-@differentiable(where E: DifferentiableElement)
-@inlinable public func squeeze<E>(_ a: Tensor<Shape${n},E>, axes: Shape${i}.Tuple) -> Tensor<Shape${n - i},E> {
+@differentiable(where E.Value: DifferentiableElement)
+@inlinable public func squeeze<E>(
+    _ a: Tensor<Shape${n},E>,
+    axes: Shape${i}.Tuple
+) -> Tensor<Shape${n - i},E> {
     Tensor<Shape${n - i},E>(squeezing: a, axes: Shape${i}(axes))
 }
 
@@ -167,30 +179,58 @@ numShapes = 6
 /// - Parameters:
 ///  - value: to repeat
 ///  - shape: Int or tuple of Int. Shape of the array, e.g., (2, 3) or 2.
-///  - dtype: data-type, optional
+///  - type: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
 /// - Returns: read only repeated element
 
 %for n in range(1, numShapes + 1):
-//---------------------------------------
+//------------------------------------------------------------------------------
 // Rank${n}
-// default type
-@differentiable
-@inlinable public func repeating(
-    _ value: DType,
-    _ shape: Shape${n}.Tuple
-) -> Tensor<Shape${n}, DType> {
-   Tensor<Shape${n},DType>(repeating: value, to: Shape${n}(shape))
-}
 
-// specifying type
-@differentiable(where Element: DifferentiableElement)
+//************************** Implicit typing
+
+//---------------------------
+// same type
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<Element>(
     _ value: Element,
     _ shape: Shape${n}.Tuple,
-    dtype: Element.Type
+    _ layout: Layout = Layout.defaultValue
+) -> Tensor<Shape${n}, Element> where Element == Element.Value {
+    Tensor<Shape${n},Element>(repeating: value, to: Shape${n}(shape), layout: layout)
+}
+
+//---------------------------
+// Int --> DType
+@inlinable public func repeating(
+    _ value: Int,
+    _ shape: Shape${n}.Tuple,
+    _ layout: Layout = Layout.defaultValue
+) -> Tensor<Shape${n}, DType> {
+    Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape), layout: layout)
+}
+
+//---------------------------
+// Double --> DType
+// @differentiable
+@inlinable public func repeating(
+    _ value: Double,
+    _ shape: Shape${n}.Tuple,
+    _ layout: Layout = Layout.defaultValue
+) -> Tensor<Shape${n}, DType> {
+    Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape), layout: layout)
+}
+
+//************************** Explicit typing
+
+@differentiable(where Element.Value: DifferentiableElement)
+@inlinable public func repeating<Element>(
+    _ value: Element.Value,
+    _ shape: Shape${n}.Tuple,
+    _ layout: Layout = Layout.defaultValue,
+    type: Element.Type
 ) -> Tensor<Shape${n},Element> {
-    Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape))
+    Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape), layout: layout)
 }
 
 %end
@@ -201,45 +241,48 @@ numShapes = 6
 /// - Parameters:
 ///  - value: to repeat
 ///  - prototype: attributes are copied from this tensor when not specified
-///  - dtype: data-type, optional
+///  - type: data-type, optional
 ///    Desired output data-type for the array, e.g, Int8. Default is DType.
 ///  - shape: Int or tuple of Int. Shape of the array, e.g., (2, 3) or 2.
 /// - Returns: read only repeated element
 
 // same type and shape
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<S,Element>(
-    _ value: Element,
+    _ value: Element.Value,
     like prototype: Tensor<S,Element>
 ) -> Tensor<S,Element> where S: TensorShape
 {
-    Tensor<S,Element>(repeating: value, to: prototype.shape)
+    Tensor<S,Element>(repeating: value, to: prototype.shape,
+                      layout: prototype.layout)
 }
 
 // different type same shape
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<S,E, Element>(
-    _ value: Element,
+    _ value: Element.Value,
     like prototype: Tensor<S,E>,
-    dtype: Element.Type
+    type: Element.Type
 ) -> Tensor<S,Element> where S: TensorShape
 {
-    Tensor<S,Element>(repeating: value, to: prototype.shape)
+    Tensor<S,Element>(repeating: value, to: prototype.shape,
+                      layout: prototype.layout)
 }
 
 //------------------------------------------------------------------------------
 // same type different shape
 %for n in range(1, numShapes + 1):
 // Rank${n}
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<S,E>(
-    _ value: E,
+    _ value: E.Value,
     like prototype: Tensor<S,E>,
     shape: Shape${n}.Tuple
 ) -> Tensor<Shape${n}, E> where S: TensorShape
 {
     assert(prototype.count == Shape${n}(shape).elementCount())
-    return Tensor<Shape${n}, E>(repeating: value, to: Shape${n}(shape))
+    return Tensor<Shape${n}, E>(repeating: value, to: Shape${n}(shape),
+                             layout: prototype.layout)
 }
 
 %end
@@ -248,16 +291,17 @@ numShapes = 6
 // different type, different shape
 %for n in range(1, numShapes + 1):
 // Rank${n}
-@differentiable(where Element: DifferentiableElement)
+@differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<S,E,Element>(
-    _ value: Element,
+    _ value: Element.Value,
     like prototype: Tensor<S,E>,
-    dtype: Element.Type,
+    type: Element.Type,
     shape: Shape${n}.Tuple
 ) -> Tensor<Shape${n}, Element> where S: TensorShape
 {
     assert(prototype.count == Shape${n}(shape).elementCount())
-    return Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape))
+    return Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape),
+                      layout: prototype.layout)
 }
 
 %end
@@ -272,7 +316,7 @@ numShapes = 6
 //---------------------------------------
 // Rank${n}
 // default type
-@differentiable(where E: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableElement)
 @inlinable public func repeating<E>(
     _ other: Tensor<Shape${n},E>,
     _ shape: Shape${n}.Tuple

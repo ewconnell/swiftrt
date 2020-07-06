@@ -16,42 +16,53 @@
 import Foundation
 
 //==============================================================================
-/// CpuQueue
-/// a final version of the default device queue which executes functions
-/// synchronously on the cpu
-public final class CpuQueue: DeviceQueue, CpuFunctions, CpuMapOps {
-    // properties
-    public let creatorThread: Thread
-    public var defaultQueueEventOptions: QueueEventOptions
-    public let deviceId: Int
-    public let deviceName: String
-    public let id: Int
-    public let logInfo: LogInfo
-    public let memoryType: MemoryType
-    public let name: String
-    
-    //--------------------------------------------------------------------------
-    // initializers
-    @inlinable
-    public init(id: Int, parent logInfo: LogInfo,
-                deviceId: Int, deviceName: String,
-                memoryType: MemoryType)
-    {
-        self.id = id
-        self.name = "q\(id)"
-        self.logInfo = logInfo.flat(name)
-        self.deviceId = deviceId
-        self.deviceName = deviceName
-        self.creatorThread = Thread.current
-        self.defaultQueueEventOptions = QueueEventOptions()
-        self.memoryType = memoryType
-        
-        diagnostic("\(createString) \(Self.self): \(deviceName)_\(name)",
-                   categories: .queueAlloc)
-    }
-}
-
-//==============================================================================
 /// CpuFunctions
 public protocol CpuFunctions { }
 
+//==============================================================================
+/// CpuQueue
+/// a final version of the default device queue which executes functions
+/// synchronously on the cpu
+public final class CpuQueue: DeviceQueue, CpuFunctions
+{
+    public let creatorThread: Thread
+    public var defaultQueueEventOptions: QueueEventOptions
+    public let deviceIndex: Int
+    public let id: Int
+    public let memoryType: MemoryType
+    public let mode: DeviceQueueMode
+    public let name: String
+    public let queue: DispatchQueue
+    public let group: DispatchGroup
+    public let usesCpu: Bool
+    
+    //--------------------------------------------------------------------------
+    // initializers
+    @inlinable public init(
+        deviceIndex: Int,
+        name: String,
+        queueMode: DeviceQueueMode,
+        memoryType: MemoryType
+    ) {
+        self.id = Context.nextQueueId
+        self.name = name
+        self.deviceIndex = deviceIndex
+        self.creatorThread = Thread.current
+        self.defaultQueueEventOptions = QueueEventOptions()
+        self.memoryType = memoryType
+        self.mode = queueMode
+        self.queue = DispatchQueue(label: "\(name)")
+        self.group = DispatchGroup()
+        self.usesCpu = true
+        
+        let modeLabel = queueMode == .async ? "asynchronous" : "synchronous"
+        diagnostic("\(createString) \(modeLabel) queue: \(name)",
+                   categories: .queueAlloc)
+    }
+    
+    deinit {
+        // make sure all scheduled work is complete before exiting
+        waitForCompletion()
+        diagnostic("\(releaseString) queue: \(name)", categories: .queueAlloc)
+    }
+}

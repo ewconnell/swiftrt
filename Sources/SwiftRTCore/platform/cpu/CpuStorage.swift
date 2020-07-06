@@ -17,99 +17,112 @@
 //==============================================================================
 /// SyncStorage
 /// A synchronous host memory element storage buffer
-public final class CpuStorage<Element>: StorageBuffer
-{
-    public let hostBuffer: UnsafeMutableBufferPointer<Element>
+public final class CpuStorage: StorageBuffer {
+    // StorageBuffer protocol properties
+    public let alignment: Int
+    public let byteCount: Int
     public let id: Int
     public let isReadOnly: Bool
     public let isReference: Bool
     public var name: String
-    public var element: Element
-    
+
     //--------------------------------------------------------------------------
-    // init(count:
-    @inlinable public init(count: Int) {
-        self.hostBuffer = UnsafeMutableBufferPointer.allocate(capacity: count)
-        self.id = Context.nextBufferId
-        self.isReadOnly = false
-        self.isReference = false
-        self.name = "Tensor"
-        self.element = hostBuffer[0]
+    // implementation properties
+
+    // host storage buffer
+    public let hostBuffer: UnsafeMutableRawBufferPointer
+
+    //--------------------------------------------------------------------------
+    // init(type:count:name:
+    @inlinable public init<Element>(
+        storedType: Element.Type,
+        count: Int,
+        name: String
+    ) {
+        assert(MemoryLayout<Element>.size != 0,
+               "type: \(Element.self) is size 0")
+        self.name = name
+        alignment = MemoryLayout<Element>.alignment
+        byteCount = MemoryLayout<Element>.size * count
+        id = Context.nextBufferId
+        isReadOnly = false
+        isReference = false
+
+        hostBuffer = UnsafeMutableRawBufferPointer.allocate(
+            byteCount: byteCount,
+            alignment: alignment)
 
         #if DEBUG
-        diagnostic("\(createString) \(diagnosticName) " +
+        diagnostic("\(allocString) \(diagnosticName) " +
             "\(Element.self)[\(count)]", categories: .dataAlloc)
         #endif
     }
 
     //--------------------------------------------------------------------------
-    // init(element:
-    @inlinable public init(single element: Element) {
-        self.element = element
-        self.id = Context.nextBufferId
-        self.isReadOnly = false
-        self.isReference = true
-        self.name = "Tensor"
-
-        // point buffer to `element` member variable
-        // this should be safe since this is a class
-        let p = withUnsafeMutablePointer(to: &self.element) { $0 }
-        self.hostBuffer = UnsafeMutableBufferPointer(start: p, count: 1)
-
-        #if DEBUG
-        diagnostic("\(createString) \(diagnosticName) " +
-            "\(Element.self)[1]", categories: .dataAlloc)
-        #endif
+    /// `init(storedElement:name:
+    public convenience init<Element>(storedElement: Element, name: String) {
+        // TODO: change to data member to avoid heap alloc
+        self.init(storedType: Element.self, count: 1, name: name)
+        hostBuffer.bindMemory(to: Element.self)[0] = storedElement
     }
-
+    
     //--------------------------------------------------------------------------
-    // init(other:
-    @inlinable public init(copying other: CpuStorage) {
-        self.id = other.id
-        self.isReadOnly = other.isReadOnly
-        self.isReference = other.isReference
-        self.name = other.name
+    // init(other:queue:
+    @inlinable public init(copying other: CpuStorage, using queue: DeviceQueue){
+        alignment = other.alignment
+        byteCount = other.byteCount
+        id = Context.nextBufferId
+        isReadOnly = other.isReadOnly
+        isReference = other.isReference
+        name = other.name
         if isReference {
             hostBuffer = other.hostBuffer
         } else {
-            hostBuffer = UnsafeMutableBufferPointer
-                .allocate(capacity: other.hostBuffer.count)
-            _ = hostBuffer.initialize(from: other.hostBuffer)
+            hostBuffer = UnsafeMutableRawBufferPointer.allocate(
+                byteCount: other.byteCount,
+                alignment: other.alignment)
+            hostBuffer.copyMemory(from: UnsafeRawBufferPointer(other.hostBuffer))
         }
-        element = hostBuffer[0]
     }
 
     //--------------------------------------------------------------------------
-    // init(buffer:
-    @inlinable public init(referenceTo buffer: UnsafeBufferPointer<Element>) {
-        self.hostBuffer = UnsafeMutableBufferPointer(mutating: buffer)
+    // init(buffer:name:
+    @inlinable public init<Element>(
+        referenceTo buffer: UnsafeBufferPointer<Element>,
+        name: String
+    ) {
+        alignment = MemoryLayout<Element>.alignment
+        byteCount = MemoryLayout<Element>.size * buffer.count
+        let buff = UnsafeMutableBufferPointer(mutating: buffer)
+        self.hostBuffer = UnsafeMutableRawBufferPointer(buff)
         self.id = Context.nextBufferId
         self.isReadOnly = true
         self.isReference = true
-        self.name = "Tensor"
-        self.element = hostBuffer[0]
+        self.name = name
 
         #if DEBUG
-        diagnostic("\(createString) Reference \(diagnosticName) " +
-            "\(Element.self)[\(hostBuffer.count)]", categories: .dataAlloc)
+        diagnostic("\(referenceString) \(diagnosticName) " +
+            "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
         #endif
     }
     
     //--------------------------------------------------------------------------
-    // init(buffer:
-    @inlinable
-    public init(referenceTo buffer: UnsafeMutableBufferPointer<Element>)
-    {
-        self.hostBuffer = buffer
+    // init(type:buffer:name:
+    @inlinable public init<Element>(
+        referenceTo buffer: UnsafeMutableBufferPointer<Element>,
+        name: String
+    ) {
+        alignment = MemoryLayout<Element>.alignment
+        byteCount = MemoryLayout<Element>.size * buffer.count
+        self.hostBuffer = UnsafeMutableRawBufferPointer(buffer)
         self.id = Context.nextBufferId
         self.isReadOnly = false
         self.isReference = true
-        self.name = "Tensor"
-        self.element = hostBuffer[0]
+        self.name = name
 
         #if DEBUG
-        diagnostic("\(createString) Reference \(diagnosticName) " +
-            "\(Element.self)[\(hostBuffer.count)]", categories: .dataAlloc)
+        diagnostic("\(referenceString) \(diagnosticName) " +
+            "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
         #endif
     }
     
@@ -124,8 +137,7 @@ public final class CpuStorage<Element>: StorageBuffer
     
     //--------------------------------------------------------------------------
     // deinit
-    @inlinable
-    deinit {
+    @inlinable deinit {
         if !isReference {
             hostBuffer.deallocate()
             #if DEBUG
@@ -135,54 +147,56 @@ public final class CpuStorage<Element>: StorageBuffer
         }
     }
     
-    @inlinable
-    public func element(at offset: Int) -> Element {
-        hostBuffer[offset]
-    }
-    
-    @inlinable
-    public func setElement(value: Element, at offset: Int) {
-        hostBuffer[offset] = value
-    }
-    
     //--------------------------------------------------------------------------
     // read
-    @inlinable
-    public func read(at offset: Int, count: Int) -> UnsafeBufferPointer<Element>
-    {
-        let start = hostBuffer.baseAddress!.advanced(by: offset)
+    @inlinable public func read<Element>(
+        type: Element.Type,
+        at index: Int,
+        count: Int
+    ) -> UnsafeBufferPointer<Element> {
+        // advance to typed starting position
+        let start = hostBuffer.baseAddress!
+                .bindMemory(to: Element.self, capacity: count)
+                .advanced(by: index)
+        // return read only buffer pointer
         return UnsafeBufferPointer(start: start, count: count)
     }
     
     //--------------------------------------------------------------------------
     // read
-    @inlinable
-    public func read(at offset: Int, count: Int, using queue: DeviceQueue)
-        -> UnsafeBufferPointer<Element>
-    {
-        let start = hostBuffer.baseAddress!.advanced(by: offset)
-        return UnsafeBufferPointer(start: start, count: count)
+    @inlinable public func read<Element>(
+        type: Element.Type,
+        at index: Int,
+        count: Int,
+        using queue: DeviceQueue
+    ) -> UnsafeBufferPointer<Element> {
+        read(type: type, at: index, count: count)
     }
     
     //--------------------------------------------------------------------------
     // readWrite
-    @inlinable
-    public func readWrite(at offset: Int, count: Int)
-        -> UnsafeMutableBufferPointer<Element>
-    {
-        let start = hostBuffer.baseAddress!.advanced(by: offset)
+    @inlinable public func readWrite<Element>(
+        type: Element.Type,
+        at index: Int,
+        count: Int
+    ) -> UnsafeMutableBufferPointer<Element> {
+        // advance to typed starting position
+        let start = hostBuffer.baseAddress!
+                .bindMemory(to: Element.self, capacity: count)
+                .advanced(by: index)
+        // return read/write buffer pointer
         return UnsafeMutableBufferPointer(start: start, count: count)
     }
     
     //--------------------------------------------------------------------------
     // readWrite
-    @inlinable
-    public func readWrite(at offset: Int, count: Int, willOverwrite: Bool,
-                          using queue: DeviceQueue)
-        -> UnsafeMutableBufferPointer<Element>
-    {
-        let start = hostBuffer.baseAddress!.advanced(by: offset)
-        return UnsafeMutableBufferPointer(start: start, count: count)
+    @inlinable public func readWrite<Element>(
+        type: Element.Type,
+        at index: Int,
+        count: Int,
+        using queue: DeviceQueue
+    ) -> UnsafeMutableBufferPointer<Element> {
+        readWrite(type: type, at: index, count: count)
     }
 }
 

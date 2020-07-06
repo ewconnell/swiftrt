@@ -1,9 +1,0 @@
-prefix=/usr/local/cuda
-libdir=${prefix}/lib
-includedir=${prefix}/include
-
-Name: cuda
-Description: Cuda SDK
-Version: 10
-Libs: -L${libdir} -lcudart -lcublas -lcurand -lcudnn
-Cflags: -I${includedir}
