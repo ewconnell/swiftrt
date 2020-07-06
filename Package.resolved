@@ -3,10 +3,13 @@
     "pins": [
       {
         "package": "swift-numerics",
+        "products": [
+          "Numerics"
+        ],
         "repositoryURL": "https://github.com/apple/swift-numerics",
         "state": {
           "branch": "master",
-          "revision": "c634b5ddcea8445244b7cde1e5deddb8adf58e37",
+          "revision": "110beefe0b9a4af05b09f2d33faf52740d9229a7",
           "version": null
         }
       }
