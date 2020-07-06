@@ -1,15 +1,21 @@
 import XCTest
-@testable import SwiftRT
+import SwiftRT
 
 // TODO: Convert message to an @autoclosure.
 
-func assertEqual<T: FloatingPoint>(_ x: [T], _ y: [T], accuracy: T, _ message: String = "", file: StaticString = #file, line: UInt = #line) {
+func assertEqual<T: FloatingPoint>(
+    _ x: [T], _ y: [T], accuracy: T, _ message: String = "",
+    file: StaticString = #file, line: UInt = #line)
+{
     for (x, y) in zip(x, y) {
         if x.isNaN || y.isNaN {
-            XCTAssertTrue(x.isNaN && y.isNaN, "\(x) is not equal to \(y) - \(message)", file: file, line: line)
-            continue
+            XCTAssertTrue(x.isNaN && y.isNaN,
+                          "\(x) is not equal to \(y) - \(message)",
+                          file: file, line: line)
+        } else {
+            XCTAssertEqual(x, y, accuracy: accuracy, message,
+                           file: file, line: line)
         }
-        XCTAssertEqual(x, y, accuracy: accuracy, message, file: file, line: line)
     }
 }
 
@@ -21,5 +27,6 @@ func assertEqual<Shape, T: FloatingPoint>(
     file: StaticString = #file,
     line: UInt = #line
 ) where T.Value == T {
-    assertEqual(x.flatArray, y.flatArray, accuracy: accuracy, message, file: file, line: line)
+    assertEqual(x.flatArray, y.flatArray, accuracy: accuracy,
+                message, file: file, line: line)
 }
