@@ -71,6 +71,23 @@ class test_Shape: XCTestCase {
         XCTAssertEqual(input, reshapedPullback(reshaped))
     }
     
+    func test5(){
+        Context.cpuQueueCount = 0
+        Context.log.level = .diagnostic
+        print("Queue mode = \(Context.currentQueue.mode)")
+        let maxi = 8
+        let maxj = 8
+        var drag = repeating(.zero, (2, maxj + 2, maxi + 2))
+        let idxoffset1 = 6
+        let idxoffset2 = 2
+        drag[1, (maxj - idxoffset1)..<(maxj - idxoffset2), 0...maxi] = expand(dims: repeating(array([1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0], (1, maxi + 1)), ((idxoffset1-idxoffset2), maxi + 1)), axis: 0)
+        drag[0, (maxj - idxoffset1)..<(maxj - idxoffset2), 0...maxi] = drag[1, (maxj - idxoffset1)..<(maxj - idxoffset2), 0...maxi]
+        drag[0] = drag[1]
+        Context.currentQueue.waitForCompletion()
+        print(drag)
+        Context.log.level = .status
+    }
+    
     //--------------------------------------------------------------------------
     func test_reshapeOrder() {
 //        Context.log.level = .diagnostic

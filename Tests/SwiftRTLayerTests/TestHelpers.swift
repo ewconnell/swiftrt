@@ -5,7 +5,7 @@ import SwiftRT
 
 func assertEqual<T: FloatingPoint>(
     _ x: [T], _ y: [T], accuracy: T, _ message: String = "",
-    file: StaticString = #file, line: UInt = #line)
+    file: StaticString = #filePath, line: UInt = #line)
 {
     for (x, y) in zip(x, y) {
         if x.isNaN || y.isNaN {
@@ -24,7 +24,7 @@ func assertEqual<Shape, T: FloatingPoint>(
     _ y: Tensor<Shape, T>,
     accuracy: T,
     _ message: String = "",
-    file: StaticString = #file,
+    file: StaticString = #filePath,
     line: UInt = #line
 ) where T.Value == T {
     assertEqual(x.flatArray, y.flatArray, accuracy: accuracy,
