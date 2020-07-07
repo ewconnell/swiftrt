@@ -68,7 +68,11 @@ public final class CpuStorage: StorageBuffer {
     
     //--------------------------------------------------------------------------
     // init(other:queue:
-    @inlinable public init(copying other: CpuStorage, using queue: DeviceQueue){
+    @inlinable public init<Element>(
+        type: Element.Type,
+        copying other: CpuStorage,
+        using queue: DeviceQueue
+    ){
         alignment = other.alignment
         byteCount = other.byteCount
         id = Context.nextBufferId

@@ -158,7 +158,7 @@ extension DeviceQueue {
                 r.layout,
                 r.stridedSpanCount)
         
-        rMutableElements.synchronizeForReadWrite()
+        rMutableElements.prepareForReadWrite()
         
         if a.isBufferIterable {
             execute(a.buffer, rMutableElements, op)

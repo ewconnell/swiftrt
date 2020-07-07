@@ -90,8 +90,9 @@ public final class DiscreteStorage: StorageBuffer {
     }
     
     //--------------------------------------------------------------------------
-    // init(copying other:
-    @inlinable public init(
+    // init(type:other:using:
+    @inlinable public init<Element>(
+        type: Element.Type,
         copying other: DiscreteStorage,
         using queue: DeviceQueue
     ) {
@@ -105,12 +106,24 @@ public final class DiscreteStorage: StorageBuffer {
         _lastAccessCopiedMemory = false
 
         // setup replica managment
-        let numDevices = Context.local.platform.devices.count
-        replicas = [DeviceMemory?](repeating: nil, count: numDevices)
+        replicas = [DeviceMemory?](repeating: nil, count: other.replicas.count)
 
         // copy other master to self using the current queue
-        
-        
+        do {
+            let queue = Context.currentQueue
+            let otherMemory = try other.getDeviceMemory(Element.self, queue)
+            let selfMemory = try getDeviceMemory(Element.self, queue)
+            diagnostic("\(copyString) \(other.name)(\(other.id)) --> " +
+                        "\(name)(\(id)) \(Element.self)" +
+                        "[\(byteCount / MemoryLayout<Element>.size)]",
+                       categories: .dataCopy)
+            try queue.copy(from: otherMemory, to: selfMemory)
+        } catch {
+            writeLog("\(error)")
+            // TODO: maybe call some memory purging logic here to make
+            // space and try again??
+            fatalError("unrecoverable failure")
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -263,7 +276,7 @@ public final class DiscreteStorage: StorageBuffer {
                 // we shouldn't get here if both buffers are in unified memory
                 assert(master.type == .discrete || replica.type == .discrete)
                 _lastAccessCopiedMemory = true
-                try queue.copyAsync(from: master, to: replica)
+                try queue.copy(from: master, to: replica)
                 if willLog(level: .diagnostic) {
                     let elementCount = replica.buffer.count /
                         MemoryLayout<Element>.size

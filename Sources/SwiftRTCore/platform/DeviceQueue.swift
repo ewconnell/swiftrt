@@ -59,7 +59,7 @@ public protocol DeviceQueue: Logging {
     /// - Parameters:
     ///  - src: the source buffer
     ///  - dst: the destination buffer
-    func copyAsync(from src: DeviceMemory, to dst: DeviceMemory) throws
+    func copy(from src: DeviceMemory, to dst: DeviceMemory) throws
     
     /// createEvent(options:
     /// creates a queue event used for synchronization and timing measurements
@@ -104,9 +104,15 @@ extension DeviceQueue {
     }
     
     //--------------------------------------------------------------------------
-    /// copyAsync
-    public func copyAsync(from src: DeviceMemory, to dst: DeviceMemory) throws {
-        dst.buffer.copyMemory(from: UnsafeRawBufferPointer(src.buffer))
+    /// copy
+    public func copy(from src: DeviceMemory, to dst: DeviceMemory) throws {
+        if mode == .async {
+            queue.async(group: group) {
+                dst.buffer.copyMemory(from: UnsafeRawBufferPointer(src.buffer))
+            }
+        } else {
+            dst.buffer.copyMemory(from: UnsafeRawBufferPointer(src.buffer))
+        }
     }
     
     //--------------------------------------------------------------------------

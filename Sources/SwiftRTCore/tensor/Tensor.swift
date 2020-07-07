@@ -310,13 +310,13 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     // logical coordinate element iterators
     @inlinable var elements: LogicalElements<Shape,TensorElement> {
-        logicalElements.synchronizeForRead()
+        logicalElements.prepareForRead()
         return logicalElements
     }
     
     @inlinable var mutableElements: LogicalElements<Shape,TensorElement> {
         mutating get {
-            logicalElements.synchronizeForReadWrite()
+            logicalElements.prepareForReadWrite()
             return logicalElements
         }
     }
@@ -324,7 +324,7 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     /// the starting index zero relative to the storage buffer
     @inlinable var startIndex: Index {
-        logicalElements.synchronizeForReadWrite()
+        logicalElements.prepareForReadWrite()
         return logicalElements.startIndex
     }
     
@@ -354,13 +354,17 @@ public extension Tensor {
     // elemment subscript
     @inlinable subscript(i: Index) -> Element {
         get {
-            logicalElements.synchronizeForRead()
-            return logicalElements[i]
+            usingSyncQueue {
+                logicalElements.prepareForRead()
+                return logicalElements[i]
+            }
         }
         set {
-            prepareForWrite(using: Context.currentQueue)
-            logicalElements.synchronizeForReadWrite()
-            logicalElements[i] = newValue
+            usingSyncQueue {
+                prepareForWrite(using: Context.currentQueue)
+                logicalElements.prepareForReadWrite()
+                logicalElements[i] = newValue
+            }
         }
     }
 
@@ -427,7 +431,8 @@ public extension Tensor {
                         "\(Element.self)[\(count)]",
                        categories: [.dataCopy, .dataMutation])
             
-            storage = StorageBufferType(copying: storage, using: queue)
+            storage = StorageBufferType(type: Element.self, copying: storage,
+                                        using: queue)
             logicalElements = LogicalElements(tensor: self)
         }
     }

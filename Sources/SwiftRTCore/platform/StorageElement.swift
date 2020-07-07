@@ -569,7 +569,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     /// init
     /// This initializer is called by `Tensor` initializers to setup for
     /// possible direct element indexing by the user. The host buffer is
-    /// set to `nil` and requires that `synchronizeForReadWrite` be called
+    /// set to `nil` and requires that `prepareForReadWrite` be called
     /// before any access to storage.
     /// `Tensor.startIndex` and `Tensor.makeIndex` call this function each
     /// time to transparently sync for the user.
@@ -598,8 +598,8 @@ where Shape: TensorShape, TensorElement: StorageElement
     }
     
     //--------------------------------------------------------------------------
-    // synchronizeForRead
-    @inlinable public func synchronizeForRead() {
+    // prepareForRead
+    @inlinable public func prepareForRead() {
         let buff = storage.read(type: TensorElement.Stored.self,
                                 at: storedBase,
                                 count: storedCount,
@@ -610,8 +610,8 @@ where Shape: TensorShape, TensorElement: StorageElement
     }
     
     //--------------------------------------------------------------------------
-    // synchronizeForReadWrite
-    @inlinable public func synchronizeForReadWrite() {
+    // prepareForReadWrite
+    @inlinable public func prepareForReadWrite() {
         hostBuffer = storage.readWrite(type: TensorElement.Stored.self,
                                        at: storedBase,
                                        count: storedCount,

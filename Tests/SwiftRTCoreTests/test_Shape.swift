@@ -71,21 +71,41 @@ class test_Shape: XCTestCase {
         XCTAssertEqual(input, reshapedPullback(reshaped))
     }
     
-    func test5(){
-        Context.cpuQueueCount = 0
-        Context.log.level = .diagnostic
-        print("Queue mode = \(Context.currentQueue.mode)")
+    //--------------------------------------------------------------------------
+    // bug repro from user
+    func test_expandMutate(){
         let maxi = 8
         let maxj = 8
         var drag = repeating(.zero, (2, maxj + 2, maxi + 2))
         let idxoffset1 = 6
         let idxoffset2 = 2
-        drag[1, (maxj - idxoffset1)..<(maxj - idxoffset2), 0...maxi] = expand(dims: repeating(array([1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0], (1, maxi + 1)), ((idxoffset1-idxoffset2), maxi + 1)), axis: 0)
+        let data = repeating(array([1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0], (1, maxi + 1)), ((idxoffset1-idxoffset2), maxi + 1))
+        drag[1, (maxj - idxoffset1)..<(maxj - idxoffset2), 0...maxi] = expand(dims: data, axis: 0)
         drag[0, (maxj - idxoffset1)..<(maxj - idxoffset2), 0...maxi] = drag[1, (maxj - idxoffset1)..<(maxj - idxoffset2), 0...maxi]
-        drag[0] = drag[1]
-        Context.currentQueue.waitForCompletion()
-        print(drag)
-        Context.log.level = .status
+        XCTAssert(drag == [[
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0, 0.0],
+            [1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0, 0.0],
+            [1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0, 0.0],
+            [1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        ],
+        [
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0, 0.0],
+            [1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0, 0.0],
+            [1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0, 0.0],
+            [1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        ]])
     }
     
     //--------------------------------------------------------------------------
