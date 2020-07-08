@@ -188,7 +188,7 @@ public final class DiscreteStorage: StorageBuffer {
         using queue: DeviceQueue
     ) -> UnsafeBufferPointer<Element> {
         let buffer = migrate(type, willMutate: false, using: queue)
-        assert(index + count <= buffer.count)
+        assert(index + count <= buffer.count, "range is out of bounds")
         let start = buffer.baseAddress!.advanced(by: index)
         return UnsafeBufferPointer(start: start, count: count)
     }
@@ -202,7 +202,7 @@ public final class DiscreteStorage: StorageBuffer {
         using queue: DeviceQueue
     ) -> UnsafeMutableBufferPointer<Element> {
         let buffer = migrate(type, willMutate: true, using: queue)
-        assert(index + count <= buffer.count)
+        assert(index + count <= buffer.count, "range is out of bounds")
         let start = buffer.baseAddress!.advanced(by: index)
         return UnsafeMutableBufferPointer(start: start, count: count)
     }

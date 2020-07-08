@@ -86,6 +86,9 @@ where Shape: TensorShape, TensorElement: StorageElement
         layout: Layout,
         shared: Bool
     ) {
+        assert(storageBase + stridedSpanCount <=
+                storage.countOf(type: TensorElement.Stored.self),
+               "tensor storage range is out of bounds")
         self.shape = shape
         self.strides = strides
         self.count = count

@@ -880,7 +880,7 @@ public extension Tensor {
                   count: other.count,
                   storage: other.storage,
                   storageBase: other.storageBase,
-                  stridedSpanCount: other.count,
+                  stridedSpanCount: other.stridedSpanCount,
                   layout: other.layout,
                   shared: other.isShared)
     }
