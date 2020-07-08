@@ -24,11 +24,9 @@ class test_Shape: XCTestCase {
         ("test_reshape", test_reshape),
         ("test_reshapeOrder", test_reshapeOrder),
         ("test_expanding", test_expanding),
-
         ("test_expandMutate", test_expandMutate),
         ("test_repeatExpandTranspose", test_repeatExpandTranspose),
         ("test_stridePermutation", test_stridePermutation),
-
         ("test_squeeze", test_squeeze),
         ("test_stack", test_stack),
         ("test_stackingGradients", test_stackingGradients),
@@ -90,7 +88,8 @@ class test_Shape: XCTestCase {
         let maxi = 20
         let maxk =  8
 
-        let vec = array([0, 0, 0, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0])
+        let vec = array([0, 0, 0, 10, 10, 10, 10, 10, 10, 10,
+                         10, 10, 10, 10, 10, 10, 10, 0, 0, 0])
         let ts = repeating(expand(dims: vec, axes: (0,1,3)), (2, maxj, maxi, maxk))
         XCTAssert(ts[0, ..., ..., 0].count == (maxj * maxi))
 
