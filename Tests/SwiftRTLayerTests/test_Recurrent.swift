@@ -42,23 +42,23 @@ class test_Recurrent: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_LSTMEncoder() {
-        var lstm = LSTM<Float>(LSTMCell(inputSize: 4, hiddenSize: 4))
-        lstm.cell.fusedWeight = lstmInitialCellFusedWeights
-        lstm.cell.fusedBias = lstmInitialCellFusedBias
-
-        let initialState = LSTMCell<Float>.State(cell: lstmInitialStateCell, hidden: lstmInitialStateHidden)
-
-        let outputs = lstm(lstmInputs, initialState: initialState)
-        XCTAssertEqual(outputs.count, 4)
-
-        assertEqual(
-            Tensor(concatenating: outputs.map { $0.hidden }),
-            lstmExpectedStates,
-            accuracy: 1e-6)
-        assertEqual(
-            outputs.last!.cell,
-            lstmExpectedOutput,
-            accuracy: 1e-6)
+//        var lstm = LSTM<Float>(LSTMCell(inputSize: 4, hiddenSize: 4))
+//        lstm.cell.fusedWeight = lstmInitialCellFusedWeights
+//        lstm.cell.fusedBias = lstmInitialCellFusedBias
+//
+//        let initialState = LSTMCell<Float>.State(cell: lstmInitialStateCell, hidden: lstmInitialStateHidden)
+//
+//        let outputs = lstm(lstmInputs, initialState: initialState)
+//        XCTAssertEqual(outputs.count, 4)
+//
+//        assertEqual(
+//            Tensor(concatenating: outputs.map { $0.hidden }),
+//            lstmExpectedStates,
+//            accuracy: 1e-6)
+//        assertEqual(
+//            outputs.last!.cell,
+//            lstmExpectedOutput,
+//            accuracy: 1e-6)
         
 //        let (gradLSTM, gradInputs, gradInitialState) =
 //            gradient(at: lstm, lstmInputs, initialState) { lstm, lstmInputs, initialState in

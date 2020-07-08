@@ -86,7 +86,11 @@ where Shape: TensorShape, TensorElement: StorageElement
         layout: Layout,
         shared: Bool
     ) {
-        assert(storageBase + stridedSpanCount <=
+        // make sure the tensor view range is within the associated
+        // storage buffer bounds.
+        // Converts the logical last tensor element index to the corresponding
+        // stored index and asserts it's less than buffer count
+        assert(TensorElement.storedIndex(storageBase + stridedSpanCount - 1) <
                 storage.countOf(type: TensorElement.Stored.self),
                "tensor storage range is out of bounds")
         self.shape = shape
