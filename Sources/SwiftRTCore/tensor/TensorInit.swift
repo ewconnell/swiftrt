@@ -638,7 +638,7 @@ public extension Tensor {
                   count: other.count,
                   storage: other.storage,
                   storageBase: other.storageBase,
-                  stridedSpanCount: other.count,
+                  stridedSpanCount: other.stridedSpanCount,
                   layout: other.layout,
                   shared: other.isShared)
     }
@@ -828,7 +828,7 @@ public extension Tensor {
                   count: other.count,
                   storage: other.storage,
                   storageBase: other.storageBase,
-                  stridedSpanCount: other.count,
+                  stridedSpanCount: other.stridedSpanCount,
                   layout: other.layout,
                   shared: other.isShared)
     }
@@ -910,7 +910,7 @@ extension Tensor where TensorElement.Value: DifferentiableElement {
                  count: other.count,
                  storage: $0.storage,
                  storageBase: $0.storageBase,
-                 stridedSpanCount: other.count,
+                 stridedSpanCount: other.stridedSpanCount,
                  layout: other.layout,
                  shared: $0.isShared)
         })
