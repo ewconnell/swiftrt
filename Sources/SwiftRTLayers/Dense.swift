@@ -24,12 +24,14 @@ where S: TensorShape,
 {
     /// The element-wise activation function.
     @noDerivative public let activation: ActivationType
-    /// The weight matrix.
+    /// The execution plan key
+    @noDerivative public var plan: Int?
+    /// The weights
     public var weight: Tensor<S,E>
-    /// The bias vector.
+    /// The bias
     public var bias: Tensor<S,E>
-
     
+    //--------------------------------------------------------------------------
     @differentiable
     public func callAsFunction(_ input: Tensor<S,E>) -> Tensor<S,E> {
         input
@@ -66,3 +68,29 @@ public extension Dense where S == Shape3 {
                                 layout: weight.layout)
     }
 }
+
+//extension Dense {
+//    /// Creates a `Dense` layer with the specified input size, output size, and element-wise
+//    /// activation function. The weight matrix is created with shape `[inputSize, outputSize]` and
+//    /// the bias vector is created with shape `[outputSize]`.
+//    ///
+//    /// - Parameters:
+//    ///   - inputSize: The dimensionality of the input space.
+//    ///   - outputSize: The dimensionality of the output space.
+//    ///   - activation: The activation function to use. The default value is `identity(_:)`.
+//    ///   - weightInitializer: Initializer to use for `weight`.
+//    ///   - biasInitializer: Initializer to use for `bias`.
+//    public init(
+//        inputSize: Int,
+//        outputSize: Int,
+//        activation: @escaping Activation = identity,
+//        useBias: Bool = true,
+//        weightInitializer: ParameterInitializer<Scalar> = glorotUniform(),
+//        biasInitializer: ParameterInitializer<Scalar> = zeros()
+//    ) {
+//        self.init(
+//            weight: weightInitializer([inputSize, outputSize]),
+//            bias: useBias ? biasInitializer([outputSize]) : nil,
+//            activation: activation)
+//    }
+//}

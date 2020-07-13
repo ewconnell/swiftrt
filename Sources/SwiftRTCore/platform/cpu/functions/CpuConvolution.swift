@@ -189,7 +189,7 @@ where Shape: TensorShape,
     }
     
     //--------------------------------------------------------------------------
-    /// infer
+    /// forward
     /// - Parameter y: the output tensor
     /// - Parameter x: the input tensor
     /// - Parameter filter: the convolution filter
@@ -204,7 +204,7 @@ where Shape: TensorShape,
     }
 
     //--------------------------------------------------------------------------
-    /// backPropagate
+    /// backward
     /// - Parameter y: the output tensor
     /// - Parameter yDiff: the output differential
     /// - Parameter filter: the convolution filter
