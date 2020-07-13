@@ -16,7 +16,7 @@
 import SwiftRTCore
 
 //==============================================================================
-/// SNLM
+/// Embedding
 public struct Embedding<Element> : Module
 where Element: StorageElement,
       Element.Value: DifferentiableElement & BinaryFloatingPoint
