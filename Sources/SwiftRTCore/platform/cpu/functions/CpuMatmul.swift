@@ -15,16 +15,16 @@
 //
 import Foundation
 
-//==============================================================================
-// DeviceQueue functions with default cpu delegation
-extension DeviceQueue where Self: CpuFunctions
-{
-    public func matmul2<E>(type: E.Type) -> DeviceMatmul2<E>
-    where E: StorageElement, E.Value: ScalarElement & Numeric
-    {
-        CpuMatmul2<E>()
-    }
-}
+// //==============================================================================
+// // DeviceQueue functions with default cpu delegation
+// extension DeviceQueue where Self: CpuFunctions
+// {
+//     public func matmul2<E>(type: E.Type) -> DeviceMatmul2<E>
+//     where E: StorageElement, E.Value: ScalarElement & Numeric
+//     {
+//         CpuMatmul2<E>()
+//     }
+// }
 
 //==============================================================================
 /// CpuMatmul2
@@ -36,6 +36,8 @@ where E: StorageElement, E.Value: ScalarElement & Numeric {}
 public class DeviceMatmul2<E>: Logging
 where E: StorageElement, E.Value: ScalarElement & Numeric
 {
+    @inlinable public init() {}
+    
     //--------------------------------------------------------------------------
     /// forward
     @inlinable public func forward(

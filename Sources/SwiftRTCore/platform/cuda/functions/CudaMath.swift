@@ -26,6 +26,8 @@ extension CudaQueue {
     }
 
     //--------------------------------------------------------------------------
+    // https://docs.nvidia.com/cuda/cublas/index.html#using-the-cublasLt-api
+    // samples: https://github.com/NVIDIA/CUDALibrarySamples/tree/master/cuBLASLt
     @inlinable func matmul<E>(
         _ lhs: TensorR2<E>, _ transposeLhs: Bool,
         _ rhs: TensorR2<E>, _ transposeRhs: Bool,

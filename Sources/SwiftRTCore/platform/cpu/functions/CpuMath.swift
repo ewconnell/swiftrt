@@ -156,13 +156,8 @@ extension DeviceQueue where Self: CpuFunctions
     @inlinable func logGamma<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real { cpu_logGamma(x, &result) }
     //--------------------------------------------------------------------------
-    @inlinable func matmul<E>(
-        _ lhs: TensorR2<E>, _ transposeLhs: Bool,
-        _ rhs: TensorR2<E>, _ transposeRhs: Bool,
-        _ result: inout TensorR2<E>
-    ) where E.Value: Numeric {
-        cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
-    }
+    @inlinable func matmul2<E>(type: E.Type) -> DeviceMatmul2<E>
+    where E: StorageElement, E.Value: ScalarElement & Numeric { CpuMatmul2<E>() }
     //--------------------------------------------------------------------------
     @inlinable func matmul<E>(
         _ lhs: TensorR3<E>, _ transposeLhs: Bool,
