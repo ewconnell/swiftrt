@@ -22,6 +22,7 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // support terminal test run
     static var allTests = [
+        ("test_queryMatmulProperties", test_queryMatmulProperties),
         // ("test_minimalAdd", test_minimalAdd),
         // ("test_minimalAddVJP", test_minimalAddVJP),
 
@@ -50,6 +51,42 @@ class test_AlgebraicField: XCTestCase {
         ("test_divScalar", test_divScalar),
         ("test_divAndAssign", test_divAndAssign),
     ]
+
+    //--------------------------------------------------------------------------
+    func test_queryMatmulProperties() {
+        Context.log.level = .diagnostic
+        do {
+            let a = ones((3, 2))
+            let b = ones((2, 4))
+            var c = empty((3, 4))
+            let props = queryMatmulProperties(a, false, b, false, &c)
+            print(props)
+        }
+
+        // do {
+        //     let a = ones((32, 2))
+        //     let b = ones((2, 64))
+        //     var c = empty((32, 64))
+        //     let props = queryMatmulProperties(a, false, b, false, &c)
+        //     print(props)
+        // }
+
+        // do {
+        //     let a = ones((512, 768))
+        //     let b = ones((768, 96))
+        //     var c = empty((512, 96))
+        //     let props = queryMatmulProperties(a, false, b, false, &c)
+        //     print(props)
+        // }
+
+        // do {
+        //     let a = ones((1024, 1024))
+        //     let b = ones((1024, 1024))
+        //     var c = empty((1024, 1024))
+        //     let props = queryMatmulProperties(a, false, b, false, &c)
+        //     print(props)
+        // }
+    }
 
     //--------------------------------------------------------------------------
     func test_minimalAdd() {

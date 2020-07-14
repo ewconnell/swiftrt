@@ -26,12 +26,6 @@ extension CudaQueue
 }
 
 //==============================================================================
-/// MatmulProperties
-public struct MatmulProperties {
-
-}
-
-//==============================================================================
 /// CudaMatmul2
 public final class CudaMatmul2<E>: DeviceMatmul2<E>
 where E: StorageElement, E.Value: ScalarElement & Numeric
@@ -82,7 +76,7 @@ public extension CudaMatmul2
         _ rhs: TensorR2<E>, _ transposeRhs: Bool,
         _ result: inout TensorR2<E>
     ) throws {
-        let operationDesc = MatmulDescriptor(computeType: CUBLAS_COMPUTE_32F,
-                                             scaleType: CUDA_R_32F)
+        // let operationDesc = MatmulDescriptor(computeType: CUBLAS_COMPUTE_32F,
+        //                                      scaleType: CUDA_R_32F)
     }
 }
