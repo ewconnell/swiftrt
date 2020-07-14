@@ -72,7 +72,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_matmul() {
-//        Context.log.level = .diagnostic
+        Context.log.level = .diagnostic
         let a = array([0, 1, 2, 3, 4, 5], (3, 2))
         let b = array([0, 1, 2, 3, 4, 5, 6, 7], (2, 4))
         let c = matmul(a, b)
@@ -80,13 +80,13 @@ class test_AlgebraicField: XCTestCase {
                         [12, 17, 22, 27],
                         [20, 29, 38, 47]])
         
-        let (g0, g1) = pullback(at: a, b, in: { matmul($0, $1) } )(ones(like: c))
-        XCTAssert(g0 == [[ 6, 22],
-                         [ 6, 22],
-                         [ 6, 22]])
+        // let (g0, g1) = pullback(at: a, b, in: { matmul($0, $1) } )(ones(like: c))
+        // XCTAssert(g0 == [[ 6, 22],
+        //                  [ 6, 22],
+        //                  [ 6, 22]])
         
-        XCTAssert(g1 == [[6, 6, 6, 6],
-                         [9, 9, 9, 9]])
+        // XCTAssert(g1 == [[6, 6, 6, 6],
+        //                  [9, 9, 9, 9]])
     }
     
     //--------------------------------------------------------------------------

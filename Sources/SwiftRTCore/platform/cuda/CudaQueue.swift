@@ -35,7 +35,7 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     public let gpuId: Int
     public let stream: cudaStream_t
     public let cudnn: CudnnHandle
-    public let cublas: CublasHandle
+    public let cublas: CublasLtHandle
     @inlinable public var usesCpu: Bool { !useGpu }
 
     //--------------------------------------------------------------------------
@@ -68,7 +68,7 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
             try cudaCheck(status: cudaStreamCreateWithFlags(&cudaStream, flags))
             stream = cudaStream!
             cudnn = CudnnHandle(gpuId: gpuId, using: stream)
-            cublas = CublasHandle(gpuId: gpuId, using: stream)
+            cublas = CublasLtHandle()
         } catch {
             Context.log.write(level: .error, message: "\(error)")
             fatalError()

@@ -322,46 +322,6 @@ public final class CudnnHandle {
 }
 
 //==============================================================================
-/// CublasHandle
-/// creates and manages the lifetime of a cublas handle
-public final class CublasHandle {
-    // properties
-    public let gpuId: Int
-    public let handle: cublasHandle_t
-
-    //--------------------------------------------------------------------------
-    /// init
-    /// - Parameters:
-    ///  - gpuId: the associated device
-    ///  - stream: the associated stream
-    @inlinable public init(gpuId: Int, using stream: cudaStream_t) {
-        do {
-            self.gpuId = gpuId
-            try cudaCheck(status: cudaSetDevice(Int32(gpuId)))
-
-            var temp: cublasHandle_t?
-            try cudaCheck(status: cublasCreate_v2(&temp))
-            handle = temp!
-            try cudaCheck(status: cublasSetStream_v2(handle, stream))
-        } catch {
-            Context.currentQueue.writeLog("\(createString) \(error)")
-            fatalError()
-        }
-    }
-
-    // deinit
-    @inlinable deinit {
-        do {
-            try cudaCheck(status: cudaSetDevice(Int32(gpuId)))
-            try cudaCheck(status: cublasDestroy_v2(handle))
-        } catch {
-            Context.currentQueue.writeLog(
-                "\(releaseString) \(Self.self) \(error)")
-        }
-    }
-}
-
-//==============================================================================
 // DropoutDescriptor
 public class DropoutDescriptor {
     // properties
