@@ -76,36 +76,97 @@ public final class MatmulDescriptor {
     }
 }
 
-// //==============================================================================
-// // MatmulDescriptor
-// public final class MatrixLayout {
-//     // properties
-//     public let desc: cublasLtMatrixLayout_t
+//==============================================================================
+// MatrixLayout
+public final class MatrixLayout {
+    // properties
+    public let desc: cublasLtMatrixLayout_t
 
-//     // initializers
-//     @inlinable public init(
-//     ) {
-//         do {
-//             // create the descriptor
-//             var temp: cublasLtMatrixLayout_t?
-//             try cudaCheck(status: cublasLtMatrixLayoutCreate(
-//                 &Adesc, 
-//                 CUDA_R_32F, 
-//                 transa == CUBLAS_OP_N ? m : k, 
-//                 transa == CUBLAS_OP_N ? k : m, 
-//                 lda)
-//             desc = temp!
-//         } catch {
-//             Context.currentQueue.writeLog("\(createString) \(error)")
-//             fatalError()
-//         }
-//     }
+    // initializers
+    @inlinable public init(
+        type: cudaDataType,
+        rows: UInt64,
+        cols: UInt64,
+        leadingDimension: Int64
+    ) {
+        do {
+            // create the descriptor
+            var temp: cublasLtMatrixLayout_t?
+            try cudaCheck(status: cublasLtMatrixLayoutCreate(
+                &temp, type, rows, cols, leadingDimension))
+            desc = temp!
+        } catch {
+            Context.currentQueue.writeLog("\(createString) \(error)")
+            fatalError()
+        }
+    }
 
-//     @inlinable deinit {
-//         do {
-//             try cudaCheck(status: cublasLtMatrixLayoutDestroy(desc))
-//         } catch {
-//             Context.currentQueue.writeLog("\(releaseString) \(error)")
-//         }
-//     }
-// }
+    @inlinable deinit {
+        do {
+            try cudaCheck(status: cublasLtMatrixLayoutDestroy(desc))
+        } catch {
+            Context.currentQueue.writeLog("\(releaseString) \(error)")
+        }
+    }
+}
+
+//==============================================================================
+// MatmulAlgorithm
+public final class MatmulAlgorithm {
+    // properties
+    public var desc: cublasLtMatmulAlgo_t
+
+    // initializers
+    @inlinable public init(
+        cublas: CublasLtHandle,
+        computeType: cublasComputeType_t,
+        scaleType: cudaDataType_t,
+        aType: cudaDataType_t,
+        bType: cudaDataType_t,
+        cType: cudaDataType_t,
+        dType: cudaDataType_t,
+        algoId: Int32
+    ) {
+        do {
+            // initialize the algorithm
+            desc = cublasLtMatmulAlgo_t()
+            try cudaCheck(status: cublasLtMatmulAlgoInit(
+                cublas.handle, computeType, scaleType, aType, bType,
+                cType, dType, algoId, &desc))
+        } catch {
+            Context.currentQueue.writeLog("\(createString) \(error)")
+            fatalError()
+        }
+    }
+}
+
+//==============================================================================
+/// MatmulAlgorithmHeuristics
+/// This can throw if the parameter combination is not supported
+public final class MatmulAlgorithmHeuristics {
+    // properties
+    public let heuristicResult: cublasLtMatmulHeuristicResult_t
+
+    // initializers
+    @inlinable public init(
+        cublas: CublasLtHandle,
+        operation: MatmulDescriptor,
+        layoutA: MatrixLayout,
+        layoutB: MatrixLayout,
+        layoutC: MatrixLayout,
+        layoutD: MatrixLayout,
+        algorithm: MatmulAlgorithm
+    ) throws {
+        var temp = cublasLtMatmulHeuristicResult_t()
+        try cudaCheck(status: cublasLtMatmulAlgoCheck(
+            cublas.handle,
+            operation.desc,
+            layoutA.desc,
+            layoutB.desc,
+            layoutC.desc,
+            layoutD.desc,
+            &algorithm.desc, 
+            &temp))
+        heuristicResult = temp
+    }
+}

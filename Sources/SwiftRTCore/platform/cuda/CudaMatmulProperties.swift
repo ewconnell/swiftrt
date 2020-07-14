@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+import Foundation
 import CCuda
 
 //==============================================================================
@@ -34,3 +35,55 @@ public func queryMatmulProperties<E>(
 
     return MatmulProperties()
 }
+
+//==============================================================================
+/// Structure to store information about different run trials
+public struct MatmulPerformance {
+    var algorithm: MatmulAlgorithm
+    var status: cublasStatus_t
+    var time: TimeInterval
+    // actual memory workspace needed
+    var workspaceSize: Int
+    var mathMode: cublasMath_t
+    var reductionScheme: cublasLtReductionScheme_t
+    var customOption: Int32
+    var wavesCount: Float
+}
+
+//==============================================================================
+/// runCudaMatmul
+/// runs and measures timing for the specified cublaslt matmul configuration 
+public func runCudaMatmul(
+    cublas: CublasLtHandle,
+    operation: MatmulDescriptor,
+    alpha: UnsafeRawPointer,
+    A: UnsafeRawPointer,
+    layoutA: MatrixLayout,
+    B: UnsafeRawPointer,
+    layoutB: MatrixLayout,
+    beta: UnsafeRawPointer,
+    C: UnsafeRawPointer,
+    layoutC: MatrixLayout,
+    D: UnsafeMutableRawPointer,
+    layoutD: MatrixLayout,
+    algorithm: MatmulAlgorithm,
+    kernelRepeats: Int,
+    workSpace: UnsafeMutableRawPointer,
+    workSpaceSizeInBytes: Int,
+    performanceResult: inout MatmulPerformance,
+    stream: cudaStream_t,
+    startEvent: inout cudaEvent_t,
+    stopEvent: inout cudaEvent_t
+) throws {
+    // get algorithm heuristics
+    let heur = try MatmulAlgorithmHeuristics(
+        cublas: cublas,
+        operation: operation,
+        layoutA: layoutA,
+        layoutB: layoutB,
+        layoutC: layoutC,
+        layoutD: layoutD,
+        algorithm: algorithm)
+    print(heur)
+}
+
