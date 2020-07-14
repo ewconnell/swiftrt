@@ -76,36 +76,36 @@ public final class MatmulDescriptor {
     }
 }
 
-//==============================================================================
-// MatmulDescriptor
-public final class MatrixLayout {
-    // properties
-    public let desc: cublasLtMatrixLayout_t
+// //==============================================================================
+// // MatmulDescriptor
+// public final class MatrixLayout {
+//     // properties
+//     public let desc: cublasLtMatrixLayout_t
 
-    // initializers
-    @inlinable public init(
-    ) {
-        do {
-            // create the descriptor
-            var temp: cublasLtMatrixLayout_t?
-            try cudaCheck(status: cublasLtMatrixLayoutCreate(
-                &Adesc, 
-                CUDA_R_32F, 
-                transa == CUBLAS_OP_N ? m : k, 
-                transa == CUBLAS_OP_N ? k : m, 
-                lda)
-            desc = temp!
-        } catch {
-            Context.currentQueue.writeLog("\(createString) \(error)")
-            fatalError()
-        }
-    }
+//     // initializers
+//     @inlinable public init(
+//     ) {
+//         do {
+//             // create the descriptor
+//             var temp: cublasLtMatrixLayout_t?
+//             try cudaCheck(status: cublasLtMatrixLayoutCreate(
+//                 &Adesc, 
+//                 CUDA_R_32F, 
+//                 transa == CUBLAS_OP_N ? m : k, 
+//                 transa == CUBLAS_OP_N ? k : m, 
+//                 lda)
+//             desc = temp!
+//         } catch {
+//             Context.currentQueue.writeLog("\(createString) \(error)")
+//             fatalError()
+//         }
+//     }
 
-    @inlinable deinit {
-        do {
-            try cudaCheck(status: cublasLtMatrixLayoutDestroy(desc))
-        } catch {
-            Context.currentQueue.writeLog("\(releaseString) \(error)")
-        }
-    }
-}
+//     @inlinable deinit {
+//         do {
+//             try cudaCheck(status: cublasLtMatrixLayoutDestroy(desc))
+//         } catch {
+//             Context.currentQueue.writeLog("\(releaseString) \(error)")
+//         }
+//     }
+// }

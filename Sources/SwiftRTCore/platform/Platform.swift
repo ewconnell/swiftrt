@@ -317,14 +317,25 @@ public enum DeviceError : Error {
 /// ScalarType
 /// Used primarily for serialization, C APIs, and Cuda kernels
 public enum ScalarType: Int {
-    // integers
-    case real8U, real8I, real16U, real16I, real32U, real32I, real64U, real64I
-    // floats
-    case real16F, real32F, real64F
+    // floating point
+    case real16F, complex16F
+    case real16BF, complex16BF
+    case real32F, complex32F
+    case real64F, complex64F
+
+    // integer
+    case real4I, real4U, complex4I, complex4U
+    case real8I, real8U, complex8I, complex8U
+    case real16I, real16U, complex16I, complex16U
+    case real32I, real32U, complex32I, complex32U
+    case real64U, real64I, complex64I, complex64U
+
     // non numeric
     case bool
 }
 
+// TODO: extend to all supported types
+//
 public protocol ScalarElement: StorageElement {
     static var type: ScalarType { get }
     static var zeroPointer: UnsafeRawPointer { get }
