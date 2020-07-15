@@ -16,13 +16,12 @@
 import CCuda
 
 //==============================================================================
-/// CublasLtHandle
+/// CublasHandle
 /// creates and manages the lifetime of a cublas light handle
-public final class CublasLtHandle {
-    // properties
+public final class CublasHandle 
+{
     public let handle: cublasLtHandle_t
 
-    /// init
     @inlinable public init() {
         do {
             var temp: cublasLtHandle_t?
@@ -34,7 +33,6 @@ public final class CublasLtHandle {
         }
     }
 
-    // deinit
     @inlinable deinit {
         do {
             try cudaCheck(status: cublasLtDestroy(handle))
@@ -90,135 +88,6 @@ extension MatmulComputeType {
 }
 
 //==============================================================================
-// MatmulOperation
-public final class MatmulOperation {
-    // properties
-    public let desc: cublasLtMatmulDesc_t
-
-    // initializers
-    @inlinable public init(
-        computeType: cublasComputeType_t,
-        scaleType: cudaDataType_t
-    ) {
-        do {
-            // create the descriptor
-            var temp: cublasLtMatmulDesc_t?
-            try cudaCheck(status: cublasLtMatmulDescCreate(&temp, computeType,
-                                                           scaleType))
-            desc = temp!
-        } catch {
-            Context.currentQueue.writeLog("\(createString) \(error)")
-            fatalError()
-        }
-    }
-
-    @inlinable deinit {
-        do {
-            try cudaCheck(status: cublasLtMatmulDescDestroy(desc))
-        } catch {
-            Context.currentQueue.writeLog("\(releaseString) \(error)")
-        }
-    }
-
-    @inlinable public func setAttribute<T>(
-        _ attr: cublasLtMatmulDescAttributes_t,
-         _ value: inout T
-    ) {
-        do {
-            try cudaCheck(status: cublasLtMatmulDescSetAttribute(
-                desc, attr, &value, MemoryLayout.size(ofValue: value)))
-        } catch {
-            Context.currentQueue.writeLog("\(error)")
-            fatalError()
-        }
-    }
-
-    @inlinable public func getAttribute<T>(
-        _ attr: cublasLtMatmulDescAttributes_t, 
-        _ value: inout T
-    ) {
-        do {
-            var written = 0
-            try cudaCheck(status: cublasLtMatmulDescGetAttribute(
-                desc, attr, &value,MemoryLayout.size(ofValue: value), &written))
-        } catch {
-            Context.currentQueue.writeLog("\(error)")
-            fatalError()
-        }
-    }
-
-    @inlinable public var transA: TransposeOp {
-        get {
-            var value = CUBLAS_OP_N
-            getAttribute(CUBLASLT_MATMUL_DESC_TRANSA, &value)
-            return TransposeOp(value)
-        }
-        set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATMUL_DESC_TRANSA, &value)
-        }
-    }
-
-    @inlinable public var transB: TransposeOp {
-        get {
-            var value = CUBLAS_OP_N
-            getAttribute(CUBLASLT_MATMUL_DESC_TRANSB, &value)
-            return TransposeOp(value)
-        }
-        set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATMUL_DESC_TRANSB, &value)
-        }
-    }
-
-    @inlinable public var transC: TransposeOp {
-        get {
-            var value = CUBLAS_OP_N
-            getAttribute(CUBLASLT_MATMUL_DESC_TRANSC, &value)
-            return TransposeOp(value)
-        }
-        set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATMUL_DESC_TRANSC, &value)
-        }
-    }
-}
-
-//==============================================================================
-// MatrixLayout
-public final class MatrixLayout {
-    // properties
-    public let desc: cublasLtMatrixLayout_t
-
-    // initializers
-    @inlinable public init(
-        type: cudaDataType,
-        rows: UInt64,
-        cols: UInt64,
-        leadingDimension: Int64
-    ) {
-        do {
-            // create the descriptor
-            var temp: cublasLtMatrixLayout_t?
-            try cudaCheck(status: cublasLtMatrixLayoutCreate(
-                &temp, type, rows, cols, leadingDimension))
-            desc = temp!
-        } catch {
-            Context.currentQueue.writeLog("\(createString) \(error)")
-            fatalError()
-        }
-    }
-
-    @inlinable deinit {
-        do {
-            try cudaCheck(status: cublasLtMatrixLayoutDestroy(desc))
-        } catch {
-            Context.currentQueue.writeLog("\(releaseString) \(error)")
-        }
-    }
-}
-
-//==============================================================================
 // MatmulAlgorithm
 public final class MatmulAlgorithm {
     // properties
@@ -226,7 +95,7 @@ public final class MatmulAlgorithm {
 
     // initializers
     @inlinable public init(
-        cublas: CublasLtHandle,
+        cublas: CublasHandle,
         computeType: cublasComputeType_t,
         scaleType: cudaDataType_t,
         aType: cudaDataType_t,
@@ -257,7 +126,7 @@ public final class MatmulAlgorithmHeuristics {
 
     // initializers
     @inlinable public init(
-        cublas: CublasLtHandle,
+        cublas: CublasHandle,
         operation: MatmulOperation,
         layoutA: MatrixLayout,
         layoutB: MatrixLayout,

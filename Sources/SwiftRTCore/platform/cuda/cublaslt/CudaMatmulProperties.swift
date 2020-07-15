@@ -57,7 +57,7 @@ public struct MatmulPerformance {
 /// runCudaMatmul
 /// runs and measures timing for the specified cublaslt matmul configuration 
 public func runCudaMatmul(
-    cublas: CublasLtHandle,
+    cublas: CublasHandle,
     operation: MatmulOperation,
     alpha: UnsafeRawPointer,
     A: UnsafeRawPointer,
