@@ -79,26 +79,21 @@ public class CudaDevice: ComputeDevice {
 
     //--------------------------------------------------------------------------
     @inlinable func getCudaDeviceProperties() -> [String] {
-        do {
-            // get device properties
-            var props = cudaDeviceProp()
-            try cudaCheck(status: cudaGetDeviceProperties(&props, 0))
-            let nameCapacity = MemoryLayout.size(ofValue: props.name)
-            let deviceName = withUnsafePointer(to: &props.name) {
-                $0.withMemoryRebound(to: UInt8.self, capacity: nameCapacity) {
-                    String(cString: $0)
-                }
+        // get device properties
+        var props = cudaDeviceProp()
+        cudaCheck(cudaGetDeviceProperties(&props, 0))
+        let nameCapacity = MemoryLayout.size(ofValue: props.name)
+        let deviceName = withUnsafePointer(to: &props.name) {
+            $0.withMemoryRebound(to: UInt8.self, capacity: nameCapacity) {
+                String(cString: $0)
             }
-            return [
-                "device type       : \(deviceName)",
-                "global memory     : \(props.major).\(props.minor)",
-                "compute capability: \(props.totalGlobalMem / (1024 * 1024)) MB",
-                "multiprocessors   : \(props.multiProcessorCount)",
-                "memory addressing : \(memoryType)",
-            ]
-		} catch {
-            writeLog("Failed to read device properites. \(error)")
-            return []
         }
+        return [
+            "device type       : \(deviceName)",
+            "global memory     : \(props.major).\(props.minor)",
+            "compute capability: \(props.totalGlobalMem / (1024 * 1024)) MB",
+            "multiprocessors   : \(props.multiProcessorCount)",
+            "memory addressing : \(memoryType)",
+        ]
     }
 }

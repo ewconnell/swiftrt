@@ -29,24 +29,14 @@ public final class MatrixLayout {
         cols: UInt64,
         leadingDimension: Int64
     ) {
-        do {
-            // create the descriptor
-            var temp: cublasLtMatrixLayout_t?
-            try cudaCheck(status: cublasLtMatrixLayoutCreate(
-                &temp, type, rows, cols, leadingDimension))
-            desc = temp!
-        } catch {
-            Context.currentQueue.writeLog("\(createString) \(error)")
-            fatalError()
-        }
+        var temp: cublasLtMatrixLayout_t?
+        cudaCheck(cublasLtMatrixLayoutCreate(
+            &temp, type, rows, cols, leadingDimension))
+        desc = temp!
     }
 
     @inlinable deinit {
-        do {
-            try cudaCheck(status: cublasLtMatrixLayoutDestroy(desc))
-        } catch {
-            Context.currentQueue.writeLog("\(releaseString) \(error)")
-        }
+        cudaCheck(cublasLtMatrixLayoutDestroy(desc))
     }
 }
 

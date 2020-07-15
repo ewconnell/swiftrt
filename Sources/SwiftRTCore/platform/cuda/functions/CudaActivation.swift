@@ -55,29 +55,25 @@ where Shape: TensorShape, Element: ScalarElement & FloatingPoint
     // forward
     // https://docs.nvidia.com/deeplearning/sdk/cudnn-developer-guide/index.html#cudnnActivationForward
     @inlinable public func forward(x: Input) -> Output {
-        do {
-            // setup any time the input shape changes
-            if x.shape != inputShape {
-                setupForward(x)
-            }
-            
-            try cudaCheck(status: cudnnActivationForward(
-                deviceQueue.cudnn.handle,
-                activationDescriptor.desc,
-                // alpha
-                Element.onePointer,
-                // x
-                xyTensorDescriptor.desc,
-                x.deviceRead(using: deviceQueue),
-                // beta
-                Element.zeroPointer,
-                // y
-                xyTensorDescriptor.desc,
-                y.deviceReadWrite(using: deviceQueue)))
-        } catch {
-            writeLog("\(error)")
-            fatalError()
+        // setup any time the input shape changes
+        if x.shape != inputShape {
+            setupForward(x)
         }
+        
+        cudaCheck(cudnnActivationForward(
+            deviceQueue.cudnn.handle,
+            activationDescriptor.desc,
+            // alpha
+            Element.onePointer,
+            // x
+            xyTensorDescriptor.desc,
+            x.deviceRead(using: deviceQueue),
+            // beta
+            Element.zeroPointer,
+            // y
+            xyTensorDescriptor.desc,
+            y.deviceReadWrite(using: deviceQueue)))
+
         return y
     }
     
@@ -102,30 +98,25 @@ where Shape: TensorShape, Element: ScalarElement & FloatingPoint
         x: Input,
         xDiff: inout Input
     ) {
-        do {
-            try cudaCheck(status: cudnnActivationBackward(
-                deviceQueue.cudnn.handle,
-                activationDescriptor.desc,
-                // alpha
-                Element.onePointer,
-                // y
-                xyTensorDescriptor.desc,
-                y.deviceRead(using: deviceQueue),
-                // dy
-                xyTensorDescriptor.desc,
-                yDiff.deviceRead(using: deviceQueue),
-                // x
-                xyTensorDescriptor.desc,
-                x.deviceRead(using: deviceQueue),
-                // beta
-                Element.zeroPointer,
-                // dx
-                xyTensorDescriptor.desc,
-                xDiff.deviceReadWrite(using: deviceQueue)))
-        } catch {
-            writeLog("\(error)")
-            fatalError()
-        }
+        cudaCheck(cudnnActivationBackward(
+            deviceQueue.cudnn.handle,
+            activationDescriptor.desc,
+            // alpha
+            Element.onePointer,
+            // y
+            xyTensorDescriptor.desc,
+            y.deviceRead(using: deviceQueue),
+            // dy
+            xyTensorDescriptor.desc,
+            yDiff.deviceRead(using: deviceQueue),
+            // x
+            xyTensorDescriptor.desc,
+            x.deviceRead(using: deviceQueue),
+            // beta
+            Element.zeroPointer,
+            // dx
+            xyTensorDescriptor.desc,
+            xDiff.deviceReadWrite(using: deviceQueue)))
     }
 }
 
@@ -141,29 +132,18 @@ public final class ActivationDescriptor {
         nan: NanPropagation,
         reluCeiling: Double
     ) {
-        do {
-            // create the descriptor
-            var temp: cudnnActivationDescriptor_t?
-            try cudaCheck(status: cudnnCreateActivationDescriptor(&temp))
-            desc = temp!
-            
-            // initialize
-            try cudaCheck(status: cudnnSetActivationDescriptor(
-                            desc, mode.cudnn, nan.cudnn, reluCeiling))
-        } catch {
-            Context.currentQueue.writeLog(
-                "\(createString) \(Self.self) \(error)")
-            fatalError()
-        }
+        // create the descriptor
+        var temp: cudnnActivationDescriptor_t?
+        cudaCheck(cudnnCreateActivationDescriptor(&temp))
+        desc = temp!
+        
+        // initialize
+        cudaCheck(cudnnSetActivationDescriptor(
+                        desc, mode.cudnn, nan.cudnn, reluCeiling))
     }
 
     @inlinable deinit {
-        do {
-            try cudaCheck(status: cudnnDestroyActivationDescriptor(desc))
-        } catch {
-            Context.currentQueue.writeLog(
-                "\(releaseString) \(Self.self) \(error)")
-        }
+        cudaCheck(cudnnDestroyActivationDescriptor(desc))
     }
 }
 

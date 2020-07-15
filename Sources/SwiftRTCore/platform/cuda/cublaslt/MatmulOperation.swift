@@ -26,51 +26,30 @@ public final class MatmulOperation {
         computeType: cublasComputeType_t,
         scaleType: cudaDataType_t
     ) {
-        do {
-            // create the descriptor
-            var temp: cublasLtMatmulDesc_t?
-            try cudaCheck(status: cublasLtMatmulDescCreate(&temp, computeType,
-                                                           scaleType))
-            desc = temp!
-        } catch {
-            Context.currentQueue.writeLog("\(createString) \(error)")
-            fatalError()
-        }
+        var temp: cublasLtMatmulDesc_t?
+        cudaCheck(cublasLtMatmulDescCreate(&temp, computeType, scaleType))
+        desc = temp!
     }
 
     @inlinable deinit {
-        do {
-            try cudaCheck(status: cublasLtMatmulDescDestroy(desc))
-        } catch {
-            Context.currentQueue.writeLog("\(releaseString) \(error)")
-        }
+        cudaCheck(cublasLtMatmulDescDestroy(desc))
     }
 
     @inlinable public func setAttribute<T>(
         _ attr: cublasLtMatmulDescAttributes_t,
          _ value: inout T
     ) {
-        do {
-            try cudaCheck(status: cublasLtMatmulDescSetAttribute(
-                desc, attr, &value, MemoryLayout.size(ofValue: value)))
-        } catch {
-            Context.currentQueue.writeLog("\(error)")
-            fatalError()
-        }
+        cudaCheck(cublasLtMatmulDescSetAttribute(
+            desc, attr, &value, MemoryLayout.size(ofValue: value)))
     }
 
     @inlinable public func getAttribute<T>(
         _ attr: cublasLtMatmulDescAttributes_t, 
         _ value: inout T
     ) {
-        do {
-            var written = 0
-            try cudaCheck(status: cublasLtMatmulDescGetAttribute(
-                desc, attr, &value,MemoryLayout.size(ofValue: value), &written))
-        } catch {
-            Context.currentQueue.writeLog("\(error)")
-            fatalError()
-        }
+        var written = 0
+        cudaCheck(cublasLtMatmulDescGetAttribute(
+            desc, attr, &value,MemoryLayout.size(ofValue: value), &written))
     }
 
     @inlinable public var transA: TransposeOp {

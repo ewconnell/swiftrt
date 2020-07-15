@@ -152,7 +152,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
                 try setupForward(x, filter, bias)
             }
 
-            try cudaCheck(status: cudnnConvolutionBiasActivationForward(
+            cudaCheck(cudnnConvolutionBiasActivationForward(
                 dataQueue.cudnn.handle,
                 // alpha1
                 Element.onePointer,
@@ -206,7 +206,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
     ) {
         do {
             // data
-            try cudaCheck(status: cudnnConvolutionBackwardData(
+            cudaCheck(cudnnConvolutionBackwardData(
                 dataQueue.cudnn.handle,
                 // alpha
                 Element.onePointer,
@@ -230,7 +230,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
                 xDiff.deviceReadWrite(using: dataQueue)))
 
             // filter
-            try cudaCheck(status: cudnnConvolutionBackwardFilter(
+            cudaCheck(cudnnConvolutionBackwardFilter(
                 filterBiasBackQueue.cudnn.handle,
                 // alpha
                 Element.onePointer,
@@ -254,7 +254,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
                 filterDiff.deviceReadWrite(using: dataQueue)))
 
             // bias
-            try cudaCheck(status: cudnnConvolutionBackwardBias(
+            cudaCheck(cudnnConvolutionBackwardBias(
                 filterBiasBackQueue.cudnn.handle,
                 // alpha
                 Element.onePointer,
@@ -302,7 +302,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         //----------------------------------
         // get the extents for the output
         var yExtent = [Int32](repeating: 0, count: Shape.rank)
-        try cudaCheck(status: cudnnGetConvolutionNdForwardOutputDim(
+        cudaCheck(cudnnGetConvolutionNdForwardOutputDim(
             convolutionDescriptor.desc,
             xTensorDescriptor.desc,
             filterDescriptor.desc,
@@ -392,7 +392,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             fwdAlgo = properties.forwardAlgorithm.cudnn
 
             // get the workspace size
-            try cudaCheck(status: cudnnGetConvolutionForwardWorkspaceSize(
+            cudaCheck(cudnnGetConvolutionForwardWorkspaceSize(
                 dataQueue.cudnn.handle,
                 xTensorDescriptor.desc,
                 filterDescriptor.desc,
@@ -488,7 +488,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             bwdDataAlgo = properties.backwardDataAlgorithm.cudnn
 
             // get the workspace size
-            try cudaCheck(status: cudnnGetConvolutionBackwardDataWorkspaceSize(
+            cudaCheck(cudnnGetConvolutionBackwardDataWorkspaceSize(
                 dataQueue.cudnn.handle,
                 filterDescriptor.desc,
                 yTensorDescriptor.desc,
@@ -582,7 +582,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             bwdFilterAlgo = properties.backwardFilterAlgorithm.cudnn
 
             // get the workspace size
-            try cudaCheck(status: cudnnGetConvolutionBackwardFilterWorkspaceSize(
+            cudaCheck(cudnnGetConvolutionBackwardFilterWorkspaceSize(
                 dataQueue.cudnn.handle,
                 xTensorDescriptor.desc,
                 yTensorDescriptor.desc,
@@ -621,7 +621,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             repeating: cudnnConvolutionFwdAlgoPerf_t(),
             count: ConvolutionFwdAlgorithm.allCases.count)
 
-        try cudaCheck(status: cudnnFindConvolutionForwardAlgorithm(
+        cudaCheck(cudnnFindConvolutionForwardAlgorithm(
             dataQueue.cudnn.handle,
             xTensorDescriptor.desc,
             filterDescriptor.desc,
@@ -662,7 +662,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             repeating: cudnnConvolutionBwdDataAlgoPerf_t(),
             count: ConvolutionBwdDataAlgorithm.allCases.count)
 
-        try cudaCheck(status: cudnnFindConvolutionBackwardDataAlgorithm(
+        cudaCheck(cudnnFindConvolutionBackwardDataAlgorithm(
             dataQueue.cudnn.handle,
             filterDescriptor.desc,
             yTensorDescriptor.desc,
@@ -702,7 +702,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             repeating: cudnnConvolutionBwdFilterAlgoPerf_t(),
             count: ConvolutionBwdFilterAlgorithm.allCases.count)
 
-        try cudaCheck(status: cudnnFindConvolutionBackwardFilterAlgorithm(
+        cudaCheck(cudnnFindConvolutionBackwardFilterAlgorithm(
             dataQueue.cudnn.handle,
             xTensorDescriptor.desc,
             yTensorDescriptor.desc,
@@ -843,11 +843,11 @@ public final class ConvolutionDescriptor<Shape: TensorShape> {
     {
         // create the descriptor
         var temp: cudnnConvolutionDescriptor_t?
-        try cudaCheck(status: cudnnCreateConvolutionDescriptor(&temp))
+        cudaCheck(cudnnCreateConvolutionDescriptor(&temp))
         desc = temp!
 
         // initialize
-        try cudaCheck(status: cudnnSetConvolutionNdDescriptor(
+        cudaCheck(cudnnSetConvolutionNdDescriptor(
             desc,
             Int32(rank),
             padding.asInt32,
@@ -859,7 +859,7 @@ public final class ConvolutionDescriptor<Shape: TensorShape> {
 
     @inlinable deinit {
         do {
-            try cudaCheck(status: cudnnDestroyConvolutionDescriptor(desc))
+            cudaCheck(cudnnDestroyConvolutionDescriptor(desc))
         } catch {
             Context.currentQueue.writeLog(
                 "\(releaseString) \(Self.self) \(error)")

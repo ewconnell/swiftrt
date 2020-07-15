@@ -23,22 +23,13 @@ public final class CublasHandle
     public let handle: cublasLtHandle_t
 
     @inlinable public init() {
-        do {
-            var temp: cublasLtHandle_t?
-            try cudaCheck(status: cublasLtCreate(&temp))
-            handle = temp!
-        } catch {
-            Context.currentQueue.writeLog("\(createString) \(error)")
-            fatalError()
-        }
+        var temp: cublasLtHandle_t?
+        cudaCheck(cublasLtCreate(&temp))
+        handle = temp!
     }
 
     @inlinable deinit {
-        do {
-            try cudaCheck(status: cublasLtDestroy(handle))
-        } catch {
-            Context.currentQueue.writeLog("\(releaseString) \(error)")
-        }
+        cudaCheck(cublasLtDestroy(handle))
     }
 }
 
@@ -71,26 +62,27 @@ public enum MatmulComputeType {
 
 extension MatmulComputeType {
     public var cublas: cublasComputeType_t {
-        switch self {
-        case .compute16F: return CUBLAS_COMPUTE_16F
-        case .compute16FPrecise: return CUBLAS_COMPUTE_16F_PEDANTIC
-        case .compute32F: return CUBLAS_COMPUTE_32F
-        case .compute32FPrecise: return CUBLAS_COMPUTE_32F_PEDANTIC
-        case .compute32FFast16F: return CUBLAS_COMPUTE_32F_FAST_16F
-        case .compute32FFast16BF: return CUBLAS_COMPUTE_32F_FAST_16BF
-        case .compute32FFastTF32: return CUBLAS_COMPUTE_32F_FAST_TF32
-        case .compute64F: return CUBLAS_COMPUTE_64F
-        case .compute64FPrecise: return CUBLAS_COMPUTE_64F_PEDANTIC
-        case .compute32I: return CUBLAS_COMPUTE_32I
-        case .compute32IPrecise: return CUBLAS_COMPUTE_32I_PEDANTIC
-        }
+        let types: [MatmulComputeType: cublasComputeType_t] = [
+            .compute16F: CUBLAS_COMPUTE_16F,
+            .compute16FPrecise: CUBLAS_COMPUTE_16F_PEDANTIC,
+            .compute32F: CUBLAS_COMPUTE_32F,
+            .compute32FPrecise: CUBLAS_COMPUTE_32F_PEDANTIC,
+            .compute32FFast16F: CUBLAS_COMPUTE_32F_FAST_16F,
+            .compute32FFast16BF: CUBLAS_COMPUTE_32F_FAST_16BF,
+            .compute32FFastTF32: CUBLAS_COMPUTE_32F_FAST_TF32,
+            .compute64F: CUBLAS_COMPUTE_64F,
+            .compute64FPrecise: CUBLAS_COMPUTE_64F_PEDANTIC,
+            .compute32I: CUBLAS_COMPUTE_32I,
+            .compute32IPrecise: CUBLAS_COMPUTE_32I_PEDANTIC,
+        ]        
+        return types[self]!
     }
 }
 
 //==============================================================================
 // MatmulAlgorithm
-public final class MatmulAlgorithm {
-    // properties
+public final class MatmulAlgorithm 
+{
     public var desc: cublasLtMatmulAlgo_t
 
     // initializers
@@ -104,24 +96,18 @@ public final class MatmulAlgorithm {
         dType: cudaDataType_t,
         algoId: Int32
     ) {
-        do {
-            // initialize the algorithm
-            desc = cublasLtMatmulAlgo_t()
-            try cudaCheck(status: cublasLtMatmulAlgoInit(
-                cublas.handle, computeType, scaleType, aType, bType,
-                cType, dType, algoId, &desc))
-        } catch {
-            Context.currentQueue.writeLog("\(createString) \(error)")
-            fatalError()
-        }
+        desc = cublasLtMatmulAlgo_t()
+        cudaCheck(cublasLtMatmulAlgoInit(
+            cublas.handle, computeType, scaleType, aType, bType,
+            cType, dType, algoId, &desc))
     }
 }
 
 //==============================================================================
 /// MatmulAlgorithmHeuristics
 /// This can throw if the parameter combination is not supported
-public final class MatmulAlgorithmHeuristics {
-    // properties
+public final class MatmulAlgorithmHeuristics 
+{
     public let heuristicResult: cublasLtMatmulHeuristicResult_t
 
     // initializers
@@ -135,7 +121,7 @@ public final class MatmulAlgorithmHeuristics {
         algorithm: MatmulAlgorithm
     ) throws {
         var temp = cublasLtMatmulHeuristicResult_t()
-        try cudaCheck(status: cublasLtMatmulAlgoCheck(
+        cudaCheck(cublasLtMatmulAlgoCheck(
             cublas.handle,
             operation.desc,
             layoutA.desc,
