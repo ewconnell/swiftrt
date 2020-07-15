@@ -31,7 +31,10 @@ public func queryMatmulProperties<E>(
     _ transB: Bool,
     _ c: inout TensorR2<E>
 ) -> MatmulProperties {
-
+    // var status = CUBLAS_STATUS_SUCCESS
+    // var operation = MatmulOperation(computeType: CUBLAS_COMPUTE_32F, scaleType: CUDA_R_32F)
+    // operation.transA = .noTranspose
+    // operation.transB = .noTranspose
 
     return MatmulProperties()
 }
@@ -55,7 +58,7 @@ public struct MatmulPerformance {
 /// runs and measures timing for the specified cublaslt matmul configuration 
 public func runCudaMatmul(
     cublas: CublasLtHandle,
-    operation: MatmulDescriptor,
+    operation: MatmulOperation,
     alpha: UnsafeRawPointer,
     A: UnsafeRawPointer,
     layoutA: MatrixLayout,

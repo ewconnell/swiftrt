@@ -276,7 +276,18 @@ extension TransposeOp {
         switch self {
         case .noTranspose: return CUBLAS_OP_N
         case .transpose: return CUBLAS_OP_T
-        case .conjugateTranspose: return CUBLAS_OP_C
+        case .hermitian: return CUBLAS_OP_HERMITAN
+        case .conjugateTranspose: return CUBLAS_OP_CONJG
+        }
+    }
+
+    @inlinable public init(_ op: cublasOperation_t) {
+        switch op {
+        case CUBLAS_OP_N: self = .noTranspose
+        case CUBLAS_OP_T: self = .transpose
+        case CUBLAS_OP_C, CUBLAS_OP_HERMITAN: self = .hermitian
+        case CUBLAS_OP_CONJG: self = .conjugateTranspose
+        default: fatalError("unsupported cublasOperation_t")
         }
     }
 }

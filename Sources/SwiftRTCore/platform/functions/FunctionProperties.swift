@@ -63,6 +63,7 @@ public enum ActivationType: Int, Codable {
 public enum TransposeOp: Int, Codable {
     case transpose
     case noTranspose
+    case hermitian
     case conjugateTranspose
 }
 

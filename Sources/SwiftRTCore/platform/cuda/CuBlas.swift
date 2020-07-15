@@ -45,8 +45,53 @@ public final class CublasLtHandle {
 }
 
 //==============================================================================
-// MatmulDescriptor
-public final class MatmulDescriptor {
+/// MatmulComputeType
+public enum MatmulComputeType {
+    /// Float16 default
+    case compute16F
+    /// Float16 precise 
+    case compute16FPrecise
+    /// Float default
+    case compute32F
+    /// Float precise
+    case compute32FPrecise
+    /// Float fast, allows down-converting inputs to half or TF32
+    case compute32FFast16F
+    /// Float fast, allows down-converting inputs to bfloat16 or TF32
+    case compute32FFast16BF
+    /// Float fast, allows down-converting inputs to TF32
+    case compute32FFastTF32
+    /// Double default
+    case compute64F
+    /// Double precise
+    case compute64FPrecise
+    /// Int32 default
+    case compute32I
+    /// Int32 precise
+    case compute32IPrecise
+}
+
+extension MatmulComputeType {
+    public var cublas: cublasComputeType_t {
+        switch self {
+        case .compute16F: return CUBLAS_COMPUTE_16F
+        case .compute16FPrecise: return CUBLAS_COMPUTE_16F_PEDANTIC
+        case .compute32F: return CUBLAS_COMPUTE_32F
+        case .compute32FPrecise: return CUBLAS_COMPUTE_32F_PEDANTIC
+        case .compute32FFast16F: return CUBLAS_COMPUTE_32F_FAST_16F
+        case .compute32FFast16BF: return CUBLAS_COMPUTE_32F_FAST_16BF
+        case .compute32FFastTF32: return CUBLAS_COMPUTE_32F_FAST_TF32
+        case .compute64F: return CUBLAS_COMPUTE_64F
+        case .compute64FPrecise: return CUBLAS_COMPUTE_64F_PEDANTIC
+        case .compute32I: return CUBLAS_COMPUTE_32I
+        case .compute32IPrecise: return CUBLAS_COMPUTE_32I_PEDANTIC
+        }
+    }
+}
+
+//==============================================================================
+// MatmulOperation
+public final class MatmulOperation {
     // properties
     public let desc: cublasLtMatmulDesc_t
 
@@ -72,6 +117,69 @@ public final class MatmulDescriptor {
             try cudaCheck(status: cublasLtMatmulDescDestroy(desc))
         } catch {
             Context.currentQueue.writeLog("\(releaseString) \(error)")
+        }
+    }
+
+    @inlinable public func setAttribute<T>(
+        _ attr: cublasLtMatmulDescAttributes_t,
+         _ value: inout T
+    ) {
+        do {
+            try cudaCheck(status: cublasLtMatmulDescSetAttribute(
+                desc, attr, &value, MemoryLayout.size(ofValue: value)))
+        } catch {
+            Context.currentQueue.writeLog("\(error)")
+            fatalError()
+        }
+    }
+
+    @inlinable public func getAttribute<T>(
+        _ attr: cublasLtMatmulDescAttributes_t, 
+        _ value: inout T
+    ) {
+        do {
+            var written = 0
+            try cudaCheck(status: cublasLtMatmulDescGetAttribute(
+                desc, attr, &value,MemoryLayout.size(ofValue: value), &written))
+        } catch {
+            Context.currentQueue.writeLog("\(error)")
+            fatalError()
+        }
+    }
+
+    @inlinable public var transA: TransposeOp {
+        get {
+            var value = CUBLAS_OP_N
+            getAttribute(CUBLASLT_MATMUL_DESC_TRANSA, &value)
+            return TransposeOp(value)
+        }
+        set {
+            var value = newValue.cublas
+            setAttribute(CUBLASLT_MATMUL_DESC_TRANSA, &value)
+        }
+    }
+
+    @inlinable public var transB: TransposeOp {
+        get {
+            var value = CUBLAS_OP_N
+            getAttribute(CUBLASLT_MATMUL_DESC_TRANSB, &value)
+            return TransposeOp(value)
+        }
+        set {
+            var value = newValue.cublas
+            setAttribute(CUBLASLT_MATMUL_DESC_TRANSB, &value)
+        }
+    }
+
+    @inlinable public var transC: TransposeOp {
+        get {
+            var value = CUBLAS_OP_N
+            getAttribute(CUBLASLT_MATMUL_DESC_TRANSC, &value)
+            return TransposeOp(value)
+        }
+        set {
+            var value = newValue.cublas
+            setAttribute(CUBLASLT_MATMUL_DESC_TRANSC, &value)
         }
     }
 }
@@ -150,7 +258,7 @@ public final class MatmulAlgorithmHeuristics {
     // initializers
     @inlinable public init(
         cublas: CublasLtHandle,
-        operation: MatmulDescriptor,
+        operation: MatmulOperation,
         layoutA: MatrixLayout,
         layoutB: MatrixLayout,
         layoutC: MatrixLayout,
