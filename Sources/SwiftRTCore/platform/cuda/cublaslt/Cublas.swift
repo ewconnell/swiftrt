@@ -61,7 +61,24 @@ public enum MatmulComputeType {
 }
 
 extension MatmulComputeType {
-    public var cublas: cublasComputeType_t {
+    @inlinable public init(_ type: cublasComputeType_t) {
+        switch type {
+        case CUBLAS_COMPUTE_16F: self = .compute16F
+        case CUBLAS_COMPUTE_16F_PEDANTIC: self = .compute16FPrecise
+        case CUBLAS_COMPUTE_32F: self = .compute32F
+        case CUBLAS_COMPUTE_32F_PEDANTIC: self = .compute32FPrecise
+        case CUBLAS_COMPUTE_32F_FAST_16F: self = .compute32FFast16F
+        case CUBLAS_COMPUTE_32F_FAST_16BF: self = .compute32FFast16BF
+        case CUBLAS_COMPUTE_32F_FAST_TF32: self = .compute32FFastTF32
+        case CUBLAS_COMPUTE_64F: self = .compute64F
+        case CUBLAS_COMPUTE_64F_PEDANTIC: self = .compute64FPrecise
+        case CUBLAS_COMPUTE_32I: self = .compute32I
+        case CUBLAS_COMPUTE_32I_PEDANTIC: self = .compute32IPrecise
+        default: fatalError("unrecognized cublasComputeType_t")
+        }
+    }
+
+    @inlinable public var cublas: cublasComputeType_t {
         let types: [MatmulComputeType: cublasComputeType_t] = [
             .compute16F: CUBLAS_COMPUTE_16F,
             .compute16FPrecise: CUBLAS_COMPUTE_16F_PEDANTIC,

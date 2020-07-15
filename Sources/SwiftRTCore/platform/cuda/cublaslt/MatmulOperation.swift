@@ -35,6 +35,18 @@ public final class MatmulOperation {
         cudaCheck(cublasLtMatmulDescDestroy(desc))
     }
 
+
+    /// getAttribute
+    @inlinable public func getAttribute<T>(
+        _ attr: cublasLtMatmulDescAttributes_t, 
+        _ value: inout T
+    ) {
+        var written = 0
+        cudaCheck(cublasLtMatmulDescGetAttribute(
+            desc, attr, &value, MemoryLayout.size(ofValue: value), &written))
+    }
+
+    /// setAttribute
     @inlinable public func setAttribute<T>(
         _ attr: cublasLtMatmulDescAttributes_t,
          _ value: inout T
@@ -43,13 +55,31 @@ public final class MatmulOperation {
             desc, attr, &value, MemoryLayout.size(ofValue: value)))
     }
 
-    @inlinable public func getAttribute<T>(
-        _ attr: cublasLtMatmulDescAttributes_t, 
-        _ value: inout T
-    ) {
-        var written = 0
-        cudaCheck(cublasLtMatmulDescGetAttribute(
-            desc, attr, &value,MemoryLayout.size(ofValue: value), &written))
+    //--------------------------------------------------------------------------
+    /// Defines data type used for multiply and accumulate operations, 
+    /// and the accumulator during the matrix multiplication
+    @inlinable public var computeType: MatmulComputeType {
+        get {
+            var value = CUBLAS_COMPUTE_32F
+            getAttribute(CUBLASLT_MATMUL_DESC_COMPUTE_TYPE, &value)
+            return MatmulComputeType(value)
+        }
+        set {
+            var value = newValue.cublas
+            setAttribute(CUBLASLT_MATMUL_DESC_COMPUTE_TYPE, &value)
+        }
+    }
+
+    @inlinable public var scaleType: ScalarType {
+        get {
+            var value = CUDA_R_32F
+            getAttribute(CUBLASLT_MATMUL_DESC_SCALE_TYPE, &value)
+            return ScalarType(value)
+        }
+        set {
+            var value = newValue.cuda
+            setAttribute(CUBLASLT_MATMUL_DESC_SCALE_TYPE, &value)
+        }
     }
 
     @inlinable public var transA: TransposeOp {

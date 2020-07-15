@@ -146,48 +146,43 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         filter: Filter,
         bias: Bias
     ) -> Data {
-        do {
-            // setup any time the input shape changes
-            if x.shape != inputShape {
-                try setupForward(x, filter, bias)
-            }
-
-            cudaCheck(cudnnConvolutionBiasActivationForward(
-                dataQueue.cudnn.handle,
-                // alpha1
-                Element.onePointer,
-                // x
-                xTensorDescriptor.desc,
-                x.deviceRead(using: dataQueue),
-                // filter weights
-                filterDescriptor.desc,
-                filter.deviceRead(using: dataQueue),
-                // convDesc
-                convolutionDescriptor.desc,
-                // algo
-                fwdAlgo,
-                // workspace device array
-                fwdWorkspace?.pointer,
-                // workspace size in bytes
-                fwdWorkspaceSize,
-                // alpha2
-                Element.zeroPointer,
-                // z used for activation (TODO: inplace on y?? find out what's right)
-                yTensorDescriptor.desc,
-                y.deviceRead(using: dataQueue),
-                // bias
-                biasTensorDescriptor.desc,
-                bias.deviceRead(using: dataQueue),
-                // activation
-                activationDescriptor.desc,
-                // y
-                yTensorDescriptor.desc,
-                y.deviceReadWrite(using: dataQueue)))
-        } catch {
-            writeLog("\(error)")
-            // TODO: is there a better way to handle this??
-            fatalError("unrecoverable error")
+        // setup any time the input shape changes
+        if x.shape != inputShape {
+            setupForward(x, filter, bias)
         }
+
+        cudaCheck(cudnnConvolutionBiasActivationForward(
+            dataQueue.cudnn.handle,
+            // alpha1
+            Element.onePointer,
+            // x
+            xTensorDescriptor.desc,
+            x.deviceRead(using: dataQueue),
+            // filter weights
+            filterDescriptor.desc,
+            filter.deviceRead(using: dataQueue),
+            // convDesc
+            convolutionDescriptor.desc,
+            // algo
+            fwdAlgo,
+            // workspace device array
+            fwdWorkspace?.pointer,
+            // workspace size in bytes
+            fwdWorkspaceSize,
+            // alpha2
+            Element.zeroPointer,
+            // z used for activation (TODO: inplace on y?? find out what's right)
+            yTensorDescriptor.desc,
+            y.deviceRead(using: dataQueue),
+            // bias
+            biasTensorDescriptor.desc,
+            bias.deviceRead(using: dataQueue),
+            // activation
+            activationDescriptor.desc,
+            // y
+            yTensorDescriptor.desc,
+            y.deviceReadWrite(using: dataQueue)))
+
         return y
     }
 
@@ -204,73 +199,67 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         x: Data,
         xDiff: inout Data
     ) {
-        do {
-            // data
-            cudaCheck(cudnnConvolutionBackwardData(
-                dataQueue.cudnn.handle,
-                // alpha
-                Element.onePointer,
-                // filter
-                filterDescriptor.desc,
-                filter.deviceRead(using: dataQueue),
-                // yDiff
-                yTensorDescriptor.desc,
-                yDiff.deviceRead(using: dataQueue),
-                // conv
-                convolutionDescriptor.desc,
-                // algo
-                bwdDataAlgo,
-                // workspace
-                bwdDataWorkspace?.pointer,
-                bwdDataWorkspaceSize,
-                // beta
-                Element.zeroPointer,
-                // xDiff
-                xTensorDescriptor.desc,
-                xDiff.deviceReadWrite(using: dataQueue)))
-
+        // data
+        cudaCheck(cudnnConvolutionBackwardData(
+            dataQueue.cudnn.handle,
+            // alpha
+            Element.onePointer,
             // filter
-            cudaCheck(cudnnConvolutionBackwardFilter(
-                filterBiasBackQueue.cudnn.handle,
-                // alpha
-                Element.onePointer,
-                // x
-                xTensorDescriptor.desc,
-                x.deviceRead(using: dataQueue),
-                // yDiff
-                yTensorDescriptor.desc,
-                yDiff.deviceRead(using: dataQueue),
-                // conv
-                convolutionDescriptor.desc,
-                // algo
-                bwdFilterAlgo,
-                // workspace
-                bwdFilterWorkspace?.pointer,
-                bwdFilterWorkspaceSize,
-                // beta
-                Element.zeroPointer,
-                // filterDiff
-                filterDescriptor.desc,
-                filterDiff.deviceReadWrite(using: dataQueue)))
+            filterDescriptor.desc,
+            filter.deviceRead(using: dataQueue),
+            // yDiff
+            yTensorDescriptor.desc,
+            yDiff.deviceRead(using: dataQueue),
+            // conv
+            convolutionDescriptor.desc,
+            // algo
+            bwdDataAlgo,
+            // workspace
+            bwdDataWorkspace?.pointer,
+            bwdDataWorkspaceSize,
+            // beta
+            Element.zeroPointer,
+            // xDiff
+            xTensorDescriptor.desc,
+            xDiff.deviceReadWrite(using: dataQueue)))
 
-            // bias
-            cudaCheck(cudnnConvolutionBackwardBias(
-                filterBiasBackQueue.cudnn.handle,
-                // alpha
-                Element.onePointer,
-                // yDiff
-                yTensorDescriptor.desc,
-                yDiff.deviceRead(using: dataQueue),
-                // beta
-                Element.zeroPointer,
-                //
-                biasTensorDescriptor.desc,
-                biasDiff.deviceReadWrite(using: dataQueue)))
-        } catch {
-            writeLog("\(error)")
-            // TODO: is there a better way to handle this??
-            fatalError("unrecoverable error")
-        }
+        // filter
+        cudaCheck(cudnnConvolutionBackwardFilter(
+            filterBiasBackQueue.cudnn.handle,
+            // alpha
+            Element.onePointer,
+            // x
+            xTensorDescriptor.desc,
+            x.deviceRead(using: dataQueue),
+            // yDiff
+            yTensorDescriptor.desc,
+            yDiff.deviceRead(using: dataQueue),
+            // conv
+            convolutionDescriptor.desc,
+            // algo
+            bwdFilterAlgo,
+            // workspace
+            bwdFilterWorkspace?.pointer,
+            bwdFilterWorkspaceSize,
+            // beta
+            Element.zeroPointer,
+            // filterDiff
+            filterDescriptor.desc,
+            filterDiff.deviceReadWrite(using: dataQueue)))
+
+        // bias
+        cudaCheck(cudnnConvolutionBackwardBias(
+            filterBiasBackQueue.cudnn.handle,
+            // alpha
+            Element.onePointer,
+            // yDiff
+            yTensorDescriptor.desc,
+            yDiff.deviceRead(using: dataQueue),
+            // beta
+            Element.zeroPointer,
+            //
+            biasTensorDescriptor.desc,
+            biasDiff.deviceReadWrite(using: dataQueue)))
     }
 
     //--------------------------------------------------------------------------
@@ -279,7 +268,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         _ x: Data,
         _ filter: Filter,
         _ bias: Bias
-    ) throws {
+    ) {
         xTensorDescriptor = x.createTensorDescriptor()
         filterDescriptor = FilterDescriptor(filter)
         biasTensorDescriptor = bias.createTensorDescriptor()
@@ -291,7 +280,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
 
         let pad = (padding == .valid) ? Shape.zero : (filter.shape / 2)
 
-        convolutionDescriptor = try ConvolutionDescriptor(
+        convolutionDescriptor = ConvolutionDescriptor(
             scalarType: convolutionScalarType,
             rank: Shape.rank - 2,
             padding: pad,
@@ -314,11 +303,10 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         // with the same scalarType for y as x
         let yShape = Shape(yExtent.map { Int($0) })
         yTensorDescriptor = x.createTensorDescriptor(asShape: yShape)
-
-        try selectForwardAlgorithm(x: x, properties: properties)
+        selectForwardAlgorithm(x: x, properties: properties)
 
         if Context.isTraining {
-            try selectBackwardAlgorithm(x: x, properties: properties)
+            selectBackwardAlgorithm(x: x, properties: properties)
         }
     }
 
@@ -327,10 +315,10 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
     @inlinable public func selectForwardAlgorithm(
         x: Data,
         properties: ConvolutionProperties
-    ) throws {
+    ) {
         switch properties.forwardAlgorithm {
         case .deterministic:
-            let algs = try findForwardAlgorithms(x: x)
+            let algs = findForwardAlgorithms(x: x)
             var notFound = true
             for alg in algs {
                 if alg.determinism == CUDNN_DETERMINISTIC {
@@ -351,27 +339,27 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             }
 
         case .fastest:
-            let algs = try findForwardAlgorithms(x: x)
+            let algs = findForwardAlgorithms(x: x)
             fwdAlgo = algs[0].algo
             fwdWorkspaceSize = algs[0].memory
 
         case .noWorkspace:
-            let algs = try findForwardAlgorithms(x: x)
+            let algs = findForwardAlgorithms(x: x)
             var algIndex = -1
             for i in 0..<algs.count {
                 if algs[i].memory == 0 { algIndex = i; break }
             }
 
-            guard algIndex >= 0 else {
+            if algIndex == -1 {
                 writeLog("failed to find 'noWorkspace' forward " +
                     "convolution algorithm")
-                throw DeviceError.initializeFailed
+                fatalError("convolution initialization failed")
             }
             fwdAlgo = algs[algIndex].algo
             fwdWorkspaceSize = algs[algIndex].memory
 
         case .workspaceLimit:
-            let algs = try findForwardAlgorithms(x: x)
+            let algs = findForwardAlgorithms(x: x)
             var algIndex = -1
             for i in 0..<algs.count {
                 if algs[i].memory <= properties.forwardWorkspaceLimit {
@@ -379,10 +367,10 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
                 }
             }
 
-            guard algIndex >= 0 else {
+            if algIndex == -1 {
                 writeLog("failed to find suitable 'workspaceLimit' " +
                     "forward convolution algorithm")
-                throw DeviceError.initializeFailed
+                fatalError("convolution initialization failed")
             }
             fwdAlgo = algs[algIndex].algo
             fwdWorkspaceSize = algs[algIndex].memory
@@ -404,8 +392,13 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
 
         // allocate workspace
         if fwdWorkspaceSize > 0 {
-            fwdWorkspace = try dataQueue
-                .allocate(byteCount: fwdWorkspaceSize, heapIndex: 0)
+            do {
+                fwdWorkspace = try dataQueue
+                    .allocate(byteCount: fwdWorkspaceSize, heapIndex: 0)
+            } catch {
+                writeLog("\(error)")
+                fatalError("convolution initialization failed")
+            }
         }
 
         // report selection
@@ -423,10 +416,10 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
     @inlinable public func selectBackwardAlgorithm(
         x: Data,
         properties: ConvolutionProperties
-    ) throws {
+    ) {
         switch properties.backwardDataAlgorithm {
         case .deterministic:
-            let algs = try findBackwardDataAlgorithms(x: x)
+            let algs = findBackwardDataAlgorithms(x: x)
             var notFound = true
             for alg in algs {
                 if alg.determinism == CUDNN_DETERMINISTIC {
@@ -447,27 +440,27 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             }
 
         case .fastest:
-            let algs = try findBackwardDataAlgorithms(x: x)
+            let algs = findBackwardDataAlgorithms(x: x)
             bwdDataAlgo = algs[0].algo
             bwdDataWorkspaceSize = algs[0].memory
 
         case .noWorkspace:
-            let algs = try findBackwardDataAlgorithms(x: x)
+            let algs = findBackwardDataAlgorithms(x: x)
             var algIndex = -1
             for i in 0..<algs.count {
                 if algs[i].memory == 0 { algIndex = i; break }
             }
 
-            guard algIndex >= 0 else {
+            if algIndex == -1 {
                 writeLog("failed to find 'noWorkspace' backward data " +
                     "convolution algorithm")
-                throw DeviceError.initializeFailed
+                fatalError("convolution initialization failed")
             }
             bwdDataAlgo = algs[algIndex].algo
             bwdDataWorkspaceSize = algs[algIndex].memory
 
         case .workspaceLimit:
-            let algs = try findBackwardDataAlgorithms(x: x)
+            let algs = findBackwardDataAlgorithms(x: x)
             var algIndex = -1
             for i in 0..<algs.count {
                 if algs[i].memory <= properties.backwardDataWorkspaceLimit {
@@ -475,10 +468,10 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
                 }
             }
 
-            guard algIndex >= 0 else {
+            if algIndex == -1 {
                 writeLog("failed to find suitable 'workspaceLimit' " +
                     "backward data convolution algorithm")
-                throw DeviceError.initializeFailed
+                fatalError("convolution initialization failed")
             }
             bwdDataAlgo = algs[algIndex].algo
             bwdDataWorkspaceSize = algs[algIndex].memory
@@ -500,8 +493,13 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
 
         // allocate workspace
         if bwdDataWorkspaceSize > 0 {
-            bwdDataWorkspace = try dataQueue
-                .allocate(byteCount: bwdDataWorkspaceSize, heapIndex: 0)
+            do {
+                bwdDataWorkspace = try dataQueue
+                    .allocate(byteCount: bwdDataWorkspaceSize, heapIndex: 0)
+            } catch {
+                writeLog("\(error)")                
+                fatalError("convolution initialization failed")
+            }
         }
 
         // report selection
@@ -519,7 +517,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         // choose best backward filter algorithm
         switch properties.backwardFilterAlgorithm {
         case .deterministic:
-            let algs = try findBackwardFilterAlgorithms(x: x)
+            let algs = findBackwardFilterAlgorithms(x: x)
             var notFound = true
             for alg in algs {
                 if alg.determinism == CUDNN_DETERMINISTIC {
@@ -540,27 +538,27 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             }
 
         case .fastest:
-            let algs = try findBackwardFilterAlgorithms(x: x)
+            let algs = findBackwardFilterAlgorithms(x: x)
             bwdFilterAlgo = algs[0].algo
             bwdFilterWorkspaceSize = algs[0].memory
 
         case .noWorkspace:
-            let algs = try findBackwardFilterAlgorithms(x: x)
+            let algs = findBackwardFilterAlgorithms(x: x)
             var algIndex = -1
             for i in 0..<algs.count {
                 if algs[i].memory == 0 { algIndex = i; break }
             }
 
-            guard algIndex >= 0 else {
+            if algIndex == -1 {
                 writeLog("failed to find 'noWorkspace' backward filter " +
                     "convolution algorithm")
-                throw DeviceError.initializeFailed
+                fatalError("convolution initialization failed")
             }
             bwdFilterAlgo = algs[algIndex].algo
             bwdFilterWorkspaceSize = algs[algIndex].memory
 
         case .workspaceLimit:
-            let algs = try findBackwardFilterAlgorithms(x: x)
+            let algs = findBackwardFilterAlgorithms(x: x)
             var algIndex = -1
             for i in 0..<algs.count {
                 if algs[i].memory <= properties.backwardFilterWorkspaceLimit {
@@ -569,10 +567,10 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
                 }
             }
 
-            guard algIndex >= 0 else {
+            if algIndex == -1 {
                 writeLog("failed to find suitable 'workspaceLimit' " +
                     "backward filter convolution algorithm")
-                throw DeviceError.initializeFailed
+                fatalError("convolution initialization failed")
             }
             bwdFilterAlgo = algs[algIndex].algo
             bwdFilterWorkspaceSize = algs[algIndex].memory
@@ -594,8 +592,13 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
 
         // allocate workspace
         if bwdFilterWorkspaceSize > 0 {
-            bwdFilterWorkspace = try dataQueue
-                .allocate(byteCount: bwdFilterWorkspaceSize, heapIndex: 0)
+            do {
+                bwdFilterWorkspace = try dataQueue
+                    .allocate(byteCount: bwdFilterWorkspaceSize, heapIndex: 0)
+            } catch {
+                writeLog("\(error)")                
+                fatalError("convolution initialization failed")
+            }
         }
 
         // report selection
@@ -614,7 +617,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
     // findForwardAlgorithms
     @inlinable public func findForwardAlgorithms(
         x: Data
-    ) throws -> [cudnnConvolutionFwdAlgoPerf_t] {
+    ) -> [cudnnConvolutionFwdAlgoPerf_t] {
         // get the list of forward algorithms
         var returnedAlgoCount: Int32 = 0
         var results = [cudnnConvolutionFwdAlgoPerf_t](
@@ -655,7 +658,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
     // findBackwardDataAlgorithms
     @inlinable public func findBackwardDataAlgorithms(
         x: Data
-    ) throws -> [cudnnConvolutionBwdDataAlgoPerf_t] {
+    ) -> [cudnnConvolutionBwdDataAlgoPerf_t] {
         // get the list of forward algorithms
         var returnedAlgoCount: Int32 = 0
         var results = [cudnnConvolutionBwdDataAlgoPerf_t](
@@ -695,7 +698,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
     // findBackwardFilterAlgorithms
     @inlinable public func findBackwardFilterAlgorithms(
         x: Data
-    ) throws -> [cudnnConvolutionBwdFilterAlgoPerf_t] {
+    ) -> [cudnnConvolutionBwdFilterAlgoPerf_t] {
         // get the list of forward algorithms
         var returnedAlgoCount: Int32 = 0
         var results = [cudnnConvolutionBwdFilterAlgoPerf_t](
@@ -839,8 +842,8 @@ public final class ConvolutionDescriptor<Shape: TensorShape> {
         padding: Shape,
         strides: Shape,
         dilations: Shape,
-        mode: ConvolutionMode) throws
-    {
+        mode: ConvolutionMode
+    ) {
         // create the descriptor
         var temp: cudnnConvolutionDescriptor_t?
         cudaCheck(cudnnCreateConvolutionDescriptor(&temp))
@@ -858,12 +861,7 @@ public final class ConvolutionDescriptor<Shape: TensorShape> {
     }
 
     @inlinable deinit {
-        do {
-            cudaCheck(cudnnDestroyConvolutionDescriptor(desc))
-        } catch {
-            Context.currentQueue.writeLog(
-                "\(releaseString) \(Self.self) \(error)")
-        }
+        cudaCheck(cudnnDestroyConvolutionDescriptor(desc))
     }
 }
 
