@@ -59,7 +59,7 @@ class test_AlgebraicField: XCTestCase {
            let a = ones((3, 2))
            let b = ones((2, 4))
            var c = empty((3, 4))
-           let props = queryMatmulProperties(a, false, b, false, &c)
+           let props = queryMatmulProperties(a, b, &c)
            print(props)
        }
 

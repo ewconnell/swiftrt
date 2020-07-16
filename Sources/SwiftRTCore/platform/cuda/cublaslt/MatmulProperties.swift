@@ -24,17 +24,52 @@ public struct MatmulProperties {
 
 //==============================================================================
 /// queryMatmulProperties
-public func queryMatmulProperties<E>(
-    _ a: TensorR2<E>, 
-    _ transA: Bool,
-    _ b: TensorR2<E>,
-    _ transB: Bool,
-    _ c: inout TensorR2<E>
-) -> MatmulProperties {
-    // var status = CUBLAS_STATUS_SUCCESS
-    // var operation = MatmulOperation(computeType: CUBLAS_COMPUTE_32F, scaleType: CUDA_R_32F)
-    // operation.transA = .noTranspose
-    // operation.transB = .noTranspose
+public func queryMatmulProperties<AE,BE,CE>(
+    _ a: TensorR2<AE>, 
+    transA: TransposeOp = .noTranspose,
+    _ b: TensorR2<BE>, 
+    transB: TransposeOp = .noTranspose,
+    _ c: inout TensorR2<CE>,
+    computeType: MatmulComputeType = .compute32F,
+    scaleType: ScalarType = .real32F,
+    maxAlgorithmsToTest: Int = Int.max,
+    maxCombinationsToTest: Int = 100,
+    timingRepeats: Int = 10
+) -> MatmulProperties 
+where AE: ScalarElement,
+      BE: ScalarElement,
+      CE: ScalarElement
+{
+    let splitKs = [2, 3, 4, 5, 6, 8, 12, 16, 32]
+    let computeType = computeType
+    let scaleType = ScalarType.real32F
+    var operation = MatmulOperation(compute: computeType, scale: scaleType)
+    operation.transA = transA
+    operation.transB = transB
+    print(operation)
+    
+    //
+    var algorithmIds = [Int32](repeating: 0, count: maxAlgorithmsToTest)
+    var algorithmsFound: Int32 = 0
+    cudaCheck(cublasLtMatmulAlgoGetIds(
+        Context.currentQueue.cublas.handle, 
+        computeType.cublas,
+        scaleType.cuda,
+        AE.type.cuda,
+        BE.type.cuda,
+        CE.type.cuda,
+        CE.type.cuda,
+        Int32(maxAlgorithmsToTest),
+        &algorithmIds, 
+        &algorithmsFound))
+
+    var combinationCount = 0
+
+    for algo in 0..<Int(algorithmsFound) 
+        where combinationCount <= maxCombinationsToTest 
+    {
+
+    }
 
     return MatmulProperties()
 }

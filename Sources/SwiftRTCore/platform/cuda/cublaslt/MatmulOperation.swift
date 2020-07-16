@@ -17,23 +17,38 @@ import CCuda
 
 //==============================================================================
 // MatmulOperation
-public final class MatmulOperation {
+public final class MatmulOperation: CustomStringConvertible {
     // properties
     public let desc: cublasLtMatmulDesc_t
 
     //--------------------------------------------------------------------------
     // initializers
     @inlinable public init(
-        computeType: cublasComputeType_t,
-        scaleType: cudaDataType_t
+        compute: MatmulComputeType,
+        scale: ScalarType
     ) {
         var temp: cublasLtMatmulDesc_t?
-        cudaCheck(cublasLtMatmulDescCreate(&temp, computeType, scaleType))
+        cudaCheck(cublasLtMatmulDescCreate(&temp, compute.cublas, scale.cuda))
         desc = temp!
     }
 
     @inlinable deinit {
         cudaCheck(cublasLtMatmulDescDestroy(desc))
+    }
+
+    public var description: String {
+        """
+        \(Self.self)
+            compute: \(compute)
+              scale: \(scale)
+        pointerMode: \(pointerMode)
+             transA: \(transA)
+             transB: \(transB)
+             transC: \(transC)
+               fill: \(fill)
+           epilogue: \(epilogue)
+               bias: \(String(describing: bias))
+        """
     }
 
     //--------------------------------------------------------------------------
@@ -59,7 +74,7 @@ public final class MatmulOperation {
     //--------------------------------------------------------------------------
     /// Defines data type used for multiply and accumulate operations, 
     /// and the accumulator during the matrix multiplication
-    @inlinable public var computeType: MatmulComputeType {
+    @inlinable public var compute: MatmulComputeType {
         get {
             var value = CUBLAS_COMPUTE_32F
             getAttribute(CUBLASLT_MATMUL_DESC_COMPUTE_TYPE, &value)
@@ -77,7 +92,7 @@ public final class MatmulOperation {
     /// converted to scale type before final scaling. Value is then
     /// converted from scale type to the type of matrix D before
     /// storing in memory. The default is the same as `computeType`
-    @inlinable public var scaleType: ScalarType {
+    @inlinable public var scale: ScalarType {
         get {
             var value = CUDA_R_32F
             getAttribute(CUBLASLT_MATMUL_DESC_SCALE_TYPE, &value)
