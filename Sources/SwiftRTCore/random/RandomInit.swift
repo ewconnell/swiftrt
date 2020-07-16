@@ -28,15 +28,15 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
     ///  - shape: The dimensions of the tensor
     ///  - lower: The lower bound of the distribution
     ///  - upper: The upper bound of the distribution
-    ///  - layout: element storage layout
+    ///  - order: element storage order
     ///  - seed: The seed value
     init(randomUniform shape: Shape,
          lower: Element = 0,
          upper: Element = 1,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape: shape, layout: layout)
+        self = Self(shape: shape, order: order)
         Context.currentQueue.fill(randomUniform: &self, lower, upper, seed)
     }
     
@@ -48,15 +48,15 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
     ///  - shape: The dimensions of the tensor
     ///  - mean: The mean of the distribution
     ///  - std: The standard deviation of the distribution
-    ///  - layout: element storage layout
+    ///  - order: element storage order
     ///  - seed: The seed value
     init(randomNormal shape: Shape,
          mean: Element = 0,
          std: Element = 1,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape: shape, layout: layout)
+        self = Self(shape: shape, order: order)
         Context.currentQueue.fill(randomNormal: &self, mean, std, seed)
     }
     
@@ -65,10 +65,10 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
     init(randomNormal shape: Shape,
          mean: Self,
          std: Self,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape: shape, layout: layout)
+        self = Self(shape: shape, order: order)
         Context.currentQueue.fill(randomNormal: &self, mean, std, seed)
     }
     
@@ -80,15 +80,15 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
     ///  - shape: The dimensions of the tensor.
     ///  - mean: The mean of the distribution.
     ///  - std: The standard deviation of the distribution.
-    ///  - layout: element storage layout
+    ///  - order: element storage order
     ///  - seed: The seed value.
     init(randomTruncatedNormal shape: Shape,
          mean: Element = 0,
          std: Element = 1,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape: shape, layout: layout)
+        self = Self(shape: shape, order: order)
         Context.currentQueue.fill(randomTruncatedNormal: &self, mean, std, seed)
     }
     
@@ -97,10 +97,10 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
     init(randomTruncatedNormal shape: Shape,
          mean: Self,
          std: Self,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed)
     {
-        self = Self(shape: shape, layout: layout)
+        self = Self(shape: shape, order: order)
         Context.currentQueue.fill(randomTruncatedNormal: &self, mean, std, seed)
     }
 }
@@ -114,7 +114,7 @@ public extension Tensor where Element == DeviceIndex {
     ///     [batchSize, classCount]`.  Each slice `[i, :]` represents the
     ///      unnormalized log probabilities for all classes.
     ///   - sampleCount: 0-D.  Number of independent samples to draw
-    ///   - layout: element storage layout
+    ///   - order: element storage order
     ///     for each row slice.
     ///   - seed: The seed value.
     ///
@@ -123,7 +123,7 @@ public extension Tensor where Element == DeviceIndex {
     ///   range `[0, classCount)`.
     init<E>(randomCategorialLogits: Tensor<Shape,E>,
             sampleCount: Int,
-            layout: Layout = Layout.defaultValue,
+            order: Order = .defaultOrder,
             seed: RandomSeed = Context.randomSeed)
     where E: Numeric
     {
@@ -175,10 +175,10 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///
     /// - Parameters:
     ///   - shape: The dimensions of the tensor.
-    ///   - layout: element storage layout
+    ///   - order: element storage order
     ///   - seed: The seed value.
     init(glorotUniform shape: Shape,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
         let (fanIn, fanOut) = shape.fans()
@@ -186,7 +186,7 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
         self.init(randomUniform: shape,
                   lower: -limit,
                   upper: limit,
-                  layout: layout,
+                  order: order,
                   seed: seed)
     }
     
@@ -206,10 +206,10 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///
     /// - Parameters:
     ///   - shape: The dimensions of the tensor.
-    ///   - layout: element storage layout
+    ///   - order: element storage order
     ///   - seed: The seed value.
     init(glorotNormal shape: Shape,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
         let (fanIn, fanOut) = shape.fans()
@@ -220,7 +220,7 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
         // Smooth the tails of the clipped normal.
         std /= truncationDeviation
         self.init(randomTruncatedNormal: shape,
-                  mean: 0, std: std, layout: layout, seed: seed)
+                  mean: 0, std: std, order: order, seed: seed)
     }
     
     //--------------------------------------------------------------------------
@@ -239,16 +239,16 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///
     /// - Parameters:
     ///   - shape: The dimensions of the tensor.
-    ///   - layout: element storage layout
+    ///   - order: element storage order
     ///   - seed: The seed value.
     init(heUniform shape: Shape,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
         let (fanIn, _) = shape.fans()
         let limit = Element.sqrt(6 / Element(fanIn))
         self.init(randomUniform: shape, lower: -limit,
-                  upper: limit, layout: layout, seed: seed)
+                  upper: limit, order: order, seed: seed)
     }
     
     //--------------------------------------------------------------------------
@@ -266,10 +266,10 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///
     /// - Parameters:
     ///   - shape: The dimensions of the tensor.
-    ///   - layout: element storage layout
+    ///   - order: element storage order
     ///   - seed: The seed value.
     init(heNormal shape: Shape,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
         let (fanIn, _) = shape.fans()
@@ -279,7 +279,7 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
         // Smooth the tails of the clipped normal.
         std /= truncationDeviation
         self.init(randomTruncatedNormal: shape,
-                  mean: 0, std: std, layout: layout,
+                  mean: 0, std: std, order: order,
                   seed: seed)
     }
     
@@ -296,16 +296,16 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///
     /// - Parameters:
     ///   - shape: The dimensions of the tensor.
-    ///   - layout: element storage layout
+    ///   - order: element storage order
     ///   - seed: The seed value.
     init(leCunUniform shape: Shape,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
         let (fanIn, _) = shape.fans()
         let limit = Element.sqrt(3 / Element(fanIn))
         self.init(randomUniform: shape, lower: -limit,
-                  upper: limit, layout: layout, seed: seed)
+                  upper: limit, order: order, seed: seed)
     }
     
     //--------------------------------------------------------------------------
@@ -321,10 +321,10 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///
     /// - Parameters:
     ///   - shape: The dimensions of the tensor.
-    ///   - layout: element storage layout
+    ///   - order: element storage order
     ///   - seed: The seed value.
     init(leCunNormal shape: Shape,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
         let (fanIn, _) = shape.fans()
@@ -335,7 +335,7 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
         // Smooth the tails of the clipped normal.
         std /= truncationDeviation
         self.init(randomTruncatedNormal: shape,
-                  mean: 0, std: std, layout: layout,
+                  mean: 0, std: std, order: order,
                   seed: seed)
     }
 }
@@ -350,92 +350,92 @@ public extension Tensor where
         randomTruncatedNormal shape: Int,
         mean: Self,
         std: Self,
-        layout: Layout = Layout.defaultValue,
+        order: Order = .defaultOrder,
         seed: RandomSeed = Context.randomSeed
     ) {
         self.init(randomTruncatedNormal: Shape(shape),
-                  mean: mean, std: std, layout: layout, seed: seed)
+                  mean: mean, std: std, order: order, seed: seed)
     }
 
     init(randomTruncatedNormal shape: Int,
          mean: Element = 0,
          std: Element = 1,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
         self.init(randomTruncatedNormal: Shape(shape),
-                  mean: mean, std: std, layout: layout, seed: seed)
+                  mean: mean, std: std, order: order, seed: seed)
     }
 
     init(randomNormal shape: Int, mean: Self,
          std: Self,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
         self.init(randomNormal: Shape(shape),
-                  mean: mean, std: std, layout: layout, seed: seed)
+                  mean: mean, std: std, order: order, seed: seed)
     }
 
     init(randomNormal shape: Int,
          mean: Element = 0,
          std: Element = 1,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
         self.init(randomNormal: Shape(shape),
-                  mean: mean, std: std, layout: layout, seed: seed)
+                  mean: mean, std: std, order: order, seed: seed)
     }
 
     init(randomUniform shape: Int,
          lower: Element = 0,
          upper: Element = 1,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
         self.init(randomUniform: Shape(shape),
-                  lower: lower, upper: upper, layout: layout, seed: seed)
+                  lower: lower, upper: upper, order: order, seed: seed)
     }
 
     init(glorotUniform shape: Int,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
-        self.init(glorotUniform: Shape(shape), layout: layout, seed: seed)
+        self.init(glorotUniform: Shape(shape), order: order, seed: seed)
     }
         
     init(glorotNormal shape: Int,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
-        self.init(glorotNormal: Shape(shape), layout: layout, seed: seed)
+        self.init(glorotNormal: Shape(shape), order: order, seed: seed)
     }
     
     init(heUniform shape: Int,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
-        self.init(heUniform: Shape(shape), layout: layout, seed: seed)
+        self.init(heUniform: Shape(shape), order: order, seed: seed)
     }
     
     init(heNormal shape: Int,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
-        self.init(heNormal: Shape(shape), layout: layout, seed: seed)
+        self.init(heNormal: Shape(shape), order: order, seed: seed)
     }
     
     init(leCunUniform shape: Int,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
-        self.init(leCunUniform: Shape(shape), layout: layout, seed: seed)
+        self.init(leCunUniform: Shape(shape), order: order, seed: seed)
     }
     
     init(leCunNormal shape: Int,
-         layout: Layout = Layout.defaultValue,
+         order: Order = .defaultOrder,
          seed: RandomSeed = Context.randomSeed
     ) {
-        self.init(leCunNormal: Shape(shape), layout: layout, seed: seed)
+        self.init(leCunNormal: Shape(shape), order: order, seed: seed)
     }
 }
 

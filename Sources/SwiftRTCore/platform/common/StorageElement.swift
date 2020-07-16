@@ -287,7 +287,7 @@ extension Tensor where TensorElement == Bool1 {
         strides = other.strides
         storage = other.storage
         storageBase = other.storageBase
-        layout = other.layout
+        order = other.order
         isShared = other.isShared
         count = other.count
         stridedSpanCount = other.stridedSpanCount
@@ -297,7 +297,7 @@ extension Tensor where TensorElement == Bool1 {
                                           strides,
                                           storage,
                                           storageBase,
-                                          layout,
+                                          order,
                                           stridedSpanCount)
     }
 }
@@ -320,7 +320,7 @@ extension Tensor where TensorElement == UInt1 {
         strides = other.strides
         storage = other.storage
         storageBase = other.storageBase
-        layout = other.layout
+        order = other.order
         isShared = other.isShared
         count = other.count
         stridedSpanCount = other.stridedSpanCount
@@ -330,7 +330,7 @@ extension Tensor where TensorElement == UInt1 {
                                           strides,
                                           storage,
                                           storageBase,
-                                          layout,
+                                          order,
                                           stridedSpanCount)
     }
 }
@@ -458,7 +458,7 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
     /// - Parameters:
     ///  - tensor: the tensor that will be read
     @inlinable public init(tensor: Tensor<Shape, TensorElement>) {
-        assert(tensor.isBufferIterable, "tensor layout is not buffer iterable")
+        assert(tensor.isBufferIterable, "tensor order is not buffer iterable")
 
         // make the data range available for reading by the cpu
         isSingleElement = tensor.isSingleElement
@@ -484,7 +484,7 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
     /// - Parameters:
     ///  - tensor: the tensor that will be written
     @inlinable public init(tensor: inout Tensor<Shape, TensorElement>) {
-        assert(tensor.isBufferIterable, "tensor layout is not buffer iterable")
+        assert(tensor.isBufferIterable, "tensor order is not buffer iterable")
 
         // convert logical base and strided span count to stored.
         // They will not be equal for packed element types like `Int4`
@@ -533,7 +533,7 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
 //==============================================================================
 /// LogicalElements
 /// a class that maps `ElementIndex`s to storage values via the current
-/// dynamic layout.
+/// dynamic order.
 public final class LogicalElements<Shape, TensorElement>: MutableCollection
 where Shape: TensorShape, TensorElement: StorageElement
 {
@@ -545,7 +545,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     public let storedBase: Int
     public let storedCount: Int
     public let strides: Shape
-    public let layout: Layout
+    public let order: Order
     public let startIndex: Index
     public let endIndex: Index
 
@@ -561,7 +561,7 @@ where Shape: TensorShape, TensorElement: StorageElement
                   tensor.strides,
                   tensor.storage,
                   tensor.storageBase,
-                  tensor.layout,
+                  tensor.order,
                   tensor.stridedSpanCount)
     }
     
@@ -579,14 +579,14 @@ where Shape: TensorShape, TensorElement: StorageElement
         _ strides: Shape,
         _ storage: StorageBufferType,
         _ storageBase: Int,
-        _ layout: Layout,
+        _ order: Order,
         _ stridedSpanCount: Int
     ) {
         assert(shape.elementCount() == count, "shape count mismatch")
         self.alignment = TensorElement.alignment(storageBase)
         self.strides = strides
         self.storage = storage
-        self.layout = layout
+        self.order = order
         let (storedBase, storedCount) =
                 TensorElement.storedRange(start: storageBase,
                                           count: stridedSpanCount)
@@ -621,17 +621,14 @@ where Shape: TensorShape, TensorElement: StorageElement
     //--------------------------------------------------------------------------
     // index(after:
     @inlinable public func index(after i: Index) -> Index {
-        switch layout {
-        case .row, .col:
-            return i.incremented(between: startIndex, and: endIndex)
-        }
+        i.incremented(between: startIndex, and: endIndex)
     }
     
     //--------------------------------------------------------------------------
     // subscript
     @inlinable public subscript(position: Index) -> TensorElement.Value {
         get {
-            switch layout {
+            switch order {
             case .row, .col:
                 // get logical strided linear element position
                 let i = position.linearIndex(strides) + alignment
@@ -639,11 +636,20 @@ where Shape: TensorShape, TensorElement: StorageElement
                 // convert to stored index which might be less for packed elements
                 let si = TensorElement.storedIndex(i)
                 return TensorElement.value(at: i, from: hostBuffer[si])
+                
+            case .colTiled32:
+                fatalError("not implemented yet")
+                
+            case .colTiledTC1:
+                fatalError("not implemented yet")
+                
+            case .colTiledTC2:
+                fatalError("not implemented yet")
             }
         }
         
         set {
-            switch layout {
+            switch order {
             case .row, .col:
                 // get logical strided linear element position
                 let i = position.linearIndex(strides) + alignment
@@ -651,6 +657,15 @@ where Shape: TensorShape, TensorElement: StorageElement
                 // convert to stored index which might be less for packed elements
                 let si = TensorElement.storedIndex(i)
                 TensorElement.store(value: newValue, at: i, to: &hostBuffer[si])
+                
+            case .colTiled32:
+                fatalError("not implemented yet")
+                
+            case .colTiledTC1:
+                fatalError("not implemented yet")
+                
+            case .colTiledTC2:
+                fatalError("not implemented yet")
             }
         }
     }

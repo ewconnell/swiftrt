@@ -1,6 +1,6 @@
 gnome tweak tool
  - change desktop font
- - flip Mac Ctrl/Cmd keys by choosing "Keyboard & Mouse -> Additional Layout Options -> Ctrl position -> Swap left win with left control"
+ - flip Mac Ctrl/Cmd keys by choosing "Keyboard & Mouse -> Additional Order Options -> Ctrl position -> Swap left win with left control"
 sudo apt-get install gnome-tweak-tool
 
 extensions

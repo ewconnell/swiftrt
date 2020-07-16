@@ -90,7 +90,7 @@ where Shape: TensorShape,
 
         self.bias = bias ??
             TensorR1<FilterElement>(zeros: [filter.shape[1]],
-                                    layout: filter.layout)
+                                    order: filter.order)
 
         // create the device op and save the output shape
         self.convolutionOp = Context.currentQueue.convolution(

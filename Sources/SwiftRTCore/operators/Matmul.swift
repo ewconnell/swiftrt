@@ -65,7 +65,7 @@ where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
     let rhsShape = transposeRhs ? rhs.shape.t : rhs.shape
     assert(lhsShape[1] == rhsShape[0], "matmul inner dimensions must be equal")
     var result = TensorR2<E>(shape: Shape2(lhsShape[0], rhsShape[1]),
-                             layout: lhs.layout)
+                             order: lhs.order)
     let op = Context.currentQueue.matmul2(type: E.self)
     op.forward(lhs, transposeLhs, rhs, transposeRhs, &result)
     return result
@@ -126,7 +126,7 @@ where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
     let rhsShape = transposeRhs ? rhs.shape.t : rhs.shape
     assert(lhsShape[1] == rhsShape[0], "matmul inner dimensions must be equal")
     var result = TensorR2<E>(shape: Shape2(lhsShape[0], rhsShape[1]),
-                             layout: lhs.layout)
+                             order: lhs.order)
     let op = Context.currentQueue.matmul2(type: E.self)
     op.forward(lhs, transposeLhs, rhs, transposeRhs, &result)
     return result

@@ -45,13 +45,13 @@ numShapes = 6
 ///    changing slowest. ‘F’ means to read / write the elements using
 ///    Fortran-like index order, with the first index changing fastest,
 ///    and the last index changing slowest. Note that the ‘C’ and ‘F’
-///    options take no account of the memory layout of the underlying
+///    options take no account of the memory order of the underlying
 ///    array, and only refer to the order of indexing. ‘A’ means to
 ///    read / write the elements in Fortran-like index order if a is
 ///    Fortran contiguous in memory, C-like order otherwise.
 /// - Returns: This will be a new view object if possible; otherwise,
 ///   it will be a copy. Note there is no guarantee of the memory
-///   layout (C- or Fortran- contiguous) of the returned array.
+///   order (C- or Fortran- contiguous) of the returned array.
 
 %for n in range(1, numShapes + 1):
 //==============================================================================
@@ -63,9 +63,9 @@ numShapes = 6
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape${n}, E>,
     _ newShape: ${shapeType},
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultValue
 ) -> Tensor<Shape${i}, E> {
-    Tensor<Shape${i}, E>(reshaping: a, to: Shape${i}(newShape), layout: order)
+    Tensor<Shape${i}, E>(reshaping: a, to: Shape${i}(newShape), order: order)
 }
 
 %  end
@@ -195,9 +195,9 @@ numShapes = 6
 @inlinable public func repeating<Element>(
     _ value: Element,
     _ shape: Shape${n}.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultValue
 ) -> Tensor<Shape${n}, Element> where Element == Element.Value {
-    Tensor<Shape${n},Element>(repeating: value, to: Shape${n}(shape), layout: layout)
+    Tensor<Shape${n},Element>(repeating: value, to: Shape${n}(shape), order: order)
 }
 
 //---------------------------
@@ -205,9 +205,9 @@ numShapes = 6
 @inlinable public func repeating(
     _ value: Int,
     _ shape: Shape${n}.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultValue
 ) -> Tensor<Shape${n}, DType> {
-    Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape), layout: layout)
+    Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape), order: order)
 }
 
 //---------------------------
@@ -216,9 +216,9 @@ numShapes = 6
 @inlinable public func repeating(
     _ value: Double,
     _ shape: Shape${n}.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultValue
 ) -> Tensor<Shape${n}, DType> {
-    Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape), layout: layout)
+    Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape), order: order)
 }
 
 //************************** Explicit typing
@@ -227,10 +227,10 @@ numShapes = 6
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape${n}.Tuple,
-    _ layout: Layout = Layout.defaultValue,
+    _ order: Order = .defaultValue,
     type: Element.Type
 ) -> Tensor<Shape${n},Element> {
-    Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape), layout: layout)
+    Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape), order: order)
 }
 
 %end
@@ -254,7 +254,7 @@ numShapes = 6
 ) -> Tensor<S,Element> where S: TensorShape
 {
     Tensor<S,Element>(repeating: value, to: prototype.shape,
-                      layout: prototype.layout)
+                      order: prototype.order)
 }
 
 // different type same shape
@@ -266,7 +266,7 @@ numShapes = 6
 ) -> Tensor<S,Element> where S: TensorShape
 {
     Tensor<S,Element>(repeating: value, to: prototype.shape,
-                      layout: prototype.layout)
+                      order: prototype.order)
 }
 
 //------------------------------------------------------------------------------
@@ -282,7 +282,7 @@ numShapes = 6
 {
     assert(prototype.count == Shape${n}(shape).elementCount())
     return Tensor<Shape${n}, E>(repeating: value, to: Shape${n}(shape),
-                             layout: prototype.layout)
+                             order: prototype.order)
 }
 
 %end
@@ -301,7 +301,7 @@ numShapes = 6
 {
     assert(prototype.count == Shape${n}(shape).elementCount())
     return Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape),
-                      layout: prototype.layout)
+                      order: prototype.order)
 }
 
 %end

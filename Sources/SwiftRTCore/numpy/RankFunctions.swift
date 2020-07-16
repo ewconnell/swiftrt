@@ -42,13 +42,13 @@ import Foundation
 ///    changing slowest. ‘F’ means to read / write the elements using
 ///    Fortran-like index order, with the first index changing fastest,
 ///    and the last index changing slowest. Note that the ‘C’ and ‘F’
-///    options take no account of the memory layout of the underlying
+///    options take no account of the memory order of the underlying
 ///    array, and only refer to the order of indexing. ‘A’ means to
 ///    read / write the elements in Fortran-like index order if a is
 ///    Fortran contiguous in memory, C-like order otherwise.
 /// - Returns: This will be a new view object if possible; otherwise,
 ///   it will be a copy. Note there is no guarantee of the memory
-///   layout (C- or Fortran- contiguous) of the returned array.
+///   order (C- or Fortran- contiguous) of the returned array.
 
 //==============================================================================
 // Rank1
@@ -56,45 +56,45 @@ import Foundation
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape2.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape2, E> {
-    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), layout: order)
+    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape3.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape3, E> {
-    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), layout: order)
+    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape4.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape4, E> {
-    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), layout: order)
+    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape5.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape5, E> {
-    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), layout: order)
+    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape1, E>,
     _ newShape: Shape6.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape6, E> {
-    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), layout: order)
+    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), order: order)
 }
 
 //==============================================================================
@@ -103,54 +103,54 @@ import Foundation
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Int,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape1, E> {
-    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), layout: order)
+    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape2.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape2, E> {
-    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), layout: order)
+    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape3.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape3, E> {
-    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), layout: order)
+    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape4.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape4, E> {
-    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), layout: order)
+    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape5.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape5, E> {
-    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), layout: order)
+    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape2, E>,
     _ newShape: Shape6.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape6, E> {
-    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), layout: order)
+    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), order: order)
 }
 
 //==============================================================================
@@ -159,54 +159,54 @@ import Foundation
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Int,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape1, E> {
-    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), layout: order)
+    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape2.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape2, E> {
-    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), layout: order)
+    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape3.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape3, E> {
-    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), layout: order)
+    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape4.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape4, E> {
-    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), layout: order)
+    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape5.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape5, E> {
-    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), layout: order)
+    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape3, E>,
     _ newShape: Shape6.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape6, E> {
-    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), layout: order)
+    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), order: order)
 }
 
 //==============================================================================
@@ -215,54 +215,54 @@ import Foundation
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Int,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape1, E> {
-    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), layout: order)
+    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape2.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape2, E> {
-    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), layout: order)
+    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape3.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape3, E> {
-    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), layout: order)
+    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape4.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape4, E> {
-    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), layout: order)
+    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape5.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape5, E> {
-    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), layout: order)
+    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape4, E>,
     _ newShape: Shape6.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape6, E> {
-    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), layout: order)
+    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), order: order)
 }
 
 //==============================================================================
@@ -271,54 +271,54 @@ import Foundation
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Int,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape1, E> {
-    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), layout: order)
+    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape2.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape2, E> {
-    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), layout: order)
+    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape3.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape3, E> {
-    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), layout: order)
+    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape4.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape4, E> {
-    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), layout: order)
+    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape5.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape5, E> {
-    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), layout: order)
+    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape5, E>,
     _ newShape: Shape6.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape6, E> {
-    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), layout: order)
+    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), order: order)
 }
 
 //==============================================================================
@@ -327,54 +327,54 @@ import Foundation
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Int,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape1, E> {
-    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), layout: order)
+    Tensor<Shape1, E>(reshaping: a, to: Shape1(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape2.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape2, E> {
-    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), layout: order)
+    Tensor<Shape2, E>(reshaping: a, to: Shape2(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape3.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape3, E> {
-    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), layout: order)
+    Tensor<Shape3, E>(reshaping: a, to: Shape3(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape4.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape4, E> {
-    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), layout: order)
+    Tensor<Shape4, E>(reshaping: a, to: Shape4(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape5.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape5, E> {
-    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), layout: order)
+    Tensor<Shape5, E>(reshaping: a, to: Shape5(newShape), order: order)
 }
 
 @differentiable(where E.Value: DifferentiableElement)
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape6, E>,
     _ newShape: Shape6.Tuple,
-    order: Layout = Layout.defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape6, E> {
-    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), layout: order)
+    Tensor<Shape6, E>(reshaping: a, to: Shape6(newShape), order: order)
 }
 
 
@@ -818,9 +818,9 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element,
     _ shape: Shape1.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape1, Element> where Element == Element.Value {
-    Tensor<Shape1,Element>(repeating: value, to: Shape1(shape), layout: layout)
+    Tensor<Shape1,Element>(repeating: value, to: Shape1(shape), order: order)
 }
 
 //---------------------------
@@ -828,9 +828,9 @@ import Foundation
 @inlinable public func repeating(
     _ value: Int,
     _ shape: Shape1.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape1, DType> {
-    Tensor<Shape1,DType>(repeating: DType(value), to: Shape1(shape), layout: layout)
+    Tensor<Shape1,DType>(repeating: DType(value), to: Shape1(shape), order: order)
 }
 
 //---------------------------
@@ -839,9 +839,9 @@ import Foundation
 @inlinable public func repeating(
     _ value: Double,
     _ shape: Shape1.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape1, DType> {
-    Tensor<Shape1,DType>(repeating: DType(value), to: Shape1(shape), layout: layout)
+    Tensor<Shape1,DType>(repeating: DType(value), to: Shape1(shape), order: order)
 }
 
 //************************** Explicit typing
@@ -850,10 +850,10 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape1.Tuple,
-    _ layout: Layout = Layout.defaultValue,
+    _ order: Order = .defaultOrder,
     type: Element.Type
 ) -> Tensor<Shape1,Element> {
-    Tensor<Shape1, Element>(repeating: value, to: Shape1(shape), layout: layout)
+    Tensor<Shape1, Element>(repeating: value, to: Shape1(shape), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -867,9 +867,9 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element,
     _ shape: Shape2.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape2, Element> where Element == Element.Value {
-    Tensor<Shape2,Element>(repeating: value, to: Shape2(shape), layout: layout)
+    Tensor<Shape2,Element>(repeating: value, to: Shape2(shape), order: order)
 }
 
 //---------------------------
@@ -877,9 +877,9 @@ import Foundation
 @inlinable public func repeating(
     _ value: Int,
     _ shape: Shape2.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape2, DType> {
-    Tensor<Shape2,DType>(repeating: DType(value), to: Shape2(shape), layout: layout)
+    Tensor<Shape2,DType>(repeating: DType(value), to: Shape2(shape), order: order)
 }
 
 //---------------------------
@@ -888,9 +888,9 @@ import Foundation
 @inlinable public func repeating(
     _ value: Double,
     _ shape: Shape2.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape2, DType> {
-    Tensor<Shape2,DType>(repeating: DType(value), to: Shape2(shape), layout: layout)
+    Tensor<Shape2,DType>(repeating: DType(value), to: Shape2(shape), order: order)
 }
 
 //************************** Explicit typing
@@ -899,10 +899,10 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape2.Tuple,
-    _ layout: Layout = Layout.defaultValue,
+    _ order: Order = .defaultOrder,
     type: Element.Type
 ) -> Tensor<Shape2,Element> {
-    Tensor<Shape2, Element>(repeating: value, to: Shape2(shape), layout: layout)
+    Tensor<Shape2, Element>(repeating: value, to: Shape2(shape), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -916,9 +916,9 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element,
     _ shape: Shape3.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape3, Element> where Element == Element.Value {
-    Tensor<Shape3,Element>(repeating: value, to: Shape3(shape), layout: layout)
+    Tensor<Shape3,Element>(repeating: value, to: Shape3(shape), order: order)
 }
 
 //---------------------------
@@ -926,9 +926,9 @@ import Foundation
 @inlinable public func repeating(
     _ value: Int,
     _ shape: Shape3.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape3, DType> {
-    Tensor<Shape3,DType>(repeating: DType(value), to: Shape3(shape), layout: layout)
+    Tensor<Shape3,DType>(repeating: DType(value), to: Shape3(shape), order: order)
 }
 
 //---------------------------
@@ -937,9 +937,9 @@ import Foundation
 @inlinable public func repeating(
     _ value: Double,
     _ shape: Shape3.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape3, DType> {
-    Tensor<Shape3,DType>(repeating: DType(value), to: Shape3(shape), layout: layout)
+    Tensor<Shape3,DType>(repeating: DType(value), to: Shape3(shape), order: order)
 }
 
 //************************** Explicit typing
@@ -948,10 +948,10 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape3.Tuple,
-    _ layout: Layout = Layout.defaultValue,
+    _ order: Order = .defaultOrder,
     type: Element.Type
 ) -> Tensor<Shape3,Element> {
-    Tensor<Shape3, Element>(repeating: value, to: Shape3(shape), layout: layout)
+    Tensor<Shape3, Element>(repeating: value, to: Shape3(shape), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -965,9 +965,9 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element,
     _ shape: Shape4.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape4, Element> where Element == Element.Value {
-    Tensor<Shape4,Element>(repeating: value, to: Shape4(shape), layout: layout)
+    Tensor<Shape4,Element>(repeating: value, to: Shape4(shape), order: order)
 }
 
 //---------------------------
@@ -975,9 +975,9 @@ import Foundation
 @inlinable public func repeating(
     _ value: Int,
     _ shape: Shape4.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape4, DType> {
-    Tensor<Shape4,DType>(repeating: DType(value), to: Shape4(shape), layout: layout)
+    Tensor<Shape4,DType>(repeating: DType(value), to: Shape4(shape), order: order)
 }
 
 //---------------------------
@@ -986,9 +986,9 @@ import Foundation
 @inlinable public func repeating(
     _ value: Double,
     _ shape: Shape4.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape4, DType> {
-    Tensor<Shape4,DType>(repeating: DType(value), to: Shape4(shape), layout: layout)
+    Tensor<Shape4,DType>(repeating: DType(value), to: Shape4(shape), order: order)
 }
 
 //************************** Explicit typing
@@ -997,10 +997,10 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape4.Tuple,
-    _ layout: Layout = Layout.defaultValue,
+    _ order: Order = .defaultOrder,
     type: Element.Type
 ) -> Tensor<Shape4,Element> {
-    Tensor<Shape4, Element>(repeating: value, to: Shape4(shape), layout: layout)
+    Tensor<Shape4, Element>(repeating: value, to: Shape4(shape), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -1014,9 +1014,9 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element,
     _ shape: Shape5.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape5, Element> where Element == Element.Value {
-    Tensor<Shape5,Element>(repeating: value, to: Shape5(shape), layout: layout)
+    Tensor<Shape5,Element>(repeating: value, to: Shape5(shape), order: order)
 }
 
 //---------------------------
@@ -1024,9 +1024,9 @@ import Foundation
 @inlinable public func repeating(
     _ value: Int,
     _ shape: Shape5.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape5, DType> {
-    Tensor<Shape5,DType>(repeating: DType(value), to: Shape5(shape), layout: layout)
+    Tensor<Shape5,DType>(repeating: DType(value), to: Shape5(shape), order: order)
 }
 
 //---------------------------
@@ -1035,9 +1035,9 @@ import Foundation
 @inlinable public func repeating(
     _ value: Double,
     _ shape: Shape5.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape5, DType> {
-    Tensor<Shape5,DType>(repeating: DType(value), to: Shape5(shape), layout: layout)
+    Tensor<Shape5,DType>(repeating: DType(value), to: Shape5(shape), order: order)
 }
 
 //************************** Explicit typing
@@ -1046,10 +1046,10 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape5.Tuple,
-    _ layout: Layout = Layout.defaultValue,
+    _ order: Order = .defaultOrder,
     type: Element.Type
 ) -> Tensor<Shape5,Element> {
-    Tensor<Shape5, Element>(repeating: value, to: Shape5(shape), layout: layout)
+    Tensor<Shape5, Element>(repeating: value, to: Shape5(shape), order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -1063,9 +1063,9 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element,
     _ shape: Shape6.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape6, Element> where Element == Element.Value {
-    Tensor<Shape6,Element>(repeating: value, to: Shape6(shape), layout: layout)
+    Tensor<Shape6,Element>(repeating: value, to: Shape6(shape), order: order)
 }
 
 //---------------------------
@@ -1073,9 +1073,9 @@ import Foundation
 @inlinable public func repeating(
     _ value: Int,
     _ shape: Shape6.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape6, DType> {
-    Tensor<Shape6,DType>(repeating: DType(value), to: Shape6(shape), layout: layout)
+    Tensor<Shape6,DType>(repeating: DType(value), to: Shape6(shape), order: order)
 }
 
 //---------------------------
@@ -1084,9 +1084,9 @@ import Foundation
 @inlinable public func repeating(
     _ value: Double,
     _ shape: Shape6.Tuple,
-    _ layout: Layout = Layout.defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape6, DType> {
-    Tensor<Shape6,DType>(repeating: DType(value), to: Shape6(shape), layout: layout)
+    Tensor<Shape6,DType>(repeating: DType(value), to: Shape6(shape), order: order)
 }
 
 //************************** Explicit typing
@@ -1095,10 +1095,10 @@ import Foundation
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape6.Tuple,
-    _ layout: Layout = Layout.defaultValue,
+    _ order: Order = .defaultOrder,
     type: Element.Type
 ) -> Tensor<Shape6,Element> {
-    Tensor<Shape6, Element>(repeating: value, to: Shape6(shape), layout: layout)
+    Tensor<Shape6, Element>(repeating: value, to: Shape6(shape), order: order)
 }
 
 
@@ -1121,7 +1121,7 @@ import Foundation
 ) -> Tensor<S,Element> where S: TensorShape
 {
     Tensor<S,Element>(repeating: value, to: prototype.shape,
-                      layout: prototype.layout)
+                      order: prototype.order)
 }
 
 // different type same shape
@@ -1133,7 +1133,7 @@ import Foundation
 ) -> Tensor<S,Element> where S: TensorShape
 {
     Tensor<S,Element>(repeating: value, to: prototype.shape,
-                      layout: prototype.layout)
+                      order: prototype.order)
 }
 
 //------------------------------------------------------------------------------
@@ -1148,7 +1148,7 @@ import Foundation
 {
     assert(prototype.count == Shape1(shape).elementCount())
     return Tensor<Shape1, E>(repeating: value, to: Shape1(shape),
-                             layout: prototype.layout)
+                             order: prototype.order)
 }
 
 // Rank2
@@ -1161,7 +1161,7 @@ import Foundation
 {
     assert(prototype.count == Shape2(shape).elementCount())
     return Tensor<Shape2, E>(repeating: value, to: Shape2(shape),
-                             layout: prototype.layout)
+                             order: prototype.order)
 }
 
 // Rank3
@@ -1174,7 +1174,7 @@ import Foundation
 {
     assert(prototype.count == Shape3(shape).elementCount())
     return Tensor<Shape3, E>(repeating: value, to: Shape3(shape),
-                             layout: prototype.layout)
+                             order: prototype.order)
 }
 
 // Rank4
@@ -1187,7 +1187,7 @@ import Foundation
 {
     assert(prototype.count == Shape4(shape).elementCount())
     return Tensor<Shape4, E>(repeating: value, to: Shape4(shape),
-                             layout: prototype.layout)
+                             order: prototype.order)
 }
 
 // Rank5
@@ -1200,7 +1200,7 @@ import Foundation
 {
     assert(prototype.count == Shape5(shape).elementCount())
     return Tensor<Shape5, E>(repeating: value, to: Shape5(shape),
-                             layout: prototype.layout)
+                             order: prototype.order)
 }
 
 // Rank6
@@ -1213,7 +1213,7 @@ import Foundation
 {
     assert(prototype.count == Shape6(shape).elementCount())
     return Tensor<Shape6, E>(repeating: value, to: Shape6(shape),
-                             layout: prototype.layout)
+                             order: prototype.order)
 }
 
 
@@ -1230,7 +1230,7 @@ import Foundation
 {
     assert(prototype.count == Shape1(shape).elementCount())
     return Tensor<Shape1, Element>(repeating: value, to: Shape1(shape),
-                      layout: prototype.layout)
+                      order: prototype.order)
 }
 
 // Rank2
@@ -1244,7 +1244,7 @@ import Foundation
 {
     assert(prototype.count == Shape2(shape).elementCount())
     return Tensor<Shape2, Element>(repeating: value, to: Shape2(shape),
-                      layout: prototype.layout)
+                      order: prototype.order)
 }
 
 // Rank3
@@ -1258,7 +1258,7 @@ import Foundation
 {
     assert(prototype.count == Shape3(shape).elementCount())
     return Tensor<Shape3, Element>(repeating: value, to: Shape3(shape),
-                      layout: prototype.layout)
+                      order: prototype.order)
 }
 
 // Rank4
@@ -1272,7 +1272,7 @@ import Foundation
 {
     assert(prototype.count == Shape4(shape).elementCount())
     return Tensor<Shape4, Element>(repeating: value, to: Shape4(shape),
-                      layout: prototype.layout)
+                      order: prototype.order)
 }
 
 // Rank5
@@ -1286,7 +1286,7 @@ import Foundation
 {
     assert(prototype.count == Shape5(shape).elementCount())
     return Tensor<Shape5, Element>(repeating: value, to: Shape5(shape),
-                      layout: prototype.layout)
+                      order: prototype.order)
 }
 
 // Rank6
@@ -1300,7 +1300,7 @@ import Foundation
 {
     assert(prototype.count == Shape6(shape).elementCount())
     return Tensor<Shape6, Element>(repeating: value, to: Shape6(shape),
-                      layout: prototype.layout)
+                      order: prototype.order)
 }
 
 

@@ -89,7 +89,7 @@ public protocol StorageBuffer: class, Logging {
                   name: String)
     
     //--------------------------------------------------------------------------
-    /// `init(buffer:layout:name:`
+    /// `init(buffer:order:name:`
     /// creates an element buffer whose data is managed by the application.
     /// No memory is allocated, so the buffer must point to valid data space.
     /// - Parameters:
@@ -165,7 +165,7 @@ public extension StorageBuffer {
     @inlinable var testLastAccessCopiedDeviceMemory: Bool { false }
     
     //--------------------------------------------------------------------------
-    /// `init(type:count:layout:
+    /// `init(type:count:order:
     /// creates an uninitialized lazily allocated buffer to hold `count`
     /// number of tensor `Element`s
     /// - Parameters:

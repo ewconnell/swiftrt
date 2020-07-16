@@ -44,12 +44,12 @@ public extension Dense where S == Shape2 {
         bias: TensorR1<E>,
         activation: ActivationType
     ) {
-        assert(weight.layout == bias.layout &&
+        assert(weight.order == bias.order &&
                 bias.shape[0] == weight.shape[1])
         self.activation = activation
         self.weight = weight
         self.bias = Tensor<S,E>(reshaping: bias, to: weight.shape,
-                                layout: weight.layout)
+                                order: weight.order)
     }
 }
 public extension Dense where S == Shape3 {
@@ -59,13 +59,13 @@ public extension Dense where S == Shape3 {
         bias: TensorR2<E>,
         activation: ActivationType
     ) {
-        assert(weight.layout == bias.layout &&
+        assert(weight.order == bias.order &&
                 bias.shape[0] == weight.shape[1] &&
                 bias.shape[1] == weight.shape[2])
         self.activation = activation
         self.weight = weight
         self.bias = Tensor<S,E>(reshaping: bias, to: weight.shape,
-                                layout: weight.layout)
+                                order: weight.order)
     }
 }
 

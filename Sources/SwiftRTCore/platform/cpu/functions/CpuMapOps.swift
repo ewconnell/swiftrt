@@ -130,7 +130,7 @@ extension DeviceQueue {
         _ r: inout Tensor<S,RE>,
         _ op: @escaping (RE.Value, E.Value) -> RE.Value
     ) {
-        precondition(a.layout == r.layout)
+        precondition(a.order == r.order)
         // the op
         func execute<I0: Collection, O: MutableCollection>(
             _ i0: I0, _ out: O,
@@ -155,7 +155,7 @@ extension DeviceQueue {
                 repeatedStrides(matching: r, to: a.shape),
                 r.storage,
                 r.storageBase,
-                r.layout,
+                r.order,
                 r.stridedSpanCount)
         
         rMutableElements.prepareForReadWrite()
@@ -192,8 +192,8 @@ extension DeviceQueue {
             }
         }
 
-        // check layouts because they will not match for layout conversion ops
-        if a.layout == r.layout {
+        // check layouts because they will not match for order conversion ops
+        if a.order == r.order {
             if a.isBufferIterable {
                 if r.isBufferIterable {
                     execute(a.buffer, r.mutableBuffer, op)
@@ -221,7 +221,7 @@ extension DeviceQueue {
         _ r: inout Tensor<S,RE>,
         _ op: @escaping (E.Value, E.Value) -> RE.Value
     ) {
-        precondition(a.layout == b.layout && a.layout == r.layout,
+        precondition(a.order == b.order && a.order == r.order,
                      _messageLayoutsMustMatch)
         // the op
         func execute<I0: Collection, I1: Collection, O: MutableCollection>(
@@ -284,7 +284,7 @@ extension DeviceQueue {
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
-        precondition(a.layout == b.layout && a.layout == r.layout,
+        precondition(a.order == b.order && a.order == r.order,
                      _messageLayoutsMustMatch)
 
         // the op
@@ -349,7 +349,7 @@ extension DeviceQueue {
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
-        precondition(a.layout == b.layout && a.layout == r.layout)
+        precondition(a.order == b.order && a.order == r.order)
         // the op
         func execute<I0: Collection, I1: Collection, O: MutableCollection>(
             _ i0: I0, _ i1: I1, _ out: O
@@ -412,7 +412,7 @@ extension DeviceQueue {
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
     ) where E.Value: Numeric {
-        precondition(a.layout == b.layout && a.layout == r.layout)
+        precondition(a.order == b.order && a.order == r.order)
         // the op
         func execute<I0: Collection, I1: Collection, O: MutableCollection>(
             _ i0: I0, _ i1: I1, _ out: O
@@ -475,7 +475,7 @@ extension DeviceQueue {
         _ b: Tensor<S,E>,
         _ r: inout Tensor<S,E>
     ) where E.Value: AlgebraicField {
-        precondition(a.layout == b.layout && a.layout == r.layout)
+        precondition(a.order == b.order && a.order == r.order)
         // the op
         func execute<I0: Collection, I1: Collection, O: MutableCollection>(
             _ i0: I0, _ i1: I1, _ out: O
@@ -539,8 +539,8 @@ extension DeviceQueue {
         _ r: inout Tensor<S,R1>,
         _ op: @escaping (E0.Value, E1.Value, E2.Value) -> R1.Value
     ) {
-        precondition(a.layout == b.layout && a.layout == c.layout &&
-                     a.layout == r.layout)
+        precondition(a.order == b.order && a.order == c.order &&
+                     a.order == r.order)
         // the op
         func execute<
             I0: Collection,
@@ -677,7 +677,7 @@ extension DeviceQueue {
             }
         }
         
-        // execute right layout combination
+        // execute right order combination
         assert(a.isBufferIterable && b.isBufferIterable && c.isBufferIterable &&
                 r1.isBufferIterable && r2.isBufferIterable)
         execute(a.buffer, b.buffer, c.buffer,

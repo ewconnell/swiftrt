@@ -125,7 +125,7 @@ where S: TensorShape
         // - This makes `resultTangent` not be inout, so we don't need to set
         //   it any more.
         resultTangent = Tensor(zeros: resultTangent.shape,
-                               layout: resultTangent.layout)
+                               order: resultTangent.order)
 
         return Array.DifferentiableView(tensorTangents)
     }

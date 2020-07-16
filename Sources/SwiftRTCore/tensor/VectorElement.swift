@@ -28,7 +28,7 @@ import Numerics
 /// With a 16 bit `Scalar` like `Float16` or `BFloat16`,
 /// `scalarCount == 4` is still required for 32 bit alignment.
 /// With a 32 bit `Scalar` like `Float`, the scalars are already aligned so
-/// an RGB layout would be desirable to minimize memory overhead on the
+/// an RGB order would be desirable to minimize memory overhead on the
 /// cpu and gpu. On the cpu, it does not appear that llvm suppports
 /// a packed 3 element `SIMD` vector (need to fully investigate this).
 ///

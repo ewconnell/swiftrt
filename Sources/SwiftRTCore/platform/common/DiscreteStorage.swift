@@ -59,7 +59,7 @@ public final class DiscreteStorage: StorageBuffer {
     
 
     //--------------------------------------------------------------------------
-    // init(type:count:layout:name:
+    // init(type:count:order:name:
     @inlinable public init<Element>(
         storedType: Element.Type,
         count: Int,
@@ -127,7 +127,7 @@ public final class DiscreteStorage: StorageBuffer {
     }
     
     //--------------------------------------------------------------------------
-    // init(buffer:layout:
+    // init(buffer:order:
     @inlinable public convenience init<Element>(
         referenceTo buffer: UnsafeBufferPointer<Element>,
         name: String
@@ -143,7 +143,7 @@ public final class DiscreteStorage: StorageBuffer {
     }
     
     //--------------------------------------------------------------------------
-    // init(type:buffer:layout:
+    // init(type:buffer:order:
     @inlinable public convenience init<Element>(
         referenceTo buffer: UnsafeMutableBufferPointer<Element>,
         name: String

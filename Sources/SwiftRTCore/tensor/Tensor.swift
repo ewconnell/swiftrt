@@ -30,19 +30,17 @@ public struct Tensor<Shape, TensorElement>:
     Logging
 where Shape: TensorShape, TensorElement: StorageElement
 {
-    // types
     public typealias Index = ElementIndex<Shape>
     public typealias Element = TensorElement.Value
     
-    // properties
     /// the number of element
     public let count: Int
     /// `true` if the view will be shared by by multiple writers
     public var isShared: Bool
-    /// layout order of the elements in storage
-    @noDerivative public let layout: Layout
+    /// element storage order in memory
+    @noDerivative public let order: Order
     /// a collection that maps logical coordinates to storage elements
-    /// via the current storage layout
+    /// via the current storage order
     public var logicalElements: LogicalElements<Shape, TensorElement>
     /// the strides to traverse `shape` in logical coordinates
     public let logicalStrides: Shape
@@ -83,7 +81,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         storage: StorageBufferType,
         storageBase: Int,
         stridedSpanCount: Int,
-        layout: Layout,
+        order: Order,
         shared: Bool
     ) {
         // make sure the tensor view range is within the associated
@@ -100,24 +98,24 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.storageBase = storageBase
         self.stridedSpanCount = stridedSpanCount
         self.isShared = shared
-        self.layout = layout
-        logicalStrides = shape.strides(for: layout)
+        self.order = order
+        logicalStrides = shape.strides(for: order)
         logicalElements = LogicalElements(count,
                                           shape,
                                           strides,
                                           storage,
                                           storageBase,
-                                          layout,
+                                          order,
                                           stridedSpanCount)
     }
 
     //--------------------------------------------------------------------------
-    /// init(value:shape:layout:name
+    /// init(value:shape:order:name
     /// Used to initialize a tensor with a single Element
     @inlinable public init(
         single value: TensorElement.Value,
         shape: Shape,
-        layout: Layout,
+        order: Order,
         name: String
     ) {
         self.shape = shape
@@ -126,44 +124,77 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.isShared = false
         self.count = shape.elementCount()
         self.stridedSpanCount = 1
-        self.layout = layout
+        self.order = order
         let stored = TensorElement.stored(value: value)
         self.storage = StorageBufferType(storedElement: stored, name: name)
-        logicalStrides = shape.strides(for: layout)
+        logicalStrides = shape.strides(for: order)
         logicalElements = LogicalElements(count,
                                           shape,
                                           strides,
                                           storage,
                                           storageBase,
-                                          layout,
+                                          order,
                                           stridedSpanCount)
     }
 }
 
 //==============================================================================
-/// Layout
+/// Order
 /// Specifies how to store multi-dimensional data in row-major (C-style)
 /// or column-major (Fortran-style) order in memory.
 /// These names are following the numpy naming convention
-public enum Layout: Int, Codable {
-    /// Data is ordered in row-major dense sequential format.
-    /// The leading dimension is the stride (in elements) to the beginning
-    /// of next row in memory.
-    case row
-    
+public enum Order: Int, Codable {
     /// Data is ordered in column-major dense sequential format.
     /// The leading dimension is the stride (in elements) to the beginning
     /// of next column in memory.
     case col
+
+    /// Data is ordered in row-major dense sequential format.
+    /// The second dimension is the stride (in elements) to the beginning
+    /// of next row in memory.
+    case row
     
+    /// Data is ordered in column-major ordered tiles of 32 columns.
+    /// The leading dimension is the stride (in elements) to the beginning
+    /// of next group of 32-columns. For example, if the matrix has 33 columns
+    /// and 2 rows, then the leading dimension must be at least (32) * 2 = 64.
+    case colTiled32
+    
+    //--------------------------------------------------------------------------
+    // NVIDIA native tensor core formats
+    /// Data is ordered in column-major ordered tiles of composite tiles
+    /// with total 32 columns and 8 rows. A tile is composed of interleaved
+    /// inner tiles of 4 columns within 4 even or odd rows in an alternating
+    /// pattern. The leading dimension is the stride (in elements) to the
+    /// beginning of the first 32 column x 8 row tile for the next 32-wide
+    /// group of columns. For example, if the matrix has 33 columns and
+    /// 1 row, the leading dimension must be at least (32 * 8) * 1 = 256.
+    /// NOTE: this order is needed for the B matrix on NVIDIA Turing
+    /// Architecture GPUs, i.e. SM version = 72 and 75, for maximum tensor
+    /// core integer GEMM performance.
+    case colTiledTC1
+
+    /// Data is ordered in column-major ordered tiles of composite tiles
+    /// with total 32 columns ands 32 rows. Element offset within the tile
+    /// is calculated as
+    ///     index = (((row%8) / 2 * 4 + row / 8) * 2 + row % 2) * 32 + col
+    /// Leading dimension is the stride (in elements) to the beginning
+    /// of the first 32 column x 32 row tile for the next 32-wide group
+    /// of columns. E.g. if matrix has 33 columns and 1 row, ld must be
+    /// at least (32*32)*1 = 1024.
+    /// NOTE: this order is needed for the B matrix on NVIDIA Ampere
+    /// Architecture GPUs, i.e. SM version >= 80, for maximum tensor
+    /// core integer GEMM performance.
+    case colTiledTC2
+
+    // aliases
     public static let C = row, F = col, A = -1
-    
-    public static var defaultValue: Layout = Layout.row
+    public static var defaultOrder: Order = Order.row
 }
 
-public let _messageLayoutsMustMatch = "input layouts must match"
+public let _messageLayoutsMustMatch = "input Order must match"
 
-@inlinable public func layoutsMatch(_ layouts: Layout...) -> Bool {
+@inlinable public func layoutsMatch(_ layouts: Order...) -> Bool {
     layouts.first(where: { $0 != layouts[0] }) == nil
 }
 
@@ -207,7 +238,7 @@ extension Tensor: AdditiveArithmetic where Element: Numeric {
 //==============================================================================
 // Tensor Codable
 public enum TensorCodingKeys: String, CodingKey {
-    case data, shape, name, layout
+    case data, shape, name, order
 }
 
 extension Tensor: Codable where Element: Codable {
@@ -216,7 +247,7 @@ extension Tensor: Codable where Element: Codable {
         var container = encoder.container(keyedBy: TensorCodingKeys.self)
         try container.encode(storage.name, forKey: .name)
         try container.encode(shape, forKey: .shape)
-        try container.encode(layout, forKey: .layout)
+        try container.encode(order, forKey: .order)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
         if isBufferIterable {
             try self.buffer.forEach {
@@ -233,9 +264,9 @@ extension Tensor: Codable where Element: Codable {
         let container = try decoder.container(keyedBy: TensorCodingKeys.self)
         let name = try container.decode(String.self, forKey: .name)
         let shape = try container.decode(Shape.self, forKey: .shape)
-        let layout = try container.decode(Layout.self, forKey: .layout)
+        let order = try container.decode(Order.self, forKey: .order)
         var dataContainer = try container.nestedUnkeyedContainer(forKey: .data)
-        self = Self(shape: shape, layout: layout)
+        self = Self(shape: shape, order: order)
         self.name = name
 
         assert(self.count == dataContainer.count)
@@ -406,7 +437,7 @@ public extension Tensor {
             storage: storage,
             storageBase: storageBase + lower.index(stridedBy: strides),
             stridedSpanCount: spanCount,
-            layout: layout,
+            order: order,
             shared: share)
     }
 
