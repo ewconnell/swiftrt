@@ -82,7 +82,7 @@ public final class MatmulAlgorithm
     }
 
     //--------------------------------------------------------------------------
-    /// Support for split-K. See 
+    /// id for tile shape. Default is undefined.
     @inlinable public var tileId: MatmulTile {
         get {
             var value = CUBLASLT_MATMUL_TILE_UNDEFINED
@@ -92,6 +92,21 @@ public final class MatmulAlgorithm
         set {
             var value = newValue.cublas
             setConfig(CUBLASLT_ALGO_CONFIG_TILE_ID, &value)
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    /// id for tile stages. Default is undefined.
+    /// Size and number of stages in which elements are read into shared memory
+    @inlinable public var stagesId: MatmulStages {
+        get {
+            var value = CUBLASLT_MATMUL_STAGES_UNDEFINED
+            getConfig(CUBLASLT_ALGO_CONFIG_STAGES_ID, &value)
+            return MatmulStages(value)
+        }
+        set {
+            var value = newValue.cublas
+            setConfig(CUBLASLT_ALGO_CONFIG_STAGES_ID, &value)
         }
     }
 
@@ -204,6 +219,112 @@ extension MatmulTile {
             .tile128x256: CUBLASLT_MATMUL_TILE_128x256,
             .tile256x128: CUBLASLT_MATMUL_TILE_256x128,
             .tile512x64: CUBLASLT_MATMUL_TILE_512x64
+        ]        
+        return types[self]!
+    }
+}
+
+//==============================================================================
+/// MatmulStages
+/// Size and number of stages in which elements are read into shared memory
+/// General order of stages IDs is sorted by stage size first and by number
+/// of stages second.
+public enum MatmulStages {
+    case undefined
+    case stages16x1
+    case stages16x2
+    case stages16x3
+    case stages16x4
+    case stages16x5
+    case stages16x6
+    case stages32x1
+    case stages32x2
+    case stages32x3
+    case stages32x4
+    case stages32x5
+    case stages32x6
+    case stages64x1
+    case stages64x2
+    case stages64x3
+    case stages64x4
+    case stages64x5
+    case stages64x6
+    case stages128x1
+    case stages128x2
+    case stages128x3
+    case stages128x4
+    case stages128x5
+    case stages128x6
+    case stages32x10
+    case stages8x4
+    case stages16x10
+}
+
+extension MatmulStages {
+    @inlinable public init(_ type: cublasLtMatmulStages_t) {
+        switch type {
+        case CUBLASLT_MATMUL_STAGES_UNDEFINED: self = .undefined
+        case CUBLASLT_MATMUL_STAGES_16x1: self = .stages16x1
+        case CUBLASLT_MATMUL_STAGES_16x2: self = .stages16x2
+        case CUBLASLT_MATMUL_STAGES_16x3: self = .stages16x3
+        case CUBLASLT_MATMUL_STAGES_16x4: self = .stages16x4
+        case CUBLASLT_MATMUL_STAGES_16x5: self = .stages16x5
+        case CUBLASLT_MATMUL_STAGES_16x6: self = .stages16x6
+        case CUBLASLT_MATMUL_STAGES_32x1: self = .stages32x1
+        case CUBLASLT_MATMUL_STAGES_32x2: self = .stages32x2
+        case CUBLASLT_MATMUL_STAGES_32x3: self = .stages32x3
+        case CUBLASLT_MATMUL_STAGES_32x4: self = .stages32x4
+        case CUBLASLT_MATMUL_STAGES_32x5: self = .stages32x5
+        case CUBLASLT_MATMUL_STAGES_32x6: self = .stages32x6
+        case CUBLASLT_MATMUL_STAGES_64x1: self = .stages64x1
+        case CUBLASLT_MATMUL_STAGES_64x2: self = .stages64x2
+        case CUBLASLT_MATMUL_STAGES_64x3: self = .stages64x3
+        case CUBLASLT_MATMUL_STAGES_64x4: self = .stages64x4
+        case CUBLASLT_MATMUL_STAGES_64x5: self = .stages64x5
+        case CUBLASLT_MATMUL_STAGES_64x6: self = .stages64x6
+        case CUBLASLT_MATMUL_STAGES_128x1: self = .stages128x1
+        case CUBLASLT_MATMUL_STAGES_128x2: self = .stages128x2
+        case CUBLASLT_MATMUL_STAGES_128x3: self = .stages128x3
+        case CUBLASLT_MATMUL_STAGES_128x4: self = .stages128x4
+        case CUBLASLT_MATMUL_STAGES_128x5: self = .stages128x5
+        case CUBLASLT_MATMUL_STAGES_128x6: self = .stages128x6
+        case CUBLASLT_MATMUL_STAGES_32x10: self = .stages32x10
+        case CUBLASLT_MATMUL_STAGES_8x4:   self = .stages8x4
+        case CUBLASLT_MATMUL_STAGES_16x10: self = .stages16x10
+        default: fatalError("unrecognized cublasLtMatmulStages_t")
+        }
+    }
+
+    @inlinable public var cublas: cublasLtMatmulStages_t {
+        let types: [MatmulStages: cublasLtMatmulStages_t] = [
+            .undefined:  CUBLASLT_MATMUL_STAGES_UNDEFINED,
+            .stages16x1: CUBLASLT_MATMUL_STAGES_16x1,
+            .stages16x2: CUBLASLT_MATMUL_STAGES_16x2,
+            .stages16x3: CUBLASLT_MATMUL_STAGES_16x3,
+            .stages16x4: CUBLASLT_MATMUL_STAGES_16x4,
+            .stages16x5: CUBLASLT_MATMUL_STAGES_16x5,
+            .stages16x6: CUBLASLT_MATMUL_STAGES_16x6,
+            .stages32x1: CUBLASLT_MATMUL_STAGES_32x1,
+            .stages32x2: CUBLASLT_MATMUL_STAGES_32x2,
+            .stages32x3: CUBLASLT_MATMUL_STAGES_32x3,
+            .stages32x4: CUBLASLT_MATMUL_STAGES_32x4,
+            .stages32x5: CUBLASLT_MATMUL_STAGES_32x5,
+            .stages32x6: CUBLASLT_MATMUL_STAGES_32x6,
+            .stages64x1: CUBLASLT_MATMUL_STAGES_64x1,
+            .stages64x2: CUBLASLT_MATMUL_STAGES_64x2,
+            .stages64x3: CUBLASLT_MATMUL_STAGES_64x3,
+            .stages64x4: CUBLASLT_MATMUL_STAGES_64x4,
+            .stages64x5: CUBLASLT_MATMUL_STAGES_64x5,
+            .stages64x6: CUBLASLT_MATMUL_STAGES_64x6,
+            .stages128x1: CUBLASLT_MATMUL_STAGES_128x1,
+            .stages128x2: CUBLASLT_MATMUL_STAGES_128x2,
+            .stages128x3: CUBLASLT_MATMUL_STAGES_128x3,
+            .stages128x4: CUBLASLT_MATMUL_STAGES_128x4,
+            .stages128x5: CUBLASLT_MATMUL_STAGES_128x5,
+            .stages128x6: CUBLASLT_MATMUL_STAGES_128x6,
+            .stages32x10: CUBLASLT_MATMUL_STAGES_32x10,
+            .stages8x4:   CUBLASLT_MATMUL_STAGES_8x4,
+            .stages16x10: CUBLASLT_MATMUL_STAGES_16x10,
         ]        
         return types[self]!
     }
