@@ -46,7 +46,7 @@ class test_Math: XCTestCase {
     // test_exp
     func test_exp() {
         let a = array([0.0, 1, 2, 3, 4, 5])
-        let expected = a.map { Foundation.exp($0) }
+        let expected = a.map(Foundation.exp)
         XCTAssert(exp(a) == expected)
         
         let b = array([1.0, 2, 3])
@@ -59,7 +59,7 @@ class test_Math: XCTestCase {
     // test_log
     func test_log() {
         let a = array([0.0, 1, 2, 3, 4, 5], (3, 2))
-        let expected = a.map { Foundation.log($0) }
+        let expected = a.map(Foundation.log)
         XCTAssert(log(a).flatArray == expected)
 
         let b = array([1.0, -2.0, 3.0])
@@ -72,7 +72,7 @@ class test_Math: XCTestCase {
     // test_neg
     func test_neg() {
         let a = array(0..<6, (3, 2))
-        let expected = a.map { -$0 }
+        let expected = a.map(-)
         XCTAssert(neg(a).flatArray == expected)
 
         let b = -a

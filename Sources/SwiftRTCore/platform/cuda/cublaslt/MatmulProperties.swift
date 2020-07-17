@@ -40,35 +40,35 @@ where AE: ScalarElement,
       BE: ScalarElement,
       CE: ScalarElement
 {
-    let splitKs = [2, 3, 4, 5, 6, 8, 12, 16, 32]
-    let computeType = computeType
-    let scaleType = ScalarType.real32F
-    var operation = MatmulOperation(compute: computeType, scale: scaleType)
-    operation.transA = transA
-    operation.transB = transB
+    // let splitKs = [2, 3, 4, 5, 6, 8, 12, 16, 32]
+    // let computeType = computeType
+    // let scaleType = ScalarType.real32F
+    // var operation = MatmulOperation(compute: computeType, scale: scaleType)
+    // operation.transA = transA
+    // operation.transB = transB
     
-    //
-    var algorithmIds = [Int32](repeating: 0, count: maxAlgorithmsToTest)
-    var algorithmsFound: Int32 = 0
-    cudaCheck(cublasLtMatmulAlgoGetIds(
-        Context.currentQueue.cublas.handle, 
-        computeType.cublas,
-        scaleType.cuda,
-        AE.type.cuda,
-        BE.type.cuda,
-        CE.type.cuda,
-        CE.type.cuda,
-        Int32(maxAlgorithmsToTest),
-        &algorithmIds, 
-        &algorithmsFound))
+    // //
+    // var algorithmIds = [Int32](repeating: 0, count: maxAlgorithmsToTest)
+    // var algorithmsFound: Int32 = 0
+    // cudaCheck(cublasLtMatmulAlgoGetIds(
+    //     Context.currentQueue.cublas.handle, 
+    //     computeType.cublas,
+    //     scaleType.cuda,
+    //     AE.type.cuda,
+    //     BE.type.cuda,
+    //     CE.type.cuda,
+    //     CE.type.cuda,
+    //     Int32(maxAlgorithmsToTest),
+    //     &algorithmIds, 
+    //     &algorithmsFound))
 
-    var combinationCount = 0
+    // var combinationCount = 0
 
-    for algo in 0..<Int(algorithmsFound) 
-        where combinationCount <= maxCombinationsToTest 
-    {
+    // for algo in 0..<Int(algorithmsFound) 
+    //     where combinationCount <= maxCombinationsToTest 
+    // {
 
-    }
+    // }
 
     return MatmulProperties()
 }

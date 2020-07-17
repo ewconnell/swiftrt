@@ -301,7 +301,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         //----------------------------------
         // return the shape of the output y and create a tensorDescriptor
         // with the same scalarType for y as x
-        let yShape = Shape(yExtent.map { Int($0) })
+        let yShape = Shape(yExtent.map(Int.init))
         yTensorDescriptor = x.createTensorDescriptor(asShape: yShape)
         selectForwardAlgorithm(x: x, properties: properties)
 

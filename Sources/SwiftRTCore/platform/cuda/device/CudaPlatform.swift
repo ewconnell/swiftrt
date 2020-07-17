@@ -443,8 +443,8 @@ public final class TensorDescriptor {
             &strides
         ))
 
-        return (dims[0..<Int(numDims)].map { Int($0) },
-                strides[0..<Int(numDims)].map { Int($0) },
+        return (dims[0..<Int(numDims)].map(Int.init),
+                strides[0..<Int(numDims)].map(Int.init),
                 ScalarType(type))
     }
 }

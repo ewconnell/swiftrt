@@ -30,12 +30,12 @@ public final class MatmulAlgorithm
         bType: cudaDataType_t,
         cType: cudaDataType_t,
         dType: cudaDataType_t,
-        algoId: Int32
+        algoId: Int
     ) {
         desc = cublasLtMatmulAlgo_t()
         cudaCheck(cublasLtMatmulAlgoInit(
             cublas.handle, computeType, scaleType, aType, bType,
-            cType, dType, algoId, &desc))
+            cType, dType, Int32(algoId), &desc))
     }
 
     //--------------------------------------------------------------------------
@@ -130,9 +130,14 @@ public final class MatmulAlgorithm
     /// Reduction scheme to use when `splitK` value > 1
     @inlinable public var reductionScheme: MatmulReductionScheme {
         get {
-            var value = CUBLASLT_REDUCTION_SCHEME_NONE
+            var value: UInt32 = 0
+            assert(MemoryLayout<cublasLtReductionScheme_t>.size ==
+                   MemoryLayout.size(ofValue: value))
             getConfig(CUBLASLT_ALGO_CONFIG_REDUCTION_SCHEME, &value)
-            return MatmulReductionScheme(value)
+            var mask: UInt32 = 0
+            getCap(CUBLASLT_ALGO_CAP_REDUCTION_SCHEME_MASK, &mask)
+            return MatmulReductionScheme(
+                unsafeBitCast(value & mask, to: cublasLtReductionScheme_t.self))
         }
         set {
             var value = newValue.cublas
@@ -176,13 +181,166 @@ public final class MatmulAlgorithm
     //==========================================================================
 
     //--------------------------------------------------------------------------
-    /// Support for split-K. See 
+    /// Supports split-K 
     @inlinable public var supportsSplitK: Bool {
         var value: Int32 = 0
         getCap(CUBLASLT_ALGO_CAP_SPLITK_SUPPORT, &value)
         return value == 1
     }
 
+    //--------------------------------------------------------------------------
+    /// Supports cooperative thread array swizzling
+    @inlinable public var supportsThreadSwizzling: Bool {
+        var value: UInt32 = 0
+        getCap(CUBLASLT_ALGO_CAP_CTA_SWIZZLING_SUPPORT, &value)
+        return value == 1
+    }
+
+    //--------------------------------------------------------------------------
+    /// Supports strided batching
+    @inlinable public var supportsStridedBatching: Bool {
+        var value: Int32 = 0
+        getCap(CUBLASLT_ALGO_CAP_STRIDED_BATCH_SUPPORT, &value)
+        return value == 1
+    }
+
+    //--------------------------------------------------------------------------
+    /// Supports results out of place (D != C in D = alpha.A.B + beta.C)
+    @inlinable public var supportsOutOfPlaceResult: Bool {
+        var value: Int32 = 0
+        getCap(CUBLASLT_ALGO_CAP_OUT_OF_PLACE_RESULT_SUPPORT, &value)
+        return value == 1
+    }
+
+    //--------------------------------------------------------------------------
+    /// Supports syrk (symmetric rank k update)/herk (Hermitian rank k update)
+    /// on top of regular gemm
+    @inlinable public var supportsUPLO: Bool {
+        var value: UInt32 = 0
+        getCap(CUBLASLT_ALGO_CAP_UPLO_SUPPORT, &value)
+        return value == 1
+    }
+
+    //--------------------------------------------------------------------------
+    /// supported tile configurations
+    @inlinable public var tileIds: [Int] {
+        var count: UInt32 = 0
+        var written = 0
+        // query the count
+        cudaCheck(cublasLtMatmulAlgoCapGetAttribute(
+            &desc, CUBLASLT_ALGO_CAP_TILE_IDS, &count, 0, &written))
+
+        var ids = [UInt32](repeating: 0, count: Int(count))
+        cudaCheck(cublasLtMatmulAlgoCapGetAttribute(
+            &desc, CUBLASLT_ALGO_CAP_TILE_IDS, &ids, 
+            MemoryLayout<UInt32>.size * Int(count), &written))
+        return ids.map(Int.init)
+    }
+
+    //--------------------------------------------------------------------------
+    /// supported stage configuration
+    @inlinable public var stageIds: [Int] {
+        var count: UInt32 = 0
+        var written = 0
+        // query the count
+        cudaCheck(cublasLtMatmulAlgoCapGetAttribute(
+            &desc, CUBLASLT_ALGO_CAP_STAGES_IDS, &count, 0, &written))
+
+        var ids = [UInt32](repeating: 0, count: Int(count))
+        cudaCheck(cublasLtMatmulAlgoCapGetAttribute(
+            &desc, CUBLASLT_ALGO_CAP_STAGES_IDS, &ids, 
+            MemoryLayout<UInt32>.size * Int(count), &written))
+        return ids.map(Int.init)
+    }
+
+    //--------------------------------------------------------------------------
+    /// The number of custom options the algorithm supports
+    @inlinable public var customOptionCount: Int {
+        var value: Int32 = 0
+        getCap(CUBLASLT_ALGO_CAP_CUSTOM_OPTION_MAX, &value)
+        return Int(value)
+    }
+
+    //--------------------------------------------------------------------------
+    /// Indicates whether the algorithm supports custom (not COL or 
+    /// ROW memory order). `false` means only COL and ROW memory order
+    /// is allowed, non-zero means that algo might have different requirements.
+    @inlinable public var customMemoryOrder: Bool {
+        var value: Int32 = 0
+        getCap(CUBLASLT_ALGO_CAP_CUSTOM_MEMORY_ORDER, &value)
+        return value == 1
+    }
+
+    //--------------------------------------------------------------------------
+    /// Supports negative leading dimensions
+    @inlinable public var supportsNegativeLeadingDim: Bool {
+        var value: UInt32 = 0
+        getCap(CUBLASLT_ALGO_CAP_LD_NEGATIVE, &value)
+        return value == 1
+    }
+
+    //--------------------------------------------------------------------------
+    /// minimum alignment required for the matrix in bytes
+    @inlinable public var alignmentA: Int {
+        var value: UInt32 = 0
+        getCap(CUBLASLT_ALGO_CAP_MIN_ALIGNMENT_A_BYTES, &value)
+        return Int(value)
+    }
+
+    //--------------------------------------------------------------------------
+    /// minimum alignment required for the matrix in bytes
+    @inlinable public var alignmentB: Int {
+        var value: UInt32 = 0
+        getCap(CUBLASLT_ALGO_CAP_MIN_ALIGNMENT_B_BYTES, &value)
+        return Int(value)
+    }
+
+    //--------------------------------------------------------------------------
+    /// minimum alignment required for the matrix in bytes
+    @inlinable public var alignmentC: Int {
+        var value: UInt32 = 0
+        getCap(CUBLASLT_ALGO_CAP_MIN_ALIGNMENT_C_BYTES, &value)
+        return Int(value)
+    }
+
+    //--------------------------------------------------------------------------
+    /// minimum alignment required for the matrix in bytes
+    @inlinable public var alignmentD: Int {
+        var value: UInt32 = 0
+        getCap(CUBLASLT_ALGO_CAP_MIN_ALIGNMENT_D_BYTES, &value)
+        return Int(value)
+    }
+}
+
+//==============================================================================
+/// MatmulNumericalOptions
+public struct MatmulNumericalOptions: OptionSet {
+    public init(rawValue: UInt64) { self.rawValue = rawValue }
+    public let rawValue: UInt64
+
+    public static let fma = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_FMA)
+    public static let hmma = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_HMMA)
+    public static let imma = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_IMMA)             
+    public static let dmma = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_DMMA)             
+
+    public static let tensorOpMask = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_TENSOR_OP_MASK)
+    public static let opTypeMask = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_OP_TYPE_MASK)   
+
+    public static let accumulator16F = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_16F)
+    public static let accumulator32F = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_32F)
+    public static let accumulator64F = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_64F)
+    public static let accumulator32I = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_32I)
+
+    public static let accumulatorTypeMask = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_TYPE_MASK)
+
+    public static let input16F  = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_16F)
+    public static let input16BF = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_16BF)
+    public static let inputTF32 = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_TF32)
+    public static let input32F  = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_32F)
+    public static let input64F  = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_64F)
+    public static let input8I   = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_8I)
+
+    public static let inputTypeMask = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_OP_INPUT_TYPE_MASK)
 }
 
 //==============================================================================
