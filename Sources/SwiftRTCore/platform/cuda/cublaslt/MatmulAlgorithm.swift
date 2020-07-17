@@ -280,6 +280,15 @@ public final class MatmulAlgorithm
     }
 
     //--------------------------------------------------------------------------
+    /// details about algorithm's implementation that affect it's numerical
+    /// behavior
+    @inlinable public var numericalImplementation: MatmulNumericalImplementation {
+        var value: UInt64 = 0
+        getCap(CUBLASLT_ALGO_CAP_NUMERICAL_IMPL_FLAGS, &value)
+        return MatmulNumericalImplementation(rawValue: value)
+    }
+
+    //--------------------------------------------------------------------------
     /// minimum alignment required for the matrix in bytes
     @inlinable public var alignmentA: Int {
         var value: UInt32 = 0
@@ -313,34 +322,34 @@ public final class MatmulAlgorithm
 }
 
 //==============================================================================
-/// MatmulNumericalOptions
-public struct MatmulNumericalOptions: OptionSet {
+/// MatmulNumericalImplementation
+public struct MatmulNumericalImplementation: OptionSet {
     public init(rawValue: UInt64) { self.rawValue = rawValue }
     public let rawValue: UInt64
 
-    public static let fma = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_FMA)
-    public static let hmma = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_HMMA)
-    public static let imma = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_IMMA)             
-    public static let dmma = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_DMMA)             
+    public static let fma = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_FMA)
+    public static let hmma = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_HMMA)
+    public static let imma = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_IMMA)             
+    public static let dmma = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_DMMA)             
 
-    public static let tensorOpMask = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_TENSOR_OP_MASK)
-    public static let opTypeMask = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_OP_TYPE_MASK)   
+    public static let tensorOpMask = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_TENSOR_OP_MASK)
+    public static let opTypeMask = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_OP_TYPE_MASK)   
 
-    public static let accumulator16F = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_16F)
-    public static let accumulator32F = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_32F)
-    public static let accumulator64F = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_64F)
-    public static let accumulator32I = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_32I)
+    public static let accumulator16F = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_16F)
+    public static let accumulator32F = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_32F)
+    public static let accumulator64F = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_64F)
+    public static let accumulator32I = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_32I)
 
-    public static let accumulatorTypeMask = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_TYPE_MASK)
+    public static let accumulatorTypeMask = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_TYPE_MASK)
 
-    public static let input16F  = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_16F)
-    public static let input16BF = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_16BF)
-    public static let inputTF32 = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_TF32)
-    public static let input32F  = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_32F)
-    public static let input64F  = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_64F)
-    public static let input8I   = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_8I)
+    public static let input16F  = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_16F)
+    public static let input16BF = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_16BF)
+    public static let inputTF32 = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_TF32)
+    public static let input32F  = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_32F)
+    public static let input64F  = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_64F)
+    public static let input8I   = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_8I)
 
-    public static let inputTypeMask = MatmulNumericalOptions(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_OP_INPUT_TYPE_MASK)
+    public static let inputTypeMask = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_OP_INPUT_TYPE_MASK)
 }
 
 //==============================================================================
