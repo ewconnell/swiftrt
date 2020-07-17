@@ -155,6 +155,22 @@ public final class MatmulAlgorithm
         }
     }
 
+    //--------------------------------------------------------------------------
+    /// Custom option value. Each algorithm can support some custom options
+    /// that don't fit the description of the other configuration attributes.
+    /// The valid range is 0...caps.customOptionMax
+    @inlinable public var customOption: Int {
+        get {
+            var value: UInt32 = 0
+            getConfig(CUBLASLT_ALGO_CONFIG_CUSTOM_OPTION, &value)
+            return Int(value)
+        }
+        set {
+            var value = UInt32(newValue)
+            setConfig(CUBLASLT_ALGO_CONFIG_CUSTOM_OPTION, &value)
+        }
+    }
+
     //==========================================================================
     // Caps properties
     //==========================================================================
