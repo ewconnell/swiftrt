@@ -46,7 +46,6 @@ where AE: ScalarElement,
     var operation = MatmulOperation(compute: computeType, scale: scaleType)
     operation.transA = transA
     operation.transB = transB
-    print(operation)
     
     //
     var algorithmIds = [Int32](repeating: 0, count: maxAlgorithmsToTest)
@@ -77,15 +76,15 @@ where AE: ScalarElement,
 //==============================================================================
 /// Structure to store information about different run trials
 public struct MatmulPerformance {
-    var algorithm: MatmulAlgorithm
-    var status: cublasStatus_t
-    var time: TimeInterval
+    let algorithm: MatmulAlgorithm
+    let status: cublasStatus_t
+    let time: TimeInterval
     // actual memory workspace needed
-    var workspaceSize: Int
-    var mathMode: cublasMath_t
-    var reductionScheme: cublasLtReductionScheme_t
-    var customOption: Int32
-    var wavesCount: Float
+    let workspaceSize: Int
+    let mathMode: cublasMath_t
+    let reductionScheme: cublasLtReductionScheme_t
+    let customOption: Int32
+    let wavesCount: Float
 }
 
 //==============================================================================

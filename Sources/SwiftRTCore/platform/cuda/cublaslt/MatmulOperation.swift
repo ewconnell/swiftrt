@@ -374,30 +374,6 @@ extension MatmulEpilogue {
 }
 
 //==============================================================================
-// MatmulAlgorithm
-public final class MatmulAlgorithm 
-{
-    public var desc: cublasLtMatmulAlgo_t
-
-    // initializers
-    @inlinable public init(
-        cublas: CublasHandle,
-        computeType: cublasComputeType_t,
-        scaleType: cudaDataType_t,
-        aType: cudaDataType_t,
-        bType: cudaDataType_t,
-        cType: cudaDataType_t,
-        dType: cudaDataType_t,
-        algoId: Int32
-    ) {
-        desc = cublasLtMatmulAlgo_t()
-        cudaCheck(cublasLtMatmulAlgoInit(
-            cublas.handle, computeType, scaleType, aType, bType,
-            cType, dType, algoId, &desc))
-    }
-}
-
-//==============================================================================
 /// MatmulAlgorithmHeuristics
 /// This can throw if the parameter combination is not supported
 public final class MatmulAlgorithmHeuristics 
