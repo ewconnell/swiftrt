@@ -140,6 +140,21 @@ public final class MatmulAlgorithm
         }
     }
 
+    //--------------------------------------------------------------------------
+    /// Enable/Disable CTA swizzling. Change mapping from grid
+    /// coordinates to parts of the matrices.
+    @inlinable public var threadSwizzling: MatmulThreadSwizzling {
+        get {
+            var value: UInt32 = 0
+            getConfig(CUBLASLT_ALGO_CONFIG_CTA_SWIZZLING, &value)
+            return MatmulThreadSwizzling(rawValue: value)!
+        }
+        set {
+            var value: UInt32 = newValue.rawValue
+            setConfig(CUBLASLT_ALGO_CONFIG_CTA_SWIZZLING, &value)
+        }
+    }
+
     //==========================================================================
     // Caps properties
     //==========================================================================
@@ -152,6 +167,13 @@ public final class MatmulAlgorithm
         return value == 1
     }
 
+}
+
+//==============================================================================
+/// MatmulThreadSwizzling
+public enum MatmulThreadSwizzling: UInt32 {
+    case disabled = 0
+    case enabled = 1
 }
 
 //==============================================================================
