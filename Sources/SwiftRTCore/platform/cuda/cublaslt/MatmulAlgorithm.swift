@@ -110,6 +110,36 @@ public final class MatmulAlgorithm
         }
     }
 
+    //--------------------------------------------------------------------------
+    /// Number of K splits. If != 1, then K split parts of matrix multiplication
+    /// will be computed in parallel, and then the results accumulated 
+    /// according to the `reductionScheme`
+    @inlinable public var splitK: Int {
+        get {
+            var value: UInt32 = 1
+            getConfig(CUBLASLT_ALGO_CONFIG_SPLITK_NUM, &value)
+            return Int(value)
+        }
+        set {
+            var value = UInt32(newValue)
+            setConfig(CUBLASLT_ALGO_CONFIG_SPLITK_NUM, &value)
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    /// Reduction scheme to use when `splitK` value > 1
+    @inlinable public var reductionScheme: MatmulReductionScheme {
+        get {
+            var value = CUBLASLT_REDUCTION_SCHEME_NONE
+            getConfig(CUBLASLT_ALGO_CONFIG_REDUCTION_SCHEME, &value)
+            return MatmulReductionScheme(value)
+        }
+        set {
+            var value = newValue.cublas
+            setConfig(CUBLASLT_ALGO_CONFIG_REDUCTION_SCHEME, &value)
+        }
+    }
+
     //==========================================================================
     // Caps properties
     //==========================================================================
@@ -122,6 +152,51 @@ public final class MatmulAlgorithm
         return value == 1
     }
 
+}
+
+//==============================================================================
+/// MatmulReductionScheme
+public enum MatmulReductionScheme {
+    /// Do not apply reduction. The dot-product will be performed in one sequence.
+    case none
+    /// Reduction is performed "in place" using the output buffer, parts
+    /// are added up in the output data type. Workspace is only used for
+    /// counters that guarantee sequentiality.
+    case inPlace
+    /// Reduction done out of place in a user-provided workspace. 
+    /// The intermediate results are stored in the compute type in the 
+    /// workspace and reduced in a separate step.
+    case computeType
+    /// Reduction done out of place in a user-provided workspace.
+    /// The intermediate results are stored in the output type in the 
+    /// workspace and reduced in a separate step.
+    case outputType
+    /// Allows all reduction schemes.
+    case mask
+}
+
+extension MatmulReductionScheme {
+    @inlinable public init(_ type: cublasLtReductionScheme_t) {
+        switch type {
+        case CUBLASLT_REDUCTION_SCHEME_NONE: self = .none
+        case CUBLASLT_REDUCTION_SCHEME_INPLACE: self = .inPlace
+        case CUBLASLT_REDUCTION_SCHEME_COMPUTE_TYPE: self = .computeType
+        case CUBLASLT_REDUCTION_SCHEME_OUTPUT_TYPE: self = .outputType
+        case CUBLASLT_REDUCTION_SCHEME_MASK: self = .mask
+        default: fatalError("unrecognized cublasLtReductionScheme_t")
+        }
+    }
+
+    @inlinable public var cublas: cublasLtReductionScheme_t {
+        let types: [MatmulReductionScheme: cublasLtReductionScheme_t] = [
+            .none: CUBLASLT_REDUCTION_SCHEME_NONE,
+            .inPlace: CUBLASLT_REDUCTION_SCHEME_INPLACE,
+            .computeType: CUBLASLT_REDUCTION_SCHEME_COMPUTE_TYPE,
+            .outputType: CUBLASLT_REDUCTION_SCHEME_OUTPUT_TYPE,
+            .mask: CUBLASLT_REDUCTION_SCHEME_MASK,
+        ]        
+        return types[self]!
+    }
 }
 
 //==============================================================================
