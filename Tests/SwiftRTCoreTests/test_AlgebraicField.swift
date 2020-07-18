@@ -56,10 +56,13 @@ class test_AlgebraicField: XCTestCase {
     func test_queryMatmulProperties() {
        Context.log.level = .diagnostic
        do {
-           let a = ones((3, 2))
-           let b = ones((2, 4))
-           var c = empty((3, 4))
-           let props = queryMatmulProperties(a, b, &c)
+           let a = ones((3, 2), type: Float16.self)
+           let b = ones((2, 4), type: Float16.self)
+           var c = empty((3, 4), type: Float16.self)
+           let props = queryMatmulProperties(
+               a, b, &c, 
+               computeType: .compute16F,
+               scaleType: .real16F)
            print(props)
        }
 

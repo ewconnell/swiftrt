@@ -378,6 +378,18 @@ extension Float: ScalarElement {
     static var onePointer: UnsafeRawPointer { UnsafeRawPointer(&one) }
 }
 
+extension Float16: ScalarElement {
+    @inlinable public static var type: ScalarType { .real16F }
+    
+    public static var zero: Self = Float16(0)
+    @inlinable public
+    static var zeroPointer: UnsafeRawPointer { UnsafeRawPointer(&zero) }
+    
+    public static var one: Self = Float16(1)
+    @inlinable public
+    static var onePointer: UnsafeRawPointer { UnsafeRawPointer(&one) }
+}
+
 extension Double: ScalarElement {
     @inlinable public static var type: ScalarType { .real64F }
     

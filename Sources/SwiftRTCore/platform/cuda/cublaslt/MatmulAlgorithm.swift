@@ -17,25 +17,58 @@ import CCuda
 
 //==============================================================================
 // MatmulAlgorithm
-public final class MatmulAlgorithm 
+public final class MatmulAlgorithm: CustomStringConvertible
 {
     public var desc: cublasLtMatmulAlgo_t
 
+    //--------------------------------------------------------------------------
     // initializers
     @inlinable public init(
-        cublas: CublasHandle,
-        computeType: cublasComputeType_t,
-        scaleType: cudaDataType_t,
-        aType: cudaDataType_t,
-        bType: cudaDataType_t,
-        cType: cudaDataType_t,
-        dType: cudaDataType_t,
+        queue: PlatformType.Device.Queue,
+        computeType: MatmulComputeType,
+        scaleType: ScalarType,
+        aType: ScalarType,
+        bType: ScalarType,
+        cType: ScalarType,
+        dType: ScalarType,
         algoId: Int
     ) {
         desc = cublasLtMatmulAlgo_t()
         cudaCheck(cublasLtMatmulAlgoInit(
-            cublas.handle, computeType, scaleType, aType, bType,
-            cType, dType, Int32(algoId), &desc))
+            queue.cublas.handle, 
+            computeType.cublas, 
+            scaleType.cuda, 
+            aType.cuda, bType.cuda, cType.cuda, dType.cuda, 
+            Int32(algoId), &desc))
+    }
+
+    //--------------------------------------------------------------------------
+    /// getIds
+    ///
+    /// Parameters:
+    ///  - queue: the device queue to use
+    ///  - 
+    /// Returns: an array of algorithm ids that match the specified requirements
+    public static func getIds(
+        queue: PlatformType.Device.Queue,
+        computeType: MatmulComputeType,
+        scaleType: ScalarType,
+        aType: ScalarType,
+        bType: ScalarType,
+        cType: ScalarType,
+        dType: ScalarType,
+        maxIds: Int
+    ) -> [Int] {
+        var tempIds = [Int32](repeating: 0, count: maxIds)
+        var tempFound: Int32 = 0
+        cudaCheck(cublasLtMatmulAlgoGetIds(
+            queue.cublas.handle, 
+            computeType.cublas,
+            scaleType.cuda,
+            aType.cuda, bType.cuda, cType.cuda, dType.cuda,
+            Int32(maxIds),
+            &tempIds, &tempFound))
+        return tempIds[0..<Int(tempFound)].map(Int.init)
     }
 
     //--------------------------------------------------------------------------
@@ -67,6 +100,43 @@ public final class MatmulAlgorithm
     ) {
         cudaCheck(cublasLtMatmulAlgoConfigSetAttribute(
             &desc, attr, &value, MemoryLayout.size(ofValue: value)))
+    }
+
+    //--------------------------------------------------------------------------
+    /// description
+    public var description: String {
+        """
+        MatmulAlgorithm configuration
+        id             : \(id)
+        tileId         : \(tileId)
+        stagesId       : \(stagesId)
+        splitK         : \(splitK)
+        reductionScheme: \(reductionScheme)
+        threadSwizzling: \(threadSwizzling)
+        customOption   : \(customOption)
+        """
+    }
+
+    /// capsDescription
+    public var capsDescription: String {
+        """
+        MatmulAlgorithm caps
+        supportsSplitK            : \(supportsSplitK)
+        supportsThreadSwizzling   : \(supportsThreadSwizzling)
+        supportsStridedBatching   : \(supportsStridedBatching)
+        supportsOutOfPlaceResult  : \(supportsOutOfPlaceResult)
+        supportsUPLO              : \(supportsUPLO)
+        tileIds                   : \(tileIds.map { "\(MatmulTile($0))" })
+        stageIds                  : \(stageIds.map { "\(MatmulStages($0))" })
+        customOptionCount         : \(customOptionCount)
+        customMemoryOrder         : \(customMemoryOrder)
+        supportsNegativeLeadingDim: \(supportsNegativeLeadingDim)
+        numericalImplementation   : \(numericalImplementation)
+        alignmentA                : \(alignmentA)
+        alignmentB                : \(alignmentB)
+        alignmentC                : \(alignmentC)
+        alignmentD                : \(alignmentD)
+        """
     }
 
     //==========================================================================
@@ -224,32 +294,34 @@ public final class MatmulAlgorithm
     //--------------------------------------------------------------------------
     /// supported tile configurations
     @inlinable public var tileIds: [Int] {
-        var count: UInt32 = 0
-        var written = 0
         // query the count
+        var bufferSize = 0
         cudaCheck(cublasLtMatmulAlgoCapGetAttribute(
-            &desc, CUBLASLT_ALGO_CAP_TILE_IDS, &count, 0, &written))
+            &desc, CUBLASLT_ALGO_CAP_TILE_IDS, nil, 0, &bufferSize))
+        let count = Int(bufferSize) / MemoryLayout<UInt32>.size
 
-        var ids = [UInt32](repeating: 0, count: Int(count))
+        var written = 0
+        var ids = [UInt32](repeating: 0, count: count)
         cudaCheck(cublasLtMatmulAlgoCapGetAttribute(
             &desc, CUBLASLT_ALGO_CAP_TILE_IDS, &ids, 
-            MemoryLayout<UInt32>.size * Int(count), &written))
+            bufferSize, &written))
         return ids.map(Int.init)
     }
 
     //--------------------------------------------------------------------------
     /// supported stage configuration
     @inlinable public var stageIds: [Int] {
-        var count: UInt32 = 0
-        var written = 0
         // query the count
+        var bufferSize = 0
         cudaCheck(cublasLtMatmulAlgoCapGetAttribute(
-            &desc, CUBLASLT_ALGO_CAP_STAGES_IDS, &count, 0, &written))
+            &desc, CUBLASLT_ALGO_CAP_STAGES_IDS, nil, 0, &bufferSize))
+        let count = Int(bufferSize) / MemoryLayout<UInt32>.size
 
+        var written = 0
         var ids = [UInt32](repeating: 0, count: Int(count))
         cudaCheck(cublasLtMatmulAlgoCapGetAttribute(
             &desc, CUBLASLT_ALGO_CAP_STAGES_IDS, &ids, 
-            MemoryLayout<UInt32>.size * Int(count), &written))
+            bufferSize, &written))
         return ids.map(Int.init)
     }
 
@@ -323,7 +395,7 @@ public final class MatmulAlgorithm
 
 //==============================================================================
 /// MatmulNumericalImplementation
-public struct MatmulNumericalImplementation: OptionSet {
+public struct MatmulNumericalImplementation: OptionSet, CustomStringConvertible {
     public init(rawValue: UInt64) { self.rawValue = rawValue }
     public let rawValue: UInt64
 
@@ -350,6 +422,33 @@ public struct MatmulNumericalImplementation: OptionSet {
     public static let input8I   = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_8I)
 
     public static let inputTypeMask = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_OP_INPUT_TYPE_MASK)
+
+    public var description: String {
+        var string = "["
+
+        if contains(.fma)  { string += ".fma, " }
+        if contains(.hmma) { string += ".hmma, " }
+        if contains(.imma) { string += ".imma, " }
+        if contains(.dmma) { string += ".dmma, " }
+
+        if contains(.accumulator16F) { string += ".accumulator16F, " }
+        if contains(.accumulator32F) { string += ".accumulator32F, " }
+        if contains(.accumulator64F) { string += ".accumulator64F, " }
+        if contains(.accumulator32I) { string += ".accumulator32I, " }
+
+        if contains(.input16F)  { string += ".input16F, " }
+        if contains(.input16BF) { string += ".input16BF, " }
+        if contains(.inputTF32) { string += ".inputTF32, " }
+        if contains(.input32F)  { string += ".input32F, " }
+        if contains(.input64F)  { string += ".input64F, " }
+        if contains(.input8I)   { string += ".input8I, " }
+
+        // trim
+        if let index = string.lastIndex(of: ",") {
+            string = String(string[..<index])
+        }
+        return string + "]"            
+    }
 }
 
 //==============================================================================
@@ -439,6 +538,10 @@ public enum MatmulTile {
 }
 
 extension MatmulTile {
+    @inlinable public init(_ type: Int) {
+        self.init(unsafeBitCast(Int32(type), to: cublasLtMatmulTile_t.self))
+    }
+
     @inlinable public init(_ type: cublasLtMatmulTile_t) {
         switch type {
         case CUBLASLT_MATMUL_TILE_UNDEFINED: self = .undefined
@@ -541,6 +644,10 @@ public enum MatmulStages {
 }
 
 extension MatmulStages {
+    @inlinable public init(_ type: Int) {
+        self.init(unsafeBitCast(Int32(type), to: cublasLtMatmulStages_t.self))
+    }
+
     @inlinable public init(_ type: cublasLtMatmulStages_t) {
         switch type {
         case CUBLASLT_MATMUL_STAGES_UNDEFINED: self = .undefined

@@ -30,9 +30,9 @@ public func queryMatmulProperties<AE,BE,CE>(
     _ b: TensorR2<BE>, 
     transB: TransposeOp = .noTranspose,
     _ c: inout TensorR2<CE>,
-    computeType: MatmulComputeType = .compute32F,
-    scaleType: ScalarType = .real32F,
-    maxAlgorithmsToTest: Int = Int.max,
+    computeType: MatmulComputeType,
+    scaleType: ScalarType,
+    maxAlgorithmsToTest: Int = 100,
     maxCombinationsToTest: Int = 100,
     timingRepeats: Int = 10
 ) -> MatmulProperties 
@@ -40,35 +40,40 @@ where AE: ScalarElement,
       BE: ScalarElement,
       CE: ScalarElement
 {
-    // let splitKs = [2, 3, 4, 5, 6, 8, 12, 16, 32]
-    // let computeType = computeType
-    // let scaleType = ScalarType.real32F
-    // var operation = MatmulOperation(compute: computeType, scale: scaleType)
-    // operation.transA = transA
-    // operation.transB = transB
+    let queue = Context.currentQueue
+    var combinationCount = 0
+    let splitKs = [2, 3, 4, 5, 6, 8, 12, 16, 32]
+    var operation = MatmulOperation(compute: computeType, scale: scaleType)
+    operation.transA = transA
+    operation.transB = transB
     
-    // //
-    // var algorithmIds = [Int32](repeating: 0, count: maxAlgorithmsToTest)
-    // var algorithmsFound: Int32 = 0
-    // cudaCheck(cublasLtMatmulAlgoGetIds(
-    //     Context.currentQueue.cublas.handle, 
-    //     computeType.cublas,
-    //     scaleType.cuda,
-    //     AE.type.cuda,
-    //     BE.type.cuda,
-    //     CE.type.cuda,
-    //     CE.type.cuda,
-    //     Int32(maxAlgorithmsToTest),
-    //     &algorithmIds, 
-    //     &algorithmsFound))
+    let algorithmIds = MatmulAlgorithm.getIds(
+            queue: queue, 
+            computeType: computeType, 
+            scaleType: scaleType,
+            aType: AE.type, 
+            bType: BE.type, 
+            cType: CE.type, 
+            dType: CE.type,
+            maxIds: maxAlgorithmsToTest)
 
-    // var combinationCount = 0
-
-    // for algo in 0..<Int(algorithmsFound) 
-    //     where combinationCount <= maxCombinationsToTest 
-    // {
-
-    // }
+    for algoId in algorithmIds  where combinationCount <= maxCombinationsToTest 
+    {
+        let algo = MatmulAlgorithm(
+            queue: queue, 
+            computeType: computeType, 
+            scaleType: scaleType,
+            aType: AE.type, 
+            bType: BE.type, 
+            cType: CE.type, 
+            dType: CE.type,
+            algoId: algoId)
+        print("-----------------------------")
+        print(algo)
+        print("")
+        print(algo.capsDescription)
+        print("")
+    }
 
     return MatmulProperties()
 }
