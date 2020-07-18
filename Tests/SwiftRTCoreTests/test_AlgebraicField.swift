@@ -61,7 +61,7 @@ class test_AlgebraicField: XCTestCase {
            var c = empty((3, 4), type: Float16.self)
            let props = queryMatmulProperties(
                a, b, &c, 
-               computeType: .compute16F,
+               accumulatorType: .accumulator16F,
                scaleType: .real16F)
            print(props)
        }

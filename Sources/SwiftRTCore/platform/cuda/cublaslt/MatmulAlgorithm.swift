@@ -25,7 +25,7 @@ public final class MatmulAlgorithm: CustomStringConvertible
     // initializers
     @inlinable public init(
         queue: PlatformType.Device.Queue,
-        computeType: MatmulComputeType,
+        accumulatorType: MatmulAccumulatorType,
         scaleType: ScalarType,
         aType: ScalarType,
         bType: ScalarType,
@@ -36,7 +36,7 @@ public final class MatmulAlgorithm: CustomStringConvertible
         desc = cublasLtMatmulAlgo_t()
         cudaCheck(cublasLtMatmulAlgoInit(
             queue.cublas.handle, 
-            computeType.cublas, 
+            accumulatorType.cublas, 
             scaleType.cuda, 
             aType.cuda, bType.cuda, cType.cuda, dType.cuda, 
             Int32(algoId), &desc))
@@ -51,7 +51,7 @@ public final class MatmulAlgorithm: CustomStringConvertible
     /// Returns: an array of algorithm ids that match the specified requirements
     public static func getIds(
         queue: PlatformType.Device.Queue,
-        computeType: MatmulComputeType,
+        accumulatorType: MatmulAccumulatorType,
         scaleType: ScalarType,
         aType: ScalarType,
         bType: ScalarType,
@@ -63,7 +63,7 @@ public final class MatmulAlgorithm: CustomStringConvertible
         var tempFound: Int32 = 0
         cudaCheck(cublasLtMatmulAlgoGetIds(
             queue.cublas.handle, 
-            computeType.cublas,
+            accumulatorType.cublas,
             scaleType.cuda,
             aType.cuda, bType.cuda, cType.cuda, dType.cuda,
             Int32(maxIds),
@@ -470,7 +470,7 @@ public enum MatmulReductionScheme {
     /// Reduction done out of place in a user-provided workspace. 
     /// The intermediate results are stored in the compute type in the 
     /// workspace and reduced in a separate step.
-    case computeType
+    case accumulatorType
     /// Reduction done out of place in a user-provided workspace.
     /// The intermediate results are stored in the output type in the 
     /// workspace and reduced in a separate step.
@@ -484,7 +484,7 @@ extension MatmulReductionScheme {
         switch type {
         case CUBLASLT_REDUCTION_SCHEME_NONE: self = .none
         case CUBLASLT_REDUCTION_SCHEME_INPLACE: self = .inPlace
-        case CUBLASLT_REDUCTION_SCHEME_COMPUTE_TYPE: self = .computeType
+        case CUBLASLT_REDUCTION_SCHEME_COMPUTE_TYPE: self = .accumulatorType
         case CUBLASLT_REDUCTION_SCHEME_OUTPUT_TYPE: self = .outputType
         case CUBLASLT_REDUCTION_SCHEME_MASK: self = .mask
         default: fatalError("unrecognized cublasLtReductionScheme_t")
@@ -495,7 +495,7 @@ extension MatmulReductionScheme {
         let types: [MatmulReductionScheme: cublasLtReductionScheme_t] = [
             .none: CUBLASLT_REDUCTION_SCHEME_NONE,
             .inPlace: CUBLASLT_REDUCTION_SCHEME_INPLACE,
-            .computeType: CUBLASLT_REDUCTION_SCHEME_COMPUTE_TYPE,
+            .accumulatorType: CUBLASLT_REDUCTION_SCHEME_COMPUTE_TYPE,
             .outputType: CUBLASLT_REDUCTION_SCHEME_OUTPUT_TYPE,
             .mask: CUBLASLT_REDUCTION_SCHEME_MASK,
         ]        

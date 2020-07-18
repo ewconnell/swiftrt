@@ -30,7 +30,7 @@ public func queryMatmulProperties<AE,BE,CE>(
     _ b: TensorR2<BE>, 
     transB: TransposeOp = .noTranspose,
     _ c: inout TensorR2<CE>,
-    computeType: MatmulComputeType,
+    accumulatorType: MatmulAccumulatorType,
     scaleType: ScalarType,
     maxAlgorithmsToTest: Int = 100,
     maxCombinationsToTest: Int = 100,
@@ -43,13 +43,13 @@ where AE: ScalarElement,
     let queue = Context.currentQueue
     var combinationCount = 0
     let splitKs = [2, 3, 4, 5, 6, 8, 12, 16, 32]
-    var operation = MatmulOperation(compute: computeType, scale: scaleType)
+    var operation = MatmulOperation(compute: accumulatorType, scale: scaleType)
     operation.transA = transA
     operation.transB = transB
     
     let algorithmIds = MatmulAlgorithm.getIds(
             queue: queue, 
-            computeType: computeType, 
+            accumulatorType: accumulatorType, 
             scaleType: scaleType,
             aType: AE.type, 
             bType: BE.type, 
@@ -61,7 +61,7 @@ where AE: ScalarElement,
     {
         let algo = MatmulAlgorithm(
             queue: queue, 
-            computeType: computeType, 
+            accumulatorType: accumulatorType, 
             scaleType: scaleType,
             aType: AE.type, 
             bType: BE.type, 

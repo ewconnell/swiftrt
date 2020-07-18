@@ -24,7 +24,7 @@ public final class MatmulOperation: CustomStringConvertible {
     //--------------------------------------------------------------------------
     // initializers
     @inlinable public init(
-        compute: MatmulComputeType,
+        compute: MatmulAccumulatorType,
         scale: ScalarType
     ) {
         var temp: cublasLtMatmulDesc_t?
@@ -39,8 +39,8 @@ public final class MatmulOperation: CustomStringConvertible {
     public var description: String {
         """
         \(Self.self)
-            compute: \(compute)
-              scale: \(scale)
+            compute: \(accumulatorType)
+              scale: \(scaleType)
         pointerMode: \(pointerMode)
              transA: \(transA)
              transB: \(transB)
@@ -74,11 +74,11 @@ public final class MatmulOperation: CustomStringConvertible {
     //--------------------------------------------------------------------------
     /// Defines data type used for multiply and accumulate operations, 
     /// and the accumulator during the matrix multiplication
-    @inlinable public var compute: MatmulComputeType {
+    @inlinable public var accumulatorType: MatmulAccumulatorType {
         get {
             var value = CUBLAS_COMPUTE_32F
             getAttribute(CUBLASLT_MATMUL_DESC_COMPUTE_TYPE, &value)
-            return MatmulComputeType(value)
+            return MatmulAccumulatorType(value)
         }
         set {
             var value = newValue.cublas
@@ -91,8 +91,8 @@ public final class MatmulOperation: CustomStringConvertible {
     /// The accumulator value and the value from matrix C are typically
     /// converted to scale type before final scaling. Value is then
     /// converted from scale type to the type of matrix D before
-    /// storing in memory. The default is the same as `computeType`
-    @inlinable public var scale: ScalarType {
+    /// storing in memory. The default is the same as `accumulatorType`
+    @inlinable public var scaleType: ScalarType {
         get {
             var value = CUDA_R_32F
             getAttribute(CUBLASLT_MATMUL_DESC_SCALE_TYPE, &value)
@@ -212,63 +212,63 @@ public final class MatmulOperation: CustomStringConvertible {
 }
 
 //==============================================================================
-/// MatmulComputeType
-public enum MatmulComputeType {
+/// MatmulAccumulatorType
+public enum MatmulAccumulatorType {
     /// Float16 default
-    case compute16F
+    case accumulator16F
     /// Float16 precise 
-    case compute16FPrecise
+    case accumulator16FPrecise
     /// Float default
-    case compute32F
+    case accumulator32F
     /// Float precise
-    case compute32FPrecise
+    case accumulator32FPrecise
     /// Float fast, allows down-converting inputs to half or TF32
-    case compute32FFast16F
+    case accumulator32FFast16F
     /// Float fast, allows down-converting inputs to bfloat16 or TF32
-    case compute32FFast16BF
+    case accumulator32FFast16BF
     /// Float fast, allows down-converting inputs to TF32
-    case compute32FFastTF32
+    case accumulator32FFastTF32
     /// Double default
-    case compute64F
+    case accumulator64F
     /// Double precise
-    case compute64FPrecise
+    case accumulator64FPrecise
     /// Int32 default
-    case compute32I
+    case accumulator32I
     /// Int32 precise
-    case compute32IPrecise
+    case accumulator32IPrecise
 }
 
-extension MatmulComputeType {
+extension MatmulAccumulatorType {
     @inlinable public init(_ type: cublasComputeType_t) {
         switch type {
-        case CUBLAS_COMPUTE_16F: self = .compute16F
-        case CUBLAS_COMPUTE_16F_PEDANTIC: self = .compute16FPrecise
-        case CUBLAS_COMPUTE_32F: self = .compute32F
-        case CUBLAS_COMPUTE_32F_PEDANTIC: self = .compute32FPrecise
-        case CUBLAS_COMPUTE_32F_FAST_16F: self = .compute32FFast16F
-        case CUBLAS_COMPUTE_32F_FAST_16BF: self = .compute32FFast16BF
-        case CUBLAS_COMPUTE_32F_FAST_TF32: self = .compute32FFastTF32
-        case CUBLAS_COMPUTE_64F: self = .compute64F
-        case CUBLAS_COMPUTE_64F_PEDANTIC: self = .compute64FPrecise
-        case CUBLAS_COMPUTE_32I: self = .compute32I
-        case CUBLAS_COMPUTE_32I_PEDANTIC: self = .compute32IPrecise
+        case CUBLAS_COMPUTE_16F: self = .accumulator16F
+        case CUBLAS_COMPUTE_16F_PEDANTIC: self = .accumulator16FPrecise
+        case CUBLAS_COMPUTE_32F: self = .accumulator32F
+        case CUBLAS_COMPUTE_32F_PEDANTIC: self = .accumulator32FPrecise
+        case CUBLAS_COMPUTE_32F_FAST_16F: self = .accumulator32FFast16F
+        case CUBLAS_COMPUTE_32F_FAST_16BF: self = .accumulator32FFast16BF
+        case CUBLAS_COMPUTE_32F_FAST_TF32: self = .accumulator32FFastTF32
+        case CUBLAS_COMPUTE_64F: self = .accumulator64F
+        case CUBLAS_COMPUTE_64F_PEDANTIC: self = .accumulator64FPrecise
+        case CUBLAS_COMPUTE_32I: self = .accumulator32I
+        case CUBLAS_COMPUTE_32I_PEDANTIC: self = .accumulator32IPrecise
         default: fatalError("unrecognized cublasComputeType_t")
         }
     }
 
     @inlinable public var cublas: cublasComputeType_t {
-        let types: [MatmulComputeType: cublasComputeType_t] = [
-            .compute16F: CUBLAS_COMPUTE_16F,
-            .compute16FPrecise: CUBLAS_COMPUTE_16F_PEDANTIC,
-            .compute32F: CUBLAS_COMPUTE_32F,
-            .compute32FPrecise: CUBLAS_COMPUTE_32F_PEDANTIC,
-            .compute32FFast16F: CUBLAS_COMPUTE_32F_FAST_16F,
-            .compute32FFast16BF: CUBLAS_COMPUTE_32F_FAST_16BF,
-            .compute32FFastTF32: CUBLAS_COMPUTE_32F_FAST_TF32,
-            .compute64F: CUBLAS_COMPUTE_64F,
-            .compute64FPrecise: CUBLAS_COMPUTE_64F_PEDANTIC,
-            .compute32I: CUBLAS_COMPUTE_32I,
-            .compute32IPrecise: CUBLAS_COMPUTE_32I_PEDANTIC,
+        let types: [MatmulAccumulatorType: cublasComputeType_t] = [
+            .accumulator16F: CUBLAS_COMPUTE_16F,
+            .accumulator16FPrecise: CUBLAS_COMPUTE_16F_PEDANTIC,
+            .accumulator32F: CUBLAS_COMPUTE_32F,
+            .accumulator32FPrecise: CUBLAS_COMPUTE_32F_PEDANTIC,
+            .accumulator32FFast16F: CUBLAS_COMPUTE_32F_FAST_16F,
+            .accumulator32FFast16BF: CUBLAS_COMPUTE_32F_FAST_16BF,
+            .accumulator32FFastTF32: CUBLAS_COMPUTE_32F_FAST_TF32,
+            .accumulator64F: CUBLAS_COMPUTE_64F,
+            .accumulator64FPrecise: CUBLAS_COMPUTE_64F_PEDANTIC,
+            .accumulator32I: CUBLAS_COMPUTE_32I,
+            .accumulator32IPrecise: CUBLAS_COMPUTE_32I_PEDANTIC,
         ]        
         return types[self]!
     }
