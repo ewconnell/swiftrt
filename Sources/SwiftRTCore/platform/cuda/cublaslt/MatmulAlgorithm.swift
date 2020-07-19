@@ -24,14 +24,14 @@ public final class MatmulAlgorithm: CustomStringConvertible
     //--------------------------------------------------------------------------
     // initializers
     @inlinable public init(
-        queue: PlatformType.Device.Queue,
+        algoId: Int,
         accumulatorType: MatmulAccumulatorType,
         scaleType: ScalarType,
         aType: ScalarType,
         bType: ScalarType,
         cType: ScalarType,
         dType: ScalarType,
-        algoId: Int
+        queue: PlatformType.Device.Queue = Context.currentQueue
     ) {
         desc = cublasLtMatmulAlgo_t()
         cudaCheck(cublasLtMatmulAlgoInit(
@@ -50,14 +50,14 @@ public final class MatmulAlgorithm: CustomStringConvertible
     ///  - 
     /// Returns: an array of algorithm ids that match the specified requirements
     public static func getIds(
-        queue: PlatformType.Device.Queue,
+        maxIds: Int,
         accumulatorType: MatmulAccumulatorType,
         scaleType: ScalarType,
         aType: ScalarType,
         bType: ScalarType,
         cType: ScalarType,
         dType: ScalarType,
-        maxIds: Int
+        queue: PlatformType.Device.Queue = Context.currentQueue
     ) -> [Int] {
         var tempIds = [Int32](repeating: 0, count: maxIds)
         var tempFound: Int32 = 0
@@ -112,7 +112,7 @@ public final class MatmulAlgorithm: CustomStringConvertible
         stagesId       : \(stagesId)
         splitK         : \(splitK)
         reductionScheme: \(reductionScheme)
-        threadSwizzling: \(threadSwizzling)
+        threadSwizzle  : \(threadSwizzle)
         customOption   : \(customOption)
         """
     }
@@ -122,12 +122,12 @@ public final class MatmulAlgorithm: CustomStringConvertible
         """
         MatmulAlgorithm caps
         supportsSplitK            : \(supportsSplitK)
-        supportsThreadSwizzling   : \(supportsThreadSwizzling)
+        threadSwizzling           : \(threadSwizzling)
         supportsStridedBatching   : \(supportsStridedBatching)
         supportsOutOfPlaceResult  : \(supportsOutOfPlaceResult)
         supportsUPLO              : \(supportsUPLO)
         tileIds                   : \(tileIds.map { "\(MatmulTile($0))" })
-        stageIds                  : \(stageIds.map { "\(MatmulStages($0))" })
+        stageIds                  : \(stagesIds.map { "\(MatmulStages($0))" })
         customOptionCount         : \(customOptionCount)
         customMemoryOrder         : \(customMemoryOrder)
         supportsNegativeLeadingDim: \(supportsNegativeLeadingDim)
@@ -218,7 +218,7 @@ public final class MatmulAlgorithm: CustomStringConvertible
     //--------------------------------------------------------------------------
     /// Enable/Disable CTA swizzling. Change mapping from grid
     /// coordinates to parts of the matrices.
-    @inlinable public var threadSwizzling: MatmulThreadSwizzling {
+    @inlinable public var threadSwizzle: MatmulThreadSwizzling {
         get {
             var value: UInt32 = 0
             getConfig(CUBLASLT_ALGO_CONFIG_CTA_SWIZZLING, &value)
@@ -259,11 +259,11 @@ public final class MatmulAlgorithm: CustomStringConvertible
     }
 
     //--------------------------------------------------------------------------
-    /// Supports cooperative thread array swizzling
-    @inlinable public var supportsThreadSwizzling: Bool {
+    /// The number of cooperative thread array swizzling variations
+    @inlinable public var threadSwizzling: MatmulThreadSwizzling {
         var value: UInt32 = 0
         getCap(CUBLASLT_ALGO_CAP_CTA_SWIZZLING_SUPPORT, &value)
-        return value == 1
+        return MatmulThreadSwizzling(rawValue: value)!
     }
 
     //--------------------------------------------------------------------------
@@ -300,29 +300,39 @@ public final class MatmulAlgorithm: CustomStringConvertible
             &desc, CUBLASLT_ALGO_CAP_TILE_IDS, nil, 0, &bufferSize))
         let count = Int(bufferSize) / MemoryLayout<UInt32>.size
 
-        var written = 0
-        var ids = [UInt32](repeating: 0, count: count)
-        cudaCheck(cublasLtMatmulAlgoCapGetAttribute(
-            &desc, CUBLASLT_ALGO_CAP_TILE_IDS, &ids, 
-            bufferSize, &written))
-        return ids.map(Int.init)
+        if count == 0 {
+            return [Int(unsafeBitCast(CUBLASLT_MATMUL_TILE_UNDEFINED, 
+                                      to: UInt32.self))]
+        } else {
+            var written = 0
+            var ids = [UInt32](repeating: 0, count: count)
+            cudaCheck(cublasLtMatmulAlgoCapGetAttribute(
+                &desc, CUBLASLT_ALGO_CAP_TILE_IDS, &ids, 
+                bufferSize, &written))
+            return ids.map(Int.init)
+        }
     }
 
     //--------------------------------------------------------------------------
     /// supported stage configuration
-    @inlinable public var stageIds: [Int] {
+    @inlinable public var stagesIds: [Int] {
         // query the count
         var bufferSize = 0
         cudaCheck(cublasLtMatmulAlgoCapGetAttribute(
             &desc, CUBLASLT_ALGO_CAP_STAGES_IDS, nil, 0, &bufferSize))
         let count = Int(bufferSize) / MemoryLayout<UInt32>.size
 
-        var written = 0
-        var ids = [UInt32](repeating: 0, count: Int(count))
-        cudaCheck(cublasLtMatmulAlgoCapGetAttribute(
-            &desc, CUBLASLT_ALGO_CAP_STAGES_IDS, &ids, 
-            bufferSize, &written))
-        return ids.map(Int.init)
+        if count == 0 {
+            return [Int(unsafeBitCast(CUBLASLT_MATMUL_STAGES_UNDEFINED, 
+                                      to: UInt32.self))]
+        } else {
+            var written = 0
+            var ids = [UInt32](repeating: 0, count: Int(count))
+            cudaCheck(cublasLtMatmulAlgoCapGetAttribute(
+                &desc, CUBLASLT_ALGO_CAP_STAGES_IDS, &ids, 
+                bufferSize, &written))
+            return ids.map(Int.init)
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -453,14 +463,14 @@ public struct MatmulNumericalImplementation: OptionSet, CustomStringConvertible 
 
 //==============================================================================
 /// MatmulThreadSwizzling
-public enum MatmulThreadSwizzling: UInt32 {
+public enum MatmulThreadSwizzling: UInt32, CaseIterable {
     case disabled = 0
     case enabled = 1
 }
 
 //==============================================================================
 /// MatmulReductionScheme
-public enum MatmulReductionScheme {
+public enum MatmulReductionScheme: CaseIterable {
     /// Do not apply reduction. The dot-product will be performed in one sequence.
     case none
     /// Reduction is performed "in place" using the output buffer, parts

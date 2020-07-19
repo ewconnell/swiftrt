@@ -34,45 +34,79 @@ public func queryMatmulProperties<AE,BE,CE>(
     scaleType: ScalarType,
     maxAlgorithmsToTest: Int = 100,
     maxCombinationsToTest: Int = 100,
-    timingRepeats: Int = 10
+    timingRepeats: Int = 10,
+    using queue: PlatformType.Device.Queue = Context.currentQueue
 ) -> MatmulProperties 
 where AE: ScalarElement,
       BE: ScalarElement,
       CE: ScalarElement
 {
-    let queue = Context.currentQueue
     var combinationCount = 0
     let splitKs = [2, 3, 4, 5, 6, 8, 12, 16, 32]
-    var operation = MatmulOperation(compute: accumulatorType, scale: scaleType)
+    var operation = MatmulOperation(accumulatorType: accumulatorType, 
+                                    scaleType: scaleType)
     operation.transA = transA
     operation.transB = transB
-    
+
+    // get the available algorithm Ids for the data type combination    
     let algorithmIds = MatmulAlgorithm.getIds(
-            queue: queue, 
-            accumulatorType: accumulatorType, 
-            scaleType: scaleType,
-            aType: AE.type, 
-            bType: BE.type, 
-            cType: CE.type, 
-            dType: CE.type,
-            maxIds: maxAlgorithmsToTest)
+        maxIds: maxAlgorithmsToTest,
+        accumulatorType: accumulatorType, 
+        scaleType: scaleType,
+        aType: AE.type, bType: BE.type, cType: CE.type, dType: CE.type)
 
     for algoId in algorithmIds  where combinationCount <= maxCombinationsToTest 
     {
         let algo = MatmulAlgorithm(
-            queue: queue, 
+            algoId: algoId, 
             accumulatorType: accumulatorType, 
             scaleType: scaleType,
-            aType: AE.type, 
-            bType: BE.type, 
-            cType: CE.type, 
-            dType: CE.type,
-            algoId: algoId)
+            aType: AE.type, bType: BE.type, cType: CE.type, dType: CE.type)
+
         print("-----------------------------")
         print(algo)
         print("")
         print(algo.capsDescription)
         print("")
+
+        // test each tile configuration
+        for tileId in algo.tileIds {
+            // test each stages configuraiton
+            for stagesId in algo.stagesIds {
+                // test each custom option
+                for customOptionId in 0..<algo.customOptionCount {
+                    // test each cta swizzling option
+                    for swizzle in MatmulThreadSwizzling.allCases {
+                        if algo.supportsSplitK {
+                            for redScheme in MatmulReductionScheme.allCases {
+                                // configure the algorithm
+
+                                // create the workspace
+
+                                // run the test
+                                let perf = runCudaMatmul(
+                                    operation: operation,
+                                    alpha: AE.onePointer,
+                                    A: a.deviceRead(using: queue),
+                                    layoutA: MatrixLayout(a), 
+                                    B: b.deviceRead(using: queue), 
+                                    layoutB: MatrixLayout(b), 
+                                    beta: CE.onePointer, 
+                                    C: c.deviceReadWrite(using: queue),
+                                    layoutC: MatrixLayout(c), 
+                                    D: c.deviceReadWrite(using: queue), 
+                                    layoutD: MatrixLayout(c), 
+                                    algorithm: algo, 
+                                    kernelRepeats: timingRepeats, 
+                                    workSpace: UnsafeMutableRawPointer, 
+                                    workSpaceSizeInBytes: Int,
+                                    using: queue)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     return MatmulProperties()
@@ -96,7 +130,6 @@ public struct MatmulPerformance {
 /// runCudaMatmul
 /// runs and measures timing for the specified cublaslt matmul configuration 
 public func runCudaMatmul(
-    cublas: CublasHandle,
     operation: MatmulOperation,
     alpha: UnsafeRawPointer,
     A: UnsafeRawPointer,
@@ -112,14 +145,11 @@ public func runCudaMatmul(
     kernelRepeats: Int,
     workSpace: UnsafeMutableRawPointer,
     workSpaceSizeInBytes: Int,
-    performanceResult: inout MatmulPerformance,
-    stream: cudaStream_t,
-    startEvent: inout cudaEvent_t,
-    stopEvent: inout cudaEvent_t
-) throws {
+    using queue: PlatformType.Device.Queue = Context.currentQueue
+) -> MatmulPerformance {
     // get algorithm heuristics
-    let heur = try MatmulAlgorithmHeuristics(
-        cublas: cublas,
+    let heur = MatmulAlgorithmHeuristics(
+        cublas: queue.cublas,
         operation: operation,
         layoutA: layoutA,
         layoutB: layoutB,
@@ -127,5 +157,6 @@ public func runCudaMatmul(
         layoutD: layoutD,
         algorithm: algorithm)
     print(heur)
+    fatalError()
 }
 

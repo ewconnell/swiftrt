@@ -24,11 +24,12 @@ public final class MatmulOperation: CustomStringConvertible {
     //--------------------------------------------------------------------------
     // initializers
     @inlinable public init(
-        compute: MatmulAccumulatorType,
-        scale: ScalarType
+        accumulatorType: MatmulAccumulatorType,
+        scaleType: ScalarType
     ) {
         var temp: cublasLtMatmulDesc_t?
-        cudaCheck(cublasLtMatmulDescCreate(&temp, compute.cublas, scale.cuda))
+        cudaCheck(cublasLtMatmulDescCreate(&temp, accumulatorType.cublas, 
+                                           scaleType.cuda))
         desc = temp!
     }
 
@@ -389,7 +390,7 @@ public final class MatmulAlgorithmHeuristics
         layoutC: MatrixLayout,
         layoutD: MatrixLayout,
         algorithm: MatmulAlgorithm
-    ) throws {
+    ) {
         var temp = cublasLtMatmulHeuristicResult_t()
         cudaCheck(cublasLtMatmulAlgoCheck(
             cublas.handle,
