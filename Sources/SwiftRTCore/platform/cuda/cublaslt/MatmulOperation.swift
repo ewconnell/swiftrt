@@ -373,36 +373,3 @@ extension MatmulEpilogue {
         return types[self]!
     }
 }
-
-//==============================================================================
-/// MatmulAlgorithmHeuristics
-/// This can throw if the parameter combination is not supported
-public final class MatmulAlgorithmHeuristics 
-{
-    public let heuristicResult: cublasLtMatmulHeuristicResult_t
-
-    // initializers
-    @inlinable public init(
-        cublas: CublasHandle,
-        operation: MatmulOperation,
-        layoutA: MatrixLayout,
-        layoutB: MatrixLayout,
-        layoutC: MatrixLayout,
-        layoutD: MatrixLayout,
-        algorithm: MatmulAlgorithm
-    ) {
-        var temp = cublasLtMatmulHeuristicResult_t()
-        cudaCheck(cublasLtMatmulAlgoCheck(
-            cublas.handle,
-            operation.desc,
-            layoutA.desc,
-            layoutB.desc,
-            layoutC.desc,
-            layoutD.desc,
-            &algorithm.desc, 
-            &temp))
-        heuristicResult = temp
-    }
-
-    
-}
