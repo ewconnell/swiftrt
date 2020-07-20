@@ -16,7 +16,7 @@
 import CCuda
 
 //==============================================================================
-// MatmulAlgorithm
+/// MatmulAlgorithm
 public final class MatmulAlgorithm: CustomStringConvertible
 {
     public var desc: cublasLtMatmulAlgo_t
@@ -31,8 +31,9 @@ public final class MatmulAlgorithm: CustomStringConvertible
         bType: ScalarType,
         cType: ScalarType,
         dType: ScalarType,
-        queue: PlatformType.Device.Queue = Context.currentQueue
+        using queue: PlatformType.Device.Queue = Context.currentQueue
     ) {
+        assert(cType == dType, "must be equal for now")
         desc = cublasLtMatmulAlgo_t()
         cudaCheck(cublasLtMatmulAlgoInit(
             queue.cublas.handle, 
@@ -57,8 +58,9 @@ public final class MatmulAlgorithm: CustomStringConvertible
         bType: ScalarType,
         cType: ScalarType,
         dType: ScalarType,
-        queue: PlatformType.Device.Queue = Context.currentQueue
+        using queue: PlatformType.Device.Queue = Context.currentQueue
     ) -> [Int] {
+        assert(cType == dType, "must be equal for now")
         var tempIds = [Int32](repeating: 0, count: maxIds)
         var tempFound: Int32 = 0
         cudaCheck(cublasLtMatmulAlgoGetIds(

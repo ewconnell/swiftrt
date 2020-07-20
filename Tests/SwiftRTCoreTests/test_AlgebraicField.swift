@@ -59,7 +59,7 @@ class test_AlgebraicField: XCTestCase {
            let a = ones((3, 2), type: Float16.self)
            let b = ones((2, 4), type: Float16.self)
            var c = empty((3, 4), type: Float16.self)
-           let props = queryMatmulProperties(
+           let props = MatmulAlgorithm.search(
                a, b, &c, 
                accumulatorType: .accumulator16F,
                scaleType: .real16F)

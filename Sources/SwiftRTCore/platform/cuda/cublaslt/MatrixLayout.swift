@@ -27,8 +27,15 @@ public final class MatrixLayout {
     @inlinable public init<E: ScalarElement>(_ tensor: TensorR2<E>) {
         var temp: cublasLtMatrixLayout_t?
         cudaCheck(cublasLtMatrixLayoutCreate(
-            &temp, E.type.cuda, tensor.shape[0], tensor.shape[1],
-            leadingDimension))
+            &temp,
+            // tensor data cuda data type
+            E.type.cuda, 
+            // number of rows
+            UInt64(tensor.shape[0]),
+            // number of cols
+            UInt64(tensor.shape[1]),
+            // stride of dim 0
+            Int64(tensor.strides[0])))
         desc = temp!
     }
 
