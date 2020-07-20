@@ -16,20 +16,34 @@
 import CCuda
 
 //==============================================================================
-/// CublasHandle
-/// creates and manages the lifetime of a cublas light handle
-public final class CublasHandle 
+/// MatmulPreferences
+public final class MatmulPreferences: CustomStringConvertible
 {
-    public let handle: cublasLtHandle_t
+    public var desc: cublasLtMatmulPreference_t
 
+    //--------------------------------------------------------------------------
+    // initializers
+    @inlinable public init(_ desc: cublasLtMatmulPreference_t) {
+        self.desc = desc
+    }
+
+    /// init
+    /// Creates a MatmulPreferences object with default values
     @inlinable public init() {
-        var temp: cublasLtHandle_t?
-        cudaCheck(cublasLtCreate(&temp))
-        handle = temp!
+        var temp: cublasLtMatmulPreference_t?
+        cudaCheck(cublasLtMatmulPreferenceCreate(&temp))
+        self.desc = temp!
+
+        cudaCheck(cublasLtMatmulPreferenceInit(desc))
     }
 
     @inlinable deinit {
-        cudaCheck(cublasLtDestroy(handle))
+        cudaCheck(cublasLtMatmulPreferenceDestroy(desc))
     }
-}
 
+    //--------------------------------------------------------------------------
+    @inlinable public var description: String {
+        ""
+    }
+
+}

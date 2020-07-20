@@ -17,25 +17,25 @@ import CCuda
 
 
 //==============================================================================
-/// MatmulAlgorithmHeuristics
+/// MatmulAlgorithmHeuristicResult
 /// This can throw if the parameter combination is not supported
-public final class MatmulAlgorithmHeuristics 
+public struct MatmulAlgorithmHeuristicResult 
 {
     public let heuristicResult: cublasLtMatmulHeuristicResult_t
 
     // initializers
     @inlinable public init(
-        cublas: CublasHandle,
         operation: MatmulOperation,
         layoutA: MatrixLayout,
         layoutB: MatrixLayout,
         layoutC: MatrixLayout,
         layoutD: MatrixLayout,
-        algorithm: MatmulAlgorithm
+        algorithm: MatmulAlgorithm,
+        using queue: PlatformType.Device.Queue = Context.currentQueue
     ) {
         var temp = cublasLtMatmulHeuristicResult_t()
         cudaCheck(cublasLtMatmulAlgoCheck(
-            cublas.handle,
+            queue.cublas.handle,
             operation.desc,
             layoutA.desc,
             layoutB.desc,
@@ -46,5 +46,24 @@ public final class MatmulAlgorithmHeuristics
         heuristicResult = temp
     }
 
-    
+    @inlinable public var algorithm: MatmulAlgorithm {
+        MatmulAlgorithm(heuristicResult.algo)
+    }
+
+    @inlinable public var workspaceSize: Int {
+        heuristicResult.workspaceSize
+    }
+
+    /// `true` if the result is valid, `false` if there are no available
+    /// algorithms that match the input requirements
+    @inlinable public var isValid: Bool {
+        heuristicResult.state == CUBLAS_STATUS_SUCCESS
+    }
+
+    /// Waves count is a device utilization metric. A value of 1.0 suggests
+    /// that when the kernel is launched it will fully occupy the GPU. The
+    /// closer to 1.0 the better
+    @inlinable public var wavesCount: Float {
+        heuristicResult.wavesCount
+    }
 }

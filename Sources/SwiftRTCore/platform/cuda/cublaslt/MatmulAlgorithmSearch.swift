@@ -19,10 +19,75 @@ import CCuda
 //==============================================================================
 /// MatmulProperties
 public struct MatmulProperties {
-
+    @inlinable public init() {}
 }
 
 extension MatmulAlgorithm {
+    //==========================================================================
+    /// query
+    ///
+    // https://docs.nvidia.com/cuda/cublas/index.html#cublasLtMatmul
+    ///
+    /// D = alpha*(A*B) + beta*(C),
+    ///
+    /// where A, B, and C are input matrices, and alpha and beta are
+    /// input scalars.
+    /// Note: matmul currently only supports the case where C == D 
+    /// and Cdesc == Ddesc, so C is dropped from the api for now.
+    ///
+    /// Parameters:
+    ///  - a: left hand tensor
+    ///  - transA: transpose operation to apply. Default: noTranspose
+    ///  - b: left hand tensor
+    ///  - transB: transpose operation to apply. Default: noTranspose
+    ///  - d: result
+    ///  - accumulatorType: the accumulator precision to use
+    ///  - scaleType: the scaling precision to use
+    ///  - preferences: the algorithm query preferences
+    ///  - maxResultCount: the maximum number of results to return
+    ///  - queue: the device queue to use. Default is the current queue
+    ///
+    @inlinable public static func query<AE,BE,DE>(
+        _ a: TensorR2<AE>, transA: TransposeOp = .noTranspose,
+        _ b: TensorR2<BE>, transB: TransposeOp = .noTranspose,
+        _ d: inout TensorR2<DE>,
+        accumulatorType: MatmulAccumulatorType,
+        scaleType: ScalarType,
+        preferences: MatmulPreferences = MatmulPreferences(),
+        maxResultCount: Int = 20,
+        using queue: PlatformType.Device.Queue = Context.currentQueue
+    )  -> MatmulProperties 
+    where AE: ScalarElement, BE: ScalarElement, DE: ScalarElement
+    {
+        let operation = MatmulOperation(accumulatorType: accumulatorType, 
+                                        scaleType: scaleType)
+        operation.transA = transA
+        operation.transB = transB
+
+        // create layouts
+        let layoutA = MatrixLayout(a)
+        let layoutB = MatrixLayout(b)
+        let layoutD = MatrixLayout(d)
+
+        var returnAlgoCount: Int32 = 0
+        var results = [cublasLtMatmulHeuristicResult_t](
+            repeating: cublasLtMatmulHeuristicResult_t(), count: maxResultCount)
+
+        cudaCheck(cublasLtMatmulAlgoGetHeuristic(
+            queue.cublas.handle,
+            operation.desc,
+            layoutA.desc,
+            layoutB.desc,
+            layoutD.desc,
+            layoutD.desc,
+            preferences.desc,
+            Int32(maxResultCount),
+            &results,
+            &returnAlgoCount))
+
+        return MatmulProperties()
+    }
+
     //==========================================================================
     /// search
     ///
@@ -36,9 +101,9 @@ extension MatmulAlgorithm {
     /// and Cdesc == Ddesc, so C is dropped from the api for now.
     ///
     /// Parameters:
-    ///  - a: left hand side tensor
+    ///  - a: left hand tensor
     ///  - transA: transpose operation to apply. Default: noTranspose
-    ///  - b: left hand side tensor
+    ///  - b: left hand tensor
     ///  - transB: transpose operation to apply. Default: noTranspose
     ///  - d: result
     ///  - accumulatorType: the accumulator precision to use
@@ -49,7 +114,7 @@ extension MatmulAlgorithm {
     ///  - timingRepeats: the number of timing runs to perform per variation
     ///  - queue: the device queue to use
     ///
-    public static func search<AE,BE,DE>(
+    @inlinable public static func search<AE,BE,DE>(
         _ a: TensorR2<AE>, transA: TransposeOp = .noTranspose,
         _ b: TensorR2<BE>, transB: TransposeOp = .noTranspose,
         _ d: inout TensorR2<DE>,
@@ -62,81 +127,81 @@ extension MatmulAlgorithm {
     ) -> MatmulProperties 
     where AE: ScalarElement, BE: ScalarElement, DE: ScalarElement
     {
-        var combinationCount = 0
-        let splitKs = [2, 3, 4, 5, 6, 8, 12, 16, 32]
-        var operation = MatmulOperation(accumulatorType: accumulatorType, 
-                                        scaleType: scaleType)
-        operation.transA = transA
-        operation.transB = transB
+        // var combinationCount = 0
+        // let splitKs = [2, 3, 4, 5, 6, 8, 12, 16, 32]
+        // let operation = MatmulOperation(accumulatorType: accumulatorType, 
+        //                                 scaleType: scaleType)
+        // operation.transA = transA
+        // operation.transB = transB
 
-        // create layouts
-        let layoutA = MatrixLayout(a)
-        let layoutB = MatrixLayout(b)
-        let layoutD = MatrixLayout(d)
+        // // create layouts
+        // let layoutA = MatrixLayout(a)
+        // let layoutB = MatrixLayout(b)
+        // let layoutD = MatrixLayout(d)
 
-        // get the available algorithm Ids for the data type combination    
-        let algorithmIds = MatmulAlgorithm.getIds(
-            maxIds: maxAlgorithmsToTest,
-            accumulatorType: accumulatorType, 
-            scaleType: scaleType,
-            aType: AE.type, bType: BE.type, cType: DE.type, dType: DE.type)
+        // // get the available algorithm Ids for the data type combination    
+        // let algorithmIds = MatmulAlgorithm.getIds(
+        //     maxIds: maxAlgorithmsToTest,
+        //     accumulatorType: accumulatorType, 
+        //     scaleType: scaleType,
+        //     aType: AE.type, bType: BE.type, cType: DE.type, dType: DE.type)
 
-        for algoId in algorithmIds  where combinationCount <= maxTestVariations 
-        {
-            let algo = MatmulAlgorithm(
-                algoId: algoId, 
-                accumulatorType: accumulatorType, 
-                scaleType: scaleType,
-                aType: AE.type, bType: BE.type, cType: DE.type, dType: DE.type)
+        // for algoId in algorithmIds  where combinationCount <= maxTestVariations 
+        // {
+        //     let algo = MatmulAlgorithm(
+        //         algoId: algoId, 
+        //         accumulatorType: accumulatorType, 
+        //         scaleType: scaleType,
+        //         aType: AE.type, bType: BE.type, cType: DE.type, dType: DE.type)
 
-            print("-----------------------------")
-            print(algo)
-            print("")
-            print(algo.capsDescription)
-            print("")
+        //     print("-----------------------------")
+        //     print(algo)
+        //     print("")
+        //     print(algo.capsDescription)
+        //     print("")
 
-            // test each tile configuration
-            for tileId in algo.tileIds {
-                // test each stages configuraiton
-                for stagesId in algo.stagesIds {
-                    // test each custom option
-                    for customOptionId in 0..<algo.customOptionCount {
-                        // test each cta swizzling option
-                        for swizzle in MatmulThreadSwizzling.allCases {
-                            if algo.supportsSplitK {
-                                for redScheme in MatmulReductionScheme.allCases {
-                                    // configure the algorithm candidate
-                                    let algorithm = MatmulAlgorithm(
-                                        algoId: algoId,
-                                        accumulatorType: accumulatorType,
-                                        scaleType: scaleType,
-                                        aType: AE.type,
-                                        bType: BE.type,
-                                        cType: DE.type,
-                                        dType: DE.type,
-                                        using: queue)
+        //     // test each tile configuration
+        //     for tileId in algo.tileIds {
+        //         // test each stages configuraiton
+        //         for stagesId in algo.stagesIds {
+        //             // test each custom option
+        //             for customOptionId in 0..<algo.customOptionCount {
+        //                 // test each cta swizzling option
+        //                 for swizzle in MatmulThreadSwizzling.allCases {
+        //                     if algo.supportsSplitK {
+        //                         for redScheme in MatmulReductionScheme.allCases {
+        //                             // configure the algorithm candidate
+        //                             let algorithm = MatmulAlgorithm(
+        //                                 algoId: algoId,
+        //                                 accumulatorType: accumulatorType,
+        //                                 scaleType: scaleType,
+        //                                 aType: AE.type,
+        //                                 bType: BE.type,
+        //                                 cType: DE.type,
+        //                                 dType: DE.type,
+        //                                 using: queue)
 
-                                    // validate algo and get the workspace size
-                                    let heur = MatmulAlgorithmHeuristics(
-                                        cublas: queue.cublas,
-                                        operation: operation,
-                                        layoutA: layoutA,
-                                        layoutB: layoutB,
-                                        layoutC: layoutD,
-                                        layoutD: layoutD,
-                                        algorithm: algorithm)
-                                    print(heur)
+        //                             // validate algo and get the workspace size
+        //                             let heur = MatmulAlgorithmHeuristicResult(
+        //                                 cublas: queue.cublas,
+        //                                 operation: operation,
+        //                                 layoutA: layoutA,
+        //                                 layoutB: layoutB,
+        //                                 layoutC: layoutD,
+        //                                 layoutD: layoutD,
+        //                                 algorithm: algorithm)
+        //                             print(heur)
 
-                                    // create the workspace
+        //                             // create the workspace
 
-                                    // run the test
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        //                             // run the test
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         return MatmulProperties()
     }

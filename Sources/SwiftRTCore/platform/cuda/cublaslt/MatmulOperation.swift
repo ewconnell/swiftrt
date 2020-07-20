@@ -19,7 +19,7 @@ import CCuda
 // MatmulOperation
 public final class MatmulOperation: CustomStringConvertible {
     // properties
-    public let desc: cublasLtMatmulDesc_t
+    public var desc: cublasLtMatmulDesc_t
 
     //--------------------------------------------------------------------------
     // initializers

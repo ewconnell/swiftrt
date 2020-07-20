@@ -23,6 +23,10 @@ public final class MatmulAlgorithm: CustomStringConvertible
 
     //--------------------------------------------------------------------------
     // initializers
+    @inlinable public init(_ desc: cublasLtMatmulAlgo_t) {
+        self.desc = desc
+    }
+
     @inlinable public init(
         algoId: Int,
         accumulatorType: MatmulAccumulatorType,

@@ -249,6 +249,24 @@ extension TransposeOp {
 }
 
 //==============================================================================
+/// CublasHandle
+/// creates and manages the lifetime of a cublas light handle
+public final class CublasHandle 
+{
+    public let handle: cublasLtHandle_t
+
+    @inlinable public init() {
+        var temp: cublasLtHandle_t?
+        cudaCheck(cublasLtCreate(&temp))
+        handle = temp!
+    }
+
+    @inlinable deinit {
+        cudaCheck(cublasLtDestroy(handle))
+    }
+}
+
+//==============================================================================
 /// CudnnHandle
 /// creates and manages the lifetime of a cudnn handle
 public final class CudnnHandle {
