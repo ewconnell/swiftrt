@@ -207,6 +207,37 @@ public final class MatmulPreferences: CustomStringConvertible
             setAttribute(CUBLASLT_MATMUL_PREF_REDUCTION_SCHEME_MASK, &value)
         }
     }
+
+    //--------------------------------------------------------------------------
+    /// Epilogue selector mask. Filters the heuristic result to include
+    /// only algorithms that support all required operations. 
+    @inlinable public var epilogueOptions: MatmulEpilogueOptions {
+        get {
+            var value: UInt32 = 0
+            getAttribute(CUBLASLT_MATMUL_PREF_EPILOGUE_MASK, &value)
+            return MatmulEpilogueOptions(rawValue: value)
+        }
+        set {
+            var value = newValue.rawValue
+            setAttribute(CUBLASLT_MATMUL_PREF_EPILOGUE_MASK, &value)
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    /// Numerical implementation options. See `MatmulNumericalImplementation`
+    /// Filters heuristic result to only include algorithms that use the 
+    /// allowed implementations. Default is `.all`
+    @inlinable public var numericalOptions: MatmulNumericalOptions {
+        get {
+            var value: UInt64 = 0
+            getAttribute(CUBLASLT_MATMUL_PREF_IMPL_MASK, &value)
+            return MatmulNumericalOptions(rawValue: value)
+        }
+        set {
+            var value = newValue.rawValue
+            setAttribute(CUBLASLT_MATMUL_PREF_IMPL_MASK, &value)
+        }
+    }
 }
 
 //==============================================================================
