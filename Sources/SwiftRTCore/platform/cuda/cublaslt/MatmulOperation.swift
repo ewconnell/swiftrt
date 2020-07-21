@@ -305,6 +305,41 @@ extension MatmulPointerMode {
     }
 }
 
+
+//==============================================================================
+/// MatmulPointerModeOptions
+public struct MatmulPointerModeOptions: OptionSet, CustomStringConvertible {
+    public init(rawValue: UInt32) { self.rawValue = rawValue }
+    public init(_ value: cublasLtPointerModeMask_t) {
+        self.rawValue = value.rawValue
+    }
+    public let rawValue: UInt32
+
+    public static let host = MatmulPointerModeOptions(CUBLASLT_POINTER_MODE_MASK_HOST)
+    public static let device = MatmulPointerModeOptions(CUBLASLT_POINTER_MODE_MASK_DEVICE)
+    public static let deviceVector = MatmulPointerModeOptions(CUBLASLT_POINTER_MODE_MASK_DEVICE_VECTOR)
+    public static let alphaDeviceVectorBetaZero = MatmulPointerModeOptions(
+        CUBLASLT_POINTER_MODE_MASK_ALPHA_DEVICE_VECTOR_BETA_ZERO)
+    public static let all: MatmulPointerModeOptions = [
+        .host, .device, .deviceVector, .alphaDeviceVectorBetaZero
+    ]
+
+    public var description: String {
+        var string = "["
+
+        if contains(.host) { string += ".host, " }
+        if contains(.device) { string += ".device, " }
+        if contains(.deviceVector) { string += ".deviceVector, " }
+        if contains(.alphaDeviceVectorBetaZero) { string += ".alphaDeviceVectorBetaZero, " }
+
+        // trim
+        if let index = string.lastIndex(of: ",") {
+            string = String(string[..<index])
+        }
+        return string + "]"            
+    }
+}
+
 //==============================================================================
 /// MatmulFillMode
 /// The type indicates which part (lower or upper) of the dense matrix was

@@ -520,6 +520,36 @@ extension MatmulReductionScheme {
 }
 
 //==============================================================================
+/// MatmulReductionSchemeOptions
+public struct MatmulReductionSchemeOptions: OptionSet, CustomStringConvertible {
+    public init(rawValue: UInt32) { self.rawValue = rawValue }
+    public init(_ value: cublasLtReductionScheme_t) {
+        self.rawValue = value.rawValue
+    }
+    public let rawValue: UInt32
+
+    public static let inPlace = MatmulReductionSchemeOptions(CUBLASLT_REDUCTION_SCHEME_INPLACE)
+    public static let accumulatorType = MatmulReductionSchemeOptions(CUBLASLT_REDUCTION_SCHEME_COMPUTE_TYPE)
+    public static let outputType = MatmulReductionSchemeOptions(CUBLASLT_REDUCTION_SCHEME_OUTPUT_TYPE)
+    public static let all = MatmulReductionSchemeOptions(CUBLASLT_REDUCTION_SCHEME_MASK)
+
+    public var description: String {
+        var string = "["
+
+        if contains(.all)  { string += ".all, " }
+        if contains(.inPlace) { string += ".inPlace, " }
+        if contains(.accumulatorType) { string += ".accumulatorType, " }
+        if contains(.outputType) { string += ".outputType, " }
+
+        // trim
+        if let index = string.lastIndex(of: ",") {
+            string = String(string[..<index])
+        }
+        return string + "]"            
+    }
+}
+
+//==============================================================================
 /// MatmulTile
 /// Tile size (in C/D matrix Rows x Cols)
 /// General order of tile IDs is sorted by size first and by 

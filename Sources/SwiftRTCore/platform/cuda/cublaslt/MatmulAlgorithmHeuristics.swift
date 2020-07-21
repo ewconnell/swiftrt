@@ -63,7 +63,7 @@ public struct MatmulAlgorithmHeuristicResult
     /// Waves count is a device utilization metric. A value of 1.0 suggests
     /// that when the kernel is launched it will fully occupy the GPU. The
     /// closer to 1.0 the better
-    @inlinable public var wavesCount: Float {
+    @inlinable public var waves: Float {
         heuristicResult.wavesCount
     }
 }
