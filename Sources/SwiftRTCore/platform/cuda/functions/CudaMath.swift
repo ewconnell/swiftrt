@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+import CCuda
 
 //==============================================================================
 // DeviceQueue functions with default cpu delegation
@@ -23,6 +24,36 @@ extension CudaQueue {
         _ result: inout Tensor<S,E>
     ) where S: TensorShape, E.Value: AdditiveArithmetic {
         guard useGpu else { cpu_add(lhs, rhs, &result); return }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable public func copy<S,E>(
+        from a: Tensor<S,E>, 
+        to b: inout Tensor<S,E>
+    ) where S: TensorShape {
+        guard useGpu else { cpu_copy(from: a, to: &b); return }
+
+        // simple memcpy
+        if a.order == b.order {
+            if a.isContiguous && b.isContiguous {
+                cudaCheck(cudaMemcpyAsync(
+                    // dst
+                    b.deviceReadWrite(using: self), 
+                    // src
+                    a.deviceRead(using: self), 
+                    // count
+                    MemoryLayout<E>.size * a.count, 
+                    /// kind
+                    cudaMemcpyDeviceToDevice, 
+                    // stream
+                    self.stream))
+            } else {
+                fatalError("strided copy not implemented yet")
+            }
+        } else {
+            // swizzle transform
+
+        }
     }
 
     //--------------------------------------------------------------------------
