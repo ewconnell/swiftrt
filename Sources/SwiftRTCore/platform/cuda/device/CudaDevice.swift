@@ -71,8 +71,8 @@ public class CudaDevice: ComputeDevice {
         let oneGB = UInt64(1.GB)
         return [
             "device type       : cpu",
-            "physical memory   : \(info.physicalMemory / oneGB + 1) GB",
             "active cores      : \(info.activeProcessorCount)",
+            "physical memory   : \(info.physicalMemory / oneGB + 1) GB",
             "memory addressing : \(memoryType)",
         ]
     }
@@ -90,9 +90,9 @@ public class CudaDevice: ComputeDevice {
         }
         return [
             "device type       : \(deviceName)",
-            "global memory     : \(props.major).\(props.minor)",
-            "compute capability: \(props.totalGlobalMem / (1024 * 1024)) MB",
             "multiprocessors   : \(props.multiProcessorCount)",
+            "compute capability: \(props.major).\(props.minor)",
+            "global memory     : \(props.totalGlobalMem / (1024 * 1024)) MB",
             "memory addressing : \(memoryType)",
         ]
     }

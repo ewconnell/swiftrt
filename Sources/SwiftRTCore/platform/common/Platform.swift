@@ -36,7 +36,7 @@ public protocol Platform: class, Logging {
     /// the current device queue to direct work
     var queueStack: [Device.Queue] { get set }
     /// queue used to synchronize data interchange with the application thread
-    var syncQueue: Device.Queue { get }
+    var appThreadQueue: Device.Queue { get }
 }
 
 public extension Platform {
@@ -66,7 +66,7 @@ public extension Platform {
     /// selects the application thread data interchange queue within
     /// the scope of the body
     @inlinable func useSyncQueue() {
-        queueStack[queueStack.count - 1] = syncQueue
+        queueStack[queueStack.count - 1] = appThreadQueue
     }
     
     /// selects the application thread data interchange queue within
@@ -74,7 +74,7 @@ public extension Platform {
     /// - Parameters:
     ///  - body: a closure where the device queue will be used
     @inlinable func usingSyncQueue<R>(_ body: () -> R) -> R {
-        queueStack.append(syncQueue)
+        queueStack.append(appThreadQueue)
         defer { _ = queueStack.popLast() }
         return body()
     }

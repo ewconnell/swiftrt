@@ -121,8 +121,8 @@ public final class Context: Logging {
     }
 
     /// the application thread data interchange queue
-    @inlinable public static var syncQueue: PlatformType.Device.Queue {
-        Context.local.platform.syncQueue
+    @inlinable public static var appThreadQueue: PlatformType.Device.Queue {
+        Context.local.platform.appThreadQueue
     }
 
     //--------------------------------------------------------------------------

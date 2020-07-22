@@ -514,7 +514,7 @@ public extension Tensor {
     /// `Elements` are accessed by the application using `Collection`
     /// enumeration via `indices` or integer subscripting.
     @inlinable func read() -> UnsafeBufferPointer<TensorElement.Stored> {
-        read(using: Context.syncQueue)
+        read(using: Context.appThreadQueue)
     }
     
     //--------------------------------------------------------------------------
@@ -555,7 +555,7 @@ public extension Tensor {
     /// enumeration via `indices` or subscripting.
     @inlinable mutating func readWrite()
         -> UnsafeMutableBufferPointer<TensorElement.Stored> {
-        readWrite(using: Context.syncQueue)
+        readWrite(using: Context.appThreadQueue)
     }
     
     //--------------------------------------------------------------------------

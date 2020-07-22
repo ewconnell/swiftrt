@@ -29,7 +29,7 @@ public class CudaPlatform: Platform {
     public let logInfo: LogInfo
     public let name: String
     public var queueStack: [CudaQueue]
-    public let syncQueue: CudaQueue
+    public let appThreadQueue: CudaQueue
 
     //--------------------------------------------------------------------------
     // initializer
@@ -45,7 +45,7 @@ public class CudaPlatform: Platform {
         let cpuDevice = CudaDevice(index: 0)
         devices = [cpuDevice]
 
-        syncQueue = CudaQueue(deviceIndex: 0,
+        appThreadQueue = CudaQueue(deviceIndex: 0,
                               name: "appThread",
                               queueMode: .sync,
                               useGpu: false)
@@ -66,11 +66,11 @@ public class CudaPlatform: Platform {
         if gpuDeviceCount == 0 {
             writeLog("There are no '\(self.name)' devices installed",
                      level: .warning)
-            queueStack = [syncQueue]
+            queueStack = [appThreadQueue]
         } else if devices[0].queues.count > 0 {
             queueStack = [devices[1].queues[0]]
         } else {
-            queueStack = [syncQueue]
+            queueStack = [appThreadQueue]
         }
 
         diagnostic("\(deviceString) default: \(queueStack[0].name)",

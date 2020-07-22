@@ -85,7 +85,7 @@ public final class DiscreteStorage: StorageBuffer {
         // TODO: change this to cache single scalars
         self.init(storedType: Element.self, count: 1, name: name)
         let buffer = readWrite(type: Element.self, at: 0, count: 1,
-                               using: Context.syncQueue)
+                               using: Context.appThreadQueue)
         buffer[0] = storedElement
     }
     

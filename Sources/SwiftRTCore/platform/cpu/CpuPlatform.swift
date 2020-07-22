@@ -26,7 +26,7 @@ public class CpuPlatform: Platform {
     public var devices: [CpuDevice]
     public let name: String
     public var queueStack: [CpuQueue]
-    public let syncQueue: CpuQueue
+    public let appThreadQueue: CpuQueue
 
     //--------------------------------------------------------------------------
     @inlinable public init() {
@@ -39,13 +39,13 @@ public class CpuPlatform: Platform {
         devices = [device, test]
 
         // create the application thread data interchange queue
-        syncQueue = CpuQueue(deviceIndex: 0,
+        appThreadQueue = CpuQueue(deviceIndex: 0,
                              name: "appThread",
                              queueMode: .sync,
                              memoryType: .unified)
         
         // if the number of requested async queues is 0, then make the
-        // syncQueue the default
-        queueStack = device.queues.count == 0 ? [syncQueue] : [device.queues[0]]
+        // appThreadQueue the default
+        queueStack = device.queues.count == 0 ? [appThreadQueue] : [device.queues[0]]
     }
 }

@@ -234,7 +234,7 @@ public extension Tensor {
     ) where C: Collection, C.Element == TensorElement.Stored
     {
         self.init(shape: shape, order: order, name: name)
-        let buffer = readWrite(using: Context.syncQueue)
+        let buffer = readWrite(using: Context.appThreadQueue)
         assert(buffer.count == elements.count)
         _ = buffer.initialize(from: elements)
     }
@@ -263,7 +263,7 @@ public extension Tensor {
         self.init(shape: shape, order: order, name: name)
         
         // get the storage buffer and set the values
-        let buffer = readWrite(using: Context.syncQueue)
+        let buffer = readWrite(using: Context.appThreadQueue)
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: v, in: buffer, at: i)
         }
@@ -288,7 +288,7 @@ public extension Tensor {
         self.init(shape: shape, order: order, name: name)
         
         // get the storage buffer and set the values
-        let buffer = readWrite(using: Context.syncQueue)
+        let buffer = readWrite(using: Context.appThreadQueue)
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(exactly: v ? 1 : 0)!,
                               in: buffer, at: i)
@@ -314,7 +314,7 @@ public extension Tensor {
         self.init(shape: shape, order: order, name: name)
         
         // get the storage buffer and set the values
-        let buffer = readWrite(using: Context.syncQueue)
+        let buffer = readWrite(using: Context.appThreadQueue)
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(v != 0), in: buffer, at: i)
         }
@@ -340,8 +340,8 @@ public extension Tensor {
         assert(shape.elementCount() == elements.count)
         self.init(shape: shape, order: order, name: name)
         
-        // get the storage buffer and set the values
-        let buffer = readWrite(using: Context.syncQueue)
+        // get the storage buffer on the cpu and set the values
+        let buffer = readWrite(using: Context.appThreadQueue)
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(exactly: v)!, in: buffer, at: i)
         }
@@ -369,7 +369,7 @@ public extension Tensor {
         self.init(shape: shape, order: order, name: name)
         
         // get the storage buffer and set the values
-        let buffer = readWrite(using: Context.syncQueue)
+        let buffer = readWrite(using: Context.appThreadQueue)
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(v), in: buffer, at: i)
         }
@@ -397,7 +397,7 @@ public extension Tensor {
         self.init(shape: shape, order: order, name: name)
         
         // get the storage buffer and set the values
-        let buffer = readWrite(using: Context.syncQueue)
+        let buffer = readWrite(using: Context.appThreadQueue)
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(v), in: buffer, at: i)
         }
@@ -479,7 +479,7 @@ public extension Tensor {
             // performs an indexed copy which reorders the elements
             Context.currentQueue.diagnostic(
                 "\(reorderString) copying \(other.diagnosticName) --> " +
-                    "\(source.diagnosticName) \(Element.self)[\(source.count)]",
+                "\(source.diagnosticName) \(Element.self)[\(source.count)]",
                 categories: [.dataCopy, .dataReorder])
             
             copy(from: other, to: &source)
