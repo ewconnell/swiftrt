@@ -140,7 +140,7 @@ where S: TensorShape
 @inlinable public func copy<S,E>(
     from source: Tensor<S,E>,
     to destination: inout Tensor<S,E>
-) where S: TensorShape
+)
 {
     Context.currentQueue.copy(from: source, to: &destination)
 }

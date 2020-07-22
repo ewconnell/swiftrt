@@ -24,8 +24,8 @@ public final class MatrixTransform: CustomStringConvertible {
 
     //--------------------------------------------------------------------------
     // initializers
-    @inlinable public init<S, E: ScalarElement>(_ tensor: Tensor<S,E>) {
-        let scaleType = E.type.cuda
+    @inlinable public init(type: ScalarType) {
+        let scaleType = type.cuda
         var temp: cublasLtMatrixTransformDesc_t?
         cudaCheck(cublasLtMatrixTransformDescCreate(&temp, scaleType))
         desc = temp!

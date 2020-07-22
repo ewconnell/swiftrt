@@ -24,21 +24,22 @@ public final class MatrixLayout: CustomStringConvertible {
 
     //--------------------------------------------------------------------------
     // initializers
-    @inlinable public init<E: ScalarElement>(_ tensor: TensorR2<E>) {
+    @inlinable public init<S,E: ScalarElement>(_ tensor: Tensor<S,E>) {
+        assert(S.rank == 2 || S.rank == 3, "only ranks 2 and 3 are supported")
         var temp: cublasLtMatrixLayout_t?
         cudaCheck(cublasLtMatrixLayoutCreate(
             &temp,
             // tensor data cuda data type
             E.type.cuda, 
             // number of rows
-            UInt64(tensor.shape[0]),
+            UInt64(tensor.shape[S.rank - 2]),
             // number of cols
-            UInt64(tensor.shape[1]),
+            UInt64(tensor.shape[S.rank - 1]),
             // stride
             Int64(tensor.leadingDimension)))
         desc = temp!
         order = tensor.order
-        batchCount = 1
+        batchCount = S.rank == 2 ? 1 : tensor.shape[0]
     }
 
     @inlinable deinit {

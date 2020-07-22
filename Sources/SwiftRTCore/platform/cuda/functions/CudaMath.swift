@@ -27,36 +27,6 @@ extension CudaQueue {
     }
 
     //--------------------------------------------------------------------------
-    @inlinable public func copy<S,E>(
-        from a: Tensor<S,E>, 
-        to b: inout Tensor<S,E>
-    ) where S: TensorShape {
-        guard useGpu else { cpu_copy(from: a, to: &b); return }
-
-        // simple memcpy
-        if a.order == b.order {
-            if a.isContiguous && b.isContiguous {
-                cudaCheck(cudaMemcpyAsync(
-                    // dst
-                    b.deviceReadWrite(using: self), 
-                    // src
-                    a.deviceRead(using: self), 
-                    // count
-                    MemoryLayout<E>.size * a.count, 
-                    /// kind
-                    cudaMemcpyDeviceToDevice, 
-                    // stream
-                    self.stream))
-            } else {
-                fatalError("strided copy not implemented yet")
-            }
-        } else {
-            // swizzle transform
-
-        }
-    }
-
-    //--------------------------------------------------------------------------
     // https://docs.nvidia.com/cuda/cublas/index.html#using-the-cublasLt-api
     // samples: https://github.com/NVIDIA/CUDALibrarySamples/tree/master/cuBLASLt
     @inlinable func matmul<E>(

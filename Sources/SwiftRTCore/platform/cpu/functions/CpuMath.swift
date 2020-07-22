@@ -72,6 +72,11 @@ extension DeviceQueue where Self: CpuFunctions
     @inlinable func copy<S,E>(from a: Tensor<S,E>, to b: inout Tensor<S,E>)
     where S: TensorShape { cpu_copy(from: a, to: &b) }
     //--------------------------------------------------------------------------
+    @inlinable func copy<S,E: ScalarElement>(
+        from a: Tensor<S,E>, 
+        to b: inout Tensor<S,E>
+    ) { cpu_copy(from: a, to: &b) }
+    //--------------------------------------------------------------------------
     @inlinable func cos<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real { cpu_cos(x, &result) }
     //--------------------------------------------------------------------------
