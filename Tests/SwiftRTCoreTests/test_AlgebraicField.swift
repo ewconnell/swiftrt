@@ -54,19 +54,24 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_queryMatmulProperties() {
-       Context.log.level = .diagnostic
-       do {
-           let a = ones((3, 2), type: Float16.self)
-           let b = ones((2, 4), type: Float16.self)
-           var c = empty((3, 4), type: Float16.self)
-           let preferences = MatmulPreferences()
-           let props = MatmulAlgorithm.query(
-               a, b, &c, 
-               accumulatorType: .accumulator16F,
-               scaleType: .real16F,
-               preferences: preferences)
-           print(props)
-       }
+        Context.log.level = .diagnostic
+        do {
+            let a = array(0..<6, (3, 2), type: Float16.self)
+            print(a)
+            let b = array(0..<8, (2, 4), type: Float16.self)
+            print(b)
+            var c = empty((3, 4), type: Float16.self)
+            let preferences = MatmulPreferences()
+            print(preferences)            
+            
+            let props = MatmulAlgorithm.query(
+                a, b, &c, 
+                accumulatorType: .accumulator16F,
+                scaleType: .real16F,
+                preferences: preferences,
+                using: Context.currentQueue)
+            print(props)
+        }
 
         // do {
         //     let a = ones((32, 2))

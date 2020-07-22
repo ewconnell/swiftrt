@@ -161,7 +161,8 @@ public enum Order: Int, Codable {
     case colTiled32
     
     //--------------------------------------------------------------------------
-    // NVIDIA native tensor core formats
+    // NVIDIA native tensor core formats 
+
     /// Data is ordered in column-major ordered tiles of composite tiles
     /// with total 32 columns and 8 rows. A tile is composed of interleaved
     /// inner tiles of 4 columns within 4 even or odd rows in an alternating
@@ -172,7 +173,8 @@ public enum Order: Int, Codable {
     /// NOTE: this order is needed for the B matrix on NVIDIA Turing
     /// Architecture GPUs, i.e. SM version = 72 and 75, for maximum tensor
     /// core integer GEMM performance.
-    case colTiledTC1
+    // ORDER_COL4_4R2_8C
+    case colTiledTC32x8
 
     /// Data is ordered in column-major ordered tiles of composite tiles
     /// with total 32 columns ands 32 rows. Element offset within the tile
@@ -185,7 +187,8 @@ public enum Order: Int, Codable {
     /// NOTE: this order is needed for the B matrix on NVIDIA Ampere
     /// Architecture GPUs, i.e. SM version >= 80, for maximum tensor
     /// core integer GEMM performance.
-    case colTiledTC2
+    // ORDER_COL32_2R_4R4
+    case colTiledTC32x32
 
     // aliases
     public static let C = row, F = col, A = -1

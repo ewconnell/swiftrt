@@ -210,10 +210,7 @@ public final class MatmulAlgorithm: CustomStringConvertible
             assert(MemoryLayout<cublasLtReductionScheme_t>.size ==
                    MemoryLayout.size(ofValue: value))
             getConfig(CUBLASLT_ALGO_CONFIG_REDUCTION_SCHEME, &value)
-            var mask: UInt32 = 0
-            getCap(CUBLASLT_ALGO_CAP_REDUCTION_SCHEME_MASK, &mask)
-            return MatmulReductionScheme(
-                unsafeBitCast(value & mask, to: cublasLtReductionScheme_t.self))
+            return MatmulReductionScheme(value)
         }
         set {
             var value = newValue.cublas
@@ -370,10 +367,10 @@ public final class MatmulAlgorithm: CustomStringConvertible
     //--------------------------------------------------------------------------
     /// details about algorithm's implementation that affect it's numerical
     /// behavior
-    @inlinable public var numericalImplementation: MatmulNumericalImplementation {
+    @inlinable public var numericalImplementation: MatmulNumericalOptions {
         var value: UInt64 = 0
         getCap(CUBLASLT_ALGO_CAP_NUMERICAL_IMPL_FLAGS, &value)
-        return MatmulNumericalImplementation(rawValue: value)
+        return MatmulNumericalOptions(rawValue: value)
     }
 
     //--------------------------------------------------------------------------
@@ -410,58 +407,64 @@ public final class MatmulAlgorithm: CustomStringConvertible
 }
 
 //==============================================================================
-/// MatmulNumericalImplementation
-public struct MatmulNumericalImplementation: OptionSet, CustomStringConvertible {
-    public init(rawValue: UInt64) { self.rawValue = rawValue }
+/// MatmulNumericalOptions
+public struct MatmulNumericalOptions: OptionSet, CustomStringConvertible {
     public let rawValue: UInt64
 
-    public static let fma = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_FMA)
-    public static let hmma = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_HMMA)
-    public static let imma = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_IMMA)             
-    public static let dmma = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_DMMA)             
+    @inlinable public init(rawValue: UInt64) { self.rawValue = rawValue }
+    @inlinable public init(_ value: UInt64) { self.rawValue = value }
 
-    public static let tensorOpMask = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_TENSOR_OP_MASK)
-    public static let opTypeMask = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_OP_TYPE_MASK)   
+    public static let fma = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_FMA)
+    public static let hmma = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_HMMA)
+    public static let imma = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_IMMA)             
+    public static let dmma = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_DMMA)             
 
-    public static let accumulator16F = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_16F)
-    public static let accumulator32F = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_32F)
-    public static let accumulator64F = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_64F)
-    public static let accumulator32I = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_32I)
+    public static let tensorOpMask = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_TENSOR_OP_MASK)
+    public static let opTypeMask = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_OP_TYPE_MASK)  
 
-    public static let accumulatorTypeMask = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_TYPE_MASK)
+    public static let accumulator16F = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_16F)
+    public static let accumulator32F = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_32F)
+    public static let accumulator64F = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_64F)
+    public static let accumulator32I = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_32I)
 
-    public static let input16F  = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_16F)
-    public static let input16BF = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_16BF)
-    public static let inputTF32 = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_TF32)
-    public static let input32F  = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_32F)
-    public static let input64F  = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_64F)
-    public static let input8I   = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_8I)
+    public static let accumulatorTypeMask = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_TYPE_MASK)
 
-    public static let inputTypeMask = MatmulNumericalImplementation(rawValue: CUBLASLT_NUMERICAL_IMPL_FLAGS_OP_INPUT_TYPE_MASK)
+    public static let input16F  = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_16F)
+    public static let input16BF = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_16BF)
+    public static let inputTF32 = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_TF32)
+    public static let input32F  = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_32F)
+    public static let input64F  = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_64F)
+    public static let input8I   = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_8I)
+
+    public static let inputTypeMask = MatmulNumericalOptions(CUBLASLT_NUMERICAL_IMPL_FLAGS_OP_INPUT_TYPE_MASK)
 
     public var description: String {
         var string = "["
 
-        if contains(.fma)  { string += ".fma, " }
-        if contains(.hmma) { string += ".hmma, " }
-        if contains(.imma) { string += ".imma, " }
-        if contains(.dmma) { string += ".dmma, " }
+        if rawValue == 0xFFFFFFFFFFFFFFFF {
+            string += ".all"
+        } else {
+            if contains(.fma)  { string += ".fma, " }
+            if contains(.hmma) { string += ".hmma, " }
+            if contains(.imma) { string += ".imma, " }
+            if contains(.dmma) { string += ".dmma, " }
 
-        if contains(.accumulator16F) { string += ".accumulator16F, " }
-        if contains(.accumulator32F) { string += ".accumulator32F, " }
-        if contains(.accumulator64F) { string += ".accumulator64F, " }
-        if contains(.accumulator32I) { string += ".accumulator32I, " }
+            if contains(.accumulator16F) { string += ".accumulator16F, " }
+            if contains(.accumulator32F) { string += ".accumulator32F, " }
+            if contains(.accumulator64F) { string += ".accumulator64F, " }
+            if contains(.accumulator32I) { string += ".accumulator32I, " }
 
-        if contains(.input16F)  { string += ".input16F, " }
-        if contains(.input16BF) { string += ".input16BF, " }
-        if contains(.inputTF32) { string += ".inputTF32, " }
-        if contains(.input32F)  { string += ".input32F, " }
-        if contains(.input64F)  { string += ".input64F, " }
-        if contains(.input8I)   { string += ".input8I, " }
+            if contains(.input16F)  { string += ".input16F, " }
+            if contains(.input16BF) { string += ".input16BF, " }
+            if contains(.inputTF32) { string += ".inputTF32, " }
+            if contains(.input32F)  { string += ".input32F, " }
+            if contains(.input64F)  { string += ".input64F, " }
+            if contains(.input8I)   { string += ".input8I, " }
 
-        // trim
-        if let index = string.lastIndex(of: ",") {
-            string = String(string[..<index])
+            // trim
+            if let index = string.lastIndex(of: ",") {
+                string = String(string[..<index])
+            }
         }
         return string + "]"            
     }
@@ -496,6 +499,10 @@ public enum MatmulReductionScheme: CaseIterable {
 }
 
 extension MatmulReductionScheme {
+    @inlinable public init(_ value: UInt32) {
+        self.init(unsafeBitCast(value, to:cublasLtReductionScheme_t.self))
+    }
+    
     @inlinable public init(_ type: cublasLtReductionScheme_t) {
         switch type {
         case CUBLASLT_REDUCTION_SCHEME_NONE: self = .none
@@ -536,14 +543,17 @@ public struct MatmulReductionSchemeOptions: OptionSet, CustomStringConvertible {
     public var description: String {
         var string = "["
 
-        if contains(.all)  { string += ".all, " }
-        if contains(.inPlace) { string += ".inPlace, " }
-        if contains(.accumulatorType) { string += ".accumulatorType, " }
-        if contains(.outputType) { string += ".outputType, " }
+        if contains(.all) {
+            string += ".all" 
+        } else {
+            if contains(.inPlace) { string += ".inPlace, " }
+            if contains(.accumulatorType) { string += ".accumulatorType, " }
+            if contains(.outputType) { string += ".outputType, " }
 
-        // trim
-        if let index = string.lastIndex(of: ",") {
-            string = String(string[..<index])
+            // trim
+            if let index = string.lastIndex(of: ",") {
+                string = String(string[..<index])
+            }
         }
         return string + "]"            
     }

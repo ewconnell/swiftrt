@@ -18,9 +18,9 @@ import CCuda
 
 //==============================================================================
 // MatrixLayout
-public final class MatrixLayout {
+public final class MatrixLayout: CustomStringConvertible {
     // properties
-    public let desc: cublasLtMatrixLayout_t
+    public var desc: cublasLtMatrixLayout_t
 
     //--------------------------------------------------------------------------
     // initializers
@@ -34,9 +34,11 @@ public final class MatrixLayout {
             UInt64(tensor.shape[0]),
             // number of cols
             UInt64(tensor.shape[1]),
-            // stride of dim 0
-            Int64(tensor.strides[0])))
+            // stride
+            Int64(tensor.leadingDimension)))
         desc = temp!
+        order = tensor.order
+        batchCount = 1
     }
 
     @inlinable deinit {
@@ -64,6 +66,21 @@ public final class MatrixLayout {
     }
 
     //--------------------------------------------------------------------------
+    @inlinable public var description: String {
+        """
+        MatrixLayout
+        type              : \(type)
+        order             : \(order)
+        rows              : \(rows)
+        cols              : \(cols)
+        leadingDimension  : \(leadingDimension)
+        batchCount        : \(batchCount)
+        batchStride       : \(batchStride)
+        complexPlaneOffset: \(complexPlaneOffset)
+        """
+    }
+
+    //--------------------------------------------------------------------------
     /// Specifies the data precision type
     @inlinable public var type: ScalarType {
         get {
@@ -78,7 +95,7 @@ public final class MatrixLayout {
     }
 
     //--------------------------------------------------------------------------
-    /// Specifies the data precision type
+    /// Specifies the data storage layout order
     @inlinable public var order: Order {
         get {
             var value = CUBLASLT_ORDER_ROW
@@ -96,13 +113,13 @@ public final class MatrixLayout {
     /// that can be expressed as Int32 are supported
     @inlinable public var rows: Int {
         get {
-            var value = 0
+            var value: UInt64 = 0
             getAttribute(CUBLASLT_MATRIX_LAYOUT_ROWS, &value)
-            return value
+            return Int(value)
         }
         set {
             assert(newValue > 0 && newValue <= Int32.max)
-            var value = newValue
+            var value = UInt64(newValue)
             setAttribute(CUBLASLT_MATRIX_LAYOUT_ROWS, &value)
         }
     }
@@ -112,13 +129,13 @@ public final class MatrixLayout {
     /// that can be expressed as Int32 are supported
     @inlinable public var cols: Int {
         get {
-            var value = 0
+            var value: UInt64 = 0
             getAttribute(CUBLASLT_MATRIX_LAYOUT_COLS, &value)
-            return value
+            return Int(value)
         }
         set {
             assert(newValue > 0 && newValue <= Int32.max)
-            var value = newValue
+            var value = UInt64(newValue)
             setAttribute(CUBLASLT_MATRIX_LAYOUT_COLS, &value)
         }
     }
@@ -131,12 +148,12 @@ public final class MatrixLayout {
     ///    overlapping (e.g., greater or equal to `rows` in case of `Order.col`
     @inlinable public var leadingDimension: Int {
         get {
-            var value = 0
+            var value: Int64 = 0
             getAttribute(CUBLASLT_MATRIX_LAYOUT_LD, &value)
-            return value
+            return Int(value)
         }
         set {
-            var value = newValue
+            var value = Int64(newValue)
             setAttribute(CUBLASLT_MATRIX_LAYOUT_LD, &value)
         }
     }
@@ -145,13 +162,13 @@ public final class MatrixLayout {
     /// Number of matmul operations to perform in the batch. Default value is 1
     @inlinable public var batchCount: Int {
         get {
-            var value = 0
+            var value: Int32 = 0
             getAttribute(CUBLASLT_MATRIX_LAYOUT_BATCH_COUNT, &value)
-            return value
+            return Int(value)
         }
         set {
             assert(newValue > 0 && newValue <= Int32.max)
-            var value = newValue
+            var value = Int32(newValue)
             setAttribute(CUBLASLT_MATRIX_LAYOUT_BATCH_COUNT, &value)
         }
     }
@@ -161,12 +178,12 @@ public final class MatrixLayout {
     /// operation. Default value is 0.
     @inlinable public var batchStride: Int {
         get {
-            var value = 0
+            var value: Int64 = 0
             getAttribute(CUBLASLT_MATRIX_LAYOUT_STRIDED_BATCH_OFFSET, &value)
-            return value
+            return Int(value)
         }
         set {
-            var value = newValue
+            var value = Int64(newValue)
             setAttribute(CUBLASLT_MATRIX_LAYOUT_STRIDED_BATCH_OFFSET, &value)
         }
     }
@@ -198,8 +215,8 @@ extension Order {
         case CUBLASLT_ORDER_COL: self = .col
         case CUBLASLT_ORDER_ROW: self = .row
         case CUBLASLT_ORDER_COL32: self = .colTiled32
-        case CUBLASLT_ORDER_COL4_4R2_8C: self = .colTiledTC1
-        case CUBLASLT_ORDER_COL32_2R_4R4: self = .colTiledTC2
+        case CUBLASLT_ORDER_COL4_4R2_8C: self = .colTiledTC32x8
+        case CUBLASLT_ORDER_COL32_2R_4R4: self = .colTiledTC32x32
         default: fatalError("unrecognized type")
         }
     }
@@ -209,8 +226,8 @@ extension Order {
             .col: CUBLASLT_ORDER_COL,
             .row: CUBLASLT_ORDER_ROW,
             .colTiled32: CUBLASLT_ORDER_COL32,
-            .colTiledTC1: CUBLASLT_ORDER_COL4_4R2_8C,
-            .colTiledTC2: CUBLASLT_ORDER_COL32_2R_4R4,
+            .colTiledTC32x8: CUBLASLT_ORDER_COL4_4R2_8C,
+            .colTiledTC32x32: CUBLASLT_ORDER_COL32_2R_4R4,
         ]        
         return types[self]!
     }

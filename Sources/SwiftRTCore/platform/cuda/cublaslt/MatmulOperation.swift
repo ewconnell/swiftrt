@@ -327,14 +327,18 @@ public struct MatmulPointerModeOptions: OptionSet, CustomStringConvertible {
     public var description: String {
         var string = "["
 
-        if contains(.host) { string += ".host, " }
-        if contains(.device) { string += ".device, " }
-        if contains(.deviceVector) { string += ".deviceVector, " }
-        if contains(.alphaDeviceVectorBetaZero) { string += ".alphaDeviceVectorBetaZero, " }
+        if contains(.all) {
+            string += ".all"
+        } else {
+            if contains(.host) { string += ".host, " }
+            if contains(.device) { string += ".device, " }
+            if contains(.deviceVector) { string += ".deviceVector, " }
+            if contains(.alphaDeviceVectorBetaZero) { string += ".alphaDeviceVectorBetaZero, " }
 
-        // trim
-        if let index = string.lastIndex(of: ",") {
-            string = String(string[..<index])
+            // trim
+            if let index = string.lastIndex(of: ",") {
+                string = String(string[..<index])
+            }
         }
         return string + "]"            
     }
@@ -406,5 +410,36 @@ extension MatmulEpilogue {
             .biasRelu: CUBLASLT_EPILOGUE_RELU_BIAS,
         ]        
         return types[self]!
+    }
+}
+
+//==============================================================================
+/// MatmulEpilogueOptions
+///
+/// An option set used to specify algorithm search preferences
+public struct MatmulEpilogueOptions: OptionSet, CustomStringConvertible {
+    public init(rawValue: UInt32) { self.rawValue = rawValue }
+    public init(_ value: cublasLtEpilogue_t) {
+        self.rawValue = value.rawValue
+    }
+    public let rawValue: UInt32
+
+    public static let none = MatmulEpilogueOptions(CUBLASLT_EPILOGUE_DEFAULT)
+    public static let relu = MatmulEpilogueOptions(CUBLASLT_EPILOGUE_RELU)
+    public static let bias = MatmulEpilogueOptions(CUBLASLT_EPILOGUE_BIAS)
+    public static let biasRelu = MatmulEpilogueOptions(CUBLASLT_EPILOGUE_RELU_BIAS)
+
+    public var description: String {
+        var string = "["
+
+        if contains(.none)  { string += ".none, " }
+        if contains(.bias) { string += ".bias, " }
+        if contains(.relu) { string += ".relu, " }
+
+        // trim
+        if let index = string.lastIndex(of: ",") {
+            string = String(string[..<index])
+        }
+        return string + "]"            
     }
 }

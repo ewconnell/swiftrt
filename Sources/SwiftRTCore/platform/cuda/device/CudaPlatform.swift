@@ -124,7 +124,6 @@ public class CudaPlatform: Platform {
     if status != CUBLAS_STATUS_SUCCESS {
         let location = "CUBLAS error in \(file) at \(function):\(line)"
         let message = String(utf8String: cublasGetErrorString(status))!
-            + "code=(\(status))"
         cudaDeviceReset()
         Context.currentQueue.writeLog("\(message) at \(location)")
         fatalError("unrecoverable error")
@@ -187,6 +186,22 @@ extension curandStatus_t : Hashable {}
         CURAND_STATUS_INTERNAL_ERROR: "CURAND_STATUS_INTERNAL_ERROR",
     ]
     return messages[status] ?? "Unknown curandStatus_t value: \(status)"
+}
+
+//==============================================================================
+// leading dimension for matmul
+public extension Tensor {
+    @inlinable var leadingDimension: Int {
+        assert(Shape.rank == 2 || Shape.rank == 3, "must be rank 2 or 3")
+        let i = Shape.rank == 2 ? 0 : 1
+        let n = shape[i + 1]
+        switch order {
+        case .col, .row: return strides[i]
+        case .colTiled32: return 32 * shape[i]
+        case .colTiledTC32x8: return 32 * n.roundUp(toMultipleOf: 8)
+        case .colTiledTC32x32: return 32 * n.roundUp(toMultipleOf: 32)
+        }
+    }
 }
 
 //==============================================================================

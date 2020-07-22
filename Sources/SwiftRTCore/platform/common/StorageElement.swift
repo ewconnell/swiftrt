@@ -640,10 +640,10 @@ where Shape: TensorShape, TensorElement: StorageElement
             case .colTiled32:
                 fatalError("not implemented yet")
                 
-            case .colTiledTC1:
+            case .colTiledTC32x8:
                 fatalError("not implemented yet")
                 
-            case .colTiledTC2:
+            case .colTiledTC32x32:
                 fatalError("not implemented yet")
             }
         }
@@ -661,10 +661,10 @@ where Shape: TensorShape, TensorElement: StorageElement
             case .colTiled32:
                 fatalError("not implemented yet")
                 
-            case .colTiledTC1:
+            case .colTiledTC32x8:
                 fatalError("not implemented yet")
                 
-            case .colTiledTC2:
+            case .colTiledTC32x32:
                 fatalError("not implemented yet")
             }
         }

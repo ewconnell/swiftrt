@@ -40,3 +40,9 @@ where Element: Differentiable {
     @inlinable
     public init() { self.init(.init()) }
 }
+
+extension FixedWidthInteger {
+    @inlinable public func roundUp(toMultipleOf value: Self) -> Self {
+        return (self + value - 1) / value * value
+    }
+}

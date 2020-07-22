@@ -19,11 +19,19 @@ import CCuda
 //==============================================================================
 /// MatmulAlgorithmHeuristicResult
 /// This can throw if the parameter combination is not supported
-public struct MatmulAlgorithmHeuristicResult 
+public struct MatmulAlgorithmHeuristicResult: CustomStringConvertible
 {
     public let heuristicResult: cublasLtMatmulHeuristicResult_t
 
-    // initializers
+    /// init
+    /// this initializer is used to clear storage to receive values
+    /// from heuristic algorithm query
+    @inlinable public init() {
+        heuristicResult = cublasLtMatmulHeuristicResult_t()
+    }
+
+    /// init
+    /// used to set result values during algorithm search
     @inlinable public init(
         operation: MatmulOperation,
         layoutA: MatrixLayout,
@@ -44,6 +52,16 @@ public struct MatmulAlgorithmHeuristicResult
             &algorithm.desc, 
             &temp))
         heuristicResult = temp
+    }
+
+    @inlinable public var description: String {
+        """
+        MatmulAlgorithmHeuristicResult
+        algorithm    : \(algorithm)
+        workspaceSize: \(workspaceSize)
+        isValid      : \(isValid)
+        waves        : \(waves)
+        """
     }
 
     @inlinable public var algorithm: MatmulAlgorithm {

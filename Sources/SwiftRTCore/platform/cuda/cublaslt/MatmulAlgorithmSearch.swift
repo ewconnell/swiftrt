@@ -32,8 +32,8 @@ extension MatmulAlgorithm {
     ///
     /// where A, B, and C are input matrices, and alpha and beta are
     /// input scalars.
-    /// Note: matmul currently only supports the case where C == D 
-    /// and Cdesc == Ddesc, so C is dropped from the api for now.
+    /// Note: matmul currently only supports the case where C == D,
+    /// so C is dropped from the api for now.
     ///
     /// Parameters:
     ///  - a: left hand tensor
@@ -53,9 +53,9 @@ extension MatmulAlgorithm {
         _ d: inout TensorR2<DE>,
         accumulatorType: MatmulAccumulatorType,
         scaleType: ScalarType,
-        preferences: MatmulPreferences = MatmulPreferences(),
+        preferences: MatmulPreferences,
         maxResultCount: Int = 20,
-        using queue: PlatformType.Device.Queue = Context.currentQueue
+        using queue: PlatformType.Device.Queue
     )  -> MatmulProperties 
     where AE: ScalarElement, BE: ScalarElement, DE: ScalarElement
     {
@@ -68,10 +68,17 @@ extension MatmulAlgorithm {
         let layoutA = MatrixLayout(a)
         let layoutB = MatrixLayout(b)
         let layoutD = MatrixLayout(d)
+        print(layoutA)
+        print(layoutB)
+        print(layoutD)
 
+        // do the query
         var returnAlgoCount: Int32 = 0
-        var results = [cublasLtMatmulHeuristicResult_t](
-            repeating: cublasLtMatmulHeuristicResult_t(), count: maxResultCount)
+        var results = [MatmulAlgorithmHeuristicResult](
+            repeating: MatmulAlgorithmHeuristicResult(), count: maxResultCount)
+        let pResults = results.withUnsafeMutableBytes {
+            $0.bindMemory(to: cublasLtMatmulHeuristicResult_t.self).baseAddress!
+        }
 
         cudaCheck(cublasLtMatmulAlgoGetHeuristic(
             queue.cublas.handle,
@@ -82,8 +89,10 @@ extension MatmulAlgorithm {
             layoutD.desc,
             preferences.desc,
             Int32(maxResultCount),
-            &results,
+            pResults,
             &returnAlgoCount))
+        results = Array(results[..<Int(returnAlgoCount)])
+        print(results)
 
         return MatmulProperties()
     }
@@ -97,8 +106,8 @@ extension MatmulAlgorithm {
     ///
     /// where A, B, and C are input matrices, and alpha and beta are
     /// input scalars.
-    /// Note: matmul currently only supports the case where C == D 
-    /// and Cdesc == Ddesc, so C is dropped from the api for now.
+    /// Note: matmul currently only supports the case where C == D, 
+    /// so C is dropped from the api for now.
     ///
     /// Parameters:
     ///  - a: left hand tensor

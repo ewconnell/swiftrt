@@ -43,7 +43,19 @@ public final class MatmulPreferences: CustomStringConvertible
 
     //--------------------------------------------------------------------------
     @inlinable public var description: String {
-        ""
+        """
+        searchMode        : \(searchMode)
+        maxWorkspaceSize  : \(maxWorkspaceSize)
+        reductionSchemes  : \(reductionSchemes)
+        minAlignmentA     : \(minAlignmentA)
+        minAlignmentB     : \(minAlignmentB)
+        minAlignmentC     : \(minAlignmentC)
+        minAlignmentD     : \(minAlignmentD)
+        maxWaves          : \(maxWaves)
+        pointerModeOptions: \(pointerModeOptions)
+        epilogueOptions   : \(epilogueOptions)
+        numericalOptions  : \(numericalOptions)
+        """
     }
 
     //--------------------------------------------------------------------------
@@ -195,16 +207,16 @@ public final class MatmulPreferences: CustomStringConvertible
     }
 
     //--------------------------------------------------------------------------
-    /// The reduction schemes allowed. Default is `.all`
-    @inlinable public var pointerModeOptions: MatmulReductionSchemeOptions {
+    /// The pointer modes allowed. Default is `[.host, .device]`
+    @inlinable public var pointerModeOptions: MatmulPointerModeOptions {
         get {
             var value: UInt32 = 0
-            getAttribute(CUBLASLT_MATMUL_PREF_REDUCTION_SCHEME_MASK, &value)
-            return MatmulReductionSchemeOptions(rawValue: value)
+            getAttribute(CUBLASLT_MATMUL_PREF_POINTER_MODE_MASK, &value)
+            return MatmulPointerModeOptions(rawValue: value)
         }
         set {
             var value = newValue.rawValue
-            setAttribute(CUBLASLT_MATMUL_PREF_REDUCTION_SCHEME_MASK, &value)
+            setAttribute(CUBLASLT_MATMUL_PREF_POINTER_MODE_MASK, &value)
         }
     }
 
@@ -224,7 +236,7 @@ public final class MatmulPreferences: CustomStringConvertible
     }
 
     //--------------------------------------------------------------------------
-    /// Numerical implementation options. See `MatmulNumericalImplementation`
+    /// Numerical implementation options. See `MatmulNumericalOptions`
     /// Filters heuristic result to only include algorithms that use the 
     /// allowed implementations. Default is `.all`
     @inlinable public var numericalOptions: MatmulNumericalOptions {
