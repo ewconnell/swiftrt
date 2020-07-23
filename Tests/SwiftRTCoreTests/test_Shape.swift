@@ -163,6 +163,7 @@ class test_Shape: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_reshapeOrderRowCol() {
+        
         Context.log.level = .diagnostic
         let a = array([[0, 1, 2], [3, 4, 5]])
         XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])

@@ -4,7 +4,7 @@
 //
 #include "include/CudaKernels.h"
 #include <string.h>
-
+ 
 //------------------------------------------------------------------------------
 // cudaInitCudaShape
 void cudaInitCudaShape(cudaShape_t *shape,

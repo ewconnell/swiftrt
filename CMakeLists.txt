@@ -25,8 +25,7 @@ set(CUDA_KERNELS_LIB_NAME CudaKernels)
 set(CUDA_KERNELS_DIR ${MODULES_DIR}/${CUDA_KERNELS_LIB_NAME})
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
         -Wno-deprecated-gpu-targets
-        #        -gencode arch=compute_52,code=sm_52
-        -gencode arch=compute_61,code=sm_61
+        -gencode arch=compute_75,code=sm_75
         --compiler-options -fPIC)
 
 if (${TARGET_DIR} MATCHES "debug")
