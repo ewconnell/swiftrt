@@ -16,9 +16,6 @@
 #if !defined(__elementOps_h__)
 #define __elementOps_h__
 
-#include <cuda_fp16.h>
-#include <cuda_bf16.h>
-#include <cuda_runtime.h>
 #include <driver_types.h>
 #include <library_types.h>
 

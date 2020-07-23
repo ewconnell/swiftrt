@@ -13,10 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include "elementOps.h"
-#include "kernelHelpers.h"
 #include <stdio.h>
 #include <assert.h>
+#include <cuda_fp16.h>
+#include <cuda_bf16.h>
+
+#include "elementOps.h"
+#include "kernelHelpers.h"
 
 //------------------------------------------------------------------------------
 // add
