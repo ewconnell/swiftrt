@@ -3,6 +3,8 @@
 //  Copyright (c) 2016 Connell Research. All rights reserved.
 //
 #include "include/CudaKernels.h"
+#include "include/kernelHelpers.h"
+
 #include <curand_kernel.h>
 
 #ifdef __JETBRAINS_IDE__
@@ -33,7 +35,7 @@ extern struct __cuda_fake_struct blockIdx;
 __global__ void initRandom_kernel(curandState *states,
 								  unsigned long long seed, size_t count)
 {
-	CUDA_KERNEL_LOOP(i, count) {
+	KERNEL_LOOP(i, count) {
 		curand_init(seed, i, 0, &states[i]);
 	}
 }
@@ -49,7 +51,7 @@ cudaError_t cudaCreateRandomGeneratorState(void** generatorState,
 	cudaError_t status = cudaMalloc(generatorState, count * sizeof(curandState_t));
 	if(status != cudaSuccess) return status;
 
-	initRandom_kernel<<<CUDA_NUM_BLOCKS(count), CUDA_NUM_THREADS, 0, stream>>>
+	initRandom_kernel<<<BLOCK_COUNT(count), THREADS_PER_BLOCK, 0, stream>>>
 			((curandState *)*generatorState, seed, count);
 
 	return CudaKernelPostCheck(stream);
@@ -60,7 +62,7 @@ cudaError_t cudaCreateRandomGeneratorState(void** generatorState,
 __global__ void fillUniform_kernel(curandState *state,
 								   const cudaShape_t shape, float* data)
 {
-	CUDA_KERNEL_LOOP(i, shape.elementCount) {
+	KERNEL_LOOP(i, shape.elementCount) {
 		data[i] = curand_uniform(&state[i]);
 	}
 }
@@ -68,7 +70,7 @@ __global__ void fillUniform_kernel(curandState *state,
 __global__ void fillUniform_kernel(curandState *state,
 								   const cudaShape_t shape, double* data)
 {
-	CUDA_KERNEL_LOOP(i, shape.elementCount) {
+	KERNEL_LOOP(i, shape.elementCount) {
 		data[i] = curand_uniform_double(&state[i]);
 	}
 }
@@ -81,8 +83,8 @@ cudaError_t cudaFillUniform(const cudaShape_t shape, void *data,
 	CudaKernelPreCheck(stream);
 
 	// require flat
-	unsigned numBlocks  = CUDA_NUM_BLOCKS(shape.elementCount);
-	unsigned numThreads = CUDA_NUM_THREADS;
+	unsigned numBlocks  = BLOCK_COUNT(shape.elementCount);
+	unsigned numThreads = THREADS_PER_BLOCK;
 
 	switch(shape.dataType) {
 		case CUDA_R_32F:
@@ -108,7 +110,7 @@ cudaError_t cudaFillUniform(const cudaShape_t shape, void *data,
 __global__ void fillGaussian_kernel(curandState *state, float mean, float std,
 									const cudaShape_t shape, float* data)
 {
-	CUDA_KERNEL_LOOP(i, shape.elementCount) {
+	KERNEL_LOOP(i, shape.elementCount) {
 		data[i] = mean + std * curand_normal(&state[i]);
 	}
 }
@@ -116,7 +118,7 @@ __global__ void fillGaussian_kernel(curandState *state, float mean, float std,
 __global__ void fillGaussian_kernel(curandState *state, double mean, double std,
 									const cudaShape_t shape, double* data)
 {
-	CUDA_KERNEL_LOOP(i, shape.elementCount) {
+	KERNEL_LOOP(i, shape.elementCount) {
 		data[i] = mean + std * curand_normal_double(&state[i]);
 	}
 }
@@ -130,8 +132,8 @@ cudaError_t cudaFillGaussian(const cudaShape_t shape, void *data,
 	CudaKernelPreCheck(stream);
 
 	// require flat
-	unsigned numBlocks  = CUDA_NUM_BLOCKS(shape.elementCount);
-	unsigned numThreads = CUDA_NUM_THREADS;
+	unsigned numBlocks  = BLOCK_COUNT(shape.elementCount);
+	unsigned numThreads = THREADS_PER_BLOCK;
 
 	switch(shape.dataType) {
 		case CUDA_R_32F:
@@ -154,21 +156,21 @@ cudaError_t cudaFillGaussian(const cudaShape_t shape, void *data,
 // cudaFillXavier
 __global__ void fillXavier_kernel(curandState *state, float range,
 								  const cudaShape_t shape, half* data) {
-	CUDA_KERNEL_LOOP(i, shape.elementCount) {
+	KERNEL_LOOP(i, shape.elementCount) {
 		data[i] = __float2half((curand_uniform(&state[i]) - 0.5f) * range);
 	}
 }
 
 __global__ void fillXavier_kernel(curandState *state, float range,
 								  const cudaShape_t shape, float* data) {
-	CUDA_KERNEL_LOOP(i, shape.elementCount) {
+	KERNEL_LOOP(i, shape.elementCount) {
 		data[i] = (curand_uniform(&state[i]) - 0.5f) * range;
 	}
 }
 
 __global__ void fillXavier_kernel(curandState *state, double range,
 								  const cudaShape_t shape, double* data) {
-	CUDA_KERNEL_LOOP(i, shape.elementCount) {
+	KERNEL_LOOP(i, shape.elementCount) {
 		data[i] = (curand_uniform_double(&state[i]) - 0.5) * range;
 	}
 }
@@ -180,8 +182,8 @@ cudaError_t cudaFillXavier(const cudaShape_t shape, void *data,
 {
 	assert(generatorState != NULL && data != NULL);
 	// require flat for now
-	unsigned numBlocks  = CUDA_NUM_BLOCKS(shape.elementCount);
-	unsigned numThreads = CUDA_NUM_THREADS;
+	unsigned numBlocks  = BLOCK_COUNT(shape.elementCount);
+	unsigned numThreads = THREADS_PER_BLOCK;
 
 	double range = sqrt(3.0 / varianceNorm) * 2;
 

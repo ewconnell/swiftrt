@@ -3,6 +3,7 @@
 //  Copyright (c) 2016 Connell Research. All rights reserved.
 //
 #include "include/CudaKernels.h"
+#include "include/kernelHelpers.h"
 
 #ifdef __JETBRAINS_IDE__
 #include "../../../../../../usr/local/cuda/include/driver_types.h"
@@ -36,7 +37,7 @@ __global__ void cudaCompareEqual_kernel1(
 	const T* bData, unsigned bStride,
 	U* resultData,  unsigned rStride)
 {
-	CUDA_KERNEL_LOOP(i, elementCount) {
+	KERNEL_LOOP(i, elementCount) {
 		resultData[i * rStride] = aData[i * aStride] == bData[i * bStride] ? (U)1 : (U)0;
 	}
 }
@@ -54,8 +55,8 @@ cudaError_t cudaCompareEqual(
 // validate
 	CudaKernelPreCheck(stream);
 
-	unsigned numBlocks = CUDA_NUM_BLOCKS(elementCount);
-	unsigned numThreads = CUDA_NUM_THREADS;
+	unsigned numBlocks = BLOCK_COUNT(elementCount);
+	unsigned numThreads = THREADS_PER_BLOCK;
 	switch(abDataType) {
 		case CUDA_R_32I:
 			switch(resultDataType) {

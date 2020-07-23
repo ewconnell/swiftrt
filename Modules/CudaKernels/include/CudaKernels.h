@@ -13,8 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef CudaKernels_h
-#define CudaKernels_h
+#pragma once 
+
+#include "elementOps.h"
 
 #include <driver_types.h>
 #include <cuda_fp16.h>
@@ -30,24 +31,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-//==============================================================================
-// Cuda helpers
-
-#define CUDA_KERNEL_INDEX (blockIdx.x * blockDim.x + threadIdx.x)
-
-#define CUDA_KERNEL_LOOP(i, n) \
-  for (unsigned i = CUDA_KERNEL_INDEX; \
-       i < (n); \
-       i += blockDim.x * gridDim.x)
-
-// use 512 threads per block
-const unsigned CUDA_NUM_THREADS = 1024;
-
-// number of blocks for threads.
-inline unsigned CUDA_NUM_BLOCKS(unsigned N) {
-	return (N + CUDA_NUM_THREADS - 1) / CUDA_NUM_THREADS;
-}
 
 //==============================================================================
 // launch error detection
@@ -177,5 +160,3 @@ cudaError_t cudaFillXavier(const cudaShape_t shape, void *data,
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* CudaKernels_h */
