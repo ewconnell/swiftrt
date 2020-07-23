@@ -479,7 +479,8 @@ public extension Tensor {
             // performs an indexed copy which reorders the elements
             Context.currentQueue.diagnostic(
                 "\(reorderString) copying \(other.diagnosticName) --> " +
-                "\(source.diagnosticName) \(Element.self)[\(source.count)]",
+                "\(source.diagnosticName) \(Element.self)[\(source.count)]" +
+                " on \(Context.currentQueue.name)",
                 categories: [.dataCopy, .dataReorder])
             
             copy(from: other, to: &source)
