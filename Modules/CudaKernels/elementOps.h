@@ -13,15 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#pragma once
+#if !defined(__elementOps_h__)
+#define __elementOps_h__
 
-#include <assert.h>
 #include <cuda_fp16.h>
 #include <cuda_bf16.h>
 #include <cuda_runtime.h>
 #include <driver_types.h>
 #include <library_types.h>
-#include <stdio.h>
 
 // make visible to Swift as C API
 #ifdef __cplusplus
@@ -35,10 +34,15 @@ cudaError_t srtAdd(
     const void *a,
     const void *b,
     void *c,
-    size_t count,
+    unsigned count,
     cudaStream_t stream
 );
 
+
+
+//==============================================================================
 #ifdef __cplusplus
 }
 #endif
+
+#endif // __elementOps_h__

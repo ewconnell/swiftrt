@@ -38,8 +38,20 @@ if buildCuda {
     coreDependencies.append("CCuda")
     testDependencies.append("CCuda")
     
-    targets.append(
-        .systemLibrary(name: "CCuda", path: "Modules/Cuda", pkgConfig: "cuda"))
+    targets.append(.systemLibrary(
+            name: "CCuda",
+            path: "Modules/Cuda",
+            pkgConfig: "cuda"))
+
+    //---------------------------------------
+    // add custom CudaKernels module
+    products.append(.library(name: "CudaKernels", targets: ["CudaKernels"]))
+    coreDependencies.append("CudaKernels")
+    testDependencies.append("CudaKernels")
+
+    targets.append(.systemLibrary(
+            name: "CudaKernels",
+            path: "Modules/CudaKernels"))
 } else {
     exclusions.append("platform/cuda")
 }

@@ -13,7 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#pragma once
+#if !defined(__kernelHelpers_h__)
+#define __kernelHelpers_h__
+
+#include <driver_types.h>
 
 //==============================================================================
 // kernel helpers
@@ -48,3 +51,5 @@ inline cudaError_t KernelPostCheck(cudaStream_t stream)
     return cudaSuccess;
 #endif
 }
+
+#endif // __kernelHelpers_h__

@@ -65,8 +65,8 @@ set(SWIFT_CONFIG_FLAGS
         # -Xswiftc -j12
         -Xswiftc -I/usr/local/include
         -Xswiftc -L/usr/local/lib
-        -Xswiftc -I${MODULES_DIR}/CudaKernels/include
-        -Xswiftc -I${MODULES_DIR}/Cuda/include
+        -Xswiftc -I${MODULES_DIR}/CudaKernels
+        -Xswiftc -I${MODULES_DIR}/Cuda
         -Xswiftc -I${MODULES_DIR}
         -Xswiftc -L${TARGET_DIR}
         -Xlinker -l${CUDA_KERNELS_LIB_NAME}

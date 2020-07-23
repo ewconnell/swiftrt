@@ -13,24 +13,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include "include/elementOps.h"
-#include "include/kernelHelpers.h"
+#include "elementOps.h"
+#include "kernelHelpers.h"
+#include <stdio.h>
+#include <assert.h>
 
 //------------------------------------------------------------------------------
-// device kernel
+// add
 template<typename T>
-__global__ void srtAdd_kernel(
-    const void *va,
-    const void *vb,
-    void *vc,
-    unsigned count
-) {
-    const T* a = (T*)va;
-    const T* b = (T*)vb;
-    T* c = (T*)vc;
-    KERNEL_LOOP(i, count) {
-        c[i] = a[i] + b[i];
-    }
+__global__ void add(const void *va, const void *vb, void *vc, unsigned count) {
+    const T* a = (T*)va; const T* b = (T*)vb; T* c = (T*)vc;
+    KERNEL_LOOP(i, count) { c[i] = a[i] + b[i]; }
+}
+
+// sub
+template<typename T>
+__global__ void sub(const void *va, const void *vb, void *vc, unsigned count) {
+    const T* a = (T*)va; const T* b = (T*)vb; T* c = (T*)vc;
+    KERNEL_LOOP(i, count) { c[i] = a[i] - b[i]; }
+}
+
+// mul
+template<typename T>
+__global__ void mul(const void *va, const void *vb, void *vc, unsigned count) {
+    const T* a = (T*)va; const T* b = (T*)vb; T* c = (T*)vc;
+    KERNEL_LOOP(i, count) { c[i] = a[i] * b[i]; }
+}
+
+// div
+template<typename T>
+__global__ void div(const void *va, const void *vb, void *vc, unsigned count) {
+    const T* a = (T*)va; const T* b = (T*)vb; T* c = (T*)vc;
+    KERNEL_LOOP(i, count) { c[i] = a[i] / b[i]; }
 }
 
 //------------------------------------------------------------------------------
@@ -40,21 +54,21 @@ cudaError_t srtAdd(
     const void *a,
     const void *b,
     void *c,
-    size_t count,
+    unsigned count,
     cudaStream_t stream
 ) {
     KernelPreCheck(stream);
     unsigned blocks = BLOCK_COUNT(count);
     unsigned threads = THREADS_PER_BLOCK;
     switch(type) {
-        case CUDA_R_8I: srtAdd_kernel<char> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_8U: srtAdd_kernel<unsigned char> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_16I: srtAdd_kernel<short> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_16U: srtAdd_kernel<unsigned short> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_16F: srtAdd_kernel<__half> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_16BF: srtAdd_kernel<__nv_bfloat16> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_32F: srtAdd_kernel<float> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_64F: srtAdd_kernel<double> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
+        case CUDA_R_8I: add<char> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
+        case CUDA_R_8U: add<unsigned char> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
+        case CUDA_R_16I: add<short> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
+        case CUDA_R_16U: add<unsigned short> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
+        case CUDA_R_16F: add<__half> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
+        case CUDA_R_16BF: add<__nv_bfloat16> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
+        case CUDA_R_32F: add<float> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
+        case CUDA_R_64F: add<double> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
         default: printf("cudaDataType_t not implemented"); assert(false);
     }
     return KernelPostCheck(stream);
