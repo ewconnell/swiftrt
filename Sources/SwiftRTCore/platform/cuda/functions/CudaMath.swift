@@ -26,14 +26,16 @@ extension CudaQueue {
     ) where S: TensorShape, E.Value: AdditiveArithmetic {
         guard useGpu else { cpu_add(lhs, rhs, &result); return }
 
-       cudaCheck(srtAdd(
-           CUDA_R_32F,
-           lhs.deviceRead(using: self),
-           rhs.deviceRead(using: self),
-           result.deviceReadWrite(using: self),
-           UInt32(lhs.count),
-           stream
-       ))
+        print(cudaTest())
+
+//       cudaCheck(srtAdd(
+//           CUDA_R_32F,
+//           lhs.deviceRead(using: self),
+//           rhs.deviceRead(using: self),
+//           result.deviceReadWrite(using: self),
+//           UInt32(lhs.count),
+//           stream
+//       ))
     }
 
     //--------------------------------------------------------------------------

@@ -13,27 +13,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#if !defined(__elementOps_h__)
-#define __elementOps_h__
+#ifndef elementOps_h
+#define elementOps_h
 
-#include <driver_types.h>
-#include <library_types.h>
+//#include <cuda_runtime.h>
+
 
 // make visible to Swift as C API
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+int cudaTest();
+
 //==============================================================================
 //
-cudaError_t srtAdd(
-    cudaDataType_t type,
-    const void *a,
-    const void *b,
-    void *c,
-    unsigned count,
-    cudaStream_t stream
-);
+//cudaError_t srtAdd(
+//    cudaDataType_t type,
+//    const void *a,
+//    const void *b,
+//    void *c,
+//    unsigned count,
+//    cudaStream_t stream
+//);
 
 
 
@@ -42,4 +44,4 @@ cudaError_t srtAdd(
 }
 #endif
 
-#endif // __elementOps_h__
+#endif // elementOps_h

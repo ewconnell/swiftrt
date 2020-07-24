@@ -35,14 +35,15 @@ endif()
 file(GLOB_RECURSE CUDA_KERNELS_SOURCES
         ${CUDA_KERNELS_DIR}/*.cu
         ${CUDA_KERNELS_DIR}/*.c
+        ${CUDA_KERNELS_DIR}/*.cpp
         ${CUDA_KERNELS_DIR}/*.h)
 
 cuda_add_library(${CUDA_KERNELS_LIB_NAME} ${CUDA_KERNELS_SOURCES})
 
-set_target_properties(${CUDA_KERNELS_LIB_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${TARGET_DIR})
-
-add_custom_command(TARGET ${CUDA_KERNELS_LIB_NAME} PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${TARGET_DIR})
+#set_target_properties(${CUDA_KERNELS_LIB_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${TARGET_DIR})
+#
+#add_custom_command(TARGET ${CUDA_KERNELS_LIB_NAME} PRE_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E make_directory ${TARGET_DIR})
 
 #####################
 # swift
@@ -68,6 +69,7 @@ set(SWIFT_CONFIG_FLAGS
         -Xswiftc -I${MODULES_DIR}/CudaKernels
         -Xswiftc -I${MODULES_DIR}/Cuda
         -Xswiftc -I${MODULES_DIR}
+        -Xswiftc -L${CMAKE_BINARY_DIR}
         -Xswiftc -L${TARGET_DIR}
         -Xlinker -l${CUDA_KERNELS_LIB_NAME}
         -Xswiftc -I${CUDA_INCLUDE_DIRS}
@@ -97,6 +99,6 @@ file(GLOB_RECURSE SWIFTRT_TEST_SOURCES
 
 add_custom_target(${SWIFTRT_TESTS_NAME}
         COMMAND ${SWIFT} build --build-tests ${SWIFTRT_FLAGS}
-        SOURCES ${SWIFTRT_TEST_SOURCES})
+        SOURCES ${SWIFTRT_TEST_SOURCES} ${MODULES_HEADERS})
 
 add_dependencies(${SWIFTRT_TESTS_NAME} ${SWIFTRT_NAME} ${CUDA_KERNELS_LIB_NAME})
