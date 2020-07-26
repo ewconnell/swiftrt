@@ -14,9 +14,8 @@
 // limitations under the License.
 //
 import Foundation
-import CCuda
+import SwiftRTCuda
 import Numerics
-//import CudaKernels
 
 //==============================================================================
 /// CudaQueue

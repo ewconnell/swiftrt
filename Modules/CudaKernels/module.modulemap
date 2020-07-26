@@ -1,5 +1,0 @@
-module CudaKernels [system] {
-  header "CudaKernels.h"
-  link "CudaKernels"
-  export *
-}

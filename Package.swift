@@ -33,25 +33,17 @@ var exclusions: [String] = ["*.gyb"]
 // Cuda platform module
 if buildCuda {
     //---------------------------------------
-    // add Cuda system module
-    products.append(.library(name: "CCuda", targets: ["CCuda"]))
-    coreDependencies.append("CCuda")
-    testDependencies.append("CCuda")
-    
+    // add cuda modules
+    // they are currently combined into a single module to work around
+    // multi-module symbol conflicts
+    products.append(.library(name: "SwiftRTCuda", targets: ["SwiftRTCuda"]))
+    coreDependencies.append("SwiftRTCuda")
+    testDependencies.append("SwiftRTCuda")
+
     targets.append(.systemLibrary(
-            name: "CCuda",
-            path: "Modules/Cuda",
+            name: "SwiftRTCuda",
+            path: "Modules/SwiftRTCuda",
             pkgConfig: "cuda"))
-
-    //---------------------------------------
-    // add custom CudaKernels module
-    products.append(.library(name: "CudaKernels", targets: ["CudaKernels"]))
-    coreDependencies.append("CudaKernels")
-    testDependencies.append("CudaKernels")
-
-    targets.append(.systemLibrary(
-            name: "CudaKernels",
-            path: "Modules/CudaKernels"))
 } else {
     exclusions.append("platform/cuda")
 }

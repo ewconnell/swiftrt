@@ -13,35 +13,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef elementOps_h
-#define elementOps_h
+#if !defined(__kernelHelpers_h__)
+#define __kernelHelpers_h__
 
-//#include <cuda_runtime.h>
-
-
-// make visible to Swift as C API
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-int cudaTest();
+#include <driver_types.h>
 
 //==============================================================================
-//
-//cudaError_t srtAdd(
-//    cudaDataType_t type,
-//    const void *a,
-//    const void *b,
-//    void *c,
-//    unsigned count,
-//    cudaStream_t stream
-//);
+// kernel helpers
+#define KERNEL_INDEX (blockIdx.x * blockDim.x + threadIdx.x)
 
+#define KERNEL_LOOP(i, n) \
+  for (unsigned i = KERNEL_INDEX; i < (n); i += blockDim.x * gridDim.x)
 
+// threads per block
+const unsigned THREADS_PER_BLOCK = 1024;
 
-//==============================================================================
-#ifdef __cplusplus
+// number of blocks for threads.
+inline unsigned BLOCK_COUNT(unsigned N) {
+  return (N + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
 }
-#endif
 
-#endif // elementOps_h
+//==============================================================================
+// launch error detection
+inline void KernelPreCheck(cudaStream_t stream) {
+#ifdef DEBUG
+    // reset error variable to cudaSuccess
+	cudaGetLastError();
+#endif
+}
+
+inline cudaError_t KernelPostCheck(cudaStream_t stream)
+{
+#ifdef DEBUG
+    cudaStreamSynchronize(stream);
+	return cudaGetLastError();
+#else
+    return cudaSuccess;
+#endif
+}
+
+#endif // __kernelHelpers_h__

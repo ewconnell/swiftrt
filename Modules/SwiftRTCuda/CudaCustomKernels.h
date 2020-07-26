@@ -13,13 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#if !defined(__CudaKernels_h__)
-#define __CudaKernels_h__
+#if !defined(__CudaCustomKernels_h__)
+#define __CudaCustomKernels_h__
 
 // this is an umbrella header
 
 #include "elementOps.h"
 
-
-
-#endif // __CudaKernels_h__
+#endif // __CudaCustomKernels_h__

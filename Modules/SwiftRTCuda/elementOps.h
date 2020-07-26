@@ -1,5 +1,5 @@
 //******************************************************************************
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,8 +13,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+#ifndef elementOps_h
+#define elementOps_h
+
 #include <cuda_runtime.h>
-#include <cublasLt.h>
-#include <cuda_fp16.h>
-#include <cudnn.h>
-#include <curand.h>
+
+
+// make visible to Swift as C API
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int cudaTest();
+
+//==============================================================================
+//
+cudaError_t srtAdd(
+    cudaDataType_t type,
+    const void *a,
+    const void *b,
+    void *c,
+    unsigned count,
+    cudaStream_t stream
+);
+
+
+
+//==============================================================================
+#ifdef __cplusplus
+}
+#endif
+
+#endif // elementOps_h

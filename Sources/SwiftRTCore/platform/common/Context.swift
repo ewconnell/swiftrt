@@ -23,7 +23,7 @@ import Darwin.C
 
 //==============================================================================
 // Platform types
-#if canImport(CCuda)
+#if canImport(SwiftRTCuda)
 public typealias PlatformType = CudaPlatform
 public typealias StorageBufferType = DiscreteStorage
 #else
