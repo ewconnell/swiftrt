@@ -398,6 +398,7 @@ public struct LogCategories: OptionSet {
 }
 
 // strings
+public let blankString      = "           "
 public let allocString      = "[\(setText("ALLOCATE ", color: .cyan))]"
 public let blockString      = "[\(setText("BLOCK    ", color: .red))]"
 public let copyString       = "[\(setText("COPY     ", color: .blue))]"

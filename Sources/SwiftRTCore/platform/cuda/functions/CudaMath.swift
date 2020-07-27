@@ -26,7 +26,7 @@ extension CudaQueue {
         guard useGpu else { cpu_add(lhs, rhs, &result); return }
 
         cudaCheck(srtAdd(
-            CUDA_R_32F,
+            CUDA_R_32F, // TODO: this should come from E!!
             lhs.deviceRead(using: self),
             rhs.deviceRead(using: self),
             result.deviceReadWrite(using: self),

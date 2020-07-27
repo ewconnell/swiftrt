@@ -18,7 +18,7 @@ import SwiftRTCuda
 
 //==============================================================================
 /// CudaDevice
-public class CudaDevice: ComputeDevice {
+public final class CudaDevice: ComputeDevice {
     // properties
     public let index: Int
     public let memoryType: MemoryType
@@ -39,7 +39,7 @@ public class CudaDevice: ComputeDevice {
         diagnostic("\(deviceString) \(name)", categories: .device)
         properties = isCpu ? getCpuProperties() : getCudaDeviceProperties()
         properties.forEach {
-            diagnostic(" \($0)", categories: .device)
+            diagnostic(" \(blankString)\($0)", categories: .device)
         }
 
         //----------------------------
@@ -61,6 +61,13 @@ public class CudaDevice: ComputeDevice {
                                         useGpu: true))
             }
         }
+    }
+
+    //--------------------------------------------------------------------------
+    // select
+    @inlinable public func select() {
+        // device 0 is the cpu, so subtract 1 to get the gpu hardware index
+        cudaCheck(cudaSetDevice(Int32(index - 1)))
     }
 
     //--------------------------------------------------------------------------
@@ -95,5 +102,68 @@ public class CudaDevice: ComputeDevice {
             "global memory     : \(props.totalGlobalMem / (1024 * 1024)) MB",
             "memory addressing : \(memoryType)",
         ]
+    }
+}
+
+
+//==============================================================================
+/// CudaDeviceMemory
+public final class CudaDeviceMemory: DeviceMemory {
+    /// base address and size of buffer
+    public let buffer: UnsafeMutableRawBufferPointer
+    /// index of device where memory is located
+    public let deviceIndex: Int
+    /// diagnostic name
+    public var name: String?
+    /// diagnostic message
+    public var releaseMessage: String?
+    /// specifies the device memory type for data transfer
+    public let type: MemoryType
+    /// version
+    public var version: Int
+    /// `true` if the buffer is a reference
+    public let isReference: Bool
+
+    /// mutable raw pointer to memory buffer to simplify driver calls
+    @inlinable public var mutablePointer: UnsafeMutableRawPointer {
+        UnsafeMutableRawPointer(buffer.baseAddress!)
+    }
+
+    /// mutable raw pointer to memory buffer to simplify driver calls
+    @inlinable public var pointer: UnsafeRawPointer {
+        UnsafeRawPointer(buffer.baseAddress!)
+    }
+
+    //--------------------------------------------------------------------------
+    // init
+    @inlinable public init(_ deviceIndex: Int, _ byteCount: Int) {
+        self.deviceIndex = deviceIndex
+
+        // select the device
+        cudaCheck(cudaSetDevice(Int32(deviceIndex - 1)))
+
+        // TODO: for now we will fail if memory is exhausted
+        // later catch and do shuffling
+		var devicePointer: UnsafeMutableRawPointer?
+	    cudaCheck(cudaMalloc(&devicePointer, byteCount))
+
+        self.buffer = UnsafeMutableRawBufferPointer(start: devicePointer!, 
+                                                    count: byteCount)
+        self.type = .discrete
+        self.isReference = false
+        self.version = -1
+        self.releaseMessage = nil
+    }
+    
+    @inlinable deinit {
+        // select the device
+        cudaCheck(cudaSetDevice(Int32(deviceIndex - 1)))
+		cudaCheck(cudaFree(buffer.baseAddress!))
+
+        #if DEBUG
+        if let name = name, let msg = releaseMessage {
+            diagnostic("\(releaseString) \(name)\(msg)", categories: .dataAlloc)
+        }
+        #endif
     }
 }

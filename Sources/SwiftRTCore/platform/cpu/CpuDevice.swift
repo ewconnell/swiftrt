@@ -59,9 +59,15 @@ public final class CpuDeviceMemory: DeviceMemory {
     public var version: Int
     /// `true` if the buffer is a reference
     public let isReference: Bool
+
     /// mutable raw pointer to memory buffer to simplify driver calls
-    @inlinable public var pointer: UnsafeMutableRawPointer {
+    @inlinable public var mutablePointer: UnsafeMutableRawPointer {
         UnsafeMutableRawPointer(buffer.baseAddress!)
+    }
+
+    /// raw pointer to memory buffer to simplify driver calls
+    @inlinable public var pointer: UnsafeRawPointer {
+        UnsafeRawPointer(buffer.baseAddress!)
     }
 
     /// device where memory is located
@@ -87,12 +93,11 @@ public final class CpuDeviceMemory: DeviceMemory {
     @inlinable deinit {
         if !isReference {
             buffer.deallocate()
-            if willLog(level: .diagnostic) {
-                if let name = name, let msg = releaseMessage {
-                    diagnostic("\(releaseString) \(name)\(msg)",
-                               categories: .dataAlloc)
-                }
+            #if DEBUG
+            if let msg = releaseMessage {
+                diagnostic("\(releaseString) \(msg)", categories: .dataAlloc)
             }
+            #endif
         }
     }
 }

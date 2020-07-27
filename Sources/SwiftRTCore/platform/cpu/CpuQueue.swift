@@ -65,4 +65,17 @@ public final class CpuQueue: DeviceQueue, CpuFunctions
         waitForCompletion()
         diagnostic("\(releaseString) queue: \(name)", categories: .queueAlloc)
     }
+
+    //--------------------------------------------------------------------------
+    // allocate
+    @inlinable public func allocate(
+        byteCount: Int,
+        heapIndex: Int = 0
+    ) throws -> DeviceMemory {
+        // allocate a host memory buffer suitably aligned for any type
+        let buffer = UnsafeMutableRawBufferPointer
+                .allocate(byteCount: byteCount,
+                          alignment: MemoryLayout<Int>.alignment)
+        return CpuDeviceMemory(deviceIndex, buffer, memoryType)
+    }
 }

@@ -37,7 +37,7 @@ public class CudaPlatform: Platform {
         name = "\(Self.self)"
         logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
                           namePath: name, nestingLevel: 0)
-
+                          
         //----------------------------
         // CudaDevice is overloaded to avoid using Swift existentials
         // to support both cpu and gpu operations.
@@ -152,7 +152,7 @@ extension cublasStatus_t : Hashable {}
 //==============================================================================
 // cudaCheck curandStatus_t
 @inlinable public func cudaCheck(
-    status: curandStatus_t,
+    _ status: curandStatus_t,
     file: String = #file,
     function: String = #function,
     line: Int = #line)

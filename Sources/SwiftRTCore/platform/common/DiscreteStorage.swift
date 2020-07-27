@@ -220,12 +220,13 @@ public final class DiscreteStorage: StorageBuffer {
         } else {
             // allocate the buffer for the target device
             // and save in the replica list
-            let memory = try queue.allocate(byteCount: byteCount)
+            let memory = try queue.allocate(byteCount: byteCount, heapIndex: 0)
             replicas[queue.deviceIndex] = memory
             
             if willLog(level: .diagnostic) {
                 let count = byteCount / MemoryLayout<Element>.size
-                let msg = "(\(id)) \(Element.self)[\(count)] on \(queue.deviceName)"
+                let msg = "(\(id)) on \(queue.deviceName) " +
+                          " \(Element.self)[\(count)]"
                 diagnostic("\(allocString) \(name)\(msg)", categories: .dataAlloc)
                 memory.name = name
                 memory.releaseMessage = msg
@@ -254,9 +255,9 @@ public final class DiscreteStorage: StorageBuffer {
         assert(willMutate || master != nil,
                "attempting to read uninitialized memory")
         do {
-            // synchronize queues if switching
-            if let lastQueue = lastQueue,
-               lastQueue.mode == .async && queue.id != lastQueue.id
+
+            if let lastQueue = lastQueue, queue.id != lastQueue.id &&
+               lastQueue.mode == .async && queue.mode == .async
             {
                 let event = lastQueue.createEvent()
                 diagnostic("\(syncString) \(queue.name) synchronizing with" +
@@ -277,17 +278,12 @@ public final class DiscreteStorage: StorageBuffer {
                 assert(master.type == .discrete || replica.type == .discrete)
                 _lastAccessCopiedMemory = true
                 try queue.copy(from: master, to: replica)
-                if willLog(level: .diagnostic) {
-                    let elementCount = replica.buffer.count /
-                        MemoryLayout<Element>.size
-                    diagnostic(
-                        "\(copyString) \(name)(\(id)) " +
-                            "dev:\(master.deviceIndex)" +
-                            "\(setText(" --> ", color: .blue))" +
-                            "\(queue.deviceName)_q\(queue.id) " +
-                            "\(Element.self)[\(elementCount)]",
-                        categories: .dataCopy)
-                }
+                diagnostic(
+                    "\(copyString) \(name)(\(id)) dev:\(master.deviceIndex)" +
+                    "\(setText(" --> ", color: .blue))" +
+                    "\(queue.deviceName)_q\(queue.id)  " +
+                    "\(Element.self)[\(replica.buffer.count / MemoryLayout<Element>.size)]",
+                    categories: .dataCopy)
             }
             
             // increment version if mutating

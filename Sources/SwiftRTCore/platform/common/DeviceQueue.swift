@@ -91,21 +91,12 @@ public protocol DeviceQueue: Logging {
 // default implementation
 extension DeviceQueue {
     //--------------------------------------------------------------------------
-    // allocate
-    @inlinable public func allocate(
-        byteCount: Int,
-        heapIndex: Int = 0
-    ) throws -> DeviceMemory {
-        // allocate a host memory buffer suitably aligned for any type
-        let buffer = UnsafeMutableRawBufferPointer
-                .allocate(byteCount: byteCount,
-                          alignment: MemoryLayout<Int>.alignment)
-        return CpuDeviceMemory(deviceIndex, buffer, memoryType)
-    }
-    
-    //--------------------------------------------------------------------------
     /// copy
-    public func copy(from src: DeviceMemory, to dst: DeviceMemory) throws {
+    @inlinable public func copy(from src: DeviceMemory, to dst: DeviceMemory) throws {
+        cpu_copy(from: src, to: dst)
+    }
+
+    @inlinable public func cpu_copy(from src: DeviceMemory, to dst: DeviceMemory) {
         if mode == .async {
             queue.async(group: group) {
                 dst.buffer.copyMemory(from: UnsafeRawBufferPointer(src.buffer))
@@ -114,7 +105,7 @@ extension DeviceQueue {
             dst.buffer.copyMemory(from: UnsafeRawBufferPointer(src.buffer))
         }
     }
-    
+
     //--------------------------------------------------------------------------
     /// createEvent
     /// creates an event object used for queue synchronization

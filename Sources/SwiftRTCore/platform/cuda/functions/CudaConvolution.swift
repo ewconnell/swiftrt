@@ -166,7 +166,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             // algo
             fwdAlgo,
             // workspace device array
-            fwdWorkspace?.pointer,
+            fwdWorkspace?.mutablePointer,
             // workspace size in bytes
             fwdWorkspaceSize,
             // alpha2
@@ -215,7 +215,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             // algo
             bwdDataAlgo,
             // workspace
-            bwdDataWorkspace?.pointer,
+            bwdDataWorkspace?.mutablePointer,
             bwdDataWorkspaceSize,
             // beta
             Element.zeroPointer,
@@ -239,7 +239,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             // algo
             bwdFilterAlgo,
             // workspace
-            bwdFilterWorkspace?.pointer,
+            bwdFilterWorkspace?.mutablePointer,
             bwdFilterWorkspaceSize,
             // beta
             Element.zeroPointer,
