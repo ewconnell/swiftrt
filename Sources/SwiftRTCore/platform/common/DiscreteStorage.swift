@@ -116,7 +116,7 @@ public final class DiscreteStorage: StorageBuffer {
                     "\(name)(\(id)) \(Element.self)" +
                     "[\(byteCount / MemoryLayout<Element>.size)]",
                     categories: .dataCopy)
-        queue.copy(from: otherMemory, to: selfMemory)
+        queue.copyAsync(from: otherMemory, to: selfMemory)
     }
     
     //--------------------------------------------------------------------------
@@ -229,6 +229,39 @@ public final class DiscreteStorage: StorageBuffer {
     }
 
     //--------------------------------------------------------------------------
+    /// synchronize(queue:other:willMutate)
+    /// - Parameters:
+    ///  - queue: the queue to synchronize
+    ///  - dependentQueue: the dependent queue
+    ///  - willMutate: `true` if the subsequent operation will mutate the
+    ///    the tensor. Used only for diagnostics
+    @inlinable public func synchronize(
+        _ queue: DeviceQueue, 
+        with dependentQueue: DeviceQueue,
+        _ willMutate: Bool
+    ) {
+        // if the queue ids are equal or the dependent queue is synchronous,
+        // then the data is already implicitly synchronized
+        guard queue.id != dependentQueue.id && dependentQueue.mode == .async
+            else { return } 
+
+        diagnostic("\(syncString) \(queue.name) will wait for" +
+                    " \(dependentQueue.name) to " +
+                    "\(willMutate ? "write" : "read") \(name)(\(id))",
+                    categories: .queueSync)
+
+        if queue.mode == .sync {
+            // if the destination is synchronous, then wait for
+            // `dependentQueue` to finish
+            dependentQueue.waitForCompletion()
+        } else {
+            // if both queues are async, then record an event on the
+            // the `dependentQueue` and have `queue` wait for it
+            queue.wait(for: dependentQueue.record())
+        }         
+    }
+
+    //--------------------------------------------------------------------------
     /// migrate(type:readOnly:queue:
     /// returns a buffer on the device associated with `queue`, lazily
     /// allocating it if it does not exist. The buffer contents will match
@@ -248,53 +281,52 @@ public final class DiscreteStorage: StorageBuffer {
         assert(willMutate || master != nil,
                "attempting to read uninitialized memory")
 
-        // Get a buffer for this tensor on the device associated
-        // with `queue`. This is a synchronous operation.
+        // For this tensor, get a buffer on the device associated
+        // with `queue`. This is a synchronous operation. If the buffer
+        // doesn't exist, then it will be created.
         let replica = getDeviceMemory(type, queue)
-        
 
-        // if let lastQueue = lastQueue, queue.id != lastQueue.id &&
-        //    lastQueue.mode == .async && queue.mode == .async
-        // {
-        //     let event = lastQueue.createEvent()
-        //     diagnostic("\(syncString) \(queue.name) synchronizing with" +
-        //                 " \(lastQueue.name) to " +
-        //                 "\(willMutate ? "write" : "read") \(name)(\(id))",
-        //                categories: .queueSync)
-        //     queue.wait(for: lastQueue.record(event: event))
-        // }
-        
-        // if master.type == .unified {
-        //     if dst.type == .unified {
-        //         // host --> host
-        //         cpu_copy(from: src, to: dst)
-        //     } else {
-        //         // host --> device
-        //     }
-        // } else {
-        //     if dst.type == .unified {
-        //         // device --> host
-        //     } else {
-        //         // device --> device
-        //     }
-        // }
+        // If there is a `master` and the replica version doesn't match
+        // then we need copy master --> replica        
+        if let master = master, let lastQueue = lastQueue,
+            replica.version != master.version 
+        {
+            func outputCopyMessage() {
+                diagnostic(
+                    "\(copyString) \(name)(\(id)) dev:\(master.deviceIndex)" +
+                    "\(setText(" --> ", color: .blue))" +
+                    "\(queue.deviceName)_q\(queue.id)  " +
+                    "\(Element.self)[\(replica.count(of: Element.self))]",
+                    categories: .dataCopy)
+            }
 
+            switch (master.type, replica.type) {
+            // host --> host
+            case (.unified, .unified):
+                // no copy needed
+                synchronize(queue, with: lastQueue, willMutate)
 
-        // copy contents from the master to the replica
-        // if the versions don't match
-        if let master = master, replica.version != master.version {
-            // we shouldn't get here if both buffers are in unified memory
-            assert(master.type == .discrete || replica.type == .discrete)
+            // host --> discrete
+            case (.unified, .discrete):
+                synchronize(queue, with: lastQueue, willMutate)
+                queue.copyAsync(from: master, to: replica)
+                outputCopyMessage()
+
+            // discrete --> host
+            case (.discrete, .unified):
+                lastQueue.copyAsync(from: master, to: replica)
+                outputCopyMessage()
+                synchronize(queue, with: lastQueue, willMutate)
+                
+            // discrete --> discrete
+            case (.discrete, .discrete):
+                synchronize(queue, with: lastQueue, willMutate)
+                queue.copyAsync(from: master, to: replica)
+                outputCopyMessage()
+            }
+
+            // we will copy memory so set this `true` for unit test purposes
             _lastAccessCopiedMemory = true
-
-
-            queue.copyAsync(from: master, to: replica)
-            diagnostic(
-                "\(copyString) \(name)(\(id)) dev:\(master.deviceIndex)" +
-                "\(setText(" --> ", color: .blue))" +
-                "\(queue.deviceName)_q\(queue.id)  " +
-                "\(Element.self)[\(replica.count(of: Element.self))]",
-                categories: .dataCopy)
         }
         
         // increment version if mutating

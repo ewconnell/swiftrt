@@ -97,6 +97,12 @@ extension DeviceQueue {
     }
 
     //--------------------------------------------------------------------------
+    /// record
+    @inlinable public func record() -> QueueEvent {
+        record(event: createEvent())
+    }
+
+    //--------------------------------------------------------------------------
     /// copy
     @inlinable public func copyAsync(
         from src: DeviceMemory, 

@@ -96,46 +96,45 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
 
     //--------------------------------------------------------------------------
     /// copy
-    @inlinable public func copy(
+    @inlinable public func copyAsync(
         from src: DeviceMemory, 
         to dst: DeviceMemory
     ) {
         assert(src.buffer.count == dst.buffer.count)
 
-        if src.type == .unified {
-            if dst.type == .unified {
-                // host --> host
-                cpu_copyAsync(from: src, to: dst)
-            } else {
-                // host --> device
-		        cudaCheck(cudaMemcpyAsync(
-                    dst.mutablePointer,	
-                    src.pointer,
-			        src.buffer.count,
-                    cudaMemcpyHostToDevice, 
-                    stream))
-            }
-        } else {
-            if dst.type == .unified {
-                // device --> host
-		        cudaCheck(cudaMemcpyAsync(
-                    dst.mutablePointer,	
-                    src.pointer,
-			        src.buffer.count,
-                    cudaMemcpyDeviceToHost, 
-                    stream))
-            } else {
-                // device --> device
-		        cudaCheck(cudaMemcpyAsync(
-                    dst.mutablePointer,	
-                    src.pointer,
-			        src.buffer.count,
-                    cudaMemcpyDeviceToDevice, 
-                    stream))
-            }
+        switch (src.type, dst.type) {
+        // host --> host
+        case (.unified, .unified):
+            cpu_copyAsync(from: src, to: dst)
+
+        // host --> discrete
+        case (.unified, .discrete):
+            cudaCheck(cudaMemcpyAsync(
+                dst.mutablePointer,	
+                src.pointer,
+                src.buffer.count,
+                cudaMemcpyHostToDevice, 
+                stream))
+
+        // discrete --> host
+        case (.discrete, .unified):
+            cudaCheck(cudaMemcpyAsync(
+                dst.mutablePointer,	
+                src.pointer,
+                src.buffer.count,
+                cudaMemcpyDeviceToHost, 
+                stream))
+
+        // discrete --> discrete
+        case (.discrete, .discrete):
+            cudaCheck(cudaMemcpyAsync(
+                dst.mutablePointer,	
+                src.pointer,
+                src.buffer.count,
+                cudaMemcpyDeviceToDevice, 
+                stream))
         }
     }
-
 
     //==========================================================================
     /// createActivation
