@@ -218,6 +218,12 @@ public protocol DeviceMemory: class, Logging {
     var version: Int { get set }
 }
 
+extension DeviceMemory {
+    @inlinable public func count<E>(of type: E.Type) -> Int {
+        buffer.count / MemoryLayout<E>.size
+    }
+}
+
 //==============================================================================
 /// QueueEvent
 /// A queue event is a barrier synchronization object that is

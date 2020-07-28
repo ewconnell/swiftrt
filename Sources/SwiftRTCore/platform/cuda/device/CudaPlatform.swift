@@ -336,12 +336,7 @@ public class DropoutDescriptor {
                 tensorDesc.desc, &stateSizeInBytes))
 
             // create states array
-            do {
-                states = try stream.allocate(byteCount: stateSizeInBytes)
-            } catch {
-                Context.currentQueue.writeLog("\(createString) \(error)")
-                fatalError()
-            }
+            states = stream.allocate(stateSizeInBytes)
 
             // initialize
             cudaCheck(cudnnSetDropoutDescriptor(

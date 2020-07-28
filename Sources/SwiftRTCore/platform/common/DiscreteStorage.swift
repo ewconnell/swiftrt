@@ -109,21 +109,14 @@ public final class DiscreteStorage: StorageBuffer {
         replicas = [DeviceMemory?](repeating: nil, count: other.replicas.count)
 
         // copy other master to self using the current queue
-        do {
-            let queue = Context.currentQueue
-            let otherMemory = try other.getDeviceMemory(Element.self, queue)
-            let selfMemory = try getDeviceMemory(Element.self, queue)
-            diagnostic("\(copyString) \(other.name)(\(other.id)) --> " +
-                        "\(name)(\(id)) \(Element.self)" +
-                        "[\(byteCount / MemoryLayout<Element>.size)]",
-                       categories: .dataCopy)
-            try queue.copy(from: otherMemory, to: selfMemory)
-        } catch {
-            writeLog("\(error)")
-            // TODO: maybe call some memory purging logic here to make
-            // space and try again??
-            fatalError("unrecoverable failure")
-        }
+        let queue = Context.currentQueue
+        let otherMemory = other.getDeviceMemory(Element.self, queue)
+        let selfMemory = getDeviceMemory(Element.self, queue)
+        diagnostic("\(copyString) \(other.name)(\(other.id)) --> " +
+                    "\(name)(\(id)) \(Element.self)" +
+                    "[\(byteCount / MemoryLayout<Element>.size)]",
+                    categories: .dataCopy)
+        queue.copy(from: otherMemory, to: selfMemory)
     }
     
     //--------------------------------------------------------------------------
@@ -214,13 +207,13 @@ public final class DiscreteStorage: StorageBuffer {
     @inlinable public func getDeviceMemory<Element>(
         _ type: Element.Type,
         _ queue: DeviceQueue
-    ) throws -> DeviceMemory {
+    ) -> DeviceMemory {
         if let memory = replicas[queue.deviceIndex] {
             return memory
         } else {
             // allocate the buffer for the target device
             // and save in the replica list
-            let memory = try queue.allocate(byteCount: byteCount, heapIndex: 0)
+            let memory = queue.allocate(byteCount)
             replicas[queue.deviceIndex] = memory
             
             if willLog(level: .diagnostic) {
@@ -254,57 +247,70 @@ public final class DiscreteStorage: StorageBuffer {
     ) -> UnsafeMutableBufferPointer<Element> {
         assert(willMutate || master != nil,
                "attempting to read uninitialized memory")
-        do {
 
-            if let lastQueue = lastQueue, queue.id != lastQueue.id &&
-               lastQueue.mode == .async && queue.mode == .async
-            {
-                let event = lastQueue.createEvent()
-                diagnostic("\(syncString) \(queue.name) synchronizing with" +
-                            " \(lastQueue.name) to " +
-                            "\(willMutate ? "write" : "read") \(name)(\(id))",
-                           categories: .queueSync)
-                queue.wait(for: lastQueue.record(event: event))
-            }
-            
-            // Get a buffer for this tensor on the device associated
-            // with `queue`. This is a synchronous operation.
-            let replica = try getDeviceMemory(type, queue)
-            
-            // copy contents from the master to the replica
-            // if the versions don't match
-            if let master = master, replica.version != master.version {
-                // we shouldn't get here if both buffers are in unified memory
-                assert(master.type == .discrete || replica.type == .discrete)
-                _lastAccessCopiedMemory = true
-                try queue.copy(from: master, to: replica)
-                diagnostic(
-                    "\(copyString) \(name)(\(id)) dev:\(master.deviceIndex)" +
-                    "\(setText(" --> ", color: .blue))" +
-                    "\(queue.deviceName)_q\(queue.id)  " +
-                    "\(Element.self)[\(replica.buffer.count / MemoryLayout<Element>.size)]",
-                    categories: .dataCopy)
-            }
-            
-            // increment version if mutating
-            if willMutate {
-                masterVersion += 1
-                master = replica
-            }
-            
-            // the replica version either matches the master by copying
-            // or is the new master
-            replica.version = masterVersion
+        // Get a buffer for this tensor on the device associated
+        // with `queue`. This is a synchronous operation.
+        let replica = getDeviceMemory(type, queue)
+        
 
-            // store a reference to the accessing queue for safe shutdown
-            lastQueue = queue
+        // if let lastQueue = lastQueue, queue.id != lastQueue.id &&
+        //    lastQueue.mode == .async && queue.mode == .async
+        // {
+        //     let event = lastQueue.createEvent()
+        //     diagnostic("\(syncString) \(queue.name) synchronizing with" +
+        //                 " \(lastQueue.name) to " +
+        //                 "\(willMutate ? "write" : "read") \(name)(\(id))",
+        //                categories: .queueSync)
+        //     queue.wait(for: lastQueue.record(event: event))
+        // }
+        
+        // if master.type == .unified {
+        //     if dst.type == .unified {
+        //         // host --> host
+        //         cpu_copy(from: src, to: dst)
+        //     } else {
+        //         // host --> device
+        //     }
+        // } else {
+        //     if dst.type == .unified {
+        //         // device --> host
+        //     } else {
+        //         // device --> device
+        //     }
+        // }
 
-            // bind to the element type
-            return replica.buffer.bindMemory(to: Element.self)
-        } catch {
-            // Fail for now
-            writeLog("Failed to access memory")
-            fatalError()
+
+        // copy contents from the master to the replica
+        // if the versions don't match
+        if let master = master, replica.version != master.version {
+            // we shouldn't get here if both buffers are in unified memory
+            assert(master.type == .discrete || replica.type == .discrete)
+            _lastAccessCopiedMemory = true
+
+
+            queue.copyAsync(from: master, to: replica)
+            diagnostic(
+                "\(copyString) \(name)(\(id)) dev:\(master.deviceIndex)" +
+                "\(setText(" --> ", color: .blue))" +
+                "\(queue.deviceName)_q\(queue.id)  " +
+                "\(Element.self)[\(replica.count(of: Element.self))]",
+                categories: .dataCopy)
         }
+        
+        // increment version if mutating
+        if willMutate {
+            masterVersion += 1
+            master = replica
+        }
+        
+        // the replica version either matches the master by copying
+        // or is the new master
+        replica.version = masterVersion
+
+        // store a reference to the accessing queue for safe shutdown
+        lastQueue = queue
+
+        // bind to the element type
+        return replica.buffer.bindMemory(to: Element.self)
     }
 }

@@ -51,15 +51,15 @@ public protocol DeviceQueue: Logging {
     ///  - byteCount: the number of bytes to allocate
     ///  - heapIndex: reserved for future use. Should be 0 for now.
     /// - Returns: a device memory object
-    func allocate(byteCount: Int, heapIndex: Int) throws -> DeviceMemory
+    func allocate(byteCount: Int, heapIndex: Int) -> DeviceMemory
     
     //--------------------------------------------------------------------------
-    /// copy(src:dst:
+    /// copyAsync(src:dst:
     /// copies device memory and performs marshalling if needed
     /// - Parameters:
     ///  - src: the source buffer
     ///  - dst: the destination buffer
-    func copy(from src: DeviceMemory, to dst: DeviceMemory) throws
+    func copyAsync(from src: DeviceMemory, to dst: DeviceMemory)
     
     /// createEvent(options:
     /// creates a queue event used for synchronization and timing measurements
@@ -91,12 +91,24 @@ public protocol DeviceQueue: Logging {
 // default implementation
 extension DeviceQueue {
     //--------------------------------------------------------------------------
-    /// copy
-    @inlinable public func copy(from src: DeviceMemory, to dst: DeviceMemory) throws {
-        cpu_copy(from: src, to: dst)
+    /// allocate(byteCount:
+    @inlinable public func allocate(_ byteCount: Int) -> DeviceMemory {
+        allocate(byteCount: byteCount, heapIndex: 0)
     }
 
-    @inlinable public func cpu_copy(from src: DeviceMemory, to dst: DeviceMemory) {
+    //--------------------------------------------------------------------------
+    /// copy
+    @inlinable public func copyAsync(
+        from src: DeviceMemory, 
+        to dst: DeviceMemory
+    ) {
+        cpu_copyAsync(from: src, to: dst)
+    }
+
+    @inlinable public func cpu_copyAsync(
+        from src: DeviceMemory, 
+        to dst: DeviceMemory
+    ) {
         if mode == .async {
             queue.async(group: group) {
                 dst.buffer.copyMemory(from: UnsafeRawBufferPointer(src.buffer))

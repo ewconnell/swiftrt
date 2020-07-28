@@ -392,13 +392,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
 
         // allocate workspace
         if fwdWorkspaceSize > 0 {
-            do {
-                fwdWorkspace = try dataQueue
-                    .allocate(byteCount: fwdWorkspaceSize, heapIndex: 0)
-            } catch {
-                writeLog("\(error)")
-                fatalError("convolution initialization failed")
-            }
+            fwdWorkspace = dataQueue.allocate(fwdWorkspaceSize)
         }
 
         // report selection
@@ -493,13 +487,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
 
         // allocate workspace
         if bwdDataWorkspaceSize > 0 {
-            do {
-                bwdDataWorkspace = try dataQueue
-                    .allocate(byteCount: bwdDataWorkspaceSize, heapIndex: 0)
-            } catch {
-                writeLog("\(error)")                
-                fatalError("convolution initialization failed")
-            }
+            bwdDataWorkspace = dataQueue.allocate(bwdDataWorkspaceSize)
         }
 
         // report selection
@@ -592,13 +580,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
 
         // allocate workspace
         if bwdFilterWorkspaceSize > 0 {
-            do {
-                bwdFilterWorkspace = try dataQueue
-                    .allocate(byteCount: bwdFilterWorkspaceSize, heapIndex: 0)
-            } catch {
-                writeLog("\(error)")                
-                fatalError("convolution initialization failed")
-            }
+            bwdFilterWorkspace = dataQueue.allocate(bwdFilterWorkspaceSize)
         }
 
         // report selection

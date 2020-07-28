@@ -83,11 +83,11 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     @inlinable public func allocate(
         byteCount: Int,
         heapIndex: Int = 0
-    ) throws -> DeviceMemory {
+    ) -> DeviceMemory {
         if usesCpu {
             let buffer = UnsafeMutableRawBufferPointer
                     .allocate(byteCount: byteCount,
-                            alignment: MemoryLayout<Int>.alignment)
+                              alignment: MemoryLayout<Int>.alignment)
             return CpuDeviceMemory(deviceIndex, buffer, memoryType)
         } else {
             return CudaDeviceMemory(deviceIndex, byteCount)
@@ -99,13 +99,13 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     @inlinable public func copy(
         from src: DeviceMemory, 
         to dst: DeviceMemory
-    ) throws {
+    ) {
         assert(src.buffer.count == dst.buffer.count)
 
         if src.type == .unified {
             if dst.type == .unified {
                 // host --> host
-                cpu_copy(from: src, to: dst)
+                cpu_copyAsync(from: src, to: dst)
             } else {
                 // host --> device
 		        cudaCheck(cudaMemcpyAsync(

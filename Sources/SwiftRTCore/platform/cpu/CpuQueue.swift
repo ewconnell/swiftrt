@@ -71,7 +71,7 @@ public final class CpuQueue: DeviceQueue, CpuFunctions
     @inlinable public func allocate(
         byteCount: Int,
         heapIndex: Int = 0
-    ) throws -> DeviceMemory {
+    ) -> DeviceMemory {
         // allocate a host memory buffer suitably aligned for any type
         let buffer = UnsafeMutableRawBufferPointer
                 .allocate(byteCount: byteCount,
