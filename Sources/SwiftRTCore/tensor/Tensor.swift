@@ -365,8 +365,7 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     /// the starting index zero relative to the storage buffer
     @inlinable var startIndex: Index {
-        logicalElements.prepareForReadWrite()
-        return logicalElements.startIndex
+        logicalElements.startIndex
     }
     
     //--------------------------------------------------------------------------
@@ -395,13 +394,13 @@ public extension Tensor {
     // elemment subscript
     @inlinable subscript(i: Index) -> Element {
         get {
-            usingSyncQueue {
+            usingAppThreadQueue {
                 logicalElements.prepareForRead()
                 return logicalElements[i]
             }
         }
         set {
-            usingSyncQueue {
+            usingAppThreadQueue {
                 prepareForWrite(using: Context.currentQueue)
                 logicalElements.prepareForReadWrite()
                 logicalElements[i] = newValue
@@ -481,7 +480,7 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     /// - Returns: the collection elements as a 1D Swift array
     @inlinable var flatArray: [Element] {
-        usingSyncQueue {
+        usingAppThreadQueue {
             isBufferIterable ? [Element](buffer) : [Element](elements)
         }
     }

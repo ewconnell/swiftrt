@@ -22,7 +22,7 @@ import SwiftRTCuda
 /// on the machine where the process is being run.
 public class CudaPlatform: Platform {
     // properties
-    public static var defaultCpuQueueCount: Int = 1
+    public static var defaultCpuQueueCount: Int = 0
     public static var defaultAcceleratorQueueCount: Int = 2
     public var discreteMemoryDeviceId: Int = 1
     public var devices: [CudaDevice]
@@ -63,13 +63,11 @@ public class CudaPlatform: Platform {
 
         //----------------------------
         // select first gpu queue 0 as default
-        if gpuDeviceCount == 0 {
-            writeLog("There are no '\(self.name)' devices installed",
-                     level: .warning)
-            queueStack = [appThreadQueue]
-        } else if devices[0].queues.count > 0 {
+        if gpuDeviceCount > 0 {
             queueStack = [devices[1].queues[0]]
         } else {
+            writeLog("There are no '\(self.name)' devices installed",
+                     level: .warning)
             queueStack = [appThreadQueue]
         }
 

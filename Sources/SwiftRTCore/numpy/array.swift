@@ -2045,7 +2045,7 @@ where C.Element == Bool, Element.Value == Bool
 // Rank1 to Swift Array
 public extension Tensor where Shape == Shape1 {
     @inlinable var array: [Element] {
-        usingSyncQueue {
+        usingAppThreadQueue {
             isBufferIterable ? [Element](buffer) : [Element](elements)
         }
     }
@@ -2055,7 +2055,7 @@ public extension Tensor where Shape == Shape1 {
 // Rank2 to Swift Array
 public extension Tensor where Shape == Shape2 {
     @inlinable var array: [[Element]] {
-        usingSyncQueue {
+        usingAppThreadQueue {
             var array2 = [[Element]]()
             for d0 in 0..<shape[0] {
                 let row = self[d0, 0...]
@@ -2072,7 +2072,7 @@ public extension Tensor where Shape == Shape2 {
 // Rank3 to Swift Array
 public extension Tensor where Shape == Shape3 {
     @inlinable var array: [[[Element]]] {
-        usingSyncQueue {
+        usingAppThreadQueue {
             var array3 = [[[Element]]]()
             for d0 in 0..<shape[0] {
                 var array2 = [[Element]]()
@@ -2093,7 +2093,7 @@ public extension Tensor where Shape == Shape3 {
 // Rank4 to Swift Array
 public extension Tensor where Shape == Shape4 {
     @inlinable var array: [[[[Element]]]] {
-        usingSyncQueue {
+        usingAppThreadQueue {
             var array4 = [[[[Element]]]]()
             for d0 in 0..<shape[0] {
                 var array3 = [[[Element]]]()
@@ -2118,7 +2118,7 @@ public extension Tensor where Shape == Shape4 {
 // Rank5 to Swift Array
 public extension Tensor where Shape == Shape5 {
     @inlinable var array: [[[[[Element]]]]] {
-        usingSyncQueue {
+        usingAppThreadQueue {
             var array5 = [[[[[Element]]]]]()
             for d0 in 0..<shape[0] {
                 var array4 = [[[[Element]]]]()
@@ -2147,7 +2147,7 @@ public extension Tensor where Shape == Shape5 {
 // Rank6 to Swift Array
 public extension Tensor where Shape == Shape6 {
     @inlinable var array: [[[[[[Element]]]]]] {
-        usingSyncQueue {
+        usingAppThreadQueue {
             var array6 = [[[[[[Element]]]]]]()
             for d0 in 0..<shape[0] {
                 var array5 = [[[[[Element]]]]]()

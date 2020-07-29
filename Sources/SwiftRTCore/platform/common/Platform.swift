@@ -65,7 +65,7 @@ public extension Platform {
     
     /// selects the application thread data interchange queue within
     /// the scope of the body
-    @inlinable func useSyncQueue() {
+    @inlinable func useAppThreadQueue() {
         queueStack[queueStack.count - 1] = appThreadQueue
     }
     
@@ -73,19 +73,19 @@ public extension Platform {
     /// the scope of the body
     /// - Parameters:
     ///  - body: a closure where the device queue will be used
-    @inlinable func usingSyncQueue<R>(_ body: () -> R) -> R {
+    @inlinable func usingAppThreadQueue<R>(_ body: () -> R) -> R {
         queueStack.append(appThreadQueue)
         defer { _ = queueStack.popLast() }
         return body()
     }
-    
+
     /// selects the specified device queue for output within the scope of
     /// the body
     /// - Parameters:
     ///  - device: the device to use. Device 0 is the cpu
     ///  - queue: the queue on the device to use
     ///  - body: a closure where the device queue will be used
-    @inlinable func using<R>(device: Int, queue: Int = 0, _ body: () -> R) -> R {
+    @inlinable func using<R>(device: Int, queue: Int, _ body: () -> R) -> R {
         // push the selection onto the queue stack
         queueStack.append(validQueue(device, queue))
         defer { _ = queueStack.popLast() }
@@ -117,21 +117,36 @@ public extension Platform {
 
 //==============================================================================
 // queue API
+
+/// useAppThreadQueue
+/// specifies the application thread queue to be used for operator execution
+@inlinable public func useAppThreadQueue() {
+    Context.local.platform.useAppThreadQueue()
+}
+
+/// useAppThreadQueue(body:
+/// specifies the application thread queue to be used for operator execution
+/// withing the scope of the closure
+@inlinable public func usingAppThreadQueue<R>(_ body: () -> R) -> R {
+    Context.local.platform.usingAppThreadQueue(body)
+}
+
+/// use(device:queue:
+/// specifies the device queue to use for operator execution
 @inlinable public func use(device: Int, queue: Int = 0) {
     Context.local.platform.use(device: device, queue: queue)
 }
 
-@inlinable public func useSyncQueue() { Context.local.platform.useSyncQueue() }
-
-@inlinable public func usingSyncQueue<R>(_ body: () -> R) -> R {
-    Context.local.platform.usingSyncQueue(body)
-}
-
-@inlinable public func using<R>(device: Int, queue: Int = 0,
-                                _ body: () -> R) -> R {
+/// use(device:queue:body:
+/// specifies the device queue to use for operator execution
+/// withing the scope of the closure
+@inlinable public func using<R>(device: Int, queue: Int = 0, _ body: () -> R) -> R {
     Context.local.platform.using(device: device, queue: queue, body)
 }
 
+/// use(queue:body:
+/// specifies the queue on the current device to use for operator execution
+/// withing the scope of the closure
 @inlinable public func using<R>(queue: Int, _ body: () -> R) -> R {
     Context.local.platform.using(queue: queue, body)
 }

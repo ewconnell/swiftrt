@@ -94,8 +94,8 @@ public final class CpuDeviceMemory: DeviceMemory {
         if !isReference {
             buffer.deallocate()
             #if DEBUG
-            if let msg = releaseMessage {
-                diagnostic("\(releaseString) \(msg)", categories: .dataAlloc)
+            if let name = name, let msg = releaseMessage {
+                diagnostic("\(releaseString) \(name)\(msg)", categories: .dataAlloc)
             }
             #endif
         }

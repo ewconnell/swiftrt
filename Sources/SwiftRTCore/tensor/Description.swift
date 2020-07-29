@@ -21,65 +21,67 @@ public extension Tensor {
         let tab = 2
         var string = ""
 
-        switch Shape.rank {
-        // as a vector
-        case 1:
-            string += "\([Element](self))"
+        usingAppThreadQueue {
+            switch Shape.rank {
+            // as a vector
+            case 1:
+                string += "\([Element](self))"
+                
+            // as a matrix
+            case 2:
+                // set row range
+                var lower = Shape.zero
+                var upper = Shape.one
+                upper[1] = shape[1]
+                string += "[\n"
+
+                for _ in 0..<shape[0] {
+                    let row = [Element](self[lower, upper])
+                    string.append("\(String(repeating: " ", count: tab))\(row),\n")
+                    lower[0] += 1
+                    upper[0] += 1
+                }
+                string = String(string.dropLast(2))
+                string += "\n]"
             
-        // as a matrix
-        case 2:
-            // set row range
-            var lower = Shape.zero
-            var upper = Shape.one
-            upper[1] = shape[1]
-            string += "[\n"
+            // as all higher ranked tensors
+            default:
+                var pos = Shape.zero
 
-            for _ in 0..<shape[0] {
-                let row = [Element](self[lower, upper])
-                string.append("\(String(repeating: " ", count: tab))\(row),\n")
-                lower[0] += 1
-                upper[0] += 1
-            }
-            string = String(string.dropLast(2))
-            string += "\n]"
-        
-        // as all higher ranked tensors
-        default:
-            var pos = Shape.zero
+                func addRows(_ dim: Int) {
+                    let indent = String(repeating: " ", count: dim * tab)
+                    if dim < Shape.rank-2 {
+                        while true {
+                            string += "\(indent)["
+                            if shape[dim] > 1 { string += "\(pos[dim])" }
+                            string += "\n"
+                            addRows(dim + 1)
+                            string += "\(indent)],\n"
 
-            func addRows(_ dim: Int) {
-                let indent = String(repeating: " ", count: dim * tab)
-                if dim < Shape.rank-2 {
-                    while true {
-                        string += "\(indent)["
-                        if shape[dim] > 1 { string += "\(pos[dim])" }
-                        string += "\n"
-                        addRows(dim + 1)
-                        string += "\(indent)],\n"
-
-                        // increment position
-                        pos[dim] += 1
-                        if pos[dim] == shape[dim] {
-                            pos[dim] = 0
-                            break
+                            // increment position
+                            pos[dim] += 1
+                            if pos[dim] == shape[dim] {
+                                pos[dim] = 0
+                                break
+                            }
+                        }
+                    } else {
+                        // set row range
+                        var lower = pos
+                        var upper = pos &+ 1
+                        upper[Shape.rank-1] = shape[Shape.rank-1]
+                        
+                        for _ in 0..<shape[dim] {
+                            let row = [Element](self[lower, upper])
+                            string += "\(indent)\(row),\n"
+                            lower[dim] += 1
+                            upper[dim] += 1
                         }
                     }
-                } else {
-                    // set row range
-                    var lower = pos
-                    var upper = pos &+ 1
-                    upper[Shape.rank-1] = shape[Shape.rank-1]
-                    
-                    for _ in 0..<shape[dim] {
-                        let row = [Element](self[lower, upper])
-                        string += "\(indent)\(row),\n"
-                        lower[dim] += 1
-                        upper[dim] += 1
-                    }
+                    string = String(string.dropLast(2)) + "\n"
                 }
-                string = String(string.dropLast(2)) + "\n"
+                addRows(0)
             }
-            addRows(0)
         }
         return string
     }
