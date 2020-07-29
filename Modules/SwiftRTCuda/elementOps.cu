@@ -26,28 +26,9 @@
 template<typename T>
 __global__ void add(const void *va, const void *vb, void *vc, unsigned count) {
     const T* a = (T*)va; const T* b = (T*)vb; T* c = (T*)vc;
-    GRID_STRIDE_LOOP(i, count) { c[i] = a[i] + b[i]; }
-}
-
-// sub
-template<typename T>
-__global__ void sub(const void *va, const void *vb, void *vc, unsigned count) {
-    const T* a = (T*)va; const T* b = (T*)vb; T* c = (T*)vc;
-    GRID_STRIDE_LOOP(i, count) { c[i] = a[i] - b[i]; }
-}
-
-// mul
-template<typename T>
-__global__ void mul(const void *va, const void *vb, void *vc, unsigned count) {
-    const T* a = (T*)va; const T* b = (T*)vb; T* c = (T*)vc;
-    GRID_STRIDE_LOOP(i, count) { c[i] = a[i] * b[i]; }
-}
-
-// div
-template<typename T>
-__global__ void div(const void *va, const void *vb, void *vc, unsigned count) {
-    const T* a = (T*)va; const T* b = (T*)vb; T* c = (T*)vc;
-    GRID_STRIDE_LOOP(i, count) { c[i] = a[i] / b[i]; }
+    GRID_STRIDE_LOOP(i, count) {
+        c[i] = a[i] + b[i];
+    }
 }
 
 //------------------------------------------------------------------------------
