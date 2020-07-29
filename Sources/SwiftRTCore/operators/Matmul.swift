@@ -23,7 +23,7 @@ import Foundation
     _ lhs: TensorR2<E>, _ transposeLhs: Bool,
     _ rhs: TensorR2<E>, _ transposeRhs: Bool
 ) -> (TensorR2<E>, TensorR2<E>)
-where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 {
     let (lhsGrad, rhsGrad): (TensorR2<E>, TensorR2<E>)
     switch (transposeLhs, transposeRhs) {
@@ -59,7 +59,7 @@ where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
 @inlinable public func matmul<E>(
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
-) -> TensorR2<E> where E: StorageElement, E.Value: ScalarElement & Numeric
+) -> TensorR2<E> where E: StorageElement, E.Value: StorageElement & Numeric
 {
     let lhsShape = transposeLhs ? lhs.shape.t : lhs.shape
     let rhsShape = transposeRhs ? rhs.shape.t : rhs.shape
@@ -76,7 +76,7 @@ where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR2<E>))
-where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 {
     (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
      { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
@@ -87,7 +87,7 @@ where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
-where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 {
     (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
      { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).0 })
@@ -98,7 +98,7 @@ where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
-where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 {
     (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
      { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).1 })
@@ -121,7 +121,7 @@ where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
-) -> TensorR2<E> where E: StorageElement, E.Value: ScalarElement & Numeric {
+) -> TensorR2<E> where E: StorageElement, E.Value: StorageElement & Numeric {
     let lhsShape = transposeLhs ? lhs.shape.t : lhs.shape
     let rhsShape = transposeRhs ? rhs.shape.t : rhs.shape
     assert(lhsShape[1] == rhsShape[0], "matmul inner dimensions must be equal")
@@ -138,7 +138,7 @@ where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR2<E>, TensorR1<E>))
-where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 {
     fatalError()
 //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
@@ -151,7 +151,7 @@ where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR1<E>))
-where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 {
     fatalError()
 //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
@@ -164,7 +164,7 @@ where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR1<E>))
-where E: StorageElement, E.Value: ScalarElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 {
     fatalError()
 //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),

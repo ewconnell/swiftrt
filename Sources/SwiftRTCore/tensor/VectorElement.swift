@@ -39,6 +39,18 @@ public protocol VectorElement: StorageElement {
     static var scalarCount: Int { get }
 }
 
+extension VectorElement {
+    @inlinable public static var type: StorageElementType { fatalError("not implemented") }
+
+    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
+        fatalError("not implemented")
+    }
+    
+    @inlinable public static var storedOnePointer: UnsafeRawPointer {
+        fatalError("not implemented")
+    }
+}
+
 //==============================================================================
 // RGBA
 @frozen public struct RGBA<Scalar>: VectorElement, SIMD
@@ -56,6 +68,8 @@ where Scalar: SIMDScalar & StorageElement
     @_transparent public var g: Scalar { get { self[1] } set(v) { self[1] = v }}
     @_transparent public var b: Scalar { get { self[2] } set(v) { self[2] = v }}
     @_transparent public var a: Scalar { get { self[3] } set(v) { self[3] = v }}
+
+
 
     /// Creates a pixel with zero in all lanes
     @_transparent public init() {
@@ -75,6 +89,7 @@ where Scalar: SIMDScalar & StorageElement
     }
 }
 
+//------------------------------------------------------------------------------
 extension RGBA where Scalar: FixedWidthInteger {
     @_transparent public init(
         _ r: Scalar,
@@ -106,6 +121,38 @@ extension RGBA where Scalar: BinaryFloatingPoint {
 }
 
 extension RGBA: AdditiveArithmetic where Scalar: FloatingPoint { }
+
+//------------------------------------------------------------------------------
+public var _storedZeroRGBAFloat32 = RGBA<Float>()
+public var _storedOneRGBAFloat32 = RGBA<Float>(1, 1, 1, 1)
+
+public extension VectorElement where Scalar == Float {
+    @inlinable static var type: StorageElementType { .vector32Fx4 }
+
+    @inlinable static var storedZeroPointer: UnsafeRawPointer {
+        UnsafeRawPointer(&_storedZeroRGBAFloat32) 
+    }
+    
+    @inlinable static var storedOnePointer: UnsafeRawPointer {
+        UnsafeRawPointer(&_storedOneRGBAFloat32)
+    }
+}
+
+//------------------------------------------------------------------------------
+public var _storedZeroRGBAUInt8 = RGBA<UInt8>()
+public var _storedOneRGBAUInt8 = RGBA<UInt8>(1, 1, 1, 1)
+
+public extension VectorElement where Scalar == UInt8 {
+    @inlinable static var type: StorageElementType { .vector8Ux4 }
+
+    @inlinable static var storedZeroPointer: UnsafeRawPointer {
+        UnsafeRawPointer(&_storedZeroRGBAUInt8) 
+    }
+    
+    @inlinable static var storedOnePointer: UnsafeRawPointer {
+        UnsafeRawPointer(&_storedOneRGBAUInt8)
+    }
+}
 
 //==============================================================================
 // Stereo

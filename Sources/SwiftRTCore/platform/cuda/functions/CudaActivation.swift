@@ -18,7 +18,7 @@ import SwiftRTCuda
 //==============================================================================
 /// CudaActivation
 public final class CudaActivation<Shape, Element>: Logging
-where Shape: TensorShape, Element: ScalarElement & FloatingPoint
+where Shape: TensorShape, Element: StorageElement & FloatingPoint
 {
     // types
     public typealias Input = Tensor<Shape,Element>
@@ -64,12 +64,12 @@ where Shape: TensorShape, Element: ScalarElement & FloatingPoint
             deviceQueue.cudnn.handle,
             activationDescriptor.desc,
             // alpha
-            Element.onePointer,
+            Element.storedOnePointer,
             // x
             xyTensorDescriptor.desc,
             x.deviceRead(using: deviceQueue),
             // beta
-            Element.zeroPointer,
+            Element.storedZeroPointer,
             // y
             xyTensorDescriptor.desc,
             y.deviceReadWrite(using: deviceQueue)))
@@ -102,7 +102,7 @@ where Shape: TensorShape, Element: ScalarElement & FloatingPoint
             deviceQueue.cudnn.handle,
             activationDescriptor.desc,
             // alpha
-            Element.onePointer,
+            Element.storedOnePointer,
             // y
             xyTensorDescriptor.desc,
             y.deviceRead(using: deviceQueue),
@@ -113,7 +113,7 @@ where Shape: TensorShape, Element: ScalarElement & FloatingPoint
             xyTensorDescriptor.desc,
             x.deviceRead(using: deviceQueue),
             // beta
-            Element.zeroPointer,
+            Element.storedZeroPointer,
             // dx
             xyTensorDescriptor.desc,
             xDiff.deviceReadWrite(using: deviceQueue)))

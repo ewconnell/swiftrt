@@ -129,7 +129,7 @@ class test_Shape: XCTestCase {
     func test_expandMutate() {
         let maxi = 8
         let maxj = 8
-        var drag = repeating(.zero, (2, maxj + 2, maxi + 2))
+        var drag = repeating(0, (2, maxj + 2, maxi + 2))
         let idxoffset1 = 6
         let idxoffset2 = 2
         let data = repeating(array([1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0], (1, maxi + 1)), ((idxoffset1-idxoffset2), maxi + 1))

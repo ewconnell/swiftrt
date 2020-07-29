@@ -359,7 +359,7 @@ public final class FilterDescriptor {
     public let desc: cudnnFilterDescriptor_t
 
     // initializers
-    @inlinable public init<S,E: ScalarElement>(_ tensor: Tensor<S,E>) {
+    @inlinable public init<S,E>(_ tensor: Tensor<S,E>) {
         // create the descriptor
         var temp: cudnnFilterDescriptor_t?
         cudaCheck(cudnnCreateFilterDescriptor(&temp))
@@ -422,7 +422,7 @@ public final class TensorDescriptor {
     @inlinable public init<S: TensorShape>(
         shape: S,
         strides: S,
-        scalarType: ScalarType
+        scalarType: StorageElementType
     ) {
         assert(shape.count >= 4 && shape.count <= CUDNN_DIM_MAX,
             "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
@@ -452,7 +452,7 @@ public final class TensorDescriptor {
     //--------------------------------------------------------------------------
     // getInfo
     @inlinable public func getInfo()
-    -> (extent: [Int], strides: [Int], ScalarType)
+    -> (extent: [Int], strides: [Int], StorageElementType)
     {
         let reqDims = Int(CUDNN_DIM_MAX)
         var dims = [Int32](repeating: 0, count: reqDims)
@@ -471,14 +471,14 @@ public final class TensorDescriptor {
 
         return (dims[0..<Int(numDims)].map(Int.init),
                 strides[0..<Int(numDims)].map(Int.init),
-                ScalarType(type))
+                StorageElementType(type))
     }
 }
 
 //==============================================================================
 /// createTensorDescriptor
 /// creates a cudnn tensor descriptor for the associated Tensor
-extension Tensor where TensorElement: ScalarElement {
+extension Tensor {
     @inlinable public func createTensorDescriptor(
         asShape newShape: Shape? = nil
     ) -> TensorDescriptor {
@@ -500,7 +500,7 @@ public final class ReductionTensorDescriptor {
     @inlinable public init(
         op: ReductionOp,
         nan: NanPropagation,
-        scalarType: ScalarType
+        scalarType: StorageElementType
     ) {
         // create the descriptor
         var temp: cudnnReduceTensorDescriptor_t?

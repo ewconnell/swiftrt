@@ -29,8 +29,8 @@ extension CudaQueue
         filterBiasBackpropQueueIndex: Int
     ) -> DeviceConvolution<Shape, Element, FilterElement>
     where Shape: TensorShape,
-          Element: ScalarElement,
-          FilterElement: ScalarElement
+          Element: StorageElement,
+          FilterElement: StorageElement
     {
         if useGpu {
             return CudaConvolution<Shape,Element,FilterElement>(
@@ -58,7 +58,7 @@ extension CudaQueue
 // CudaConvolution
 public final class CudaConvolution<Shape, Element, FilterElement>:
     DeviceConvolution<Shape, Element, FilterElement>
-where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
+where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
 {
     // descriptors
     public let activationDescriptor: ActivationDescriptor
@@ -154,7 +154,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         cudaCheck(cudnnConvolutionBiasActivationForward(
             dataQueue.cudnn.handle,
             // alpha1
-            Element.onePointer,
+            Element.storedOnePointer,
             // x
             xTensorDescriptor.desc,
             x.deviceRead(using: dataQueue),
@@ -170,7 +170,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             // workspace size in bytes
             fwdWorkspaceSize,
             // alpha2
-            Element.zeroPointer,
+            Element.storedZeroPointer,
             // z used for activation (TODO: inplace on y?? find out what's right)
             yTensorDescriptor.desc,
             y.deviceRead(using: dataQueue),
@@ -203,7 +203,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         cudaCheck(cudnnConvolutionBackwardData(
             dataQueue.cudnn.handle,
             // alpha
-            Element.onePointer,
+            Element.storedOnePointer,
             // filter
             filterDescriptor.desc,
             filter.deviceRead(using: dataQueue),
@@ -218,7 +218,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             bwdDataWorkspace?.mutablePointer,
             bwdDataWorkspaceSize,
             // beta
-            Element.zeroPointer,
+            Element.storedZeroPointer,
             // xDiff
             xTensorDescriptor.desc,
             xDiff.deviceReadWrite(using: dataQueue)))
@@ -227,7 +227,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         cudaCheck(cudnnConvolutionBackwardFilter(
             filterBiasBackQueue.cudnn.handle,
             // alpha
-            Element.onePointer,
+            Element.storedOnePointer,
             // x
             xTensorDescriptor.desc,
             x.deviceRead(using: dataQueue),
@@ -242,7 +242,7 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
             bwdFilterWorkspace?.mutablePointer,
             bwdFilterWorkspaceSize,
             // beta
-            Element.zeroPointer,
+            Element.storedZeroPointer,
             // filterDiff
             filterDescriptor.desc,
             filterDiff.deviceReadWrite(using: dataQueue)))
@@ -251,12 +251,12 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
         cudaCheck(cudnnConvolutionBackwardBias(
             filterBiasBackQueue.cudnn.handle,
             // alpha
-            Element.onePointer,
+            Element.storedOnePointer,
             // yDiff
             yTensorDescriptor.desc,
             yDiff.deviceRead(using: dataQueue),
             // beta
-            Element.zeroPointer,
+            Element.storedZeroPointer,
             //
             biasTensorDescriptor.desc,
             biasDiff.deviceReadWrite(using: dataQueue)))
@@ -275,13 +275,13 @@ where Shape: TensorShape, Element: ScalarElement, FilterElement: ScalarElement
 
         //----------------------------------
         // create convolution descriptor
-        let convolutionScalarType: ScalarType =
+        let convolutionStorageElementType: StorageElementType =
             Element.type == .real64F ? .real64F : .real32F
 
         let pad = (padding == .valid) ? Shape.zero : (filter.shape / 2)
 
         convolutionDescriptor = ConvolutionDescriptor(
-            scalarType: convolutionScalarType,
+            scalarType: convolutionStorageElementType,
             rank: Shape.rank - 2,
             padding: pad,
             strides: strides,
@@ -819,7 +819,7 @@ public final class ConvolutionDescriptor<Shape: TensorShape> {
 
     // initializers
     @inlinable public init(
-        scalarType: ScalarType,
+        scalarType: StorageElementType,
         rank: Int,
         padding: Shape,
         strides: Shape,

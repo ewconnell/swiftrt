@@ -16,13 +16,13 @@
 import SwiftRTCuda
 
 //------------------------------------------------------------------------------
-// ScalarType extension
+// StorageElementType extension
 extension cudaDataType_t : Hashable {}
 
 // cuda data types conversion
-extension ScalarType {
+extension StorageElementType {
     @inlinable public init(_ cudaType: cudaDataType_t) {
-        let types: [cudaDataType_t: ScalarType] = [
+        let types: [cudaDataType_t: StorageElementType] = [
             CUDA_R_16F: .real16F,
             CUDA_C_16F: .complex16F,
             CUDA_R_16BF: .real16BF,
@@ -57,7 +57,7 @@ extension ScalarType {
     }
 
     @inlinable public var cuda: cudaDataType_t {
-        let types: [ScalarType : cudaDataType_t] = [
+        let types: [StorageElementType : cudaDataType_t] = [
             .real16F: CUDA_R_16F,
             .complex16F: CUDA_C_16F,
             .real16BF: CUDA_R_16BF,
@@ -96,9 +96,9 @@ extension ScalarType {
 // cudnn data types conversion
 extension cudnnDataType_t : Hashable {}
 
-extension ScalarType {
+extension StorageElementType {
     @inlinable public init(_ cudnnType: cudnnDataType_t) {
-        let types: [cudnnDataType_t : ScalarType] = [
+        let types: [cudnnDataType_t : StorageElementType] = [
             CUDNN_DATA_HALF: .real16F,
             CUDNN_DATA_FLOAT: .real32F,
             CUDNN_DATA_DOUBLE: .real64F,
@@ -111,7 +111,7 @@ extension ScalarType {
     }
 
     @inlinable public var cudnn: cudnnDataType_t {
-        let types: [ScalarType : cudnnDataType_t] = [
+        let types: [StorageElementType : cudnnDataType_t] = [
             .real16F: CUDNN_DATA_HALF,
             .real32F: CUDNN_DATA_FLOAT,
             .real64F: CUDNN_DATA_DOUBLE,

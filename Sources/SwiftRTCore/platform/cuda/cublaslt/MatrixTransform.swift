@@ -24,7 +24,7 @@ public final class MatrixTransform: CustomStringConvertible {
 
     //--------------------------------------------------------------------------
     // initializers
-    @inlinable public init(type: ScalarType) {
+    @inlinable public init(type: StorageElementType) {
         let scaleType = type.cuda
         var temp: cublasLtMatrixTransformDesc_t?
         cudaCheck(cublasLtMatrixTransformDescCreate(&temp, scaleType))
@@ -68,11 +68,11 @@ public final class MatrixTransform: CustomStringConvertible {
 
     //--------------------------------------------------------------------------
     /// Specifies the tensor element type
-    @inlinable public var elementType: ScalarType {
+    @inlinable public var elementType: StorageElementType {
         get {
             var value = CUDA_R_32F
             getAttribute(CUBLASLT_MATRIX_TRANSFORM_DESC_SCALE_TYPE, &value)
-            return ScalarType(value)
+            return StorageElementType(value)
         }
         set {
             var value = newValue.cuda

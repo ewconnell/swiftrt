@@ -52,13 +52,12 @@ extension MatmulAlgorithm {
         _ b: TensorR2<BE>, transB: TransposeOp = .noTranspose,
         _ d: inout TensorR2<DE>,
         accumulatorType: MatmulAccumulatorType,
-        scaleType: ScalarType,
+        scaleType: StorageElementType,
         preferences: MatmulPreferences,
         maxResultCount: Int = 20,
         using queue: PlatformType.Device.Queue
-    )  -> MatmulProperties 
-    where AE: ScalarElement, BE: ScalarElement, DE: ScalarElement
-    {
+    )  -> MatmulProperties {
+        // TODO: figure out what scaleType depends on to expose properly
         let operation = MatmulOperation(accumulatorType: accumulatorType, 
                                         scaleType: scaleType)
         operation.transA = transA
@@ -128,14 +127,12 @@ extension MatmulAlgorithm {
         _ b: TensorR2<BE>, transB: TransposeOp = .noTranspose,
         _ d: inout TensorR2<DE>,
         accumulatorType: MatmulAccumulatorType,
-        scaleType: ScalarType,
+        scaleType: StorageElementType,
         maxAlgorithmsToTest: Int = 100,
         maxTestVariations: Int = 100,
         timingRepeats: Int = 10,
         using queue: PlatformType.Device.Queue = Context.currentQueue
-    ) -> MatmulProperties 
-    where AE: ScalarElement, BE: ScalarElement, DE: ScalarElement
-    {
+    ) -> MatmulProperties {
         // var combinationCount = 0
         // let splitKs = [2, 3, 4, 5, 6, 8, 12, 16, 32]
         // let operation = MatmulOperation(accumulatorType: accumulatorType, 

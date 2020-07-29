@@ -25,7 +25,7 @@ public final class MatmulOperation: CustomStringConvertible {
     // initializers
     @inlinable public init(
         accumulatorType: MatmulAccumulatorType,
-        scaleType: ScalarType
+        scaleType: StorageElementType
     ) {
         var temp: cublasLtMatmulDesc_t?
         cudaCheck(cublasLtMatmulDescCreate(&temp, accumulatorType.cublas, 
@@ -93,11 +93,11 @@ public final class MatmulOperation: CustomStringConvertible {
     /// converted to scale type before final scaling. Value is then
     /// converted from scale type to the type of matrix D before
     /// storing in memory. The default is the same as `accumulatorType`
-    @inlinable public var scaleType: ScalarType {
+    @inlinable public var scaleType: StorageElementType {
         get {
             var value = CUDA_R_32F
             getAttribute(CUBLASLT_MATMUL_DESC_SCALE_TYPE, &value)
-            return ScalarType(value)
+            return StorageElementType(value)
         }
         set {
             var value = newValue.cuda

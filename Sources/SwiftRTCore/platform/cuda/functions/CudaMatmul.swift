@@ -20,7 +20,7 @@ import SwiftRTCuda
 extension CudaQueue 
 {
     public func matmul2<E>(type: E.Type) -> DeviceMatmul2<E>
-    where E: StorageElement, E.Value: ScalarElement & Numeric {
+    where E: StorageElement, E.Value: StorageElement & Numeric {
         CudaMatmul2<E>(queue: self)
     }
 }
@@ -28,7 +28,7 @@ extension CudaQueue
 //==============================================================================
 /// CudaMatmul2
 public final class CudaMatmul2<E>: DeviceMatmul2<E>
-where E: StorageElement, E.Value: ScalarElement & Numeric
+where E: StorageElement, E.Value: StorageElement & Numeric
 {
     // properties
     public let queue: CudaQueue

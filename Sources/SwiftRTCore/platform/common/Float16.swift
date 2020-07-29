@@ -21,7 +21,8 @@ public struct Float16 :
     Equatable,
     Comparable,
     AdditiveArithmetic,
-    ExpressibleByFloatLiteral
+    ExpressibleByFloatLiteral,
+	ExpressibleByIntegerLiteral
 {
     // properties
     public let x: UInt16
@@ -39,9 +40,12 @@ public struct Float16 :
         guard let v = Float(string) else { return nil }
         self = FloatToFloat16Rnd(v)
 	}
-    @inlinable public init(floatLiteral value: Value) {
+    @inlinable public init(floatLiteral value: Double) {
         self.init(value)
     }
+	@inlinable public init(integerLiteral value: Int) {
+		self.init(value)
+	}
     @inlinable public init(_ v: UInt8)  { self.init(Float(v)) }
     @inlinable public init(_ v: UInt16) { self.init(Float(v)) }
     @inlinable public init(_ v: Int16)  { self.init(Float(v)) }

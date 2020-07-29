@@ -72,11 +72,6 @@ extension DeviceQueue where Self: CpuFunctions
     @inlinable func copy<S,E>(from a: Tensor<S,E>, to b: inout Tensor<S,E>)
     where S: TensorShape { cpu_copy(from: a, to: &b) }
     //--------------------------------------------------------------------------
-    @inlinable func copy<S,E: ScalarElement>(
-        from a: Tensor<S,E>, 
-        to b: inout Tensor<S,E>
-    ) { cpu_copy(from: a, to: &b) }
-    //--------------------------------------------------------------------------
     @inlinable func cos<S,E>(_ x: Tensor<S,E>, _ result: inout Tensor<S,E>)
     where S: TensorShape, E.Value: Real { cpu_cos(x, &result) }
     //--------------------------------------------------------------------------
@@ -162,7 +157,7 @@ extension DeviceQueue where Self: CpuFunctions
     where S: TensorShape, E.Value: Real { cpu_logGamma(x, &result) }
     //--------------------------------------------------------------------------
     @inlinable func matmul2<E>(type: E.Type) -> DeviceMatmul2<E>
-    where E: StorageElement, E.Value: ScalarElement & Numeric { CpuMatmul2<E>() }
+    where E: StorageElement, E.Value: StorageElement & Numeric { CpuMatmul2<E>() }
     //--------------------------------------------------------------------------
     @inlinable func matmul<E>(
         _ lhs: TensorR3<E>, _ transposeLhs: Bool,

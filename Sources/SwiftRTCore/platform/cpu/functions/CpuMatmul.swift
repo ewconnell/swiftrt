@@ -18,12 +18,12 @@ import Foundation
 //==============================================================================
 /// CpuMatmul2
 public final class CpuMatmul2<E>: DeviceMatmul2<E>
-where E: StorageElement, E.Value: ScalarElement & Numeric {}
+where E: StorageElement, E.Value: StorageElement & Numeric {}
 
 //==============================================================================
 /// DeviceMatmul2
 public class DeviceMatmul2<E>: Logging
-where E: StorageElement, E.Value: ScalarElement & Numeric
+where E: StorageElement, E.Value: StorageElement & Numeric
 {
     @inlinable public init() {}
 

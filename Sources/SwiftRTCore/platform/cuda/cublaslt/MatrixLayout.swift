@@ -24,7 +24,7 @@ public final class MatrixLayout: CustomStringConvertible {
 
     //--------------------------------------------------------------------------
     // initializers
-    @inlinable public init<S,E: ScalarElement>(_ tensor: Tensor<S,E>) {
+    @inlinable public init<S,E>(_ tensor: Tensor<S,E>) {
         assert(S.rank == 2 || S.rank == 3, "only ranks 2 and 3 are supported")
         var temp: cublasLtMatrixLayout_t?
         cudaCheck(cublasLtMatrixLayoutCreate(
@@ -83,11 +83,11 @@ public final class MatrixLayout: CustomStringConvertible {
 
     //--------------------------------------------------------------------------
     /// Specifies the data precision type
-    @inlinable public var type: ScalarType {
+    @inlinable public var type: StorageElementType {
         get {
             var value = CUDA_R_32F
             getAttribute(CUBLASLT_MATRIX_LAYOUT_TYPE, &value)
-            return ScalarType(value)
+            return StorageElementType(value)
         }
         set {
             var value = newValue.cuda
