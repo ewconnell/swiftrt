@@ -23,21 +23,10 @@ extension CudaQueue {
         _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
         _ result: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
-        cudaCheck(srtAdd(
-            CUDA_R_32F, // TODO: this should come from E!!
-            lhs.deviceRead(using: self),
-            rhs.deviceRead(using: self),
-            result.deviceReadWrite(using: self),
-            UInt32(lhs.count), stream))
-    }
+        guard useGpu else { cpu_add(lhs, rhs, &result); return }
 
-    //--------------------------------------------------------------------------
-    @inlinable public func add<S,E>(
-        _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
-        _ result: inout Tensor<S,E>
-    ) where E.Value: AdditiveArithmetic, E.Stored == Float {
         cudaCheck(srtAdd(
-            CUDA_R_32F, // TODO: this should come from E!!
+            E.type.cuda, // TODO: this should come from E!!
             lhs.deviceRead(using: self),
             rhs.deviceRead(using: self),
             result.deviceReadWrite(using: self),

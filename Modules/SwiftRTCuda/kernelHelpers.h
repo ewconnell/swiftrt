@@ -20,10 +20,9 @@
 
 //==============================================================================
 // kernel helpers
-#define KERNEL_INDEX (blockIdx.x * blockDim.x + threadIdx.x)
-
-#define KERNEL_LOOP(i, n) \
-  for (unsigned i = KERNEL_INDEX; i < (n); i += blockDim.x * gridDim.x)
+#define GRID_STRIDE_LOOP(i, n)                                                 \
+  for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n);          \
+       i += blockDim.x * gridDim.x)
 
 // threads per block
 const unsigned THREADS_PER_BLOCK = 1024;
