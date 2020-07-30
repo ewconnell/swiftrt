@@ -214,23 +214,24 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_add() {
-        Context.log.level = .diagnostic
-        let a = array(0..<10, (2, 5), name: "A")
-        let b = array(0..<10, (2, 5), name: "B")
-        let result = a + b
-        print(result)
+        let a = array(0..<6, (3, 2), name: "A")
+        // let b = array(0..<6, (3, 2), name: "B")
+        let aOnes = ones(like: a)
+
+        // let result = a + b
         // XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
         
         // both
-        // let aOnes = ones((3, 2))
         // let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(aOnes)
         // print(g1, g2)        
         // XCTAssert(g1.flatArray == [1, 1, 1, 1, 1, 1])
         // XCTAssert(g2.flatArray == [1, 1, 1, 1, 1, 1])
         
         // // lhs
-        // let glhs = pullback(at: a, in: { $0 + 2 })(aOnes)
-        // XCTAssert(glhs.flatArray == [1, 1, 1, 1, 1, 1])
+        Context.log.level = .diagnostic
+        let glhs = pullback(at: a, in: { $0 + 2 })(aOnes)
+        print(glhs)
+        XCTAssert(glhs.flatArray == [1, 1, 1, 1, 1, 1])
         
         // // rhs
         // let grhs = pullback(at: a, in: { 2 + $0 })(aOnes)
