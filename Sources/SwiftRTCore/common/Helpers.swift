@@ -19,6 +19,13 @@ public typealias CStringPointer = UnsafePointer<CChar>
 
 //==============================================================================
 // clamping
+@inlinable public func roundUp(_ numToRound: Int, multiple: Int) -> Int {
+    assert(multiple != 0 && ((multiple & (multiple - 1)) == 0))
+    return (numToRound + multiple - 1) & -multiple
+}
+
+//==============================================================================
+// clamping
 extension Comparable {
     @inlinable public func clamped(to range: ClosedRange<Self>) -> Self {
         if (self > range.upperBound) {

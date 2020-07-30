@@ -16,7 +16,9 @@
 #if !defined(__kernelHelpers_h__)
 #define __kernelHelpers_h__
 
+#include <assert.h>
 #include <driver_types.h>
+#include <vector_functions.h>
 
 //==============================================================================
 // kernel helpers
@@ -49,6 +51,18 @@ inline cudaError_t KernelPostCheck(cudaStream_t stream)
 #else
     return cudaSuccess;
 #endif
+}
+
+//==============================================================================
+// vector ops
+__device__ inline float4 operator +(float4 l, float4 r) {
+  return make_float4(l.x + r.x, l.y + r.y, l.z + r.z, l.w + r.w);
+}
+
+inline int shiftDownRoundingUp(int num, int shift) 
+{
+    int count = (num + (1 << shift) - 1) >> shift;
+    return count;
 }
 
 #endif // __kernelHelpers_h__
