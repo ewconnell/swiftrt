@@ -23,13 +23,21 @@ extension CudaQueue {
         _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
         _ result: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
+        assert(result.isBufferIterable)
         guard useGpu else { cpu_add(lhs, rhs, &result); return }
 
-        cudaCheck(srtAdd(
-            E.type.cuda,
-            lhs.deviceRead(using: self),
-            rhs.deviceRead(using: self),
-            result.deviceReadWrite(using: self),
-            UInt32(lhs.count), stream))
+        if lhs.isBufferIterable && rhs.isBufferIterable {
+            cudaCheck(srtAdd(
+                E.type.cuda,
+                lhs.deviceRead(using: self),
+                UInt32(lhs.stridedSpanCount),
+                rhs.deviceRead(using: self),
+                UInt32(rhs.stridedSpanCount),
+                result.deviceReadWrite(using: self),
+                UInt32(result.stridedSpanCount),
+                stream))
+        } else {
+
+        }
     }
 }

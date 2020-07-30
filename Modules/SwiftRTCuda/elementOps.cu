@@ -54,29 +54,37 @@ __global__ void add4_Float32(const void *va, const void *vb, void *vc, unsigned 
 
 //------------------------------------------------------------------------------
 // Swift importable C functions
-cudaError_t srtAdd(cudaDataType_t type, const void *a, const void *b, void *c,
-                    unsigned count, cudaStream_t stream) {
+cudaError_t srtAdd(
+    cudaDataType_t type, 
+    const void *a,
+    unsigned countA, 
+    const void *b, 
+    unsigned countB, 
+    void *c,
+    unsigned countC, 
+    cudaStream_t stream
+) {
     KernelPreCheck(stream);
-    unsigned blocks = BLOCK_COUNT(count);
+    unsigned blocks = BLOCK_COUNT(countC);
     unsigned threads = THREADS_PER_BLOCK;
     switch(type) {
-        case CUDA_R_8I: add<char> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_8U: add<unsigned char> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_16I: add<short> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_16U: add<unsigned short> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
+        case CUDA_R_8I: add<char> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
+        case CUDA_R_8U: add<unsigned char> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
+        case CUDA_R_16I: add<short> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
+        case CUDA_R_16U: add<unsigned short> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
         case CUDA_R_16F: {
-            int elements = shiftDownRoundingUp(count, 1);
+            int elements = shiftDownRoundingUp(countC, 1);
             add2_Float16<<<BLOCK_COUNT(elements), threads, 0, stream>>>(a, b, c, elements); 
             break;
         }
 
         case CUDA_R_32F: {
-            int elements = shiftDownRoundingUp(count, 2);
+            int elements = shiftDownRoundingUp(countC, 2);
             add4_Float32<<<BLOCK_COUNT(elements), threads, 0, stream>>>(a, b, c, elements);
             break;
         }
 
-        case CUDA_R_64F: add<double> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
+        case CUDA_R_64F: add<double> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
         default: printf("cudaDataType_t not implemented"); assert(false);
     }
     return KernelPostCheck(stream);

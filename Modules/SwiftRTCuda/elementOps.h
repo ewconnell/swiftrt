@@ -29,15 +29,15 @@ int cudaTest();
 //==============================================================================
 //
 cudaError_t srtAdd(
-    cudaDataType_t type,
+    cudaDataType_t type, 
     const void *a,
-    const void *b,
+    unsigned countA, 
+    const void *b, 
+    unsigned countB, 
     void *c,
-    unsigned count,
+    unsigned countC, 
     cudaStream_t stream
 );
-
-
 
 //==============================================================================
 #ifdef __cplusplus
