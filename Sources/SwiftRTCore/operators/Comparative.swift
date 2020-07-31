@@ -21,7 +21,7 @@ import Numerics
 @inlinable public func and<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
 -> Tensor<S,E> where E.Value == Bool
 {
-    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
+    assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
     var result = Tensor(like: lhs)
     Context.currentQueue.and(lhs, rhs, &result)
     return result
@@ -56,7 +56,7 @@ extension Tensor where TensorElement.Value == Bool {
 @inlinable public func or<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
 -> Tensor<S,E> where E.Value == Bool
 {
-    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
+    assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
     var result = Tensor(like: lhs)
     Context.currentQueue.or(lhs, rhs, &result)
     return result
@@ -95,7 +95,7 @@ public extension Tensor where TensorElement.Value == Bool {
 @inlinable public func max<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
 -> Tensor<S,E> where S: TensorShape, E.Value: Comparable
 {
-    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
+    assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
     var result = Tensor(like: lhs)
     Context.currentQueue.max(lhs, rhs, &result)
     return result
@@ -188,7 +188,7 @@ public extension Tensor where TensorElement.Value: Comparable {
 @inlinable public func min<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
 -> Tensor<S,E> where S: TensorShape, E.Value: Comparable
 {
-    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
+    assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
     var result = Tensor(like: lhs)
     Context.currentQueue.min(lhs, rhs, &result)
     return result
@@ -279,7 +279,7 @@ public extension Tensor where TensorElement.Value: Comparable {
 public func equal<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) -> Tensor<S,Bool>
 where S: TensorShape, E.Value: Equatable
 {
-    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
+    assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
     var result = Tensor<S, Bool>(shape: lhs.shape, order: lhs.order)
     Context.currentQueue.equal(lhs, rhs, &result)
     return result
@@ -318,7 +318,7 @@ extension Tensor: Equatable where TensorElement.Value: Equatable {
     tolerance: E.Value
 ) -> Tensor<S,Bool>
 where S: TensorShape, E.Value: SignedNumeric & Comparable {
-    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
+    assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
     var result = Tensor<S,Bool>(shape: lhs.shape, order: lhs.order)
     Context.currentQueue.elementsAlmostEqual(lhs, rhs, tolerance, &result)
     return result
@@ -340,7 +340,7 @@ public extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
 @inlinable public func notEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
 -> Tensor<S,Bool> where S: TensorShape, E.Value: Equatable
 {
-    assert(lhs.shape == rhs.shape, _messageTensorExtentsMismatch)
+    assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
     var result = Tensor<S,Bool>(shape: lhs.shape, order: lhs.order)
     Context.currentQueue.notEqual(lhs, rhs, &result)
     return result

@@ -16,10 +16,6 @@
 import Numerics
 
 //==============================================================================
-// assert messages
-public let _messageTensorExtentsMismatch = "tensor shape mismatch"
-
-//==============================================================================
 /// all(x:along:)
 /// Returns `true` if all values are equal to `true` along the specified
 /// axes. Otherwise returns `false`. The result extent along the specified

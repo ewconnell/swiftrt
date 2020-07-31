@@ -13,13 +13,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include <stdio.h>
 #include <assert.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <cuda_fp16.h>
 #include <cuda_bf16.h>
 
 #include "elementOps.h"
 #include "kernelHelpers.h"
+
+//==============================================================================
+// vector ops
+__device__ inline float4 operator +(const float4& l, const float4& r) {
+    return make_float4(l.x + r.x, l.y + r.y, l.z + r.z, l.w + r.w);
+}
+  
+__device__ inline double4 operator +(const double4& l, const double4& r) {
+    return make_double4(l.x + r.x, l.y + r.y, l.z + r.z, l.w + r.w);
+}
 
 //------------------------------------------------------------------------------
 // add
@@ -31,61 +42,77 @@ __global__ void add(const void *va, const void *vb, void *vc, unsigned count) {
     }
 }
 
-// add2_Float16
-// TODO: Is there a way to do a __hadd8?? 
-__global__ void add2_Float16(const void *va, const void *vb, void *vc, unsigned count) {
-    const __half2 *a = (__half2 *)va;
-    const __half2 *b = (__half2 *)vb;
-    __half2 *c = (__half2 *)vc;
-
-    GRID_STRIDE_LOOP(i, count) {
-        c[i] = __hadd2(a[i], b[i]);
-    }
-}
-
-// add4_Float32
-__global__ void add4_Float32(const void *va, const void *vb, void *vc, unsigned count) {
-    const float4 *a = (float4 *)va;
-    const float4 *b = (float4 *)vb;
-    float4 *c = (float4 *)vc;
-
-    GRID_STRIDE_LOOP(i, count) { c[i] = a[i] + b[i]; }
-}
+// __global__ void add_bfloat16(const void *va, const void *vb, void *vc, unsigned count) {
+//     const __nv_bfloat162* a = (__nv_bfloat162*)va; 
+//     const __nv_bfloat162* b = (__nv_bfloat162*)vb; 
+//     __nv_bfloat162* c = (__nv_bfloat162*)vc;
+//     GRID_STRIDE_LOOP(i, count) {
+//         c[i] = a[i] + b[i];
+//     }
+// }
 
 //------------------------------------------------------------------------------
 // Swift importable C functions
 cudaError_t srtAdd(
     cudaDataType_t type, 
     const void *a,
-    unsigned countA, 
+    long countA, 
     const void *b, 
-    unsigned countB, 
+    long countB, 
     void *c,
-    unsigned countC, 
+    long countC, 
     cudaStream_t stream
 ) {
+    // make sure sizes fit within Cuda limitations
+    assert(countA > 0 && countA <= INT32_MAX &&
+        countB > 0 && countB <= INT32_MAX &&
+        countC > 0 && countC <= INT32_MAX);
+
     KernelPreCheck(stream);
     unsigned blocks = BLOCK_COUNT(countC);
     unsigned threads = THREADS_PER_BLOCK;
     switch(type) {
-        case CUDA_R_8I: add<char> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
-        case CUDA_R_8U: add<unsigned char> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
-        case CUDA_R_16I: add<short> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
-        case CUDA_R_16U: add<unsigned short> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
+        // case CUDA_R_8I: add<char> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
+        // case CUDA_R_8U: add<unsigned char> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
+        // case CUDA_R_16I: add<short> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
+        // case CUDA_R_16U: add<unsigned short> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
+
         case CUDA_R_16F: {
-            int elements = shiftDownRoundingUp(countC, 1);
-            add2_Float16<<<BLOCK_COUNT(elements), threads, 0, stream>>>(a, b, c, elements); 
+            int count = shiftDownRoundingUp(countC, 1);
+            add<__half2><<<BLOCK_COUNT(count), threads, 0, stream>>>(a, b, c, count);
             break;
         }
-
+        // case CUDA_R_16BF: {
+        //     int count = shiftDownRoundingUp(countC, 1);
+        //     add_bfloat16<<<BLOCK_COUNT(count), threads, 0, stream>>>(a, b, c, count);
+        //     break;
+        // }
         case CUDA_R_32F: {
-            int elements = shiftDownRoundingUp(countC, 2);
-            add4_Float32<<<BLOCK_COUNT(elements), threads, 0, stream>>>(a, b, c, elements);
+            int count = shiftDownRoundingUp(countC, 2);
+            add<float4><<<BLOCK_COUNT(count), threads, 0, stream>>>(a, b, c, count);
             break;
         }
-
-        case CUDA_R_64F: add<double> <<<blocks, threads, 0, stream>>>(a, b, c, countC); break;
+        case CUDA_R_64F: {
+            int count = shiftDownRoundingUp(countC, 2);
+            add<double4><<<BLOCK_COUNT(count), threads, 0, stream>>>(a, b, c, count);
+            break;
+        }
         default: printf("cudaDataType_t not implemented"); assert(false);
     }
     return KernelPostCheck(stream);
+}
+
+//------------------------------------------------------------------------------
+cudaError_t srtAddStrided(
+    cudaDataType_t type,
+    long dims,
+    const void *a,
+    const long* stridesA, 
+    const void *b, 
+    const long* stridesB, 
+    void *c,
+    const long* stridesC, 
+    cudaStream_t stream
+) {
+    return cudaSuccess;
 }

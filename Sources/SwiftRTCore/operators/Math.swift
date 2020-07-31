@@ -635,7 +635,7 @@ public extension Numeric {
 @inlinable public func pow<S,E>(_ x: Tensor<S,E>, _ y: Tensor<S,E>)
     -> Tensor<S,E> where S: TensorShape, E.Value: Real
 {
-    assert(x.shape == y.shape, _messageTensorExtentsMismatch)
+    assert(x.shape == y.shape, _messageTensorShapeMismatch)
     var result = Tensor(like: x)
     Context.currentQueue.pow(x, y, &result)
     return result

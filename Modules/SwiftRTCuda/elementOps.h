@@ -18,24 +18,33 @@
 
 #include <cuda_runtime.h>
 
-
 // make visible to Swift as C API
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-int cudaTest();
 
 //==============================================================================
 //
 cudaError_t srtAdd(
     cudaDataType_t type, 
     const void *a,
-    unsigned countA, 
+    long countA, 
     const void *b, 
-    unsigned countB, 
+    long countB, 
     void *c,
-    unsigned countC, 
+    long countC, 
+    cudaStream_t stream
+);
+
+cudaError_t srtAddStrided(
+    cudaDataType_t type,
+    long dims,
+    const void *a,
+    const long* stridesA, 
+    const void *b, 
+    const long* stridesB, 
+    void *c,
+    const long* stridesC, 
     cudaStream_t stream
 );
 

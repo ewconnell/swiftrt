@@ -156,6 +156,14 @@ public extension Platform {
 public typealias DeviceIndex = Int32
 
 //==============================================================================
+// assert messages
+public let _messageTensorShapeMismatch = "tensor shape mismatch"
+public let _messageTensorOrderMismatch = "tensor order mismatch"
+public let _messageElementsMustBeContiguous = "elements must be contigous"
+public let _messageRepeatingStorageOrderNotSupported =
+    "repeating storage order is not supported"
+
+//==============================================================================
 /// NanPropagation
 public enum NanPropagation: Int, Codable {
     case propagate, noPropagate

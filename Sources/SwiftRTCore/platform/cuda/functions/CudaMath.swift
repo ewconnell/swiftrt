@@ -22,22 +22,40 @@ extension CudaQueue {
     @inlinable public func add<S,E>(
         _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
         _ result: inout Tensor<S,E>
-    ) where E.Value: AdditiveArithmetic {
-        assert(result.isBufferIterable)
+    ) where S: TensorShape, E.Value: AdditiveArithmetic {
+        assert(result.isContiguous, _messageElementsMustBeContiguous)
+        assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
+
         guard useGpu else { cpu_add(lhs, rhs, &result); return }
 
         if lhs.isBufferIterable && rhs.isBufferIterable {
+            // input tensor must be either dense or repeating a single element
             cudaCheck(srtAdd(
                 E.type.cuda,
                 lhs.deviceRead(using: self),
-                UInt32(lhs.stridedSpanCount),
+                lhs.stridedSpanCount,
                 rhs.deviceRead(using: self),
-                UInt32(rhs.stridedSpanCount),
+                rhs.stridedSpanCount,
                 result.deviceReadWrite(using: self),
-                UInt32(result.stridedSpanCount),
+                result.stridedSpanCount,
                 stream))
         } else {
+            // inputs can be strided to support repeating dimensions
+            // complex tiled orders are not supported
+            assert(lhs.order == .row || lhs.order == .col &&
+                   rhs.order == .row || rhs.order == .col,
+                   _messageRepeatingStorageOrderNotSupported)
 
+            // cudaCheck(srtAddStrided(
+            //     E.type.cuda,
+            //     S.rank,
+            //     lhs.deviceRead(using: self),
+            //     lhs.strides,
+            //     rhs.deviceRead(using: self),
+            //     rhs.strides,
+            //     result.deviceReadWrite(using: self),
+            //     result.strides,
+            //     stream))
         }
     }
 }
