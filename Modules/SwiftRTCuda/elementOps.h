@@ -40,11 +40,11 @@ cudaError_t srtAddStrided(
     cudaDataType_t type,
     long dims,
     const void *a,
-    const long* stridesA, 
+    const int* stridesA, 
     const void *b, 
-    const long* stridesB, 
+    const int* stridesB, 
     void *c,
-    const long* stridesC, 
+    const int* stridesC, 
     cudaStream_t stream
 );
 

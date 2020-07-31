@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+#include <__clang_cuda_runtime_wrapper.h>
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -107,11 +108,11 @@ cudaError_t srtAddStrided(
     cudaDataType_t type,
     long dims,
     const void *a,
-    const long* stridesA, 
+    const int* stridesA, 
     const void *b, 
-    const long* stridesB, 
+    const int* stridesB, 
     void *c,
-    const long* stridesC, 
+    const int* stridesC, 
     cudaStream_t stream
 ) {
     return cudaSuccess;

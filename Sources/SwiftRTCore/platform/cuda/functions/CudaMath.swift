@@ -46,16 +46,23 @@ extension CudaQueue {
                    rhs.order == .row || rhs.order == .col,
                    _messageRepeatingStorageOrderNotSupported)
 
-            // cudaCheck(srtAddStrided(
-            //     E.type.cuda,
-            //     S.rank,
-            //     lhs.deviceRead(using: self),
-            //     lhs.strides,
-            //     rhs.deviceRead(using: self),
-            //     rhs.strides,
-            //     result.deviceReadWrite(using: self),
-            //     result.strides,
-            //     stream))
+            lhs.strides.withUnsafeInt32Pointer { lhsStrides in
+            rhs.strides.withUnsafeInt32Pointer { rhsStrides in
+            result.strides.withUnsafeInt32Pointer { resultStrides in
+
+                cudaCheck(srtAddStrided(
+                    E.type.cuda,
+                    S.rank,
+                    lhs.deviceRead(using: self),
+                    lhsStrides,
+                    rhs.deviceRead(using: self),
+                    rhsStrides,
+                    result.deviceReadWrite(using: self),
+                    resultStrides,
+                    stream))
+            }
+            }
+            }
         }
     }
 }

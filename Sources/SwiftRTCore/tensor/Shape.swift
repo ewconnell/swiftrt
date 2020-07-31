@@ -30,6 +30,12 @@ public protocol TensorShape: SIMD where Scalar == Int {
     /// a tuple of zeros
     static var zeroTuple: Tuple { get }
 
+    /// withUnsafeInt32Pointer(_:
+    /// this is used to convert the vector into contiguous Int32 values
+    /// on the stack to support driver marshaling. The pointer passed
+    /// to `body` cannot be used outside of the closure
+    func withUnsafeInt32Pointer(_ body: (UnsafePointer<Int32>) -> Void)
+
     //---------------------------------
     // convenience initializers
     // the associated tuple type is used to make cleaner looking api arguments
@@ -290,6 +296,20 @@ extension SIMD1: TensorShape where Scalar == Int {
         next[0] &+= 1
         return next
     }
+
+    //--------------------------------------------------------------------------
+    /// withUnsafeInt32Pointer(_:
+    public struct Int32Values {
+        public let v0: Int32
+        @inlinable public init(_ vector: SIMD1) { v0 = Int32(vector[0]) }
+    }
+
+    @inlinable @_transparent 
+    public func withUnsafeInt32Pointer(_ body: (UnsafePointer<Int32>) -> Void) {
+        withUnsafePointer(to: Int32Values(self)) {
+            $0.withMemoryRebound(to: Int32.self, capacity: Self.rank) {body($0)}
+        }
+    }
 }
 
 //==============================================================================
@@ -333,6 +353,23 @@ extension SIMD2: TensorShape where Scalar == Int {
         }
         return next
     }
+
+    //--------------------------------------------------------------------------
+    /// withUnsafeInt32Pointer(_:
+    public struct Int32Values {
+        public let v0, v1: Int32
+        @inlinable public init(_ vector: SIMD2) {
+            v0 = Int32(vector[0])
+            v1 = Int32(vector[1])
+        }
+    }
+
+    @inlinable @_transparent 
+    public func withUnsafeInt32Pointer(_ body: (UnsafePointer<Int32>) -> Void) {
+        withUnsafePointer(to: Int32Values(self)) {
+            $0.withMemoryRebound(to: Int32.self, capacity: Self.rank) {body($0)}
+        }
+    }
 }
 
 //==============================================================================
@@ -373,6 +410,24 @@ extension SIMD3: TensorShape where Scalar == Int {
             }
         }
         return next
+    }
+
+    //--------------------------------------------------------------------------
+    /// withUnsafeInt32Pointer(_:
+    public struct Int32Values {
+        public let v0, v1, v2: Int32
+        @inlinable public init(_ vector: SIMD3) {
+            v0 = Int32(vector[0])
+            v1 = Int32(vector[1])
+            v2 = Int32(vector[2])
+        }
+    }
+
+    @inlinable @_transparent 
+    public func withUnsafeInt32Pointer(_ body: (UnsafePointer<Int32>) -> Void) {
+        withUnsafePointer(to: Int32Values(self)) {
+            $0.withMemoryRebound(to: Int32.self, capacity: Self.rank) {body($0)}
+        }
     }
 }
 
@@ -421,6 +476,25 @@ extension SIMD4: TensorShape where Scalar == Int {
         }
         return next
     }
+
+    //--------------------------------------------------------------------------
+    /// withUnsafeInt32Pointer(_:
+    public struct Int32Values {
+        public let v0, v1, v2, v3: Int32
+        @inlinable public init(_ vector: SIMD4) {
+            v0 = Int32(vector[0])
+            v1 = Int32(vector[1])
+            v2 = Int32(vector[2])
+            v3 = Int32(vector[3])
+        }
+    }
+
+    @inlinable @_transparent 
+    public func withUnsafeInt32Pointer(_ body: (UnsafePointer<Int32>) -> Void) {
+        withUnsafePointer(to: Int32Values(self)) {
+            $0.withMemoryRebound(to: Int32.self, capacity: Self.rank) {body($0)}
+        }
+    }
 }
 
 //==============================================================================
@@ -431,6 +505,11 @@ extension SIMD5: TensorShape where Scalar == Int {
     public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar)
     public static var oneTuple: Tuple { (1, 1, 1, 1, 1) }
     public static var zeroTuple: Tuple { (0, 0, 0, 0, 0) }
+    @inlinable @_transparent public var unsafePointer: UnsafePointer<Scalar> {
+        withUnsafePointer(to: _storage) {
+            UnsafeRawPointer($0).bindMemory(to: Scalar.self, capacity: 1)
+        }
+    } 
 
     @inlinable @_transparent
     public init(_ shape: Tuple) {
@@ -474,6 +553,26 @@ extension SIMD5: TensorShape where Scalar == Int {
         }
         return next
     }
+
+    //--------------------------------------------------------------------------
+    /// withUnsafeInt32Pointer(_:
+    public struct Int32Values {
+        public let v0, v1, v2, v3, v4: Int32
+        @inlinable public init(_ vector: SIMD5) {
+            v0 = Int32(vector[0])
+            v1 = Int32(vector[1])
+            v2 = Int32(vector[2])
+            v3 = Int32(vector[3])
+            v4 = Int32(vector[4])
+        }
+    }
+
+    @inlinable @_transparent 
+    public func withUnsafeInt32Pointer(_ body: (UnsafePointer<Int32>) -> Void) {
+        withUnsafePointer(to: Int32Values(self)) {
+            $0.withMemoryRebound(to: Int32.self, capacity: Self.rank) {body($0)}
+        }
+    }
 }
 
 //==============================================================================
@@ -484,6 +583,11 @@ extension SIMD6: TensorShape where Scalar == Int {
     public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar, Scalar)
     public static var oneTuple: Tuple { (1, 1, 1, 1, 1, 1) }
     public static var zeroTuple: Tuple { (0, 0, 0, 0, 0, 0) }
+    @inlinable @_transparent public var unsafePointer: UnsafePointer<Scalar> {
+        withUnsafePointer(to: _storage) {
+            UnsafeRawPointer($0).bindMemory(to: Scalar.self, capacity: 1)
+        }
+    } 
 
     @inlinable @_transparent
     public init(_ shape: Tuple) {
@@ -532,6 +636,27 @@ extension SIMD6: TensorShape where Scalar == Int {
             }
         }
         return next
+    }
+
+    //--------------------------------------------------------------------------
+    /// withUnsafeInt32Pointer(_:
+    public struct Int32Values {
+        public let v0, v1, v2, v3, v4, v5: Int32
+        @inlinable public init(_ vector: SIMD6) {
+            v0 = Int32(vector[0])
+            v1 = Int32(vector[1])
+            v2 = Int32(vector[2])
+            v3 = Int32(vector[3])
+            v4 = Int32(vector[4])
+            v5 = Int32(vector[5])
+        }
+    }
+
+    @inlinable @_transparent 
+    public func withUnsafeInt32Pointer(_ body: (UnsafePointer<Int32>) -> Void) {
+        withUnsafePointer(to: Int32Values(self)) {
+            $0.withMemoryRebound(to: Int32.self, capacity: Self.rank) {body($0)}
+        }
     }
 }
 
