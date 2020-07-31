@@ -53,7 +53,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     /// The distance to the next element along each dimension
     public let strides: Shape
     /// the number of storage elements spanned by this tensor
-    public let stridedSpanCount: Int
+    public let spanCount: Int
 
     //--------------------------------------------------------------------------
     // functional properties
@@ -65,11 +65,11 @@ where Shape: TensorShape, TensorElement: StorageElement
         set { storage.name = newValue }
     }
     /// `true` if the tensor elements are densely packed
-    @inlinable public var isContiguous: Bool { stridedSpanCount == count }
+    @inlinable public var isContiguous: Bool { spanCount == count }
     
     /// `true` if the tensor contains a single stored element. This is
     /// common for scalar tensors that are repeated.
-    @inlinable public var isSingleElement: Bool { stridedSpanCount == 1 }
+    @inlinable public var isSingleElement: Bool { spanCount == 1 }
     
     //--------------------------------------------------------------------------
     /// init(
@@ -80,7 +80,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         count: Int,
         storage: StorageBufferType,
         storageBase: Int,
-        stridedSpanCount: Int,
+        spanCount: Int,
         order: Order,
         shared: Bool
     ) {
@@ -88,7 +88,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         // storage buffer bounds.
         // Converts the logical last tensor element index to the corresponding
         // stored index and asserts it's less than buffer count
-        assert(TensorElement.storedIndex(storageBase + stridedSpanCount - 1) <
+        assert(TensorElement.storedIndex(storageBase + spanCount - 1) <
                 storage.countOf(type: TensorElement.Stored.self),
                "tensor storage range is out of bounds")
         self.shape = shape
@@ -96,7 +96,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.count = count
         self.storage = storage
         self.storageBase = storageBase
-        self.stridedSpanCount = stridedSpanCount
+        self.spanCount = spanCount
         self.isShared = shared
         self.order = order
         logicalStrides = shape.strides(for: order)
@@ -106,7 +106,7 @@ where Shape: TensorShape, TensorElement: StorageElement
                                           storage,
                                           storageBase,
                                           order,
-                                          stridedSpanCount)
+                                          spanCount)
     }
 
     //--------------------------------------------------------------------------
@@ -123,7 +123,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.storageBase = 0
         self.isShared = false
         self.count = shape.elementCount()
-        self.stridedSpanCount = 1
+        self.spanCount = 1
         self.order = order
         let stored = TensorElement.stored(value: value)
         self.storage = StorageBufferType(storedElement: stored, name: name)
@@ -134,7 +134,7 @@ where Shape: TensorShape, TensorElement: StorageElement
                                           storage,
                                           storageBase,
                                           order,
-                                          stridedSpanCount)
+                                          spanCount)
     }
 }
 
@@ -438,7 +438,7 @@ public extension Tensor {
             count: count,
             storage: storage,
             storageBase: storageBase + lower.index(stridedBy: strides),
-            stridedSpanCount: spanCount,
+            spanCount: spanCount,
             order: order,
             shared: share)
     }
@@ -452,12 +452,12 @@ public extension Tensor {
     /// subscripting.
     @inlinable mutating func prepareForWrite(using queue: DeviceQueue) {
         // if repeated then expand to full dense tensor
-        if stridedSpanCount < count {
+        if spanCount < count {
             var expanded = Tensor(like: self)
 
             diagnostic(
                 "\(expandingString) \(name)(\(id)) " +
-                    "\(Element.self)[\(stridedSpanCount)] to: \(expanded.name)"
+                    "\(Element.self)[\(spanCount)] to: \(expanded.name)"
                     + "(\(expanded.id)) \(Element.self)[\(expanded.count)]",
                 categories: [.dataCopy, .dataExpanding])
 
@@ -528,7 +528,7 @@ public extension Tensor {
         using queue: DeviceQueue
     ) -> UnsafeBufferPointer<TensorElement.Stored> {
         let (i, storedCount) = TensorElement
-                .storedRange(start: storageBase, count: stridedSpanCount)
+                .storedRange(start: storageBase, count: spanCount)
 
         return storage.read(type: TensorElement.Stored.self,
                             at: i, count: storedCount, using: queue)
@@ -571,7 +571,7 @@ public extension Tensor {
         prepareForWrite(using: queue)
 
         let (i, storedCount) = TensorElement
-                .storedRange(start: storageBase, count: stridedSpanCount)
+                .storedRange(start: storageBase, count: spanCount)
         
         return storage.readWrite(type: TensorElement.Stored.self,
                                  at: i, count: storedCount, using: queue)

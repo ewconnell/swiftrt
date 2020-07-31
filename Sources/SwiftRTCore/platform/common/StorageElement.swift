@@ -344,7 +344,7 @@ extension Tensor where TensorElement == Bool1 {
         order = other.order
         isShared = other.isShared
         count = other.count
-        stridedSpanCount = other.stridedSpanCount
+        spanCount = other.spanCount
         logicalStrides = other.logicalStrides
         logicalElements = LogicalElements(count,
                                           shape,
@@ -352,7 +352,7 @@ extension Tensor where TensorElement == Bool1 {
                                           storage,
                                           storageBase,
                                           order,
-                                          stridedSpanCount)
+                                          spanCount)
     }
 }
 
@@ -391,7 +391,7 @@ extension Tensor where TensorElement == UInt1 {
         order = other.order
         isShared = other.isShared
         count = other.count
-        stridedSpanCount = other.stridedSpanCount
+        spanCount = other.spanCount
         logicalStrides = other.logicalStrides
         logicalElements = LogicalElements(count,
                                           shape,
@@ -399,7 +399,7 @@ extension Tensor where TensorElement == UInt1 {
                                           storage,
                                           storageBase,
                                           order,
-                                          stridedSpanCount)
+                                          spanCount)
     }
 }
 
@@ -807,7 +807,7 @@ where Shape: TensorShape, TensorElement: StorageElement
                   tensor.storage,
                   tensor.storageBase,
                   tensor.order,
-                  tensor.stridedSpanCount)
+                  tensor.spanCount)
     }
     
     //--------------------------------------------------------------------------
@@ -825,7 +825,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         _ storage: StorageBufferType,
         _ storageBase: Int,
         _ order: Order,
-        _ stridedSpanCount: Int
+        _ spanCount: Int
     ) {
         assert(shape.elementCount() == count, "shape count mismatch")
         self.alignment = TensorElement.alignment(storageBase)
@@ -834,7 +834,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.order = order
         let (storedBase, storedCount) =
                 TensorElement.storedRange(start: storageBase,
-                                          count: stridedSpanCount)
+                                          count: spanCount)
         self.storedBase = storedBase
         self.storedCount = storedCount
         startIndex = Index(Shape.zero, 0)

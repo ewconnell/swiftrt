@@ -34,9 +34,9 @@ extension DeviceQueue where Self: CpuFunctions
     //--------------------------------------------------------------------------
     @inlinable public func add<S,E>(
         _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
-        _ result: inout Tensor<S,E>
+        _ out: inout Tensor<S,E>
     ) where S: TensorShape, E.Value: AdditiveArithmetic {
-        cpu_add(lhs, rhs, &result)
+        cpu_add(lhs, rhs, &out)
     }
     //--------------------------------------------------------------------------
     @inlinable func and<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
@@ -301,9 +301,9 @@ extension CpuFunctions where Self: DeviceQueue
     
     //--------------------------------------------------------------------------
     @inlinable func cpu_add<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
-                                 _ result: inout Tensor<S,E>)
+                                 _ out: inout Tensor<S,E>)
     where S: TensorShape, E.Value: AdditiveArithmetic {
-        mapOpAdd("cpu_add", lhs, rhs, &result)
+        mapOpAdd("cpu_add", lhs, rhs, &out)
     }
     
     //--------------------------------------------------------------------------

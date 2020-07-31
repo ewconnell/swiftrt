@@ -156,7 +156,7 @@ extension DeviceQueue {
                 r.storage,
                 r.storageBase,
                 r.order,
-                r.stridedSpanCount)
+                r.spanCount)
         
         rMutableElements.prepareForReadWrite()
         
