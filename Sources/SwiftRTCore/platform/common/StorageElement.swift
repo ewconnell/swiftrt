@@ -431,6 +431,10 @@ public struct UInt4: PackedStorageElement {
 
 //==============================================================================
 // non native types that automatically cast to a native type during iteration
+//==============================================================================
+
+//==============================================================================
+// Float16
 extension Float16: StorageElement {
     @inlinable public static func storedIndex(_ index: Int) -> Int { index }
     @inlinable public static func storedCount(_ count: Int) -> Int { count }
@@ -478,6 +482,58 @@ extension Float16: StorageElement {
         at index: Int
     ) {
         buffer[index] = Float16(value)
+    }
+}
+
+//==============================================================================
+// BFloat16
+extension BFloat16: StorageElement {
+    @inlinable public static func storedIndex(_ index: Int) -> Int { index }
+    @inlinable public static func storedCount(_ count: Int) -> Int { count }
+    @inlinable public static func alignment(_ index: Int) -> Int { 0 }
+    @inlinable public static var type: StorageElementType { .real16BF }
+
+    //-------------------------------------
+    // pointers
+    public static var _storedZero: Stored = 0
+    public static var _storedOne: Stored = 1
+
+    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
+        UnsafeRawPointer(&_storedZero) 
+    }
+    
+    @inlinable public static var storedOnePointer: UnsafeRawPointer {
+        UnsafeRawPointer(&_storedOne)
+    }
+
+    //-------------------------------------
+    // accessors
+    @inlinable public static func value(
+        at index: Int, from stored: Self
+    ) -> Float { Float(stored) }
+    
+    @inlinable public static func store(
+        value: Float, at index: Int, to stored: inout Self
+    ) { stored = Self(value) }
+
+    @inlinable public static func stored(value: Float) -> Self { Self(value) }
+
+    @inlinable public static func storedRange(start: Int, count: Int)
+    -> (storedStart: Int, storedCount: Int) { (start, count) }
+    
+    @inlinable public static func getValue(
+        from buffer: UnsafeBufferPointer<BFloat16>,
+        at index: Int
+    ) -> Float {
+        Float(buffer[index])
+    }
+    
+    @inlinable public static func set(
+        value: Float,
+        in buffer: UnsafeMutableBufferPointer<BFloat16>,
+        at index: Int
+    ) {
+        buffer[index] = BFloat16(value)
     }
 }
 
