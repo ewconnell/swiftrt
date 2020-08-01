@@ -50,6 +50,13 @@ public class CudaPlatform: Platform {
                               queueMode: .sync,
                               useGpu: false)
 
+
+        // if the cpu queue count is 0 then at least add in
+        // the appThreadQueue so there is something to work with
+        if devices[0].queues.count == 0 {
+            devices[0].queues.append(appThreadQueue)
+        }            
+
         //----------------------------
         // query cuda to get number of installed devices
         queueStack = []

@@ -32,6 +32,7 @@ class test_AlgebraicField: XCTestCase {
         // ("test_rightBatchMatmul", test_rightBatchMatmul),
 
         ("test_add", test_add),
+        // ("test_addBFloat16", test_addBFloat16),
         // ("test_addInt32", test_addInt32),
         // ("test_addUInt8", test_addUInt8),
         // ("test_addScalar", test_addScalar),
@@ -215,14 +216,14 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     func test_add() { 
         Context.log.level = .diagnostic
-        let a = array(0..<6, (3, 2), type: Float16.self, name: "A")
-        let b = array(0..<6, (3, 2), type: Float16.self, name: "B")
+        let a = array(0..<6, (3, 2), type: BFloat16.self, name: "A")
+        let b = array(0..<6, (3, 2), type: BFloat16.self, name: "B")
         // let aOnes = ones(like: a)
 
         let result = a + b
         print(result)
         XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
-        
+
         // both
         // let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(aOnes)
         // print(g1, g2)        
@@ -237,6 +238,16 @@ class test_AlgebraicField: XCTestCase {
         // // rhs
         // let grhs = pullback(at: a, in: { 2 + $0 })(aOnes)
         // XCTAssert(grhs.flatArray == [1, 1, 1, 1, 1, 1])
+    }
+
+    //--------------------------------------------------------------------------
+    func test_addBFloat16() {
+        using(device: 0) {
+            let a = array(0..<6, (3, 2), type: BFloat16.self)
+            let b = array(0..<6, (3, 2), type: BFloat16.self)
+            let result = a + b
+            XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
+        }
     }
 
     //--------------------------------------------------------------------------
