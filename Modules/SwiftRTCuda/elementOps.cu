@@ -33,6 +33,22 @@ __device__ inline double4 operator +(const double4& l, const double4& r) {
     return make_double4(l.x + r.x, l.y + r.y, l.z + r.z, l.w + r.w);
 }
 
+// #if (__CUDA_ARCH__ < 800)
+// __device__ __forceinline__ __nv_bfloat162 operator+(const __nv_bfloat162& l, const __nv_bfloat162& r) {
+//     __nv_bfloat162 c;
+//     c.x = __float2bfloat16_rn(__bfloat162float(l.x) + __bfloat162float(r.x));
+//     c.y = __float2bfloat16_rn(__bfloat162float(l.y) + __bfloat162float(r.y));
+//     return c;
+// }
+// #endif
+
+__device__ __forceinline__ __nv_bfloat162 add(const __nv_bfloat162& l, const __nv_bfloat162& r) {
+    __nv_bfloat162 c;
+    c.x = __float2bfloat16_rn(__bfloat162float(l.x) + __bfloat162float(r.x));
+    c.y = __float2bfloat16_rn(__bfloat162float(l.y) + __bfloat162float(r.y));
+    return c;
+}
+
 //------------------------------------------------------------------------------
 // add
 template<typename T>
@@ -43,14 +59,18 @@ __global__ void add(const void *va, const void *vb, void *vc, unsigned count) {
     }
 }
 
-// __global__ void add_bfloat16(const void *va, const void *vb, void *vc, unsigned count) {
-//     const __nv_bfloat162* a = (__nv_bfloat162*)va; 
-//     const __nv_bfloat162* b = (__nv_bfloat162*)vb; 
-//     __nv_bfloat162* c = (__nv_bfloat162*)vc;
-//     GRID_STRIDE_LOOP(i, count) {
-//         c[i] = a[i] + b[i];
-//     }
-// }
+template<typename T>
+__global__ void add_bfloat162(const void *va, const void *vb, void *vc, unsigned count) {
+    const T* a = (T*)va; const T* b = (T*)vb; T* c = (T*)vc;
+
+    GRID_STRIDE_LOOP(i, count) {
+        #if (__CUDA_ARCH__ >= 800)
+            c[i] = a[i] + b[i];
+        #else
+            c[i] = add(a[i], b[i]);
+        #endif
+    }
+}
 
 //------------------------------------------------------------------------------
 // Swift importable C functions
@@ -83,11 +103,11 @@ cudaError_t srtAdd(
             add<__half2><<<BLOCK_COUNT(count), threads, 0, stream>>>(a, b, c, count);
             break;
         }
-        // case CUDA_R_16BF: {
-        //     int count = shiftDownRoundingUp(countC, 1);
-        //     add_bfloat16<<<BLOCK_COUNT(count), threads, 0, stream>>>(a, b, c, count);
-        //     break;
-        // }
+        case CUDA_R_16BF: {
+            int count = shiftDownRoundingUp(countC, 1);
+            add_bfloat162<__nv_bfloat162><<<BLOCK_COUNT(count), threads, 0, stream>>>(a, b, c, count);
+            break;
+        }
         case CUDA_R_32F: {
             int count = shiftDownRoundingUp(countC, 2);
             add<float4><<<BLOCK_COUNT(count), threads, 0, stream>>>(a, b, c, count);
