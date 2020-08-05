@@ -167,7 +167,7 @@ public extension Tensor {
     }
     
     //--------------------------------------------------------------------------
-    /// reductionBounds
+    /// reductionShape
     /// returns the upper bounds for a reduction result along the specified axes
     @inlinable func reductionShape(alongAxes axes: Set<Int>?) -> Shape {
         guard let axes = axes else { return Shape.one }

@@ -143,9 +143,10 @@ public final class CudaDeviceMemory: DeviceMemory {
         cudaCheck(cudaSetDevice(Int32(deviceIndex - 1)))
 
         // pad end of memory buffer so that it is rounded up to the
-        // gpu 128-bit vector register size. This provides safe padding to
+        // largest vector element size. This provides safe padding to
         // avoid vector instructions from accessing out of bounds
-        let paddedByteCount = roundUp(byteCount, multiple: 16) 
+        let paddedByteCount = roundUp(byteCount, 
+                                      multiple: MemoryLayout<double4>.size) 
 
         // TODO: for now we will fail if memory is exhausted
         // later catch and do shuffling
