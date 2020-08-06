@@ -758,7 +758,7 @@ public extension Tensor {
 }
 
 @derivative(of: stack)
-func vjpStack<S,SR,E>(
+@inlinable func vjpStack<S,SR,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0,
     into result: inout Tensor<SR,E>

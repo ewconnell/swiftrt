@@ -22,15 +22,23 @@
 
 //==============================================================================
 // kernel helpers
-#define GRID_STRIDE_LOOP(i, n)                                                 \
-  for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n);          \
-       i += blockDim.x * gridDim.x)
+// #define GRID_STRIDE_LOOP1(i, n)                                                \
+//   for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n);          \
+//        i += blockDim.x * gridDim.x)
+
+#define GRID_STRIDE_LOOP(ai, sa, bi, sb, ci, n) \
+    int ti = blockIdx.x * blockDim.x + threadIdx.x; \
+    int step = blockDim.x * gridDim.x; \
+    int aStep = step * (sa); \
+    int bStep = step * (sb); \
+    for(int ai = ti * (sa), bi = ti * (sb), ci = ti; \
+        ci < (n); ai += aStep, bi += bStep, ci += step)
 
 // threads per block
-const unsigned THREADS_PER_BLOCK = 1024;
+const int THREADS_PER_BLOCK = 1024;
 
 // number of blocks for threads.
-inline unsigned BLOCK_COUNT(unsigned N) {
+inline int BLOCK_COUNT(int N) {
   return (N + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
 }
 

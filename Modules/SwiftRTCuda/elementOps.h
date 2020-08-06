@@ -27,12 +27,9 @@ extern "C" {
 //
 cudaError_t srtAdd(
     cudaDataType_t type, 
-    const void *a,
-    long countA, 
-    const void *b, 
-    long countB, 
-    void *c,
-    long countC, 
+    const void *a, long countA, long strideA, 
+    const void *b, long countB, long strideB,
+    void *c, long countC, 
     cudaStream_t stream
 );
 

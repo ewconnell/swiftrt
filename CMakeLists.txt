@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 3.5)
+
+# This must come before the `project` declaration
+# we specify less than clang 10 because nvcc doesn't support v10 yet
+set(CMAKE_C_COMPILER "/usr/lib/llvm-9/bin/clang")
+set(CMAKE_CXX_COMPILER "/usr/lib/llvm-9/bin/clang")
+
 project(swiftrt)
+
+
 
 #####################
 # output directories
@@ -28,7 +36,9 @@ set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
         --compiler-options -fPIC)
 
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
-    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -DDEBUG)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -DDEBUG -g -G)
+else()
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -O3 -Xptxas -O3)
 endif()
 
 file(GLOB_RECURSE SWIFTRT_CUDA_SOURCES
@@ -90,7 +100,7 @@ file(GLOB_RECURSE SWIFTRT_TEST_SOURCES
 #set(TEST_CASE -s ${SWIFTRT_TESTS_NAME}.TestSetup/test_mnistForward)
 
 add_custom_target(${SWIFTRT_TESTS_NAME}
-        COMMAND ${SWIFT} build --build-tests ${SWIFTRT_FLAGS}
+        COMMAND ${SWIFT} build -c ${SWIFT_BUILD_TYPE} ${SWIFTRT_FLAGS} --build-tests 
         SOURCES ${SWIFTRT_TEST_SOURCES} ${MODULES_HEADERS})
 
 add_dependencies(${SWIFTRT_TESTS_NAME} ${SWIFTRT_NAME} ${SWIFTRT_CUDA_LIB_NAME})

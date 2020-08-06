@@ -92,7 +92,7 @@ public extension Tensor {
 //==============================================================================
 // vjpConcat
 @derivative(of: concatenate)
-func vjpConcat<S,E>(
+@inlinable func vjpConcat<S,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0,
     into result: inout Tensor<S,E>

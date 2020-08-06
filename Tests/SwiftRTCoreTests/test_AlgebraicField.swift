@@ -31,7 +31,8 @@ class test_AlgebraicField: XCTestCase {
         // ("test_leftBatchMatmul", test_leftBatchMatmul),
         // ("test_rightBatchMatmul", test_rightBatchMatmul),
 
-        ("test_add", test_add),
+        ("test_perfAdd", test_perfAdd),
+        // ("test_add", test_add),
         // ("test_addFloat16", test_addFloat16),
         // ("test_addBFloat16", test_addBFloat16),
         // ("test_addInt32", test_addInt32),
@@ -215,15 +216,30 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
+    func test_perfAdd() { 
+        let a = array(0..<60000, (300, 200), name: "A")
+        let b = array(0..<60000, (300, 200), name: "B")
+        var result = empty((3, 2))
+        // let aOnes = ones(like: a)
+
+        measure {
+            // for _ in 0..<100 {
+                result = a + b
+            // }
+            print(result[0, 3])
+        }
+    }
+
+    //--------------------------------------------------------------------------
     func test_add() { 
         Context.log.level = .diagnostic
-        let a = array(0..<6, (3, 2), name: "A")
-        let b = array(0..<6, (3, 2), name: "B")
+        let a = array(0..<60000, (300, 200), name: "A")
+        let b = array(0..<60000, (300, 200), name: "B")
         // let aOnes = ones(like: a)
 
         let result = a + b
-        print(result)
-        XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
+        print(result[0, ..<6])
+        // XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
 
         // both
         // let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(aOnes)

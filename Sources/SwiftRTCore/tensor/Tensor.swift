@@ -450,7 +450,7 @@ public extension Tensor {
     /// It also expands repeated tensors to a full dense storage
     /// representation for write, which most often happens via element
     /// subscripting.
-    @inlinable mutating func prepareForWrite(using queue: DeviceQueue) {
+    @inlinable mutating func prepareForWrite(using queue: PlatformType.Device.Queue) {
         // if repeated then expand to full dense tensor
         if spanCount < count {
             var expanded = Tensor(like: self)
@@ -565,7 +565,7 @@ public extension Tensor {
     /// head of the queue.
     ///
     /// - Parameter queue: the device queue to use for synchronization
-    @inlinable mutating func readWrite(using queue: DeviceQueue)
+    @inlinable mutating func readWrite(using queue: PlatformType.Device.Queue)
     -> UnsafeMutableBufferPointer<TensorElement.Stored>
     {
         prepareForWrite(using: queue)
@@ -586,7 +586,7 @@ public extension Tensor {
     ///
     /// - Parameter queue: the device queue to use for synchronization
     @inlinable mutating func deviceReadWrite(
-        using queue: DeviceQueue
+        using queue: PlatformType.Device.Queue
     ) -> UnsafeMutableRawPointer {
         UnsafeMutableRawPointer(readWrite(using: queue).baseAddress!)
     }
