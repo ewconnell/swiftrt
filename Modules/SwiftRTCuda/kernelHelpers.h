@@ -17,16 +17,28 @@
 #define __kernelHelpers_h__
 
 #include <assert.h>
-#include <driver_types.h>
-#include <vector_functions.h>
+#include <cuda_runtime.h>
+#include <stdint.h>
+
+#define MAX_RANK 6
+
+typedef struct {
+    void* devicePointer;
+    cudaDataType_t type;
+    int32_t rank;
+    int32_t count;
+    int32_t spanCount;
+    int32_t shape[MAX_RANK];
+    int32_t strides[MAX_RANK];
+} srtTensorDescriptor;
 
 //==============================================================================
 // kernel helpers
-// #define GRID_STRIDE_LOOP1(i, n)                                                \
-//   for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n);          \
-//        i += blockDim.x * gridDim.x)
+#define GRID_LOOP(i, n)                                                \
+  for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n);          \
+       i += blockDim.x * gridDim.x)
 
-#define GRID_STRIDE_LOOP(ai, sa, bi, sb, ci, n) \
+#define GRID_STRIDED_LOOP(ai, sa, bi, sb, ci, n) \
     int ti = blockIdx.x * blockDim.x + threadIdx.x; \
     int step = blockDim.x * gridDim.x; \
     int aStep = step * (sa); \
@@ -41,6 +53,9 @@ const int THREADS_PER_BLOCK = 1024;
 inline int BLOCK_COUNT(int N) {
   return (N + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
 }
+
+#define POINTER(p, pv) T* p = static_cast<T*>(pv);
+#define CPOINTER(p, pv) const T* p = static_cast<const T*>(pv);
 
 //==============================================================================
 // launch error detection

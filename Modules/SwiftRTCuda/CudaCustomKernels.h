@@ -17,7 +17,6 @@
 #define __CudaCustomKernels_h__
 
 // this is an umbrella header
-
-#include "elementOps.h"
+#include "asmdOps.h"
 
 #endif // __CudaCustomKernels_h__

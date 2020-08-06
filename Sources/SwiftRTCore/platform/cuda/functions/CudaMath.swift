@@ -17,7 +17,7 @@ import SwiftRTCuda
 
 //==============================================================================
 // DeviceQueue functions with default cpu delegation
-extension CudaQueue {
+extension CudaQueue { 
     //--------------------------------------------------------------------------
     @inlinable public func add<S,E>(
         _ lhs: Tensor<S,E>, 
@@ -33,9 +33,9 @@ extension CudaQueue {
             // input tensor must be either dense or repeating a single element
             cudaCheck(
                 srtAdd(E.type.cuda,
-                       lhs.deviceRead(using: self), lhs.spanCount, 1,
-                       rhs.deviceRead(using: self), rhs.spanCount, 1,
-                       out.deviceReadWrite(using: self), out.spanCount,
+                       lhs.deviceRead(using: self), lhs.strides[S.rank-1],
+                       rhs.deviceRead(using: self), rhs.strides[S.rank-1],
+                       out.deviceReadWrite(using: self), out.count,
                        stream))
 
         } else {
@@ -44,6 +44,8 @@ extension CudaQueue {
             assert(lhs.order == .row || lhs.order == .col &&
                    rhs.order == .row || rhs.order == .col,
                    _messageRepeatingStorageOrderNotSupported)
+
+            let fred = srtTensorDescriptor()
 
             lhs.strides.withUnsafeInt32Pointer { l in
                 rhs.strides.withUnsafeInt32Pointer { r in

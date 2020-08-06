@@ -13,10 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef elementOps_h
-#define elementOps_h
+#ifndef asmdOps_h
+#define asmdOps_h
 
-#include <cuda_runtime.h>
+#include "kernelHelpers.h"
+
 
 // make visible to Swift as C API
 #ifdef __cplusplus
@@ -27,9 +28,9 @@ extern "C" {
 //
 cudaError_t srtAdd(
     cudaDataType_t type, 
-    const void *a, long countA, long strideA, 
-    const void *b, long countB, long strideB,
-    void *c, long countC, 
+    const void *a, long strideA, 
+    const void *b, long strideB,
+    void *c, long count, 
     cudaStream_t stream
 );
 
@@ -50,4 +51,4 @@ cudaError_t srtAddStrided(
 }
 #endif
 
-#endif // elementOps_h
+#endif // asmdOps_h

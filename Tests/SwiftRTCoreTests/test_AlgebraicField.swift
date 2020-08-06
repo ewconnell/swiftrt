@@ -31,8 +31,8 @@ class test_AlgebraicField: XCTestCase {
         // ("test_leftBatchMatmul", test_leftBatchMatmul),
         // ("test_rightBatchMatmul", test_rightBatchMatmul),
 
-        ("test_perfAdd", test_perfAdd),
-        // ("test_add", test_add),
+        // ("test_perfAdd", test_perfAdd),
+        ("test_add", test_add),
         // ("test_addFloat16", test_addFloat16),
         // ("test_addBFloat16", test_addBFloat16),
         // ("test_addInt32", test_addInt32),
@@ -233,8 +233,8 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     func test_add() { 
         Context.log.level = .diagnostic
-        let a = array(0..<60000, (300, 200), name: "A")
-        let b = array(0..<60000, (300, 200), name: "B")
+        let a = array(0..<6, (3, 2), name: "A")
+        let b = array(0..<6, (3, 2), name: "B")
         // let aOnes = ones(like: a)
 
         let result = a + b
