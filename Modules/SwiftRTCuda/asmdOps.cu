@@ -72,93 +72,92 @@ __device__ inline __nv_bfloat162 add(const __nv_bfloat162& l, const __nv_bfloat1
 // }
 
 //==============================================================================
-// add
-template<typename T>
-__global__ void addScalar(const void *va, const void *pScalar, void *vc, int count) {
-    CPOINTER(a, va); POINTER(c, vc);
-    const T scalar = static_cast<const T*>(pScalar)[0];
-
-    GRID_LOOP(i, count) {
-        c[i] = a[i] + scalar;
-    }
-}
+// ops
+//==============================================================================
 
 template<typename T>
-__global__ void addElements(const void *va, const void *vb, void *vc, int count) {
-    CPOINTER(a, va); CPOINTER(b, vb); POINTER(c, vc);
+struct Add {
+    __device__ __forceinline__ T operator()(const T& a, const T& b) { return a + b; }
+};
 
+template<typename T>
+struct Sub {
+    __device__ __forceinline__ T operator()(const T& a, const T& b) { return a - b; }
+};
+
+template<typename T>
+struct Mul {
+    __device__ __forceinline__ T operator()(const T& a, const T& b) { return a * b; }
+};
+
+template<typename T>
+struct Div {
+    __device__ __forceinline__ T operator()(const T& a, const T& b) { return a / b; }
+};
+
+//==============================================================================
+// kernels
+//==============================================================================
+
+//------------------------------------------------------------------------------
+// tensorTensor
+template<template<typename U> class Op, typename T>
+__global__ void tensorTensor(const T *a, const T *b, T *out, int count) {
+    Op<T> op;
     GRID_LOOP(i, count) {
-        c[i] = a[i] + b[i];
+        out[i] =  op(a[i], b[i]);
     }
 }
 
 //------------------------------------------------------------------------------
-// add delegates
-void srtAddScalar(
-    cudaDataType_t type, 
-    const void *a, 
-    const void *pScalar, 
-    void *c,
-    int count,
-    cudaStream_t stream
-) {
-    int blocks = BLOCK_COUNT(count);
-    int threads = THREADS_PER_BLOCK;
-
-    switch(type) {
-        case CUDA_R_32F: addScalar<float><<<blocks, threads, 0, stream>>>(a, pScalar, c, count); break;
-        // case CUDA_R_16BF: {
-        //     int n = shiftDownRoundingUp(countC, 1);
-        //     addScalar_bfloat162<__nv_bfloat162><<<BLOCK_COUNT(n), threads, 0, stream>>>(a, pScalar, c, n);
-        //     break;
-        // }
-        case CUDA_R_16F: {
-            int n = shiftDownRoundingUp(count, 1);
-            addScalar<__half2><<<BLOCK_COUNT(n), threads, 0, stream>>>(a, pScalar, c, n);
-            break;
-        }
-        case CUDA_R_8I: addScalar<int8_t> <<<blocks, threads, 0, stream>>>(a, pScalar, c, count); break;
-        case CUDA_R_8U: addScalar<uint8_t> <<<blocks, threads, 0, stream>>>(a, pScalar, c, count); break;
-        case CUDA_R_16I: addScalar<int16_t> <<<blocks, threads, 0, stream>>>(a, pScalar, c, count); break;
-        case CUDA_R_16U: addScalar<uint16_t> <<<blocks, threads, 0, stream>>>(a, pScalar, c, count); break;
-        case CUDA_R_64F: addScalar<double><<<blocks, threads, 0, stream>>>(a, pScalar, c, count); break;
-        default: printf("cudaDataType_t not implemented"); exit(1);
-    }
-}
-
-void srtAddElements(
-    cudaDataType_t type, 
-    const void *a, 
-    const void *b, 
-    void *c, 
-    int count,
-    cudaStream_t stream
-) {
-    int blocks = BLOCK_COUNT(count);
-    int threads = THREADS_PER_BLOCK;
-
-    switch(type) {
-        case CUDA_R_32F: addElements<float><<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        // case CUDA_R_16BF: {
-        //     int n = shiftDownRoundingUp(countC, 1);
-        //     add_bfloat162<__nv_bfloat162><<<BLOCK_COUNT(n), threads, 0, stream>>>(a, b, c, n);
-        //     break;
-        // }
-        case CUDA_R_16F: {
-            int n = shiftDownRoundingUp(count, 1);
-            addElements<__half2><<<BLOCK_COUNT(n), threads, 0, stream>>>(a, b, c, n);
-            break;
-        }
-        case CUDA_R_8I: addElements<int8_t> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_8U: addElements<uint8_t> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_16I: addElements<int16_t> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_16U: addElements<uint16_t> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        case CUDA_R_64F: addElements<double><<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-        default: printf("cudaDataType_t not implemented"); exit(1);
+// tensorScalar
+template<template<typename U> class Op, typename T>
+__global__ void tensorScalar(const T *elements, const T *scalar, T *out, int count) {
+    Op<T> op;
+    GRID_LOOP(i, count) {
+        out[i] = op(elements[i], scalar[0]);
     }
 }
 
 //------------------------------------------------------------------------------
+// scalarTensor
+template<template<typename U> class Op, typename T>
+__global__ void scalarTensor(const T *scalar, const T *elements, T *out, int count) {
+    Op<T> op;
+    GRID_LOOP(i, count) {
+        out[i] = op(scalar[0], elements[i]);
+    }
+}
+
+//==============================================================================
+// combine
+template<template<typename U> class Op, typename T>
+void combine(
+    int blocks, int threads,
+    const void *pA, long strideA, 
+    const void *pB, long strideB,
+    void *pOut, long count,
+    cudaStream_t stream
+) {
+    const T* a = static_cast<const T*>(pA);
+    const T* b = static_cast<const T*>(pB);
+    T* out = static_cast<T*>(pOut);
+
+    if (strideA == 1 && strideB == 1) {
+        // combine two sets of elements
+        tensorTensor<Op, T><<<blocks, threads, 0, stream>>>(a, b, out, count);
+
+    } else if (strideA == 1 && strideB == 0) {
+        // combine elements with a scalar
+        tensorScalar<Op, T><<<blocks, threads, 0, stream>>>(a, b, out, count); 
+
+    } else if (strideA == 0 && strideB == 1) {
+        // combine a scalar with elements
+        scalarTensor<Op, T><<<blocks, threads, 0, stream>>>(a, b, out, count); 
+    }
+}
+
+//==============================================================================
 // srtAdd
 // this function is for dense tensors that can be flattened where
 // `isBufferIterable == true`, so strides must equal 0 or 1
@@ -166,7 +165,7 @@ cudaError_t srtAdd(
     cudaDataType_t type, 
     const void *a, long strideA, 
     const void *b, long strideB,
-    void *c, long count,
+    void *out, long count,
     cudaStream_t stream
 ) {
     // make sure sizes fit within Cuda limitations
@@ -174,15 +173,30 @@ cudaError_t srtAdd(
     assert(strideA == 0 || strideA == 1 && strideB == 0 || strideB == 1);
     KernelPreCheck(stream);
 
-    if (strideA == 1 && strideB == 1) {
-        srtAddElements(type, a, b, c, count, stream);
+    int blocks = BLOCK_COUNT(count);
+    int threads = THREADS_PER_BLOCK;
 
-    } else if (strideA == 1 && strideB == 0) {
-        srtAddScalar(type, a, b, c, count, stream);
-
-    } else if (strideA == 0 && strideB == 1) {
-        srtAddScalar(type, b, a, c, count, stream);
+    switch(type) {
+        case CUDA_R_32F: combine<Add, float>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
+        // *** Figure out how to define operator+ for this type so it works in emulation mode
+        // case CUDA_R_16BF: {
+        //     int n = shiftDownRoundingUp(countC, 1);
+        //     addScalar_bfloat162<__nv_bfloat162><<<BLOCK_COUNT(n), threads, 0, stream>>>(a, pScalar, c, n);
+        //     break;
+        // }
+        case CUDA_R_16F: {
+            int n = shiftDownRoundingUp(count, 1);
+            combine<Add, __half>(BLOCK_COUNT(n), threads, a, strideA, b, strideB, out, count, stream); break;
+            break;
+        }
+        case CUDA_R_8I: combine<Add, int8_t>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
+        case CUDA_R_8U: combine<Add, uint8_t>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
+        case CUDA_R_16I: combine<Add, int16_t>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
+        case CUDA_R_16U: combine<Add, uint16_t>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
+        case CUDA_R_64F: combine<Add, double>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
+        default: printf("cudaDataType_t not implemented"); exit(1);
     }
+
     return KernelPostCheck(stream);
 }
 
@@ -200,28 +214,6 @@ cudaError_t srtAddStrided(
     const int* stridesC, 
     cudaStream_t stream
 ) {
-    // int blocks = BLOCK_COUNT(count);
-    // int threads = THREADS_PER_BLOCK;
-
-    // switch(type) {
-    //     case CUDA_R_32F: addStrided<float><<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-    //     // case CUDA_R_16BF: {
-    //     //     int n = shiftDownRoundingUp(countC, 1);
-    //     //     addStrided_bfloat162<__nv_bfloat162><<<BLOCK_COUNT(n), threads, 0, stream>>>(a, b, c, n);
-    //     //     break;
-    //     // }
-    //     case CUDA_R_16F: {
-    //         int n = shiftDownRoundingUp(count, 1);
-    //         addStrided<__half2><<<BLOCK_COUNT(n), threads, 0, stream>>>(a, b, c, n);
-    //         break;
-    //     }
-    //     case CUDA_R_8I: addStrided<char> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-    //     case CUDA_R_8U: addStrided<unsigned char> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-    //     case CUDA_R_16I: addStrided<short> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-    //     case CUDA_R_16U: addStrided<unsigned short> <<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-    //     case CUDA_R_64F: addStrided<double><<<blocks, threads, 0, stream>>>(a, b, c, count); break;
-    //     default: printf("cudaDataType_t not implemented"); exit(1);
-    // }
 
     return cudaSuccess;
 }

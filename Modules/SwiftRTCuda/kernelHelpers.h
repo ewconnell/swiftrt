@@ -22,6 +22,9 @@
 
 #define MAX_RANK 6
 
+//==============================================================================
+// srtTensorDescriptor
+//
 typedef struct {
     void* devicePointer;
     cudaDataType_t type;
@@ -34,8 +37,8 @@ typedef struct {
 
 //==============================================================================
 // kernel helpers
-#define GRID_LOOP(i, n)                                                \
-  for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n);          \
+#define GRID_LOOP(i, n) \
+  for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n); \
        i += blockDim.x * gridDim.x)
 
 #define GRID_STRIDED_LOOP(ai, sa, bi, sb, ci, n) \
@@ -53,9 +56,6 @@ const int THREADS_PER_BLOCK = 1024;
 inline int BLOCK_COUNT(int N) {
   return (N + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
 }
-
-#define POINTER(p, pv) T* p = static_cast<T*>(pv);
-#define CPOINTER(p, pv) const T* p = static_cast<const T*>(pv);
 
 //==============================================================================
 // launch error detection

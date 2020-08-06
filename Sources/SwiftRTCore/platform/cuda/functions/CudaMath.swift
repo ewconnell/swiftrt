@@ -45,8 +45,6 @@ extension CudaQueue {
                    rhs.order == .row || rhs.order == .col,
                    _messageRepeatingStorageOrderNotSupported)
 
-            let fred = srtTensorDescriptor()
-
             lhs.strides.withUnsafeInt32Pointer { l in
                 rhs.strides.withUnsafeInt32Pointer { r in
                     out.strides.withUnsafeInt32Pointer { o in
