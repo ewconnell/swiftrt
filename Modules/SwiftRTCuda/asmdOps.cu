@@ -58,19 +58,6 @@ __device__ inline __nv_bfloat162 add(const __nv_bfloat162& l, const __nv_bfloat1
 //     }
 // }
 
-// template<typename T>
-// __global__ void addStrided(
-//     const void *va, int strideA,
-//     const void *vb, int strideB,
-//     void *vc, int count
-// ) {
-//     CPOINTER(a, va); CPOINTER(b, vb); POINTER(c, vc);
-
-//     GRID_STRIDED_LOOP(ai, strideA, bi, strideB, ci, count) {
-//         c[ci] = a[ai] + b[bi];
-//     }
-// }
-
 //==============================================================================
 // ops
 //==============================================================================
@@ -201,9 +188,9 @@ cudaError_t srtAdd(
 }
 
 //------------------------------------------------------------------------------
-// srtAddStrided
+// srtAddFullyStrided
 // performs the operation with fully strided index calculations
-cudaError_t srtAddStrided(
+cudaError_t srtAddFullyStrided(
     cudaDataType_t type,
     long dims,
     const void *a,

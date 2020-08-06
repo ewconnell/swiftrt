@@ -41,7 +41,7 @@ typedef struct {
   for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n); \
        i += blockDim.x * gridDim.x)
 
-#define GRID_STRIDED_LOOP(ai, sa, bi, sb, ci, n) \
+#define GRID_LOOP_STRIDED(ai, sa, bi, sb, ci, n) \
     int ti = blockIdx.x * blockDim.x + threadIdx.x; \
     int step = blockDim.x * gridDim.x; \
     int aStep = step * (sa); \

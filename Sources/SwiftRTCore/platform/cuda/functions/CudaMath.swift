@@ -49,7 +49,7 @@ extension CudaQueue {
                 rhs.strides.withUnsafeInt32Pointer { r in
                     out.strides.withUnsafeInt32Pointer { o in
                         cudaCheck(
-                            srtAddStrided(
+                            srtAddFullyStrided(
                                 E.type.cuda, S.rank,
                                 lhs.deviceRead(using: self), l,
                                 rhs.deviceRead(using: self), r,

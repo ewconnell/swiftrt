@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef asmdOps_h
-#define asmdOps_h
+#ifndef fillOps_h
+#define fillOps_h
 
 #include "kernelHelpers.h"
 
@@ -26,29 +26,10 @@ extern "C" {
 
 //==============================================================================
 //
-cudaError_t srtAdd(
-    cudaDataType_t type, 
-    const void *a, long strideA, 
-    const void *b, long strideB,
-    void *c, long count, 
-    cudaStream_t stream
-);
-
-cudaError_t srtAddFullyStrided(
-    cudaDataType_t type,
-    long dims,
-    const void *a,
-    const int* stridesA, 
-    const void *b, 
-    const int* stridesB, 
-    void *c,
-    const int* stridesC, 
-    cudaStream_t stream
-);
 
 //==============================================================================
 #ifdef __cplusplus
 }
 #endif
 
-#endif // asmdOps_h
+#endif // fillOps_h
