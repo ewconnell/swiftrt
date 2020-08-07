@@ -16,6 +16,34 @@
 import SwiftRTCuda
 
 //------------------------------------------------------------------------------
+/// withTensorDescriptor
+/// creates a SwiftRTCuda compatible tensor descriptor on the stack
+/// for use during a driver call
+extension Tensor {
+    @inlinable public func withTensorDescriptor(
+        _ body: (UnsafePointer<srtTensorDescriptor>) -> Void
+    ) {
+        shape.withUnsafeInt32Pointer { shape32 in
+            strides.withUnsafeInt32Pointer { strides32 in
+                var tensorDescriptor = srtTensorDescriptor(
+                    rank: UInt32(Shape.rank),
+                    type: TensorElement.type.cuda,
+                    count: count,
+                    spanCount: spanCount,
+                    shape: shape32,
+                    strides: strides32
+                )
+
+                withUnsafePointer(to: &tensorDescriptor) {
+                    let raw = UnsafeRawPointer($0)
+                    body(raw.assumingMemoryBound(to: srtTensorDescriptor.self))
+                }
+            }
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
 // StorageElementType extension
 extension cudaDataType_t : Hashable {}
 

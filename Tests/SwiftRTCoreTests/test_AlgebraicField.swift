@@ -31,7 +31,8 @@ class test_AlgebraicField: XCTestCase {
         // ("test_leftBatchMatmul", test_leftBatchMatmul),
         // ("test_rightBatchMatmul", test_rightBatchMatmul),
 
-        ("test_perfAdd", test_perfAdd),
+        // ("test_perfAdd", test_perfAdd),
+        ("test_addStrided", test_addStrided),
         // ("test_add", test_add),
         // ("test_addFloat16", test_addFloat16),
         // ("test_addBFloat16", test_addBFloat16),
@@ -54,6 +55,15 @@ class test_AlgebraicField: XCTestCase {
         // ("test_divScalar", test_divScalar),
         // ("test_divAndAssign", test_divAndAssign),
     ]
+
+    //--------------------------------------------------------------------------
+    func test_addStrided() {
+        Context.log.level = .diagnostic
+        let a = array(0..<9, (3, 3))
+        let b = a[..., 1] + 1
+        print(b)
+        XCTAssert(b == [[0, 2, 2], [3, 5, 5], [6, 8, 8]])
+    }
 
     //--------------------------------------------------------------------------
     func test_queryMatmulProperties() {

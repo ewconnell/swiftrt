@@ -2,16 +2,18 @@ cmake_minimum_required(VERSION 3.5)
 
 # This must come before the `project` declaration
 # we specify less than clang 10 because nvcc doesn't support v10 yet
-set(CMAKE_C_COMPILER "/usr/lib/llvm-9/bin/clang")
-set(CMAKE_CXX_COMPILER "/usr/lib/llvm-9/bin/clang")
+# Hmm declaring this AND setting the Vscode kit to clang 9 causes an
+# infinite loop in the cmake generator.
+#
+#set(CMAKE_C_COMPILER "/usr/lib/llvm-9/bin/clang")
+#set(CMAKE_CXX_COMPILER "/usr/lib/llvm-9/bin/clang")
 
 project(swiftrt)
-
-
 
 #####################
 # output directories
 string(TOLOWER "${CMAKE_BUILD_TYPE}" SWIFT_BUILD_TYPE)
+set(TARGET_DIR ${PROJECT_SOURCE_DIR}/.build/${SWIFT_BUILD_TYPE})
 
 #####################
 # C module map directory for Swift import
@@ -104,3 +106,8 @@ add_custom_target(${SWIFTRT_TESTS_NAME}
         SOURCES ${SWIFTRT_TEST_SOURCES} ${MODULES_HEADERS})
 
 add_dependencies(${SWIFTRT_TESTS_NAME} ${SWIFTRT_NAME} ${SWIFTRT_CUDA_LIB_NAME})
+
+# whenever the custom cuda kernel libraries are build, delete the exe
+# to force swift build to relink
+add_custom_command(TARGET ${SWIFTRT_CUDA_LIB_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E remove ${TARGET_DIR}/SwiftRTPackageTests.xctest)

@@ -31,30 +31,28 @@ extension CudaQueue {
 
         if lhs.isBufferIterable && rhs.isBufferIterable {
             // input tensor must be either dense or repeating a single element
-            cudaCheck(
-                srtAdd(E.type.cuda,
-                       lhs.deviceRead(using: self), lhs.strides[S.rank-1],
-                       rhs.deviceRead(using: self), rhs.strides[S.rank-1],
-                       out.deviceReadWrite(using: self), out.count,
-                       stream))
+            cudaCheck(srtAdd( 
+                E.type.cuda,
+                lhs.deviceRead(using: self), lhs.strides[S.rank-1],
+                rhs.deviceRead(using: self), rhs.strides[S.rank-1],
+                out.deviceReadWrite(using: self), out.count,
+                stream))
 
         } else {
             // inputs can be strided to support repeating dimensions
-            // complex tiled orders are not supported
+            // complex tiled orders are not supported at this time
             assert(lhs.order == .row || lhs.order == .col &&
                    rhs.order == .row || rhs.order == .col,
                    _messageRepeatingStorageOrderNotSupported)
 
-            lhs.strides.withUnsafeInt32Pointer { l in
-                rhs.strides.withUnsafeInt32Pointer { r in
-                    out.strides.withUnsafeInt32Pointer { o in
-                        cudaCheck(
-                            srtAddFullyStrided(
-                                E.type.cuda, S.rank,
-                                lhs.deviceRead(using: self), l,
-                                rhs.deviceRead(using: self), r,
-                                out.deviceReadWrite(using: self), o,
-                                stream))
+            lhs.withTensorDescriptor { l in
+                rhs.withTensorDescriptor { r in
+                    out.withTensorDescriptor { o in
+                        cudaCheck(strStridedAdd(
+                            lhs.deviceRead(using: self), l,
+                            rhs.deviceRead(using: self), r,
+                            out.deviceReadWrite(using: self), o,
+                            stream))
                     }
                 }
             }

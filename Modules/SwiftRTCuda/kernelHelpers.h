@@ -20,19 +20,16 @@
 #include <cuda_runtime.h>
 #include <stdint.h>
 
-#define MAX_RANK 6
-
 //==============================================================================
 // srtTensorDescriptor
 //
 typedef struct {
-    void* devicePointer;
+    uint32_t       rank;
     cudaDataType_t type;
-    int32_t rank;
-    int32_t count;
-    int32_t spanCount;
-    int32_t shape[MAX_RANK];
-    int32_t strides[MAX_RANK];
+    size_t         count;
+    size_t         spanCount;
+    const int32_t* shape;
+    const int32_t* strides;
 } srtTensorDescriptor;
 
 //==============================================================================
@@ -50,10 +47,10 @@ typedef struct {
         ci < (n); ai += aStep, bi += bStep, ci += step)
 
 // threads per block
-const int THREADS_PER_BLOCK = 1024;
+const unsigned THREADS_PER_BLOCK = 1024;
 
 // number of blocks for threads.
-inline int BLOCK_COUNT(int N) {
+inline unsigned BLOCK_COUNT(unsigned N) {
   return (N + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
 }
 
@@ -76,9 +73,9 @@ inline cudaError_t KernelPostCheck(cudaStream_t stream)
 #endif
 }
 
-inline int shiftDownRoundingUp(int num, int shift) 
+inline unsigned shiftDownRoundingUp(unsigned num, unsigned shift) 
 {
-    int count = (num + (1 << shift) - 1) >> shift;
+    unsigned count = (num + (1 << shift) - 1) >> shift;
     return count;
 }
 

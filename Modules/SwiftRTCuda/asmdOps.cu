@@ -83,13 +83,13 @@ struct Div {
 };
 
 //==============================================================================
-// kernels
+// buffer iterable kernels
 //==============================================================================
 
 //------------------------------------------------------------------------------
 // tensorTensor
 template<template<typename U> class Op, typename T>
-__global__ void tensorTensor(const T *a, const T *b, T *out, int count) {
+__global__ void tensorTensor(const T *a, const T *b, T *out, unsigned count) {
     Op<T> op;
     GRID_LOOP(i, count) {
         out[i] =  op(a[i], b[i]);
@@ -99,7 +99,7 @@ __global__ void tensorTensor(const T *a, const T *b, T *out, int count) {
 //------------------------------------------------------------------------------
 // tensorScalar
 template<template<typename U> class Op, typename T>
-__global__ void tensorScalar(const T *elements, const T *scalar, T *out, int count) {
+__global__ void tensorScalar(const T *elements, const T *scalar, T *out, unsigned count) {
     Op<T> op;
     GRID_LOOP(i, count) {
         out[i] = op(elements[i], scalar[0]);
@@ -109,21 +109,25 @@ __global__ void tensorScalar(const T *elements, const T *scalar, T *out, int cou
 //------------------------------------------------------------------------------
 // scalarTensor
 template<template<typename U> class Op, typename T>
-__global__ void scalarTensor(const T *scalar, const T *elements, T *out, int count) {
+__global__ void scalarTensor(const T *scalar, const T *elements, T *out, unsigned count) {
     Op<T> op;
     GRID_LOOP(i, count) {
         out[i] = op(scalar[0], elements[i]);
     }
 }
 
-//==============================================================================
-// combine
+//------------------------------------------------------------------------------
+/// combine
+/// invokes the correct kernel to combine the elements of the two tensors
+/// handling the cases of elements and single scalar sets.
+///
 template<template<typename U> class Op, typename T>
-void combine(
-    int blocks, int threads,
-    const void *pA, long strideA, 
-    const void *pB, long strideB,
-    void *pOut, long count,
+static void combine(
+    unsigned blocks, 
+    unsigned threads,
+    const void *pA, size_t strideA, 
+    const void *pB, size_t strideB,
+    void *pOut, size_t count,
     cudaStream_t stream
 ) {
     const T* a = static_cast<const T*>(pA);
@@ -144,36 +148,36 @@ void combine(
     }
 }
 
-//==============================================================================
+//------------------------------------------------------------------------------
 // resolveType
 // this function is for dense tensors that can be flattened where
 // `isBufferIterable == true`, so strides must equal 0 or 1
 template<template<typename U> class Op>
-cudaError_t resolveType(
+static cudaError_t resolveType(
     cudaDataType_t type, 
-    const void *a, long strideA, 
-    const void *b, long strideB,
-    void *out, long count,
+    const void *a, size_t strideA, 
+    const void *b, size_t strideB,
+    void *out, size_t count,
     cudaStream_t stream
 ) {
     // make sure sizes fit within Cuda limitations
-    assert(count > 0 && count <= INT32_MAX);
+    assert(count <= UINT32_MAX);
     assert(strideA == 0 || strideA == 1 && strideB == 0 || strideB == 1);
     KernelPreCheck(stream);
 
-    int blocks = BLOCK_COUNT(count);
-    int threads = THREADS_PER_BLOCK;
+    unsigned blocks = BLOCK_COUNT(count);
+    unsigned threads = THREADS_PER_BLOCK;
 
     switch(type) {
         case CUDA_R_32F: combine<Op, float>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
         // *** Figure out how to define operator+ for this type so it works in emulation mode
         // case CUDA_R_16BF: {
-        //     int n = shiftDownRoundingUp(countC, 1);
+        //     unsigned n = shiftDownRoundingUp(countC, 1);
         //     addScalar_bfloat162<__nv_bfloat162><<<BLOCK_COUNT(n), threads, 0, stream>>>(a, pScalar, c, n);
         //     break;
         // }
         case CUDA_R_16F: {
-            int n = shiftDownRoundingUp(count, 1);
+            unsigned n = shiftDownRoundingUp(count, 1);
             combine<Add, __half>(BLOCK_COUNT(n), threads, a, strideA, b, strideB, out, count, stream); break;
             break;
         }
@@ -189,67 +193,88 @@ cudaError_t resolveType(
 }
 
 //==============================================================================
+// Swift importable C interface functions
+//==============================================================================
+
+//------------------------------------------------------------------------------
 // srtAdd
 cudaError_t srtAdd(
     cudaDataType_t type, 
-    const void *a, long strideA, 
-    const void *b, long strideB,
-    void *out, long count,
+    const void *a, size_t strideA, 
+    const void *b, size_t strideB,
+    void *out, size_t count,
     cudaStream_t stream
 ) {
     return resolveType<Add>(type, a, strideA, b, strideB, out, count, stream);
 }
 
-//==============================================================================
+//------------------------------------------------------------------------------
 // srtSub
 cudaError_t srtSub(
     cudaDataType_t type, 
-    const void *a, long strideA, 
-    const void *b, long strideB,
-    void *out, long count,
+    const void *a, size_t strideA, 
+    const void *b, size_t strideB,
+    void *out, size_t count,
     cudaStream_t stream
 ) {
     return resolveType<Sub>(type, a, strideA, b, strideB, out, count, stream);
 }
 
-//==============================================================================
+//------------------------------------------------------------------------------
 // srtMul
 cudaError_t srtMul(
     cudaDataType_t type, 
-    const void *a, long strideA, 
-    const void *b, long strideB,
-    void *out, long count,
+    const void *a, size_t strideA, 
+    const void *b, size_t strideB,
+    void *out, size_t count,
     cudaStream_t stream
 ) {
     return resolveType<Mul>(type, a, strideA, b, strideB, out, count, stream);
 }
 
-//==============================================================================
+//------------------------------------------------------------------------------
 // srtDiv
 cudaError_t srtDiv(
     cudaDataType_t type, 
-    const void *a, long strideA, 
-    const void *b, long strideB,
-    void *out, long count,
+    const void *a, size_t strideA, 
+    const void *b, size_t strideB,
+    void *out, size_t count,
     cudaStream_t stream
 ) {
     return resolveType<Div>(type, a, strideA, b, strideB, out, count, stream);
 }
 
+//******************************************************************************
+//******************************************************************************
+
+//==============================================================================
+// strided index kernels
+//==============================================================================
+
 //------------------------------------------------------------------------------
-// srtAddFullyStrided
+// tensorTensor
+template<template<typename U> class Op, typename T>
+__global__ void stridedTensorTensor(const T *a, const T *b, T *out, unsigned count) {
+    Op<T> op;
+    GRID_LOOP(i, count) {
+        out[i] =  op(a[i], b[i]);
+    }
+}
+
+
+//==============================================================================
+// Swift importable C interface functions
+//==============================================================================
+
+//------------------------------------------------------------------------------
+// strStridedAdd
 // performs the operation with fully strided index calculations
-cudaError_t srtAddFullyStrided(
-    cudaDataType_t type,
-    long dims,
-    const void *a,
-    const int* stridesA, 
-    const void *b, 
-    const int* stridesB, 
-    void *c,
-    const int* stridesC, 
+cudaError_t strStridedAdd(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* outDesc,
     cudaStream_t stream
 ) {
-
-    return cudaSuccess;
+    return cudaSuccess; 
 }
+
