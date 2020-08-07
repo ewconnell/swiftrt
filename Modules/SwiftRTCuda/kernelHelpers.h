@@ -17,20 +17,28 @@
 #define __kernelHelpers_h__
 
 #include <assert.h>
-#include <cuda_runtime.h>
-#include <stdint.h>
+#include "commonCDefs.h"
 
 //==============================================================================
-// srtTensorDescriptor
-//
-typedef struct {
-    uint32_t rank;
-    cudaDataType_t type;
-    size_t count;
-    size_t spanCount;
-    const uint32_t* shape;
-    const uint32_t* strides;
-} srtTensorDescriptor;
+// Index
+template<size_t Rank>
+struct Index {
+    const uint32_t shape[Rank];
+    const uint32_t strides[Rank];
+
+    // initializer
+    __host__ Index(const srtTensorDescriptor& tensor) {
+        for (int i = 0; i < Rank; ++i) {
+            assert(tensor.shape[i] <= UINT32_MAX && tensor.strides[i] <= UINT32_MAX);
+            shape[i] = uint32_t(tensor.shape[i]);
+            strides[i] = uint32_t(tensor.strides[i]);
+        }
+    }
+
+    __device__ uint32_t linear(dim3 pos) {
+        return 0;
+    }
+};
 
 //==============================================================================
 // kernel helpers
@@ -38,13 +46,13 @@ typedef struct {
   for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n); \
        i += blockDim.x * gridDim.x)
 
-#define GRID_LOOP_STRIDED(ai, sa, bi, sb, ci, n) \
+#define GRID_LOOP_STRIDED(ai, sa, bi, sb, oi, n) \
     int ti = blockIdx.x * blockDim.x + threadIdx.x; \
     int step = blockDim.x * gridDim.x; \
     int aStep = step * (sa); \
     int bStep = step * (sb); \
-    for(int ai = ti * (sa), bi = ti * (sb), ci = ti; \
-        ci < (n); ai += aStep, bi += bStep, ci += step)
+    for(int ai = ti * (sa), bi = ti * (sb), oi = ti; \
+        oi < (n); ai += aStep, bi += bStep, oi += step)
 
 // threads per block
 const unsigned THREADS_PER_BLOCK = 1024;

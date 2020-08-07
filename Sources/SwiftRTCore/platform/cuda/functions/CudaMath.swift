@@ -45,17 +45,17 @@ extension CudaQueue {
                    rhs.order == .row || rhs.order == .col,
                    _messageRepeatingStorageOrderNotSupported)
 
-            lhs.withTensorDescriptor { l in
-                rhs.withTensorDescriptor { r in
-                    out.withTensorDescriptor { o in
-                        cudaCheck(strStridedAdd(
-                            lhs.deviceRead(using: self), l,
-                            rhs.deviceRead(using: self), r,
-                            out.deviceReadWrite(using: self), o,
-                            stream))
-                    }
-                }
-            }
+            // lhs.withTensorDescriptor { l in
+            //     rhs.withTensorDescriptor { r in
+            //         out.withTensorDescriptor { o in
+            //             cudaCheck(strStridedAdd(
+            //                 lhs.deviceRead(using: self), l,
+            //                 rhs.deviceRead(using: self), r,
+            //                 out.deviceReadWrite(using: self), o,
+            //                 stream))
+            //         }
+            //     }
+            // }
         }
     }
 }

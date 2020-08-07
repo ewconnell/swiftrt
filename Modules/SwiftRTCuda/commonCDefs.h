@@ -13,10 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef fillOps_h
-#define fillOps_h
+#ifndef commonCDefs_h
+#define commonCDefs_h
 
-#include "commonCDefs.h"
+#include <stdint.h>
+#include <cuda_runtime.h>
 
 
 // make visible to Swift as C API
@@ -25,11 +26,19 @@ extern "C" {
 #endif
 
 //==============================================================================
-//
+// srtTensorDescriptor
+typedef struct {
+    uint32_t rank;
+    cudaDataType_t type;
+    size_t count;
+    size_t spanCount;
+    const size_t* shape;
+    const size_t* strides;
+} srtTensorDescriptor;
 
 //==============================================================================
 #ifdef __cplusplus
 }
 #endif
 
-#endif // fillOps_h
+#endif // commonCDefs_h

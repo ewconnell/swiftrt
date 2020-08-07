@@ -16,8 +16,7 @@
 #ifndef asmdOps_h
 #define asmdOps_h
 
-#include "kernelHelpers.h"
-
+#include "commonCDefs.h"
 
 // make visible to Swift as C API
 #ifdef __cplusplus
@@ -54,6 +53,8 @@ cudaError_t srtDiv(
     void *out, size_t count,
     cudaStream_t stream);
 
+//------------------------------------------------------------------------------
+// strided variants
 
 cudaError_t strStridedAdd(
     const void* a, const srtTensorDescriptor* aDesc,
