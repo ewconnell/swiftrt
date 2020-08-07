@@ -23,8 +23,8 @@ extension Tensor {
     @inlinable public func withTensorDescriptor(
         _ body: (UnsafePointer<srtTensorDescriptor>) -> Void
     ) {
-        shape.withUnsafeInt32Pointer { shape32 in
-            strides.withUnsafeInt32Pointer { strides32 in
+        shape.withUnsafeUInt32Pointer { shape32 in
+            strides.withUnsafeUInt32Pointer { strides32 in
                 var tensorDescriptor = srtTensorDescriptor(
                     rank: UInt32(Shape.rank),
                     type: TensorElement.type.cuda,

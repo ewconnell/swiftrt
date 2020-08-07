@@ -24,12 +24,12 @@
 // srtTensorDescriptor
 //
 typedef struct {
-    uint32_t       rank;
+    uint32_t rank;
     cudaDataType_t type;
-    size_t         count;
-    size_t         spanCount;
-    const int32_t* shape;
-    const int32_t* strides;
+    size_t count;
+    size_t spanCount;
+    const uint32_t* shape;
+    const uint32_t* strides;
 } srtTensorDescriptor;
 
 //==============================================================================

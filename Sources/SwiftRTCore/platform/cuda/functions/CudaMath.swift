@@ -33,8 +33,8 @@ extension CudaQueue {
             // input tensor must be either dense or repeating a single element
             cudaCheck(srtAdd( 
                 E.type.cuda,
-                lhs.deviceRead(using: self), lhs.strides[S.rank-1],
-                rhs.deviceRead(using: self), rhs.strides[S.rank-1],
+                lhs.deviceRead(using: self), lhs.strides.last,
+                rhs.deviceRead(using: self), rhs.strides.last,
                 out.deviceReadWrite(using: self), out.count,
                 stream))
 
