@@ -145,10 +145,11 @@ void combine(
 }
 
 //==============================================================================
-// srtAdd
+// resolveType
 // this function is for dense tensors that can be flattened where
 // `isBufferIterable == true`, so strides must equal 0 or 1
-cudaError_t srtAdd(
+template<template<typename U> class Op>
+cudaError_t resolveType(
     cudaDataType_t type, 
     const void *a, long strideA, 
     const void *b, long strideB,
@@ -164,7 +165,7 @@ cudaError_t srtAdd(
     int threads = THREADS_PER_BLOCK;
 
     switch(type) {
-        case CUDA_R_32F: combine<Add, float>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
+        case CUDA_R_32F: combine<Op, float>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
         // *** Figure out how to define operator+ for this type so it works in emulation mode
         // case CUDA_R_16BF: {
         //     int n = shiftDownRoundingUp(countC, 1);
@@ -176,15 +177,63 @@ cudaError_t srtAdd(
             combine<Add, __half>(BLOCK_COUNT(n), threads, a, strideA, b, strideB, out, count, stream); break;
             break;
         }
-        case CUDA_R_8I: combine<Add, int8_t>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
-        case CUDA_R_8U: combine<Add, uint8_t>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
-        case CUDA_R_16I: combine<Add, int16_t>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
-        case CUDA_R_16U: combine<Add, uint16_t>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
-        case CUDA_R_64F: combine<Add, double>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
+        case CUDA_R_8I:  combine<Op, int8_t>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
+        case CUDA_R_8U:  combine<Op, uint8_t>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
+        case CUDA_R_16I: combine<Op, int16_t>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
+        case CUDA_R_16U: combine<Op, uint16_t>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
+        case CUDA_R_64F: combine<Op, double>(blocks, threads, a, strideA, b, strideB, out, count, stream); break;
         default: printf("cudaDataType_t not implemented"); exit(1);
     }
 
     return KernelPostCheck(stream);
+}
+
+//==============================================================================
+// srtAdd
+cudaError_t srtAdd(
+    cudaDataType_t type, 
+    const void *a, long strideA, 
+    const void *b, long strideB,
+    void *out, long count,
+    cudaStream_t stream
+) {
+    return resolveType<Add>(type, a, strideA, b, strideB, out, count, stream);
+}
+
+//==============================================================================
+// srtSub
+cudaError_t srtSub(
+    cudaDataType_t type, 
+    const void *a, long strideA, 
+    const void *b, long strideB,
+    void *out, long count,
+    cudaStream_t stream
+) {
+    return resolveType<Sub>(type, a, strideA, b, strideB, out, count, stream);
+}
+
+//==============================================================================
+// srtMul
+cudaError_t srtMul(
+    cudaDataType_t type, 
+    const void *a, long strideA, 
+    const void *b, long strideB,
+    void *out, long count,
+    cudaStream_t stream
+) {
+    return resolveType<Mul>(type, a, strideA, b, strideB, out, count, stream);
+}
+
+//==============================================================================
+// srtDiv
+cudaError_t srtDiv(
+    cudaDataType_t type, 
+    const void *a, long strideA, 
+    const void *b, long strideB,
+    void *out, long count,
+    cudaStream_t stream
+) {
+    return resolveType<Div>(type, a, strideA, b, strideB, out, count, stream);
 }
 
 //------------------------------------------------------------------------------
