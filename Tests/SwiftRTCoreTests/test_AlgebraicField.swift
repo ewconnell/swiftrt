@@ -247,7 +247,7 @@ class test_AlgebraicField: XCTestCase {
         let b = array(0..<6, (3, 2), name: "B")
         // let aOnes = ones(like: a)
 
-        let result = a + b 
+        let result = a + b
         print(result)
         // XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
 

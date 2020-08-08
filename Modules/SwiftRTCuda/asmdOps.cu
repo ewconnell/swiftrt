@@ -89,6 +89,17 @@ struct Div {
 //==============================================================================
 
 //------------------------------------------------------------------------------
+// scalar2
+template<template<typename U> class Op, typename T>
+__global__ void scalar2(const T *a, const T *b, T *out, unsigned count) {
+    Op<T> op;
+    T result = op(a[0], b[0]);
+    GRID_LOOP(i, count) {
+        out[i] = result;
+    }
+}
+
+//------------------------------------------------------------------------------
 // tensor2
 template<template<typename U> class Op, typename T>
 __global__ void tensor2(const T *a, const T *b, T *out, unsigned count) {
@@ -133,14 +144,13 @@ __global__ void strided2(
     // }
 }
 
-
 //------------------------------------------------------------------------------
-/// selectStride
+/// selectRank
 /// invokes the correct kernel to combine the elements of the two tensors
 /// handling the cases of elements and single scalar sets.
 ///
 template<template<typename U> class Op, typename T>
-static void selectStride(
+static void selectRank(
     const void* pA, const srtTensorDescriptor& aDesc,
     const void* pB, const srtTensorDescriptor& bDesc,
     void* pOut, const srtTensorDescriptor& oDesc,
@@ -160,21 +170,29 @@ static void selectStride(
     unsigned threads = THREADS_PER_BLOCK;
     
     if (aDesc.spanCount == 1) {
-        
+        if (bDesc.spanCount == 1) {
+            // scalar with scalar
+            scalar2<Op, T><<<blocks, threads, 0, stream>>>(a, b, out, count); 
+
+        } else if (isDense(bDesc)) {
+            // scalar with flattened dense elements
+            scalarTensor<Op, T><<<blocks, threads, 0, stream>>>(a, b, out, count); 
+        } else {
+            // fully indexed
+        }
+    } else {
+        if (bDesc.spanCount == 1) {
+            if (isDense(aDesc)) {
+                // flattened dense elements with a scalar
+                tensorScalar<Op, T><<<blocks, threads, 0, stream>>>(a, b, out, count); 
+            } else {
+                // A fully indexed
+            }
+        } else {
+            // two sets of elements
+            tensor2<Op, T><<<blocks, threads, 0, stream>>>(a, b, out, count);
+        }
     }
-
-    // if (strideA == 1 && strideB == 1) {
-    //     // combine two sets of elements
-    //     tensor2<Op, T><<<blocks, threads, 0, stream>>>(a, b, out, count);
-
-    // } else if (strideA == 1 && strideB == 0) {
-    //     // combine elements with a scalar
-    //     tensorScalar<Op, T><<<blocks, threads, 0, stream>>>(a, b, out, count); 
-
-    // } else if (strideA == 0 && strideB == 1) {
-    //     // combine a scalar with elements
-    //     scalarTensor<Op, T><<<blocks, threads, 0, stream>>>(a, b, out, count); 
-    // }
 }
 
 //------------------------------------------------------------------------------
@@ -187,19 +205,25 @@ static cudaError_t selectType(
     void* out, const srtTensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    // make sure they are all the same data type
+    // must be same data type and rank, and output is dense
     assert(aDesc.type == bDesc.type && aDesc.type == oDesc.type);
+    assert(aDesc.rank == bDesc.rank && aDesc.rank == oDesc.rank);
+    assert(oDesc.count == oDesc.spanCount);
+
+    // for now require the same order
+    // TODO: maybe allow simultaneous reordering of elements??
+    assert(aDesc.order == bDesc.order && aDesc.order == oDesc.order);
 
     KernelPreCheck(stream);
     switch(aDesc.type) {
-        case CUDA_R_32F:  selectStride<Op, float>(a, aDesc, b, bDesc, out, oDesc, stream); break;
-        case CUDA_R_16BF: selectStride<Op, __nv_bfloat162>(a, aDesc, b, bDesc, out, oDesc, stream, 1); break;
-        case CUDA_R_16F:  selectStride<Op, __half>(a, aDesc, b, bDesc, out, oDesc, stream, 1); break;
-        case CUDA_R_8I:   selectStride<Op, int8_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
-        case CUDA_R_8U:   selectStride<Op, uint8_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
-        case CUDA_R_16I:  selectStride<Op, int16_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
-        case CUDA_R_16U:  selectStride<Op, uint16_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
-        case CUDA_R_64F:  selectStride<Op, double>(a, aDesc, b, bDesc, out, oDesc, stream); break;
+        case CUDA_R_32F:  selectRank<Op, float>(a, aDesc, b, bDesc, out, oDesc, stream); break;
+        // case CUDA_R_16BF: selectRank<Op, __nv_bfloat162>(a, aDesc, b, bDesc, out, oDesc, stream, 1); break;
+        case CUDA_R_16F:  selectRank<Op, __half>(a, aDesc, b, bDesc, out, oDesc, stream, 1); break;
+        case CUDA_R_8I:   selectRank<Op, int8_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
+        case CUDA_R_8U:   selectRank<Op, uint8_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
+        case CUDA_R_16I:  selectRank<Op, int16_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
+        case CUDA_R_16U:  selectRank<Op, uint16_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
+        case CUDA_R_64F:  selectRank<Op, double>(a, aDesc, b, bDesc, out, oDesc, stream); break;
         default: printf("cudaDataType_t not implemented"); exit(1);
     }
     return KernelPostCheck(stream);

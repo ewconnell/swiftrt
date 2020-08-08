@@ -20,6 +20,10 @@
 #include "commonCDefs.h"
 
 //==============================================================================
+// TensorDescriptor
+inline bool isDense(const srtTensorDescriptor& t) { return t.count == t.spanCount; }
+
+//==============================================================================
 // Index
 template<size_t Rank>
 struct Index {

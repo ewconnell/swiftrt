@@ -26,8 +26,9 @@ extension Tensor {
         shape.withUnsafePointer { shapePointer in
             strides.withUnsafePointer { stridesPointer in
                 var tensorDescriptor = srtTensorDescriptor(
-                    rank: UInt32(Shape.rank),
                     type: TensorElement.type.cuda,
+                    rank: UInt32(Shape.rank),
+                    order: order.cublas,
                     count: count,
                     spanCount: spanCount,
                     shape: shapePointer,

@@ -18,6 +18,7 @@
 
 #include <stdint.h>
 #include <cuda_runtime.h>
+#include <cublasLt.h>
 
 
 // make visible to Swift as C API
@@ -28,10 +29,12 @@ extern "C" {
 //==============================================================================
 // srtTensorDescriptor
 typedef struct {
-    /// the number of dimensions
-    uint32_t rank;
     /// the TensorElement cuda data type
     cudaDataType_t type;
+    /// the number of dimensions
+    uint32_t rank;
+    /// the storage layout order
+    cublasLtOrder_t order;
     /// the number of logical elements in the tensor
     size_t count;
     /// the number of physical storage elements spanned by the tensor
