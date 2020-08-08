@@ -29,33 +29,16 @@ extension CudaQueue {
 
         guard useGpu else { cpu_add(lhs, rhs, &out); return }
 
-        if lhs.isBufferIterable && rhs.isBufferIterable {
-            // input tensor must be either dense or repeating a single element
-            cudaCheck(srtAdd( 
-                E.type.cuda,
-                lhs.deviceRead(using: self), lhs.strides.last,
-                rhs.deviceRead(using: self), rhs.strides.last,
-                out.deviceReadWrite(using: self), out.count,
-                stream))
-
-        } else {
-            // inputs can be strided to support repeating dimensions
-            // complex tiled orders are not supported at this time
-            assert(lhs.order == .row || lhs.order == .col &&
-                   rhs.order == .row || rhs.order == .col,
-                   _messageRepeatingStorageOrderNotSupported)
-
-            // lhs.withTensorDescriptor { l in
-            //     rhs.withTensorDescriptor { r in
-            //         out.withTensorDescriptor { o in
-            //             cudaCheck(strStridedAdd(
-            //                 lhs.deviceRead(using: self), l,
-            //                 rhs.deviceRead(using: self), r,
-            //                 out.deviceReadWrite(using: self), o,
-            //                 stream))
-            //         }
-            //     }
-            // }
+        lhs.withTensorDescriptor { l in
+            rhs.withTensorDescriptor { r in
+                out.withTensorDescriptor { o in
+                    cudaCheck(srtAdd(
+                        lhs.deviceRead(using: self), l,
+                        rhs.deviceRead(using: self), r,
+                        out.deviceReadWrite(using: self), o,
+                        stream))
+                }
+            }
         }
     }
 }

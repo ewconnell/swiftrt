@@ -28,11 +28,17 @@ extern "C" {
 //==============================================================================
 // srtTensorDescriptor
 typedef struct {
+    /// the number of dimensions
     uint32_t rank;
+    /// the TensorElement cuda data type
     cudaDataType_t type;
+    /// the number of logical elements in the tensor
     size_t count;
+    /// the number of physical storage elements spanned by the tensor
     size_t spanCount;
+    /// the size of each dimension in the tensor
     const size_t* shape;
+    /// the stride to the next storage element in the tensor for each dimension 
     const size_t* strides;
 } srtTensorDescriptor;
 

@@ -26,42 +26,28 @@ extern "C" {
 //==============================================================================
 //
 cudaError_t srtAdd(
-    cudaDataType_t type, 
-    const void *a, size_t strideA, 
-    const void *b, size_t strideB,
-    void *out, size_t count,
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
 cudaError_t srtSub(
-    cudaDataType_t type, 
-    const void *a, size_t strideA, 
-    const void *b, size_t strideB,
-    void *out, size_t count,
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
 cudaError_t srtMul(
-    cudaDataType_t type, 
-    const void *a, size_t strideA, 
-    const void *b, size_t strideB,
-    void *out, size_t count,
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
 cudaError_t srtDiv(
-    cudaDataType_t type, 
-    const void *a, size_t strideA, 
-    const void *b, size_t strideB,
-    void *out, size_t count,
-    cudaStream_t stream);
-
-//------------------------------------------------------------------------------
-// strided variants
-
-cudaError_t strStridedAdd(
     const void* a, const srtTensorDescriptor* aDesc,
     const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* outDesc,
-    cudaStream_t stream
-);
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
 
 //==============================================================================
 #ifdef __cplusplus
