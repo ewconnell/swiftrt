@@ -41,6 +41,11 @@ extension CudaQueue {
                     case (1, is Float.Type): srtAddR1Float(lData, l, rData, r, oData, o, stream)
                     case (2, is Float.Type): srtAddR2Float(lData, l, rData, r, oData, o, stream)
                     case (3, is Float.Type): srtAddR3Float(lData, l, rData, r, oData, o, stream)
+
+                    case (1, is Float16.Type): srtAddR1Float16(lData, l, rData, r, oData, o, stream)
+                    case (2, is Float16.Type): srtAddR2Float16(lData, l, rData, r, oData, o, stream)
+                    case (3, is Float16.Type): srtAddR3Float16(lData, l, rData, r, oData, o, stream)
+
                     default:
                         diagnostic("\(fallbackString) add R\(S.rank) \(E.self)",
                                    categories: .fallback) 

@@ -44,6 +44,26 @@ void srtAddR3Float(
     cudaStream_t stream);
 
 //==============================================================================
+//
+void srtAddR1Float16(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+void srtAddR2Float16(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+void srtAddR3Float16(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+//==============================================================================
 #ifdef __cplusplus
 }
 #endif

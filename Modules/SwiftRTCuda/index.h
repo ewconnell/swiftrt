@@ -19,23 +19,37 @@
 #include "kernelHelpers.h"
 
 //------------------------------------------------------------------------------
-// ScalarIndex
-struct ScalarIndex {
-    __device__ inline uint32_t start(dim3 pos) { return 0; }
-    __device__ inline uint32_t step(dim3 pos) { return 0; }
+// Single
+struct Single {
+    __device__ inline Single(uint32_t start, uint32_t gridstep, uint32_t count) {}
+    __device__ inline uint32_t next() const { return 0; }
+
+    // repeats
+    __device__ inline uint32_t pos() { return 0; }
+    __device__ inline void setEnd() { }
+    __device__ inline bool isEnd(uint32_t pos) const { return false; }
 };
 
 //------------------------------------------------------------------------------
-// DenseIndex
-template<size_t Rank>
-struct DenseIndex {
-    __device__ inline uint32_t start(dim3 pos) {
-        return 0;
+// Flat
+// a flat dense index
+struct Flat {
+    __device__ inline Flat(uint32_t start, uint32_t step, uint32_t count) {
+        _pos   = start;
+        _step = step;
+        _end  = count;
     }
-    __device__ inline uint32_t step(dim3 pos) {
-        return 0;
-    }
+
+    __device__ inline uint32_t pos() { return _pos; }
+    __device__ inline uint32_t next() { _pos += _step; return _pos; }
+    __device__ inline bool isEnd(uint32_t index) const { return index >= _end; }
+
+    private:
+        uint32_t _pos;
+        uint32_t _step;
+        uint32_t _end;
 };
+
 
 //------------------------------------------------------------------------------
 // Index1

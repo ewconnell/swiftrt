@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 #include <assert.h>
+#include <bits/stdint-uintn.h>
 #include <cstddef>
 #include <stdio.h>
 #include <cuda_fp16.h>
@@ -86,22 +87,48 @@ struct Div {
 };
 
 //==============================================================================
-// opAB
-template<template<typename U> class Op, typename E, typename IA, typename IB, typename IO>
-__global__ void opAB(
-    const E *a, const IA aIndex,
-    const E *b, const IB bIndex,
-    E *out, const IO oIndex,
-    unsigned count
-) {
-    // Op<E> op;
-    // printf("Hello thread %d, %d \n", blockDim.x, gridDim.x);
+// kernels
+template<template<typename U> class Op, typename E>
+__global__ void abSingleSingle(const E *a, const E *b, E *out, uint32_t count) 
+{
+    Op<E> op;
+    E element = op(a[0], b[0]);
+    GRID_LOOP(i, count) {
+        out[i] = element;
+    }
+}
+
+template<template<typename U> class Op, typename E>
+__global__ void abFlatSingle(const E *a, const E *b, E *out, uint32_t count) 
+{
+    Op<E> op;
+    GRID_LOOP(i, count) {
+        out[i] = op(a[i], b[0]);
+    }
+}
+
+template<template<typename U> class Op, typename E>
+__global__ void abSingleFlat(const E *a, const E *b, E *out, uint32_t count) 
+{
+    Op<E> op;
+    GRID_LOOP(i, count) {
+        out[i] = op(a[0], b[i]);
+    }
+}
+
+template<template<typename U> class Op, typename E>
+__global__ void abFlatFlat(const E *a, const E *b, E *out, uint32_t count) 
+{
+    Op<E> op;
+    GRID_LOOP(i, count) {
+        out[i] = op(a[i], b[i]);
+    }
 }
 
 //------------------------------------------------------------------------------
 /// combine
 /// invokes the correct kernel to combine the elements of the two tensors
-/// handling the cases of elements and single scalar sets.
+/// handling the cases of elements and single single sets.
 ///
 template<template<typename U> class Op, int R, typename E>
 static void combine(
@@ -127,30 +154,33 @@ static void combine(
     unsigned blocks = BLOCK_COUNT(count);
     unsigned threads = THREADS_PER_BLOCK;
     
-    if (bDesc.isScalar()) {
-        if (aDesc.isScalar()) {
-            // scalar op scalar --> dense
-            opAB<Op, E, ScalarIndex, ScalarIndex, DenseIndex<R>><<<blocks, threads, 0, stream>>>(
-                a, ScalarIndex(), b, ScalarIndex(), out, DenseIndex<R>(), count);
+    if (bDesc.isSingle()) {
+        if (aDesc.isSingle()) {
+            // single op single --> dense
+            abSingleSingle<Op,E><<<blocks, threads, 0, stream>>>(a, b, out, count);
 
         } else if (aDesc.isDense()) {
-            // dense op scalar --> dense
+            // dense op single --> dense
+            abFlatSingle<Op,E><<<blocks, threads, 0, stream>>>(a, b, out, count);
+
         } else {
-            // strided op scalar --> dense
+            // strided op single --> dense
         }
     } else if (bDesc.isDense()) {
-        if (aDesc.isScalar()) {
-            // scalar op dense --> dense
+        if (aDesc.isSingle()) {
+            // single op dense --> dense
+            abSingleFlat<Op,E><<<blocks, threads, 0, stream>>>(a, b, out, count);
+
         } else if (aDesc.isDense()) {
             // dense op dense --> dense
-            opAB<Op, E, DenseIndex<R>, DenseIndex<R>, DenseIndex<R>><<<blocks, threads, 0, stream>>>(
-                a, DenseIndex<R>(), b, DenseIndex<R>(), out, DenseIndex<R>(), count);
+            abFlatFlat<Op,E><<<blocks, threads, 0, stream>>>(a, b, out, count);
+
         } else {
             // strided op dense --> dense
         }
     } else {
-        if (aDesc.isScalar()) {
-            // scalar op strided --> dense
+        if (aDesc.isSingle()) {
+            // single op strided --> dense
         } else if (aDesc.isDense()) {
             // dense op strided --> dense
         } else {
@@ -188,4 +218,33 @@ void srtAddR3Float(
     cudaStream_t stream
 ) {
     combine<Add,3,float>(a, aDesc, b, bDesc, out, oDesc, stream);
+}
+
+//==============================================================================
+
+void srtAddR1Float16(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    combine<Add,1,__half>(a, aDesc, b, bDesc, out, oDesc, stream);
+}
+
+void srtAddR2Float16(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    combine<Add,2,__half>(a, aDesc, b, bDesc, out, oDesc, stream);
+}
+
+void srtAddR3Float16(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    combine<Add,3,__half>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
