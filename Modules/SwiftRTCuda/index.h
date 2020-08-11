@@ -27,11 +27,12 @@ struct ScalarIndex {
 
 //------------------------------------------------------------------------------
 // DenseIndex
-struct DenseIndex1 {
+template<size_t Rank>
+struct DenseIndex {
     __device__ inline uint32_t start(dim3 pos) {
         return 0;
     }
-    __device__ inline uint32_t stept(dim3 pos) {
+    __device__ inline uint32_t step(dim3 pos) {
         return 0;
     }
 };

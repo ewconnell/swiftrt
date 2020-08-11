@@ -32,8 +32,8 @@ class test_AlgebraicField: XCTestCase {
         // ("test_rightBatchMatmul", test_rightBatchMatmul),
 
         // ("test_perfAdd", test_perfAdd),
-        ("test_addStrided", test_addStrided),
-        // ("test_add", test_add),
+        // ("test_addStrided", test_addStrided),
+        ("test_add", test_add),
         // ("test_addFloat16", test_addFloat16),
         // ("test_addBFloat16", test_addBFloat16),
         // ("test_addInt32", test_addInt32),

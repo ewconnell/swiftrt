@@ -39,8 +39,8 @@ extension CudaQueue {
                     // compile time switch for static binding
                     switch (S.rank, E.self) {
                     case (1, is Float.Type): srtAddR1Float(lData, l, rData, r, oData, o, stream)
-                    case (2, is Float.Type): print("add Float")
-                    case (3, is Float.Type): print("add Float")            
+                    case (2, is Float.Type): srtAddR2Float(lData, l, rData, r, oData, o, stream)
+                    case (3, is Float.Type): srtAddR3Float(lData, l, rData, r, oData, o, stream)
                     default:
                         diagnostic("\(fallbackString) add R\(S.rank) \(E.self)",
                                    categories: .fallback) 

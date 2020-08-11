@@ -23,7 +23,8 @@
 // TensorDescriptor
 // C++ enhanced wrapper
 struct TensorDescriptor: srtTensorDescriptor {
-    inline bool isDense() { return count == spanCount; }
+    inline bool isDense() const { return count == spanCount; }
+    inline bool isScalar() const { return spanCount == 1; }
 };
 
 static_assert(sizeof(TensorDescriptor) == sizeof(srtTensorDescriptor),
@@ -34,14 +35,6 @@ static_assert(sizeof(TensorDescriptor) == sizeof(srtTensorDescriptor),
 #define GRID_LOOP(i, n) \
   for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n); \
        i += blockDim.x * gridDim.x)
-
-#define GRID_LOOP_STRIDED(ai, sa, bi, sb, oi, n) \
-    int ti = blockIdx.x * blockDim.x + threadIdx.x; \
-    int step = blockDim.x * gridDim.x; \
-    int aStep = step * (sa); \
-    int bStep = step * (sb); \
-    for(int ai = ti * (sa), bi = ti * (sb), oi = ti; \
-        oi < (n); ai += aStep, bi += bStep, oi += step)
 
 // threads per block
 const unsigned THREADS_PER_BLOCK = 1024;
