@@ -25,25 +25,7 @@ extern "C" {
 
 //==============================================================================
 //
-cudaError_t srtAdd(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream);
-
-cudaError_t srtSub(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream);
-
-cudaError_t srtMul(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream);
-
-cudaError_t srtDiv(
+void srtAddR1Float(
     const void* a, const srtTensorDescriptor* aDesc,
     const void* b, const srtTensorDescriptor* bDesc,
     void* out, const srtTensorDescriptor* oDesc,

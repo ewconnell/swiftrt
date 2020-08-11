@@ -29,16 +29,26 @@ extension CudaQueue {
 
         guard useGpu else { cpu_add(lhs, rhs, &out); return }
 
+        let lData = lhs.deviceRead(using: self)
+        let rData = rhs.deviceRead(using: self)
+        let oData = out.deviceReadWrite(using: self)
+
         lhs.withTensorDescriptor { l in
             rhs.withTensorDescriptor { r in
                 out.withTensorDescriptor { o in
-                    cudaCheck(srtAdd(
-                        lhs.deviceRead(using: self), l,
-                        rhs.deviceRead(using: self), r,
-                        out.deviceReadWrite(using: self), o,
-                        stream))
+                    // compile time switch for static binding
+                    switch (S.rank, E.self) {
+                    case (1, is Float.Type): srtAddR1Float(lData, l, rData, r, oData, o, stream)
+                    case (2, is Float.Type): print("add Float")
+                    case (3, is Float.Type): print("add Float")            
+                    default:
+                        diagnostic("\(fallbackString) add R\(S.rank) \(E.self)",
+                                   categories: .fallback) 
+                        Context.appThreadQueue.add(lhs, rhs, &out)
+                    }
                 }
             }
         }
+        cudaCheck(stream)
     }
 }

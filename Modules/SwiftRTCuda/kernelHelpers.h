@@ -21,28 +21,13 @@
 
 //==============================================================================
 // TensorDescriptor
-inline bool isDense(const srtTensorDescriptor& t) { return t.count == t.spanCount; }
-
-//==============================================================================
-// Index
-template<size_t Rank>
-struct Index {
-    const uint32_t shape[Rank];
-    const uint32_t strides[Rank];
-
-    // initializer
-    __host__ Index(const srtTensorDescriptor& tensor) {
-        for (int i = 0; i < Rank; ++i) {
-            assert(tensor.shape[i] <= UINT32_MAX && tensor.strides[i] <= UINT32_MAX);
-            shape[i] = uint32_t(tensor.shape[i]);
-            strides[i] = uint32_t(tensor.strides[i]);
-        }
-    }
-
-    __device__ uint32_t linear(dim3 pos) {
-        return 0;
-    }
+// C++ enhanced wrapper
+struct TensorDescriptor: srtTensorDescriptor {
+    inline bool isDense() { return count == spanCount; }
 };
+
+static_assert(sizeof(TensorDescriptor) == sizeof(srtTensorDescriptor),
+    "TensorDescriptor is a c++ wrapper and cannot contain additional members");
 
 //==============================================================================
 // kernel helpers
@@ -67,24 +52,7 @@ inline unsigned BLOCK_COUNT(unsigned N) {
 }
 
 //==============================================================================
-// launch error detection
-inline void KernelPreCheck(cudaStream_t stream) {
-#ifdef DEBUG
-    // reset error variable to cudaSuccess
-	cudaGetLastError();
-#endif
-}
-
-inline cudaError_t KernelPostCheck(cudaStream_t stream)
-{
-#ifdef DEBUG
-    cudaStreamSynchronize(stream);
-	return cudaGetLastError();
-#else
-    return cudaSuccess;
-#endif
-}
-
+// 
 inline unsigned shiftDownRoundingUp(unsigned num, unsigned shift) 
 {
     unsigned count = (num + (1 << shift) - 1) >> shift;

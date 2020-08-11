@@ -390,11 +390,12 @@ public struct LogCategories: OptionSet {
     public static let dataMutation  = LogCategories(rawValue: 1 << 4)
     public static let dataReorder   = LogCategories(rawValue: 1 << 5)
     public static let device        = LogCategories(rawValue: 1 << 6)
-    public static let initialize    = LogCategories(rawValue: 1 << 7)
-    public static let properties    = LogCategories(rawValue: 1 << 8)
-    public static let queueAlloc    = LogCategories(rawValue: 1 << 9)
-    public static let queueFunc     = LogCategories(rawValue: 1 << 10)
-    public static let queueSync     = LogCategories(rawValue: 1 << 11)
+    public static let fallback      = LogCategories(rawValue: 1 << 7)
+    public static let initialize    = LogCategories(rawValue: 1 << 8)
+    public static let properties    = LogCategories(rawValue: 1 << 9)
+    public static let queueAlloc    = LogCategories(rawValue: 1 << 10)
+    public static let queueFunc     = LogCategories(rawValue: 1 << 11)
+    public static let queueSync     = LogCategories(rawValue: 1 << 12)
 }
 
 // strings
@@ -405,6 +406,7 @@ public let copyString       = "[\(setText("COPY     ", color: .blue))]"
 public let createString     = "[\(setText("CREATE   ", color: .cyan))]"
 public let deviceString     = "[\(setText("DEVICE   ", color: .cyan))]"
 public let expandingString  = "[\(setText("EXPANDING", color: .cyan))]"
+public let fallbackString   = "[\(setText("FALLBACK ", color: .yellow))]"
 public let layoutString     = "[\(setText("LAYOUT   ", color: .yellow))]"
 public let mutationString   = "[\(setText("MUTATE   ", color: .blue))]"
 public let queueString      = "[\(setText("QUEUE    ", color: .yellow))] >>>"

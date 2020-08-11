@@ -84,6 +84,27 @@ public class CudaPlatform: Platform {
 }
 
 //==============================================================================
+// cudaCheck cudaStream_t
+@inlinable public func cudaCheck(
+    _ stream: cudaStream_t,
+    file: String = #file,
+    function: String = #function,
+    line: Int = #line
+) {
+#if DEBUG
+    cudaStreamSynchronize(stream)
+    let status = cudaGetLastError()
+    if status != cudaSuccess {
+        let location = "CUDA error in \(file) at \(function):\(line)"
+        let message = String(utf8String: cudaGetErrorString(status))!
+        cudaDeviceReset()
+        Context.currentQueue.writeLog("\(message) at \(location)")
+        fatalError("unrecoverable error")
+    }
+#endif
+}
+
+//==============================================================================
 // cudaCheck cudaError_t
 @inlinable public func cudaCheck(
     _ status: cudaError_t,

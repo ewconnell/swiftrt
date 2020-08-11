@@ -59,7 +59,7 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     func test_addStrided() {
         Context.log.level = .diagnostic
-        let a = array(0..<9, (3, 3))
+        let a = array(0..<9, (3, 3), type: Float.self)
         let b = a[..., 1] + 1
         print(b)
         XCTAssert(b == [[0, 2, 2], [3, 5, 5], [6, 8, 8]])
