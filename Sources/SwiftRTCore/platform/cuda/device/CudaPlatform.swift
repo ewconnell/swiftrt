@@ -88,14 +88,16 @@ public class CudaPlatform: Platform {
 /// if `status` is equal to `cudaErrorNotSupported` then a diagnostic message
 /// is logged and the fallback body is executed.
 @inlinable public func cpuFallback(
-    _ message: @autoclosure () -> String,
-    _ status: cudaError_t, 
+    _ status: cudaError_t,
     _ body: (PlatformType.Device.Queue) -> Void
 ) {
     if status == cudaErrorNotSupported {
+        let name = Context.currentQueue.deviceName
         using(device: 0) {
             Context.currentQueue.diagnostic(
-                "\(fallbackString) \(message())", categories: .fallback) 
+                "\(fallbackString) unsupported function on \(name) " +
+                "delegated to \(Context.currentQueue.name)",
+                 categories: .fallback) 
             body(Context.currentQueue)
         }
     } else {

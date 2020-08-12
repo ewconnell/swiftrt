@@ -28,17 +28,14 @@ extension CudaQueue {
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_add(lhs, rhs, &out); return }
 
-        cpuFallback("add R\(S.rank) \(E.self)",
-            // try on gpu
-            out.withMutableTensor(using: self) { oData, o in
-                lhs.withTensor(using: self) { lData, l in
-                    rhs.withTensor(using: self) { rData, r in
-                        srtAdd(lData, l, rData, r, oData, o, stream)
-                    }
+        let status = out.withMutableTensor(using: self) { oData, o in
+            lhs.withTensor(using: self) { lData, l in
+                rhs.withTensor(using: self) { rData, r in
+                    srtAdd(lData, l, rData, r, oData, o, stream)
                 }
             }
-        ) {
-            $0.add(lhs, rhs, &out)
         }
+
+        cpuFallback(status) { cpu in cpu.add(lhs, rhs, &out) }
     }
 }
