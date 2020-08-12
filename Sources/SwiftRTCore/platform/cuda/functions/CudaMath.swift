@@ -56,4 +56,37 @@ extension CudaQueue {
         }
         cudaCheck(stream)
     }
+
+    //--------------------------------------------------------------------------
+    @inlinable public func addDynamicDispatch<S,E>(
+        _ lhs: Tensor<S,E>, 
+        _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where S: TensorShape, E.Value: AdditiveArithmetic {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
+
+        guard useGpu else { cpu_add(lhs, rhs, &out); return }
+
+        lhs.withTensorDescriptor { l in
+            rhs.withTensorDescriptor { r in
+                out.withTensorDescriptor { o in
+                
+                    let status = srtAdd(
+                        lhs.deviceRead(using: self), l,
+                        rhs.deviceRead(using: self), r, 
+                        out.deviceReadWrite(using: self), o,
+                        stream)
+
+                    if status == cudaErrorNotSupported {
+                        diagnostic("\(fallbackString) add R\(S.rank) \(E.self)",
+                                   categories: .fallback) 
+                        Context.appThreadQueue.add(lhs, rhs, &out)
+                    } else {
+                        cudaCheck(status)
+                    }
+                }
+            }
+        }
+    }
 }

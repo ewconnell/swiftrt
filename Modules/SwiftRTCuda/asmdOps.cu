@@ -26,43 +26,6 @@
 #include "index.h"
 
 //==============================================================================
-// #if (__CUDA_ARCH__ < 800)
-// __device__ __forceinline__ __nv_bfloat162 operator+(const __nv_bfloat162& l, const __nv_bfloat162& r) {
-//     __nv_bfloat162 c;
-//     c.x = __float2bfloat16_rn(__bfloat162float(l.x) + __bfloat162float(r.x));
-//     c.y = __float2bfloat16_rn(__bfloat162float(l.y) + __bfloat162float(r.y));
-//     return c;
-// }
-// #endif
-
-__device__ inline __nv_bfloat162 add(const __nv_bfloat162& l, const __nv_bfloat162& r) {
-    __nv_bfloat162 c;
-    c.x = __float2bfloat16_rn(__bfloat162float(l.x) + __bfloat162float(r.x));
-    c.y = __float2bfloat16_rn(__bfloat162float(l.y) + __bfloat162float(r.y));
-    return c;
-}
-
-// template<typename E>
-// __global__ void add_bfloat162(
-//     const void *va, int strideA,
-//     const void *vb, int strideB,
-//     void *vc,
-//     unsigned count
-// ) {
-//     auto a = static_cast<const E*>(va);
-//     auto b = static_cast<const E*>(vb);
-//     auto c = static_cast<E*>(vc);
-
-//     GRID_STRIDE_LOOP(ai, strideA, bi, strideB, ci, count) {
-//         #if (__CUDA_ARCH__ >= 800)
-//             c[ci] = a[ai] + b[bi];
-//         #else
-//             c[ci] = add(a[ai], b[bi]);
-//         #endif
-//     }
-// }
-
-//==============================================================================
 // ops
 //==============================================================================
 
@@ -88,8 +51,11 @@ struct Div {
 
 //==============================================================================
 // kernels
+//==============================================================================
+
+/// abSingleSingle
 template<template<typename U> class Op, typename E>
-__global__ void abSingleSingle(const E *a, const E *b, E *out, uint32_t count) 
+__global__ void abSingleSingle(const E *a, const E *b, E *out, unsigned count) 
 {
     Op<E> op;
     E element = op(a[0], b[0]);
@@ -98,8 +64,9 @@ __global__ void abSingleSingle(const E *a, const E *b, E *out, uint32_t count)
     }
 }
 
+/// abFlatSingle
 template<template<typename U> class Op, typename E>
-__global__ void abFlatSingle(const E *a, const E *b, E *out, uint32_t count) 
+__global__ void abFlatSingle(const E *a, const E *b, E *out, unsigned count) 
 {
     Op<E> op;
     GRID_LOOP(i, count) {
@@ -107,8 +74,9 @@ __global__ void abFlatSingle(const E *a, const E *b, E *out, uint32_t count)
     }
 }
 
+/// abSingleFlat
 template<template<typename U> class Op, typename E>
-__global__ void abSingleFlat(const E *a, const E *b, E *out, uint32_t count) 
+__global__ void abSingleFlat(const E *a, const E *b, E *out, unsigned count) 
 {
     Op<E> op;
     GRID_LOOP(i, count) {
@@ -116,8 +84,9 @@ __global__ void abSingleFlat(const E *a, const E *b, E *out, uint32_t count)
     }
 }
 
+/// abFlatFlat
 template<template<typename U> class Op, typename E>
-__global__ void abFlatFlat(const E *a, const E *b, E *out, uint32_t count) 
+__global__ void abFlatFlat(const E *a, const E *b, E *out, unsigned count) 
 {
     Op<E> op;
     GRID_LOOP(i, count) {
@@ -247,4 +216,101 @@ void srtAddR3Float16(
     cudaStream_t stream
 ) {
     combine<Add,3,__half>(a, aDesc, b, bDesc, out, oDesc, stream);
+}
+
+//==============================================================================
+// Swift importable C interface functions
+//==============================================================================
+
+template<template<typename U> class Op, typename E>
+static cudaError_t selectRank(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream,
+    unsigned shiftCount = 0 
+) {
+    // TODO: does this generate a jump table? If not create an array
+    // of function pointers
+    switch (oDesc->rank) {
+    case 1: combine<Op,1,E>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount); break;
+    case 2: combine<Op,2,E>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount); break;
+    case 3: combine<Op,3,E>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount); break;
+    case 4: combine<Op,4,E>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount); break;
+    case 5: combine<Op,5,E>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount); break;
+    case 6: combine<Op,6,E>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount); break;
+    default: return cudaErrorNotSupported;
+    }
+    return cudaSuccess;
+}
+
+//------------------------------------------------------------------------------
+// selectType
+// converts from dynamic to static type and delegates for stride selection
+template<template<typename U> class Op>
+static cudaError_t selectType(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    // must be same data type and rank, and output is dense
+    assert(aDesc->type == bDesc->type && aDesc->type == oDesc->type);
+    assert(aDesc->rank == bDesc->rank && aDesc->rank == oDesc->rank);
+    assert(oDesc->count == oDesc->spanCount);
+
+    // for now require the same order
+    // TODO: maybe allow simultaneous reordering of elements??
+    assert(aDesc->order == bDesc->order && aDesc->order == oDesc->order);
+    
+    switch(oDesc->type) {
+        case CUDA_R_32F:  selectRank<Op, float>(a, aDesc, b, bDesc, out, oDesc, stream); break;
+        // case CUDA_R_16BF: selectRank<Op, __nv_bfloat162>(a, aDesc, b, bDesc, out, oDesc, stream, 1); break;
+        case CUDA_R_16F:  selectRank<Op, __half>(a, aDesc, b, bDesc, out, oDesc, stream, 1); break;
+        case CUDA_R_8I:   selectRank<Op, int8_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
+        case CUDA_R_8U:   selectRank<Op, uint8_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
+        case CUDA_R_16I:  selectRank<Op, int16_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
+        case CUDA_R_16U:  selectRank<Op, uint16_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
+        case CUDA_R_64F:  selectRank<Op, double>(a, aDesc, b, bDesc, out, oDesc, stream); break;
+        default: return cudaErrorNotSupported;
+    }
+    return cudaSuccess;
+}
+
+//------------------------------------------------------------------------------
+
+cudaError_t srtAdd(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return selectType<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
+}
+
+cudaError_t srtSub(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return selectType<Sub>(a, aDesc, b, bDesc, out, oDesc, stream);
+}
+
+cudaError_t srtMul(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return selectType<Mul>(a, aDesc, b, bDesc, out, oDesc, stream);
+}
+
+cudaError_t srtDiv(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return selectType<Div>(a, aDesc, b, bDesc, out, oDesc, stream);
 }

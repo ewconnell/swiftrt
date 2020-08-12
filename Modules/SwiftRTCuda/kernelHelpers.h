@@ -52,4 +52,42 @@ inline unsigned shiftDownRoundingUp(unsigned num, unsigned shift)
     return count;
 }
 
+//==============================================================================
+// #if (__CUDA_ARCH__ < 800)
+// __device__ __forceinline__ __nv_bfloat162 operator+(const __nv_bfloat162& l, const __nv_bfloat162& r) {
+//     __nv_bfloat162 c;
+//     c.x = __float2bfloat16_rn(__bfloat162float(l.x) + __bfloat162float(r.x));
+//     c.y = __float2bfloat16_rn(__bfloat162float(l.y) + __bfloat162float(r.y));
+//     return c;
+// }
+// #endif
+
+__device__ inline __nv_bfloat162 add(const __nv_bfloat162& l, const __nv_bfloat162& r) {
+    __nv_bfloat162 c;
+    c.x = __float2bfloat16_rn(__bfloat162float(l.x) + __bfloat162float(r.x));
+    c.y = __float2bfloat16_rn(__bfloat162float(l.y) + __bfloat162float(r.y));
+    return c;
+}
+
+// template<typename E>
+// __global__ void add_bfloat162(
+//     const void *va, int strideA,
+//     const void *vb, int strideB,
+//     void *vc,
+//     unsigned count
+// ) {
+//     auto a = static_cast<const E*>(va);
+//     auto b = static_cast<const E*>(vb);
+//     auto c = static_cast<E*>(vc);
+
+//     GRID_STRIDE_LOOP(ai, strideA, bi, strideB, ci, count) {
+//         #if (__CUDA_ARCH__ >= 800)
+//             c[ci] = a[ai] + b[bi];
+//         #else
+//             c[ci] = add(a[ai], b[bi]);
+//         #endif
+//     }
+// }
+
+
 #endif // __kernelHelpers_h__
