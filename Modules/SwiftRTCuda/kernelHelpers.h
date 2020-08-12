@@ -39,9 +39,9 @@ static_assert(sizeof(TensorDescriptor) == sizeof(srtTensorDescriptor),
 // threads per block
 const unsigned THREADS_PER_BLOCK = 1024;
 
-// number of blocks for threads.
-inline unsigned BLOCK_COUNT(unsigned N) {
-  return (N + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
+// number of blocks for threads
+inline unsigned BLOCK_COUNT(unsigned n) {
+  return ((n) + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
 }
 
 //==============================================================================

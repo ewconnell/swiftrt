@@ -22,7 +22,7 @@ import SwiftRTCuda
 /// on the machine where the process is being run.
 public class CudaPlatform: Platform {
     // properties
-    public static var defaultCpuQueueCount: Int = 0
+    public static var defaultCpuQueueCount: Int = 1
     public static var defaultAcceleratorQueueCount: Int = 2
     public var discreteMemoryDeviceId: Int = 1
     public var devices: [CudaDevice]
@@ -80,6 +80,26 @@ public class CudaPlatform: Platform {
 
         diagnostic("\(deviceString) default: \(queueStack[0].name)",
                     categories: .device)
+    }
+}
+
+//==============================================================================
+/// cpuFallback
+/// if `status` is equal to `cudaErrorNotSupported` then a diagnostic message
+/// is logged and the fallback body is executed.
+@inlinable public func cpuFallback(
+    _ message: @autoclosure () -> String,
+    _ status: cudaError_t, 
+    _ body: (PlatformType.Device.Queue) -> Void
+) {
+    if status == cudaErrorNotSupported {
+        using(device: 0) {
+            Context.currentQueue.diagnostic(
+                "\(fallbackString) \(message())", categories: .fallback) 
+            body(Context.currentQueue)
+        }
+    } else {
+        cudaCheck(status)
     }
 }
 

@@ -32,8 +32,8 @@ class test_AlgebraicField: XCTestCase {
         // ("test_rightBatchMatmul", test_rightBatchMatmul),
 
         // ("test_perfAdd", test_perfAdd),
-        // ("test_addStrided", test_addStrided),
-        ("test_add", test_add),
+        ("test_addStrided", test_addStrided),
+        // ("test_add", test_add),
         // ("test_addFloat16", test_addFloat16),
         // ("test_addBFloat16", test_addBFloat16),
         // ("test_addInt32", test_addInt32),
@@ -59,10 +59,11 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     func test_addStrided() {
         Context.log.level = .diagnostic
+        // useAppThreadQueue()
         let a = array(0..<9, (3, 3), type: Float.self)
         let b = a[..., 1] + 1
         print(b)
-        XCTAssert(b == [[0, 2, 2], [3, 5, 5], [6, 8, 8]])
+        XCTAssert(b == [[2], [5], [8]])
     }
 
     //--------------------------------------------------------------------------

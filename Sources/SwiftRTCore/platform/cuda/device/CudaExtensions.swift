@@ -20,10 +20,12 @@ import SwiftRTCuda
 /// creates a SwiftRTCuda compatible tensor descriptor on the stack
 /// for use during a driver call
 extension Tensor {
-    @inlinable public func withTensorDescriptor(
-        _ body: (UnsafePointer<srtTensorDescriptor>) -> Void
-    ) {
-        shape.withUnsafePointer { shapePointer in
+    @inlinable public func withTensor<Result>(
+        using queue: PlatformType.Device.Queue,
+        _ body: (UnsafeRawPointer, UnsafePointer<srtTensorDescriptor>) -> Result
+    ) -> Result {
+        let deviceDataPointer = deviceRead(using: queue)
+        return shape.withUnsafePointer { shapePointer in
             strides.withUnsafePointer { stridesPointer in
                 var tensorDescriptor = srtTensorDescriptor(
                     type: TensorElement.type.cuda,
@@ -35,9 +37,38 @@ extension Tensor {
                     strides: stridesPointer
                 )
 
-                withUnsafePointer(to: &tensorDescriptor) {
+                return withUnsafePointer(to: &tensorDescriptor) {
                     let raw = UnsafeRawPointer($0)
-                    body(raw.assumingMemoryBound(to: srtTensorDescriptor.self))
+                    return body(
+                        deviceDataPointer, 
+                        raw.assumingMemoryBound(to: srtTensorDescriptor.self))
+                }
+            }
+        }
+    }
+
+    @inlinable public mutating func withMutableTensor<Result>(
+        using queue: PlatformType.Device.Queue,
+        _ body: (UnsafeMutableRawPointer, UnsafePointer<srtTensorDescriptor>) -> Result
+    ) -> Result {
+        let deviceDataPointer = deviceReadWrite(using: queue)
+        return shape.withUnsafePointer { shapePointer in
+            strides.withUnsafePointer { stridesPointer in
+                var tensorDescriptor = srtTensorDescriptor(
+                    type: TensorElement.type.cuda,
+                    rank: UInt32(Shape.rank),
+                    order: order.cublas,
+                    count: count,
+                    spanCount: spanCount,
+                    shape: shapePointer,
+                    strides: stridesPointer
+                )
+
+                return withUnsafePointer(to: &tensorDescriptor) {
+                    let raw = UnsafeRawPointer($0)
+                    return body(
+                        deviceDataPointer,
+                        raw.assumingMemoryBound(to: srtTensorDescriptor.self))
                 }
             }
         }

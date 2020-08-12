@@ -16,50 +16,32 @@
 #if !defined(__index_h__)
 #define __index_h__
 
+#include <vector_types.h>
 #include "kernelHelpers.h"
-
-//------------------------------------------------------------------------------
-// Single
-struct Single {
-    __device__ inline Single(uint32_t start, uint32_t gridstep, uint32_t count) {}
-    __device__ inline uint32_t next() const { return 0; }
-
-    // repeats
-    __device__ inline uint32_t pos() { return 0; }
-    __device__ inline void setEnd() { }
-    __device__ inline bool isEnd(uint32_t pos) const { return false; }
-};
 
 //------------------------------------------------------------------------------
 // Flat
 // a flat dense index
 struct Flat {
-    __device__ inline Flat(uint32_t start, uint32_t step, uint32_t count) {
-        _pos   = start;
-        _step = step;
-        _end  = count;
+    __device__ __forceinline__ static uint32_t linearIndex(
+        const uint3& blockIdx,
+        const dim3& blockDim,
+        const uint3& threadIdx
+    ) {
+        return blockIdx.x * blockDim.x + threadIdx.x;
     }
-
-    __device__ inline uint32_t pos() { return _pos; }
-    __device__ inline uint32_t next() { _pos += _step; return _pos; }
-    __device__ inline bool isEnd(uint32_t index) const { return index >= _end; }
-
-    private:
-        uint32_t _pos;
-        uint32_t _step;
-        uint32_t _end;
 };
 
 
 //------------------------------------------------------------------------------
 // Index1
 template<size_t Rank>
-struct StridedIndex {
-    const uint32_t shape[Rank];
-    const uint32_t strides[Rank];
+struct Strided {
+    uint32_t shape[Rank];
+    uint32_t strides[Rank];
 
     // initializer
-    __host__ StridedIndex(const srtTensorDescriptor& tensor) {
+    __host__ Strided(const TensorDescriptor& tensor) {
         for (int i = 0; i < Rank; ++i) {
             assert(tensor.shape[i] <= UINT32_MAX && tensor.strides[i] <= UINT32_MAX);
             shape[i] = uint32_t(tensor.shape[i]);
@@ -67,8 +49,29 @@ struct StridedIndex {
         }
     }
 
-    __device__ uint32_t linear(dim3 pos) {
-        return 0;
+    //--------------------------------------------------------------------------
+    /// linearIndex
+    __device__ __forceinline__ uint32_t linearIndex(
+        const uint3& blockIdx,
+        const dim3& blockDim,
+        const uint3& threadIdx
+    ) const {
+        static_assert(Rank <= 3, "only Rank 1 - 3 are implemented");
+        if (Rank == 1) {
+            auto col = blockIdx.x * blockDim.x + threadIdx.x;
+            return col * strides[0];
+
+        } else if (Rank == 2) {
+            auto row = blockIdx.y * blockDim.y + threadIdx.y;
+            auto col = blockIdx.x * blockDim.x + threadIdx.x;
+            return row * strides[0] + col * strides[1];
+
+        } else {
+            auto dep = blockIdx.z * blockDim.z + threadIdx.z;
+            auto row = blockIdx.y * blockDim.y + threadIdx.y;
+            auto col = blockIdx.x * blockDim.x + threadIdx.x;
+            return dep * strides[0] + row * strides[1] + col * strides[2];
+        }
     }
 };
 

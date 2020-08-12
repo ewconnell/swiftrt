@@ -17,7 +17,7 @@ import SwiftRTCuda
 
 //==============================================================================
 // DeviceQueue functions with default cpu delegation
-extension CudaQueue { 
+extension CudaQueue {
     //--------------------------------------------------------------------------
     @inlinable public func add<S,E>(
         _ lhs: Tensor<S,E>, 
@@ -26,67 +26,19 @@ extension CudaQueue {
     ) where S: TensorShape, E.Value: AdditiveArithmetic {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
-
         guard useGpu else { cpu_add(lhs, rhs, &out); return }
 
-        let lData = lhs.deviceRead(using: self)
-        let rData = rhs.deviceRead(using: self)
-        let oData = out.deviceReadWrite(using: self)
-
-        lhs.withTensorDescriptor { l in
-            rhs.withTensorDescriptor { r in
-                out.withTensorDescriptor { o in
-                    // compile time switch for static binding
-                    switch (S.rank, E.self) {
-                    case (1, is Float.Type): srtAddR1Float(lData, l, rData, r, oData, o, stream)
-                    case (2, is Float.Type): srtAddR2Float(lData, l, rData, r, oData, o, stream)
-                    case (3, is Float.Type): srtAddR3Float(lData, l, rData, r, oData, o, stream)
-
-                    case (1, is Float16.Type): srtAddR1Float16(lData, l, rData, r, oData, o, stream)
-                    case (2, is Float16.Type): srtAddR2Float16(lData, l, rData, r, oData, o, stream)
-                    case (3, is Float16.Type): srtAddR3Float16(lData, l, rData, r, oData, o, stream)
-
-                    default:
-                        diagnostic("\(fallbackString) add R\(S.rank) \(E.self)",
-                                   categories: .fallback) 
-                        Context.appThreadQueue.add(lhs, rhs, &out)
+        cpuFallback("add R\(S.rank) \(E.self)",
+            // try on gpu
+            out.withMutableTensor(using: self) { oData, o in
+                lhs.withTensor(using: self) { lData, l in
+                    rhs.withTensor(using: self) { rData, r in
+                        srtAdd(lData, l, rData, r, oData, o, stream)
                     }
                 }
             }
-        }
-        cudaCheck(stream)
-    }
-
-    //--------------------------------------------------------------------------
-    @inlinable public func addDynamicDispatch<S,E>(
-        _ lhs: Tensor<S,E>, 
-        _ rhs: Tensor<S,E>,
-        _ out: inout Tensor<S,E>
-    ) where S: TensorShape, E.Value: AdditiveArithmetic {
-        assert(out.isContiguous, _messageElementsMustBeContiguous)
-        assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
-
-        guard useGpu else { cpu_add(lhs, rhs, &out); return }
-
-        lhs.withTensorDescriptor { l in
-            rhs.withTensorDescriptor { r in
-                out.withTensorDescriptor { o in
-                
-                    let status = srtAdd(
-                        lhs.deviceRead(using: self), l,
-                        rhs.deviceRead(using: self), r, 
-                        out.deviceReadWrite(using: self), o,
-                        stream)
-
-                    if status == cudaErrorNotSupported {
-                        diagnostic("\(fallbackString) add R\(S.rank) \(E.self)",
-                                   categories: .fallback) 
-                        Context.appThreadQueue.add(lhs, rhs, &out)
-                    } else {
-                        cudaCheck(status)
-                    }
-                }
-            }
+        ) {
+            $0.add(lhs, rhs, &out)
         }
     }
 }

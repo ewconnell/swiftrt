@@ -23,49 +23,27 @@
 extern "C" {
 #endif
 
-// dynamic example signature
+//==============================================================================
+//
 cudaError_t srtAdd(
     const void* a, const srtTensorDescriptor* aDesc,
     const void* b, const srtTensorDescriptor* bDesc,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
-
-//==============================================================================
-//
-void srtAddR1Float(
+cudaError_t srtSub(
     const void* a, const srtTensorDescriptor* aDesc,
     const void* b, const srtTensorDescriptor* bDesc,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
-void srtAddR2Float(
+cudaError_t srtMul(
     const void* a, const srtTensorDescriptor* aDesc,
     const void* b, const srtTensorDescriptor* bDesc,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
-void srtAddR3Float(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream);
-
-//==============================================================================
-//
-void srtAddR1Float16(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream);
-
-void srtAddR2Float16(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream);
-
-void srtAddR3Float16(
+cudaError_t srtDiv(
     const void* a, const srtTensorDescriptor* aDesc,
     const void* b, const srtTensorDescriptor* bDesc,
     void* out, const srtTensorDescriptor* oDesc,

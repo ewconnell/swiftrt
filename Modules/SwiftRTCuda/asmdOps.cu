@@ -54,66 +54,107 @@ struct Div {
 //==============================================================================
 
 /// abSingleSingle
+// single op single --> flat
 template<template<typename U> class Op, typename E>
 __global__ void abSingleSingle(const E *a, const E *b, E *out, unsigned count) 
 {
     Op<E> op;
-    E element = op(a[0], b[0]);
-    GRID_LOOP(i, count) {
-        out[i] = element;
-    }
+    unsigned i = Flat::linearIndex(blockIdx, blockDim, threadIdx);
+    out[i] = op(a[0], b[0]);
 }
 
 /// abFlatSingle
+// flat op single --> flat
 template<template<typename U> class Op, typename E>
 __global__ void abFlatSingle(const E *a, const E *b, E *out, unsigned count) 
 {
     Op<E> op;
-    GRID_LOOP(i, count) {
-        out[i] = op(a[i], b[0]);
-    }
+    unsigned i = Flat::linearIndex(blockIdx, blockDim, threadIdx);
+    out[i] = op(a[i], b[0]);
 }
 
 /// abSingleFlat
+// single op flat --> flat
 template<template<typename U> class Op, typename E>
 __global__ void abSingleFlat(const E *a, const E *b, E *out, unsigned count) 
 {
     Op<E> op;
-    GRID_LOOP(i, count) {
-        out[i] = op(a[0], b[i]);
-    }
+    unsigned i = Flat::linearIndex(blockIdx, blockDim, threadIdx);
+    out[i] = op(a[0], b[i]);
 }
 
 /// abFlatFlat
+// flat op flat --> flat
 template<template<typename U> class Op, typename E>
 __global__ void abFlatFlat(const E *a, const E *b, E *out, unsigned count) 
 {
     Op<E> op;
-    GRID_LOOP(i, count) {
-        out[i] = op(a[i], b[i]);
-    }
+    unsigned i = Flat::linearIndex(blockIdx, blockDim, threadIdx);
+    out[i] = op(a[i], b[i]);
 }
 
+/// abStridedSingle
+// strided op single --> flat
+template<template<typename U> class Op, typename E, typename IndexA>
+__global__ void abStridedSingle(
+    const E *a, IndexA indexA, 
+    const E *b, 
+    E *out, 
+    unsigned outEnd
+) {
+    Op<E> op;
+    unsigned iout = Flat::linearIndex(blockIdx, blockDim, threadIdx);
+    unsigned ia = indexA.linearIndex(blockIdx, blockDim, threadIdx);
+    if (iout < outEnd) out[iout] = op(a[ia], b[0]);
+}
+
+//==============================================================================
+// dynamic dispatch functions
+//==============================================================================
+
 //------------------------------------------------------------------------------
-/// combine
-/// invokes the correct kernel to combine the elements of the two tensors
+/// mapStridedSingle
+/// invokes the correct kernel to mapAB the elements of the two tensors
 /// handling the cases of elements and single single sets.
 ///
-template<template<typename U> class Op, int R, typename E>
-static void combine(
-    const void* pA, const srtTensorDescriptor* paDesc,
-    const void* pB, const srtTensorDescriptor* pbDesc,
-    void* pOut, const srtTensorDescriptor* poDesc,
+template<template<typename U> class Op, typename E>
+static cudaError_t mapStridedSingle(
+    const E* a, const TensorDescriptor& aDesc,
+    const E* b, const TensorDescriptor& bDesc,
+    E* out, const TensorDescriptor& oDesc,
     cudaStream_t stream,
     unsigned shiftCount = 0 
 ) {
-    // statically cast types from C interface to use with c++ templates
+    switch (aDesc.rank) {
+    case 1: {
+        unsigned count = oDesc.count;
+        unsigned blocks = BLOCK_COUNT(count);
+        unsigned threads = THREADS_PER_BLOCK;
+        abStridedSingle<Op,E,Strided<1>> <<<blocks, threads, 0, stream>>>(a, Strided<1>(aDesc), b, out, count);
+        break;
+    }
+
+    default: return cudaErrorNotSupported;
+    }
+    return cudaSuccess;
+}
+
+//------------------------------------------------------------------------------
+/// mapAB
+/// invokes the correct kernel to mapAB the elements of the two tensors
+/// handling the cases of elements and single single sets.
+///
+template<template<typename U> class Op, typename E>
+static cudaError_t mapAB(
+    const void* pA, const TensorDescriptor& aDesc,
+    const void* pB, const TensorDescriptor& bDesc,
+    void* pOut, const TensorDescriptor& oDesc,
+    cudaStream_t stream,
+    unsigned shiftCount = 0 
+) {
     E* out = static_cast<E*>(pOut);
     const E* a = static_cast<const E*>(pA);
     const E* b = static_cast<const E*>(pB);
-    const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*poDesc);
-    const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*paDesc);
-    const TensorDescriptor& bDesc = static_cast<const TensorDescriptor&>(*pbDesc);
 
     // the count is divided in cases where values are handled as short vectors
     unsigned count = shiftDownRoundingUp(oDesc.count, shiftCount);
@@ -125,121 +166,37 @@ static void combine(
     
     if (bDesc.isSingle()) {
         if (aDesc.isSingle()) {
-            // single op single --> dense
+            // single op single --> flat
             abSingleSingle<Op,E><<<blocks, threads, 0, stream>>>(a, b, out, count);
 
         } else if (aDesc.isDense()) {
-            // dense op single --> dense
+            // flat op single --> flat
             abFlatSingle<Op,E><<<blocks, threads, 0, stream>>>(a, b, out, count);
 
         } else {
-            // strided op single --> dense
+            // strided op single --> flat
+            return mapStridedSingle<Op,E>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount);
         }
     } else if (bDesc.isDense()) {
         if (aDesc.isSingle()) {
-            // single op dense --> dense
+            // single op dense --> flat
             abSingleFlat<Op,E><<<blocks, threads, 0, stream>>>(a, b, out, count);
 
         } else if (aDesc.isDense()) {
-            // dense op dense --> dense
+            // dense op dense --> flat
             abFlatFlat<Op,E><<<blocks, threads, 0, stream>>>(a, b, out, count);
 
         } else {
-            // strided op dense --> dense
+            // strided op dense --> flat
         }
     } else {
         if (aDesc.isSingle()) {
-            // single op strided --> dense
+            // single op strided --> flat
         } else if (aDesc.isDense()) {
-            // dense op strided --> dense
+            // dense op strided --> flat
         } else {
-            // strided op strided --> dense
+            // strided op strided --> flat
         }
-    }
-}
-
-//==============================================================================
-// Swift importable C interface functions
-//==============================================================================
-
-void srtAddR1Float(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream
-) {
-    combine<Add,1,float>(a, aDesc, b, bDesc, out, oDesc, stream);
-}
-
-void srtAddR2Float(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream
-) {
-    combine<Add,2,float>(a, aDesc, b, bDesc, out, oDesc, stream);
-}
-
-void srtAddR3Float(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream
-) {
-    combine<Add,3,float>(a, aDesc, b, bDesc, out, oDesc, stream);
-}
-
-//==============================================================================
-
-void srtAddR1Float16(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream
-) {
-    combine<Add,1,__half>(a, aDesc, b, bDesc, out, oDesc, stream);
-}
-
-void srtAddR2Float16(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream
-) {
-    combine<Add,2,__half>(a, aDesc, b, bDesc, out, oDesc, stream);
-}
-
-void srtAddR3Float16(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream
-) {
-    combine<Add,3,__half>(a, aDesc, b, bDesc, out, oDesc, stream);
-}
-
-//==============================================================================
-// Swift importable C interface functions
-//==============================================================================
-
-template<template<typename U> class Op, typename E>
-static cudaError_t selectRank(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream,
-    unsigned shiftCount = 0 
-) {
-    // TODO: does this generate a jump table? If not create an array
-    // of function pointers
-    switch (oDesc->rank) {
-    case 1: combine<Op,1,E>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount); break;
-    case 2: combine<Op,2,E>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount); break;
-    case 3: combine<Op,3,E>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount); break;
-    case 4: combine<Op,4,E>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount); break;
-    case 5: combine<Op,5,E>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount); break;
-    case 6: combine<Op,6,E>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount); break;
-    default: return cudaErrorNotSupported;
     }
     return cudaSuccess;
 }
@@ -249,35 +206,41 @@ static cudaError_t selectRank(
 // converts from dynamic to static type and delegates for stride selection
 template<template<typename U> class Op>
 static cudaError_t selectType(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
+    // statically cast types from C interface to use with c++ templates
+    const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*poDesc);
+    const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*paDesc);
+    const TensorDescriptor& bDesc = static_cast<const TensorDescriptor&>(*pbDesc);
+
     // must be same data type and rank, and output is dense
-    assert(aDesc->type == bDesc->type && aDesc->type == oDesc->type);
-    assert(aDesc->rank == bDesc->rank && aDesc->rank == oDesc->rank);
-    assert(oDesc->count == oDesc->spanCount);
+    assert(oDesc.isDense());
+    assert(aDesc.type == bDesc.type && aDesc.type == oDesc.type);
+    assert(aDesc.rank == bDesc.rank && aDesc.rank == oDesc.rank);
 
     // for now require the same order
     // TODO: maybe allow simultaneous reordering of elements??
-    assert(aDesc->order == bDesc->order && aDesc->order == oDesc->order);
+    assert(aDesc.order == bDesc.order && aDesc.order == oDesc.order);
     
-    switch(oDesc->type) {
-        case CUDA_R_32F:  selectRank<Op, float>(a, aDesc, b, bDesc, out, oDesc, stream); break;
-        // case CUDA_R_16BF: selectRank<Op, __nv_bfloat162>(a, aDesc, b, bDesc, out, oDesc, stream, 1); break;
-        case CUDA_R_16F:  selectRank<Op, __half>(a, aDesc, b, bDesc, out, oDesc, stream, 1); break;
-        case CUDA_R_8I:   selectRank<Op, int8_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
-        case CUDA_R_8U:   selectRank<Op, uint8_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
-        case CUDA_R_16I:  selectRank<Op, int16_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
-        case CUDA_R_16U:  selectRank<Op, uint16_t>(a, aDesc, b, bDesc, out, oDesc, stream); break;
-        case CUDA_R_64F:  selectRank<Op, double>(a, aDesc, b, bDesc, out, oDesc, stream); break;
+    switch(oDesc.type) {
+        case CUDA_R_32F:  return mapAB<Op, float>(a, aDesc, b, bDesc, out, oDesc, stream);
+        // case CUDA_R_16BF: return mapAB<Op, __nv_bfloat162>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
+        case CUDA_R_16F:  return mapAB<Op, __half>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
+        case CUDA_R_8I:   return mapAB<Op, int8_t>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case CUDA_R_8U:   return mapAB<Op, uint8_t>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case CUDA_R_16I:  return mapAB<Op, int16_t>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case CUDA_R_16U:  return mapAB<Op, uint16_t>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case CUDA_R_64F:  return mapAB<Op, double>(a, aDesc, b, bDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
     }
-    return cudaSuccess;
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
+// Swift importable C interface functions
+//==============================================================================
 
 cudaError_t srtAdd(
     const void* a, const srtTensorDescriptor* aDesc,
