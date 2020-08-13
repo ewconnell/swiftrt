@@ -13,11 +13,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#if !defined(__CudaCustomKernels_h__)
-#define __CudaCustomKernels_h__
+#ifndef mathOps_h
+#define mathOps_h
 
-// this is an umbrella header
-#include "asmdOps.h"
-#include "mathOps.h"
+#include "commonCDefs.h"
 
-#endif // __CudaCustomKernels_h__
+// make visible to Swift as C API
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//==============================================================================
+//
+cudaError_t srtAbs(
+    const void* x, const srtTensorDescriptor* xDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+//==============================================================================
+#ifdef __cplusplus
+}
+#endif
+
+#endif // mathOps_h

@@ -20,6 +20,23 @@ import Numerics
 // DeviceQueue functions with default cpu delegation
 extension CudaQueue {
     //--------------------------------------------------------------------------
+    @inlinable func abs<S,E>(
+        _ x: Tensor<S,E>, 
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable & SignedNumeric {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_abs(x, &out); return }
+
+        let status = out.withMutableTensor(using: self) { oData, o in
+            x.withTensor(using: self) { xData, x in
+                srtAbs(xData, x, oData, o, stream)
+            }
+        }
+
+        cpuFallback(status) { $0.abs(x, &out) }
+    }
+
+    //--------------------------------------------------------------------------
     @inlinable public func add<S,E>(
         _ lhs: Tensor<S,E>, 
         _ rhs: Tensor<S,E>,

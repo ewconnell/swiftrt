@@ -14,9 +14,6 @@
 // limitations under the License.
 //
 #include <assert.h>
-#include <bits/stdint-uintn.h>
-#include <cstddef>
-#include <stdio.h>
 #include <cuda_fp16.h>
 #include <cuda_bf16.h>
 
