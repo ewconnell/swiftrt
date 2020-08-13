@@ -53,6 +53,7 @@ struct Div {
 // kernels
 //==============================================================================
 
+//--------------------------------------
 /// abSingleSingle
 // single op single --> flat
 template<typename F, typename E>
@@ -62,6 +63,7 @@ __global__ void abSingleSingle(const E *a, const E *b, E *out, unsigned end)
     if (i < end) out[i] = F::op(a[0], b[0]);
 }
 
+//--------------------------------------
 /// abFlatSingle
 // flat op single --> flat
 template<typename F, typename E>
@@ -71,6 +73,7 @@ __global__ void abFlatSingle(const E *a, const E *b, E *out, unsigned end)
     if (i < end) out[i] = F::op(a[i], b[0]);
 }
 
+//--------------------------------------
 /// abSingleFlat
 // single op flat --> flat
 template<typename F, typename E>
@@ -80,6 +83,7 @@ __global__ void abSingleFlat(const E *a, const E *b, E *out, unsigned end)
     if (i < end) out[i] = F::op(a[0], b[i]);
 }
 
+//--------------------------------------
 /// abFlatFlat
 // flat op flat --> flat
 template<typename F, typename E>
@@ -89,18 +93,66 @@ __global__ void abFlatFlat(const E *a, const E *b, E *out, unsigned end)
     if (i < end) out[i] = F::op(a[i], b[i]);
 }
 
+//--------------------------------------
 /// abStridedSingle
 // strided op single --> flat
 template<typename F, typename E, typename IndexA>
-__global__ void abStridedSingle(
-    const E *a, IndexA indexA, 
-    const E *b, 
-    E *out, 
-    unsigned end
-) {
-    unsigned iout = Flat::linearIndex(blockIdx, blockDim, threadIdx);
+__global__ void abStridedSingle(const E *a, IndexA indexA, 
+                                const E *b, E *out, unsigned end) 
+{
+    unsigned i = Flat::linearIndex(blockIdx, blockDim, threadIdx);
     unsigned ia = indexA.linearIndex(blockIdx, blockDim, threadIdx);
-    if (iout < end) out[iout] = F::op(a[ia], b[0]);
+    if (i < end) out[i] = F::op(a[ia], b[0]);
+}
+
+//--------------------------------------
+/// abSingleStrided
+// single op strided --> flat
+template<typename F, typename E, typename IndexB>
+__global__ void abSingleStrided(const E *a, const E *b, 
+                                IndexB indexB, E *out, unsigned end) 
+{
+    unsigned i = Flat::linearIndex(blockIdx, blockDim, threadIdx);
+    unsigned ib = indexB.linearIndex(blockIdx, blockDim, threadIdx);
+    if (i < end) out[i] = F::op(a[0], b[ib]);
+}
+
+//--------------------------------------
+/// abStridedFlat
+// strided op flat --> flat
+template<typename F, typename E, typename IndexA>
+__global__ void abStridedFlat(const E *a, IndexA indexA, 
+                              const E *b, E *out, unsigned end) 
+{
+    unsigned i = Flat::linearIndex(blockIdx, blockDim, threadIdx);
+    unsigned ia = indexA.linearIndex(blockIdx, blockDim, threadIdx);
+    if (i < end) out[i] = F::op(a[ia], b[i]);
+}
+
+//--------------------------------------
+/// abFlatStrided
+// strided op flat --> flat
+template<typename F, typename E, typename IndexB>
+__global__ void abFlatStrided(const E *a, const E *b,
+                              IndexB indexB,  E *out, unsigned end) 
+{
+    unsigned i = Flat::linearIndex(blockIdx, blockDim, threadIdx);
+    unsigned ib = indexB.linearIndex(blockIdx, blockDim, threadIdx);
+    if (i < end) out[i] = F::op(a[i], b[ib]);
+}
+
+//--------------------------------------
+/// abStridedStrided
+// strided op flat --> flat
+template<typename F, typename E, typename IndexA, typename IndexB>
+__global__ void abStridedStrided(const E *a, IndexA indexA, 
+                                 const E *b, IndexB indexB,
+                                 E *out, unsigned end) 
+{
+    unsigned i = Flat::linearIndex(blockIdx, blockDim, threadIdx);
+    unsigned ia = indexA.linearIndex(blockIdx, blockDim, threadIdx);
+    unsigned ib = indexB.linearIndex(blockIdx, blockDim, threadIdx);
+    if (i < end) out[i] = F::op(a[ia], b[ib]);
 }
 
 //==============================================================================
@@ -117,13 +169,86 @@ static inline void mapStridedSingle(
     const E* a, const TensorDescriptor& aDesc,
     const E* b, const TensorDescriptor& bDesc,
     E* out, const TensorDescriptor& oDesc,
-    cudaStream_t stream,
-    unsigned shiftCount = 0 
+    cudaStream_t stream 
 ) {
     dim3 tile = tileSize<Rank>(oDesc);
     dim3 grid = gridSize<Rank>(oDesc, tile);
     abStridedSingle<F,E,Strided<Rank>> <<<grid, tile, 0, stream>>>(
         a, Strided<Rank>(aDesc), b, out, oDesc.spanCount);
+}
+
+//------------------------------------------------------------------------------
+/// mapSingleStrided
+/// invokes the correct kernel to mapAB the elements of the two tensors
+/// handling the cases of elements and single single sets.
+///
+template<typename F, typename E, unsigned Rank>
+static inline void mapSingleStrided(
+    const E* a, const TensorDescriptor& aDesc,
+    const E* b, const TensorDescriptor& bDesc,
+    E* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream 
+) {
+    dim3 tile = tileSize<Rank>(oDesc);
+    dim3 grid = gridSize<Rank>(oDesc, tile);
+    abSingleStrided<F,E,Strided<Rank>> <<<grid, tile, 0, stream>>>(
+        a, b, Strided<Rank>(bDesc), out, oDesc.spanCount);
+}
+
+//------------------------------------------------------------------------------
+/// mapStridedSingle
+/// invokes the correct kernel to mapAB the elements of the two tensors
+/// handling the cases of elements and single single sets.
+///
+template<typename F, typename E, unsigned Rank>
+static inline void mapStridedFlat(
+    const E* a, const TensorDescriptor& aDesc,
+    const E* b, const TensorDescriptor& bDesc,
+    E* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream 
+) {
+    dim3 tile = tileSize<Rank>(oDesc);
+    dim3 grid = gridSize<Rank>(oDesc, tile);
+    abStridedFlat<F,E,Strided<Rank>> <<<grid, tile, 0, stream>>>(
+        a, Strided<Rank>(aDesc), b, out, oDesc.spanCount);
+}
+
+//------------------------------------------------------------------------------
+/// mapFlatStrided
+/// invokes the correct kernel to mapAB the elements of the two tensors
+/// handling the cases of elements and single single sets.
+///
+template<typename F, typename E, unsigned Rank>
+static inline void mapFlatStrided(
+    const E* a, const TensorDescriptor& aDesc,
+    const E* b, const TensorDescriptor& bDesc,
+    E* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream 
+) {
+    dim3 tile = tileSize<Rank>(oDesc);
+    dim3 grid = gridSize<Rank>(oDesc, tile);
+    abFlatStrided<F,E,Strided<Rank>> <<<grid, tile, 0, stream>>>(
+        a, b, Strided<Rank>(bDesc), out, oDesc.spanCount);
+}
+
+//------------------------------------------------------------------------------
+/// mapStridedSingle
+/// invokes the correct kernel to mapAB the elements of the two tensors
+/// handling the cases of elements and single single sets.
+///
+template<typename F, typename E, unsigned Rank>
+static inline void mapStridedStrided(
+    const E* a, const TensorDescriptor& aDesc,
+    const E* b, const TensorDescriptor& bDesc,
+    E* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream 
+) {
+    dim3 tile = tileSize<Rank>(oDesc);
+    dim3 grid = gridSize<Rank>(oDesc, tile);
+    abStridedStrided<F,E,Strided<Rank>, Strided<Rank>> <<<grid, tile, 0, stream>>>(
+        a, Strided<Rank>(aDesc),
+        b, Strided<Rank>(bDesc), 
+        out, oDesc.spanCount);
 }
 
 //------------------------------------------------------------------------------
@@ -163,9 +288,9 @@ static cudaError_t mapAB(
         } else {
             // strided op single --> flat
             switch (oDesc.rank) {
-            case 1: mapStridedSingle<F,E,1>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount);
-            case 2: mapStridedSingle<F,E,2>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount);
-            case 3: mapStridedSingle<F,E,3>(a, aDesc, b, bDesc, out, oDesc, stream, shiftCount);
+            case 1: mapStridedSingle<F,E,1>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 2: mapStridedSingle<F,E,2>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 3: mapStridedSingle<F,E,3>(a, aDesc, b, bDesc, out, oDesc, stream);
             default: return cudaErrorNotSupported;
             }
         }
@@ -179,15 +304,39 @@ static cudaError_t mapAB(
             abFlatFlat<F,E><<<grid, tile, 0, stream>>>(a, b, out, count);
 
         } else {
-            // strided op dense --> flat
+            // strided op flat --> flat
+            switch (oDesc.rank) {
+            case 1: mapStridedFlat<F,E,1>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 2: mapStridedFlat<F,E,2>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 3: mapStridedFlat<F,E,3>(a, aDesc, b, bDesc, out, oDesc, stream);
+            default: return cudaErrorNotSupported;
+            }
         }
     } else {
         if (aDesc.isSingle()) {
             // single op strided --> flat
+            switch (oDesc.rank) {
+            case 1: mapSingleStrided<F,E,1>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 2: mapSingleStrided<F,E,2>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 3: mapSingleStrided<F,E,3>(a, aDesc, b, bDesc, out, oDesc, stream);
+            default: return cudaErrorNotSupported;
+            }
         } else if (aDesc.isDense()) {
-            // dense op strided --> flat
+            // flat op strided --> flat
+            switch (oDesc.rank) {
+            case 1: mapFlatStrided<F,E,1>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 2: mapFlatStrided<F,E,2>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 3: mapFlatStrided<F,E,3>(a, aDesc, b, bDesc, out, oDesc, stream);
+            default: return cudaErrorNotSupported;
+            }
         } else {
             // strided op strided --> flat
+            switch (oDesc.rank) {
+            case 1: mapStridedStrided<F,E,1>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 2: mapStridedStrided<F,E,2>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 3: mapStridedStrided<F,E,3>(a, aDesc, b, bDesc, out, oDesc, stream);
+            default: return cudaErrorNotSupported;
+            }
         }
     }
     return cudaSuccess;
