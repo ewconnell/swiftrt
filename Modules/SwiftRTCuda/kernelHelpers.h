@@ -30,6 +30,47 @@ struct TensorDescriptor: srtTensorDescriptor {
 static_assert(sizeof(TensorDescriptor) == sizeof(srtTensorDescriptor),
     "TensorDescriptor is a c++ wrapper and cannot contain additional members");
 
+//------------------------------------------------------------------------------
+// 
+inline unsigned shiftDownRoundingUp(unsigned num, unsigned shift) {
+    unsigned count = (num + (1 << shift) - 1) >> shift;
+    return count;
+}
+
+//------------------------------------------------------------------------------
+/// roundUp
+// tiles should always be shaped as a power of 2
+// TODO: there should be something faster than this
+inline unsigned roundUp(unsigned n, unsigned multiple) {
+    return (n + multiple - 1) / multiple;
+}
+
+//==============================================================================
+// grid and tile size placeholders
+
+// *** this is a hack place holder for now. We will eventually do dynamic
+// tile selection
+template<unsigned Rank>
+inline dim3 tileSize(const TensorDescriptor& oDesc) {
+    static_assert(Rank <= 3, "not implemented");
+    if (Rank == 1) return oDesc.count >= 1024 ? dim3(1024) : dim3(32);
+    if (Rank == 2) return dim3(16, 16);
+    if (Rank == 3) return dim3(16, 8, 8);
+}
+
+template<unsigned Rank>
+inline dim3 gridSize(const TensorDescriptor& oDesc, const dim3& tile) {
+    static_assert(Rank <= 3, "not implemented");
+    if (Rank == 1) return (oDesc.count + tile.x - 1) / tile.x;
+
+    if (Rank == 2) return dim3(roundUp(oDesc.shape[0], tile.y), 
+                               roundUp(oDesc.shape[1], tile.x));
+    
+    if (Rank == 3) return dim3(roundUp(oDesc.shape[0], tile.z), 
+                               roundUp(oDesc.shape[1], tile.y), 
+                               roundUp(oDesc.shape[2], tile.x));
+}
+
 //==============================================================================
 // kernel helpers
 #define GRID_LOOP(i, n) \
@@ -42,14 +83,6 @@ const unsigned THREADS_PER_BLOCK = 1024;
 // number of blocks for threads
 inline unsigned BLOCK_COUNT(unsigned n) {
   return ((n) + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
-}
-
-//==============================================================================
-// 
-inline unsigned shiftDownRoundingUp(unsigned num, unsigned shift) 
-{
-    unsigned count = (num + (1 << shift) - 1) >> shift;
-    return count;
 }
 
 //==============================================================================

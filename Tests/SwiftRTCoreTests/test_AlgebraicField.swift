@@ -227,9 +227,11 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    func test_perfAdd() { 
-        let a = array(0..<(1024 * 1024), (1024, 1024), name: "A")
-        let b = array(0..<(1024 * 1024), (1024, 1024), name: "B")
+    func test_perfAdd() {
+        let r = 300
+        let c = 200
+        let a = array(0..<(r * c), (r, c), name: "A")
+        let b = array(0..<(r * c), (r, c), name: "B")
         var result = empty((3, 2))
         // let aOnes = ones(like: a)
 
