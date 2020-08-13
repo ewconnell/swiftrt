@@ -13,11 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#if !defined(__CudaCustomKernels_h__)
-#define __CudaCustomKernels_h__
+#if !defined(__SrtCudaKernels_h__)
+#define __SrtCudaKernels_h__
 
 // this is an umbrella header
 #include "asmdOps.h"
+#include "compareOps.h"
+#include "fillOps.h"
 #include "mathOps.h"
 
-#endif // __CudaCustomKernels_h__
+#endif // __SrtCudaKernels_h__

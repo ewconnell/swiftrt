@@ -40,7 +40,7 @@ extension DeviceQueue where Self: CpuFunctions
     }
     //--------------------------------------------------------------------------
     @inlinable func and<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
-                           _ out: inout Tensor<S,E>)
+                             _ out: inout Tensor<S,E>)
     where E.Value == Bool { cpu_and(lhs, rhs, &out) }
     //--------------------------------------------------------------------------
     @inlinable func asin<S,E>(_ x: Tensor<S,E>, _ out: inout Tensor<S,E>)
@@ -215,10 +215,6 @@ extension DeviceQueue where Self: CpuFunctions
     where E.Value: Comparable & SignedNumeric {
         cpu_sign(x, &out)
     }
-    //--------------------------------------------------------------------------
-    @inlinable func signGamma<S,E>(_ x: Tensor<S,E>,
-                                   _ out: inout FloatingPointSign)
-    where E.Value: Real { cpu_signGamma(x, &out) }
     //--------------------------------------------------------------------------
     @inlinable func sin<S,E>(_ x: Tensor<S,E>, _ out: inout Tensor<S,E>)
     where E.Value: Real { cpu_sin(x, &out) }
@@ -649,14 +645,6 @@ extension CpuFunctions where Self: DeviceQueue
     @inlinable func cpu_sign<S,E>(_ x: Tensor<S,E>, _ out: inout Tensor<S,E>)
     where E.Value: Comparable & SignedNumeric {
         mapOp("cpu_sign", x, &out) { $0 < 0 ? -1 : 1 }
-    }
-    
-    //--------------------------------------------------------------------------
-    @inlinable func cpu_signGamma<S,E>(_ x: Tensor<S,E>,
-                                       _ out: inout FloatingPointSign)
-    where E.Value: Real {
-        // TODO: don't know what to do with this as set operation
-        fatalError("Not implemented")
     }
     
     //--------------------------------------------------------------------------

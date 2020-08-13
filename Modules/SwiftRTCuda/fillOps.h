@@ -25,7 +25,13 @@ extern "C" {
 #endif
 
 //==============================================================================
-//
+/// srtCopy
+/// copies elements from x to out, optionally casting and reordering elements
+cudaError_t srtCopy(
+    const void* x, const srtTensorDescriptor* xDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
 
 //==============================================================================
 #ifdef __cplusplus

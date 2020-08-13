@@ -1,0 +1,85 @@
+//******************************************************************************
+// Copyright 2019 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+import SwiftRTCuda
+import Numerics
+
+// gyb utility docs
+// https://nshipster.com/swift-gyb/
+%{
+functions = [
+    ["abs", "Comparable & SignedNumeric"],
+    ["acos", "Real"],
+    ["acosh", "Real"],
+    ["asin", "Real"],
+    ["asinh", "Real"],
+    ["atan", "Real"],
+    ["atanh", "Real"],
+    ["cos", "Real"],
+    ["cosh", "Real"],
+    ["erf", "Real"],
+    ["erfc", "Real"],
+    ["exp", "Real"],
+    ["exp2", "Real"],
+    ["exp10", "Real"],
+    ["expMinusOne", "Real"],
+    ["gamma", "Real"],
+    ["log", "Real"],
+    ["log2", "Real"],
+    ["log10", "Real"],
+    ["logGamma", "Real"],
+    ["neg", "SignedNumeric"],
+    ["sign", "Comparable & SignedNumeric"],
+    ["sin", "Real"],
+    ["sinh", "Real"],
+    ["sqrt", "Real"],
+    ["squared", "Numeric"],
+    ["tan", "Real"],
+    ["tanh", "Real"],
+]
+}%
+
+//******************************************************************************
+//
+// DO NOT EDIT. THIS FILE IS GENERATED FROM .swift.gyb file
+//
+//******************************************************************************
+
+//==============================================================================
+// DeviceQueue functions with default cpu delegation
+extension CudaQueue {
+%for i in range(0, len(functions)):
+%   name = functions[i][0]
+%   conformance = functions[i][1]
+%   externalName = "srt" + name[:1].upper() + name[1:]
+    //--------------------------------------------------------------------------
+    @inlinable func ${name}<S,E>(
+        _ x: Tensor<S,E>, 
+        _ out: inout Tensor<S,E>
+    ) where E.Value: ${conformance} {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_${name}(x, &out); return }
+
+        let status = out.withMutableTensor(using: self) { oData, o in
+            x.withTensor(using: self) { xData, x in
+                ${externalName}(xData, x, oData, o, stream)
+            }
+        }
+        cpuFallback(status) { $0.${name}(x, &out) }
+    }
+
+%end
+}
+

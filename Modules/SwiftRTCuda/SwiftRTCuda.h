@@ -17,4 +17,4 @@
 #include <cuda_runtime.h>
 #include <cudnn.h>
 #include <curand.h>
-#include "CudaCustomKernels.h"
+#include "SrtCudaKernels.h"
