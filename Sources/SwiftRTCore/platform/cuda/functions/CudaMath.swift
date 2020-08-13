@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 import SwiftRTCuda
+import Numerics
 
 //==============================================================================
 // DeviceQueue functions with default cpu delegation
@@ -23,7 +24,7 @@ extension CudaQueue {
         _ lhs: Tensor<S,E>, 
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>
-    ) where S: TensorShape, E.Value: AdditiveArithmetic {
+    ) where E.Value: AdditiveArithmetic {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_add(lhs, rhs, &out); return }
@@ -36,6 +37,69 @@ extension CudaQueue {
             }
         }
 
-        cpuFallback(status) { cpu in cpu.add(lhs, rhs, &out) }
+        cpuFallback(status) { $0.add(lhs, rhs, &out) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable public func div<S,E>(
+        _ lhs: Tensor<S,E>, 
+        _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: AlgebraicField {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
+        guard useGpu else { cpu_div(lhs, rhs, &out); return }
+
+        let status = out.withMutableTensor(using: self) { oData, o in
+            lhs.withTensor(using: self) { lData, l in
+                rhs.withTensor(using: self) { rData, r in
+                    srtDiv(lData, l, rData, r, oData, o, stream)
+                }
+            }
+        }
+
+        cpuFallback(status) { $0.div(lhs, rhs, &out) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable public func mul<S,E>(
+        _ lhs: Tensor<S,E>, 
+        _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Numeric {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
+        guard useGpu else { cpu_mul(lhs, rhs, &out); return }
+
+        let status = out.withMutableTensor(using: self) { oData, o in
+            lhs.withTensor(using: self) { lData, l in
+                rhs.withTensor(using: self) { rData, r in
+                    srtMul(lData, l, rData, r, oData, o, stream)
+                }
+            }
+        }
+
+        cpuFallback(status) { $0.mul(lhs, rhs, &out) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable public func subtract<S,E>(
+        _ lhs: Tensor<S,E>, 
+        _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: AdditiveArithmetic {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
+        guard useGpu else { cpu_subtract(lhs, rhs, &out); return }
+
+        let status = out.withMutableTensor(using: self) { oData, o in
+            lhs.withTensor(using: self) { lData, l in
+                rhs.withTensor(using: self) { rData, r in
+                    srtSub(lData, l, rData, r, oData, o, stream)
+                }
+            }
+        }
+
+        cpuFallback(status) { $0.subtract(lhs, rhs, &out) }
     }
 }
