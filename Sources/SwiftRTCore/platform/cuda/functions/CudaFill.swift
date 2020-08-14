@@ -20,6 +20,21 @@ import SwiftRTCuda
 extension CudaQueue
 {
     //--------------------------------------------------------------------------
+    @inlinable public func copy<S,E>(
+        from x: Tensor<S,E>, 
+        to out: inout Tensor<S,E>
+    ) {
+        guard useGpu else { cpu_copy(from: x, to: &out); return }
+
+        let status = out.withMutableTensor(using: self) { oData, o in
+            x.withTensor(using: self) { xData, x in
+                srtCopy(xData, x, oData, o, stream)
+            }
+        }
+        cpuFallback(status) { $0.copy(from: x, to: &out) }
+    }
+
+    //--------------------------------------------------------------------------
     @inlinable func fill<S,E: StorageElement>(
         _ out: inout Tensor<S,E>,
         with element: E.Value
