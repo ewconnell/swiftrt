@@ -32,9 +32,9 @@ class test_AlgebraicField: XCTestCase {
         // ("test_rightBatchMatmul", test_rightBatchMatmul),
 
         // ("test_perfAdd", test_perfAdd),
-        ("test_addStrided", test_addStrided),
+        // ("test_addStrided", test_addStrided),
         // ("test_add", test_add),
-        // ("test_addFloat16", test_addFloat16),
+        ("test_addFloat16", test_addFloat16),
         // ("test_addBFloat16", test_addBFloat16),
         // ("test_addInt32", test_addInt32),
         // ("test_addUInt8", test_addUInt8),
@@ -58,33 +58,33 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_addStrided() {
-        Context.log.level = .diagnostic
+        // Context.log.level = .diagnostic
         let a = array(0..<9, (3, 3), type: Float.self)
         let b = a[..., 1] + 1
-        print(b)
+        // print(b)
         XCTAssert(b == [[2], [5], [8]])
     }
 
     //--------------------------------------------------------------------------
     func test_queryMatmulProperties() {
-        Context.log.level = .diagnostic
-        do {
-            let a = array(0..<6, (3, 2), type: Float16.self)
-            print(a)
-            let b = array(0..<8, (2, 4), type: Float16.self)
-            print(b)
-            var c = empty((3, 4), type: Float16.self)
-            let preferences = MatmulPreferences()
-            print(preferences)            
+        // Context.log.level = .diagnostic
+        // do {
+        //     let a = array(0..<6, (3, 2), type: Float16.self)
+        //     print(a)
+        //     let b = array(0..<8, (2, 4), type: Float16.self)
+        //     print(b)
+        //     var c = empty((3, 4), type: Float16.self)
+        //     let preferences = MatmulPreferences()
+        //     print(preferences)            
             
-            let props = MatmulAlgorithm.query(
-                a, b, &c, 
-                accumulatorType: .accumulator16F,
-                scaleType: .real16F,
-                preferences: preferences,
-                using: Context.currentQueue)
-            print(props)
-        }
+        //     let props = MatmulAlgorithm.query(
+        //         a, b, &c, 
+        //         accumulatorType: .accumulator16F,
+        //         scaleType: .real16F,
+        //         preferences: preferences,
+        //         using: Context.currentQueue)
+        //     print(props)
+        // }
 
         // do {
         //     let a = ones((32, 2))
@@ -113,7 +113,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_minimalAdd() {
-        Context.log.level = .diagnostic
+        // Context.log.level = .diagnostic
         let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
         let b = a + 2
         XCTAssert(b == [[2, 3], [4, 5], [6, 7]])
@@ -121,7 +121,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_minimalAddVJP() {
-        Context.log.level = .diagnostic
+        // Context.log.level = .diagnostic
         let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
         let v = ones(like: a, name: "ones")
         
@@ -132,7 +132,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_matmul() {
-        Context.log.level = .diagnostic
+        // Context.log.level = .diagnostic
         let a = array([0, 1, 2, 3, 4, 5], (3, 2))
         let b = array([0, 1, 2, 3, 4, 5, 6, 7], (2, 4))
         let c = matmul(a, b)
@@ -227,6 +227,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_perfAdd() {
+        #if !DEBUG
         let r = 300
         let c = 200
         let a = array(0..<(r * c), (r, c), name: "A")
@@ -240,53 +241,50 @@ class test_AlgebraicField: XCTestCase {
             // }
             print(result[0, 3])
         }
+        #endif
     }
 
     //--------------------------------------------------------------------------
     func test_add() { 
-        Context.log.level = .diagnostic
+        // Context.log.level = .diagnostic
         let a = array(0..<6, (3, 2), name: "A")
         let b = array(0..<6, (3, 2), name: "B")
-        // let aOnes = ones(like: a)
+        let aOnes = ones(like: a)
 
         let result = a + b
-        print(result)
-        // XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
+        XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
 
         // both
-        // let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(aOnes)
-        // print(g1, g2)        
-        // XCTAssert(g1.flatArray == [1, 1, 1, 1, 1, 1])
-        // XCTAssert(g2.flatArray == [1, 1, 1, 1, 1, 1])
+        let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(aOnes)
+        XCTAssert(g1.flatArray == [1, 1, 1, 1, 1, 1])
+        XCTAssert(g2.flatArray == [1, 1, 1, 1, 1, 1])
         
-        // // lhs
-        // let glhs = pullback(at: a, in: { $0 + 2 })(aOnes)
-        // print(glhs)
-        // XCTAssert(glhs.flatArray == [1, 1, 1, 1, 1, 1])
+        // lhs
+        let glhs = pullback(at: a, in: { $0 + 2 })(aOnes)
+        XCTAssert(glhs.flatArray == [1, 1, 1, 1, 1, 1])
         
-        // // rhs
-        // let grhs = pullback(at: a, in: { 2 + $0 })(aOnes)
-        // XCTAssert(grhs.flatArray == [1, 1, 1, 1, 1, 1])
+        // rhs
+        let grhs = pullback(at: a, in: { 2 + $0 })(aOnes)
+        XCTAssert(grhs.flatArray == [1, 1, 1, 1, 1, 1])
     }
 
     //--------------------------------------------------------------------------
     func test_addFloat16() {
-        using(device: 0) {
-            let a = array(0..<6, (3, 2), type: Float16.self)
-            let b = array(0..<6, (3, 2), type: Float16.self)
-            let result = a + b
-            XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
-        }
+        Context.log.level = .diagnostic
+        let a = array(0..<6, (3, 2), type: Float16.self)
+        let b = array(0..<6, (3, 2), type: Float16.self)
+        let result = a + b
+        print(result)
+        XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
     }
 
     //--------------------------------------------------------------------------
     func test_addBFloat16() {
-        using(device: 0) {
-            let a = array(0..<6, (3, 2), type: BFloat16.self)
-            let b = array(0..<6, (3, 2), type: BFloat16.self)
-            let result = a + b
-            XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
-        }
+        let a = array(0..<6, (3, 2), type: BFloat16.self)
+        let b = array(0..<6, (3, 2), type: BFloat16.self)
+        let result = a + b
+        print(result)
+        XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
     }
 
     //--------------------------------------------------------------------------
