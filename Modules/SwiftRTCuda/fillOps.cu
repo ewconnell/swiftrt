@@ -19,10 +19,22 @@
 #include <cuda_bf16.h>
 
 #include "fillOps.h"
+#include "kernelHelpers.h"
+#include "index.h"
 
 //==============================================================================
 // kernels
 //==============================================================================
+
+//--------------------------------------
+/// abFlatSingle
+// flat op single --> flat
+template<typename E>
+__global__ void fill(E *out, E element, unsigned end) 
+{
+    unsigned i = Flat::linearIndex(blockIdx, blockDim, threadIdx);
+    if (i < end) out[i] = element;
+}
 
 //==============================================================================
 // dynamic dispatch functions
@@ -41,14 +53,48 @@ cudaError_t srtCopy(
     return cudaErrorNotSupported;
 }
 
+//==============================================================================
+// srtFill
+template<typename E>
+static cudaError_t fill(
+    void* pOut, const TensorDescriptor& oDesc,
+    const void* pElement,
+    cudaStream_t stream
+) {
+    E* out = static_cast<E*>(pOut);
+    E element = *static_cast<const E*>(pElement);
+
+    if (oDesc.isDense()) {
+        dim3 tile = tileSize<1>(oDesc);
+        dim3 grid = gridSize<1>(oDesc, tile);
+        fill<E><<<grid, tile, 0, stream>>>(out, element, oDesc.count);
+        return cudaSuccess;
+    } else {
+        return cudaErrorNotSupported;
+    }
+}
+
 cudaError_t srtFill(
-    void* out, const srtTensorDescriptor* oDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     const void* element,
     cudaStream_t stream
 ) {
-    return cudaErrorNotSupported;
+    // statically cast types from C interface to use with c++ templates
+    const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*poDesc);
+    switch(oDesc.type) {
+        case CUDA_R_32F:  return fill<float>(out, oDesc, element, stream);
+        case CUDA_R_16BF: return fill<__nv_bfloat16>(out, oDesc, element, stream);
+        case CUDA_R_16F:  return fill<__half>(out, oDesc, element, stream);
+        case CUDA_R_8I:   return fill<int8_t>(out, oDesc, element, stream);
+        case CUDA_R_8U:   return fill<uint8_t>(out, oDesc, element, stream);
+        case CUDA_R_16I:  return fill<int16_t>(out, oDesc, element, stream);
+        case CUDA_R_16U:  return fill<uint16_t>(out, oDesc, element, stream);
+        case CUDA_R_64F:  return fill<double>(out, oDesc, element, stream);
+        default: return cudaErrorNotSupported;
+    }
 }
 
+//==============================================================================
 cudaError_t srtFillWithRange(
     void* out, const srtTensorDescriptor* oDesc,
     const long lower,
