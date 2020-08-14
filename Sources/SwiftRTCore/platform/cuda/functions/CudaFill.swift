@@ -27,7 +27,12 @@ extension CudaQueue
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_fill(&out, with: element); return }
 
-        cpuFallback(cudaErrorNotSupported) { $0.fill(&out, with: element) }
+        let status = out.withMutableTensor(using: self) { oData, o in
+            withUnsafePointer(to: element) {
+                srtFill(oData, o, $0, stream)
+            }
+        }
+        cpuFallback(status) { $0.fill(&out, with: element) }
     }
 
     //--------------------------------------------------------------------------
@@ -40,7 +45,13 @@ extension CudaQueue
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_fill(&out, with: range); return }
 
-        cpuFallback(cudaErrorNotSupported) { $0.fill(&out, with: range) }
+        let status = out.withMutableTensor(using: self) { oData, o in
+            srtFillWithRange(oData, o, 
+                             Int(range.lowerBound),
+                             Int(range.upperBound),
+                             stream)
+        }
+        cpuFallback(status) { $0.fill(&out, with: range) }
     }
 
     //--------------------------------------------------------------------------
@@ -51,7 +62,10 @@ extension CudaQueue
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_eye(&out, offset: offset); return }
 
-        cpuFallback(cudaErrorNotSupported) { $0.eye(&out, offset: offset) }
+        let status = out.withMutableTensor(using: self) { oData, o in
+            srtEye(oData, o, offset, stream)
+        }
+        cpuFallback(status) { $0.eye(&out, offset: offset) }
     }
 
     //--------------------------------------------------------------------------
@@ -66,27 +80,40 @@ extension CudaQueue
             cpu_fill(randomUniform: &out, lower, upper, seed); return
         }
 
-        cpuFallback(cudaErrorNotSupported) {
-            $0.fill(randomUniform: &out, lower, upper, seed)
+        let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
+
+        let status = out.withMutableTensor(using: self) { oData, o in
+            withUnsafePointer(to: lower) { l in
+                withUnsafePointer(to: upper) { u in
+                    srtFillRandomUniform(oData, o, l, u, seed64, stream)
+                }
+            }
         }
+        cpuFallback(status) { $0.fill(randomUniform: &out, lower, upper, seed) }
     }
 
     //--------------------------------------------------------------------------
     @inlinable func fill<S,E>(
         randomNormal out: inout Tensor<S,E>,
         _ mean: E.Value,
-        _ standardDeviation: E.Value,
+        _ std: E.Value,
         _ seed: RandomSeed
     ) where E.Value: BinaryFloatingPoint {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else {
-            cpu_fill(randomNormal: &out, mean, standardDeviation, seed)
-            return
+            cpu_fill(randomNormal: &out, mean, std, seed); return
         }
 
-        cpuFallback(cudaErrorNotSupported) {
-            $0.fill(randomNormal: &out, mean, standardDeviation, seed)
+        let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
+
+        let status = out.withMutableTensor(using: self) { oData, o in
+            withUnsafePointer(to: mean) { m in
+                withUnsafePointer(to: std) { s in
+                    srtFillRandomNormal(oData, o, m, s, seed64, stream)
+                }
+            }
         }
+        cpuFallback(status) { $0.fill(randomNormal: &out, mean, std, seed) }
     }
 
     //--------------------------------------------------------------------------
@@ -95,35 +122,50 @@ extension CudaQueue
     @inlinable func fill<S,E>(
         randomNormal out: inout Tensor<S,E>,
         _ mean: Tensor<S,E>,
-        _ standardDeviation: Tensor<S,E>,
+        _ std: Tensor<S,E>,
         _ seed: RandomSeed
     ) where E.Value: BinaryFloatingPoint { 
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else {
-            cpu_fill(randomNormal: &out, mean, standardDeviation, seed)
-            return
+            cpu_fill(randomNormal: &out, mean, std, seed); return
         }
 
-        cpuFallback(cudaErrorNotSupported) {
-            $0.fill(randomNormal: &out, mean, standardDeviation, seed)
+        let status = out.withMutableTensor(using: self) { oData, o in
+            srtFillRandomNormalTensorArgs(
+                oData, o, 
+                mean.deviceRead(using: self), 
+                std.deviceRead(using: self),
+                UInt64(msb: seed.op, lsb: seed.graph), 
+                stream)
         }
+        cpuFallback(status) { $0.fill(randomNormal: &out, mean, std, seed) }
     }
 
     //--------------------------------------------------------------------------
     @inlinable func fill<S,E>(
         randomTruncatedNormal out: inout Tensor<S,E>,
         _ mean: E.Value,
-        _ standardDeviation: E.Value,
+        _ std: E.Value,
         _ seed: RandomSeed
     ) where E.Value: BinaryFloatingPoint { 
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else {
-            cpu_fill(randomTruncatedNormal: &out, mean, standardDeviation, seed)
+            cpu_fill(randomTruncatedNormal: &out, mean, std, seed)
             return
         }
 
-        cpuFallback(cudaErrorNotSupported) {
-            $0.fill(randomTruncatedNormal: &out, mean, standardDeviation, seed)
+        let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
+
+        let status = out.withMutableTensor(using: self) { oData, o in
+            withUnsafePointer(to: mean) { m in
+                withUnsafePointer(to: std) { s in
+                    srtFillRandomTruncatedNormal(oData, o, m, s, seed64, stream)
+                }
+            }
+        }
+
+        cpuFallback(status) {
+            $0.fill(randomTruncatedNormal: &out, mean, std, seed)
         }
     }
 
@@ -131,17 +173,26 @@ extension CudaQueue
     @inlinable func fill<S,E>(
         randomTruncatedNormal out: inout Tensor<S,E>,
         _ mean: Tensor<S,E>,
-        _ standardDeviation: Tensor<S,E>,
+        _ std: Tensor<S,E>,
         _ seed: RandomSeed
     ) where E.Value: BinaryFloatingPoint { 
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else {
-            cpu_fill(randomTruncatedNormal: &out, mean, standardDeviation, seed) 
+            cpu_fill(randomTruncatedNormal: &out, mean, std, seed) 
             return
         }
 
-        cpuFallback(cudaErrorNotSupported) {
-            $0.fill(randomTruncatedNormal: &out, mean, standardDeviation, seed) 
+        let status = out.withMutableTensor(using: self) { oData, o in
+            srtFillRandomTruncatedNormalTensorArgs(
+                oData, o, 
+                mean.deviceRead(using: self), 
+                std.deviceRead(using: self),
+                UInt64(msb: seed.op, lsb: seed.graph), 
+                stream)
+        }
+
+        cpuFallback(status) {
+            $0.fill(randomTruncatedNormal: &out, mean, std, seed) 
         }
     }
 }

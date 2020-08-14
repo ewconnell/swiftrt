@@ -24,7 +24,7 @@ class test_AlgebraicField: XCTestCase {
     static var allTests = [
         // ("test_queryMatmulProperties", test_queryMatmulProperties),
         // ("test_minimalAdd", test_minimalAdd),
-        // ("test_minimalAddVJP", test_minimalAddVJP),
+        ("test_minimalAddVJP", test_minimalAddVJP),
 
         // ("test_matmul", test_matmul),
         // ("test_batchMatmul", test_batchMatmul),
@@ -32,7 +32,7 @@ class test_AlgebraicField: XCTestCase {
         // ("test_rightBatchMatmul", test_rightBatchMatmul),
 
         // ("test_perfAdd", test_perfAdd),
-        ("test_addStrided", test_addStrided),
+        // ("test_addStrided", test_addStrided),
         // ("test_add", test_add),
         // ("test_addFloat16", test_addFloat16),
         // ("test_addBFloat16", test_addBFloat16),
@@ -122,7 +122,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_minimalAddVJP() {
-        // Context.log.level = .diagnostic
+        Context.log.level = .diagnostic
         let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
         let v = ones(like: a, name: "ones")
         

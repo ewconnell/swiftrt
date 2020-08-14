@@ -44,6 +44,10 @@ public extension UInt64 {
         self = (UInt64(msb) << 32) | UInt64(lsb)
     }
 
+    @inlinable init(msb: Int32, lsb: Int32) {
+        self = (UInt64(UInt32(bitPattern:msb)) << 32) | UInt64(UInt32(bitPattern:(lsb)))
+    }
+
     @inlinable var split: (msb: UInt32, lsb: UInt32) {
         let mask: UInt64 = 0x00000000FFFFFFFF
         return (UInt32((self >> 32) & mask), UInt32(self & mask))

@@ -70,7 +70,7 @@ cudaError_t srtFillRandomUniform(
     void* out, const srtTensorDescriptor* oDesc,
     const void* lower,
     const void* upper,
-    const uint64_t* seed,
+    const uint64_t seed,
     cudaStream_t stream
 ) {
     return cudaErrorNotSupported;
@@ -80,7 +80,7 @@ cudaError_t srtFillRandomNormal(
     void* out, const srtTensorDescriptor* oDesc,
     const void* mean,
     const void* std,
-    const uint64_t* seed,
+    const uint64_t seed,
     cudaStream_t stream
 ) {
     return cudaErrorNotSupported;
@@ -88,9 +88,9 @@ cudaError_t srtFillRandomNormal(
 
 cudaError_t srtFillRandomNormalTensorArgs(
     void* out, const srtTensorDescriptor* oDesc,
-    void* meanTensor,
-    void* stdTensor,
-    const uint64_t* seed,
+    const void* meanTensor,
+    const void* stdTensor,
+    const uint64_t seed,
     cudaStream_t stream
 ) {
     return cudaErrorNotSupported;
@@ -100,7 +100,7 @@ cudaError_t srtFillRandomTruncatedNormal(
     void* out, const srtTensorDescriptor* oDesc,
     const void* mean,
     const void* std,
-    const uint64_t* seed,
+    const uint64_t seed,
     cudaStream_t stream
 ) {
     return cudaErrorNotSupported;
@@ -108,9 +108,9 @@ cudaError_t srtFillRandomTruncatedNormal(
 
 cudaError_t srtFillRandomTruncatedNormalTensorArgs(
     void* out, const srtTensorDescriptor* oDesc,
-    void* meanTensor,
-    void* stdTensor,
-    const uint64_t* seed,
+    const void* meanTensor,
+    const void* stdTensor,
+    const uint64_t seed,
     cudaStream_t stream
 ) {
     return cudaErrorNotSupported;
