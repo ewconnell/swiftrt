@@ -218,7 +218,7 @@ public final class DiscreteStorage: StorageBuffer {
             
             if willLog(level: .diagnostic) {
                 let count = byteCount / MemoryLayout<Element>.size
-                let msg = "(\(id)) on \(queue.deviceName) " +
+                let msg = "(\(id)) on \(queue.deviceName) using \(queue.name) " +
                           " \(Element.self)[\(count)]"
                 diagnostic("\(allocString) \(name)\(msg)", categories: .dataAlloc)
                 memory.name = name
@@ -288,9 +288,8 @@ public final class DiscreteStorage: StorageBuffer {
 
         // If there is a `master` and the replica version doesn't match
         // then we need copy master --> replica        
-        if let master = master, let lastQueue = lastQueue,
-            replica.version != master.version 
-        {
+        if let master = master, let lastQueue = lastQueue {
+
             func outputCopyMessage() {
                 diagnostic(
                     "\(copyString) \(name)(\(id)) dev:\(master.deviceIndex)" +
@@ -298,6 +297,15 @@ public final class DiscreteStorage: StorageBuffer {
                     "\(queue.deviceName)_q\(queue.id)  " +
                     "\(Element.self)[\(replica.count(of: Element.self))]",
                     categories: .dataCopy)
+            }
+            
+            func copyIfChanged(using q: DeviceQueue) {
+                if master.version != replica.version {
+                    q.copyAsync(from: master, to: replica)
+                    outputCopyMessage()
+                    // set `true` for unit test purposes
+                    _lastAccessCopiedMemory = true
+                }
             }
 
             switch (master.type, replica.type) {
@@ -309,24 +317,18 @@ public final class DiscreteStorage: StorageBuffer {
             // host --> discrete
             case (.unified, .discrete):
                 synchronize(queue, with: lastQueue, willMutate)
-                queue.copyAsync(from: master, to: replica)
-                outputCopyMessage()
+                copyIfChanged(using: queue)
 
             // discrete --> host
             case (.discrete, .unified):
-                lastQueue.copyAsync(from: master, to: replica)
-                outputCopyMessage()
+                copyIfChanged(using: lastQueue)
                 synchronize(queue, with: lastQueue, willMutate)
                 
             // discrete --> discrete
             case (.discrete, .discrete):
                 synchronize(queue, with: lastQueue, willMutate)
-                queue.copyAsync(from: master, to: replica)
-                outputCopyMessage()
+                copyIfChanged(using: queue)
             }
-
-            // we will copy memory so set this `true` for unit test purposes
-            _lastAccessCopiedMemory = true
         }
         
         // increment version if mutating
