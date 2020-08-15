@@ -715,7 +715,13 @@ extension Complex: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
     @inlinable public static var type: StorageElementType {
-        fatalError("not implemented yet")
+        switch RealType.self {
+        case is Float.Type: return .complex32F
+        case is Float16.Type: return .complex16F
+        case is BFloat16.Type: return .complex16BF
+        case is Double.Type: return .complex64F
+        default: fatalError("Complex<\(RealType.self)> not implemented yet")
+        }
     }
 
     //-------------------------------------
@@ -731,10 +737,6 @@ extension Complex: StorageElement {
 
 public var _storedZeroComplexFloat = Complex<Float>(0)
 public var _storedOneComplexFloat = Complex<Float>(1)
-
-extension Complex where RealType == Float {
-    @inlinable public static var type: StorageElementType { .complex32F }
-}
 
 //==============================================================================
 /// BufferElements

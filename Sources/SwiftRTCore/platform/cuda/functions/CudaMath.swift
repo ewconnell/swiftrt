@@ -36,7 +36,6 @@ extension CudaQueue {
                 }
             }
         }
-
         cpuFallback(status) { $0.add(lhs, rhs, &out) }
     }
 

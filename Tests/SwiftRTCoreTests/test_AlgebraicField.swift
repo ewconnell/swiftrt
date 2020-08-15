@@ -35,12 +35,13 @@ class test_AlgebraicField: XCTestCase {
         ("test_addStrided", test_addStrided),
         ("test_add", test_add),
         ("test_addFloat16", test_addFloat16),
-         ("test_addBFloat16", test_addBFloat16),
-         ("test_addInt32", test_addInt32),
-         ("test_addUInt8", test_addUInt8),
-         ("test_addScalar", test_addScalar),
-         ("test_addAndAssign", test_addAndAssign),
-         ("test_addSubMulDivComplex", test_addSubMulDivComplex),
+        ("test_addBFloat16", test_addBFloat16),
+
+        ("test_addInt32", test_addInt32),
+        ("test_addUInt8", test_addUInt8),
+        ("test_addScalar", test_addScalar),
+        ("test_addAndAssign", test_addAndAssign),
+        ("test_addSubMulDivComplex", test_addSubMulDivComplex),
 
          ("test_subtract", test_subtract),
          ("test_subtractScalar", test_subtractScalar),
@@ -270,32 +271,27 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_addFloat16() {
-//        Context.log.level = .diagnostic
         let a = array(0..<6, (3, 2), type: Float16.self)
         let b = array(0..<6, (3, 2), type: Float16.self)
         let result = a + b
-        print(result)
         XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
     }
 
     //--------------------------------------------------------------------------
     func test_addBFloat16() {
+        // Context.log.level = .diagnostic
         let a = array(0..<6, (3, 2), type: BFloat16.self)
         let b = array(0..<6, (3, 2), type: BFloat16.self)
         let result = a + b
-        print(result)
         XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
     }
 
     //--------------------------------------------------------------------------
     func test_addInt32() {
-//        Context.log.level = .diagnostic
         let a = array(0..<6, (3, 2), type: Int32.self)
         let b = array(0..<6, (3, 2), type: Int32.self)
         let result = a + b
-        let ar = result.array
-//        print(result)
-        XCTAssert(ar == [[0, 2], [4, 6], [8, 10]])
+        XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
     }
 
     //--------------------------------------------------------------------------
@@ -326,6 +322,7 @@ class test_AlgebraicField: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_addSubMulDivComplex() {
+        // Context.log.level = .diagnostic
         typealias CF = Complex<Float>
         let data: [Complex<Float>] = [1, 2, 3, 4]
         let a = array(data, (2, 2))

@@ -17,8 +17,8 @@ import Foundation
 import Numerics
 
 //==============================================================================
-// DeviceQueue functions with default cpu delegation
-extension DeviceQueue where Self: CpuFunctions
+// CpuQueue functions with default cpu delegation
+extension CpuQueue
 {
     //--------------------------------------------------------------------------
     @inlinable public func reduceAll<S>(
