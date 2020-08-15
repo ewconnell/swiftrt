@@ -9,15 +9,16 @@ This project requires the use of the Google Swift4 TensorFlow custom toolchain (
 ## MacOS and Ubuntu CPU Only Installation
 Currently a cpu build is available on MacOS.
 
-1) Install the Google [Swift4 TensorFlow Xcode 12 Toolchain](https://github.com/tensorflow/swift/blob/master/Installation.md).
+1) Install Xcode 12
+2) Install the Google [Swift4 TensorFlow Xcode 12 Toolchain](https://github.com/tensorflow/swift/blob/master/Installation.md), and in Xcode select the toolchain in the `Preferences` pane.
 
-2) Install and run the SwiftRT unit tests to verify the installation:
+3) Install and run the SwiftRT unit tests to verify the installation:
 ```sh
 $ git clone https://github.com/ewconnell/swiftrt.git
 $ cd swiftrt
 $ swift test
 ```
-3) To create an Xcode project for debugging
+4) To create an Xcode project for debugging
 ```sh
 $ swift package generate-xcodeproj
 ```
@@ -60,7 +61,7 @@ export CPLUS_INCLUDE_PATH=$CUDA_ROOT/include
 $ sudo apt install clang-9
 ```
 
-5) To configure cmake for a the debug version
+5) To configure cmake for a Debug version
 ```sh
 $ cd $SWIFTRT_HOME
 $ mkdir build
@@ -77,7 +78,7 @@ $ cd $SWIFTRT_HOME
 $ cmake --build ./build --target clean
 $ rm -rf .build
 ```
-The Swift Package Manager puts all output files into the hidden `$SWIFTRT_HOME/.build` directory.
+The Swift Package Manager puts all output files into the hidden directory `$SWIFTRT_HOME/.build`
 
 ***
 ## Setting up VScode
