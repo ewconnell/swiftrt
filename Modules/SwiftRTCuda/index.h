@@ -19,27 +19,117 @@
 #include <vector_types.h>
 #include "kernelHelpers.h"
 
-//------------------------------------------------------------------------------
-// Flat
-// a flat dense index
-struct Flat {
-    __device__ __forceinline__ static uint32_t linearIndex(
+//==============================================================================
+/// Logical
+/// converts grid, block, thread indexes into a logical position
+template<size_t Rank>
+struct Logical {
+    // initializer
+    __device__ __forceinline__ Logical(
         const uint3& blockIdx,
         const dim3& blockDim,
         const uint3& threadIdx
     ) {
-        return blockIdx.x * blockDim.x + threadIdx.x;
+        static_assert(Rank <= 3, "only Rank 1 - 3 are implemented");
+        if (Rank == 1) {
+            position[0] = blockIdx.x * blockDim.x + threadIdx.x;
+        } else if (Rank == 2) {
+            position[0] = blockIdx.y * blockDim.y + threadIdx.y;
+            position[1] = blockIdx.x * blockDim.x + threadIdx.x;
+        } else {
+            position[0] = blockIdx.z * blockDim.z + threadIdx.z;
+            position[1] = blockIdx.y * blockDim.y + threadIdx.y;
+            position[2] = blockIdx.x * blockDim.x + threadIdx.x;
+        }
+    }
+
+    // subscript
+    __device__ __forceinline__ uint32_t operator[](int i) const {
+        return position[i];
+    }
+
+    private:
+        // properties
+        uint32_t position[Rank];
+};
+
+//------------------------------------------------------------------------------
+/// Single
+/// index used for single element value parameters 
+template<int Rank>
+struct Single {
+    // initializer
+    __host__ Single(const TensorDescriptor& tensor) { }
+
+    /// isInBounds
+    /// `true` if the given logical position is within the bounds of
+    /// the indexed space
+    /// - Parameters:
+    ///  - position: the logical position to test
+    /// - Returns: `true` if the position is within the shape
+    __device__ __forceinline__ bool isInBounds(const Logical<Rank>& position) const {
+        return position[0] == 0;
+    }
+
+    /// linear
+    /// - Returns: all positions map to the single value, so always returns 0 
+    __device__ __forceinline__ 
+    uint32_t linear(const Logical<Rank>& position) const { return 0; }
+};
+
+//------------------------------------------------------------------------------
+// Flat
+// a flat dense index
+template<int Rank>
+struct Flat {
+    uint32_t shape[Rank];
+
+    //----------------------------------
+    // initializer
+    __host__ Flat(const TensorDescriptor& tensor) {
+        if (Rank > 1) {
+            for (int i = 0; i < Rank; ++i) {
+                assert(tensor.shape[i] <= UINT32_MAX && tensor.strides[i] <= UINT32_MAX);
+                shape[i] = uint32_t(tensor.shape[i]);
+            }
+        }
+    }
+
+    /// isInBounds
+    /// `true` if the given logical position is within the bounds of
+    /// the indexed space
+    /// - Parameters:
+    ///  - position: the logical position to test
+    /// - Returns: `true` if the position is within the shape
+    __device__ __forceinline__ bool isInBounds(const Logical<Rank>& position) const {
+        bool inBounds = position[0] < shape[0];
+        #pragma unroll
+        for (int i = 1; i < Rank; i++) {
+            inBounds &= position[i] < shape[i];
+        }
+        return inBounds;
+    }
+
+    //----------------------------------
+    __device__ __forceinline__ 
+    uint32_t linear(const Logical<Rank>& position) const {
+        uint32_t index = position[Rank - 1];
+        #pragma unroll
+        for (int i = 0; i < Rank-1; i++) {
+            index += position[i] * shape[i];
+        }
+        return index;
     }
 };
 
-
 //------------------------------------------------------------------------------
-// Index1
-template<size_t Rank>
+// Index
+template<int Rank>
 struct Strided {
     uint32_t shape[Rank];
     uint32_t strides[Rank];
 
+    //----------------------------------
     // initializer
     __host__ Strided(const TensorDescriptor& tensor) {
         for (int i = 0; i < Rank; ++i) {
@@ -49,29 +139,30 @@ struct Strided {
         }
     }
 
-    //--------------------------------------------------------------------------
-    /// linearIndex
-    __device__ __forceinline__ uint32_t linearIndex(
-        const uint3& blockIdx,
-        const dim3& blockDim,
-        const uint3& threadIdx
-    ) const {
-        static_assert(Rank <= 3, "only Rank 1 - 3 are implemented");
-        if (Rank == 1) {
-            auto col = blockIdx.x * blockDim.x + threadIdx.x;
-            return col * strides[0];
-
-        } else if (Rank == 2) {
-            auto row = blockIdx.y * blockDim.y + threadIdx.y;
-            auto col = blockIdx.x * blockDim.x + threadIdx.x;
-            return row * strides[0] + col * strides[1];
-
-        } else {
-            auto dep = blockIdx.z * blockDim.z + threadIdx.z;
-            auto row = blockIdx.y * blockDim.y + threadIdx.y;
-            auto col = blockIdx.x * blockDim.x + threadIdx.x;
-            return dep * strides[0] + row * strides[1] + col * strides[2];
+    /// isInBounds
+    /// `true` if the given logical position is within the bounds of
+    /// the indexed space
+    /// - Parameters:
+    ///  - position: the logical position to test
+    /// - Returns: `true` if the position is within the shape
+    __device__ __forceinline__ bool isInBounds(const Logical<Rank>& position) const {
+        bool inBounds = position[0] < shape[0];
+        #pragma unroll
+        for (int i = 1; i < Rank; i++) {
+            inBounds &= position[i] < shape[i];
         }
+        return inBounds;
+    }
+
+    //----------------------------------
+    __device__ __forceinline__ 
+    uint32_t linear(const Logical<Rank>& position) const {
+        uint32_t index = position[Rank - 1];
+        #pragma unroll
+        for (int i = 0; i < Rank-1; i++) {
+            index += position[i] * strides[i];
+        }
+        return index;
     }
 };
 
