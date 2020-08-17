@@ -164,7 +164,7 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     func test_reshapeOrderRowCol() {
         
-        Context.log.level = .diagnostic
+//        Context.log.level = .diagnostic
         let a = array([[0, 1, 2], [3, 4, 5]])
         XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])
 
@@ -182,7 +182,7 @@ class test_Shape: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_reshapeOrderRowTC32x8() {
-        Context.log.level = .diagnostic
+//        Context.log.level = .diagnostic
         let a = array([[0, 1, 2], [3, 4, 5]])
         XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])
 
@@ -200,7 +200,7 @@ class test_Shape: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_reshapeOrderRowTC32x32() {
-        Context.log.level = .diagnostic
+//        Context.log.level = .diagnostic
         let a = array([[0, 1, 2], [3, 4, 5]])
         XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])
 
