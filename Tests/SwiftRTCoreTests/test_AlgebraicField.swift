@@ -274,7 +274,6 @@ class test_AlgebraicField: XCTestCase {
         let a = array(0..<6, (3, 2), type: Float16.self)
         let b = array(0..<6, (3, 2), type: Float16.self)
         let result = a + b
-        print(result)
         XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
     }
 
@@ -283,7 +282,6 @@ class test_AlgebraicField: XCTestCase {
         let a = array(0..<6, (3, 2), type: BFloat16.self)
         let b = array(0..<6, (3, 2), type: BFloat16.self)
         let result = a + b
-        print(result)
         XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
     }
 
