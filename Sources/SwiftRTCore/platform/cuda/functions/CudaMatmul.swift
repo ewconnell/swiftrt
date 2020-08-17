@@ -32,6 +32,9 @@ extension CudaQueue
             return 
         }
         
+        cpuFallback(cudaErrorNotSupported) {
+            $0.matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
+        }
     }
     //--------------------------------------------------------------------------
     @inlinable func matmul<E>(
@@ -44,6 +47,9 @@ extension CudaQueue
             return 
         }
 
+        cpuFallback(cudaErrorNotSupported) {
+            $0.matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
+        }
     }
 
     public func matmul2<E>(type: E.Type) -> DeviceMatmul2<E>

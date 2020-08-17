@@ -6,7 +6,7 @@
         {
             "label": "swift debug build",
             "type": "shell",
-            "command": "swift build",
+            "command": "cmake --build ${workspaceFolder}/build --config Debug --target SwiftRT -- -j 12",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -26,7 +26,7 @@
         {
             "label": "swift-build-tests",
             "type": "shell",
-            "command": "swift build --build-tests",
+            "command": "cmake --build ${workspaceFolder}/build --config Debug --target SwiftRTTests -- -j 12",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -38,24 +38,10 @@
                 "panel": "shared",
                 "showReuseMessage": false,
                 "clear": false
-            }
-        },
-        {
-            "label": "swift test",
-            "type": "shell",
-            "command": "swift test",
-            "group": {
-                "kind": "test",
-                "isDefault": true
             },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": false,
-                "clear": false
-            }
+            "problemMatcher": [
+                "$eslint-compact"
+            ]
         }
     ]
 }

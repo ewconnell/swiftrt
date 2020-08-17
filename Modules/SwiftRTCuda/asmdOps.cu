@@ -365,8 +365,8 @@ static cudaError_t selectType(
     
     switch(oDesc.type) {
         case CUDA_R_32F:  return mapAB<Op, float>(a, aDesc, b, bDesc, out, oDesc, stream);
-        // case CUDA_R_16BF: return mapAB<Op, __nv_bfloat162>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
-        case CUDA_R_16F:  return mapAB<Op, __half>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
+        case CUDA_R_16BF: return mapAB<Op, __nv_bfloat16>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case CUDA_R_16F:  return mapAB<Op, __half>(a, aDesc, b, bDesc, out, oDesc, stream);
         case CUDA_R_8I:   return mapAB<Op, int8_t>(a, aDesc, b, bDesc, out, oDesc, stream);
         case CUDA_R_8U:   return mapAB<Op, uint8_t>(a, aDesc, b, bDesc, out, oDesc, stream);
         case CUDA_R_16I:  return mapAB<Op, int16_t>(a, aDesc, b, bDesc, out, oDesc, stream);
