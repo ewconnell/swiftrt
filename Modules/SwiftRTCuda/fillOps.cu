@@ -30,8 +30,6 @@
 template<typename E, int R, template<int U> class IndexO>
 __global__ void mapFill(E *out, IndexO<R> indexO, E element) {
     auto position = Logical<R>(blockIdx, blockDim, threadIdx);
-    printf("position: %d, isInBounds: %d, index: %d\n ", position[0], indexO.isInBounds(position), indexO.linear(position));
-
     if (indexO.isInBounds(position)) {
         int i = indexO.linear(position);
         out[i] = element;
@@ -68,7 +66,6 @@ static cudaError_t fill(
     dim3 tile = tileSize<1>(oDesc);
     dim3 grid = gridSize<1>(oDesc, tile);
     mapFill<E,1,Flat><<<grid, tile, 0, stream>>>(out, Flat<1>(oDesc), element);
-    cudaStreamSynchronize(stream);
     return cudaSuccess;
 }
 

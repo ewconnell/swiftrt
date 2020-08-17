@@ -53,7 +53,7 @@ struct Logical {
         uint32_t position[Rank];
 };
 
-//------------------------------------------------------------------------------
+//==============================================================================
 /// Single
 /// index used for single element value parameters 
 template<int Rank>
@@ -77,22 +77,18 @@ struct Single {
     uint32_t linear(const Logical<Rank>& position) const { return 0; }
 };
 
-//------------------------------------------------------------------------------
-// Flat
-// a flat dense index
+//==============================================================================
+/// Flat
+/// a flat dense index
 template<int Rank>
 struct Flat {
-    uint32_t shape[Rank];
+    uint32_t shape[1];
 
     //----------------------------------
     // initializer
     __host__ Flat(const TensorDescriptor& tensor) {
-        if (Rank > 1) {
-            for (int i = 0; i < Rank; ++i) {
-                assert(tensor.shape[i] <= UINT32_MAX && tensor.strides[i] <= UINT32_MAX);
-                shape[i] = uint32_t(tensor.shape[i]);
-            }
-        }
+        assert(tensor.count == tensor.spanCount);
+        shape[0] = tensor.count;
     }
 
     /// isInBounds
@@ -102,28 +98,18 @@ struct Flat {
     ///  - position: the logical position to test
     /// - Returns: `true` if the position is within the shape
     __device__ __forceinline__ bool isInBounds(const Logical<Rank>& position) const {
-        bool inBounds = position[0] < shape[0];
-        #pragma unroll
-        for (int i = 1; i < Rank; i++) {
-            inBounds &= position[i] < shape[i];
-        }
-        return inBounds;
+        return position[0] < shape[0];
     }
 
     //----------------------------------
     __device__ __forceinline__ 
     uint32_t linear(const Logical<Rank>& position) const {
-        uint32_t index = position[Rank - 1];
-        #pragma unroll
-        for (int i = 0; i < Rank-1; i++) {
-            index += position[i] * shape[i];
-        }
-        return index;
+        return position[0];
     }
 };
 
-//------------------------------------------------------------------------------
-// Index
+//==============================================================================
+/// Strided
 template<int Rank>
 struct Strided {
     uint32_t shape[Rank];
@@ -149,7 +135,7 @@ struct Strided {
         bool inBounds = position[0] < shape[0];
         #pragma unroll
         for (int i = 1; i < Rank; i++) {
-            inBounds &= position[i] < shape[i];
+            inBounds = inBounds && position[i] < shape[i];
         }
         return inBounds;
     }
@@ -157,9 +143,9 @@ struct Strided {
     //----------------------------------
     __device__ __forceinline__ 
     uint32_t linear(const Logical<Rank>& position) const {
-        uint32_t index = position[Rank - 1];
+        uint32_t index = 0;
         #pragma unroll
-        for (int i = 0; i < Rank-1; i++) {
+        for (int i = 0; i < Rank; i++) {
             index += position[i] * strides[i];
         }
         return index;
