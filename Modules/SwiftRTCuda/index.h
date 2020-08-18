@@ -79,16 +79,17 @@ struct Single {
 
 //==============================================================================
 /// Flat
-/// a flat dense index
+/// a flat dense 1D index
 template<int Rank>
 struct Flat {
-    uint32_t shape[1];
+    uint32_t count;
 
     //----------------------------------
     // initializer
     __host__ Flat(const TensorDescriptor& tensor) {
+        static_assert(Rank == 1, "Rank must == 1 for Flat index");
         assert(tensor.count == tensor.spanCount);
-        shape[0] = tensor.count;
+        count = tensor.count;
     }
 
     /// isInBounds
@@ -98,7 +99,7 @@ struct Flat {
     ///  - position: the logical position to test
     /// - Returns: `true` if the position is within the shape
     __device__ __forceinline__ bool isInBounds(const Logical<Rank>& position) const {
-        return position[0] < shape[0];
+        return position[0] < count;
     }
 
     //----------------------------------

@@ -76,6 +76,8 @@ cudaError_t srtFill(
 ) {
     // statically cast types from C interface to use with c++ templates
     const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*poDesc);
+    assert(oDesc.isDense());
+    
     switch(oDesc.type) {
         case CUDA_R_32F:  return fill<float>(out, oDesc, element, stream);
         case CUDA_R_16BF: return fill<__nv_bfloat16>(out, oDesc, element, stream);

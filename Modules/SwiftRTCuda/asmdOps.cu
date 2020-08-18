@@ -121,8 +121,8 @@ static cudaError_t selectIndex(
             // strided op single --> flat
             switch (oDesc.rank) {
             case 1: return mapIndex<F,E,1,Strided,Single,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
-            case 2: return mapIndex<F,E,2,Strided,Single,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
-            case 3: return mapIndex<F,E,3,Strided,Single,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 2: return mapIndex<F,E,2,Strided,Single,Strided>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 3: return mapIndex<F,E,3,Strided,Single,Strided>(a, aDesc, b, bDesc, out, oDesc, stream);
             default: return cudaErrorNotSupported;
             }
         }
@@ -139,8 +139,8 @@ static cudaError_t selectIndex(
             // strided op flat --> flat
             switch (oDesc.rank) {
             case 1: return mapIndex<F,E,1,Strided,Flat,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
-            case 2: return mapIndex<F,E,2,Strided,Flat,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
-            case 3: return mapIndex<F,E,3,Strided,Flat,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 2: return mapIndex<F,E,2,Strided,Strided,Strided>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 3: return mapIndex<F,E,3,Strided,Strided,Strided>(a, aDesc, b, bDesc, out, oDesc, stream);
             default: return cudaErrorNotSupported;
             }
         }
@@ -149,24 +149,24 @@ static cudaError_t selectIndex(
             // single op strided --> flat
             switch (oDesc.rank) {
             case 1: return mapIndex<F,E,1,Single,Strided,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
-            case 2: return mapIndex<F,E,2,Single,Strided,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
-            case 3: return mapIndex<F,E,3,Single,Strided,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 2: return mapIndex<F,E,2,Single,Strided,Strided>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 3: return mapIndex<F,E,3,Single,Strided,Strided>(a, aDesc, b, bDesc, out, oDesc, stream);
             default: return cudaErrorNotSupported;
             }
         } else if (aDesc.isDense()) {
             // flat op strided --> flat
             switch (oDesc.rank) {
             case 1: return mapIndex<F,E,1,Flat,Strided,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
-            case 2: return mapIndex<F,E,2,Flat,Strided,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
-            case 3: return mapIndex<F,E,3,Flat,Strided,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 2: return mapIndex<F,E,2,Strided,Strided,Strided>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 3: return mapIndex<F,E,3,Strided,Strided,Strided>(a, aDesc, b, bDesc, out, oDesc, stream);
             default: return cudaErrorNotSupported;
             }
         } else {
             // strided op strided --> flat
             switch (oDesc.rank) {
             case 1: return mapIndex<F,E,1,Strided,Strided,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
-            case 2: return mapIndex<F,E,2,Strided,Strided,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
-            case 3: return mapIndex<F,E,3,Strided,Strided,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 2: return mapIndex<F,E,2,Strided,Strided,Strided>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 3: return mapIndex<F,E,3,Strided,Strided,Strided>(a, aDesc, b, bDesc, out, oDesc, stream);
             default: return cudaErrorNotSupported;
             }
         }
