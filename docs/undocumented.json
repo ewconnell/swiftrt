@@ -1,0 +1,19 @@
+{
+  "warnings": [
+    {
+      "file": "/Users/ed/swiftrt/.build/checkouts/swift-numerics/Sources/ComplexModule/Arithmetic.swift",
+      "line": 74,
+      "symbol": "Complex./(_:_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/ed/swiftrt/.build/checkouts/swift-numerics/Sources/ComplexModule/Arithmetic.swift",
+      "line": 89,
+      "symbol": "Complex./=(_:_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.static",
+      "warning": "undocumented"
+    }
+  ],
+  "source_directory": "/Users/ed/swiftrt"
+}

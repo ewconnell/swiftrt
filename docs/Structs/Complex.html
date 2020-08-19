@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Complex Structure Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Struct/Complex" class="dashAnchor"></a>
+    <a title="Complex Structure Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html"> Docs</a> (96% documented)</p>
+        <p class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html"> Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        Complex Structure Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Extensions/Complex.html">Complex</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/Complex.html">Complex</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Complex</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">@frozen</span>
+<span class="kd">public</span> <span class="kd">struct</span> <span class="kt">Complex</span><span class="o">&lt;</span><span class="kt">RealType</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">RealType</span> <span class="p">:</span> <span class="kt">Real</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">AdditiveArithmetic</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">AlgebraicField</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">Hashable</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">CustomStringConvertible</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">CustomDebugStringConvertible</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="k">where</span> <span class="kt">RealType</span><span class="p">:</span> <span class="kt">Decodable</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">Encodable</span> <span class="k">where</span> <span class="kt">RealType</span><span class="p">:</span> <span class="kt">Encodable</span></code></pre>
+
+                </div>
+              </div>
+            <p>A complex number represented by real and imaginary parts.</p>
+
+<p>TODO: introductory text on complex numbers</p>
+<h2 id='implementation-notes' class='heading'>Implementation notes:</h2>
+
+<p>This type does not provide heterogeneous real/complex arithmetic,
+not even the natural vector-space operations like real * complex.
+There are two reasons for this choice: first, Swift broadly avoids
+mixed-type arithmetic when the operation can be adequately expressed
+by a conversion and homogeneous arithmetic. Second, with the current
+typechecker rules, it would lead to undesirable ambiguity in common
+expressions (see README.md for more details).</p>
+
+<p>Unlike C&rsquo;s <code>_Complex</code> and C++&lsquo;s <code>std::complex&lt;&gt;</code> types, we do not
+attempt to make meaningful semantic distinctions between different
+representations of infinity or NaN. Any Complex value with at least
+one non-finite component is simply &ldquo;non-finite&rdquo;. In as much as
+possible, we use the semantics of the point at infinity on the
+Riemann sphere for such values. This approach simplifies the number of
+edge cases that need to be considered for multiplication, division, and
+the elementary functions considerably.</p>
+
+<p><code>.magnitude</code> does not return the Euclidean norm; it uses the &ldquo;infinity
+norm&rdquo; (<code>max(|real|,|imaginary|)</code>) instead. There are two reasons for this
+choice: first, it&rsquo;s simply faster to compute on most hardware. Second,
+there exist values for which the Euclidean norm cannot be represented
+(consider a number with <code>.real</code> and <code>.imaginary</code> both equal to
+<code>RealType.greatestFiniteMagnitude</code>; the Euclidean norm would be
+<code>.sqrt(2) * .greatestFiniteMagnitude</code>, which overflows). Using
+the infinity norm avoids this problem entirely without significant
+downsides. You can access the Euclidean norm using the <code>length</code>
+property.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0VyACyxGx_xtcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0VyACyxGx_xtcfc">init(_:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A complex number constructed by specifying the real and imaginary parts.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="n">_</span> <span class="nv">real</span><span class="p">:</span> <span class="kt">RealType</span><span class="p">,</span> <span class="n">_</span> <span class="nv">imaginary</span><span class="p">:</span> <span class="kt">RealType</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Additive%20structure"></a>
+                <a name="//apple_ref/swift/Section/Additive structure" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Additive%20structure"></a>
+                  <h3 class="section-name"><p>Additive structure</p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:s18AdditiveArithmeticP1poiyxx_xtFZ"></a>
+                    <a name="//apple_ref/swift/Method/+(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:s18AdditiveArithmeticP1poiyxx_xtFZ">+(_:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">+</span> <span class="p">(</span><span class="nv">z</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">,</span> <span class="nv">w</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Complex</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:s18AdditiveArithmeticP1soiyxx_xtFZ"></a>
+                    <a name="//apple_ref/swift/Method/-(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:s18AdditiveArithmeticP1soiyxx_xtFZ">-(_:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">-</span> <span class="p">(</span><span class="nv">z</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">,</span> <span class="nv">w</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Complex</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:s18AdditiveArithmeticP2peoiyyxz_xtFZ"></a>
+                    <a name="//apple_ref/swift/Method/+=(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:s18AdditiveArithmeticP2peoiyyxz_xtFZ">+=(_:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">+=</span> <span class="p">(</span><span class="nv">z</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Complex</span><span class="p">,</span> <span class="nv">w</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:s18AdditiveArithmeticP2seoiyyxz_xtFZ"></a>
+                    <a name="//apple_ref/swift/Method/-=(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:s18AdditiveArithmeticP2seoiyyxz_xtFZ">-=(_:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">-=</span> <span class="p">(</span><span class="nv">z</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Complex</span><span class="p">,</span> <span class="nv">w</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Multiplicative%20structure"></a>
+                <a name="//apple_ref/swift/Section/Multiplicative structure" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Multiplicative%20structure"></a>
+                  <h3 class="section-name"><p>Multiplicative structure</p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:Sj1moiyxx_xtFZ"></a>
+                    <a name="//apple_ref/swift/Method/*(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:Sj1moiyxx_xtFZ">*(_:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">*</span> <span class="p">(</span><span class="nv">z</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">,</span> <span class="nv">w</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Complex</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V1doiyACyxGAE_AEtFZ"></a>
+                    <a name="//apple_ref/swift/Method//(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V1doiyACyxGAE_AEtFZ">/(_:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">/</span> <span class="p">(</span><span class="nv">z</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">,</span> <span class="nv">w</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Complex</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:Sj2meoiyyxz_xtFZ"></a>
+                    <a name="//apple_ref/swift/Method/*=(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:Sj2meoiyyxz_xtFZ">*=(_:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">*=</span> <span class="p">(</span><span class="nv">z</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Complex</span><span class="p">,</span> <span class="nv">w</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V2deoiyyACyxGz_AEtFZ"></a>
+                    <a name="//apple_ref/swift/Method//=(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V2deoiyyACyxGz_AEtFZ">/=(_:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">/=</span> <span class="p">(</span><span class="nv">z</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Complex</span><span class="p">,</span> <span class="nv">w</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V10normalizedACyxGSgvp"></a>
+                    <a name="//apple_ref/swift/Property/normalized" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V10normalizedACyxGSgvp">normalized</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A normalized complex number with the same phase as this value.</p>
+
+<p>If such a value cannot be produced (because the phase of zero and infinity is undefined),
+<code>nil</code> is returned.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@inlinable</span>
+<span class="kd">public</span> <span class="k">var</span> <span class="nv">normalized</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V10reciprocalACyxGSgvp"></a>
+                    <a name="//apple_ref/swift/Property/reciprocal" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V10reciprocalACyxGSgvp">reciprocal</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The reciprocal of this value, if it can be computed without undue overflow or underflow.</p>
+
+<p>If z.reciprocal is non-nil, you can safely replace division by z with multiplication by this value. It is
+not advantageous to do this for an isolated division, but if you are dividing many values by a single
+denominator, this will often be a significant performance win.</p>
+
+<p>Typical use looks like this:</p>
+<pre class="highlight swift"><code><span class="kd">func</span> <span class="n">divide</span><span class="o">&lt;</span><span class="kt">T</span><span class="p">:</span> <span class="kt">Real</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="p">[</span><span class="kt">Complex</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">],</span> <span class="n">by</span> <span class="nv">divisor</span><span class="p">:</span> <span class="kt">Complex</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">Complex</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">]</span> <span class="p">{</span>
+  <span class="c1">// If divisor is well-scaled, use multiply by reciprocal.</span>
+  <span class="k">if</span> <span class="k">let</span> <span class="nv">recip</span> <span class="o">=</span> <span class="n">divisor</span><span class="o">.</span><span class="n">reciprocal</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="nv">$0</span> <span class="o">*</span> <span class="n">recip</span> <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="c1">// Fallback on using division.</span>
+  <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="nv">$0</span> <span class="o">/</span> <span class="n">divisor</span> <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@inlinable</span>
+<span class="kd">public</span> <span class="k">var</span> <span class="nv">reciprocal</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Basic%20properties"></a>
+                <a name="//apple_ref/swift/Section/Basic properties" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Basic%20properties"></a>
+                  <h3 class="section-name"><p>Basic properties</p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V4realxvp"></a>
+                    <a name="//apple_ref/swift/Property/real" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V4realxvp">real</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The real part of this complex value.</p>
+
+<p>If <code>z</code> is not finite, <code>z.real</code> is <code>.nan</code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">real</span><span class="p">:</span> <span class="kt">RealType</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V9imaginaryxvp"></a>
+                    <a name="//apple_ref/swift/Property/imaginary" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V9imaginaryxvp">imaginary</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The imaginary part of this complex value.</p>
+
+<p>If <code>z</code> is not finite, <code>z.imaginary</code> is <code>.nan</code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">imaginary</span><span class="p">:</span> <span class="kt">RealType</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V4zeroACyxGvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/zero" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V4zeroACyxGvpZ">zero</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The additive identity, with real and imaginary parts both zero.</p>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li>.one</li>
+<li>.i</li>
+<li>.infinity</li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">zero</span><span class="p">:</span> <span class="kt">Complex</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V3oneACyxGvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/one" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V3oneACyxGvpZ">one</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The multiplicative identity, with real part one and imaginary part zero.</p>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li>.zero</li>
+<li>.i</li>
+<li>.infinity</li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">one</span><span class="p">:</span> <span class="kt">Complex</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V1iACyxGvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/i" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V1iACyxGvpZ">i</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The imaginary unit.</p>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li>.zero</li>
+<li>.one</li>
+<li>.infinity</li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">i</span><span class="p">:</span> <span class="kt">Complex</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V8infinityACyxGvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/infinity" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V8infinityACyxGvpZ">infinity</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The point at infinity.</p>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li>.zero</li>
+<li>.one</li>
+<li>.i</li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">infinity</span><span class="p">:</span> <span class="kt">Complex</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V9conjugateACyxGvp"></a>
+                    <a name="//apple_ref/swift/Property/conjugate" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V9conjugateACyxGvp">conjugate</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The complex conjugate of this value.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">conjugate</span><span class="p">:</span> <span class="kt">Complex</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V8isFiniteSbvp"></a>
+                    <a name="//apple_ref/swift/Property/isFinite" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V8isFiniteSbvp">isFinite</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>True if this value is finite.</p>
+
+<p>A complex value is finite if neither component is an infinity or nan.</p>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V8isNormalSbvp">.isNormal</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V11isSubnormalSbvp">.isSubnormal</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V6isZeroSbvp">.isZero</a></code></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">isFinite</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V8isNormalSbvp"></a>
+                    <a name="//apple_ref/swift/Property/isNormal" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V8isNormalSbvp">isNormal</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>True if this value is normal.</p>
+
+<p>A complex number is normal if it is finite and <em>either</em> the real or imaginary component is normal.
+A floating-point number representing one of the components is normal if its exponent allows a full-
+precision representation.</p>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V8isFiniteSbvp">.isFinite</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V11isSubnormalSbvp">.isSubnormal</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V6isZeroSbvp">.isZero</a></code></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">isNormal</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V11isSubnormalSbvp"></a>
+                    <a name="//apple_ref/swift/Property/isSubnormal" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V11isSubnormalSbvp">isSubnormal</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>True if this value is subnormal.</p>
+
+<p>A complex number is subnormal if it is finite, not normal, and not zero. When the result of a
+computation is subnormal, underflow has occurred and the result generally does not have full
+precision.</p>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V8isFiniteSbvp">.isFinite</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V8isNormalSbvp">.isNormal</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V6isZeroSbvp">.isZero</a></code></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">isSubnormal</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V6isZeroSbvp"></a>
+                    <a name="//apple_ref/swift/Property/isZero" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V6isZeroSbvp">isZero</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>True if this value is zero.</p>
+
+<p>A complex number is zero if <em>both</em> the real and imaginary components are zero.</p>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V8isFiniteSbvp">.isFinite</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V8isNormalSbvp">.isNormal</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V11isSubnormalSbvp">.isSubnormal</a></code></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">isZero</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V9magnitudexvp"></a>
+                    <a name="//apple_ref/swift/Property/magnitude" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V9magnitudexvp">magnitude</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The ∞-norm of the value (<code>max(abs(real), abs(imaginary))</code>).</p>
+
+<p>If you need the Euclidean norm (a.k.a. 2-norm) use the <code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V6lengthxvp">length</a></code> or <code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V13lengthSquaredxvp">lengthSquared</a></code>
+properties instead.</p>
+<h2 id='edge-cases' class='heading'>Edge cases:</h2>
+
+<ul>
+<li>If <code>z</code> is not finite, <code>z.magnitude</code> is <code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V8infinityACyxGvpZ">.infinity</a></code>.</li>
+<li>If <code>z</code> is zero, <code>z.magnitude</code> is <code>0</code>.</li>
+<li>Otherwise, <code>z.magnitude</code> is finite and non-zero.</li>
+</ul>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V6lengthxvp">.length</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V13lengthSquaredxvp">.lengthSquared</a></code></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">magnitude</span><span class="p">:</span> <span class="kt">RealType</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V13canonicalizedACyxGvp"></a>
+                    <a name="//apple_ref/swift/Property/canonicalized" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V13canonicalizedACyxGvp">canonicalized</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A &ldquo;canonical&rdquo; representation of the value.</p>
+
+<p>For normal complex numbers with a RealType conforming to
+BinaryFloatingPoint (the common case), the result is simply this value
+unmodified. For zeros, the result has the representation (+0, +0). For
+infinite values, the result has the representation (+inf, +0).</p>
+
+<p>If the RealType admits non-canonical representations, the x and y
+components are canonicalized in the result.</p>
+
+<p>This is mainly useful for interoperation with other languages, where
+you may want to reduce each equivalence class to a single representative
+before passing across language boundaries, but it may also be useful
+for some serialization tasks. It&rsquo;s also a useful implementation detail for
+some primitive operations.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">canonicalized</span><span class="p">:</span> <span class="p">`</span><span class="nv">Self</span><span class="p">`</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Additional%20Initializers"></a>
+                <a name="//apple_ref/swift/Section/Additional Initializers" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Additional%20Initializers"></a>
+                  <h3 class="section-name"><p>Additional Initializers</p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0VyACyxGxcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0VyACyxGxcfc">init(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The complex number with specified real part and zero imaginary part.</p>
+
+<p>Equivalent to <code>Complex(real, 0)</code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@inlinable</span>
+<span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="n">_</span> <span class="nv">real</span><span class="p">:</span> <span class="kt">RealType</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V9imaginaryACyxGx_tcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(imaginary:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V9imaginaryACyxGx_tcfc">init(imaginary:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The complex number with specified imaginary part and zero real part.</p>
+
+<p>Equivalent to <code>Complex(0, imaginary)</code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@inlinable</span>
+<span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">imaginary</span><span class="p">:</span> <span class="kt">RealType</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0VyACyxGqd__cSzRd__lufc"></a>
+                    <a name="//apple_ref/swift/Method/init(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0VyACyxGqd__cSzRd__lufc">init(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The complex number with specified real part and zero imaginary part.</p>
+
+<p>Equivalent to <code>Complex(RealType(real), 0)</code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@inlinable</span>
+<span class="kd">public</span> <span class="kd">init</span><span class="o">&lt;</span><span class="kt">Other</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">real</span><span class="p">:</span> <span class="kt">Other</span><span class="p">)</span> <span class="k">where</span> <span class="kt">Other</span> <span class="p">:</span> <span class="kt">BinaryInteger</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V7exactlyACyxGSgqd___tcSzRd__lufc"></a>
+                    <a name="//apple_ref/swift/Method/init(exactly:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V7exactlyACyxGSgqd___tcSzRd__lufc">init(exactly:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The complex number with specified real part and zero imaginary part,
+if it can be constructed without rounding.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@inlinable</span>
+<span class="kd">public</span> <span class="kd">init</span><span class="p">?</span><span class="o">&lt;</span><span class="kt">Other</span><span class="o">&gt;</span><span class="p">(</span><span class="n">exactly</span> <span class="nv">real</span><span class="p">:</span> <span class="kt">Other</span><span class="p">)</span> <span class="k">where</span> <span class="kt">Other</span> <span class="p">:</span> <span class="kt">BinaryInteger</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:s27ExpressibleByIntegerLiteralP0cD4TypeQa"></a>
+                    <a name="//apple_ref/swift/Alias/IntegerLiteralType" class="dashAnchor"></a>
+                    <a class="token" href="#/s:s27ExpressibleByIntegerLiteralP0cD4TypeQa">IntegerLiteralType</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">typealias</span> <span class="kt">IntegerLiteralType</span> <span class="o">=</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:s27ExpressibleByIntegerLiteralP07integerD0x0cD4TypeQz_tcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(integerLiteral:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:s27ExpressibleByIntegerLiteralP07integerD0x0cD4TypeQz_tcfc">init(integerLiteral:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@inlinable</span>
+<span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="n">integerLiteral</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Conformance%20to%20Hashable%20and%20Equatable"></a>
+                <a name="//apple_ref/swift/Section/Conformance to Hashable and Equatable" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Conformance%20to%20Hashable%20and%20Equatable"></a>
+                  <h3 class="section-name"><p>Conformance to Hashable and Equatable</p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SQ2eeoiySbx_xtFZ"></a>
+                    <a name="//apple_ref/swift/Method/==(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SQ2eeoiySbx_xtFZ">==(_:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">==</span> <span class="p">(</span><span class="nv">a</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">,</span> <span class="nv">b</span><span class="p">:</span> <span class="kt">Complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SH4hash4intoys6HasherVz_tF"></a>
+                    <a name="//apple_ref/swift/Method/hash(into:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SH4hash4intoys6HasherVz_tF">hash(into:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">hash</span><span class="p">(</span><span class="n">into</span> <span class="nv">hasher</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Hasher</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Formatting"></a>
+                <a name="//apple_ref/swift/Section/Formatting" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Formatting"></a>
+                  <h3 class="section-name"><p>Formatting</p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:s23CustomStringConvertibleP11descriptionSSvp"></a>
+                    <a name="//apple_ref/swift/Property/description" class="dashAnchor"></a>
+                    <a class="token" href="#/s:s23CustomStringConvertibleP11descriptionSSvp">description</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">description</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:s28CustomDebugStringConvertibleP16debugDescriptionSSvp"></a>
+                    <a name="//apple_ref/swift/Property/debugDescription" class="dashAnchor"></a>
+                    <a class="token" href="#/s:s28CustomDebugStringConvertibleP16debugDescriptionSSvp">debugDescription</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">debugDescription</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Operations%20for%20working%20with%20polar%20form"></a>
+                <a name="//apple_ref/swift/Section/Operations for working with polar form" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Operations%20for%20working%20with%20polar%20form"></a>
+                  <h3 class="section-name"><p>Operations for working with polar form</p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V6lengthxvp"></a>
+                    <a name="//apple_ref/swift/Property/length" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V6lengthxvp">length</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The Euclidean norm (a.k.a. 2-norm, <code>sqrt(real*real + imaginary*imaginary)</code>).</p>
+
+<p>This property takes care to avoid spurious over- or underflow in
+this computation. For example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">x</span><span class="p">:</span> <span class="kt">Float</span> <span class="o">=</span> <span class="mf">3.0e+20</span>
+<span class="k">let</span> <span class="nv">x</span><span class="p">:</span> <span class="kt">Float</span> <span class="o">=</span> <span class="mf">4.0e+20</span>
+<span class="k">let</span> <span class="nv">naive</span> <span class="o">=</span> <span class="nf">sqrt</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">y</span><span class="p">)</span> <span class="c1">// +Inf</span>
+<span class="k">let</span> <span class="nv">careful</span> <span class="o">=</span> <span class="kt">Complex</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">length</span> <span class="c1">// 5.0e+20</span>
+</code></pre>
+
+<p>Note that it <em>is</em> still possible for this property to overflow,
+because the length can be as much as sqrt(2) times larger than
+either component, and thus may not be representable in the real type.</p>
+
+<p>For most use cases, you can use the cheaper <code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V9magnitudexvp">.magnitude</a></code>
+property (which computes the ∞-norm) instead, which always produces
+a representable result.</p>
+<h2 id='edge-cases' class='heading'>Edge cases:</h2>
+
+<p>If a complex value is not finite, its <code>.length</code> is <code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V8infinityACyxGvpZ">infinity</a></code>.</p>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V9magnitudexvp">.magnitude</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V13lengthSquaredxvp">.lengthSquared</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V5phasexvp">.phase</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V5polarx6length_x5phasetvp">.polar</a></code></li>
+<li><code>init(r:θ:)</code></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">length</span><span class="p">:</span> <span class="kt">RealType</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V13lengthSquaredxvp"></a>
+                    <a name="//apple_ref/swift/Property/lengthSquared" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V13lengthSquaredxvp">lengthSquared</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The squared length <code>(real*real + imaginary*imaginary)</code>.</p>
+
+<p>This property is more efficient to compute than <code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V6lengthxvp">length</a></code>, but is
+highly prone to overflow or underflow; for finite values that are
+not well-scaled, <code>lengthSquared</code> is often either zero or
+infinity, even when <code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V6lengthxvp">length</a></code> is a finite number. Use this property
+only when you are certain that this value is well-scaled.</p>
+
+<p>For many cases, <code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V9magnitudexvp">.magnitude</a></code> can be used instead, which is similarly
+cheap to compute and always returns a representable value.</p>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V6lengthxvp">.length</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V9magnitudexvp">.magnitude</a></code></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">lengthSquared</span><span class="p">:</span> <span class="kt">RealType</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V5phasexvp"></a>
+                    <a name="//apple_ref/swift/Property/phase" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V5phasexvp">phase</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The phase (angle, or &ldquo;argument&rdquo;).</p>
+
+<p>Returns the angle (measured above the real axis) in radians. If
+the complex value is zero or infinity, the phase is not defined,
+and <code>nan</code> is returned.</p>
+<h2 id='edge-cases' class='heading'>Edge cases:</h2>
+
+<p>If the complex value is zero or non-finite, phase is <code>nan</code>.</p>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V6lengthxvp">.length</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V5polarx6length_x5phasetvp">.polar</a></code></li>
+<li><code>init(r:θ:)</code></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@inlinable</span>
+<span class="kd">public</span> <span class="k">var</span> <span class="nv">phase</span><span class="p">:</span> <span class="kt">RealType</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V5polarx6length_x5phasetvp"></a>
+                    <a name="//apple_ref/swift/Property/polar" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V5polarx6length_x5phasetvp">polar</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The length and phase (or polar coordinates) of this value.</p>
+<h2 id='edge-cases' class='heading'>Edge cases:</h2>
+
+<p>If the complex value is zero or non-finite, phase is <code>.nan</code>.
+If the complex value is non-finite, length is <code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V8infinityACyxGvpZ">.infinity</a></code>.</p>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V6lengthxvp">.length</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V5phasexvp">.phase</a></code></li>
+<li><code>init(r:θ:)</code></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">polar</span><span class="p">:</span> <span class="p">(</span><span class="nv">length</span><span class="p">:</span> <span class="kt">RealType</span><span class="p">,</span> <span class="nv">phase</span><span class="p">:</span> <span class="kt">RealType</span><span class="p">)</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V6length5phaseACyxGx_xtcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(length:phase:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V6length5phaseACyxGx_xtcfc">init(length:<wbr>phase:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Creates a complex value specified with polar coordinates.</p>
+<h2 id='edge-cases' class='heading'>Edge cases:</h2>
+
+<ul>
+<li>Negative lengths are interpreted as reflecting the point through the origin, i.e.:
+<code>
+Complex(length: -r, phase: θ) == -Complex(length: r, phase: θ)
+</code></li>
+<li>For any <code>θ</code>, even <code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V8infinityACyxGvpZ">.infinity</a></code> or <code>.nan</code>:
+<code>
+Complex(length: .zero, phase: θ) == .zero
+</code></li>
+<li>For any <code>θ</code>, even <code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V8infinityACyxGvpZ">.infinity</a></code> or <code>.nan</code>, if <code>r</code> is infinite then:
+<code>
+Complex(length: r, phase: θ) == .infinity
+</code></li>
+<li>Otherwise, <code>θ</code> must be finite, or a precondition failure occurs.</li>
+</ul>
+<h2 id='see-also' class='heading'>See also:</h2>
+
+<ul>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V6lengthxvp">.length</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V5phasexvp">.phase</a></code></li>
+<li><code><a href="../Structs/Complex.html#/s:13ComplexModule0A0V5polarx6length_x5phasetvp">.polar</a></code></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@inlinable</span>
+<span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">length</span><span class="p">:</span> <span class="kt">RealType</span><span class="p">,</span> <span class="nv">phase</span><span class="p">:</span> <span class="kt">RealType</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Available%20where%20%60RealType%60%3A%20%60BinaryFloatingPoint%60"></a>
+                <a name="//apple_ref/swift/Section/Available where `RealType`: `BinaryFloatingPoint`" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Available%20where%20%60RealType%60%3A%20%60BinaryFloatingPoint%60"></a>
+                  <h3 class="section-name"><p>Available where <code>RealType</code>: <code>BinaryFloatingPoint</code></p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0VAASBRzrlEyACyxGACyqd__Gc04RealB00C0Rd__SBRd__lufc"></a>
+                    <a name="//apple_ref/swift/Method/init(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0VAASBRzrlEyACyxGACyqd__Gc04RealB00C0Rd__SBRd__lufc">init(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>other</code> rounded to the nearest representable value of this type.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@inlinable</span>
+<span class="kd">public</span> <span class="kd">init</span><span class="o">&lt;</span><span class="kt">Other</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">other</span><span class="p">:</span> <span class="kt">Complex</span><span class="o">&lt;</span><span class="kt">Other</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">where</span> <span class="kt">Other</span> <span class="p">:</span> <span class="kt">Real</span><span class="p">,</span> <span class="kt">Other</span> <span class="p">:</span> <span class="kt">BinaryFloatingPoint</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0VAASBRzrlE7exactlyACyxGSgACyqd__G_tc04RealB00D0Rd__SBRd__lufc"></a>
+                    <a name="//apple_ref/swift/Method/init(exactly:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0VAASBRzrlE7exactlyACyxGSgACyqd__G_tc04RealB00D0Rd__SBRd__lufc">init(exactly:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>other</code>, if it can be represented exactly in this type; otherwise <code>nil</code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@inlinable</span>
+<span class="kd">public</span> <span class="kd">init</span><span class="p">?</span><span class="o">&lt;</span><span class="kt">Other</span><span class="o">&gt;</span><span class="p">(</span><span class="n">exactly</span> <span class="nv">other</span><span class="p">:</span> <span class="kt">Complex</span><span class="o">&lt;</span><span class="kt">Other</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">where</span> <span class="kt">Other</span> <span class="p">:</span> <span class="kt">Real</span><span class="p">,</span> <span class="kt">Other</span> <span class="p">:</span> <span class="kt">BinaryFloatingPoint</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Available%20where%20%60RealType%60%3A%20%60Decodable%60"></a>
+                <a name="//apple_ref/swift/Section/Available where `RealType`: `Decodable`" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Available%20where%20%60RealType%60%3A%20%60Decodable%60"></a>
+                  <h3 class="section-name"><p>Available where <code>RealType</code>: <code>Decodable</code></p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:Se4fromxs7Decoder_p_tKcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(from:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:Se4fromxs7Decoder_p_tKcfc">init(from:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="n">from</span> <span class="nv">decoder</span><span class="p">:</span> <span class="kt">Decoder</span><span class="p">)</span> <span class="k">throws</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Available%20where%20%60RealType%60%3A%20%60Encodable%60"></a>
+                <a name="//apple_ref/swift/Section/Available where `RealType`: `Encodable`" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Available%20where%20%60RealType%60%3A%20%60Encodable%60"></a>
+                  <h3 class="section-name"><p>Available where <code>RealType</code>: <code>Encodable</code></p>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SE6encode2toys7Encoder_p_tKF"></a>
+                    <a name="//apple_ref/swift/Method/encode(to:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SE6encode2toys7Encoder_p_tKF">encode(to:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">encode</span><span class="p">(</span><span class="n">to</span> <span class="nv">encoder</span><span class="p">:</span> <span class="kt">Encoder</span><span class="p">)</span> <span class="k">throws</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2020 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2020-08-19)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.5</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

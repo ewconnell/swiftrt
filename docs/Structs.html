@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Structures  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Section/Structures" class="dashAnchor"></a>
+    <a title="Structures  Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="index.html"> Docs</a> (96% documented)</p>
+        <p class="header-right">
+          <form role="search" action="search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="index.html"> Reference</a>
+        <img id="carat" src="img/carat.png" />
+        Structures  Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Extensions/Complex.html">Complex</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Structs/Complex.html">Complex</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Structures</h1>
+            <p>The following structures are available globally.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:13ComplexModule0A0V"></a>
+                    <a name="//apple_ref/swift/Struct/Complex" class="dashAnchor"></a>
+                    <a class="token" href="#/s:13ComplexModule0A0V">Complex</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A complex number represented by real and imaginary parts.</p>
+
+<p>TODO: introductory text on complex numbers</p>
+<h2 id='implementation-notes' class='heading'>Implementation notes:</h2>
+
+<p>This type does not provide heterogeneous real/complex arithmetic,
+not even the natural vector-space operations like real * complex.
+There are two reasons for this choice: first, Swift broadly avoids
+mixed-type arithmetic when the operation can be adequately expressed
+by a conversion and homogeneous arithmetic. Second, with the current
+typechecker rules, it would lead to undesirable ambiguity in common
+expressions (see README.md for more details).</p>
+
+<p>Unlike C&rsquo;s <code>_Complex</code> and C++&lsquo;s <code>std::complex&lt;&gt;</code> types, we do not
+attempt to make meaningful semantic distinctions between different
+representations of infinity or NaN. Any Complex value with at least
+one non-finite component is simply &ldquo;non-finite&rdquo;. In as much as
+possible, we use the semantics of the point at infinity on the
+Riemann sphere for such values. This approach simplifies the number of
+edge cases that need to be considered for multiplication, division, and
+the elementary functions considerably.</p>
+
+<p><code>.magnitude</code> does not return the Euclidean norm; it uses the &ldquo;infinity
+norm&rdquo; (<code>max(|real|,|imaginary|)</code>) instead. There are two reasons for this
+choice: first, it&rsquo;s simply faster to compute on most hardware. Second,
+there exist values for which the Euclidean norm cannot be represented
+(consider a number with <code>.real</code> and <code>.imaginary</code> both equal to
+<code>RealType.greatestFiniteMagnitude</code>; the Euclidean norm would be
+<code>.sqrt(2) * .greatestFiniteMagnitude</code>, which overflows). Using
+the infinity norm avoids this problem entirely without significant
+downsides. You can access the Euclidean norm using the <code>length</code>
+property.</p>
+
+                        <a href="Structs/Complex.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@frozen</span>
+<span class="kd">public</span> <span class="kd">struct</span> <span class="kt">Complex</span><span class="o">&lt;</span><span class="kt">RealType</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">RealType</span> <span class="p">:</span> <span class="kt">Real</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">AdditiveArithmetic</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">AlgebraicField</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">Hashable</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">CustomStringConvertible</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">CustomDebugStringConvertible</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="k">where</span> <span class="kt">RealType</span><span class="p">:</span> <span class="kt">Decodable</span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Complex</span><span class="p">:</span> <span class="kt">Encodable</span> <span class="k">where</span> <span class="kt">RealType</span><span class="p">:</span> <span class="kt">Encodable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2020 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2020-08-19)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.5</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>
