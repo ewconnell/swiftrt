@@ -55,7 +55,8 @@ public protocol _Logging {
     /// - Parameter minCount: the minimum length of the message. If it exceeds
     ///   the actual message length, then trailing fill is used. This is used
     ///   mainly for creating message partitions i.e. "---------"
-    func diagnostic(_ message: @autoclosure () -> String,
+    func diagnostic(_ category: LogCategory,
+                    _ message: @autoclosure () -> String,
                     categories: LogCategories,
                     indent: Int,
                     trailing: String,
@@ -91,6 +92,7 @@ public extension _Logging {
     // diagnostic
     #if DEBUG
     @inlinable func diagnostic(
+        _ category: LogCategory,
         _ message: @autoclosure () -> String,
         categories: LogCategories,
         indent: Int = 0,
@@ -104,12 +106,13 @@ public extension _Logging {
             categories.rawValue & mask == 0 { return }
         
         logWriter.write(level: .diagnostic,
-                        message: message(),
+                        message: "\(category)\(message())",
                         nestingLevel: indent + logNestingLevel,
                         trailing: trailing, minCount: minCount)
     }
     #else
     @inlinable func diagnostic(
+        _ category: LogCategory,
         _ message: @autoclosure () -> String,
         categories: LogCategories,
         indent: Int = 0,
@@ -398,26 +401,35 @@ public struct LogCategories: OptionSet {
     public static let queueSync     = LogCategories(rawValue: 1 << 12)
 }
 
-// strings
-public let blankString      = "           "
-public let allocString      = "[\(setText("ALLOCATE ", color: .cyan))]"
-public let blockString      = "[\(setText("BLOCK    ", color: .red))]"
-public let copyString       = "[\(setText("COPY     ", color: .blue))]"
-public let createString     = "[\(setText("CREATE   ", color: .cyan))]"
-public let deviceString     = "[\(setText("DEVICE   ", color: .cyan))]"
-public let expandingString  = "[\(setText("EXPANDING", color: .cyan))]"
-public let fallbackString   = "[\(setText("FALLBACK ", color: .yellow))]"
-public let layoutString     = "[\(setText("LAYOUT   ", color: .yellow))]"
-public let mutationString   = "[\(setText("MUTATE   ", color: .blue))]"
-public let queueString      = "[\(setText("QUEUE    ", color: .yellow))] >>>"
-public let recordString     = "[\(setText("RECORD   ", color: .yellow))]"
-public let referenceString  = "[\(setText("REFERENCE", color: .cyan))]"
-public let releaseString    = "[\(setText("RELEASE  ", color: .cyan))]"
-public let reorderString    = "[\(setText("REORDER  ", color: .blue))]"
-public let signaledString   = "[\(setText("SIGNALED ", color: .green))]"
-public let syncString       = "[\(setText("SYNC     ", color: .yellow))]"
-public let timeoutString    = "[\(setText("TIMEOUT  ", color: .red))]"
-public let waitString       = "[\(setText("WAIT     ", color: .red))]"
+public enum LogCategory: CustomStringConvertible {
+    case alloc, blank, block, copy, create, device, expanding,
+         fallback, layout, mutation, queue, record, reference,
+         release, reorder, signaled, sync, timeout, wait
+    
+    public var description: String {
+        switch self {
+        case .alloc:     return "[\(setText("ALLOCATE ", color: .cyan))] "
+        case .blank:     return "            "
+        case .block:     return "[\(setText("BLOCK    ", color: .red))] "
+        case .copy:      return "[\(setText("COPY     ", color: .blue))] "
+        case .create:    return "[\(setText("CREATE   ", color: .cyan))] "
+        case .device:    return "[\(setText("DEVICE   ", color: .cyan))] "
+        case .expanding: return "[\(setText("EXPANDING", color: .cyan))] "
+        case .fallback:  return "[\(setText("FALLBACK ", color: .yellow))] "
+        case .layout:    return "[\(setText("LAYOUT   ", color: .yellow))] "
+        case .mutation:  return "[\(setText("MUTATE   ", color: .blue))] "
+        case .queue:     return "[\(setText("QUEUE    ", color: .yellow))] >>> "
+        case .record:    return "[\(setText("RECORD   ", color: .yellow))] "
+        case .reference: return "[\(setText("REFERENCE", color: .cyan))] "
+        case .release:   return "[\(setText("RELEASE  ", color: .cyan))] "
+        case .reorder:   return "[\(setText("REORDER  ", color: .blue))] "
+        case .signaled:  return "[\(setText("SIGNALED ", color: .green))] "
+        case .sync:      return "[\(setText("SYNC     ", color: .yellow))] "
+        case .timeout:   return "[\(setText("TIMEOUT  ", color: .red))] "
+        case .wait:      return "[\(setText("WAIT     ", color: .red))] "
+        }
+    }
+}
 
 //------------------------------------------------------------------------------
 // LogLevel

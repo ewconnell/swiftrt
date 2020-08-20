@@ -29,7 +29,7 @@ public final class CpuDevice: ComputeDevice {
         self.name = "dev:\(index)"
         self.memoryType = memoryType
         self.queues = []
-        diagnostic("\(deviceString) create \(name)  memory: \(memoryType)",
+        diagnostic(.device, "create \(name)  memory: \(memoryType)",
                    categories: .device)
         for i in 0..<Context.cpuQueueCount {
             let queue = CpuQueue(
@@ -95,7 +95,7 @@ public final class CpuDeviceMemory: DeviceMemory {
             buffer.deallocate()
             #if DEBUG
             if let name = name, let msg = releaseMessage {
-                diagnostic("\(releaseString) \(name)\(msg)", categories: .dataAlloc)
+                diagnostic(.release, "\(name)\(msg)", categories: .dataAlloc)
             }
             #endif
         }

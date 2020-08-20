@@ -102,7 +102,7 @@ public extension Tensor where TensorElement.Value == Bool {
 }
 
 @derivative(of: max)
-@inlinable func _vjpMax<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+@usableFromInline func _vjpMax<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
 where S: TensorShape, E.Value: DifferentiableElement & Comparable
 {
@@ -124,7 +124,7 @@ where S: TensorShape, E.Value: DifferentiableElement & Comparable
 }
 
 @derivative(of: max, wrt: lhs)
-@inlinable public func _vjpMax<S,E>(_ lhs: Tensor<S,E>, _ rhs: E.Value)
+@usableFromInline func _vjpMax<S,E>(_ lhs: Tensor<S,E>, _ rhs: E.Value)
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
 where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableElement
 {
@@ -146,7 +146,7 @@ where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableElement
 }
 
 @derivative(of: max, wrt: rhs)
-@inlinable public func _vjpMax<S,E>(_ lhs: E.Value, _ rhs: Tensor<S,E>)
+@usableFromInline func _vjpMax<S,E>(_ lhs: E.Value, _ rhs: Tensor<S,E>)
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
 where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableElement
 {
@@ -195,7 +195,7 @@ public extension Tensor where TensorElement.Value: Comparable {
 }
 
 @derivative(of: min)
-@inlinable func _vjpMin<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+@usableFromInline func _vjpMin<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
     where S: TensorShape, E.Value: DifferentiableElement & Comparable
 {
@@ -217,7 +217,7 @@ public extension Tensor where TensorElement.Value: Comparable {
 }
 
 @derivative(of: min, wrt: lhs)
-@inlinable public func _vjpMin<S,E>(_ lhs: Tensor<S,E>, _ rhs: E.Value)
+@usableFromInline func _vjpMin<S,E>(_ lhs: Tensor<S,E>, _ rhs: E.Value)
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
 where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableElement
 {
@@ -239,7 +239,7 @@ where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableElement
 }
 
 @derivative(of: min, wrt: rhs)
-@inlinable public func _vjpMin<S,E>(_ lhs: E.Value, _ rhs: Tensor<S,E>)
+@usableFromInline func _vjpMin<S,E>(_ lhs: E.Value, _ rhs: Tensor<S,E>)
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
 where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableElement
 {

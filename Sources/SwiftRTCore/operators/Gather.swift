@@ -44,7 +44,7 @@ where S: TensorShape
 
 // TODO: get this verified
 @derivative(of: gather)
-@inlinable func _vjpGather<S,E>(
+@usableFromInline func _vjpGather<S,E>(
     from tensor: Tensor<S,E>,
     indices: TensorR1<DeviceIndex>,
     axis: Int = 0

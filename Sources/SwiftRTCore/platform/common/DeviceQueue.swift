@@ -148,8 +148,8 @@ extension DeviceQueue {
     /// record(event:
     @discardableResult
     @inlinable public func record(event: QueueEvent) -> QueueEvent {
-        diagnostic("\(recordString) event(\(event.id)) on " +
-                    "\(name)", categories: .queueSync)
+        diagnostic(.record, "event(\(event.id)) on \(name)",
+                   categories: .queueSync)
         
         // set event time
         if defaultQueueEventOptions.contains(.timing) {
@@ -172,7 +172,7 @@ extension DeviceQueue {
     /// waits until the event has occurred
     @inlinable public func wait(for event: QueueEvent) {
         #if DEBUG
-        diagnostic("\(waitString) \(name) will wait for event(\(event.id))",
+        diagnostic(.wait, "\(name) will wait for event(\(event.id))",
                    categories: .queueSync)
         #endif
         if mode == .async {

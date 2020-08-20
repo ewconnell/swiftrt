@@ -247,7 +247,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_add() { 
-        Context.log.level = .diagnostic
+//        Context.log.level = .diagnostic
         let a = array(0..<6, (3, 2), name: "A")
         let b = array(0..<6, (3, 2), name: "B")
         let aOnes = ones(like: a)
