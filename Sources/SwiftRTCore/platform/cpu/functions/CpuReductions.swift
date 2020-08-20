@@ -74,7 +74,7 @@ extension CpuFunctions where Self: DeviceQueue {
         {
             var out = out
             if mode == .async {
-                diagnostic("\(queueString) cpu_reduceAll on \(name)",
+                diagnostic(.queue, "cpu_reduceAll on \(name)",
                            categories: .queueFunc)
                 queue.async(group: group) {
                     out[out.startIndex] = i0.reduce(into: i0[i0.startIndex]) {
@@ -105,7 +105,7 @@ extension CpuFunctions where Self: DeviceQueue {
         {
             var out = out
             if mode == .async {
-                diagnostic("\(queueString) cpu_reduceAny on \(name)",
+                diagnostic(.queue, "cpu_reduceAny on \(name)",
                            categories: .queueFunc)
                 queue.async(group: group) {
                     out[out.startIndex] = i0.reduce(into: i0[i0.startIndex]) {
@@ -138,7 +138,7 @@ extension CpuFunctions where Self: DeviceQueue {
             var out = out
             let start = out.startIndex
             if mode == .async {
-                diagnostic("\(queueString) cpu_reduceSum on \(name)",
+                diagnostic(.queue, "cpu_reduceSum on \(name)",
                            categories: .queueFunc)
                 queue.async(group: group) {
                     out[start] = i0.reduce(into: I0.Element.zero) { $0 += $1 }
@@ -168,7 +168,7 @@ extension CpuFunctions where Self: DeviceQueue {
             let start = out.startIndex
             let count = I0.Element(exactly: i0.count)!
             if mode == .async {
-                diagnostic("\(queueString) cpu_reduceMean on \(name)",
+                diagnostic(.queue, "cpu_reduceMean on \(name)",
                            categories: .queueFunc)
                 queue.async(group: group) {
                     let sum = i0.reduce(into: I0.Element.zero) { $0 += $1 }
@@ -198,7 +198,7 @@ extension CpuFunctions where Self: DeviceQueue {
         {
             var out = out
             if mode == .async {
-                diagnostic("\(queueString) cpu_reduceMin on \(name)",
+                diagnostic(.queue, "cpu_reduceMin on \(name)",
                            categories: .queueFunc)
                 queue.async(group: group) {
                     out[out.startIndex] = i0.reduce(into: i0[i0.startIndex]) {
@@ -231,7 +231,7 @@ extension CpuFunctions where Self: DeviceQueue {
         {
             var out = out
             if mode == .async {
-                diagnostic("\(queueString) cpu_reduceMax on \(name)",
+                diagnostic(.queue, "cpu_reduceMax on \(name)",
                            categories: .queueFunc)
                 queue.async(group: group) {
                     out[out.startIndex] = i0.reduce(into: i0[i0.startIndex]) {

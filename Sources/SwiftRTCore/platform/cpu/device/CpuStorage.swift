@@ -53,7 +53,7 @@ public final class CpuStorage: StorageBuffer {
             alignment: alignment)
 
         #if DEBUG
-        diagnostic("\(allocString) \(diagnosticName) " +
+        diagnostic(.alloc, "\(diagnosticName) " +
             "\(Element.self)[\(count)]", categories: .dataAlloc)
         #endif
     }
@@ -105,7 +105,7 @@ public final class CpuStorage: StorageBuffer {
         self.name = name
 
         #if DEBUG
-        diagnostic("\(referenceString) \(diagnosticName) " +
+        diagnostic(.reference, "\(diagnosticName) " +
             "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
         #endif
     }
@@ -125,7 +125,7 @@ public final class CpuStorage: StorageBuffer {
         self.name = name
 
         #if DEBUG
-        diagnostic("\(referenceString) \(diagnosticName) " +
+        diagnostic(.reference, "\(diagnosticName) " +
             "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
         #endif
     }
@@ -145,8 +145,7 @@ public final class CpuStorage: StorageBuffer {
         if !isReference {
             hostBuffer.deallocate()
             #if DEBUG
-            diagnostic("\(releaseString) \(diagnosticName) ",
-                categories: .dataAlloc)
+            diagnostic(.release, diagnosticName, categories: .dataAlloc)
             #endif
         }
     }

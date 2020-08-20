@@ -1,0 +1,328 @@
+{
+    "author": "Edward Connell <ewconnell@google.com>",
+    "author_url": "https://github.com/ewconnell",
+    "module": "SwiftRTCore",
+    "github_url": "https://github.com/ewconnell/swiftrt",
+    "github_file_prefix": "https://github.com/ewconnell/swiftrt/tree/master",
+    "min_acl": "public",
+    "swift_build_tool": "spm",
+    "theme": "fullwidth",
+    "output": "docs/SwiftRTCore",
+    "custom_categories": [
+        {
+            "name": "Tensor",
+            "children": [
+                "Tensor",
+                "TensorShape",
+                "TensorProtocol",
+                "Order"
+            ]
+        },
+        {
+            "name": "Sequential Iteration",
+            "children": [
+                "ElementIndex",
+                "BufferElements",
+                "LogicalElements"
+            ]
+        },
+        {
+            "name": "Elements",
+            "children": [
+                "StorageElement",
+                "PackedStorageElement",
+                "StorageElementType",
+                "BFloat16",
+                "Float16",
+                "Float16ToFloat(_:)",
+                "FloatToFloat16Rnd(_:)",
+                "Bool1",
+                "UInt1",
+                "UInt4"
+            ]
+        },
+        {
+            "name": "Vector Elements",
+            "children": [
+                "VectorElement",
+                "RGBA",
+                "Stereo",
+                "SIMD1",
+                "SIMD5",
+                "SIMD6"
+            ]
+        },
+        {
+            "name": "Storage",
+            "children": [
+                "StorageBuffer",
+                "CpuStorage",
+                "DiscreteStorage",
+                "BufferStream",
+                "MemoryType"
+            ]
+        },
+        {
+            "name": "Logging",
+            "children": [
+                "Log",
+                "LogWriter",
+                "Logging",
+                "Logger",
+                "LogCategories",
+                "LogEvent",
+                "LogInfo",
+                "LogCategory",
+                "LogColor",
+                "LogLevel",
+                "setText(_:color:)",
+                "_Logging"
+            ]
+        },
+        {
+            "name": "Platform",
+            "children": [
+                "Context",
+                "Platform",
+                "ComputeDevice",
+                "DeviceMemory",
+                "DeviceLimits",
+                "DeviceQueue",
+                "QueueEvent",
+                "QueueEventOptions",
+                "CpuPlatform",
+                "CpuDevice",
+                "CpuDeviceMemory",
+                "CpuQueue",
+                "CpuQueueEvent",
+                "DeviceQueueMode",
+                "elapsedTime(logLabel:iterations:warmUps:precision:_:)",
+                "ExecutionPlanCache",
+                "ExecutionPlanner",
+                "EvaluationMode",
+                "PlatformError",
+                "QueueEventError",
+                "NanPropagation",
+                "CpuFunctions",
+                "DeviceError"
+            ]
+        },
+        {
+            "name": "Device Queue Selection",
+            "children": [
+                "use(device:queue:)",
+                "useAppThreadQueue()",
+                "using(device:queue:_:)",
+                "using(queue:_:)",
+                "usingAppThreadQueue(_:)"
+            ]
+        },
+        {
+            "name": "Differential Operators",
+            "children": [
+                "gradient(at:_:_:in:)",
+                "gradient(at:_:in:)",
+                "gradient(at:in:)",
+                "gradient(of:)",
+                "valueWithGradient(at:_:_:in:)",
+                "valueWithGradient(at:_:in:)",
+                "valueWithGradient(at:in:)",
+                "valueWithGradient(of:)",
+                "DifferentiableElement",
+                "DifferentiableTensor"
+            ]
+        },
+        {
+            "name": "Range Operators",
+            "children": [
+                "...-(_:_:)",
+                "..<-(_:_:)",
+                "<(_:_:)",
+                "SignedRangeExpression"
+            ]
+        },
+        {
+            "name": "Random Numbers",
+            "children": [
+                "RandomSeed",
+                "RandomDistribution",
+                "BetaDistribution",
+                "NormalDistribution",
+                "UniformFloatingPointDistribution",
+                "UniformIntegerDistribution",
+                "RandomNumberGeneratorState",
+                "SeedableRandomNumberGenerator",
+                "ARC4RandomNumberGenerator",
+                "AnyRandomNumberGenerator",
+                "PhiloxRandomNumberGenerator",
+                "ThreefryRandomNumberGenerator"
+            ]
+        },
+        {
+            "name": "Operators",
+            "children": [
+                "abs(_:)",
+                "absmax(_:alongAxes:)",
+                "abssum(_:alongAxes:)",
+                "acos(_:)",
+                "acosh(_:)",
+                "add(_:_:)",
+                "all(_:alongAxes:)",
+                "and(_:_:)",
+                "any(_:alongAxes:)",
+                "asin(_:)",
+                "asinh(_:)",
+                "atan(_:)",
+                "atan2(y:x:)",
+                "atanh(_:)",
+                "cast(_:)",
+                "concatenate(_:axis:)",
+                "concatenate(_:axis:into:)",
+                "concatenatedShape(_:_:)",
+                "copy(from:to:)",
+                "cos(_:)",
+                "cosh(_:)",
+                "delayQueue(atLeast:)",
+                "div(_:_:)",
+                "elementsAlmostEqual(_:_:tolerance:)",
+                "equal(_:_:)",
+                "erf(_:)",
+                "erfc(_:)",
+                "exp(_:)",
+                "exp10(_:)",
+                "exp2(_:)",
+                "expMinusOne(_:)",
+                "fill(_:with:)",
+                "gamma(_:)",
+                "gather(from:indices:axis:)",
+                "generateRandomSeed(using:)",
+                "greater(_:_:)",
+                "greaterOrEqual(_:_:)",
+                "hypot(_:_:)",
+                "hzero()",
+                "identity(_:order:)",
+                "identity(_:type:order:)",
+                "less(_:_:)",
+                "lessOrEqual(_:_:)",
+                "log(_:)",
+                "log(onePlus:)",
+                "log10(_:)",
+                "log2(_:)",
+                "logGamma(_:)",
+                "matmul(_:transposed:_:transposed:)",
+                "matmul(_:transposed:_:transposed:bias:)",
+                "max(_:_:)",
+                "max(_:alongAxes:)",
+                "mean(_:alongAxes:)",
+                "min(_:_:)",
+                "min(_:alongAxes:)",
+                "mul(_:_:)",
+                "neg(_:)",
+                "notEqual(_:_:)",
+                "or(_:_:)",
+                "pow(_:_:)",
+                "prod(_:alongAxes:)",
+                "prodNonZeros(_:alongAxes:)",
+                "replace(x:with:where:)",
+                "root(_:_:)",
+                "roundUp(_:multiple:)",
+                "sigmoid(_:)",
+                "sign(_:)",
+                "sin(_:)",
+                "sinh(_:)",
+                "sqrt(_:)",
+                "sqrtSumSquares(_:alongAxes:)",
+                "squared(_:)",
+                "subtract(_:_:)",
+                "sum(_:alongAxes:)",
+                "tan(_:)",
+                "tanh(_:)"
+            ]
+        },
+        {
+            "name": "Specialized Data Type Support",
+            "children": [
+                "habs(_:)",
+                "hneg(_:)",
+                "hone()",
+                "ishequ(x:y:)",
+                "ishinf(_:)",
+                "ishnan(_:)"
+            ]
+        },
+        {
+            "name": "Rank Operators",
+            "children": [
+                "expand(dims:axes:)",
+                "expand(dims:axis:)",
+                "reshape(_:_:order:)",
+                "squeeze(_:axes:)",
+                "squeeze(_:axis:)",
+                "stack(_:axis:)",
+                "stack(_:axis:into:)",
+                "stack(_:axis:out:)"
+            ]
+        },
+        {
+            "name": "Numpy Style Operators",
+            "children": [
+                "array(_:name:)",
+                "array(_:type:name:)",
+                "array(_:order:name:)",
+                "array(_:type:order:name:)",
+                "array(_:_:type:order:name:)",
+                "array(_:_:order:name:)",
+                "array(stored:name:)",
+                "array(stored:order:name:)",
+                "array(stored:_:order:name:)",
+                "empty()",
+                "empty(type:)",
+                "empty(_:_:_:)",
+                "empty(_:order:)",
+                "empty(_:type:)",
+                "empty(_:type:order:)",
+                "empty(like:order:)",
+                "empty(like:order:shape:)",
+                "empty(like:type:order:)",
+                "empty(like:type:order:shape:)",
+                "eye(_:_:k:order:)",
+                "eye(_:_:k:type:order:)",
+                "full(_:)",
+                "full(_:_:_:_:)",
+                "full(_:_:order:)",
+                "full(_:_:type:)",
+                "full(_:_:type:order:)",
+                "full(_:type:)",
+                "full(like:_:order:)",
+                "full(like:_:order:shape:)",
+                "full(like:_:type:order:)",
+                "full(like:_:type:order:shape:)",
+                "one()",
+                "one(type:)",
+                "ones(_:_:order:name:)",
+                "ones(_:order:name:)",
+                "ones(_:type:order:name:)",
+                "ones(like:order:name:)",
+                "ones(like:order:shape:name:)",
+                "ones(like:type:order:name:)",
+                "ones(like:type:order:shape:name:)",
+                "repeating(_:_:)",
+                "repeating(_:_:_:)",
+                "repeating(_:_:_:type:)",
+                "repeating(_:like:)",
+                "repeating(_:like:shape:)",
+                "repeating(_:like:type:)",
+                "repeating(_:like:type:shape:)",
+                "zero()",
+                "zero(type:)",
+                "zeros(_:_:order:name:)",
+                "zeros(_:order:name:)",
+                "zeros(_:type:order:name:)",
+                "zeros(like:order:name:)",
+                "zeros(like:order:shape:name:)",
+                "zeros(like:type:order:name:)",
+                "zeros(like:type:order:shape:name:)"
+            ]
+        }
+    ]
+}

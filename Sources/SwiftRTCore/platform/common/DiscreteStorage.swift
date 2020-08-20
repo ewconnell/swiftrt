@@ -112,7 +112,7 @@ public final class DiscreteStorage: StorageBuffer {
         let queue = Context.currentQueue
         let otherMemory = other.getDeviceMemory(Element.self, queue)
         let selfMemory = getDeviceMemory(Element.self, queue)
-        diagnostic("\(copyString) \(other.name)(\(other.id)) --> " +
+        diagnostic(.copy, "\(other.name)(\(other.id)) --> " +
                     "\(name)(\(id)) \(Element.self)" +
                     "[\(byteCount / MemoryLayout<Element>.size)]",
                     categories: .dataCopy)
@@ -131,8 +131,8 @@ public final class DiscreteStorage: StorageBuffer {
         let p = UnsafeMutableBufferPointer(mutating: buffer)
         let raw = UnsafeMutableRawBufferPointer(p)
         replicas[0] = CpuDeviceMemory(0, raw, .unified, isReference: true)
-        diagnostic("\(referenceString) \(name)(\(id)) " +
-                    "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
+        diagnostic(.reference, "\(name)(\(id)) \(Element.self)[\(buffer.count)]",
+                   categories: .dataAlloc)
     }
     
     //--------------------------------------------------------------------------
@@ -145,8 +145,8 @@ public final class DiscreteStorage: StorageBuffer {
         isReference = true
         let raw = UnsafeMutableRawBufferPointer(buffer)
         replicas[0] = CpuDeviceMemory(0, raw, .unified, isReference: true)
-        diagnostic("\(referenceString) \(name)(\(id)) " +
-                    "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
+        diagnostic(.reference, "\(name)(\(id)) \(Element.self)[\(buffer.count)]",
+                   categories: .dataAlloc)
     }
 
     //--------------------------------------------------------------------------
@@ -220,7 +220,7 @@ public final class DiscreteStorage: StorageBuffer {
                 let count = byteCount / MemoryLayout<Element>.size
                 let msg = "(\(id)) on \(queue.deviceName) using \(queue.name) " +
                           " \(Element.self)[\(count)]"
-                diagnostic("\(allocString) \(name)\(msg)", categories: .dataAlloc)
+                diagnostic(.alloc, "\(name)\(msg)", categories: .dataAlloc)
                 memory.name = name
                 memory.releaseMessage = msg
             }
@@ -245,7 +245,7 @@ public final class DiscreteStorage: StorageBuffer {
         guard queue.id != dependentQueue.id && dependentQueue.mode == .async
             else { return } 
 
-        diagnostic("\(syncString) \(queue.name) will wait for" +
+        diagnostic(.sync, "\(queue.name) will wait for" +
                     " \(dependentQueue.name) to " +
                     "\(willMutate ? "write" : "read") \(name)(\(id))",
                     categories: .queueSync)
@@ -291,8 +291,8 @@ public final class DiscreteStorage: StorageBuffer {
         if let master = master, let lastQueue = lastQueue {
 
             func outputCopyMessage() {
-                diagnostic(
-                    "\(copyString) \(name)(\(id)) dev:\(master.deviceIndex)" +
+                diagnostic(.copy,
+                    "\(name)(\(id)) dev:\(master.deviceIndex)" +
                     "\(setText(" --> ", color: .blue))" +
                     "\(queue.deviceName)_q\(queue.id)  " +
                     "\(Element.self)[\(replica.count(of: Element.self))]",

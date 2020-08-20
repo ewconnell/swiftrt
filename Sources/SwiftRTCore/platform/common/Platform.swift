@@ -157,10 +157,10 @@ public typealias DeviceIndex = Int32
 
 //==============================================================================
 // assert messages
-public let _messageTensorShapeMismatch = "tensor shape mismatch"
-public let _messageTensorOrderMismatch = "tensor order mismatch"
-public let _messageElementsMustBeContiguous = "elements must be contigous"
-public let _messageRepeatingStorageOrderNotSupported =
+@usableFromInline let _messageTensorShapeMismatch = "tensor shape mismatch"
+@usableFromInline let _messageTensorOrderMismatch = "tensor order mismatch"
+@usableFromInline let _messageElementsMustBeContiguous = "elements must be contigous"
+@usableFromInline let _messageRepeatingStorageOrderNotSupported =
     "repeating storage order is not supported"
 
 //==============================================================================
@@ -317,22 +317,8 @@ public enum DeviceQueueMode {
 }
 
 //==============================================================================
-/// QueueId
-/// a unique device queue identifier that is used to index
-/// through the platform device tree for directing workflow
-public struct QueueId {
-    public let device: Int
-    public let queue: Int
-    
-    @inlinable public init(_ device: Int, _ queue: Int) {
-        self.device = device
-        self.queue = queue
-    }
-}
-
-//==============================================================================
 // assert messages
-public let _messageQueueThreadViolation =
+@usableFromInline let _messageQueueThreadViolation =
 "a queue can only be accessed by the thread that created it"
 
 //==============================================================================

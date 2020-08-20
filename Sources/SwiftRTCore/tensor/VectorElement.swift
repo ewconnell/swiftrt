@@ -123,8 +123,8 @@ extension RGBA where Scalar: BinaryFloatingPoint {
 extension RGBA: AdditiveArithmetic where Scalar: FloatingPoint { }
 
 //------------------------------------------------------------------------------
-public var _storedZeroRGBAFloat32 = RGBA<Float>()
-public var _storedOneRGBAFloat32 = RGBA<Float>(1, 1, 1, 1)
+@usableFromInline var _storedZeroRGBAFloat32 = RGBA<Float>()
+@usableFromInline var _storedOneRGBAFloat32 = RGBA<Float>(1, 1, 1, 1)
 
 public extension VectorElement where Scalar == Float {
     @inlinable static var type: StorageElementType { .vector32Fx4 }
@@ -139,8 +139,8 @@ public extension VectorElement where Scalar == Float {
 }
 
 //------------------------------------------------------------------------------
-public var _storedZeroRGBAUInt8 = RGBA<UInt8>()
-public var _storedOneRGBAUInt8 = RGBA<UInt8>(1, 1, 1, 1)
+@usableFromInline var _storedZeroRGBAUInt8 = RGBA<UInt8>()
+@usableFromInline var _storedOneRGBAUInt8 = RGBA<UInt8>(1, 1, 1, 1)
 
 public extension VectorElement where Scalar == UInt8 {
     @inlinable static var type: StorageElementType { .vector8Ux4 }
