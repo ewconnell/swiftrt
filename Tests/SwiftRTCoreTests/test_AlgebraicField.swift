@@ -22,39 +22,39 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // support terminal test run
     static var allTests = [
-        // ("test_queryMatmulProperties", test_queryMatmulProperties),
-        // ("test_minimalAdd", test_minimalAdd),
-        // ("test_minimalAddVJP", test_minimalAddVJP),
+        ("test_queryMatmulProperties", test_queryMatmulProperties),
+        ("test_minimalAdd", test_minimalAdd),
+        ("test_minimalAddVJP", test_minimalAddVJP),
         
-        // ("test_matmul", test_matmul),
-        // ("test_batchMatmul", test_batchMatmul),
-        // ("test_leftBatchMatmul", test_leftBatchMatmul),
-        // ("test_rightBatchMatmul", test_rightBatchMatmul),
+        ("test_matmul", test_matmul),
+        ("test_batchMatmul", test_batchMatmul),
+        ("test_leftBatchMatmul", test_leftBatchMatmul),
+        ("test_rightBatchMatmul", test_rightBatchMatmul),
         
-        // ("test_perfAdd", test_perfAdd),
+        ("test_perfAdd", test_perfAdd),
         ("test_add", test_add),
         ("test_addStrided", test_addStrided),
-        // ("test_addFloat16", test_addFloat16),
-        // ("test_addBFloat16", test_addBFloat16),
-
-        // ("test_addInt32", test_addInt32),
-        // ("test_addUInt8", test_addUInt8),
-        // ("test_addScalar", test_addScalar),
-        // ("test_addAndAssign", test_addAndAssign),
-        // ("test_addSubMulDivComplex", test_addSubMulDivComplex),
-
-        //  ("test_subtract", test_subtract),
-        //  ("test_subtractScalar", test_subtractScalar),
-        //  ("test_subtractVector", test_subtractVector),
-        //  ("test_subtractAndAssign", test_subtractAndAssign),
-
-        //  ("test_mul", test_mul),
-        //  ("test_mulScalar", test_mulScalar),
-        //  ("test_mulAndAssign", test_mulAndAssign),
-
-        //  ("test_div", test_div),
-        //  ("test_divScalar", test_divScalar),
-        //  ("test_divAndAssign", test_divAndAssign),
+        ("test_addFloat16", test_addFloat16),
+        ("test_addBFloat16", test_addBFloat16),
+        
+        ("test_addInt32", test_addInt32),
+        ("test_addUInt8", test_addUInt8),
+        ("test_addScalar", test_addScalar),
+        ("test_addAndAssign", test_addAndAssign),
+        ("test_addSubMulDivComplex", test_addSubMulDivComplex),
+        
+        ("test_subtract", test_subtract),
+        ("test_subtractScalar", test_subtractScalar),
+        ("test_subtractVector", test_subtractVector),
+        ("test_subtractAndAssign", test_subtractAndAssign),
+        
+        ("test_mul", test_mul),
+        ("test_mulScalar", test_mulScalar),
+        ("test_mulAndAssign", test_mulAndAssign),
+        
+        ("test_div", test_div),
+        ("test_divScalar", test_divScalar),
+        ("test_divAndAssign", test_divAndAssign),
     ]
 
     //--------------------------------------------------------------------------
@@ -246,7 +246,7 @@ class test_AlgebraicField: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    func test_add() { 
+    func test_add() {
 //        Context.log.level = .diagnostic
         let a = array(0..<6, (3, 2), name: "A")
         let b = array(0..<6, (3, 2), name: "B")
