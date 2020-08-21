@@ -46,7 +46,7 @@ class test_Math: XCTestCase {
     //--------------------------------------------------------------------------
     // test_exp
     func test_exp() {
-        Context.log.level = .diagnostic
+        // Context.log.level = .diagnostic
         let a = array([0.0, 1, 2, 3, 4, 5])
         let expected = a.map(Foundation.exp)
         XCTAssert(exp(a) == expected)
@@ -60,7 +60,7 @@ class test_Math: XCTestCase {
     //--------------------------------------------------------------------------
     // test_log
     func test_log() {
-        Context.log.level = .diagnostic
+        // Context.log.level = .diagnostic
         let a = array([0.0, 1, 2, 3, 4, 5], (3, 2))
         let expected = a.map(Foundation.log)
         XCTAssert(log(a).flatArray == expected)
