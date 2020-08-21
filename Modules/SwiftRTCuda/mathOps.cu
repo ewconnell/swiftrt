@@ -14,6 +14,8 @@
 // limitations under the License.
 //
 #include <assert.h>
+#include <cmath>
+#include <bits/stdint-uintn.h>
 #include <cuda_fp16.h>
 #include <cuda_bf16.h>
 
@@ -188,42 +190,6 @@ __global__ void mapA(
     }
 }
 
-// for single parameter with scalar parameter ops
-template<typename F, typename E, typename N, int R,
-         template<int U> class IndexA,
-         template<int U> class IndexO>
-__global__ void mapA(
-    const E *a, const IndexA<R> indexA,
-    N n,
-    E *out, const IndexO<R> indexO 
-) {
-    auto position = Logical<R>(blockIdx, blockDim, threadIdx);
-    if (indexO.isInBounds(position)) {
-        int ia = indexA.linear(position);
-        int io = indexO.linear(position);
-        out[io] = F::op(a[ia], n);
-    }
-}
-
-// for two parameter ops
-template<typename F, typename E, int R,
-         template<int U> class IndexA,
-         template<int U> class IndexB,
-         template<int U> class IndexO>
-__global__ void mapAB(
-    const E *a, const IndexA<R> indexA,
-    const E *b, const IndexB<R> indexB,
-    E *out, const IndexO<R> indexO 
-) {
-    auto position = Logical<R>(blockIdx, blockDim, threadIdx);
-    if (indexO.isInBounds(position)) {
-        int ia = indexA.linear(position);
-        int ib = indexB.linear(position);
-        int io = indexO.linear(position);
-        out[io] = F::op(a[ia], b[ib]);
-    }
-}
-
 //==============================================================================
 // dynamic dispatch functions
 //==============================================================================
@@ -244,48 +210,6 @@ static cudaError_t initIndexA(
 
     mapA<F,E,R,IndexA,IndexO><<<grid, tile, 0, stream>>>(
         a, IndexA<R>(aDesc), 
-        out, IndexO<R>(oDesc));
-    return cudaSuccess;
-}
-
-/// initIndexAN
-template<typename F, typename E, typename N, int R,
-         template<int U> class IndexA,
-         template<int U> class IndexO>
-static cudaError_t initIndexAN(
-    const E* a, const TensorDescriptor& aDesc,
-    N n,
-    E* out, const TensorDescriptor& oDesc,
-    cudaStream_t stream
-) {
-    // get tile and grid size for launch
-    dim3 tile = tileSize<1>(oDesc);
-    dim3 grid = gridSize<1>(oDesc, tile);
-
-    mapA<F,E,N,R,IndexA,IndexO><<<grid, tile, 0, stream>>>(
-        a, IndexA<R>(aDesc), n, 
-        out, IndexO<R>(oDesc));
-    return cudaSuccess;
-}
-
-/// initIndexAB
-template<typename F, typename E, int R,
-         template<int U> class IndexA,
-         template<int U> class IndexB,
-         template<int U> class IndexO>
-static cudaError_t initIndexAB(
-    const E* a, const TensorDescriptor& aDesc,
-    const E* b, const TensorDescriptor& bDesc,
-    E* out, const TensorDescriptor& oDesc,
-    cudaStream_t stream
-) {
-    // get tile and grid size for launch
-    dim3 tile = tileSize<1>(oDesc);
-    dim3 grid = gridSize<1>(oDesc, tile);
-
-    mapAB<F,E,R,IndexA,IndexB,IndexO><<<grid, tile, 0, stream>>>(
-        a, IndexA<R>(aDesc),
-        b, IndexB<R>(bDesc),
         out, IndexO<R>(oDesc));
     return cudaSuccess;
 }
@@ -314,55 +238,6 @@ static cudaError_t selectIndexA(
     }    
 }
 
-/// selectIndexAN
-template<template<typename U, typename V> class Op, typename E, typename N>
-static cudaError_t selectIndexAN(
-    const void* pA, const TensorDescriptor& aDesc,
-    N n,
-    void* pOut, const TensorDescriptor& oDesc,
-    cudaStream_t stream
-) {
-    typedef Op<E, N> F;
-    E* out = static_cast<E*>(pOut);
-    const E* a = static_cast<const E*>(pA);
-
-    if (aDesc.isDense()) {
-        return initIndexAN<F,E,N,1,Flat,Flat>(a, aDesc, n, out, oDesc, stream);
-    } else {
-        switch (oDesc.rank) {
-        case 1: return initIndexAN<F,E,N,1,Strided,Strided>(a, aDesc, n, out, oDesc, stream);
-        case 2: return initIndexAN<F,E,N,2,Strided,Strided>(a, aDesc, n, out, oDesc, stream);
-        case 3: return initIndexAN<F,E,N,3,Strided,Strided>(a, aDesc, n, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
-    }    
-}
-
-/// selectIndexAB
-template<template<typename U> class Op, typename E>
-static cudaError_t selectIndexAB(
-    const void* pA, const TensorDescriptor& aDesc,
-    const void* pB, const TensorDescriptor& bDesc,
-    void* pOut, const TensorDescriptor& oDesc,
-    cudaStream_t stream
-) {
-    typedef Op<E> F;
-    E* out = static_cast<E*>(pOut);
-    const E* a = static_cast<const E*>(pA);
-    const E* b = static_cast<const E*>(pB);
-
-    if (aDesc.isDense()) {
-        return initIndexAB<F,E,1,Flat,Flat,Flat>(a, aDesc, b, bDesc, out, oDesc, stream);
-    } else {
-        switch (oDesc.rank) {
-        case 1: return initIndexAB<F,E,1,Strided,Strided,Strided>(a, aDesc, b, bDesc, out, oDesc, stream);
-        case 2: return initIndexAB<F,E,2,Strided,Strided,Strided>(a, aDesc, b, bDesc, out, oDesc, stream);
-        case 3: return initIndexAB<F,E,3,Strided,Strided,Strided>(a, aDesc, b, bDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
-    }    
-}
-
 //------------------------------------------------------------------------------
 // selectType
 // converts from dynamic to static type and delegates for stride selection
@@ -383,65 +258,11 @@ static cudaError_t selectType(
     assert(aDesc.type == oDesc.type && aDesc.rank == oDesc.rank);
 
     switch(oDesc.type) {
-        case CUDA_R_32F:  return selectIndexA<Op, float>(a, aDesc, out, oDesc, stream);
-        // case CUDA_R_16BF: return selectIndex<Op, __nv_bfloat16>(a, aDesc, out, oDesc, stream);
-        // case CUDA_R_16F:  return selectIndex<Op, __half>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_64F:  return selectIndexA<Op, double>(a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-    }
-}
-
-// selectType
-// converts from dynamic to static type and delegates for stride selection
-template<template<typename U, typename V> class Op>
-static cudaError_t selectTypeAN(
-    const void* a, const srtTensorDescriptor* paDesc, int n,
-    void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream
-) {
-    // statically cast types from C interface to use with c++ templates
-    const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*paDesc);
-    const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*poDesc);
-
-    // for now require the same order
-    // TODO: maybe allow simultaneous reordering of elements??
-    assert(aDesc.order == oDesc.order && oDesc.isDense());
-    // must be same data type and rank, and output is dense
-    assert(aDesc.type == oDesc.type && aDesc.rank == oDesc.rank);
-
-    switch(oDesc.type) {
-        case CUDA_R_32F:  return selectIndexAN<Op, float, int>(a, aDesc, n, out, oDesc, stream);
-        // case CUDA_R_16BF: return selectIndex<Op, __nv_bfloat16>(a, aDesc, out, oDesc, stream);
-        // case CUDA_R_16F:  return selectIndex<Op, __half>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_64F:  return selectIndexAN<Op, double>(a, aDesc, n, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-    }
-}
-
-// selectTypeAB
-template<template<typename U> class Op>
-static cudaError_t selectTypeAB(
-    const void* a, const srtTensorDescriptor* paDesc,
-    const void* b, const srtTensorDescriptor* pbDesc,
-    void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream
-) {
-    // statically cast types from C interface to use with c++ templates
-    const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*paDesc);
-    const TensorDescriptor& bDesc = static_cast<const TensorDescriptor&>(*pbDesc);
-    const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*poDesc);
-
-    // for now require the same order
-    // TODO: maybe allow simultaneous reordering of elements??
-    assert(aDesc.order == bDesc.order && aDesc.order == oDesc.order && oDesc.isDense());
-    // must be same data type and rank, and output is dense
-    assert(aDesc.type == oDesc.type && aDesc.rank == oDesc.rank);
-
-    switch(oDesc.type) {
-    case CUDA_R_32F:  return selectIndexAB<Op, float>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case CUDA_R_32F:  return selectIndexA<Op, float>(a, aDesc, out, oDesc, stream);
     // case CUDA_R_16BF: return selectIndex<Op, __nv_bfloat16>(a, aDesc, out, oDesc, stream);
     // case CUDA_R_16F:  return selectIndex<Op, __half>(a, aDesc, out, oDesc, stream);
-    case CUDA_R_64F:  return selectIndexAB<Op, double>(a, aDesc, b, bDesc, out, oDesc, stream);
+    // case CUDA_C_32I:  return selectIndexA<Op, int32_t>(a, aDesc, out, oDesc, stream);
+    case CUDA_R_64F:  return selectIndexA<Op, double>(a, aDesc, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
@@ -505,7 +326,8 @@ cudaError_t srtAtan2(
     cudaStream_t stream)
 {
     // y comes first
-    return selectTypeAB<Atan2>(y, yDesc, x, xDesc, out, oDesc, stream);
+    // return selectTypeAB<Atan2>(y, yDesc, x, xDesc, out, oDesc, stream);
+    return cudaErrorNotSupported;
 }
 
 cudaError_t srtAtanh(
@@ -594,7 +416,8 @@ cudaError_t srtHypot(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectTypeAB<Hypot>(x, xDesc, y, yDesc, out, oDesc, stream);
+    // return selectTypeAB<Hypot>(x, xDesc, y, yDesc, out, oDesc, stream);
+    return cudaErrorNotSupported;
 }
 
 cudaError_t srtLog(
@@ -651,7 +474,8 @@ cudaError_t srtPow(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectTypeAB<Pow>(x, xDesc, y, yDesc, out, oDesc, stream);
+    // return selectTypeAB<Pow>(x, xDesc, y, yDesc, out, oDesc, stream);
+    return cudaErrorNotSupported;
 }
 
 cudaError_t srtPowN(
@@ -659,7 +483,8 @@ cudaError_t srtPowN(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectTypeAN<PowN>(x, xDesc, n, out, oDesc, stream);
+    // return selectTypeAN<PowN>(x, xDesc, n, out, oDesc, stream);
+    return cudaErrorNotSupported;
 }
 
 cudaError_t srtRoot(
@@ -667,7 +492,8 @@ cudaError_t srtRoot(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectTypeAN<Root>(x, xDesc, n, out, oDesc, stream);
+    // return selectTypeAN<Root>(x, xDesc, n, out, oDesc, stream);
+    return cudaErrorNotSupported;
 }
 
 cudaError_t srtSigmoid(
