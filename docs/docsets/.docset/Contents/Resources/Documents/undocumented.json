@@ -1,0 +1,47 @@
+{
+  "warnings": [
+    {
+      "file": "/Users/ed/swiftrt/.build/checkouts/swift-numerics/Sources/ComplexModule/Arithmetic.swift",
+      "line": 69,
+      "symbol": "Complex.*(_:_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/ed/swiftrt/.build/checkouts/swift-numerics/Sources/ComplexModule/Arithmetic.swift",
+      "line": 74,
+      "symbol": "Complex./(_:_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/ed/swiftrt/.build/checkouts/swift-numerics/Sources/ComplexModule/Arithmetic.swift",
+      "line": 84,
+      "symbol": "Complex.*=(_:_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/ed/swiftrt/.build/checkouts/swift-numerics/Sources/ComplexModule/Arithmetic.swift",
+      "line": 89,
+      "symbol": "Complex./=(_:_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/ed/swiftrt/.build/checkouts/swift-numerics/Sources/ComplexModule/Complex.swift",
+      "line": 287,
+      "symbol": "Complex.IntegerLiteralType",
+      "symbol_kind": "source.lang.swift.decl.typealias",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/ed/swiftrt/.build/checkouts/swift-numerics/Sources/ComplexModule/Complex.swift",
+      "line": 290,
+      "symbol": "Complex.init(integerLiteral:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    }
+  ],
+  "source_directory": "/Users/ed/swiftrt"
+}

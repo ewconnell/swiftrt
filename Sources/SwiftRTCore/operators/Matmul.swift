@@ -18,7 +18,7 @@ import Foundation
 //==============================================================================
 // matmulGradients
 // _vjpMatmul helper function
-@inlinable public func matmulGradients<E>(
+@usableFromInline func matmulGradients<E>(
     _ out: TensorR2<E>,
     _ lhs: TensorR2<E>, _ transposeLhs: Bool,
     _ rhs: TensorR2<E>, _ transposeRhs: Bool
@@ -75,7 +75,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 }
 
 @derivative(of: matmul)
-@inlinable public func _vjpMatmul<E>(
+@usableFromInline func _vjpMatmul<E>(
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR2<E>))
@@ -86,7 +86,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 }
 
 @derivative(of: matmul, wrt: lhs)
-@inlinable public func _vjpMatmulWrtLhs<E>(
+@usableFromInline func _vjpMatmulWrtLhs<E>(
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
@@ -97,7 +97,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 }
 
 @derivative(of: matmul, wrt: rhs)
-@inlinable public func _vjpMatmulWrtRhs<E>(
+@usableFromInline func _vjpMatmulWrtRhs<E>(
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
@@ -137,7 +137,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 }
 
 @derivative(of: matmul)
-@inlinable public func _vjpMatmul<E>(
+@usableFromInline func _vjpMatmul<E>(
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
@@ -150,7 +150,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 }
 
 @derivative(of: matmul, wrt: (lhs, bias))
-@inlinable public func _vjpMatmulWrtLhsBias<E>(
+@usableFromInline func _vjpMatmulWrtLhsBias<E>(
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
@@ -163,7 +163,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 }
 
 @derivative(of: matmul, wrt: (rhs, bias))
-@inlinable public func _vjpMatmulWrtRhsBias<E>(
+@usableFromInline func _vjpMatmulWrtRhsBias<E>(
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
@@ -195,7 +195,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 //}
 //
 //@derivative(of: matmul)
-//@inlinable public func _vjpMatmul<S,E>(
+//@usableFromInline func _vjpMatmul<S,E>(
 //    _ lhs: Tensor<S,E>, transposed transposeLhs: Bool = false,
 //    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 //) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, TensorR2<E>))
@@ -224,7 +224,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 //}
 //
 //@derivative(of: matmul)
-//@inlinable public func _vjpMatmul<S,E>(
+//@usableFromInline func _vjpMatmul<S,E>(
 //    _ lhs: TensorR2<E>, transposed transposeRhs: Bool = false,
 //    _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
 //) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (TensorR2<E>, Tensor<S,E>))
@@ -253,7 +253,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 //}
 //
 //@derivative(of: matmul)
-//@inlinable public func _vjpMatmul<S,E>(
+//@usableFromInline func _vjpMatmul<S,E>(
 //    _ lhs: Tensor<S,E>, transposed transposeRhs: Bool = false,
 //    _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
 //) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))

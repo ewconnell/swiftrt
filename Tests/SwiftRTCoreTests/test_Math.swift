@@ -32,7 +32,7 @@ class test_Math: XCTestCase {
     //--------------------------------------------------------------------------
     // test_abs
     func test_abs() {
-        Context.log.level = .diagnostic
+//        Context.log.level = .diagnostic
         // integer abs
         let a = array([-1, 2, -3, 4], type: Int32.self)
         XCTAssert(abs(a) == [1, 2, 3, 4])

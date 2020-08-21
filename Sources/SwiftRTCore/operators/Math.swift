@@ -29,7 +29,7 @@ where S: TensorShape, E.Value: Comparable & SignedNumeric
 }
 
 @derivative(of: abs)
-@inlinable func _vjpAbs<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpAbs<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape,
           E.Value: DifferentiableElement & Comparable & SignedNumeric
@@ -62,7 +62,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 }
 
 @derivative(of: acos)
-@inlinable func _vjpAcos<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpAcos<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -83,7 +83,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 }
 
 @derivative(of: acosh)
-@inlinable func _vjpAcosh<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpAcosh<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -104,7 +104,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 }
 
 @derivative(of: asin)
-@inlinable func _vjpAsin<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpAsin<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -125,7 +125,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 }
 
 @derivative(of: asinh)
-@inlinable func _vjpAsinh<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpAsinh<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -146,7 +146,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 }
 
 @derivative(of: atan)
-@inlinable func _vjpAtan<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpAtan<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -167,7 +167,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 }
 
 @derivative(of: atanh)
-@inlinable func _vjpAtanh<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpAtanh<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -189,7 +189,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 }
 
 @derivative(of: atan2)
-@inlinable func _vjpAtan2<S,E>(y: Tensor<S,E>, x: Tensor<S,E>)
+@usableFromInline func _vjpAtan2<S,E>(y: Tensor<S,E>, x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -232,7 +232,7 @@ where S: TensorShape, E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint
 }
 
 @derivative(of: cos)
-@inlinable func _vjpCos<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpCos<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -253,7 +253,7 @@ where S: TensorShape, E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint
 }
 
 @derivative(of: cosh)
-@inlinable func _vjpCosh<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpCosh<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -274,7 +274,7 @@ where S: TensorShape, E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint
 }
 
 @derivative(of: erf)
-@inlinable func _vjpErf<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpErf<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -295,7 +295,7 @@ where S: TensorShape, E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint
 }
 
 @derivative(of: erfc)
-@inlinable func _vjpErfc<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpErfc<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -316,7 +316,7 @@ where S: TensorShape, E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint
 }
 
 @derivative(of: exp)
-@inlinable func _vjpExp<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpExp<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -375,7 +375,7 @@ public extension Tensor where TensorElement.Value: Real {
 }
 
 @derivative(of: expMinusOne)
-@inlinable func _vjpExpMinusOne<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpExpMinusOne<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -397,7 +397,7 @@ public extension Tensor where TensorElement.Value: Real {
 }
 
 @derivative(of: gamma)
-@inlinable func _vjpGamma<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpGamma<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -419,7 +419,7 @@ public extension Tensor where TensorElement.Value: Real {
 }
 
 @derivative(of: hypot)
-@inlinable func _vjpHypot<S,E>(x: Tensor<S,E>, y: Tensor<S,E>)
+@usableFromInline func _vjpHypot<S,E>(x: Tensor<S,E>, y: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -441,7 +441,7 @@ public extension Tensor where TensorElement.Value: Real {
 }
 
 @derivative(of: log(_:))
-@inlinable func _vjpLog<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpLog<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -488,7 +488,7 @@ public extension Tensor where TensorElement.Value: Real {
 }
 
 @derivative(of: log(onePlus:))
-@inlinable func _vjpLogOnePlus<S,E>(onePlus x: Tensor<S,E>)
+@usableFromInline func _vjpLogOnePlus<S,E>(onePlus x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -509,7 +509,7 @@ public extension Tensor where TensorElement.Value: Real {
 }
 
 @derivative(of: logGamma)
-@inlinable func _vjpLogGamma<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpLogGamma<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -530,7 +530,7 @@ public extension Tensor where TensorElement.Value: Real {
 }
 
 @derivative(of: neg)
-@inlinable func _vjpNeg<S,E>(_ x: Tensor<S,E>) ->
+@usableFromInline func _vjpNeg<S,E>(_ x: Tensor<S,E>) ->
     (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & SignedNumeric
 {
@@ -561,7 +561,7 @@ public extension Tensor where TensorElement.Value: SignedNumeric {
 }
 
 @derivative(of: sin)
-@inlinable func _vjpSin<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpSin<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -582,7 +582,7 @@ public extension Tensor where TensorElement.Value: SignedNumeric {
 }
 
 @derivative(of: sinh)
-@inlinable func _vjpSinh<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpSinh<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -603,7 +603,7 @@ where S: TensorShape, E.Value: Numeric
 }
 
 @derivative(of: squared)
-@inlinable func _vjpSquared<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpSquared<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>))
     where S: TensorShape, E.Value: DifferentiableElement
 {
@@ -642,7 +642,7 @@ public extension Numeric {
 }
 
 @derivative(of: pow)
-@inlinable func _vjpPow<S,E>(_ x: Tensor<S,E>, _ y: Tensor<S,E>)
+@usableFromInline func _vjpPow<S,E>(_ x: Tensor<S,E>, _ y: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -687,7 +687,7 @@ public extension Tensor where TensorElement.Value: Real {
 }
 
 @derivative(of: root)
-@inlinable func _vjpRoot<S,E>(_ x: Tensor<S,E>, _ n: Int)
+@usableFromInline func _vjpRoot<S,E>(_ x: Tensor<S,E>, _ n: Int)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>))
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -708,7 +708,7 @@ public extension Tensor where TensorElement.Value: Real {
 }
 
 @derivative(of: sqrt)
-@inlinable func _vjpSqrt<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpSqrt<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -740,7 +740,7 @@ public extension Tensor where TensorElement.Value: Real {
 }
 
 @derivative(of: sign)
-@inlinable func _vjpSign<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpSign<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape,
           E.Value: DifferentiableElement & Comparable & SignedNumeric
@@ -773,7 +773,7 @@ where S: TensorShape, E.Value: Real
 }
 
 @derivative(of: sigmoid)
-@inlinable func _vjpSigmoid<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpSigmoid<S,E>(_ x: Tensor<S,E>)
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
 where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -806,7 +806,7 @@ public extension Tensor where TensorElement.Value: Real {
 }
 
 @derivative(of: tan)
-@inlinable func _vjpTan<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpTan<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {
@@ -828,7 +828,7 @@ public extension Tensor where TensorElement.Value: Real {
 }
 
 @derivative(of: tanh)
-@inlinable func _vjpTanh<S,E>(_ x: Tensor<S,E>)
+@usableFromInline func _vjpTanh<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableElement & Real
 {

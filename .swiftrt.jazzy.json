@@ -1,0 +1,18 @@
+{
+    "author": "Edward Connell <ewconnell@google.com>",
+    "author_url": "https://github.com/ewconnell",
+    "module": "SwiftRT",
+    "github_url": "https://github.com/ewconnell/swiftrt",
+    "github_file_prefix": "https://github.com/ewconnell/swiftrt/tree/master",
+    "min_acl": "public",
+    "readme": "README.md",
+    "swift_build_tool": "spm",
+    "theme": "fullwidth",
+    "output": "docs/swiftrt",
+    "custom_categories": [{
+        "name": "Protocols",
+        "children": [
+            "StorageElement"
+        ]
+    }]
+}

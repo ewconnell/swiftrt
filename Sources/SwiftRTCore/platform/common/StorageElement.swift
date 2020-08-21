@@ -735,8 +735,8 @@ extension Complex: StorageElement {
     }
 }
 
-public var _storedZeroComplexFloat = Complex<Float>(0)
-public var _storedOneComplexFloat = Complex<Float>(1)
+@usableFromInline var _storedZeroComplexFloat = Complex<Float>(0)
+@usableFromInline var _storedOneComplexFloat = Complex<Float>(1)
 
 //==============================================================================
 /// BufferElements

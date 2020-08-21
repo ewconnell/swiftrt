@@ -85,20 +85,19 @@ public extension ParameterlessLayer {
     var differentiableVectorView: EmptyTangentVector { EmptyTangentVector() }
 }
 
-public extension Layer {
+extension Layer {
     /// Returns the inference output obtained from applying the layer to the given input.
     ///
     /// - Parameter input: The input to the layer.
     /// - Returns: The inference output.
-    func inferring(from input: Input) -> Output {
+    public func inferring(from input: Input) -> Output {
         Context.whileInferring { self(input) }
     }
 
     // TODO(TF-433, SR-11882): Remove this custom derivative when
     // differentiation supports `rethrows` functions and currying.
     @derivative(of: inferring(from:))
-    @usableFromInline
-    internal func _vjpInferring(from input: Input)
+    @usableFromInline func _vjpInferring(from input: Input)
         -> (value: Output, pullback: (Output.TangentVector)
             -> (TangentVector, Input.TangentVector)) {
         Context.whileInferring {
@@ -107,7 +106,7 @@ public extension Layer {
         }
     }
 
-    typealias Backpropagator = (_ direction: Output.TangentVector)
+    public typealias Backpropagator = (_ direction: Output.TangentVector)
         -> (layerGradient: TangentVector, inputGradient: Input.TangentVector)
 
     /// Returns the inference output and the backpropagation function obtained from applying the
@@ -117,7 +116,7 @@ public extension Layer {
     /// - Returns: A tuple containing the output and the backpropagation function. The
     ///   backpropagation function (a.k.a. backpropagator) takes a direction vector and returns the
     ///   gradients at the layer and at the input, respectively.
-    func appliedForBackpropagation(to input: Input)
+    public func appliedForBackpropagation(to input: Input)
         -> (output: Output, backpropagator: Backpropagator) {
         let (out, pullback) = Swift.valueWithPullback(at: self, input) { layer, input in
             return layer(input)

@@ -195,9 +195,9 @@ public enum Order: Int, Codable {
     public static var defaultOrder: Order = Order.row
 }
 
-public let _messageLayoutsMustMatch = "input Order must match"
+@usableFromInline let _messageLayoutsMustMatch = "input Order must match"
 
-@inlinable public func layoutsMatch(_ layouts: Order...) -> Bool {
+@usableFromInline func layoutsMatch(_ layouts: Order...) -> Bool {
     layouts.first(where: { $0 != layouts[0] }) == nil
 }
 
@@ -240,7 +240,7 @@ extension Tensor: AdditiveArithmetic where Element: Numeric {
 
 //==============================================================================
 // Tensor Codable
-public enum TensorCodingKeys: String, CodingKey {
+@usableFromInline enum TensorCodingKeys: String, CodingKey {
     case data, shape, name, order
 }
 
@@ -455,8 +455,7 @@ public extension Tensor {
         if spanCount < count {
             var expanded = Tensor(like: self)
 
-            diagnostic(
-                "\(expandingString) \(name)(\(id)) " +
+            diagnostic(.expanding, "\(name)(\(id)) " +
                     "\(Element.self)[\(spanCount)] to: \(expanded.name)"
                     + "(\(expanded.id)) \(Element.self)[\(expanded.count)]",
                 categories: [.dataCopy, .dataExpanding])
@@ -467,7 +466,7 @@ public extension Tensor {
 
         } else if !(isKnownUniquelyReferenced(&storage) || isShared) {
             // if not uniquely held then copy before creating the shared view
-            diagnostic("\(mutationString) \(storage.name)(\(storage.id)) " +
+            diagnostic(.mutation, "\(storage.name)(\(storage.id)) " +
                         "\(Element.self)[\(count)]",
                        categories: [.dataCopy, .dataMutation])
             
@@ -492,7 +491,7 @@ extension Tensor where TensorElement.Value: DifferentiableElement {
     // https://github.com/apple/swift/blob/37b507b31c77ef969151f385cd1902dd44fb3b7f/stdlib/public/core/Array.swift#L2091
     
     @derivative(of: subscript)
-    @inlinable func _vjpSubscript(lower: Shape, upper: Shape)
+    @usableFromInline func _vjpSubscript(lower: Shape, upper: Shape)
         -> (value: Self, pullback: (Self) -> Self)
     {
         return (self[lower, upper], { v in

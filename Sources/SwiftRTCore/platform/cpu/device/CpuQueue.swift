@@ -56,14 +56,14 @@ public final class CpuQueue: DeviceQueue, CpuFunctions
         self.usesCpu = true
         
         let modeLabel = queueMode == .async ? "asynchronous" : "synchronous"
-        diagnostic("\(createString) \(modeLabel) queue: \(name)",
+        diagnostic(.create, "\(modeLabel) queue: \(name)",
                    categories: .queueAlloc)
     }
     
     deinit {
         // make sure all scheduled work is complete before exiting
         waitForCompletion()
-        diagnostic("\(releaseString) queue: \(name)", categories: .queueAlloc)
+        diagnostic(.release, "queue: \(name)", categories: .queueAlloc)
     }
 
     //--------------------------------------------------------------------------
