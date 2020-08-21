@@ -36,10 +36,10 @@ public final class CudaDevice: ComputeDevice {
 
         //----------------------------
         // report device stats
-        diagnostic("\(deviceString) \(name)", categories: .device)
+        diagnostic(.device, "\(name)", categories: .device)
         properties = isCpu ? getCpuProperties() : getCudaDeviceProperties()
         properties.forEach {
-            diagnostic(" \(blankString)\($0)", categories: .device)
+            diagnostic(.blank, $0, categories: .device)
         }
 
         //----------------------------
@@ -168,7 +168,7 @@ public final class CudaDeviceMemory: DeviceMemory {
 
         #if DEBUG
         if let name = name, let msg = releaseMessage {
-            diagnostic("\(releaseString) \(name)\(msg)", categories: .dataAlloc)
+            diagnostic(.release, "\(name)\(msg)", categories: .dataAlloc)
         }
         #endif
     }

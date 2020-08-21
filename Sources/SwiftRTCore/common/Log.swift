@@ -394,7 +394,7 @@ public struct LogCategories: OptionSet {
     public static let dataReorder   = LogCategories(rawValue: 1 << 5)
     public static let device        = LogCategories(rawValue: 1 << 6)
     public static let fallback      = LogCategories(rawValue: 1 << 7)
-    public static let initialize    = LogCategories(rawValue: 1 << 8)
+    public static let setup         = LogCategories(rawValue: 1 << 8)
     public static let properties    = LogCategories(rawValue: 1 << 9)
     public static let queueAlloc    = LogCategories(rawValue: 1 << 10)
     public static let queueFunc     = LogCategories(rawValue: 1 << 11)
@@ -404,7 +404,7 @@ public struct LogCategories: OptionSet {
 public enum LogCategory: CustomStringConvertible {
     case alloc, blank, block, copy, create, device, expanding,
          fallback, layout, mutation, queue, record, reference,
-         release, reorder, signaled, sync, timeout, wait
+         release, reorder, setup, signaled, sync, timeout, wait
     
     public var description: String {
         switch self {
@@ -423,6 +423,7 @@ public enum LogCategory: CustomStringConvertible {
         case .reference: return "[\(setText("REFERENCE", color: .cyan))] "
         case .release:   return "[\(setText("RELEASE  ", color: .cyan))] "
         case .reorder:   return "[\(setText("REORDER  ", color: .blue))] "
+        case .setup:     return "[\(setText("SETUP    ", color: .white))] "
         case .signaled:  return "[\(setText("SIGNALED ", color: .green))] "
         case .sync:      return "[\(setText("SYNC     ", color: .yellow))] "
         case .timeout:   return "[\(setText("TIMEOUT  ", color: .red))] "

@@ -68,7 +68,7 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
         cudnn = CudnnHandle(gpuId: gpuId, using: stream)
         cublas = CublasHandle()
 
-        diagnostic("\(createString) queue: \(name)", categories: .queueAlloc)
+        diagnostic(.create, "queue: \(name)", categories: .queueAlloc)
     }
     
     //--------------------------------------------------------------------------

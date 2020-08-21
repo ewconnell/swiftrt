@@ -77,7 +77,7 @@ public class CudaPlatform: Platform {
             queueStack = [appThreadQueue]
         }
 
-        diagnostic("\(deviceString) default: \(queueStack[0].name)",
+        diagnostic(.device, "default: \(queueStack[0].name)",
                     categories: .device)
     }
 }
@@ -93,8 +93,8 @@ public class CudaPlatform: Platform {
     if status == cudaErrorNotSupported {
         let name = Context.currentQueue.deviceName
         using(device: 0) {
-            Context.currentQueue.diagnostic(
-                "\(fallbackString) unsupported function on \(name) " +
+            Context.currentQueue.diagnostic(.fallback,
+                "unsupported function on \(name) " +
                 "delegated to \(Context.currentQueue.name)",
                  categories: .fallback) 
             body(Context.currentQueue)
