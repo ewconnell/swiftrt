@@ -21,12 +21,12 @@ class test_Math: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        // ("test_abs", test_abs),
+        ("test_abs", test_abs),
         ("test_exp", test_exp),
         ("test_log", test_log),
-        // ("test_neg", test_neg),
-        // ("test_sign", test_sign),
-        // ("test_squared", test_squared),
+        ("test_neg", test_neg),
+        ("test_sign", test_sign),
+        ("test_squared", test_squared),
     ]
     
     //--------------------------------------------------------------------------
