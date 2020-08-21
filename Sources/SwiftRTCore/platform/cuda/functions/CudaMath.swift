@@ -126,6 +126,35 @@ extension CudaQueue {
     }
 
     //--------------------------------------------------------------------------
+    @inlinable func cast<S, E, RE>(
+        from a: Tensor<S,E>,
+        to out: inout Tensor<S,RE>
+    ) where E.Value: BinaryFloatingPoint, RE.Value: BinaryInteger {
+        guard useGpu else { cpu_cast(from: a, to: &out); return }
+        
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            a.withTensor(using: self) { a, aDesc in
+                srtCopy(a, aDesc, o, oDesc, stream)
+            }
+        }
+        cpuFallback(status) { $0.cast(from: a, to: &out) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable func cast<S, E, RE>(from a: Tensor<S,E>,
+                                   to out: inout Tensor<S,RE>)
+    where E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint {
+        guard useGpu else { cpu_cast(from: a, to: &out); return }
+        
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            a.withTensor(using: self) { a, aDesc in
+                srtCopy(a, aDesc, o, oDesc, stream)
+            }
+        }
+        cpuFallback(status) { $0.cast(from: a, to: &out) }
+    }
+
+    //--------------------------------------------------------------------------
     @inlinable func hypot<S,E>(
         _ x: Tensor<S,E>, 
         _ y: Tensor<S,E>, 
@@ -142,6 +171,21 @@ extension CudaQueue {
             }
         }
         cpuFallback(status) { $0.hypot(x, y, &out) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable func log<S,E>(
+        onePlus x: Tensor<S,E>, 
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Real {
+        guard useGpu else { cpu_log(onePlus: x, &out) ; return }
+        
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            x.withTensor(using: self) { x, xDesc in
+                srtLogOnePlus(x, xDesc, o, oDesc, stream)
+            }
+        }
+        cpuFallback(status) { $0.log(onePlus: x, &out)  }
     }
 
     //--------------------------------------------------------------------------

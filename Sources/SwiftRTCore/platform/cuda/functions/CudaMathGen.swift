@@ -365,6 +365,22 @@ extension CudaQueue {
     }
 
     //--------------------------------------------------------------------------
+    @inlinable func sigmoid<S,E>(
+        _ x: Tensor<S,E>, 
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Real {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_sigmoid(x, &out); return }
+
+        let status = out.withMutableTensor(using: self) { oData, o in
+            x.withTensor(using: self) { xData, x in
+                srtSigmoid(xData, x, oData, o, stream)
+            }
+        }
+        cpuFallback(status) { $0.sigmoid(x, &out) }
+    }
+
+    //--------------------------------------------------------------------------
     @inlinable func sign<S,E>(
         _ x: Tensor<S,E>, 
         _ out: inout Tensor<S,E>

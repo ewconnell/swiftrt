@@ -41,6 +41,7 @@ functions = [
     ["log10", "Real"],
     ["logGamma", "Real"],
     ["neg", "SignedNumeric"],
+    ["sigmoid", "Real"],
     ["sign", "Comparable & SignedNumeric"],
     ["sin", "Real"],
     ["sinh", "Real"],

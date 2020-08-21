@@ -95,7 +95,13 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     }
 
     //--------------------------------------------------------------------------
-    /// copy
+    // delay
+    @inlinable public func delay(_ interval: TimeInterval) {
+        fatalError("not implemented yet")
+    }
+
+    //--------------------------------------------------------------------------
+    // copyAsync
     @inlinable public func copyAsync(
         from src: DeviceMemory, 
         to dst: DeviceMemory

@@ -18,7 +18,7 @@ import Numerics
 
 //==============================================================================
 // DeviceQueue functions with default cpu delegation
-extension DeviceQueue where Self: CpuFunctions
+extension CpuQueue
 {
     //--------------------------------------------------------------------------
     @inlinable func abs<S,E>(_ x: Tensor<S,E>, _ out: inout Tensor<S,E>)

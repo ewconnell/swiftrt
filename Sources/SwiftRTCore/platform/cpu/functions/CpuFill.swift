@@ -17,7 +17,7 @@ import Foundation
 
 //==============================================================================
 // DeviceQueue functions with default cpu delegation
-extension DeviceQueue where Self: CpuFunctions
+extension CpuQueue
 {
     //--------------------------------------------------------------------------
     @inlinable func fill<S,E: StorageElement>(
