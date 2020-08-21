@@ -38,7 +38,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     /// `true` if the view will be shared by by multiple writers
     public var isShared: Bool
     /// element storage order in memory
-    @noDerivative public let order: Order
+    @noDerivative public let order: Order 
     /// a collection that maps logical coordinates to storage elements
     /// via the current storage order
     public var logicalElements: LogicalElements<Shape, TensorElement>
@@ -91,6 +91,11 @@ where Shape: TensorShape, TensorElement: StorageElement
         assert(TensorElement.storedIndex(storageBase + spanCount - 1) <
                 storage.countOf(type: TensorElement.Stored.self),
                "tensor storage range is out of bounds")
+
+        // verify storage order is valid for rank
+        assert((order != .NHWC || Shape.rank == 4) &&
+               (order != .NDHWC || Shape.rank == 5))
+
         self.shape = shape
         self.strides = strides
         self.count = count
@@ -118,6 +123,10 @@ where Shape: TensorShape, TensorElement: StorageElement
         order: Order,
         name: String
     ) {
+        // verify storage order is valid for rank
+        assert((order != .NHWC || Shape.rank == 4) &&
+               (order != .NDHWC || Shape.rank == 5))
+
         self.shape = shape
         self.strides = Shape.zero
         self.storageBase = 0
@@ -159,7 +168,16 @@ public enum Order: Int, Codable {
     /// of next group of 32-columns. For example, if the matrix has 33 columns
     /// and 2 rows, then the leading dimension must be at least (32) * 2 = 64.
     case colTiled32
-    
+
+    //--------------------------------------------------------------------------
+    /// Data is ordered as batch N of (rows H, columns W, channels C)
+    /// This order is only valid for 4D tensors. 
+    case NHWC
+
+    /// Data is ordered as batch N of (depths D, rows H, columns W, channels C)
+    /// This order is only valid for 5D tensors. 
+    case NDHWC
+
     //--------------------------------------------------------------------------
     // NVIDIA native tensor core formats 
 

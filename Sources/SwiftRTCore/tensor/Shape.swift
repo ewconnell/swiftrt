@@ -211,15 +211,7 @@ public extension TensorShape {
             var strides = computeStrides(for: shape)
             strides.swapAt(Self.rank - 1, Self.rank - 2)
             return strides
-            
-        case .colTiled32:
-            fatalError("not implemented yet")
-            
-        case .colTiledTC32x8:
-            fatalError("not implemented yet")
-            
-        case .colTiledTC32x32:
-            fatalError("not implemented yet")
+        default: fatalError("not implemented yet")
         }
     }
 

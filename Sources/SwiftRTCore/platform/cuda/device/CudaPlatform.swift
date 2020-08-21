@@ -247,6 +247,7 @@ public extension Tensor {
         case .colTiled32: return 32 * shape[i]
         case .colTiledTC32x8: return 32 * n.roundUp(toMultipleOf: 8)
         case .colTiledTC32x32: return 32 * n.roundUp(toMultipleOf: 32)
+        default: fatalError("not implemented yet")
         }
     }
 }

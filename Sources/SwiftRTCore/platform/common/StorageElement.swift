@@ -336,6 +336,7 @@ public struct Bool1: PackedStorageElement {
 }
 
 extension Tensor where TensorElement == Bool1 {
+    /// casting initializer
     @inlinable public init(_ other: Tensor<Shape, UInt1>) {
         shape = other.shape
         strides = other.strides
@@ -383,6 +384,7 @@ public struct UInt1: PackedStorageElement {
 }
 
 extension Tensor where TensorElement == UInt1 {
+    /// casting initializer
     @inlinable public init(_ other: Tensor<Shape, Bool1>) {
         shape = other.shape
         strides = other.strides
@@ -886,6 +888,11 @@ where Shape: TensorShape, TensorElement: StorageElement
         _ spanCount: Int
     ) {
         assert(shape.elementCount() == count, "shape count mismatch")
+
+        // verify storage order is valid for rank
+        assert((order != .NHWC || Shape.rank == 4) &&
+               (order != .NDHWC || Shape.rank == 5))
+
         self.alignment = TensorElement.alignment(storageBase)
         self.strides = strides
         self.storage = storage
@@ -939,15 +946,7 @@ where Shape: TensorShape, TensorElement: StorageElement
                 // convert to stored index which might be less for packed elements
                 let si = TensorElement.storedIndex(i)
                 return TensorElement.value(at: i, from: hostBuffer[si])
-                
-            case .colTiled32:
-                fatalError("not implemented yet")
-                
-            case .colTiledTC32x8:
-                fatalError("not implemented yet")
-                
-            case .colTiledTC32x32:
-                fatalError("not implemented yet")
+            default: fatalError("not implemented yet")
             }
         }
         
@@ -960,15 +959,7 @@ where Shape: TensorShape, TensorElement: StorageElement
                 // convert to stored index which might be less for packed elements
                 let si = TensorElement.storedIndex(i)
                 TensorElement.store(value: newValue, at: i, to: &hostBuffer[si])
-                
-            case .colTiled32:
-                fatalError("not implemented yet")
-                
-            case .colTiledTC32x8:
-                fatalError("not implemented yet")
-                
-            case .colTiledTC32x32:
-                fatalError("not implemented yet")
+            default: fatalError("not implemented yet")
             }
         }
     }
