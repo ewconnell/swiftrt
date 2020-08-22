@@ -20,13 +20,18 @@
 /// on the machine where the process is being run.
 public class CpuPlatform: Platform {
     // properties
-    public static var defaultCpuQueueCount: Int = 1
-    public static var defaultAcceleratorQueueCount: Int = 0
+    public static let defaultAcceleratorQueueCount: Int = 0
     public var discreteMemoryDeviceId: Int { 1 }
     public var devices: [CpuDevice]
     public let name: String
     public var queueStack: [CpuQueue]
     public let appThreadQueue: CpuQueue
+
+    #if canImport(AsyncCpu)
+        public static var defaultCpuQueueCount: Int = 1
+    #else
+        public static let defaultCpuQueueCount: Int = 0
+    #endif
 
     //--------------------------------------------------------------------------
     @inlinable public init() {
