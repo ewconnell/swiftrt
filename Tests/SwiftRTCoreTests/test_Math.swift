@@ -32,14 +32,17 @@ class test_Math: XCTestCase {
     //--------------------------------------------------------------------------
     // test_abs
     func test_abs() {
-//        Context.log.level = .diagnostic
+       Context.log.level = .diagnostic
         // integer abs
-        let a = array([-1, 2, -3, 4], type: Int32.self)
-        XCTAssert(abs(a) == [1, 2, 3, 4])
+        // let a = array([-1, 2, -3, 4], type: Int32.self)
+        // XCTAssert(abs(a) == [1, 2, 3, 4])
 
         // real abs
-        let b = array([-1.0, 2, -3, 4])
+        let b = array([-1, 2, -3, 4])
+        XCTAssert(abs(b) == [1, 2, 3, 4])
+
         let g = pullback(at: b, in: { abs($0) })(ones(like: b))
+        print(g)
         XCTAssert(g == [-1, 1, -1, 1])
     }
     

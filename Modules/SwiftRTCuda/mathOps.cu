@@ -28,165 +28,271 @@
 // ops
 //==============================================================================
 
-template<typename E> struct Abs {
-    __device__ inline static E op(const E& a) { return abs(a); }
-};
-
-template<typename E> struct Acos {
-    __device__ inline static E op(const E& a) { return acos(a); }
-};
-
-template<typename E> struct Acosh {
-    __device__ inline static E op(const E& a) { return acosh(a); }
-};
-
-template<typename E> struct Asin {
-    __device__ inline static E op(const E& a) { return asin(a); }
-};
-
-template<typename E> struct Asinh {
-    __device__ inline static E op(const E& a) { return asinh(a); }
-};
-
-template<typename E> struct Atan {
-    __device__ inline static E op(const E& a) { return atan(a); }
-};
-
-template<typename E> struct Atan2 {
-    __device__ inline static E op(const E& a, const E& b) { return atan2(a, b); }
-};
-
-template<typename E> struct Atanh {
-    __device__ inline static E op(const E& a) { return atanh(a); }
-};
-
-template<typename E> struct Cos {
-    __device__ inline static E op(const E& a) { return cos(a); }
-};
-
-template<typename E> struct Cosh {
-    __device__ inline static E op(const E& a) { return cosh(a); }
-};
-
-template<typename E> struct Erf {
-    __device__ inline static E op(const E& a) { return erf(a); }
-};
-
-template<typename E> struct Erfc {
-    __device__ inline static E op(const E& a) { return erfc(a); }
-};
-
-template<typename E> struct Exp {
-    __device__ inline static E op(const E& a) { return exp(a); }
-};
-
-template<typename E> struct Exp2 {
-    __device__ inline static E op(const E& a) { return exp2(a); }
-};
-
-template<typename E> struct Exp10 {
-    __device__ inline static E op(const E& a) { return exp10(a); }
-};
-
-template<typename E> struct ExpMinusOne {
-    __device__ inline static E op(const E& a) { return expm1(a); }
-};
-
-template<typename E> struct Gamma {
-    __device__ inline static E op(const E& a) { return tgamma(a); }
-};
-
-template<typename E> struct Hypot {
-    __device__ inline static E op(const E& a, const E& b) { return hypot(a, b); }
-};
-
-template<typename E> struct Log {
-    __device__ inline static E op(const E& a) { return log(a); }
-};
-
-template<typename E> struct LogOnePlus {
-    __device__ inline static E op(const E& a) { return log1p(a); }
-};
-
-template<typename E> struct Log2 {
-    __device__ inline static E op(const E& a) { return log2(a); }
-};
-
-template<typename E> struct Log10 {
-    __device__ inline static E op(const E& a) { return log10(a); }
-};
-
-template<typename E> struct LogGamma {
-    __device__ inline static E op(const E& a) { return lgamma(a); }
-};
-
-template<typename E> struct Neg {
-    __device__ inline static E op(const E& a) { return -a; }
-};
-
-template<typename E> struct Pow {
-    __device__ inline static E op(const E& a, const E& b) { return pow(a, b); }
-};
-
-template<typename E, typename N> struct PowN {
-    __device__ inline static E op(const E& a, N n) { return scalbn(a, n); }
-};
-
-template<typename E, typename N> struct Root {
-    __device__ inline static E op(const E& a, N n) {
-        return n == 3 ? cbrt(a) : pow(a, 1/float(n));
+template<typename StoredT, typename ComputeT> struct Abs {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(abs(ComputeT(a)));
     }
 };
 
-template<typename E> struct Sigmoid {
-    __device__ inline static E op(const E& a) { return 1 / (1 + exp(-a)); }
+template<typename StoredT, typename ComputeT> struct Acos {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(acos(ComputeT(a)));
+    }
 };
 
-template<typename E> struct Sign {
-    __device__ inline static E op(const E& a) { return signbit(a); }
+template<typename StoredT, typename ComputeT> struct Acosh {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(acosh(ComputeT(a)));
+    }
 };
 
-template<typename E> struct Sin{
-    __device__ inline static E op(const E& a) { return sin(a); }
+template<typename StoredT, typename ComputeT> struct Asin {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(asin(ComputeT(a)));
+    }
 };
 
-template<typename E> struct Sinh {
-    __device__ inline static E op(const E& a) { return sinh(a); }
+template<typename StoredT, typename ComputeT> struct Asinh {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(asinh(ComputeT(a)));
+    }
 };
 
-template<typename E> struct Sqrt {
-    __device__ inline static E op(const E& a) { return sqrt(a); }
+template<typename StoredT, typename ComputeT> struct Atan {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(atan(ComputeT(a)));
+    }
 };
 
-template<typename E> struct Squared {
-    __device__ inline static E op(const E& a) { return a * a; }
+template<typename StoredT, typename ComputeT> struct Atan2 {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a, const StoredT& b) {
+        return StoredT(atan2(ComputeT(a), ComputeT(b)));
+    }
 };
 
-template<typename E> struct Tan {
-    __device__ inline static E op(const E& a) { return tan(a); }
+template<typename StoredT, typename ComputeT> struct Atanh {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(atanh(ComputeT(a)));
+    }
 };
 
-template<typename E> struct Tanh {
-    __device__ inline static E op(const E& a) { return tanh(a); }
+template<typename StoredT, typename ComputeT> struct Cos {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(cos(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Cosh {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(cosh(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Erf {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(erf(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Erfc {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(erfc(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Exp {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(exp(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Exp2 {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(exp2(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Exp10 {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(exp10(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct ExpMinusOne {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(expm1(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Gamma {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(tgamma(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Hypot {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a, const StoredT& b) {
+        return StoredT(hypot(ComputeT(a), ComputeT(b)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Log {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(log(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct LogOnePlus {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(log1p(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Log2 {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(log2(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Log10 {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(log10(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct LogGamma {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(lgamma(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Neg {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return -a;
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Pow {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a, const StoredT& b) {
+        return StoredT(pow(ComputeT(a), ComputeT(b)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct PowN {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a, const int& n) {
+        return StoredT(scalbn(ComputeT(a), n));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Root {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a, const int& n) {
+        return n == 3 ?
+            StoredT(cbrt(ComputeT(a))) :
+            StoredT(pow(ComputeT(a), 1/float(n)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Sigmoid {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(1 / (1 + exp(-ComputeT(a))));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Sign {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(ComputeT(a) < ComputeT(0) ?
+            ComputeT(1) : ComputeT(0));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Sin {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(sin(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Sinh {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(sinh(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Sqrt {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(sqrt(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Squared {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(ComputeT(a) * ComputeT(a));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Tan {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(tan(ComputeT(a)));
+    }
+};
+
+template<typename StoredT, typename ComputeT> struct Tanh {
+    typedef StoredT Element;
+    __device__ inline static StoredT op(const StoredT& a) {
+        return StoredT(tanh(ComputeT(a)));
+    }
 };
 
 //==============================================================================
 // kernels
 //==============================================================================
 
-// for single parameter ops
-template<typename F, typename E, int R,
+// single parameter ops
+template<typename Op, typename Element, int R,
          template<int U> class IndexA,
          template<int U> class IndexO>
 __global__ void mapA(
-    const E *a, const IndexA<R> indexA,
-    E *out, const IndexO<R> indexO 
+    const Element *a, const IndexA<R> indexA,
+    Element *out, const IndexO<R> indexO 
 ) {
     auto position = Logical<R>(blockIdx, blockDim, threadIdx);
     if (indexO.isInBounds(position)) {
         int ia = indexA.linear(position);
         int io = indexO.linear(position);
-        out[io] = F::op(a[ia]);
+        out[io] = Op::op(a[ia]);
     }
 }
 
@@ -195,54 +301,33 @@ __global__ void mapA(
 //==============================================================================
 
 //------------------------------------------------------------------------------
-/// initIndexA
-template<typename F, typename E, int R,
+/// initIndex
+template<typename Op, int R,
          template<int U> class IndexA,
          template<int U> class IndexO>
-static cudaError_t initIndexA(
-    const E* a, const TensorDescriptor& aDesc,
-    E* out, const TensorDescriptor& oDesc,
+static cudaError_t initIndex(
+    const void* pA, const TensorDescriptor& aDesc,
+    void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
+    typedef typename Op::Element Element;
+    const Element* a = static_cast<const Element*>(pA);
+    Element* out = static_cast<Element*>(pOut);
+
     // get tile and grid size for launch
     dim3 tile = tileSize<1>(oDesc);
     dim3 grid = gridSize<1>(oDesc, tile);
 
-    mapA<F,E,R,IndexA,IndexO><<<grid, tile, 0, stream>>>(
+    mapA<Op,Element,R,IndexA,IndexO><<<grid, tile, 0, stream>>>(
         a, IndexA<R>(aDesc), 
         out, IndexO<R>(oDesc));
     return cudaSuccess;
 }
 
 //------------------------------------------------------------------------------
-/// selectIndexA
-template<template<typename U> class Op, typename E>
-static cudaError_t selectIndexA(
-    const void* pA, const TensorDescriptor& aDesc,
-    void* pOut, const TensorDescriptor& oDesc,
-    cudaStream_t stream
-) {
-    typedef Op<E> F;
-    E* out = static_cast<E*>(pOut);
-    const E* a = static_cast<const E*>(pA);
-
-    if (aDesc.isDense()) {
-        return initIndexA<F,E,1,Flat,Flat>(a, aDesc, out, oDesc, stream);
-    } else {
-        switch (oDesc.rank) {
-        case 1: return initIndexA<F,E,1,Strided,Strided>(a, aDesc, out, oDesc, stream);
-        case 2: return initIndexA<F,E,2,Strided,Strided>(a, aDesc, out, oDesc, stream);
-        case 3: return initIndexA<F,E,3,Strided,Strided>(a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
-    }    
-}
-
-//------------------------------------------------------------------------------
-// selectType
-// converts from dynamic to static type and delegates for stride selection
-template<template<typename U> class Op>
-static cudaError_t selectType(
+/// selectIndex
+template<typename Op>
+static cudaError_t selectIndex(
     const void* a, const srtTensorDescriptor* paDesc,
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
@@ -257,12 +342,50 @@ static cudaError_t selectType(
     // must be same data type and rank, and output is dense
     assert(aDesc.type == oDesc.type && aDesc.rank == oDesc.rank);
 
-    switch(oDesc.type) {
-    case CUDA_R_32F:  return selectIndexA<Op, float>(a, aDesc, out, oDesc, stream);
-    // case CUDA_R_16BF: return selectIndex<Op, __nv_bfloat16>(a, aDesc, out, oDesc, stream);
-    // case CUDA_R_16F:  return selectIndex<Op, __half>(a, aDesc, out, oDesc, stream);
-    // case CUDA_C_32I:  return selectIndexA<Op, int32_t>(a, aDesc, out, oDesc, stream);
-    case CUDA_R_64F:  return selectIndexA<Op, double>(a, aDesc, out, oDesc, stream);
+    if (aDesc.isDense()) {
+        return initIndex<Op,1,Flat,Flat>(a, aDesc, out, oDesc, stream);
+    } else {
+        switch (oDesc.rank) {
+        case 1: return initIndex<Op,1,Strided,Strided>(a, aDesc, out, oDesc, stream);
+        case 2: return initIndex<Op,2,Strided,Strided>(a, aDesc, out, oDesc, stream);
+        case 3: return initIndex<Op,3,Strided,Strided>(a, aDesc, out, oDesc, stream);
+        default: return cudaErrorNotSupported;
+        }
+    }    
+}
+
+//------------------------------------------------------------------------------
+// selectFloatingPoint
+// converts from dynamic to static type and delegates for stride selection
+template<template<typename StoredT, typename ComputeT> class Op>
+static cudaError_t selectFloatingPoint(
+    const void* a, const srtTensorDescriptor* aDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    switch(oDesc->type) {
+    case CUDA_R_32F:  return selectIndex<Op<float,float>>(a, aDesc, out, oDesc, stream);
+    case CUDA_R_16F:  return selectIndex<Op<__half,float>>(a, aDesc, out, oDesc, stream);
+    case CUDA_R_16BF: return selectIndex<Op<__nv_bfloat16,float>>(a, aDesc, out, oDesc, stream);
+    case CUDA_R_64F:  return selectIndex<Op<double,double>>(a, aDesc, out, oDesc, stream);
+    default: return cudaErrorNotSupported;
+    }
+}
+
+// selectAny
+// converts from dynamic to static type and delegates for stride selection
+template<template<typename Stored, typename Compute> class Op>
+static cudaError_t selectAny(
+    const void* a, const srtTensorDescriptor* aDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    switch(oDesc->type) {
+    case CUDA_R_32F:  return selectIndex<Op<float,float>>(a, aDesc, out, oDesc, stream);
+    case CUDA_R_16F:  return selectIndex<Op<__half,float>>(a, aDesc, out, oDesc, stream);
+    case CUDA_R_16BF: return selectIndex<Op<__nv_bfloat16,float>>(a, aDesc, out, oDesc, stream);
+    case CUDA_R_32I:  return selectIndex<Op<int32_t,int32_t>>(a, aDesc, out, oDesc, stream);
+    case CUDA_R_64F:  return selectIndex<Op<double,double>>(a, aDesc, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
@@ -276,7 +399,7 @@ cudaError_t srtAbs(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Abs>(x, xDesc, out, oDesc, stream);
+    return selectAny<Abs>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAcos(
@@ -284,7 +407,7 @@ cudaError_t srtAcos(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Acos>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Acos>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAcosh(
@@ -292,7 +415,7 @@ cudaError_t srtAcosh(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Acosh>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Acosh>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAsin(
@@ -300,7 +423,7 @@ cudaError_t srtAsin(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Asin>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Asin>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAsinh(
@@ -308,7 +431,7 @@ cudaError_t srtAsinh(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Asinh>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Asinh>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAtan(
@@ -316,7 +439,7 @@ cudaError_t srtAtan(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Atan>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Atan>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAtan2(
@@ -335,7 +458,7 @@ cudaError_t srtAtanh(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Atanh>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Atanh>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtCos(
@@ -343,7 +466,7 @@ cudaError_t srtCos(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Cos>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Cos>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtCosh(
@@ -351,7 +474,7 @@ cudaError_t srtCosh(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Cosh>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Cosh>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtErf(
@@ -359,7 +482,7 @@ cudaError_t srtErf(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Erf>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Erf>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtErfc(
@@ -367,7 +490,7 @@ cudaError_t srtErfc(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Erfc>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Erfc>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtExp(
@@ -375,7 +498,7 @@ cudaError_t srtExp(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Exp>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Exp>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtExp2(
@@ -383,7 +506,7 @@ cudaError_t srtExp2(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Exp2>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Exp2>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtExp10(
@@ -391,7 +514,7 @@ cudaError_t srtExp10(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Exp10>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Exp10>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtExpMinusOne(
@@ -399,7 +522,7 @@ cudaError_t srtExpMinusOne(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<ExpMinusOne>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<ExpMinusOne>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtGamma(
@@ -407,7 +530,7 @@ cudaError_t srtGamma(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Gamma>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Gamma>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtHypot(
@@ -425,7 +548,7 @@ cudaError_t srtLog(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Log>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Log>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLogOnePlus(
@@ -433,7 +556,7 @@ cudaError_t srtLogOnePlus(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<LogOnePlus>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<LogOnePlus>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLog2(
@@ -441,7 +564,7 @@ cudaError_t srtLog2(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Log2>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Log2>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLog10(
@@ -449,7 +572,7 @@ cudaError_t srtLog10(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Log10>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Log10>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLogGamma(
@@ -457,7 +580,7 @@ cudaError_t srtLogGamma(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<LogGamma>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<LogGamma>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtNeg(
@@ -465,7 +588,7 @@ cudaError_t srtNeg(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Neg>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Neg>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtPow(
@@ -501,7 +624,7 @@ cudaError_t srtSigmoid(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Sigmoid>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Sigmoid>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSign(
@@ -509,7 +632,7 @@ cudaError_t srtSign(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Sign>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Sign>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSin(
@@ -517,7 +640,7 @@ cudaError_t srtSin(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Sin>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Sin>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSinh(
@@ -525,7 +648,7 @@ cudaError_t srtSinh(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Sinh>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Sinh>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSqrt(
@@ -533,7 +656,7 @@ cudaError_t srtSqrt(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Sqrt>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Sqrt>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSquared(
@@ -541,7 +664,7 @@ cudaError_t srtSquared(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Squared>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Squared>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtTan(
@@ -549,7 +672,7 @@ cudaError_t srtTan(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Tan>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Tan>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtTanh(
@@ -557,5 +680,5 @@ cudaError_t srtTanh(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectType<Tanh>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPoint<Tanh>(x, xDesc, out, oDesc, stream);
 }
