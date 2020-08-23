@@ -22,28 +22,32 @@ class test_Math: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_abs", test_abs),
-        ("test_exp", test_exp),
-        ("test_log", test_log),
-        ("test_neg", test_neg),
-        ("test_sign", test_sign),
-        ("test_squared", test_squared),
+        // ("test_exp", test_exp),
+        // ("test_log", test_log),
+        // ("test_neg", test_neg),
+        // ("test_sign", test_sign),
+        // ("test_squared", test_squared),
     ]
     
     //--------------------------------------------------------------------------
     // test_abs
     func test_abs() {
        Context.log.level = .diagnostic
-        // integer abs
-        // let a = array([-1, 2, -3, 4], type: Int32.self)
-        // XCTAssert(abs(a) == [1, 2, 3, 4])
+        // Int32 abs
+        // let a = array([-1, 2, -3, 4, -5], type: Int32.self)
+        // XCTAssert(abs(a) == [1, 2, 3, 4, 5])
 
-        // real abs
-        let b = array([-1, 2, -3, 4])
-        XCTAssert(abs(b) == [1, 2, 3, 4])
+        // Float16 abs
+        let f16 = array([-1, 2, -3, 4, -5], type: Float16.self)
+        XCTAssert(abs(f16) == [1, 2, 3, 4, 5])
 
-        let g = pullback(at: b, in: { abs($0) })(ones(like: b))
-        print(g)
-        XCTAssert(g == [-1, 1, -1, 1])
+        // Float abs
+        // let b = array([-1, 2, -3, 4, -5])
+        // XCTAssert(abs(b) == [1, 2, 3, 4, 5])
+
+        // let g = pullback(at: b, in: { abs($0) })(ones(like: b))
+        // print(g)
+        // XCTAssert(g == [-1, 1, -1, 1, -1])
     }
     
     //--------------------------------------------------------------------------

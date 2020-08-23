@@ -13,11 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#if !defined(__kernelHelpers_h__)
-#define __kernelHelpers_h__
+#ifndef kernelHelpers_h
+#define kernelHelpers_h
 
 #include <assert.h>
 #include "commonCDefs.h"
+#include <vector_types.h>
 
 //==============================================================================
 // TensorDescriptor
@@ -58,6 +59,10 @@ inline dim3 tileSize(const TensorDescriptor& oDesc) {
     if (Rank == 3) return dim3(16, 8, 8);
 }
 
+inline dim3 tileSize(int count) {
+    return count >= 1024 ? dim3(1024) : dim3(32);
+}
+
 template<unsigned Rank>
 inline dim3 gridSize(const TensorDescriptor& oDesc, const dim3& tile) {
     static_assert(Rank <= 3, "not implemented");
@@ -85,42 +90,4 @@ inline unsigned BLOCK_COUNT(unsigned n) {
   return ((n) + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
 }
 
-//==============================================================================
-// #if (__CUDA_ARCH__ < 800)
-// __device__ __forceinline__ __nv_bfloat162 operator+(const __nv_bfloat162& l, const __nv_bfloat162& r) {
-//     __nv_bfloat162 c;
-//     c.x = __float2bfloat16_rn(__bfloat162float(l.x) + __bfloat162float(r.x));
-//     c.y = __float2bfloat16_rn(__bfloat162float(l.y) + __bfloat162float(r.y));
-//     return c;
-// }
-// #endif
-
-__device__ inline __nv_bfloat162 add(const __nv_bfloat162& l, const __nv_bfloat162& r) {
-    __nv_bfloat162 c;
-    c.x = __float2bfloat16_rn(__bfloat162float(l.x) + __bfloat162float(r.x));
-    c.y = __float2bfloat16_rn(__bfloat162float(l.y) + __bfloat162float(r.y));
-    return c;
-}
-
-// template<typename E>
-// __global__ void add_bfloat162(
-//     const void *va, int strideA,
-//     const void *vb, int strideB,
-//     void *vc,
-//     unsigned count
-// ) {
-//     auto a = static_cast<const E*>(va);
-//     auto b = static_cast<const E*>(vb);
-//     auto c = static_cast<E*>(vc);
-
-//     GRID_STRIDE_LOOP(ai, strideA, bi, strideB, ci, count) {
-//         #if (__CUDA_ARCH__ >= 800)
-//             c[ci] = a[ai] + b[bi];
-//         #else
-//             c[ci] = add(a[ai], b[bi]);
-//         #endif
-//     }
-// }
-
-
-#endif // __kernelHelpers_h__
+#endif // kernelHelpers_h
