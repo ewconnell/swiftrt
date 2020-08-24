@@ -23,64 +23,43 @@
 // ops
 //==============================================================================
 
-template<typename T> struct Abs {
-    typedef T Element;
-    static const bool native162 = true;
+template<typename T> struct OpBase { typedef T Element; };
+
+template<typename T> struct Abs: OpBase<T> {
     __device__ inline static T op(const T& a) { return abs(a); }
 };
 
-template<typename T> struct Exp {
-    typedef T Element;
-    static const bool native162 = true;
-    __device__ inline static T op(const T& a) { return exp(a); }
-};
-
-template<typename T> struct Acos {
-    typedef T Element;
-    static const bool native162 = false;
+template<typename T> struct Acos: OpBase<T> {
     __device__ inline static T op(const T& a) { return acos(a); }
 };
 
-template<typename T> struct Acosh {
-    typedef T Element;
-    static const bool native162 = false;
+template<typename T> struct Acosh: OpBase<T> {
     __device__ inline static T op(const T& a) { return acosh(a); }
 };
 
-// template<typename StoredT, typename ComputeT> struct Cos {
-//     typedef StoredT Element;
-//     __device__ inline static StoredT op(const StoredT& a) {
-//         return StoredT(cos(ComputeT(a)));
-//     }
-// };
+template<typename T> struct Cos: OpBase<T> {
+    __device__ inline static T op(const T& a) { return cos(a); }
+};
 
-// template<typename StoredT, typename ComputeT> struct Exp {
-//     typedef StoredT Element;
-//     __device__ inline static StoredT op(const StoredT& a) {
-//         return StoredT(exp(ComputeT(a)));
-//     }
-// };
+template<typename T> struct Exp: OpBase<T> {
+    __device__ inline static T op(const T& a) { return exp(a); }
+};
 
-// template<typename StoredT, typename ComputeT> struct Sigmoid {
-//     typedef StoredT Element;
-//     __device__ inline static StoredT op(const StoredT& a) {
-//         return StoredT(1 / (1 + exp(-ComputeT(a))));
-//     }
-// };
+template<typename T> struct Sigmoid: OpBase<T> {
+    __device__ inline static T op(const T& a) { return sigmoid(a); }
+};
 
 //==============================================================================
 // kernels
 //==============================================================================
 
 // single parameter ops
-template<typename Op, typename Element, int R,
-         template<int U> class IndexA,
-         template<int U> class IndexO>
+template<typename Op, typename Element, typename IndexA, typename IndexO>
 __global__ void mapA(
-    const Element *a, const IndexA<R> indexA,
-    Element *out, const IndexO<R> indexO 
+    const Element *a, const IndexA indexA,
+    Element *out, const IndexO indexO 
 ) {
-    auto position = Logical<R>(blockIdx, blockDim, threadIdx);
+    auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
     if (indexO.isInBounds(position)) {
         int ia = indexA.linear(position);
         int io = indexO.linear(position);
@@ -93,9 +72,9 @@ __global__ void mapA(
 //==============================================================================
 
 //------------------------------------------------------------------------------
-/// withFlatIndex
+/// flattened
 template<typename Op>
-static cudaError_t withFlatIndex(
+static cudaError_t flattened(
     const void* pA, const TensorDescriptor& aDesc,
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream,
@@ -110,8 +89,7 @@ static cudaError_t withFlatIndex(
     dim3 tile = tileSize(packedCount);
     dim3 grid = gridSize<1>(oDesc, tile);
 
-    mapA<Op,Element,1,Flat,Flat><<<grid, tile, 0, stream>>>(
-        a, Flat<1>(aDesc), out, Flat<1>(oDesc));
+    mapA<Op,Element,Flat,Flat><<<grid, tile, 0, stream>>>(a, Flat(aDesc), out, Flat(oDesc));
     return cudaSuccess;
 }
 
@@ -133,15 +111,15 @@ static cudaError_t initIndex(
     dim3 tile = tileSize<R>(oDesc);
     dim3 grid = gridSize<R>(oDesc, tile);
 
-    mapA<Op,Element,R,IndexA,IndexO><<<grid, tile, 0, stream>>>(
-        a, IndexA<R>(aDesc), 
-        out, IndexO<R>(oDesc));
+    mapA<Op,Element,IndexA<R>,IndexO<R>><<<grid, tile, 0, stream>>>(
+        a, IndexA<R>(aDesc), out, IndexO<R>(oDesc));
     return cudaSuccess;
 }
 
-/// withStridedIndex
+//------------------------------------------------------------------------------
+/// selectRank
 template<typename Op>
-static cudaError_t withStridedIndex(
+static cudaError_t selectRank(
     const void* a, const TensorDescriptor& aDesc,
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
@@ -161,6 +139,24 @@ static cudaError_t withStridedIndex(
 }
 
 //------------------------------------------------------------------------------
+// selectFloatingStrided
+// converts from dynamic to static type and delegates for stride selection
+template<template<typename T> class Op>
+static cudaError_t selectFloatingStrided(
+    const void* a, const TensorDescriptor& aDesc,
+    void* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    switch(oDesc.type) {
+    case CUDA_R_32F:  return selectRank<Op<float>>(a, aDesc, out, oDesc, stream);
+    case CUDA_R_16F:  return selectRank<Op<__half>>(a, aDesc, out, oDesc, stream);
+    case CUDA_R_16BF: return selectRank<Op<__nv_bfloat16>>(a, aDesc, out, oDesc, stream);
+    case CUDA_R_64F:  return selectRank<Op<double>>(a, aDesc, out, oDesc, stream);
+    default: return cudaErrorNotSupported;
+    }
+}
+
+//------------------------------------------------------------------------------
 // selectFloating
 // converts from dynamic to static type and delegates for stride selection
 template<template<typename T> class Op>
@@ -173,31 +169,25 @@ static cudaError_t selectFloating(
     const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*paDesc);
     const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*poDesc);
 
-    if (aDesc.isDense()) {
-        // Types that can be packed like Float16 are retyped to their
-        // packed form and count / 2 for efficiency __half --> __half2
-        switch(oDesc.type) {
-        case CUDA_R_32F:  return withFlatIndex<Op<float>>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_16F:  return withFlatIndex<Op<__half2>>(a, aDesc, out, oDesc, stream, 1);
-        case CUDA_R_16BF: return withFlatIndex<Op<__nv_bfloat162>>(a, aDesc, out, oDesc, stream, 1);
-        case CUDA_R_64F:  return withFlatIndex<Op<double>>(a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
+    if (aDesc.isStrided()) {
+        return selectFloatingStrided<Op>(a, aDesc, out, oDesc, stream);
     } else {
         switch(oDesc.type) {
-        case CUDA_R_32F:  return withStridedIndex<Op<float>>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_16F:  return withStridedIndex<Op<__half>>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_16BF: return withStridedIndex<Op<__nv_bfloat16>>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_64F:  return withStridedIndex<Op<double>>(a, aDesc, out, oDesc, stream);
+        case CUDA_R_32F:  return flattened<Op<float>>(a, aDesc, out, oDesc, stream);
+        case CUDA_R_16F:  return flattened<Op<__half>>(a, aDesc, out, oDesc, stream, 1);
+        case CUDA_R_16BF: return flattened<Op<__nv_bfloat16>>(a, aDesc, out, oDesc, stream, 1);
+        case CUDA_R_64F:  return flattened<Op<double>>(a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
     }
 }
 
-// selectAny
-// converts from dynamic to static type and delegates for stride selection
+//------------------------------------------------------------------------------
+// selectFloatingPacked
+// converts from dynamic to static type. This is called for operators that
+// have native packed implementations such has __half2 or __nv_bfloat162
 template<template<typename T> class Op>
-static cudaError_t selectAny(
+static cudaError_t selectFloatingPacked(
     const void* a, const srtTensorDescriptor* paDesc,
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
@@ -206,24 +196,14 @@ static cudaError_t selectAny(
     const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*paDesc);
     const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*poDesc);
 
-    if (aDesc.isDense()) {
-        // Types that can be packed like Float16 are retyped to their
-        // packed form and count / 2 for efficiency __half --> __half2
-        switch(oDesc.type) {
-        case CUDA_R_32F:  return withFlatIndex<Op<float>>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_16F:  return withFlatIndex<Op<__half2>>(a, aDesc, out, oDesc, stream, 1);
-        case CUDA_R_16BF: return withFlatIndex<Op<__nv_bfloat162>>(a, aDesc, out, oDesc, stream, 1);
-        case CUDA_R_32I:  return withFlatIndex<Op<int32_t>>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_64F:  return withFlatIndex<Op<double>>(a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
+    if (aDesc.isStrided()) {
+        return selectFloatingStrided<Op>(a, aDesc, out, oDesc, stream);
     } else {
         switch(oDesc.type) {
-        case CUDA_R_32F:  return withStridedIndex<Op<float>>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_16F:  return withStridedIndex<Op<__half>>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_16BF: return withStridedIndex<Op<__nv_bfloat16>>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_32I:  return withStridedIndex<Op<int32_t>>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_64F:  return withStridedIndex<Op<double>>(a, aDesc, out, oDesc, stream);
+        case CUDA_R_32F:  return flattened<Op<float>>(a, aDesc, out, oDesc, stream);
+        case CUDA_R_16F:  return flattened<Op<__half2>>(a, aDesc, out, oDesc, stream, 1);
+        case CUDA_R_16BF: return flattened<Op<__nv_bfloat162>>(a, aDesc, out, oDesc, stream, 1);
+        case CUDA_R_64F:  return flattened<Op<double>>(a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
     }
@@ -239,7 +219,7 @@ cudaError_t srtAbs(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectAny<Abs>(x, xDesc, out, oDesc, stream);
+    return cudaErrorNotSupported;
 }
 
 // Must be promoted types
@@ -265,7 +245,7 @@ cudaError_t srtCos(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return cudaErrorNotSupported;
+    return selectFloatingPacked<Cos>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtExp(
@@ -273,7 +253,7 @@ cudaError_t srtExp(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Exp>(x, xDesc, out, oDesc, stream);
+    return selectFloatingPacked<Exp>(x, xDesc, out, oDesc, stream);
 }
 
 // custom
@@ -282,7 +262,7 @@ cudaError_t srtSigmoid(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return cudaErrorNotSupported;
+    return selectFloatingPacked<Sigmoid>(x, xDesc, out, oDesc, stream);
 }
 
 //==============================================================================

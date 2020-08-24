@@ -25,6 +25,7 @@
 // C++ enhanced wrapper
 struct TensorDescriptor: srtTensorDescriptor {
     inline bool isDense() const { return count == spanCount; }
+    inline bool isStrided() const { return !isDense(); }
     inline bool isSingle() const { return spanCount == 1; }
 };
 
