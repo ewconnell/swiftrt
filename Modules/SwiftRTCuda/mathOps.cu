@@ -41,12 +41,11 @@ template<typename T> struct Acos {
     __device__ inline static T op(const T& a) { return acos(a); }
 };
 
-// template<typename StoredT, typename ComputeT> struct Acosh {
-//     typedef StoredT Element;
-//     __device__ inline static StoredT op(const StoredT& a) {
-//         return StoredT(acosh(ComputeT(a)));
-//     }
-// };
+template<typename T> struct Acosh {
+    typedef T Element;
+    static const bool native162 = false;
+    __device__ inline static T op(const T& a) { return acosh(a); }
+};
 
 // template<typename StoredT, typename ComputeT> struct Cos {
 //     typedef StoredT Element;
@@ -257,7 +256,7 @@ cudaError_t srtAcosh(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return cudaErrorNotSupported;
+    return selectFloating<Acosh>(x, xDesc, out, oDesc, stream);
 }
 
 // specialized H2

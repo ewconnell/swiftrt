@@ -60,6 +60,21 @@ __device__ inline __nv_bfloat162 acos(const __nv_bfloat162& a) {
 }
 
 //------------------------------------------------------------------------------
+// acosh
+__device__ inline __half acosh(const __half& a) { return acoshf(a); }
+__device__ inline __half2 acosh(const __half2& a) { 
+    return __half2(acoshf(a.x), acoshf(a.y));
+}
+
+__device__ inline __nv_bfloat16 acosh(const __nv_bfloat16& a) {
+    return acoshf(a);
+}
+
+__device__ inline __nv_bfloat162 acosh(const __nv_bfloat162& a) {
+    return __nv_bfloat162(acoshf(a.x), acoshf(a.y));
+}
+
+//------------------------------------------------------------------------------
 // exp
 __device__ inline __half exp(const __half& a) { return hexp(a); }
 __device__ inline __half2 exp(const __half2& a) { return h2exp(a); }
