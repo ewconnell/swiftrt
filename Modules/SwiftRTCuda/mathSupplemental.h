@@ -224,19 +224,49 @@ PROMOTED_FLOAT162(lgamma)
 PROMOTED_BFLOAT16(lgamma)
 PROMOTED_BFLOAT162(lgamma)
 
-// neg
-template<typename T>
-__device__ inline T neg(const T& a) { return -a; }
-
 // pow
 PROMOTED2_FLOAT16(pow)
 PROMOTED2_FLOAT162(pow)
 PROMOTED2_BFLOAT16(pow)
 PROMOTED2_BFLOAT162(pow)
 
+// sin
+NATIVE_FLOAT16(sin, hsin)
+NATIVE_FLOAT162(sin, h2sin)
+NATIVE_BFLOAT16(sin, hsin)
+NATIVE_BFLOAT162(sin, h2sin)
+
+// sinh
+PROMOTED_FLOAT16(sinh)
+PROMOTED_FLOAT162(sinh)
+PROMOTED_BFLOAT16(sinh)
+PROMOTED_BFLOAT162(sinh)
+
+// sqrt
+NATIVE_FLOAT16(sqrt, hsqrt)
+NATIVE_FLOAT162(sqrt, h2sqrt)
+NATIVE_BFLOAT16(sqrt, hsqrt)
+NATIVE_BFLOAT162(sqrt, h2sqrt)
+
+// tan
+PROMOTED_FLOAT16(tan)
+PROMOTED_FLOAT162(tan)
+PROMOTED_BFLOAT16(tan)
+PROMOTED_BFLOAT162(tan)
+
+// tanh
+PROMOTED_FLOAT16(tanh)
+PROMOTED_FLOAT162(tanh)
+PROMOTED_BFLOAT16(tanh)
+PROMOTED_BFLOAT162(tanh)
+
 //==============================================================================
 // supplemental custom functions
 //==============================================================================
+
+// neg
+template<typename T>
+__device__ inline T neg(const T& a) { return -a; }
 
 //------------------------------------------------------------------------------
 // pow Float16
@@ -265,6 +295,20 @@ __device__ inline __nv_bfloat162 pow(const __nv_bfloat162& a, const int n) {
 // root 
 template<typename T>
 __device__ inline T root(const T& a, const int n) { return pow(a, 1.0f / float(n)); }
+
+//------------------------------------------------------------------------------
+// sign 
+template<typename T>
+__device__ inline T sign(const T& a) { return a < T(0) ? T(-1) : T(1); }
+
+__device__ inline __nv_bfloat16 sign(const __nv_bfloat16& a) {
+    return a < __nv_bfloat16(0.0f) ? __nv_bfloat16(-1.0f) : __nv_bfloat16(1.0f);
+}
+
+//------------------------------------------------------------------------------
+// squared 
+template<typename T>
+__device__ inline T squared(const T& a) { return a * a; }
 
 //------------------------------------------------------------------------------
 // sigmoid Float16

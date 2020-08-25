@@ -69,8 +69,13 @@ MATHOP2(Pow, pow)
 MATHOP2N(PowN, pow)
 MATHOP2N(Root, root)
 MATHOP(Sigmoid, sigmoid)
-
-
+MATHOP(Sign, sign)
+MATHOP(Sin, sin)
+MATHOP(Sinh, sinh)
+MATHOP(Sqrt, sqrt)
+MATHOP(Squared, squared)
+MATHOP(Tan, tan)
+MATHOP(Tanh, tanh)
 
 //==============================================================================
 // kernels
@@ -817,7 +822,7 @@ cudaError_t srtSign(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return cudaErrorNotSupported;
+    return selectAny<Sign>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSin(
@@ -825,7 +830,7 @@ cudaError_t srtSin(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return cudaErrorNotSupported;
+    return selectFloatingPacked<Sin>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSinh(
@@ -833,7 +838,7 @@ cudaError_t srtSinh(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return cudaErrorNotSupported;
+    return selectFloatingPacked<Sinh>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSqrt(
@@ -841,7 +846,7 @@ cudaError_t srtSqrt(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return cudaErrorNotSupported;
+    return selectFloatingPacked<Sqrt>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSquared(
@@ -849,7 +854,7 @@ cudaError_t srtSquared(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return cudaErrorNotSupported;
+    return selectFloating<Squared>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtTan(
@@ -857,7 +862,7 @@ cudaError_t srtTan(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return cudaErrorNotSupported;
+    return selectFloating<Tan>(x, xDesc, out, oDesc, stream);
 }
 
 cudaError_t srtTanh(
@@ -865,5 +870,5 @@ cudaError_t srtTanh(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return cudaErrorNotSupported;
+    return selectFloating<Tanh>(x, xDesc, out, oDesc, stream);
 }
