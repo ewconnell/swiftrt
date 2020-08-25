@@ -57,6 +57,7 @@ struct Logical {
 /// Single
 /// index used for single element value parameters 
 struct Single {
+    static const int Rank = 1;
     typedef Logical<1> Logical;
 
     // initializer
@@ -82,7 +83,11 @@ struct Single {
 /// Flat
 /// a flat dense 1D index
 struct Flat {
-    typedef Logical<1> Logical;
+    // types
+    static const int Rank = 1;
+    typedef Logical<Rank> Logical;
+
+    // properties
     uint32_t count;
 
     //----------------------------------
@@ -111,9 +116,13 @@ struct Flat {
 
 //==============================================================================
 /// Strided
-template<int Rank>
+template<int _Rank>
 struct Strided {
+    // types
+    static const int Rank = _Rank;
     typedef Logical<Rank> Logical;
+
+    // properties
     uint32_t shape[Rank];
     uint32_t strides[Rank];
 

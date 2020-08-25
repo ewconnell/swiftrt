@@ -28,14 +28,14 @@ class test_Math: XCTestCase {
         // ("test_sign", test_sign),
         // ("test_squared", test_squared),
     ]
-    
+
     //--------------------------------------------------------------------------
     // test_abs
     func test_abs() {
        Context.log.level = .diagnostic
         // Int32 abs
-        // let a = array([-1, 2, -3, 4, -5], type: Int32.self)
-        // XCTAssert(abs(a) == [1, 2, 3, 4, 5])
+        let a = array([-1, 2, -3, 4, -5], type: Int32.self)
+        XCTAssert(abs(a) == [1, 2, 3, 4, 5])
 
         // Float16 abs
         let f16 = array([-1, 2, -3, 4, -5], type: Float16.self)
