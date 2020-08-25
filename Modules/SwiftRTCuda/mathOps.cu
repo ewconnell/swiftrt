@@ -30,9 +30,9 @@ template<typename T> struct OpName: OpBase<T> { \
     __device__ inline static T op(const T& a) { return name(a); } \
 }; \
 
-#define MATHOPN(OpName, name) \
+#define MATHOP2N(OpName, name) \
 template<typename T> struct OpName: OpBase<T> { \
-    __device__ inline static T op(const T& a, const T n) { return name(a, n); } \
+    __device__ inline static T op(const T& a, const int n) { return name(a, n); } \
 }; \
 
 #define MATHOP2(OpName, name) \
@@ -66,8 +66,8 @@ MATHOP(Log10, log10)
 MATHOP(LogGamma, lgamma)
 MATHOP(Neg, neg)
 MATHOP2(Pow, pow)
-MATHOPN(PowN, pow)
-MATHOPN(Root, root)
+MATHOP2N(PowN, pow)
+MATHOP2N(Root, root)
 MATHOP(Sigmoid, sigmoid)
 
 
@@ -90,21 +90,6 @@ __global__ void mapA(
     }
 }
 
-// one parameter ops with N
-template<typename Op, typename Element, typename IndexA, typename IndexO>
-__global__ void mapAN(
-    const Element *a, const IndexA indexA,
-    Element n,
-    Element *out, const IndexO indexO 
-) {
-    auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
-    if (indexO.isInBounds(position)) {
-        int ia = indexA.linear(position);
-        int io = indexO.linear(position);
-        out[io] = Op::op(a[ia], n);
-    }
-}
-
 // two parameter ops
 template<typename Op, typename Element, 
          typename IndexA, typename IndexB, typename IndexO>
@@ -122,12 +107,28 @@ __global__ void mapAB(
     }
 }
 
+// op(A, Scalar)
+template<typename Op, typename Element, typename Scalar,
+         typename IndexA, typename IndexO>
+__global__ void mapAScalar(
+    const Element *a, const IndexA indexA, Scalar value,
+    Element *out, const IndexO indexO 
+) {
+    auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
+    if (indexO.isInBounds(position)) {
+        int ia = indexA.linear(position);
+        int io = indexO.linear(position);
+        out[io] = Op::op(a[ia], value);
+    }
+}
+
+
 //==============================================================================
 // dynamic dispatch functions
 //==============================================================================
 
 //------------------------------------------------------------------------------
-/// flattened
+/// flattened tensorA
 template<typename Op>
 static cudaError_t flattened(
     const void* pA, const TensorDescriptor& aDesc,
@@ -151,10 +152,11 @@ static cudaError_t flattened(
 }
 
 //------------------------------------------------------------------------------
-/// flattened N
-template<typename Op>
+/// flattened tensorA Scalar
+template<typename Op, typename Scalar>
 static cudaError_t flattened(
-    const void* pA, const TensorDescriptor& aDesc, int n,
+    const void* pA, const TensorDescriptor& aDesc, 
+    Scalar value,
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream,
     int shiftCount = 0
@@ -168,14 +170,14 @@ static cudaError_t flattened(
     dim3 tile = tileSize(packedCount);
     dim3 grid = gridSize<1>(oDesc, tile);
 
-    mapAN<Op,Element,Flat,Flat>
-        <<<grid, tile, 0, stream>>>(a, Flat(aDesc), n, out, Flat(oDesc));
+    mapAScalar<Op,Element,Scalar,Flat,Flat>
+        <<<grid, tile, 0, stream>>>(a, Flat(aDesc), value, out, Flat(oDesc));
 
     return cudaSuccess;
 }
 
 //------------------------------------------------------------------------------
-/// flattened AB
+/// flattened tensorA tensorB
 template<typename Op>
 static cudaError_t flattened(
     const void* pA, const TensorDescriptor& aDesc,
@@ -201,7 +203,7 @@ static cudaError_t flattened(
 }
 
 //==============================================================================
-// one parameter initIndex
+// initIndex tensorA
 template<typename Op, typename IndexA, typename IndexO>
 static cudaError_t initIndex(
     const void* pA, const TensorDescriptor& aDesc,
@@ -222,10 +224,11 @@ static cudaError_t initIndex(
     return cudaSuccess;
 }
 
-// one parameter initIndex N
-template<typename Op, typename IndexA, typename IndexO>
+// initIndex tensorA Scalar
+template<typename Op, typename Scalar, typename IndexA, typename IndexO>
 static cudaError_t initIndex(
-    const void* pA, const TensorDescriptor& aDesc, int n,
+    const void* pA, const TensorDescriptor& aDesc, 
+    Scalar value,
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
@@ -237,13 +240,13 @@ static cudaError_t initIndex(
     dim3 tile = tileSize<IndexO::Rank>(oDesc);
     dim3 grid = gridSize<IndexO::Rank>(oDesc, tile);
 
-    mapAN<Op,Element,IndexA,IndexO>
-        <<<grid, tile, 0, stream>>>(a, IndexA(aDesc), n, out, IndexO(oDesc));
+    mapAScalar<Op,Element,Scalar,IndexA,IndexO>
+        <<<grid, tile, 0, stream>>>(a, IndexA(aDesc), value, out, IndexO(oDesc));
 
     return cudaSuccess;
 }
 
-// two parameter initIndex AB
+// initIndex tensorA tensorB
 template<typename Op, typename IndexA, typename IndexB, typename IndexO>
 static cudaError_t initIndex(
     const void* pA, const TensorDescriptor& aDesc,
@@ -267,7 +270,7 @@ static cudaError_t initIndex(
 }
 
 //==============================================================================
-// one parameter selectRank
+// selectRank tensorA
 template<typename Op>
 static cudaError_t selectRank(
     const void* a, const TensorDescriptor& aDesc,
@@ -288,10 +291,11 @@ static cudaError_t selectRank(
     }
 }
 
-// one parameter selectRank N
-template<typename Op>
+// selectRank tensorA Scalar
+template<typename Op, typename Scalar>
 static cudaError_t selectRank(
-    const void* a, const TensorDescriptor& aDesc, int n,
+    const void* a, const TensorDescriptor& aDesc,
+    Scalar value,
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
@@ -302,9 +306,9 @@ static cudaError_t selectRank(
     assert(aDesc.type == oDesc.type && aDesc.rank == oDesc.rank);
 
     switch (oDesc.rank) {
-    case 1: return initIndex<Op,Strided<1>,Strided<1>>(a, aDesc, n, out, oDesc, stream);
-    case 2: return initIndex<Op,Strided<2>,Strided<2>>(a, aDesc, n, out, oDesc, stream);
-    case 3: return initIndex<Op,Strided<3>,Strided<3>>(a, aDesc, n, out, oDesc, stream);
+    case 1: return initIndex<Op,Scalar,Strided<1>,Strided<1>>(a, aDesc, value, out, oDesc, stream);
+    case 2: return initIndex<Op,Scalar,Strided<2>,Strided<2>>(a, aDesc, value, out, oDesc, stream);
+    case 3: return initIndex<Op,Scalar,Strided<3>,Strided<3>>(a, aDesc, value, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
@@ -337,7 +341,7 @@ static cudaError_t selectRank(
 }
 
 //==============================================================================
-// one parameter selectFloatingStrided
+// selectFloatingStrided tensorA
 // converts from dynamic to static type and delegates for stride selection
 template<template<typename T> class Op>
 static cudaError_t selectFloatingStrided(
@@ -354,24 +358,25 @@ static cudaError_t selectFloatingStrided(
     }
 }
 
-// one parameter selectFloatingStrided N
+// selectFloatingStrided tensorA Scalar
 // converts from dynamic to static type and delegates for stride selection
-template<template<typename T> class Op>
+template<template<typename T> class Op, typename Scalar>
 static cudaError_t selectFloatingStrided(
-    const void* a, const TensorDescriptor& aDesc, int n,
+    const void* a, const TensorDescriptor& aDesc,
+    Scalar value,
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
     switch(oDesc.type) {
-    case CUDA_R_32F:  return selectRank<Op<float>>(a, aDesc, n, out, oDesc, stream);
-    case CUDA_R_16F:  return selectRank<Op<__half>>(a, aDesc, n, out, oDesc, stream);
-    case CUDA_R_16BF: return selectRank<Op<__nv_bfloat16>>(a, aDesc, n, out, oDesc, stream);
-    case CUDA_R_64F:  return selectRank<Op<double>>(a, aDesc, n, out, oDesc, stream);
+    case CUDA_R_32F:  return selectRank<Op<float>,Scalar>(a, aDesc, value, out, oDesc, stream);
+    case CUDA_R_16F:  return selectRank<Op<__half>,Scalar>(a, aDesc, value, out, oDesc, stream);
+    case CUDA_R_16BF: return selectRank<Op<__nv_bfloat16>,Scalar>(a, aDesc, value, out, oDesc, stream);
+    case CUDA_R_64F:  return selectRank<Op<double>,Scalar>(a, aDesc, value, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
 
-// two parameter selectFloatingStrided AB
+// selectFloatingStrided tensorA tensorB
 template<template<typename T> class Op>
 static cudaError_t selectFloatingStrided(
     const void* a, const TensorDescriptor& aDesc,
@@ -410,7 +415,7 @@ static cudaError_t selectAnyStrided(
 }
 
 //==============================================================================
-// one parameter selectFloating
+// selectFloating tensorA
 // converts from dynamic to static type and delegates for stride selection
 template<template<typename T> class Op>
 static cudaError_t selectFloating(
@@ -435,11 +440,12 @@ static cudaError_t selectFloating(
     }
 }
 
-// one parameter selectFloating
+// selectFloating tensorA Scalar
 // converts from dynamic to static type and delegates for stride selection
-template<template<typename T> class Op>
+template<template<typename T> class Op, typename Scalar>
 static cudaError_t selectFloating(
-    const void* a, const srtTensorDescriptor* paDesc, int n,
+    const void* a, const srtTensorDescriptor* paDesc,
+    Scalar value,
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
@@ -448,19 +454,19 @@ static cudaError_t selectFloating(
     const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*poDesc);
 
     if (aDesc.isStrided()) {
-        return selectFloatingStrided<Op>(a, aDesc, n, out, oDesc, stream);
+        return selectFloatingStrided<Op>(a, aDesc, value, out, oDesc, stream);
     } else {
         switch(oDesc.type) {
-        case CUDA_R_32F:  return flattened<Op<float>>(a, aDesc, n, out, oDesc, stream);
-        case CUDA_R_16F:  return flattened<Op<__half>>(a, aDesc, n, out, oDesc, stream, 1);
-        case CUDA_R_16BF: return flattened<Op<__nv_bfloat16>>(a, aDesc, n, out, oDesc, stream, 1);
-        case CUDA_R_64F:  return flattened<Op<double>>(a, aDesc, n, out, oDesc, stream);
+        case CUDA_R_32F:  return flattened<Op<float>,Scalar>(a, aDesc, value, out, oDesc, stream);
+        case CUDA_R_16F:  return flattened<Op<__half>,Scalar>(a, aDesc, value, out, oDesc, stream, 1);
+        case CUDA_R_16BF: return flattened<Op<__nv_bfloat16>,Scalar>(a, aDesc, value, out, oDesc, stream, 1);
+        case CUDA_R_64F:  return flattened<Op<double>,Scalar>(a, aDesc, value, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
     }
 }
 
-// one parameter selectFloating
+// selectFloating tensorA tensorB
 // converts from dynamic to static type and delegates for stride selection
 template<template<typename T> class Op>
 static cudaError_t selectFloating(
@@ -787,7 +793,7 @@ cudaError_t srtPowN(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectFloating<PowN>(x, xDesc, n, out, oDesc, stream);
+    return selectFloating<PowN>(x, xDesc, int(n), out, oDesc, stream);
 }
 
 cudaError_t srtRoot(
@@ -795,8 +801,7 @@ cudaError_t srtRoot(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Root>(x, xDesc, n, out, oDesc, stream);
-    // return cudaErrorNotSupported;
+    return selectFloating<Root>(x, xDesc, int(n), out, oDesc, stream);
 }
 
 cudaError_t srtSigmoid(

@@ -239,6 +239,34 @@ PROMOTED2_BFLOAT162(pow)
 //==============================================================================
 
 //------------------------------------------------------------------------------
+// pow Float16
+__device__ inline __half pow(const __half& a, const int n) {
+    return pow(float(a), n);
+}
+
+__device__ inline __half2 pow(const __half2& a, const int n) {
+    return __half2(pow(float(a.x), n), pow(float(a.y), n));
+}
+
+// pow BFloat16
+#if (__CUDA_ARCH__ < 800)
+__device__ inline __nv_bfloat16 pow(const __nv_bfloat16& a, const int n) {
+    return pow(float(a), n);
+}
+
+__device__ inline __nv_bfloat162 pow(const __nv_bfloat162& a, const int n) {
+    return __nv_bfloat162(pow(float(a.x), n), pow(float(a.y), n));
+}
+#else
+
+#endif
+
+//------------------------------------------------------------------------------
+// root 
+template<typename T>
+__device__ inline T root(const T& a, const int n) { return pow(a, 1.0f / float(n)); }
+
+//------------------------------------------------------------------------------
 // sigmoid Float16
 template<typename T>
 __device__ inline T sigmoid(const T& a) { return T(1) / (T(1) + exp(-a)); }
