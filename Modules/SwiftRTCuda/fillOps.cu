@@ -20,8 +20,7 @@
 #include <cuda_bf16.h>
 
 #include "fillOps.h"
-#include "kernelHelpers.h"
-#include "index.h"
+#include "dispatchHelpers.h"
 
 //==============================================================================
 // kernels

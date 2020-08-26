@@ -17,7 +17,30 @@
 #define __index_h__
 
 #include <vector_types.h>
-#include "kernelHelpers.h"
+#include "commonCDefs.h"
+
+//==============================================================================
+// TensorDescriptor
+// C++ enhanced wrapper
+struct TensorDescriptor: srtTensorDescriptor {
+    inline bool isDense() const { return count == spanCount; }
+    inline bool isStrided() const { return !isDense(); }
+    inline bool isSingle() const { return spanCount == 1; }
+};
+
+static_assert(sizeof(TensorDescriptor) == sizeof(srtTensorDescriptor),
+    "TensorDescriptor is a c++ wrapper and cannot contain additional members");
+
+
+// statically cast types from C interface to c++ type
+#define Cast2TensorDescriptorsA(pa, po) \
+const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*pa); \
+const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*po); \
+
+#define Cast2TensorDescriptorsAB(pa, pb, po) \
+const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*pa); \
+const TensorDescriptor& bDesc = static_cast<const TensorDescriptor&>(*pb); \
+const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*po); \
 
 //==============================================================================
 /// Logical

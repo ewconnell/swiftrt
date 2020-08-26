@@ -79,328 +79,368 @@ MATHOP2(Sub, subtract)
 MATHOP(Tan, tan)
 MATHOP(Tanh, tanh)
 
+
 //==============================================================================
 // Swift importable C interface functions
 //==============================================================================
 
 // All types
 cudaError_t srtAbs(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectAnyPacked<Abs>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectAnyPacked<Abs>(a, aDesc, out, oDesc, stream);
 }
 
 // Must be promoted types
 cudaError_t srtAcos(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Acos>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Acos>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAcosh(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Acosh>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Acosh>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAdd(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
     return selectAnyPacked<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAsin(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Asin>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Asin>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAsinh(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Asinh>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Asinh>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAtan(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Atan>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Atan>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAtan2(
-    const void* y, const srtTensorDescriptor* yDesc,
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    // y comes first
-    return selectFloating<Atan2>(y, yDesc, x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    // b comes first
+    return selectFloating<Atan2>(b, bDesc, a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAtanh(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Atanh>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Atanh>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtCos(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloatingPacked<Cos>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloatingPacked<Cos>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtCosh(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Cosh>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Cosh>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtDiv(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
     return selectAnyPacked<Div>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtErf(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Erf>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Erf>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtErfc(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Erfc>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Erfc>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtExp(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloatingPacked<Exp>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloatingPacked<Exp>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtExp2(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloatingPacked<Exp2>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloatingPacked<Exp2>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtExp10(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloatingPacked<Exp10>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloatingPacked<Exp10>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtExpMinusOne(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<ExpMinusOne>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<ExpMinusOne>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtGamma(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Gamma>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Gamma>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtHypot(
-    const void* x, const srtTensorDescriptor* xDesc,
-    const void* y, const srtTensorDescriptor* yDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Hypot>(x, xDesc, y, yDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    return selectFloating<Hypot>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLog(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloatingPacked<Log>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloatingPacked<Log>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLogOnePlus(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<LogOnePlus>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<LogOnePlus>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLog2(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloatingPacked<Log2>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloatingPacked<Log2>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLog10(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloatingPacked<Log10>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloatingPacked<Log10>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLogGamma(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<LogGamma>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<LogGamma>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtMul(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
     return selectAnyPacked<Mul>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtNeg(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectAny<Neg>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectAny<Neg>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtPow(
-    const void* x, const srtTensorDescriptor* xDesc,
-    const void* y, const srtTensorDescriptor* yDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Pow>(x, xDesc, y, yDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    return selectFloating<Pow>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtPowN(
-    const void* x, const srtTensorDescriptor* xDesc, long n,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc, long n,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<PowN>(x, xDesc, int(n), out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<PowN>(a, aDesc, int(n), out, oDesc, stream);
 }
 
 cudaError_t srtRoot(
-    const void* x, const srtTensorDescriptor* xDesc, long n,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc, long n,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Root>(x, xDesc, int(n), out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Root>(a, aDesc, int(n), out, oDesc, stream);
 }
 
 cudaError_t srtSigmoid(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloatingPacked<Sigmoid>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloatingPacked<Sigmoid>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSign(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectAny<Sign>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectAny<Sign>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSin(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloatingPacked<Sin>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloatingPacked<Sin>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSinh(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloatingPacked<Sinh>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloatingPacked<Sinh>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSqrt(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloatingPacked<Sqrt>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloatingPacked<Sqrt>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSquared(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Squared>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Squared>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSub(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
     return selectAnyPacked<Sub>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtTan(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Tan>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Tan>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtTanh(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return selectFloating<Tanh>(x, xDesc, out, oDesc, stream);
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectFloating<Tanh>(a, aDesc, out, oDesc, stream);
 }
