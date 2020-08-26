@@ -47,6 +47,31 @@ __device__ inline __half2 func(const __half2& a) { return native(a); }
     __device__ inline __nv_bfloat162 func(const __nv_bfloat162& a) { return native(a); }
 #endif
 
+// //------------------------------------------------------------------------------
+// #define NATIVE2_FLOAT16(func, native) \
+// __device__ inline __half func(const __half& a, const __half& b) { return native(a, b); }
+
+// #define NATIVE2_FLOAT162(func, native) \
+// __device__ inline __half2 func(const __half2& a, const __half2& b) { return native(a, b); }
+
+// #if (__CUDA_ARCH__ < 800)
+// #define NATIVE2_BFLOAT16(func, native) \
+//     __device__ inline __nv_bfloat16 func(const __nv_bfloat16& a, const __nv_bfloat16& b) \
+//     { return func(float(a), float(b)); }
+// #else
+// #define NATIVE_BFLOAT16(func, native) \
+//     __device__ inline __nv_bfloat16 func(const __nv_bfloat16& a) { return native(a); }
+// #endif
+
+// #if (__CUDA_ARCH__ < 800)
+// #define NATIVE2_BFLOAT162(func, native) \
+//     __device__ inline __nv_bfloat162 func(const __nv_bfloat162& a, const __nv_bfloat162& b) \
+//     { return __nv_bfloat162(func(float(a.x), float(b.x)), func(float(a.y), float(b.y))); }
+// #else
+// #define NATIVE_BFLOAT162(func, native) \
+//     __device__ inline __nv_bfloat162 func(const __nv_bfloat162& a, const __nv_bfloat162& b) { return native(a, b); }
+// #endif
+
 //------------------------------------------------------------------------------
 // Promotes the type to a float, does the op, then back to the type. This
 // is used for ops that do not natively support half or bfloat types
@@ -263,6 +288,10 @@ PROMOTED_BFLOAT162(tanh)
 //==============================================================================
 // supplemental custom functions
 //==============================================================================
+
+// add
+template<typename T>
+__device__ inline T add(const T& a, const T& b) { return a + b; }
 
 // neg
 template<typename T>
