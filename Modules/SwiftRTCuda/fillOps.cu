@@ -48,7 +48,7 @@ __global__ void mapElementFill(E *out, IndexO indexO, E element) {
 template <typename E>
 static cudaError_t elementFill(void *pOut, const TensorDescriptor &oDesc,
                                const E element, cudaStream_t stream,
-                               int shiftCount = 0) {
+                               const int shiftCount = 0) {
   E *out = static_cast<E *>(pOut);
   int count = shiftDownRoundingUp(oDesc.count, shiftCount);
   dim3 tile = tileSize(count);
@@ -83,18 +83,18 @@ cudaError_t srtFill(
           return elementFill<float>(out, oDesc, *(float *)element, stream);
         case CUDA_R_64F:
           return elementFill<double>(out, oDesc, *(double *)element, stream);
-        // pack 16 bit elements
+
         case CUDA_R_16F: 
         case CUDA_R_16BF:
         case CUDA_R_16I:
         case CUDA_R_16U:
-          return elementFill<uint32_t>(out, oDesc, packWord<uint16_t>(element),
-                                       stream);
-        // pack 8 bit elements
+            // pack 16 bit elements
+            return elementFill<uint32_t>(out, oDesc, fillWord<uint16_t>(element), stream, 1);
+
         case CUDA_R_8I: 
         case CUDA_R_8U:
-          return elementFill<uint32_t>(out, oDesc, packWord<uint8_t>(element),
-                                       stream);
+            // pack 8 bit elements
+            return elementFill<uint32_t>(out, oDesc, fillWord<uint8_t>(element), stream, 2);
         default: return cudaErrorNotSupported;
     }
 }
