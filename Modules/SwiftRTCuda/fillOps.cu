@@ -13,32 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include <__clang_cuda_runtime_wrapper.h>
-#include <assert.h>
-#include <stdio.h>
+#include <bits/stdint-uintn.h>
 #include <cuda_fp16.h>
 #include <cuda_bf16.h>
 
 #include "fillOps.h"
 #include "dispatchHelpers.h"
-
-//==============================================================================
-// kernels
-//==============================================================================
-
-template<typename E, typename IndexO>
-__global__ void mapFill(E *out, IndexO indexO, E element) {
-    auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
-    if (indexO.isInBounds(position)) {
-        int i = indexO.linear(position);
-        out[i] = element;
-    }
-}
-
-//==============================================================================
-// dynamic dispatch functions
-//==============================================================================
-
 
 //==============================================================================
 // Swift importable C interface functions
@@ -54,38 +34,67 @@ cudaError_t srtCopy(
 
 //==============================================================================
 // srtFill
-template<typename E>
-static cudaError_t fill(
-    void* pOut, const TensorDescriptor& oDesc,
-    const void* pElement,
-    cudaStream_t stream
-) {
-    E* out = static_cast<E*>(pOut);
-    E element = *static_cast<const E*>(pElement);
-    dim3 tile = tileSize<1>(oDesc);
-    dim3 grid = gridSize<1>(oDesc, tile);
-    mapFill<E,Flat><<<grid, tile, 0, stream>>>(out, Flat(oDesc), element);
-    return cudaSuccess;
+
+// kernel
+template <typename E, typename IndexO>
+__global__ void mapElementFill(E *out, IndexO indexO, E element) {
+  auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
+  if (indexO.isInBounds(position)) {
+    int i = indexO.linear(position);
+    out[i] = element;
+  }
 }
 
+template <typename E>
+static cudaError_t elementFill(void *pOut, const TensorDescriptor &oDesc,
+                               const E element, cudaStream_t stream,
+                               int shiftCount = 0) {
+  E *out = static_cast<E *>(pOut);
+  int count = shiftDownRoundingUp(oDesc.count, shiftCount);
+  dim3 tile = tileSize(count);
+  dim3 grid = gridSize<1>(oDesc, tile);
+  mapElementFill<E, Flat><<<grid, tile, 0, stream>>>(out, Flat(oDesc), element);
+  return cudaSuccess;
+}
+
+//------------------------------------------------------------------------------
+/// srtFill
+/// Fills the output buffer with the element value
+///
+/// - Parameters:
+///  - out: pointer to device memory output buffer
+///  - poDesc: pointer to output srtTensorDescriptor
+///  - element: pointer to element fill value in host memory
+///  - stream: the execution stream
 cudaError_t srtFill(
     void* out, const srtTensorDescriptor* poDesc,
     const void* element,
     cudaStream_t stream
 ) {
-    // statically cast types from C interface to use with c++ templates
     const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*poDesc);
     assert(oDesc.isDense());
-    
+
+    // The output type is converted to a packed type if possible for a faster
+    // fill operation. The output buffer space is guaranteed to be rounded
+    // up to a multiple of the largest packed type so we don't have to worry
+    // about writing out of bounds.
     switch(oDesc.type) {
-        case CUDA_R_32F:  return fill<float>(out, oDesc, element, stream);
-        case CUDA_R_16BF: return fill<__nv_bfloat16>(out, oDesc, element, stream);
-        case CUDA_R_16F:  return fill<__half>(out, oDesc, element, stream);
-        case CUDA_R_8I:   return fill<int8_t>(out, oDesc, element, stream);
-        case CUDA_R_8U:   return fill<uint8_t>(out, oDesc, element, stream);
-        case CUDA_R_16I:  return fill<int16_t>(out, oDesc, element, stream);
-        case CUDA_R_16U:  return fill<uint16_t>(out, oDesc, element, stream);
-        case CUDA_R_64F:  return fill<double>(out, oDesc, element, stream);
+        case CUDA_R_32F:
+          return elementFill<float>(out, oDesc, *(float *)element, stream);
+        case CUDA_R_64F:
+          return elementFill<double>(out, oDesc, *(double *)element, stream);
+        // pack 16 bit elements
+        case CUDA_R_16F: 
+        case CUDA_R_16BF:
+        case CUDA_R_16I:
+        case CUDA_R_16U:
+          return elementFill<uint32_t>(out, oDesc, packWord<uint16_t>(element),
+                                       stream);
+        // pack 8 bit elements
+        case CUDA_R_8I: 
+        case CUDA_R_8U:
+          return elementFill<uint32_t>(out, oDesc, packWord<uint8_t>(element),
+                                       stream);
         default: return cudaErrorNotSupported;
     }
 }

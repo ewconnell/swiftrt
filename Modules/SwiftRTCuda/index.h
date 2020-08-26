@@ -16,6 +16,7 @@
 #if !defined(__index_h__)
 #define __index_h__
 
+#include <assert.h>
 #include <vector_types.h>
 #include "commonCDefs.h"
 
