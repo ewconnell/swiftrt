@@ -209,7 +209,27 @@ extension Tensor where TensorElement.Value: DifferentiableElement
 
 public extension Tensor {
     //--------------------------------------------------------------------------
-    /// `init(storage:shape:order:name:`
+    /// `init(range:shape:order:name:`
+    /// initializes the tensor with a progressive logical index value
+    ///
+    /// - Parameters:
+    ///  - range: the index range. The number of elements in the range
+    ///    must be equal to the number of elements described by shape.
+    ///  - shape: the shape of the tensor
+    ///  - order: the storage order of the elements
+    ///  - name: the name of the tensor
+    @inlinable init(
+        range: Range<Int>,
+        _ shape: Shape,
+        order: Order = .defaultOrder,
+        name: String = defaultTensorName
+    ) where TensorElement.Value: Numeric {
+        self.init(shape: shape, order: order, name: name)
+        Context.currentQueue.fill(&self, with: range)
+    }
+
+    //--------------------------------------------------------------------------
+    /// `init(stored:shape:order:name:`
     /// initializes the tensor storage buffer with `storage elements`
     ///
     /// - Parameters:

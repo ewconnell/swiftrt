@@ -397,14 +397,14 @@ public struct LogCategories: OptionSet {
     public static let setup         = LogCategories(rawValue: 1 << 8)
     public static let properties    = LogCategories(rawValue: 1 << 9)
     public static let queueAlloc    = LogCategories(rawValue: 1 << 10)
-    public static let queueAccel    = LogCategories(rawValue: 1 << 11)
+    public static let queueGpu      = LogCategories(rawValue: 1 << 11)
     public static let queueCpu      = LogCategories(rawValue: 1 << 12)
     public static let queueSync     = LogCategories(rawValue: 1 << 13)
 }
 
 public enum LogCategory: CustomStringConvertible {
     case alloc, blank, block, copy, create, device, expanding,
-         fallback, layout, mutation, queueAcc, queueCpu, record, reference,
+         fallback, layout, mutation, queueGpu, queueCpu, record, reference,
          release, reorder, setup, signaled, sync, timeout, wait
     
     public var description: String {
@@ -419,8 +419,8 @@ public enum LogCategory: CustomStringConvertible {
         case .fallback:  return "[\(setText("FALLBACK ", color: .yellow))] "
         case .layout:    return "[\(setText("LAYOUT   ", color: .yellow))] "
         case .mutation:  return "[\(setText("MUTATE   ", color: .blue))] "
-        case .queueAcc:  return "[\(setText("ACCEL    ", color: .green))] >>> "
-        case .queueCpu:  return "[\(setText("CPU      ", color: .yellow))] >>> "
+        case .queueGpu:  return "[\(setText("GPU >>>  ", color: .yellow))] "
+        case .queueCpu:  return "[\(setText("CPU >>>  ", color: .yellow))] "
         case .record:    return "[\(setText("RECORD   ", color: .yellow))] "
         case .reference: return "[\(setText("REFERENCE", color: .cyan))] "
         case .release:   return "[\(setText("RELEASE  ", color: .cyan))] "

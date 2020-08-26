@@ -48,6 +48,16 @@ import Foundation
 //************************** Implicit typing
 
 //---------------------------
+// from Range
+@inlinable public func array(
+    _ range: Range<Int>,
+    name: String = defaultTensorName
+) -> Tensor<Shape1,DType>
+{
+    Tensor<Shape1,DType>(range: range, Shape1(range.count), name: name)
+}
+
+//---------------------------
 // C.Element == Element.Stored
 @inlinable public func array<C: Collection>(
     stored elements: C,
@@ -170,6 +180,19 @@ import Foundation
 //************************** Implicit typing
 
 //---------------------------
+// from Range
+@inlinable public func array(
+    _ range: Range<Int>,
+    _ shape: Shape2.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,DType>
+{
+    Tensor<Shape2,DType>(range: range, Shape2(shape),
+                            order: order, name: name)
+}
+
+//---------------------------
 // C.Element == Element.Stored
 @inlinable public func array<C: Collection>(
     stored elements: C,
@@ -219,6 +242,20 @@ import Foundation
 }
 
 //************************** Explicit typing
+
+//---------------------------
+// from Range
+@inlinable public func array<Element>(
+    _ range: Range<Int>,
+    _ shape: Shape2.Tuple,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,Element> where Element.Value: Numeric 
+{
+    Tensor<Shape2,Element>(range: range, Shape2(shape),
+                            order: order, name: name)
+}
 
 //---------------------------
 // C.Element Bool --> Numeric Element.Value
@@ -309,6 +346,19 @@ where C.Element == Bool, Element.Value == Bool
 //************************** Implicit typing
 
 //---------------------------
+// from Range
+@inlinable public func array(
+    _ range: Range<Int>,
+    _ shape: Shape3.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,DType>
+{
+    Tensor<Shape3,DType>(range: range, Shape3(shape),
+                            order: order, name: name)
+}
+
+//---------------------------
 // C.Element == Element.Stored
 @inlinable public func array<C: Collection>(
     stored elements: C,
@@ -358,6 +408,20 @@ where C.Element == Bool, Element.Value == Bool
 }
 
 //************************** Explicit typing
+
+//---------------------------
+// from Range
+@inlinable public func array<Element>(
+    _ range: Range<Int>,
+    _ shape: Shape3.Tuple,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,Element> where Element.Value: Numeric 
+{
+    Tensor<Shape3,Element>(range: range, Shape3(shape),
+                            order: order, name: name)
+}
 
 //---------------------------
 // C.Element Bool --> Numeric Element.Value
@@ -448,6 +512,19 @@ where C.Element == Bool, Element.Value == Bool
 //************************** Implicit typing
 
 //---------------------------
+// from Range
+@inlinable public func array(
+    _ range: Range<Int>,
+    _ shape: Shape4.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,DType>
+{
+    Tensor<Shape4,DType>(range: range, Shape4(shape),
+                            order: order, name: name)
+}
+
+//---------------------------
 // C.Element == Element.Stored
 @inlinable public func array<C: Collection>(
     stored elements: C,
@@ -497,6 +574,20 @@ where C.Element == Bool, Element.Value == Bool
 }
 
 //************************** Explicit typing
+
+//---------------------------
+// from Range
+@inlinable public func array<Element>(
+    _ range: Range<Int>,
+    _ shape: Shape4.Tuple,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,Element> where Element.Value: Numeric 
+{
+    Tensor<Shape4,Element>(range: range, Shape4(shape),
+                            order: order, name: name)
+}
 
 //---------------------------
 // C.Element Bool --> Numeric Element.Value
@@ -587,6 +678,19 @@ where C.Element == Bool, Element.Value == Bool
 //************************** Implicit typing
 
 //---------------------------
+// from Range
+@inlinable public func array(
+    _ range: Range<Int>,
+    _ shape: Shape5.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,DType>
+{
+    Tensor<Shape5,DType>(range: range, Shape5(shape),
+                            order: order, name: name)
+}
+
+//---------------------------
 // C.Element == Element.Stored
 @inlinable public func array<C: Collection>(
     stored elements: C,
@@ -636,6 +740,20 @@ where C.Element == Bool, Element.Value == Bool
 }
 
 //************************** Explicit typing
+
+//---------------------------
+// from Range
+@inlinable public func array<Element>(
+    _ range: Range<Int>,
+    _ shape: Shape5.Tuple,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,Element> where Element.Value: Numeric 
+{
+    Tensor<Shape5,Element>(range: range, Shape5(shape),
+                            order: order, name: name)
+}
 
 //---------------------------
 // C.Element Bool --> Numeric Element.Value
@@ -726,6 +844,19 @@ where C.Element == Bool, Element.Value == Bool
 //************************** Implicit typing
 
 //---------------------------
+// from Range
+@inlinable public func array(
+    _ range: Range<Int>,
+    _ shape: Shape6.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,DType>
+{
+    Tensor<Shape6,DType>(range: range, Shape6(shape),
+                            order: order, name: name)
+}
+
+//---------------------------
 // C.Element == Element.Stored
 @inlinable public func array<C: Collection>(
     stored elements: C,
@@ -775,6 +906,20 @@ where C.Element == Bool, Element.Value == Bool
 }
 
 //************************** Explicit typing
+
+//---------------------------
+// from Range
+@inlinable public func array<Element>(
+    _ range: Range<Int>,
+    _ shape: Shape6.Tuple,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,Element> where Element.Value: Numeric 
+{
+    Tensor<Shape6,Element>(range: range, Shape6(shape),
+                            order: order, name: name)
+}
 
 //---------------------------
 // C.Element Bool --> Numeric Element.Value
