@@ -286,12 +286,32 @@ PROMOTED_BFLOAT16(tanh)
 PROMOTED_BFLOAT162(tanh)
 
 //==============================================================================
-// supplemental custom functions
+// supplemental + - * / functions
 //==============================================================================
 
 // add
 template<typename T>
 __device__ inline T add(const T& a, const T& b) { return a + b; }
+PROMOTED2_BFLOAT162(add)
+
+// divide
+template<typename T>
+__device__ inline T divide(const T& a, const T& b) { return a / b; }
+PROMOTED2_BFLOAT162(divide)
+
+// multiply
+template<typename T>
+__device__ inline T multiply(const T& a, const T& b) { return a * b; }
+PROMOTED2_BFLOAT162(multiply)
+
+// subtract
+template<typename T>
+__device__ inline T subtract(const T& a, const T& b) { return a - b; }
+PROMOTED2_BFLOAT162(subtract)
+
+//==============================================================================
+// supplemental custom functions
+//==============================================================================
 
 // neg
 template<typename T>
@@ -349,18 +369,8 @@ __device__ inline __half2 sigmoid(const __half2& a) {
     return one / (one + exp(-a));
 }
 
-// sigmoid BFloat16
-#if (__CUDA_ARCH__ < 800)
-__device__ inline __nv_bfloat16 sigmoid(const __nv_bfloat16& a) {
-    return sigmoid(float(a));
-}
-
-__device__ inline __nv_bfloat162 sigmoid(const __nv_bfloat162& a) {
-    return __nv_bfloat162(sigmoid(float(a.x)), sigmoid(float(a.y)));
-}
-#else
-
-#endif
+PROMOTED_BFLOAT16(sigmoid)
+PROMOTED_BFLOAT162(sigmoid)
 
 //==============================================================================
 #endif // mathSupplemental_h

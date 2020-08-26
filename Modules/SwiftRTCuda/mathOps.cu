@@ -50,6 +50,7 @@ MATHOP2(Atan2, atan2)
 MATHOP(Atanh, atanh)
 MATHOP(Cos, cos)
 MATHOP(Cosh, cosh)
+MATHOP2(Div, divide)
 MATHOP(Erf, erf)
 MATHOP(Erfc, erfc)
 MATHOP(Exp, exp)
@@ -63,6 +64,7 @@ MATHOP(LogOnePlus, log1p)
 MATHOP(Log2, log2)
 MATHOP(Log10, log10)
 MATHOP(LogGamma, lgamma)
+MATHOP2(Mul, multiply)
 MATHOP(Neg, neg)
 MATHOP2(Pow, pow)
 MATHOP2N(PowN, pow)
@@ -73,6 +75,7 @@ MATHOP(Sin, sin)
 MATHOP(Sinh, sinh)
 MATHOP(Sqrt, sqrt)
 MATHOP(Squared, squared)
+MATHOP2(Sub, subtract)
 MATHOP(Tan, tan)
 MATHOP(Tanh, tanh)
 
@@ -112,8 +115,7 @@ cudaError_t srtAdd(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream
 ) {
-    // return selectAnyPacked<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
-    return cudaErrorNotSupported;
+    return selectAnyPacked<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAsin(
@@ -180,7 +182,7 @@ cudaError_t srtDiv(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream
 ) {
-    return cudaErrorNotSupported;
+    return selectAnyPacked<Div>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtErf(
@@ -294,7 +296,7 @@ cudaError_t srtMul(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream
 ) {
-    return cudaErrorNotSupported;
+    return selectAnyPacked<Mul>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtNeg(
@@ -384,7 +386,7 @@ cudaError_t srtSub(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream
 ) {
-    return cudaErrorNotSupported;
+    return selectAnyPacked<Sub>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtTan(
