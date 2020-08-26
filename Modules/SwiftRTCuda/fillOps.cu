@@ -100,15 +100,17 @@ cudaError_t srtFill(
 }
 
 //==============================================================================
-cudaError_t srtFillWithRange(
+/// srtFillRange
+/// Fills the output with logical position indexes  
+cudaError_t srtFillRange(
     void* out, const srtTensorDescriptor* oDesc,
     const long lower,
-    const long upper, 
     cudaStream_t stream
 ) {
     return cudaErrorNotSupported;
 }
 
+//==============================================================================
 cudaError_t srtEye(
     void* out, const srtTensorDescriptor* oDesc,
     const long offset,

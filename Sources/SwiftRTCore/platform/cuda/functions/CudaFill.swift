@@ -26,9 +26,9 @@ extension CudaQueue
     ) {
         guard useGpu else { cpu_copy(from: x, to: &out); return }
 
-        let status = out.withMutableTensor(using: self) { oData, o in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
             x.withTensor(using: self) { xData, x in
-                srtCopy(xData, x, oData, o, stream)
+                srtCopy(xData, x, o, oDesc, stream)
             }
         }
         cpuFallback(status) { $0.copy(from: x, to: &out) }
@@ -42,9 +42,9 @@ extension CudaQueue
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_fill(&out, with: element); return }
 
-        let status = out.withMutableTensor(using: self) { oData, o in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
             withUnsafePointer(to: element) {
-                srtFill(oData, o, $0, stream)
+                srtFill(o, oDesc, $0, stream)
             }
         }
         cpuFallback(status) { $0.fill(&out, with: element) }
@@ -60,11 +60,8 @@ extension CudaQueue
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_fill(&out, with: range); return }
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            srtFillWithRange(oData, o, 
-                             Int(range.lowerBound),
-                             Int(range.upperBound),
-                             stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            srtFillRange(o, oDesc, Int(range.lowerBound), stream)
         }
         cpuFallback(status) { $0.fill(&out, with: range) }
     }
@@ -77,8 +74,8 @@ extension CudaQueue
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_eye(&out, offset: offset); return }
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            srtEye(oData, o, offset, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            srtEye(o, oDesc, offset, stream)
         }
         cpuFallback(status) { $0.eye(&out, offset: offset) }
     }
@@ -97,10 +94,10 @@ extension CudaQueue
 
         let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
             withUnsafePointer(to: lower) { l in
                 withUnsafePointer(to: upper) { u in
-                    srtFillRandomUniform(oData, o, l, u, seed64, stream)
+                    srtFillRandomUniform(o, oDesc, l, u, seed64, stream)
                 }
             }
         }
@@ -121,10 +118,10 @@ extension CudaQueue
 
         let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
             withUnsafePointer(to: mean) { m in
                 withUnsafePointer(to: std) { s in
-                    srtFillRandomNormal(oData, o, m, s, seed64, stream)
+                    srtFillRandomNormal(o, oDesc, m, s, seed64, stream)
                 }
             }
         }
@@ -145,9 +142,9 @@ extension CudaQueue
             cpu_fill(randomNormal: &out, mean, std, seed); return
         }
 
-        let status = out.withMutableTensor(using: self) { oData, o in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
             srtFillRandomNormalTensorArgs(
-                oData, o, 
+                o, oDesc, 
                 mean.deviceRead(using: self), 
                 std.deviceRead(using: self),
                 UInt64(msb: seed.op, lsb: seed.graph), 
@@ -171,10 +168,10 @@ extension CudaQueue
 
         let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
             withUnsafePointer(to: mean) { m in
                 withUnsafePointer(to: std) { s in
-                    srtFillRandomTruncatedNormal(oData, o, m, s, seed64, stream)
+                    srtFillRandomTruncatedNormal(o, oDesc, m, s, seed64, stream)
                 }
             }
         }
@@ -197,9 +194,9 @@ extension CudaQueue
             return
         }
 
-        let status = out.withMutableTensor(using: self) { oData, o in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
             srtFillRandomTruncatedNormalTensorArgs(
-                oData, o, 
+                o, oDesc, 
                 mean.deviceRead(using: self), 
                 std.deviceRead(using: self),
                 UInt64(msb: seed.op, lsb: seed.graph), 
