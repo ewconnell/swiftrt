@@ -72,6 +72,7 @@ extension CudaQueue {
     ) where E.Value: ${conformance} {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_${name}(x, &out); return }
+        diagnostic(.queueGpu, "${name}() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             x.withTensor(using: self) { xData, x in

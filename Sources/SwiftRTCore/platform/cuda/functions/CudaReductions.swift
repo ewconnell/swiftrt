@@ -26,6 +26,7 @@ extension CudaQueue {
     ) {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_reduceAll(x, &out); return }
+        diagnostic(.queueGpu, "reduceAll() on \(name)", categories: .queueGpu)
         
         cpuFallback(cudaErrorNotSupported) { $0.reduceAll(x, &out) }
     }
@@ -37,6 +38,7 @@ extension CudaQueue {
     ) {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_reduceAny(x, &out); return }
+        diagnostic(.queueGpu, "reduceAny() on \(name)", categories: .queueGpu)
         
         cpuFallback(cudaErrorNotSupported) { $0.reduceAny(x, &out) }
     }
@@ -48,6 +50,7 @@ extension CudaQueue {
     ) where E.Value: AdditiveArithmetic {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_reduceSum(x, &out); return }
+        diagnostic(.queueGpu, "reduceSum() on \(name)", categories: .queueGpu)
         
         cpuFallback(cudaErrorNotSupported) { $0.reduceSum(x, &out) }
     }
@@ -59,6 +62,7 @@ extension CudaQueue {
     ) where E.Value: AlgebraicField {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_reduceMean(x, &out); return }
+        diagnostic(.queueGpu, "reduceMean() on \(name)", categories: .queueGpu)
         
         cpuFallback(cudaErrorNotSupported) { $0.reduceMean(x, &out) }
     }
@@ -70,6 +74,7 @@ extension CudaQueue {
     ) where E.Value: Comparable {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_reduceMin(x, &out); return }
+        diagnostic(.queueGpu, "reduceMin() on \(name)", categories: .queueGpu)
         
         cpuFallback(cudaErrorNotSupported) { $0.reduceMin(x, &out) }
     }
@@ -81,6 +86,7 @@ extension CudaQueue {
     ) where E.Value: Comparable {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_reduceMax(x, &out); return }
+        diagnostic(.queueGpu, "reduceMax() on \(name)", categories: .queueGpu)
         
         cpuFallback(cudaErrorNotSupported) { $0.reduceMax(x, &out) }
     }

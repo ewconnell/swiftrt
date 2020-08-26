@@ -28,6 +28,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_add(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "add() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -48,6 +49,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_div(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "div() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -69,6 +71,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_mul(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "mul() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -90,6 +93,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_subtract(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "subtract() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -114,6 +118,7 @@ extension CudaQueue {
     ) where E.Value: Real {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_atan2(y, x, &out); return }
+        diagnostic(.queueGpu, "atan2() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             y.withTensor(using: self) { yData, y in
@@ -131,6 +136,7 @@ extension CudaQueue {
         to out: inout Tensor<S,RE>
     ) where E.Value: BinaryFloatingPoint, RE.Value: BinaryInteger {
         guard useGpu else { cpu_cast(from: a, to: &out); return }
+        diagnostic(.queueGpu, "cast() on \(name)", categories: .queueGpu)
         
         let status = out.withMutableTensor(using: self) { o, oDesc in
             a.withTensor(using: self) { a, aDesc in
@@ -145,6 +151,7 @@ extension CudaQueue {
                                    to out: inout Tensor<S,RE>)
     where E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint {
         guard useGpu else { cpu_cast(from: a, to: &out); return }
+        diagnostic(.queueGpu, "cast() on \(name)", categories: .queueGpu)
         
         let status = out.withMutableTensor(using: self) { o, oDesc in
             a.withTensor(using: self) { a, aDesc in
@@ -162,6 +169,7 @@ extension CudaQueue {
     ) where E.Value: Real {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_hypot(x, y, &out); return }
+        diagnostic(.queueGpu, "hypot() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             x.withTensor(using: self) { xData, x in
@@ -179,6 +187,7 @@ extension CudaQueue {
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
         guard useGpu else { cpu_log(onePlus: x, &out) ; return }
+        diagnostic(.queueGpu, "log() on \(name)", categories: .queueGpu)
         
         let status = out.withMutableTensor(using: self) { o, oDesc in
             x.withTensor(using: self) { x, xDesc in
@@ -196,6 +205,7 @@ extension CudaQueue {
     ) where E.Value: Real {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_pow(x, y, &out); return }
+        diagnostic(.queueGpu, "pow(x:y:) on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             x.withTensor(using: self) { xData, x in
@@ -215,6 +225,7 @@ extension CudaQueue {
     ) where E.Value: Real {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_pow(x, n, &out); return }
+        diagnostic(.queueGpu, "pow(x:n:) on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             x.withTensor(using: self) { xData, x in
@@ -232,6 +243,7 @@ extension CudaQueue {
     ) where E.Value: Real {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_root(x, n, &out); return }
+        diagnostic(.queueGpu, "root(x:n:) on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             x.withTensor(using: self) { xData, x in
