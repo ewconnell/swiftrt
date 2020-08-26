@@ -25,6 +25,7 @@ extension CudaQueue
         to out: inout Tensor<S,E>
     ) {
         guard useGpu else { cpu_copy(from: x, to: &out); return }
+        diagnostic(.queueGpu, "copy(from:to:) on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             x.withTensor(using: self) { xData, x in
@@ -75,6 +76,7 @@ extension CudaQueue
     ) where E.Value: Numeric {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_eye(&out, offset: offset); return }
+        diagnostic(.queueGpu, "eye(_:offset:) on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             srtEye(o, oDesc, offset, stream)
@@ -93,6 +95,7 @@ extension CudaQueue
         guard useGpu else {
             cpu_fill(randomUniform: &out, lower, upper, seed); return
         }
+        diagnostic(.queueGpu, "fill(randomUniform) on \(name)", categories: .queueGpu)
 
         let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
 
@@ -117,6 +120,7 @@ extension CudaQueue
         guard useGpu else {
             cpu_fill(randomNormal: &out, mean, std, seed); return
         }
+        diagnostic(.queueGpu, "fill(randomNormal) on \(name)", categories: .queueGpu)
 
         let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
 
@@ -143,6 +147,8 @@ extension CudaQueue
         guard useGpu else {
             cpu_fill(randomNormal: &out, mean, std, seed); return
         }
+        diagnostic(.queueGpu, "fill(randomNormal) on \(name)",
+                   categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             srtFillRandomNormalTensorArgs(
@@ -167,6 +173,8 @@ extension CudaQueue
             cpu_fill(randomTruncatedNormal: &out, mean, std, seed)
             return
         }
+        diagnostic(.queueGpu, "fill(randomTruncatedNormal) on \(name)", 
+                   categories: .queueGpu)
 
         let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
 
@@ -195,6 +203,8 @@ extension CudaQueue
             cpu_fill(randomTruncatedNormal: &out, mean, std, seed) 
             return
         }
+        diagnostic(.queueGpu, "fill(randomTruncatedNormal) on \(name)", 
+                   categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             srtFillRandomTruncatedNormalTensorArgs(

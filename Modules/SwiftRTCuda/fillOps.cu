@@ -19,6 +19,7 @@
 
 #include "fillOps.h"
 #include "dispatchHelpers.h"
+#include "index.h"
 
 //==============================================================================
 // Swift importable C interface functions
@@ -46,9 +47,11 @@ __global__ void mapElementFill(E *out, IndexO indexO, E element) {
 }
 
 template <typename E>
-static cudaError_t elementFill(void *pOut, const TensorDescriptor &oDesc,
-                               const E element, cudaStream_t stream,
-                               const int shiftCount = 0) {
+static cudaError_t elementFill(
+    void *pOut, const TensorDescriptor &oDesc,
+    const E element, cudaStream_t stream,
+    const int shiftCount = 0
+) {
   E *out = static_cast<E *>(pOut);
   int count = shiftDownRoundingUp(oDesc.count, shiftCount);
   dim3 tile = tileSize(count);
@@ -100,14 +103,81 @@ cudaError_t srtFill(
 }
 
 //==============================================================================
+// srtFillRange
+
+// kernel
+template <typename E, typename IndexO>
+__global__ void mapRangeFill(E *out, IndexO indexO, E lower) {
+    auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
+    if (indexO.isInBounds(position)) {
+        // TODO: remove the float conversation
+        // It's to compensate for missing bfloat16 constructor
+        auto logical = E(float(Flat::Logical(blockIdx, blockDim, threadIdx)[0]));
+        int i = indexO.linear(position);
+        out[i] = lower + logical;
+    }
+}
+
+template <typename E, typename IndexO>
+static cudaError_t rangeFill(
+    void *pOut, const TensorDescriptor &oDesc,
+    const E lower, cudaStream_t stream
+) {
+    E *out = static_cast<E *>(pOut);
+    dim3 tile = tileSize<IndexO::Rank>(oDesc);
+    dim3 grid = gridSize<IndexO::Rank>(oDesc, tile);
+    mapRangeFill<E,IndexO><<<grid, tile, 0, stream>>>(out, IndexO(oDesc), lower);
+    return cudaSuccess;
+}
+
+template <typename E, int R>
+static cudaError_t selectRangeFillIndex(
+    void *out, const TensorDescriptor &oDesc,
+    const E lower, cudaStream_t stream
+) {
+    switch (oDesc.order) {
+    case CUBLASLT_ORDER_ROW: return rangeFill<E,Flat>(out, oDesc, lower, stream);
+    case CUBLASLT_ORDER_COL: return rangeFill<E,Strided<R> >(out, oDesc, lower, stream);
+    default: return cudaErrorNotSupported;
+    }
+}
+
+template <typename E>
+static cudaError_t selectRangeFillRank(
+    void *out, const TensorDescriptor &oDesc,
+    const E lower, cudaStream_t stream
+) {
+    switch (oDesc.rank) {
+    case 1: return selectRangeFillIndex<E,1>(out, oDesc, lower, stream);
+    case 2: return selectRangeFillIndex<E,2>(out, oDesc, lower, stream);
+    case 3: return selectRangeFillIndex<E,3>(out, oDesc, lower, stream);
+    default: return cudaErrorNotSupported;
+    }
+}
+
 /// srtFillRange
 /// Fills the output with logical position indexes  
 cudaError_t srtFillRange(
-    void* out, const srtTensorDescriptor* oDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     const long lower,
     cudaStream_t stream
 ) {
-    return cudaErrorNotSupported;
+    const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*poDesc);
+    assert(oDesc.isDense());
+
+    switch (oDesc.type) {
+    case CUDA_R_32F:  return selectRangeFillRank<float>(out, oDesc, lower, stream);
+    case CUDA_R_16F:  return selectRangeFillRank<__half>(out, oDesc, float(lower), stream);
+    case CUDA_R_16BF: return selectRangeFillRank<__nv_bfloat16>(out, oDesc, float(lower), stream);
+    case CUDA_R_64F:  return selectRangeFillRank<double>(out, oDesc, lower, stream);
+    case CUDA_R_32I:  return selectRangeFillRank<int32_t>(out, oDesc, lower, stream);
+    case CUDA_R_32U:  return selectRangeFillRank<uint32_t>(out, oDesc, lower, stream);
+    case CUDA_R_16I:  return selectRangeFillRank<int16_t>(out, oDesc, lower, stream);
+    case CUDA_R_16U:  return selectRangeFillRank<uint16_t>(out, oDesc, lower, stream);
+    case CUDA_R_8I:   return selectRangeFillRank<int8_t>(out, oDesc, lower, stream);
+    case CUDA_R_8U:   return selectRangeFillRank<uint8_t>(out, oDesc, lower, stream);
+    default: return cudaErrorNotSupported;
+    }
 }
 
 //==============================================================================
