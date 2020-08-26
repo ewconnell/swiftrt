@@ -374,7 +374,7 @@
     {
       "file": "/Users/ed/swiftrt/Sources/SwiftRTCore/common/Log.swift",
       "line": 400,
-      "symbol": "LogCategories.queueFunc",
+      "symbol": "LogCategories.queueCpu",
       "symbol_kind": "source.lang.swift.decl.var.static",
       "warning": "undocumented"
     },
@@ -465,7 +465,7 @@
     {
       "file": "/Users/ed/swiftrt/Sources/SwiftRTCore/common/Log.swift",
       "line": 406,
-      "symbol": "LogCategory.queue",
+      "symbol": "LogCategory.queueCpu",
       "symbol_kind": "source.lang.swift.decl.enumelement",
       "warning": "undocumented"
     },
@@ -4994,7 +4994,7 @@
     {
       "file": "/Users/ed/swiftrt/Sources/SwiftRTCore/platform/common/Platform.swift",
       "line": 325,
-      "symbol": "QueueId.queue",
+      "symbol": "QueueId.queueCpu",
       "symbol_kind": "source.lang.swift.decl.var.instance",
       "warning": "undocumented"
     },

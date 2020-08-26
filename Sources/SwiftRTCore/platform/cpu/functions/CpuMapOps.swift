@@ -40,8 +40,8 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
-                diagnostic(.queue, "\(opName) on \(name)",
-                           categories: .queueFunc)
+                diagnostic(.queueCpu, "\(opName) on \(name)",
+                           categories: .queueCpu)
                 queue.async(group: group) {
                     out.indices.forEach { out[$0] = op() }
                 }
@@ -73,8 +73,8 @@ extension DeviceQueue {
             var out = out
             if mode == .async {
                 queue.async(group: group) {
-                    diagnostic(.queue, "\(opName) on \(name)",
-                               categories: .queueFunc)
+                    diagnostic(.queueCpu, "\(opName) on \(name)",
+                               categories: .queueCpu)
                     zip(out.indices, i0).forEach { out[$0] = $1 }
                 }
             } else {
@@ -104,8 +104,8 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
-                diagnostic(.queue, "\(opName) on \(name)",
-                           categories: .queueFunc)
+                diagnostic(.queueCpu, "\(opName) on \(name)",
+                           categories: .queueCpu)
                 queue.async(group: group) {
                     out.indices.forEach { out[$0] = op(out[$0]) }
                 }
@@ -138,8 +138,8 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
-                diagnostic(.queue, "\(opName) on \(name)",
-                           categories: .queueFunc)
+                diagnostic(.queueCpu, "\(opName) on \(name)",
+                           categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, i0).forEach { out[$0] = op(out[$0], $1) }
                 }
@@ -182,8 +182,8 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
-                diagnostic(.queue, "\(opName) on \(name)",
-                           categories: .queueFunc)
+                diagnostic(.queueCpu, "\(opName) on \(name)",
+                           categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, i0).forEach { out[$0] = op($1) }
                 }
@@ -230,8 +230,8 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
-                diagnostic(.queue, "\(opName) on \(name)",
-                           categories: .queueFunc)
+                diagnostic(.queueCpu, "\(opName) on \(name)",
+                           categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = op($1.0, $1.1)
@@ -295,8 +295,8 @@ extension DeviceQueue {
         {
             var out = out
             if mode == .async {
-                diagnostic(.queue, "\(opName) on \(name)",
-                           categories: .queueFunc)
+                diagnostic(.queueCpu, "\(opName) on \(name)",
+                           categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = $1.0 + $1.1
@@ -358,8 +358,8 @@ extension DeviceQueue {
         {
             var out = out
             if mode == .async {
-                diagnostic(.queue, "\(opName) on \(name)",
-                           categories: .queueFunc)
+                diagnostic(.queueCpu, "\(opName) on \(name)",
+                           categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = $1.0 - $1.1
@@ -421,8 +421,8 @@ extension DeviceQueue {
         {
             var out = out
             if mode == .async {
-                diagnostic(.queue, "\(opName) on \(name)",
-                           categories: .queueFunc)
+                diagnostic(.queueCpu, "\(opName) on \(name)",
+                           categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = $1.0 * $1.1
@@ -484,8 +484,8 @@ extension DeviceQueue {
         {
             var out = out
             if mode == .async {
-                diagnostic(.queue, "\(opName) on \(name)",
-                           categories: .queueFunc)
+                diagnostic(.queueCpu, "\(opName) on \(name)",
+                           categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, zip(i0, i1)).forEach {
                         out[$0] = $1.0 / $1.1
@@ -553,8 +553,8 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .async {
-                diagnostic(.queue, "\(opName) on \(name)",
-                           categories: .queueFunc)
+                diagnostic(.queueCpu, "\(opName) on \(name)",
+                           categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, zip(i0, zip(i1, i2))).forEach {
                         out[$0] = op($1.0, $1.1.0, $1.1.1)
@@ -658,8 +658,8 @@ extension DeviceQueue {
         ) {
             var o1 = o1, o2 = o2
             if mode == .async {
-                diagnostic(.queue, "\(opName) on \(name)",
-                           categories: .queueFunc)
+                diagnostic(.queueCpu, "\(opName) on \(name)",
+                           categories: .queueCpu)
                 queue.async(group: group) {
                     zip(zip(o1.indices, o2.indices), zip(i0, zip(i1, i2))).forEach
                     {

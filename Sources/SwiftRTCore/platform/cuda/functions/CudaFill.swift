@@ -41,6 +41,7 @@ extension CudaQueue
     ) {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_fill(&out, with: element); return }
+        diagnostic(.queueAcc, "fill(_:element:) on \(name)", categories: .queueAccel)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             withUnsafePointer(to: element) {
@@ -59,6 +60,7 @@ extension CudaQueue
     {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_fill(&out, with: range); return }
+        diagnostic(.queueAcc, "fill(_:range:) on \(name)", categories: .queueAccel)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             srtFillRange(o, oDesc, Int(range.lowerBound), stream)
