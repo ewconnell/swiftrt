@@ -28,6 +28,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_and(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "and() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -52,6 +53,8 @@ extension CudaQueue {
             cpu_elementsAlmostEqual(lhs, rhs, tolerance, &out)
             return
         }
+        diagnostic(.queueGpu, "elementsAlmostEqual() on \(name)", 
+                   categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -74,6 +77,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_equal(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "equal() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -94,6 +98,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_greater(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "greater() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -114,6 +119,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_greaterOrEqual(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "greaterOrEqual() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -134,6 +140,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_less(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "less() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -154,6 +161,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_lessOrEqual(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "lessOrEqual() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -174,6 +182,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_max(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "max() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -194,6 +203,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_min(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "min() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -214,6 +224,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_notEqual(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "notEqual() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -234,6 +245,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_or(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "or() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             lhs.withTensor(using: self) { lData, l in
@@ -256,6 +268,7 @@ extension CudaQueue {
         assert(x.order == y.order && x.order == condition.order,
                _messageTensorOrderMismatch)
         guard useGpu else { cpu_replace(x, y, condition, &out); return }
+        diagnostic(.queueGpu, "replace() on \(name)", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { oData, o in
             x.withTensor(using: self) { xData, x in
