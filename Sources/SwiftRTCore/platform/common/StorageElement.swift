@@ -855,22 +855,6 @@ where Shape: TensorShape, TensorElement: StorageElement
     public let endIndex: Index
 
     //--------------------------------------------------------------------------
-    /// init(tensor:
-    /// creates a storage buffer iterator for reading tensor elments
-    ///
-    /// - Parameters:
-    ///  - tensor: the tensor that will be read
-    @inlinable public convenience init(tensor: Tensor<Shape, TensorElement>) {
-        self.init(tensor.count,
-                  tensor.shape,
-                  tensor.strides,
-                  tensor.storage,
-                  tensor.storageBase,
-                  tensor.order,
-                  tensor.spanCount)
-    }
-    
-    //--------------------------------------------------------------------------
     /// init
     /// This initializer is called by `Tensor` initializers to setup for
     /// possible direct element indexing by the user. The host buffer is
@@ -905,6 +889,22 @@ where Shape: TensorShape, TensorElement: StorageElement
         startIndex = Index(Shape.zero, 0)
         endIndex = Index(shape, count)
         hostBuffer = UnsafeMutableBufferPointer(start: nil, count: 0)
+    }
+    
+    //--------------------------------------------------------------------------
+    /// init(tensor:
+    /// creates a storage buffer iterator for reading tensor elments
+    ///
+    /// - Parameters:
+    ///  - tensor: the tensor that will be read
+    @inlinable public convenience init(tensor: Tensor<Shape, TensorElement>) {
+        self.init(tensor.count,
+                  tensor.shape,
+                  tensor.strides,
+                  tensor.storage,
+                  tensor.storageBase,
+                  tensor.order,
+                  tensor.spanCount)
     }
     
     //--------------------------------------------------------------------------

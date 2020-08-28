@@ -24,6 +24,7 @@ public final class DiscreteStorage: StorageBuffer {
     public let id: Int
     public var isReadOnly: Bool
     public var isReference: Bool
+    public var isZero: Bool
     
     public var name: String {
         didSet { replicas.forEach { $0?.name = name } }
@@ -71,6 +72,7 @@ public final class DiscreteStorage: StorageBuffer {
         id = Context.nextBufferId
         isReadOnly = false
         isReference = false
+        isZero = false
         masterVersion = -1
         _lastAccessCopiedMemory = false
 
@@ -88,7 +90,21 @@ public final class DiscreteStorage: StorageBuffer {
                                using: Context.appThreadQueue)
         buffer[0] = storedElement
     }
-    
+
+    //--------------------------------------------------------------------------
+    /// `init(storedElement:name:
+    public convenience init<Element>(
+        storedElement: Element, 
+        name: String
+    ) where Element: Numeric {
+        // TODO: change this to cache single scalars
+        self.init(storedType: Element.self, count: 1, name: name)
+        let buffer = readWrite(type: Element.self, at: 0, count: 1,
+                               using: Context.appThreadQueue)
+        buffer[0] = storedElement
+        isZero = storedElement == 0
+    }
+
     //--------------------------------------------------------------------------
     // init(type:other:using:
     @inlinable public init<Element>(
@@ -101,6 +117,7 @@ public final class DiscreteStorage: StorageBuffer {
         byteCount = other.byteCount
         isReadOnly = other.isReadOnly
         isReference = other.isReference
+        isZero = other.isZero
         name = other.name
         masterVersion = -1
         _lastAccessCopiedMemory = false

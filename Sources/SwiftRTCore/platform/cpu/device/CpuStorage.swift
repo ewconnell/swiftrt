@@ -24,6 +24,7 @@ public final class CpuStorage: StorageBuffer {
     public let id: Int
     public let isReadOnly: Bool
     public let isReference: Bool
+    public var isZero: Bool
     public var name: String
 
     //--------------------------------------------------------------------------
@@ -47,6 +48,7 @@ public final class CpuStorage: StorageBuffer {
         id = Context.nextBufferId
         isReadOnly = false
         isReference = false
+        isZero = false
 
         hostBuffer = UnsafeMutableRawBufferPointer.allocate(
             byteCount: byteCount,
@@ -67,6 +69,18 @@ public final class CpuStorage: StorageBuffer {
     }
     
     //--------------------------------------------------------------------------
+    /// `init(storedElement:name:
+    public convenience init<Element>(
+        storedElement: Element,
+        name: String
+    ) where Element: Numeric {
+        // TODO: change to data member to avoid heap alloc
+        self.init(storedType: Element.self, count: 1, name: name)
+        hostBuffer.bindMemory(to: Element.self)[0] = storedElement
+        isZero = storedElement == 0
+    }
+
+    //--------------------------------------------------------------------------
     // init(other:queue:
     @inlinable public init<Element>(
         type: Element.Type,
@@ -78,6 +92,7 @@ public final class CpuStorage: StorageBuffer {
         id = Context.nextBufferId
         isReadOnly = other.isReadOnly
         isReference = other.isReference
+        isZero = other.isZero
         name = other.name
         if isReference {
             hostBuffer = other.hostBuffer
@@ -95,19 +110,18 @@ public final class CpuStorage: StorageBuffer {
         referenceTo buffer: UnsafeBufferPointer<Element>,
         name: String
     ) {
+        self.name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * buffer.count
         let buff = UnsafeMutableBufferPointer(mutating: buffer)
-        self.hostBuffer = UnsafeMutableRawBufferPointer(buff)
-        self.id = Context.nextBufferId
-        self.isReadOnly = true
-        self.isReference = true
-        self.name = name
+        hostBuffer = UnsafeMutableRawBufferPointer(buff)
+        id = Context.nextBufferId
+        isReadOnly = true
+        isReference = true
+        isZero = false
 
-        #if DEBUG
         diagnostic(.reference, "\(diagnosticName) " +
             "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
-        #endif
     }
     
     //--------------------------------------------------------------------------
@@ -116,18 +130,17 @@ public final class CpuStorage: StorageBuffer {
         referenceTo buffer: UnsafeMutableBufferPointer<Element>,
         name: String
     ) {
+        self.name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * buffer.count
-        self.hostBuffer = UnsafeMutableRawBufferPointer(buffer)
-        self.id = Context.nextBufferId
-        self.isReadOnly = false
-        self.isReference = true
-        self.name = name
+        hostBuffer = UnsafeMutableRawBufferPointer(buffer)
+        id = Context.nextBufferId
+        isReadOnly = false
+        isReference = true
+        isZero = false
 
-        #if DEBUG
         diagnostic(.reference, "\(diagnosticName) " +
             "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
-        #endif
     }
     
     //--------------------------------------------------------------------------

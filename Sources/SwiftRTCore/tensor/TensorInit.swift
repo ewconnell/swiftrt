@@ -99,12 +99,6 @@ public extension Tensor {
     }
     
     //--------------------------------------------------------------------------
-    /// init
-    @inlinable init() {
-        self.init(shape: Shape.zero)
-    }
-    
-    //--------------------------------------------------------------------------
     /// init(like:
     /// convenience initializer to initialize with the shape and type as `other`
     /// - Parameters:

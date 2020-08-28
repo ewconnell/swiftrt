@@ -27,13 +27,18 @@ import Numerics
     _ rhs: Tensor<S,E>
 ) -> Tensor<S,E> where S: TensorShape, E.Value: AdditiveArithmetic
 {
-    /// REMOVE THIS
-    let (lhs, rhs) = match(lhs, rhs)
-    assert(lhs.shape == rhs.shape)
-
-    var result = Tensor(like: lhs)
-    Context.currentQueue.add(lhs, rhs, &result)
-    return result
+    /// MAKE THIS GO AWAY!! assert(lhs.shape == rhs.shape) should be true
+    /// Hack to work around AD zero materialization design problem
+    if lhs.isZero {
+        return rhs
+    } else if rhs.isZero {
+        return lhs
+    } else {
+        assert(lhs.shape == rhs.shape)
+        var result = Tensor(like: lhs)
+        Context.currentQueue.add(lhs, rhs, &result)
+        return result
+    }
 }
 
 @derivative(of: add)
@@ -106,10 +111,7 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
     _ rhs: Tensor<S,E>
 ) -> Tensor<S,E> where S: TensorShape, E.Value: AdditiveArithmetic
 {
-    /// REMOVE THIS
-    let (lhs, rhs) = match(lhs, rhs)
     assert(lhs.shape == rhs.shape)
-
     var result = Tensor(like: lhs)
     Context.currentQueue.subtract(lhs, rhs, &result)
     return result
@@ -185,10 +187,7 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
     _ rhs: Tensor<S,E>
 ) -> Tensor<S,E> where S: TensorShape, E.Value: Numeric
 {
-    /// REMOVE THIS
-    let (lhs, rhs) = match(lhs, rhs)
     assert(lhs.shape == rhs.shape)
-
     var result = Tensor(like: lhs)
     Context.currentQueue.mul(lhs, rhs, &result)
     return result
@@ -270,10 +269,7 @@ extension Tensor where TensorElement.Value: Numeric {
     _ rhs: Tensor<S,E>
 ) -> Tensor<S,E> where S: TensorShape, E.Value: AlgebraicField
 {
-    /// REMOVE THIS
-    let (lhs, rhs) = match(lhs, rhs)
     assert(lhs.shape == rhs.shape)
-
     var result = Tensor(like: lhs)
     Context.currentQueue.div(lhs, rhs, &result)
     return result

@@ -64,13 +64,17 @@ where Shape: TensorShape, TensorElement: StorageElement
         get { storage.name }
         set { storage.name = newValue }
     }
+
     /// `true` if the tensor elements are densely packed
     @inlinable public var isContiguous: Bool { spanCount == count }
     
     /// `true` if the tensor contains a single stored element. This is
     /// common for scalar tensors that are repeated.
     @inlinable public var isSingleElement: Bool { spanCount == 1 }
-    
+
+    /// `true` if the tensor value is zero
+    @inlinable public var isZero: Bool { storage.isZero }
+
     //--------------------------------------------------------------------------
     /// init(
     /// Used to initialize an element collection subview
@@ -137,6 +141,29 @@ where Shape: TensorShape, TensorElement: StorageElement
         let stored = TensorElement.stored(value: value)
         self.storage = StorageBufferType(storedElement: stored, name: name)
         logicalStrides = shape.strides(for: order)
+        logicalElements = LogicalElements(count,
+                                          shape,
+                                          strides,
+                                          storage,
+                                          storageBase,
+                                          order,
+                                          spanCount)
+    }
+
+    //--------------------------------------------------------------------------
+    /// init
+    /// Used to represent a single zero value
+    // Primarily used to minimize AD zero materialization problem
+    @inlinable public init() {
+        self.shape = Shape.one
+        self.strides = Shape.one
+        self.storageBase = 0
+        self.isShared = false
+        self.count = 1
+        self.spanCount = 1
+        self.order = .row
+        self.storage = Context.zeroStorage
+        logicalStrides = Shape.one
         logicalElements = LogicalElements(count,
                                           shape,
                                           strides,
@@ -252,7 +279,7 @@ extension Tensor: Differentiable & DifferentiableTensor
 }
 
 extension Tensor: AdditiveArithmetic where Element: Numeric {
-    @inlinable public static var zero: Self { Tensor(0, name: "Zero") }
+    @inlinable public static var zero: Self { Tensor() }
     @inlinable public static var one: Self { Tensor(1, name: "One") }
 }
 

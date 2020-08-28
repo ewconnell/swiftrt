@@ -55,6 +55,14 @@ public final class Context: Logging {
     public static var logWriter: Log = Log()
 
     //-------------------------------------
+    /// a storage buffer with a single zero value which is shared
+    /// every time Element.zero is obtained by AD.
+    // used to minimize AD overhead. AD needs to fix this problem.
+    public static var zeroStorage: StorageBufferType = {
+        StorageBufferType(storedElement: Int64(0), name: "Zero")
+    }()
+
+    //-------------------------------------
     /// counter for unique buffer ids
     public static var bufferIdCounter: Int = -1
     /// a platform instance unique id for queue events

@@ -33,6 +33,9 @@ public protocol StorageBuffer: class, Logging {
     var isReadOnly: Bool { get }
     /// `true` if this buffer is a reference to an application managed buffer
     var isReference: Bool { get }
+    /// `true` if the tensor value is zero.
+    // Note: This is used to minimize the AD zero materialization design problem
+    var isZero: Bool { get }
     /// the buffer name used in diagnostic messages
     var name: String { get set }
     
