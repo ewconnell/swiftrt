@@ -213,9 +213,17 @@ static cudaError_t flattened(
     dim3 tile = tileSize(packedCount);
     dim3 grid = gridSize<1>(oDesc, tile);
 
-    mapAB<Op,Element,Flat,Flat,Flat><<<grid, tile, 0, stream>>>
-        (a, Flat(aDesc), b, Flat(bDesc), out, Flat(oDesc));
+    if (bDesc.isSingle()) {
+        mapAB<Op,Element,Flat,Single,Flat><<<grid, tile, 0, stream>>>
+            (a, Flat(aDesc), b, Single(bDesc), out, Flat(oDesc));
 
+    } else if (aDesc.isSingle()) {
+        mapAB<Op,Element,Single,Flat,Flat><<<grid, tile, 0, stream>>>
+            (a, Single(aDesc), b, Flat(bDesc), out, Flat(oDesc));
+    } else {
+        mapAB<Op,Element,Flat,Flat,Flat><<<grid, tile, 0, stream>>>
+            (a, Flat(aDesc), b, Flat(bDesc), out, Flat(oDesc));
+    }
     return cudaSuccess;
 }
 
@@ -296,7 +304,7 @@ static cudaError_t selectRank(
 ) {
     // for now require the same order
     // TODO: maybe allow simultaneous reordering of elements??
-    assert(aDesc.order == oDesc.order && oDesc.isDense());
+    assert(aDesc.order == oDesc.order);
     // must be same data type and rank, and output is dense
     assert(aDesc.type == oDesc.type && aDesc.rank == oDesc.rank);
 
@@ -318,7 +326,7 @@ static cudaError_t selectRank(
 ) {
     // for now require the same order
     // TODO: maybe allow simultaneous reordering of elements??
-    assert(aDesc.order == oDesc.order && oDesc.isDense());
+    assert(aDesc.order == oDesc.order);
     // must be same data type and rank, and output is dense
     assert(aDesc.type == oDesc.type && aDesc.rank == oDesc.rank);
 
@@ -340,8 +348,8 @@ static cudaError_t selectRank(
 ) {
     // for now require the same order
     // TODO: maybe allow simultaneous reordering of elements??
-    assert(aDesc.order == bDesc.order && aDesc.order == oDesc.order &&
-        oDesc.isDense());
+    assert(aDesc.order == bDesc.order && aDesc.order == oDesc.order);
+    
     // must be same data type and rank, and output is dense
     assert(aDesc.type == bDesc.type && aDesc.type == oDesc.type &&
         aDesc.rank == bDesc.rank && aDesc.rank == oDesc.rank);
