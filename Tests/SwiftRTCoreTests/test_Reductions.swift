@@ -38,6 +38,14 @@ class test_Reductions: XCTestCase {
         ("test_sqrtSumSquaresTensor3", test_sqrtSumSquaresTensor3),
     ]
 
+    override func setUpWithError() throws {
+        // Context.log.level = .diagnostic
+    }
+
+    override func tearDownWithError() throws {
+        // Context.log.level = .error
+    }
+
     //--------------------------------------------------------------------------
     // test_gather
     // TODO: get this verified
@@ -83,7 +91,6 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_sumTensor3AlongAxes
     func test_sumTensor3AlongAxes() {
-//        Context.log.level = .diagnostic
         let v = array(
             [[[10,   2],
               [ 3,   4],
@@ -237,7 +244,6 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_sumTensor2
     func test_sumTensor2() {
-//        Context.log.level = .diagnostic
         let m = array([
             [0, 1],
             [2, 3],

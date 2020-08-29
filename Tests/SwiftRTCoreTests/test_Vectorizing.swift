@@ -37,6 +37,14 @@ class test_Vectorizing: XCTestCase {
         ("test_perfMaxAB", test_perfMaxAB),
     ]
     
+    override func setUpWithError() throws {
+        // Context.log.level = .diagnostic
+    }
+
+    override func tearDownWithError() throws {
+        // Context.log.level = .error
+    }
+
     //--------------------------------------------------------------------------
     func test_perfAplusBSequential() {
         #if !DEBUG

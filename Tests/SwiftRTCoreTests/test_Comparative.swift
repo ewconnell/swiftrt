@@ -31,6 +31,14 @@ class test_Comparative: XCTestCase {
         ("test_minScalar", test_minScalar),
     ]
 
+    override func setUpWithError() throws {
+        // Context.log.level = .diagnostic
+    }
+
+    override func tearDownWithError() throws {
+        // Context.log.level = .error
+    }
+
     //--------------------------------------------------------------------------
     func test_elementWiseAndOr() {
         let a = array([true, false, true, false, true])

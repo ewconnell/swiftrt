@@ -27,6 +27,14 @@ class test_StorageElement: XCTestCase {
         ("test_Int1Reshape", test_Int1Reshape),
     ]
     
+    override func setUpWithError() throws {
+        // Context.log.level = .diagnostic
+    }
+
+    override func tearDownWithError() throws {
+        // Context.log.level = .error
+    }
+
     //--------------------------------------------------------------------------
     func test_Int1StorageSize() {
         let a = array([

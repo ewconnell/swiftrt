@@ -29,10 +29,17 @@ class test_Math: XCTestCase {
         // ("test_squared", test_squared),
     ]
 
+    override func setUpWithError() throws {
+        // Context.log.level = .diagnostic
+    }
+
+    override func tearDownWithError() throws {
+        // Context.log.level = .error
+    }
+
     //--------------------------------------------------------------------------
     // test_abs
     func test_abs() {
-       Context.log.level = .diagnostic
         // Int32 abs
         let a = array([-1, 2, -3, 4, -5], type: Int32.self)
         XCTAssert(abs(a) == [1, 2, 3, 4, 5])
@@ -53,7 +60,6 @@ class test_Math: XCTestCase {
     //--------------------------------------------------------------------------
     // test_exp
     func test_exp() {
-        // Context.log.level = .diagnostic
         let a = array([0.0, 1, 2, 3, 4, 5])
         let expected = a.map(Foundation.exp)
         XCTAssert(exp(a) == expected)
@@ -67,7 +73,6 @@ class test_Math: XCTestCase {
     //--------------------------------------------------------------------------
     // test_log
     func test_log() {
-        // Context.log.level = .diagnostic
         let a = array([0.0, 1, 2, 3, 4, 5], (3, 2))
         let expected = a.map(Foundation.log)
         XCTAssert(log(a).flatArray == expected)

@@ -36,6 +36,14 @@ class test_arraySyntax: XCTestCase {
         ("test_eye", test_eye),
     ]
     
+    override func setUpWithError() throws {
+        // Context.log.level = .diagnostic
+    }
+
+    override func tearDownWithError() throws {
+        // Context.log.level = .error
+    }
+
     //--------------------------------------------------------------------------
     func test_initSyntax() {
         // stored bit pattern

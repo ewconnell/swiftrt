@@ -37,6 +37,13 @@ class test_Initialize: XCTestCase {
         ("test_concatenateGradients", test_concatenateGradients),
     ]
     
+    override func setUpWithError() throws {
+        // Context.log.level = .diagnostic
+    }
+
+    override func tearDownWithError() throws {
+        // Context.log.level = .error
+    }
 
     //--------------------------------------------------------------------------
     func test_castElements() {
@@ -55,7 +62,6 @@ class test_Initialize: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_copyOnWrite() {
-//        Context.log.level = .diagnostic
         let a = array(0..<6, (3, 2))
         XCTAssert(a[1, 1] == 3)
         

@@ -47,6 +47,14 @@ class test_Shape: XCTestCase {
         // ("testTransposedPullback", testTransposedPullback),
     ]
 
+    override func setUpWithError() throws {
+        // Context.log.level = .diagnostic
+    }
+
+    override func tearDownWithError() throws {
+        // Context.log.level = .error
+    }
+
     //--------------------------------------------------------------------------
     func test_reshape() {
         let a3 = array(0..<12, (2, 3, 2))
@@ -163,8 +171,6 @@ class test_Shape: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_reshapeOrderRowCol() {
-        
-//        Context.log.level = .diagnostic
         let a = array([[0, 1, 2], [3, 4, 5]])
         XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])
 
@@ -182,7 +188,6 @@ class test_Shape: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_reshapeOrderRowTC32x8() {
-//        Context.log.level = .diagnostic
         let a = array([[0, 1, 2], [3, 4, 5]])
         XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])
 
@@ -200,7 +205,6 @@ class test_Shape: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_reshapeOrderRowTC32x32() {
-//        Context.log.level = .diagnostic
         let a = array([[0, 1, 2], [3, 4, 5]])
         XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])
 
@@ -296,7 +300,6 @@ class test_Shape: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_stackingGradients() {
-//        Context.log.level = .diagnostic
         let a1 = array([1, 2, 3, 4, 5])
         let b1 = array([6, 7, 8, 9, 10])
         let a2 = ones((5))
@@ -313,7 +316,6 @@ class test_Shape: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_stackingExpression() {
-//        Context.log.level = .diagnostic
         let i = 3
         let j = 3
         let maxK: Float = 16
