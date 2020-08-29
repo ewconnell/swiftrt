@@ -30,10 +30,10 @@ extension CudaQueue {
         guard useGpu else { cpu_and(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "and() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtAnd(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtAnd(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -56,11 +56,11 @@ extension CudaQueue {
         diagnostic(.queueGpu, "elementsAlmostEqual() on \(name)", 
                    categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
                     withUnsafePointer(to: tolerance) { t in
-                        srtElementsAlmostEqual(lData, l, rData, r, t, oData, o, stream)
+                        srtElementsAlmostEqual(l, lDesc, r, rDesc, t, o, oDesc, stream)
                     }
                 }
             }
@@ -79,10 +79,10 @@ extension CudaQueue {
         guard useGpu else { cpu_equal(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "equal() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtEqual(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtEqual(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -100,10 +100,10 @@ extension CudaQueue {
         guard useGpu else { cpu_greater(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "greater() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtGreater(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtGreater(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -121,10 +121,10 @@ extension CudaQueue {
         guard useGpu else { cpu_greaterOrEqual(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "greaterOrEqual() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtGreaterOrEqual(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtGreaterOrEqual(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -142,10 +142,10 @@ extension CudaQueue {
         guard useGpu else { cpu_less(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "less() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtLess(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtLess(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -163,10 +163,10 @@ extension CudaQueue {
         guard useGpu else { cpu_lessOrEqual(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "lessOrEqual() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtLessOrEqual(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtLessOrEqual(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -184,10 +184,10 @@ extension CudaQueue {
         guard useGpu else { cpu_max(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "max() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtMax(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtMax(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -205,10 +205,10 @@ extension CudaQueue {
         guard useGpu else { cpu_min(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "min() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtMin(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtMin(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -226,10 +226,10 @@ extension CudaQueue {
         guard useGpu else { cpu_notEqual(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "notEqual() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtNotEqual(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtNotEqual(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -247,10 +247,10 @@ extension CudaQueue {
         guard useGpu else { cpu_or(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "or() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtOr(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtOr(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -270,11 +270,11 @@ extension CudaQueue {
         guard useGpu else { cpu_replace(x, y, condition, &out); return }
         diagnostic(.queueGpu, "replace() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
             x.withTensor(using: self) { xData, x in
                 y.withTensor(using: self) { yData, y in
                     condition.withTensor(using: self) { cData, c in
-                        srtReplace(xData, x, yData, y, cData, c, oData, o, stream)
+                        srtReplace(xData, x, yData, y, cData, c, o, oDesc, stream)
                     }
                 }
             }

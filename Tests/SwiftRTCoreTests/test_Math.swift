@@ -21,8 +21,8 @@ class test_Math: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_abs", test_abs),
-        // ("test_exp", test_exp),
+        // ("test_abs", test_abs),
+        ("test_exp", test_exp),
         // ("test_log", test_log),
         // ("test_neg", test_neg),
         // ("test_sign", test_sign),
@@ -30,11 +30,11 @@ class test_Math: XCTestCase {
     ]
 
     override func setUpWithError() throws {
-        // Context.log.level = .diagnostic
+        Context.log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
-        // Context.log.level = .error
+        Context.log.level = .error
     }
 
     //--------------------------------------------------------------------------
@@ -49,25 +49,27 @@ class test_Math: XCTestCase {
         XCTAssert(abs(f16) == [1, 2, 3, 4, 5])
 
         // Float abs
-        // let b = array([-1, 2, -3, 4, -5])
-        // XCTAssert(abs(b) == [1, 2, 3, 4, 5])
+        let b = array([-1, 2, -3, 4, -5])
+        XCTAssert(abs(b) == [1, 2, 3, 4, 5])
 
-        // let g = pullback(at: b, in: { abs($0) })(ones(like: b))
-        // print(g)
-        // XCTAssert(g == [-1, 1, -1, 1, -1])
+        let g = pullback(at: b, in: { abs($0) })(ones(like: b))
+        XCTAssert(g == [-1, 1, -1, 1, -1])
     }
     
     //--------------------------------------------------------------------------
     // test_exp
     func test_exp() {
-        let a = array([0.0, 1, 2, 3, 4, 5])
+        let a = array(0..<6)
         let expected = a.map(Foundation.exp)
         XCTAssert(exp(a) == expected)
         
         let b = array([1.0, 2, 3])
         let g = pullback(at: b, in: { exp($0) })(ones(like: b))
         let e = array([2.7182817,  7.389056, 20.085537])
-        XCTAssert(elementsAlmostEqual(g, e, tolerance: 0.0001).all().element)
+        let ae = elementsAlmostEqual(g, e, tolerance: 0.0001)
+        print(ae)
+        let aea = ae.all()
+        XCTAssert(aea.element)
     }
 
     //--------------------------------------------------------------------------

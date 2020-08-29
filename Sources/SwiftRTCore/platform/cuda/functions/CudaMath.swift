@@ -30,10 +30,10 @@ extension CudaQueue {
         guard useGpu else { cpu_add(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "add() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtAdd(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtAdd(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -51,10 +51,10 @@ extension CudaQueue {
         guard useGpu else { cpu_div(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "div() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtDiv(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtDiv(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -73,10 +73,10 @@ extension CudaQueue {
         guard useGpu else { cpu_mul(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "mul() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtMul(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtMul(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -95,10 +95,10 @@ extension CudaQueue {
         guard useGpu else { cpu_subtract(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "subtract() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
-            lhs.withTensor(using: self) { lData, l in
-                rhs.withTensor(using: self) { rData, r in
-                    srtSub(lData, l, rData, r, oData, o, stream)
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtSub(l, lDesc, r, rDesc, o, oDesc, stream)
                 }
             }
         }
@@ -120,10 +120,10 @@ extension CudaQueue {
         guard useGpu else { cpu_atan2(y, x, &out); return }
         diagnostic(.queueGpu, "atan2() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
             y.withTensor(using: self) { yData, y in
                 x.withTensor(using: self) { xData, x in
-                    srtAtan2(yData, y, xData, x, oData, o, stream)
+                    srtAtan2(yData, y, xData, x, o, oDesc, stream)
                 }
             }
         }
@@ -171,10 +171,10 @@ extension CudaQueue {
         guard useGpu else { cpu_hypot(x, y, &out); return }
         diagnostic(.queueGpu, "hypot() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
             x.withTensor(using: self) { xData, x in
                 y.withTensor(using: self) { yData, y in
-                    srtHypot(xData, x, yData, y, oData, o, stream)
+                    srtHypot(xData, x, yData, y, o, oDesc, stream)
                 }
             }
         }
@@ -207,10 +207,10 @@ extension CudaQueue {
         guard useGpu else { cpu_pow(x, y, &out); return }
         diagnostic(.queueGpu, "pow(x:y:) on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
             x.withTensor(using: self) { xData, x in
                 y.withTensor(using: self) { yData, y in
-                    srtPow(xData, x, yData, y, oData, o, stream)
+                    srtPow(xData, x, yData, y, o, oDesc, stream)
                 }
             }
         }
@@ -227,9 +227,9 @@ extension CudaQueue {
         guard useGpu else { cpu_pow(x, n, &out); return }
         diagnostic(.queueGpu, "pow(x:n:) on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
             x.withTensor(using: self) { xData, x in
-                srtPowN(xData, x, n, oData, o, stream)
+                srtPowN(xData, x, n, o, oDesc, stream)
             }
         }
         cpuFallback(status) { $0.pow(x, n, &out) }
@@ -245,9 +245,9 @@ extension CudaQueue {
         guard useGpu else { cpu_root(x, n, &out); return }
         diagnostic(.queueGpu, "root(x:n:) on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { oData, o in
+        let status = out.withMutableTensor(using: self) { o, oDesc in
             x.withTensor(using: self) { xData, x in
-                srtRoot(xData, x, n, oData, o, stream)
+                srtRoot(xData, x, n, o, oDesc, stream)
             }
         }
         cpuFallback(status) { $0.root(x, n, &out) }

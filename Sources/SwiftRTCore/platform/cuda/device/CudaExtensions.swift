@@ -118,6 +118,7 @@ extension StorageElementType {
 
     @inlinable public var cuda: cudaDataType_t {
         let types: [StorageElementType : cudaDataType_t] = [
+            .bool8: CUDA_R_8U,
             .real16F: CUDA_R_16F,
             .complex16F: CUDA_C_16F,
             .real16BF: CUDA_R_16BF,
@@ -147,7 +148,7 @@ extension StorageElementType {
             .real64U: CUDA_R_64U,
             .complex64U: CUDA_C_64U  
         ]
-        assert(types[self] != nil, "Unknown cudaDataType_t")
+        assert(types[self] != nil, "Unknown cudaDataType_t: \(self)")
         return types[self]!
     }
 }
