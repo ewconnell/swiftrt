@@ -257,17 +257,18 @@ class test_AlgebraicField: XCTestCase {
         XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
 
         // both
+        let expected: [[Float]] = [[1, 1], [1, 1], [1, 1]]
         let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(aOnes)
-        XCTAssert(g1.flatArray == [1, 1, 1, 1, 1, 1])
-        XCTAssert(g2.flatArray == [1, 1, 1, 1, 1, 1])
+        XCTAssert(g1 == expected)
+        XCTAssert(g2 == expected)
         
         // lhs
         let glhs = pullback(at: a, in: { $0 + 2 })(aOnes)
-        XCTAssert(glhs.flatArray == [1, 1, 1, 1, 1, 1])
+        XCTAssert(glhs == expected)
         
         // rhs
         let grhs = pullback(at: a, in: { 2 + $0 })(aOnes)
-        XCTAssert(grhs.flatArray == [1, 1, 1, 1, 1, 1])
+        XCTAssert(grhs == expected)
     }
 
     //--------------------------------------------------------------------------
@@ -504,13 +505,13 @@ class test_AlgebraicField: XCTestCase {
         
         // lhs
         let glhs = pullback(at: a, in: { $0 / 2 })(ones(like: a))
-        XCTAssert(glhs.flatArray == [0.5, 0.5, 0.5, 0.5, 0.5, 0.5])
+        XCTAssert(glhs == [[0.5, 0.5], [0.5, 0.5], [0.5, 0.5]])
         
         // rhs
         let grhs = pullback(at: a, in: { 2 / $0 })(ones(like: a))
-        XCTAssert(grhs.flatArray == [-2, -0.125, -0.024691358, -0.0078125,
-                                     -0.0032, -0.0015432099])
-
+        XCTAssert(grhs == [[-2, -0.125], 
+                           [-0.024691358, -0.0078125],
+                           [-0.0032, -0.0015432099]])
     }
 
     //--------------------------------------------------------------------------
