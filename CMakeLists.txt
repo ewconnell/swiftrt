@@ -33,6 +33,7 @@ find_package(CUDA REQUIRED)
 set(SWIFTRT_CUDA_LIB_NAME SwiftRTCuda)
 set(SWIFTRT_CUDA_DIR ${MODULES_DIR}/${SWIFTRT_CUDA_LIB_NAME})
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
+        -allow-unsupported-compiler
         -Wno-deprecated-gpu-targets
         -gencode arch=compute_75,code=sm_75
         --compiler-options -fPIC)

@@ -18,6 +18,7 @@
 
 #include <cuda_fp16.h>
 #include <cuda_bf16.h>
+#include <stdexcept>
 
 //==============================================================================
 // supplemental function delegating macros
@@ -46,31 +47,6 @@ __device__ inline __half2 func(const __half2& a) { return native(a); }
 #define NATIVE_BFLOAT162(func, native) \
     __device__ inline __nv_bfloat162 func(const __nv_bfloat162& a) { return native(a); }
 #endif
-
-// //------------------------------------------------------------------------------
-// #define NATIVE2_FLOAT16(func, native) \
-// __device__ inline __half func(const __half& a, const __half& b) { return native(a, b); }
-
-// #define NATIVE2_FLOAT162(func, native) \
-// __device__ inline __half2 func(const __half2& a, const __half2& b) { return native(a, b); }
-
-// #if (__CUDA_ARCH__ < 800)
-// #define NATIVE2_BFLOAT16(func, native) \
-//     __device__ inline __nv_bfloat16 func(const __nv_bfloat16& a, const __nv_bfloat16& b) \
-//     { return func(float(a), float(b)); }
-// #else
-// #define NATIVE_BFLOAT16(func, native) \
-//     __device__ inline __nv_bfloat16 func(const __nv_bfloat16& a) { return native(a); }
-// #endif
-
-// #if (__CUDA_ARCH__ < 800)
-// #define NATIVE2_BFLOAT162(func, native) \
-//     __device__ inline __nv_bfloat162 func(const __nv_bfloat162& a, const __nv_bfloat162& b) \
-//     { return __nv_bfloat162(func(float(a.x), float(b.x)), func(float(a.y), float(b.y))); }
-// #else
-// #define NATIVE_BFLOAT162(func, native) \
-//     __device__ inline __nv_bfloat162 func(const __nv_bfloat162& a, const __nv_bfloat162& b) { return native(a, b); }
-// #endif
 
 //------------------------------------------------------------------------------
 // Promotes the type to a float, does the op, then back to the type. This
@@ -350,8 +326,38 @@ __device__ inline T root(const T& a, const int n) { return pow(a, 1.0f / float(n
 template<typename T>
 __device__ inline T sign(const T& a) { return a < T(0) ? T(-1) : T(1); }
 
+// BFloat16
 __device__ inline __nv_bfloat16 sign(const __nv_bfloat16& a) {
     return a < __nv_bfloat16(0.0f) ? __nv_bfloat16(-1.0f) : __nv_bfloat16(1.0f);
+}
+
+// uchar4
+__device__ inline uchar4 sign(const uchar4& a) {
+    const uint32_t value = 0x01010101;
+    return *reinterpret_cast<const uchar4*>(&value);
+}
+
+// char4
+__device__ inline char4 sign(const char4& a) {
+    char4 out;
+    out.w = a.w < 0 ? -1 : 1;
+    out.x = a.x < 0 ? -1 : 1;
+    out.y = a.y < 0 ? -1 : 1;
+    out.z = a.z < 0 ? -1 : 1;
+    return out;
+}
+
+// ushort2
+__device__ inline ushort2 sign(const ushort2& a) {
+    const uint32_t value = 0x00010001;
+    return *reinterpret_cast<const ushort2*>(&value);
+}
+
+__device__ inline short2 sign(const short2& a) {
+    short2 out;
+    out.x = a.x < 0 ? -1 : 1;
+    out.y = a.y < 0 ? -1 : 1;
+    return out;
 }
 
 //------------------------------------------------------------------------------
@@ -371,6 +377,176 @@ __device__ inline __half2 sigmoid(const __half2& a) {
 
 PROMOTED_BFLOAT16(sigmoid)
 PROMOTED_BFLOAT162(sigmoid)
+
+//==============================================================================
+// SIMD supplemental functions
+//==============================================================================
+
+//==============================================================================
+// neg
+
+//--------------------------------------
+// char4
+__device__ inline char4 operator-(const char4& v) {
+    uint32_t out = __vneg4(reinterpret_cast<const uint32_t&>(v));
+    return *reinterpret_cast<const char4*>(&out);
+}
+__device__ inline uchar4 operator-(const uchar4& v) { return v; }
+
+//--------------------------------------
+// short2
+__device__ inline short2 operator-(const short2& v) {
+    uint32_t out = __vneg2(reinterpret_cast<const uint32_t&>(v));
+    return *reinterpret_cast<const short2*>(&out);
+}
+
+//==============================================================================
+// add
+
+//--------------------------------------
+// char4
+__device__ inline char4 operator+(const char4& a, const char4& b) {
+    uint32_t out = __vadd4(
+        reinterpret_cast<const uint32_t&>(a),
+        reinterpret_cast<const uint32_t&>(b));
+    return *reinterpret_cast<const char4*>(&out);
+}
+
+__device__ inline uchar4 operator+(const uchar4& a, const uchar4& b) {
+    uint32_t out = __vadd4(
+        reinterpret_cast<const uint32_t&>(a),
+        reinterpret_cast<const uint32_t&>(b));
+    return *reinterpret_cast<const uchar4*>(&out);
+}
+
+//--------------------------------------
+// short2
+__device__ inline short2 operator+(const short2& a, const short2& b) {
+    uint32_t out = __vadd2(
+        reinterpret_cast<const uint32_t&>(a),
+        reinterpret_cast<const uint32_t&>(b));
+    return *reinterpret_cast<const short2*>(&out);
+}
+
+__device__ inline ushort2 operator+(const ushort2& a, const ushort2& b) {
+    uint32_t out = __vadd2(
+        reinterpret_cast<const uint32_t&>(a),
+        reinterpret_cast<const uint32_t&>(b));
+    return *reinterpret_cast<const ushort2*>(&out);
+}
+
+//==============================================================================
+// subtract
+
+//--------------------------------------
+// char4
+__device__ inline char4 operator-(const char4& a, const char4& b) {
+    uint32_t out = __vsub4(
+        reinterpret_cast<const uint32_t&>(a),
+        reinterpret_cast<const uint32_t&>(b));
+    return *reinterpret_cast<const char4*>(&out);
+}
+
+__device__ inline uchar4 operator-(const uchar4& a, const uchar4& b) {
+    uint32_t out = __vsub4(
+        reinterpret_cast<const uint32_t&>(a),
+        reinterpret_cast<const uint32_t&>(b));
+    return *reinterpret_cast<const uchar4*>(&out);
+}
+
+//--------------------------------------
+// short2
+__device__ inline short2 operator-(const short2& a, const short2& b) {
+    uint32_t out = __vsub2(
+        reinterpret_cast<const uint32_t&>(a),
+        reinterpret_cast<const uint32_t&>(b));
+    return *reinterpret_cast<const short2*>(&out);
+}
+
+__device__ inline ushort2 operator-(const ushort2& a, const ushort2& b) {
+    uint32_t out = __vsub2(
+        reinterpret_cast<const uint32_t&>(a),
+        reinterpret_cast<const uint32_t&>(b));
+    return *reinterpret_cast<const ushort2*>(&out);
+}
+
+//==============================================================================
+// multiply
+
+//--------------------------------------
+// char4
+__device__ inline char4 operator*(const char4& a, const char4& b) {
+    char4 out;
+    out.x = a.x * b.x;
+    out.y = a.y * b.y;
+    out.z = a.z * b.z;
+    out.w = a.w * b.w;
+    return out;
+}
+
+__device__ inline uchar4 operator*(const uchar4& a, const uchar4& b) {
+    uchar4 out;
+    out.x = a.x * b.x;
+    out.y = a.y * b.y;
+    out.z = a.z * b.z;
+    out.w = a.w * b.w;
+    return out;
+}
+
+//--------------------------------------
+// short2
+__device__ inline short2 operator*(const short2& a, const short2& b) {
+    short2 out;
+    out.x = a.x * b.x;
+    out.y = a.y * b.y;
+    return out;
+}
+
+__device__ inline ushort2 operator*(const ushort2& a, const ushort2& b) {
+    ushort2 out;
+    out.x = a.x * b.x;
+    out.y = a.y * b.y;
+    return out;
+}
+
+//==============================================================================
+// divide
+
+//--------------------------------------
+// char4
+__device__ inline char4 operator/(const char4& a, const char4& b) {
+    char4 out;
+    out.x = a.x / b.x;
+    out.y = a.y / b.y;
+    out.z = a.z / b.z;
+    out.w = a.w / b.w;
+    return out;
+}
+
+__device__ inline uchar4 operator/(const uchar4& a, const uchar4& b) {
+    uchar4 out;
+    out.x = a.x / b.x;
+    out.y = a.y / b.y;
+    out.z = a.z / b.z;
+    out.w = a.w / b.w;
+    return out;
+}
+
+//--------------------------------------
+// short2
+__device__ inline short2 operator/(const short2& a, const short2& b) {
+    short2 out;
+    out.x = a.x / b.x;
+    out.y = a.y / b.y;
+    return out;
+}
+
+__device__ inline ushort2 operator/(const ushort2& a, const ushort2& b) {
+    ushort2 out;
+    out.x = a.x / b.x;
+    out.y = a.y / b.y;
+    return out;
+}
 
 //==============================================================================
 #endif // mathSupplemental_h

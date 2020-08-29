@@ -17,6 +17,7 @@
 #define dispatchHelpers_h
 
 #include "index.h"
+#include <cuda.h>
 #include <type_traits>
 
 //==============================================================================
@@ -349,7 +350,7 @@ static cudaError_t selectRank(
     // for now require the same order
     // TODO: maybe allow simultaneous reordering of elements??
     assert(aDesc.order == bDesc.order && aDesc.order == oDesc.order);
-    
+
     // must be same data type and rank, and output is dense
     assert(aDesc.type == bDesc.type && aDesc.type == oDesc.type &&
         aDesc.rank == bDesc.rank && aDesc.rank == oDesc.rank);
@@ -513,7 +514,7 @@ static cudaError_t selectFloating(
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    if (aDesc.isStrided()) {
+    if (aDesc.isStrided() || bDesc.isStrided()) {
         return selectFloatingStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
     } else {
         switch(oDesc.type) {
@@ -541,7 +542,11 @@ static cudaError_t selectAny(
             return selectAnyStrided<Op>(a, aDesc, out, oDesc, stream);
         } else {
             switch(oDesc.type) {
-            case CUDA_R_32I:  return flattened<Op<int32_t>>(a, aDesc, out, oDesc, stream);
+            case CUDA_R_32I: return flattened<Op<int32_t>>(a, aDesc, out, oDesc, stream);
+            case CUDA_R_8U:  return flattened<Op<uchar4>>(a, aDesc, out, oDesc, stream, 2);
+            case CUDA_R_8I:  return flattened<Op<char4>>(a, aDesc, out, oDesc, stream, 2);
+            case CUDA_R_16U: return flattened<Op<short2>>(a, aDesc, out, oDesc, stream, 1);
+            case CUDA_R_16I: return flattened<Op<short2>>(a, aDesc, out, oDesc, stream, 1);
             default: return cudaErrorNotSupported;
             }
         }
@@ -561,7 +566,7 @@ static cudaError_t selectAny(
 ) {
     auto status = selectFloating<Op>(a, aDesc, out, oDesc, stream);
     if (status == cudaErrorNotSupported) {
-        if (aDesc.isStrided()) {
+        if (aDesc.isStrided() || bDesc.isStrided()) {
             return selectAnyStrided<Op>(a, aDesc, out, oDesc, stream);
         } else {
             switch(oDesc.type) {
@@ -607,7 +612,7 @@ static cudaError_t selectFloatingPacked(
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    if (aDesc.isStrided()) {
+    if (aDesc.isStrided() || bDesc.isStrided()) {
         return selectFloatingStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
     } else {
         switch(oDesc.type) {
@@ -659,11 +664,15 @@ static cudaError_t selectAnyPacked(
     auto status = selectFloatingPacked<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
 
     if (status == cudaErrorNotSupported) {
-        if (aDesc.isStrided()) {
+        if (aDesc.isStrided() || bDesc.isStrided()) {
             return selectAnyStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
         } else {
             switch(oDesc.type) {
-            case CUDA_R_32I:  return flattened<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case CUDA_R_32I: return flattened<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case CUDA_R_8I:  return flattened<Op<char4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
+            case CUDA_R_8U:  return flattened<Op<uchar4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
+            case CUDA_R_16I: return flattened<Op<short2>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
+            case CUDA_R_16U: return flattened<Op<ushort2>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
             default: return cudaErrorNotSupported;
             }
         }

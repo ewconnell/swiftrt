@@ -32,13 +32,13 @@ class test_AlgebraicField: XCTestCase {
         // ("test_rightBatchMatmul", test_rightBatchMatmul),
         
         // ("test_perfAdd", test_perfAdd),
-        ("test_add", test_add),
+        // ("test_add", test_add),
         // ("test_addStrided", test_addStrided),
         // ("test_addFloat16", test_addFloat16),
         // ("test_addBFloat16", test_addBFloat16),
         
         // ("test_addInt32", test_addInt32),
-        // ("test_addUInt8", test_addUInt8),
+        ("test_addUInt8", test_addUInt8),
         // ("test_addScalar", test_addScalar),
         // ("test_addAndAssign", test_addAndAssign),
         // ("test_addSubMulDivComplex", test_addSubMulDivComplex),
@@ -246,7 +246,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_add() {
-        Context.log.level = .diagnostic
+        // Context.log.level = .diagnostic
         let a = array(0..<6, (3, 2), name: "A")
         let b = array(0..<6, (3, 2), name: "B")
         let aOnes = ones(like: a)
@@ -295,6 +295,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_addUInt8() {
+        Context.log.level = .diagnostic
         let a = array(0..<6, (3, 2), type: UInt8.self)
         let b = array(0..<6, (3, 2), type: UInt8.self)
         let result = a + b
@@ -416,6 +417,7 @@ class test_AlgebraicField: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_subtractVector() {
+        // Context.log.level = .diagnostic
         let a = array([
             [1, 2],
             [3, 4],
