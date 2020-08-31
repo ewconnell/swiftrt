@@ -21,20 +21,20 @@ class test_Math: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        // ("test_abs", test_abs),
+        ("test_abs", test_abs),
         ("test_exp", test_exp),
-        // ("test_log", test_log),
-        // ("test_neg", test_neg),
-        // ("test_sign", test_sign),
-        // ("test_squared", test_squared),
+        ("test_log", test_log),
+        ("test_neg", test_neg),
+        ("test_sign", test_sign),
+        ("test_squared", test_squared),
     ]
 
     override func setUpWithError() throws {
-        Context.log.level = .diagnostic
+        // Context.log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
-        Context.log.level = .error
+        // Context.log.level = .error
     }
 
     //--------------------------------------------------------------------------
@@ -67,7 +67,7 @@ class test_Math: XCTestCase {
         let g = pullback(at: b, in: { exp($0) })(ones(like: b))
         let e = array([2.7182817,  7.389056, 20.085537])
         let ae = elementsAlmostEqual(g, e, tolerance: 0.0001)
-        print(ae)
+        // print(ae)
         let aea = ae.all()
         XCTAssert(aea.element)
     }

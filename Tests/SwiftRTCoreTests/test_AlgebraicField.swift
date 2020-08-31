@@ -22,14 +22,14 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // support terminal test run
     static var allTests = [
-        // ("test_queryMatmulProperties", test_queryMatmulProperties),
-        // ("test_minimalAdd", test_minimalAdd),
-        // ("test_minimalAddVJP", test_minimalAddVJP),
+        ("test_queryMatmulProperties", test_queryMatmulProperties),
+        ("test_minimalAdd", test_minimalAdd),
+        ("test_minimalAddVJP", test_minimalAddVJP),
         
-        // ("test_matmul", test_matmul),
-        // ("test_batchMatmul", test_batchMatmul),
-        // ("test_leftBatchMatmul", test_leftBatchMatmul),
-        // ("test_rightBatchMatmul", test_rightBatchMatmul),
+        ("test_matmul", test_matmul),
+        ("test_batchMatmul", test_batchMatmul),
+        ("test_leftBatchMatmul", test_leftBatchMatmul),
+        ("test_rightBatchMatmul", test_rightBatchMatmul),
         
         // ("test_perfAdd", test_perfAdd),
         ("test_add", test_add),
@@ -324,66 +324,64 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     func test_addSubMulDivComplex() {
         // we don't do Complex on the gpu yet, so use the cpu
-        using(device: 0) {
-            typealias CF = Complex<Float>
-            let data: [Complex<Float>] = [1, 2, 3, 4]
-            let a = array(data, (2, 2))
-            let b = array(data, (2, 2))
-            let v = ones(like: a)
+        typealias CF = Complex<Float>
+        let data: [Complex<Float>] = [1, 2, 3, 4]
+        let a = array(data, (2, 2))
+        let b = array(data, (2, 2))
+        let v = ones(like: a)
 
-            // add a scalar
-            XCTAssert((a + 1) == [[2, 3], [4, 5]])
+        // add a scalar
+        XCTAssert((a + 1) == [[2, 3], [4, 5]])
 
-            // add tensors
-            XCTAssert((a + b) == [[2, 4], [6, 8]])
+        // add tensors
+        XCTAssert((a + b) == [[2, 4], [6, 8]])
 
-            // subtract a scalar
-            XCTAssert((a - 1) == [[0, 1], [2, 3]])
+        // subtract a scalar
+        XCTAssert((a - 1) == [[0, 1], [2, 3]])
 
-            // subtract tensors
-            XCTAssert((a - b) == [[0, 0], [0, 0]])
+        // subtract tensors
+        XCTAssert((a - b) == [[0, 0], [0, 0]])
 
-            // mul a scalar
-            XCTAssert((a * 2) == [[2, 4], [6, 8]])
+        // mul a scalar
+        XCTAssert((a * 2) == [[2, 4], [6, 8]])
 
-            // mul tensors
-            XCTAssert((a * b) == [[1, 4], [9, 16]])
+        // mul tensors
+        XCTAssert((a * b) == [[1, 4], [9, 16]])
 
-            // divide by a scalar
-            let divExpected = [[CF(0.5), CF(1)], [CF(1.5), CF(2)]]
-            XCTAssert((a / 2) == divExpected)
+        // divide by a scalar
+        let divExpected = [[CF(0.5), CF(1)], [CF(1.5), CF(2)]]
+        XCTAssert((a / 2) == divExpected)
 
-            // divide by a tensor
-            XCTAssert((a / b) == [[1, 1], [1, 1]])
+        // divide by a tensor
+        XCTAssert((a / b) == [[1, 1], [1, 1]])
 
-            // test add derivative
-            do {
-                let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(v)
-                XCTAssert(g1 == [[1, 1], [1, 1]])
-                XCTAssert(g2 == [[1, 1], [1, 1]])
-            }
+        // test add derivative
+        do {
+            let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(v)
+            XCTAssert(g1 == [[1, 1], [1, 1]])
+            XCTAssert(g2 == [[1, 1], [1, 1]])
+        }
 
-            do {
-                let (g1, g2) = pullback(at: a, b, in: { $0 - $1 })(v)
-                XCTAssert(g1 == [[1, 1], [1, 1]])
-                XCTAssert(g2 == [[-1, -1], [-1, -1]])
-            }
-            do {
-                let (g1, g2) = pullback(at: a, b, in: { $0 * $1 })(v)
-                XCTAssert(g1 == [[1, 2], [3, 4]])
-                XCTAssert(g2 == [[1, 2], [3, 4]])
-            }
-            do {
-                let (g1, g2) = pullback(at: a, b, in: { $0 / $1 })(v)
-                let data = [1, 0.5, 0.333333343, 0.25].map { CF($0) }
-                let g1Expected = array(data, (2, 2))
-                let g1sumdiff = sum(g1 - g1Expected).element
-                XCTAssert(abs(g1sumdiff.real) <= 1e-6 && g1sumdiff.imaginary == 0)
+        do {
+            let (g1, g2) = pullback(at: a, b, in: { $0 - $1 })(v)
+            XCTAssert(g1 == [[1, 1], [1, 1]])
+            XCTAssert(g2 == [[-1, -1], [-1, -1]])
+        }
+        do {
+            let (g1, g2) = pullback(at: a, b, in: { $0 * $1 })(v)
+            XCTAssert(g1 == [[1, 2], [3, 4]])
+            XCTAssert(g2 == [[1, 2], [3, 4]])
+        }
+        do {
+            let (g1, g2) = pullback(at: a, b, in: { $0 / $1 })(v)
+            let data = [1, 0.5, 0.333333343, 0.25].map { CF($0) }
+            let g1Expected = array(data, (2, 2))
+            let g1sumdiff = sum(g1 - g1Expected).element
+            XCTAssert(abs(g1sumdiff.real) <= 1e-6 && g1sumdiff.imaginary == 0)
 
-                let g2Expected = -array(data, (2, 2))
-                let g2sumdiff = sum(g2 - g2Expected).element
-                XCTAssert(abs(g2sumdiff.real) <= 1e-6 && g2sumdiff.imaginary == 0)
-            }
+            let g2Expected = -array(data, (2, 2))
+            let g2sumdiff = sum(g2 - g2Expected).element
+            XCTAssert(abs(g2sumdiff.real) <= 1e-6 && g2sumdiff.imaginary == 0)
         }
     }
 

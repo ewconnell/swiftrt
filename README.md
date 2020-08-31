@@ -56,23 +56,18 @@ export CPLUS_INCLUDE_PATH=$CUDA_ROOT/include
 ```
 3) CMake 3.5 or higher is required to build. If your current version is less than 3.5, [download and install](https://cmake.org/download/) the latest version.
 
-4) The Nvidia nvcc compiler is not yet compatible with clang 10.0 (the version of the S4TF toolchain), so the build uses `clang-9` for the dependent c++ kernel library.
-```sh
-$ sudo apt install clang-9
-```
-
-5) To configure cmake for a Debug version
+4) To configure cmake for a Debug version
 ```sh
 $ cd $SWIFTRT_HOME
 $ mkdir build
 $ cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/clang-9 -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/clang++-9 -H$SWIFTRT_HOME -B$SWIFTRT_HOME/build -G Ninja
 ```
-6) To build
+5) To build
 ```sh
 $ cd $SWIFTRT_HOME
 $ cmake --build ./build --target SwiftRTTests
 ```
-7) To clean
+6) To clean
 ```sh
 $ cd $SWIFTRT_HOME
 $ cmake --build ./build --target clean
