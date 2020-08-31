@@ -21,25 +21,44 @@
 #include "compareOps.h"
 #include "dispatchHelpers.h"
 
+//------------------------------------------------------------------------------
+// andElements 
+__device__ inline uchar4 andElements(const uchar4& a, const uchar4& b) {
+    const uint32_t out = UINT32_CREF(a) & UINT32_CREF(b);
+    return CAST(uchar4, out);
+}
+
+// orElements 
+__device__ inline uchar4 orElements(const uchar4& a, const uchar4& b) {
+    const uint32_t out = UINT32_CREF(a) | UINT32_CREF(b);
+    return CAST(uchar4, out);
+}
+
 //==============================================================================
 // ops
 //==============================================================================
 
-#define COMPAREOP2(OpName, name) \
+#define BOOLEANOP(OpName, name) \
+template<typename T> struct OpName: OpBase<T,T> { \
+    __device__ inline static T op(const T& a, const T& b) { return name(a, b); } \
+}; \
+
+#define COMPAREOP(OpName, name) \
 template<typename T> struct OpName: OpBase<T,bool> { \
     __device__ inline static bool op(const T& a, const T& b) { return name(a, b); } \
 }; \
 
-COMPAREOP2(And, andElements)
-COMPAREOP2(Equal, equalElements)
-COMPAREOP2(Greater, greaterElements)
-COMPAREOP2(GreaterOrEqual, greaterOrEqualElements)
-COMPAREOP2(Less, lessElements)
-COMPAREOP2(LessOrEqual, lessOrEqualElements)
-COMPAREOP2(Max, maxElements)
-COMPAREOP2(Min, minElements)
-COMPAREOP2(NotEqual, notEqualElements)
-COMPAREOP2(Or, orElements)
+BOOLEANOP(And, andElements)
+BOOLEANOP(Or, orElements)
+
+COMPAREOP(Equal, equalElements)
+COMPAREOP(Greater, greaterElements)
+COMPAREOP(GreaterOrEqual, greaterOrEqualElements)
+COMPAREOP(Less, lessElements)
+COMPAREOP(LessOrEqual, lessOrEqualElements)
+COMPAREOP(Max, maxElements)
+COMPAREOP(Min, minElements)
+COMPAREOP(NotEqual, notEqualElements)
 
 
 //==============================================================================
@@ -50,116 +69,117 @@ COMPAREOP2(Or, orElements)
 // dynamic dispatch functions
 //==============================================================================
 
-
 //==============================================================================
 // Swift importable C interface functions
 //==============================================================================
 
 cudaError_t srtAnd(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return cudaErrorNotSupported;
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    return selectLogical<And>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtElementsAlmostEqual(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
     const void* tolerance,
-    void* out, const srtTensorDescriptor* oDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
     return cudaErrorNotSupported;
 }
 
 cudaError_t srtEqual(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
     return cudaErrorNotSupported;
 }
 
 cudaError_t srtGreater(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
     return cudaErrorNotSupported;
 }
 
 cudaError_t srtGreaterOrEqual(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
     return cudaErrorNotSupported;
 }
 
 cudaError_t srtLess(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
     return cudaErrorNotSupported;
 }
 
 cudaError_t srtLessOrEqual(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
     return cudaErrorNotSupported;
 }
 
 cudaError_t srtMax(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
     return cudaErrorNotSupported;
 }
 
 cudaError_t srtMin(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
     return cudaErrorNotSupported;
 }
 
 cudaError_t srtNotEqual(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
     return cudaErrorNotSupported;
 }
 
 cudaError_t srtOr(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
-    return cudaErrorNotSupported;
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    return selectLogical<Or>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtReplace(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
     const void* condition, const srtTensorDescriptor* cDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
     return cudaErrorNotSupported;

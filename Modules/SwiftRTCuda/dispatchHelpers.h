@@ -27,6 +27,9 @@ template<typename _In, typename _Out> struct OpBase {
     typedef _Out Out;
 };
 
+#define UINT32_CREF(_v) reinterpret_cast<const uint32_t&>(_v)
+#define CAST(type, _v) (*reinterpret_cast<const type*>(&(_v)))
+
 //==============================================================================
 // kernel helpers
 #define GRID_LOOP(i, n) \
@@ -677,6 +680,28 @@ static cudaError_t selectAnyPacked(
         }
     } else {
         return status;
+    }
+}
+
+//==============================================================================
+// selectAnyPacked tensorA
+// converts from dynamic to static type. This is called for operators that
+// have native packed implementations such has __half2 or __nv_bfloat162
+template<template<typename T> class Op>
+static cudaError_t selectLogical(
+    const void* a, const TensorDescriptor& aDesc,
+    const void* b, const TensorDescriptor& bDesc,
+    void* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    if (aDesc.isStrided()) {
+        // return selectLogicalStrided<Op>(a, aDesc, out, oDesc, stream);
+        return cudaErrorNotSupported;
+    } else {
+        switch(oDesc.type) {
+        case CUDA_R_8U:  return flattened<Op<uchar4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
+        default: return cudaErrorNotSupported;
+        }
     }
 }
 
