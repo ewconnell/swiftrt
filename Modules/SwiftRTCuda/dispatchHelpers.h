@@ -22,6 +22,13 @@
 
 //==============================================================================
 // kernel helpers
+template<typename _In, typename _Out> struct OpBase {
+    typedef _In In;
+    typedef _Out Out;
+};
+
+//==============================================================================
+// kernel helpers
 #define GRID_LOOP(i, n) \
   for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n); \
        i += blockDim.x * gridDim.x)
@@ -92,10 +99,10 @@ inline dim3 gridSize(const TensorDescriptor& oDesc, const dim3& tile) {
 
 //------------------------------------------------------------------------------
 // tensorA
-template<typename Op, typename Element, typename IndexA, typename IndexO>
+template<typename Op, typename IndexA, typename IndexO>
 __global__ void mapA(
-    const Element *a, const IndexA indexA,
-    Element *out, const IndexO indexO 
+    const typename Op::In *a, const IndexA indexA,
+    typename Op::Out *out, const IndexO indexO 
 ) {
     auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
     if (indexO.isInBounds(position)) {
@@ -107,12 +114,11 @@ __global__ void mapA(
 
 //------------------------------------------------------------------------------
 // tensorA tensorB
-template<typename Op, typename Element, 
-         typename IndexA, typename IndexB, typename IndexO>
+template<typename Op, typename IndexA, typename IndexB, typename IndexO>
 __global__ void mapAB(
-    const Element *a, const IndexA indexA,
-    const Element *b, const IndexB indexB,
-    Element *out, const IndexO indexO 
+    const typename Op::In *a, const IndexA indexA,
+    const typename Op::In *b, const IndexB indexB,
+    typename Op::Out *out, const IndexO indexO 
 ) {
     auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
     if (indexO.isInBounds(position)) {
@@ -125,12 +131,11 @@ __global__ void mapAB(
 
 //------------------------------------------------------------------------------
 // tensorA Scalar
-template<typename Op, typename Element, typename Scalar,
-         typename IndexA, typename IndexO>
+template<typename Op, typename Scalar, typename IndexA, typename IndexO>
 __global__ void mapAScalar(
-    const Element *a, const IndexA indexA, 
+    const typename Op::In *a, const IndexA indexA, 
     Scalar value,
-    Element *out, const IndexO indexO 
+    typename Op::Out *out, const IndexO indexO 
 ) {
     auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
     if (indexO.isInBounds(position)) {
@@ -154,16 +159,15 @@ static cudaError_t flattened(
     cudaStream_t stream,
     int shiftCount = 0
 ) {
-    typedef typename Op::Element Element;
-    const Element* a = static_cast<const Element*>(pA);
-    Element* out = static_cast<Element*>(pOut);
+    const typename Op::In* a = static_cast<const typename Op::In*>(pA);
+    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
 
     // get tile and grid size for launch
     int packedCount = shiftDownRoundingUp(oDesc.count, shiftCount);
     dim3 tile = tileSize(packedCount);
     dim3 grid = gridSize<1>(oDesc, tile);
 
-    mapA<Op,Element,Flat,Flat>
+    mapA<Op,Flat,Flat>
         <<<grid, tile, 0, stream>>>(a, Flat(aDesc), out, Flat(oDesc));
 
     return cudaSuccess;
@@ -179,16 +183,15 @@ static cudaError_t flattened(
     cudaStream_t stream,
     int shiftCount = 0
 ) {
-    typedef typename Op::Element Element;
-    const Element* a = static_cast<const Element*>(pA);
-    Element* out = static_cast<Element*>(pOut);
+    const typename Op::In* a = static_cast<const typename Op::In*>(pA);
+    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
 
     // get tile and grid size for launch
     int packedCount = shiftDownRoundingUp(oDesc.count, shiftCount);
     dim3 tile = tileSize(packedCount);
     dim3 grid = gridSize<1>(oDesc, tile);
 
-    mapAScalar<Op,Element,Scalar,Flat,Flat>
+    mapAScalar<Op,Scalar,Flat,Flat>
         <<<grid, tile, 0, stream>>>(a, Flat(aDesc), value, out, Flat(oDesc));
 
     return cudaSuccess;
@@ -204,10 +207,9 @@ static cudaError_t flattened(
     cudaStream_t stream,
     int shiftCount = 0
 ) {
-    typedef typename Op::Element Element;
-    const Element* a = static_cast<const Element*>(pA);
-    const Element* b = static_cast<const Element*>(pB);
-    Element* out = static_cast<Element*>(pOut);
+    const typename Op::In* a = static_cast<const typename Op::In*>(pA);
+    const typename Op::In* b = static_cast<const typename Op::In*>(pB);
+    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
 
     // get tile and grid size for launch
     int packedCount = shiftDownRoundingUp(oDesc.count, shiftCount);
@@ -215,14 +217,14 @@ static cudaError_t flattened(
     dim3 grid = gridSize<1>(oDesc, tile);
 
     if (bDesc.isSingle()) {
-        mapAB<Op,Element,Flat,Single,Flat><<<grid, tile, 0, stream>>>
+        mapAB<Op,Flat,Single,Flat><<<grid, tile, 0, stream>>>
             (a, Flat(aDesc), b, Single(bDesc), out, Flat(oDesc));
 
     } else if (aDesc.isSingle()) {
-        mapAB<Op,Element,Single,Flat,Flat><<<grid, tile, 0, stream>>>
+        mapAB<Op,Single,Flat,Flat><<<grid, tile, 0, stream>>>
             (a, Single(aDesc), b, Flat(bDesc), out, Flat(oDesc));
     } else {
-        mapAB<Op,Element,Flat,Flat,Flat><<<grid, tile, 0, stream>>>
+        mapAB<Op,Flat,Flat,Flat><<<grid, tile, 0, stream>>>
             (a, Flat(aDesc), b, Flat(bDesc), out, Flat(oDesc));
     }
     return cudaSuccess;
@@ -236,15 +238,14 @@ static cudaError_t initIndex(
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    typedef typename Op::Element Element;
-    const Element* a = static_cast<const Element*>(pA);
-    Element* out = static_cast<Element*>(pOut);
+    const typename Op::In* a = static_cast<const typename Op::In*>(pA);
+    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
 
     // get tile and grid size for launch
     dim3 tile = tileSize<IndexO::Rank>(oDesc);
     dim3 grid = gridSize<IndexO::Rank>(oDesc, tile);
 
-    mapA<Op,Element,IndexA,IndexO>
+    mapA<Op,IndexA,IndexO>
         <<<grid, tile, 0, stream>>>(a, IndexA(aDesc), out, IndexO(oDesc));
 
     return cudaSuccess;
@@ -258,15 +259,14 @@ static cudaError_t initIndex(
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    typedef typename Op::Element Element;
-    const Element* a = static_cast<const Element*>(pA);
-    Element* out = static_cast<Element*>(pOut);
+    const typename Op::In* a = static_cast<const typename Op::In*>(pA);
+    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
 
     // get tile and grid size for launch
     dim3 tile = tileSize<IndexO::Rank>(oDesc);
     dim3 grid = gridSize<IndexO::Rank>(oDesc, tile);
 
-    mapAScalar<Op,Element,Scalar,IndexA,IndexO>
+    mapAScalar<Op,Scalar,IndexA,IndexO>
         <<<grid, tile, 0, stream>>>(a, IndexA(aDesc), value, out, IndexO(oDesc));
 
     return cudaSuccess;
@@ -280,16 +280,15 @@ static cudaError_t initIndex(
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    typedef typename Op::Element Element;
-    const Element* a = static_cast<const Element*>(pA);
-    const Element* b = static_cast<const Element*>(pB);
-    Element* out = static_cast<Element*>(pOut);
+    const typename Op::In* a = static_cast<const typename Op::In*>(pA);
+    const typename Op::In* b = static_cast<const typename Op::In*>(pB);
+    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
 
     // get tile and grid size for launch
     dim3 tile = tileSize<IndexO::Rank>(oDesc);
     dim3 grid = gridSize<IndexO::Rank>(oDesc, tile);
 
-    mapAB<Op,Element,IndexA,IndexB,IndexO><<<grid, tile, 0, stream>>>
+    mapAB<Op,IndexA,IndexB,IndexO><<<grid, tile, 0, stream>>>
         (a, IndexA(aDesc), b, IndexB(bDesc), out, IndexO(oDesc));
 
     return cudaSuccess;

@@ -21,20 +21,18 @@
 // ops
 //==============================================================================
 
-template<typename T> struct OpBase { typedef T Element; };
-
 #define MATHOP(OpName, name) \
-template<typename T> struct OpName: OpBase<T> { \
+template<typename T> struct OpName: OpBase<T,T> { \
     __device__ inline static T op(const T& a) { return name(a); } \
 }; \
 
 #define MATHOP2N(OpName, name) \
-template<typename T> struct OpName: OpBase<T> { \
+template<typename T> struct OpName: OpBase<T,T> { \
     __device__ inline static T op(const T& a, const int n) { return name(a, n); } \
 }; \
 
 #define MATHOP2(OpName, name) \
-template<typename T> struct OpName: OpBase<T> { \
+template<typename T> struct OpName: OpBase<T,T> { \
     __device__ inline static T op(const T& a, const T& b) { return name(a, b); } \
 }; \
 

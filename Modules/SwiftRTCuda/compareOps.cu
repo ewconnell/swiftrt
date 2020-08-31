@@ -25,10 +25,8 @@
 // ops
 //==============================================================================
 
-template<typename T> struct OpBase { typedef T Element; };
-
 #define COMPAREOP2(OpName, name) \
-template<typename T> struct OpName: OpBase<T> { \
+template<typename T> struct OpName: OpBase<T,bool> { \
     __device__ inline static bool op(const T& a, const T& b) { return name(a, b); } \
 }; \
 
