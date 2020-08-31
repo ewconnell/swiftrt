@@ -19,15 +19,30 @@
 #include <cuda_bf16.h>
 
 #include "compareOps.h"
+#include "dispatchHelpers.h"
 
 //==============================================================================
 // ops
 //==============================================================================
 
-template<typename E>
-struct Abs {
-    __device__ inline static E op(const E& x) { return abs(x); }
-};
+template<typename T> struct OpBase { typedef T Element; };
+
+#define COMPAREOP2(OpName, name) \
+template<typename T> struct OpName: OpBase<T> { \
+    __device__ inline static bool op(const T& a, const T& b) { return name(a, b); } \
+}; \
+
+COMPAREOP2(And, andElements)
+COMPAREOP2(Equal, equalElements)
+COMPAREOP2(Greater, greaterElements)
+COMPAREOP2(GreaterOrEqual, greaterOrEqualElements)
+COMPAREOP2(Less, lessElements)
+COMPAREOP2(LessOrEqual, lessOrEqualElements)
+COMPAREOP2(Max, maxElements)
+COMPAREOP2(Min, minElements)
+COMPAREOP2(NotEqual, notEqualElements)
+COMPAREOP2(Or, orElements)
+
 
 //==============================================================================
 // kernels
