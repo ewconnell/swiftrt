@@ -16,9 +16,11 @@
 #ifndef mathSupplemental_h
 #define mathSupplemental_h
 
+#include <cuda.h>
 #include <cuda_fp16.h>
 #include <cuda_bf16.h>
 #include <stdexcept>
+#include <vector_functions.h>
 #include "dispatchHelpers.h"
 
 
@@ -336,7 +338,7 @@ __device__ inline __nv_bfloat16 sign(const __nv_bfloat16& a) {
 // uchar4
 __device__ inline uchar4 sign(const uchar4& a) {
     const uint32_t value = 0x01010101;
-    return *reinterpret_cast<const uchar4*>(&value);
+    return CAST(uchar4, value);
 }
 
 // char4
@@ -352,7 +354,7 @@ __device__ inline char4 sign(const char4& a) {
 // ushort2
 __device__ inline ushort2 sign(const ushort2& a) {
     const uint32_t value = 0x00010001;
-    return *reinterpret_cast<const ushort2*>(&value);
+    return CAST(ushort2, value);
 }
 
 __device__ inline short2 sign(const short2& a) {
@@ -381,6 +383,14 @@ PROMOTED_BFLOAT16(sigmoid)
 PROMOTED_BFLOAT162(sigmoid)
 
 //==============================================================================
+// complex supplemental functions
+//==============================================================================
+
+//==============================================================================
+// add
+
+
+//==============================================================================
 // SIMD supplemental functions
 //==============================================================================
 
@@ -390,16 +400,16 @@ PROMOTED_BFLOAT162(sigmoid)
 //--------------------------------------
 // char4
 __device__ inline char4 operator-(const char4& v) {
-    uint32_t out = __vneg4(reinterpret_cast<const uint32_t&>(v));
-    return *reinterpret_cast<const char4*>(&out);
+    auto out = __vneg4(UINT_CREF(v));
+    return CAST(char4, out);
 }
 __device__ inline uchar4 operator-(const uchar4& v) { return v; }
 
 //--------------------------------------
 // short2
 __device__ inline short2 operator-(const short2& v) {
-    uint32_t out = __vneg2(reinterpret_cast<const uint32_t&>(v));
-    return *reinterpret_cast<const short2*>(&out);
+    auto out = __vneg2(UINT_CREF(v));
+    return CAST(short2, out);
 }
 
 //==============================================================================
@@ -408,33 +418,25 @@ __device__ inline short2 operator-(const short2& v) {
 //--------------------------------------
 // char4
 __device__ inline char4 operator+(const char4& a, const char4& b) {
-    uint32_t out = __vadd4(
-        reinterpret_cast<const uint32_t&>(a),
-        reinterpret_cast<const uint32_t&>(b));
-    return *reinterpret_cast<const char4*>(&out);
+    auto out = __vadd4(UINT_CREF(a), UINT_CREF(b));
+    return CAST(char4, out);
 }
 
 __device__ inline uchar4 operator+(const uchar4& a, const uchar4& b) {
-    uint32_t out = __vadd4(
-        reinterpret_cast<const uint32_t&>(a),
-        reinterpret_cast<const uint32_t&>(b));
-    return *reinterpret_cast<const uchar4*>(&out);
+    auto out = __vadd4(UINT_CREF(a), UINT_CREF(b));
+    return CAST(uchar4, out);
 }
 
 //--------------------------------------
 // short2
 __device__ inline short2 operator+(const short2& a, const short2& b) {
-    uint32_t out = __vadd2(
-        reinterpret_cast<const uint32_t&>(a),
-        reinterpret_cast<const uint32_t&>(b));
-    return *reinterpret_cast<const short2*>(&out);
+    auto out = __vadd2(UINT_CREF(a), UINT_CREF(b));
+    return CAST(short2, out);
 }
 
 __device__ inline ushort2 operator+(const ushort2& a, const ushort2& b) {
-    uint32_t out = __vadd2(
-        reinterpret_cast<const uint32_t&>(a),
-        reinterpret_cast<const uint32_t&>(b));
-    return *reinterpret_cast<const ushort2*>(&out);
+    auto out = __vadd2(UINT_CREF(a), UINT_CREF(b));
+    return CAST(ushort2, out);
 }
 
 //==============================================================================
@@ -443,33 +445,25 @@ __device__ inline ushort2 operator+(const ushort2& a, const ushort2& b) {
 //--------------------------------------
 // char4
 __device__ inline char4 operator-(const char4& a, const char4& b) {
-    uint32_t out = __vsub4(
-        reinterpret_cast<const uint32_t&>(a),
-        reinterpret_cast<const uint32_t&>(b));
-    return *reinterpret_cast<const char4*>(&out);
+    auto out = __vsub4(UINT_CREF(a), UINT_CREF(b));
+    return CAST(char4, out);
 }
 
 __device__ inline uchar4 operator-(const uchar4& a, const uchar4& b) {
-    uint32_t out = __vsub4(
-        reinterpret_cast<const uint32_t&>(a),
-        reinterpret_cast<const uint32_t&>(b));
-    return *reinterpret_cast<const uchar4*>(&out);
+    auto out = __vsub4(UINT_CREF(a), UINT_CREF(b));
+    return CAST(uchar4, out);
 }
 
 //--------------------------------------
 // short2
 __device__ inline short2 operator-(const short2& a, const short2& b) {
-    uint32_t out = __vsub2(
-        reinterpret_cast<const uint32_t&>(a),
-        reinterpret_cast<const uint32_t&>(b));
-    return *reinterpret_cast<const short2*>(&out);
+    auto out = __vsub2(UINT_CREF(a), UINT_CREF(b));
+    return CAST(short2, out);
 }
 
 __device__ inline ushort2 operator-(const ushort2& a, const ushort2& b) {
-    uint32_t out = __vsub2(
-        reinterpret_cast<const uint32_t&>(a),
-        reinterpret_cast<const uint32_t&>(b));
-    return *reinterpret_cast<const ushort2*>(&out);
+    auto out = __vsub2(UINT_CREF(a), UINT_CREF(b));
+    return CAST(ushort2, out);
 }
 
 //==============================================================================

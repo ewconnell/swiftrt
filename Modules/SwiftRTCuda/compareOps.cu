@@ -19,46 +19,34 @@
 #include <cuda_bf16.h>
 
 #include "compareOps.h"
+#include "compareSupplemental.h"
 #include "dispatchHelpers.h"
-
-//------------------------------------------------------------------------------
-// andElements 
-__device__ inline uchar4 andElements(const uchar4& a, const uchar4& b) {
-    const uint32_t out = UINT32_CREF(a) & UINT32_CREF(b);
-    return CAST(uchar4, out);
-}
-
-// orElements 
-__device__ inline uchar4 orElements(const uchar4& a, const uchar4& b) {
-    const uint32_t out = UINT32_CREF(a) | UINT32_CREF(b);
-    return CAST(uchar4, out);
-}
 
 //==============================================================================
 // ops
 //==============================================================================
 
-#define BOOLEANOP(OpName, name) \
+#define BOOL_OP(OpName, name) \
 template<typename T> struct OpName: OpBase<T,T> { \
     __device__ inline static T op(const T& a, const T& b) { return name(a, b); } \
 }; \
 
-#define COMPAREOP(OpName, name) \
-template<typename T> struct OpName: OpBase<T,bool> { \
-    __device__ inline static bool op(const T& a, const T& b) { return name(a, b); } \
+#define COMPARE_OP(OpName, name) \
+template<typename In, typename Out> struct OpName: OpBase<In,Out> { \
+    __device__ inline static Out op(const In& a, const In& b) { return name(a, b); } \
 }; \
 
-BOOLEANOP(And, andElements)
-BOOLEANOP(Or, orElements)
+BOOL_OP(And, andElements)
+BOOL_OP(Or, orElements)
 
-COMPAREOP(Equal, equalElements)
-COMPAREOP(Greater, greaterElements)
-COMPAREOP(GreaterOrEqual, greaterOrEqualElements)
-COMPAREOP(Less, lessElements)
-COMPAREOP(LessOrEqual, lessOrEqualElements)
-COMPAREOP(Max, maxElements)
-COMPAREOP(Min, minElements)
-COMPAREOP(NotEqual, notEqualElements)
+COMPARE_OP(Equal, equalElements)
+COMPARE_OP(Greater, greaterElements)
+COMPARE_OP(GreaterOrEqual, greaterOrEqualElements)
+COMPARE_OP(Less, lessElements)
+COMPARE_OP(LessOrEqual, lessOrEqualElements)
+COMPARE_OP(Max, maxElements)
+COMPARE_OP(Min, minElements)
+COMPARE_OP(NotEqual, notEqualElements)
 
 
 //==============================================================================
@@ -80,7 +68,7 @@ cudaError_t srtAnd(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return selectLogical<And>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectBool<And>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtElementsAlmostEqual(
@@ -99,6 +87,8 @@ cudaError_t srtEqual(
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
+    // Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    // return selectAnyPacked<Equal>(a, aDesc, b, bDesc, out, oDesc, stream);
     return cudaErrorNotSupported;
 }
 
@@ -172,7 +162,7 @@ cudaError_t srtOr(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return selectLogical<Or>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectBool<Or>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtReplace(

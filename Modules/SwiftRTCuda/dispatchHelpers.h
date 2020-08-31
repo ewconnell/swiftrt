@@ -16,9 +16,10 @@
 #ifndef dispatchHelpers_h
 #define dispatchHelpers_h
 
-#include "index.h"
+#include <stdint.h>
 #include <cuda.h>
 #include <type_traits>
+#include "index.h"
 
 //==============================================================================
 // kernel helpers
@@ -27,7 +28,7 @@ template<typename _In, typename _Out> struct OpBase {
     typedef _Out Out;
 };
 
-#define UINT32_CREF(_v) reinterpret_cast<const uint32_t&>(_v)
+#define UINT_CREF(_v) reinterpret_cast<const unsigned&>(_v)
 #define CAST(type, _v) (*reinterpret_cast<const type*>(&(_v)))
 
 //==============================================================================
@@ -463,6 +464,21 @@ static cudaError_t selectAnyStrided(
     }
 }
 
+// selectBoolStrided tensorA tensorB
+// converts from dynamic to static type and delegates for stride selection
+template<template<typename T> class Op>
+static cudaError_t selectBoolStrided(
+    const void* a, const TensorDescriptor& aDesc,
+    const void* b, const TensorDescriptor& bDesc,
+    void* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    switch(oDesc.type) {
+    case CUDA_R_8U: return selectRank<Op<uint8_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    default: return cudaErrorNotSupported;
+    }
+}
+
 //==============================================================================
 // selectFloating tensorA
 // converts from dynamic to static type and delegates for stride selection
@@ -684,22 +700,21 @@ static cudaError_t selectAnyPacked(
 }
 
 //==============================================================================
-// selectAnyPacked tensorA
-// converts from dynamic to static type. This is called for operators that
-// have native packed implementations such has __half2 or __nv_bfloat162
+// selectBool tensorA tensorB
+// converts from dynamic to static type.
 template<template<typename T> class Op>
-static cudaError_t selectLogical(
+static cudaError_t selectBool(
     const void* a, const TensorDescriptor& aDesc,
     const void* b, const TensorDescriptor& bDesc,
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
     if (aDesc.isStrided()) {
-        // return selectLogicalStrided<Op>(a, aDesc, out, oDesc, stream);
+        return selectBoolStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
         return cudaErrorNotSupported;
     } else {
         switch(oDesc.type) {
-        case CUDA_R_8U:  return flattened<Op<uchar4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
+        case CUDA_R_8U: return flattened<Op<uchar4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
         default: return cudaErrorNotSupported;
         }
     }
