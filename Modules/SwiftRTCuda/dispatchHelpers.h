@@ -19,17 +19,35 @@
 #include <stdint.h>
 #include <cuda.h>
 #include <type_traits>
-#include "index.h"
+#include "kernels.h"
 
 //==============================================================================
-// kernel helpers
+// OpBase operator base to express input and out types
 template<typename _In, typename _Out> struct OpBase {
     typedef _In In;
     typedef _Out Out;
 };
 
+//------------------------------------------------------------------------------
+// used for casting between gpu simd types and uint32_t
 #define UINT_CREF(_v) reinterpret_cast<const unsigned&>(_v)
 #define CAST(type, _v) (*reinterpret_cast<const type*>(&(_v)))
+
+//------------------------------------------------------------------------------
+/// fillWord
+/// packs elements of size T into a 32 bit word
+template<typename T>
+inline uint32_t fillWord(const void* pValue) {
+    static_assert(sizeof(T) <= sizeof(uint32_t), "T cannot be larger than return type");
+    static_assert(std::is_integral<T>::value, "T must be an integral type");
+    uint32_t value = uint32_t(*static_cast<const T*>(pValue));
+    uint32_t out = value;
+    #pragma unroll
+    for (int i = 0; i < sizeof(uint32_t) / sizeof(T); ++i) {
+        out = (out << sizeof(T) * 8) | value;
+    }
+    return out;
+}
 
 //==============================================================================
 // kernel helpers
@@ -49,22 +67,6 @@ inline unsigned shiftDownRoundingUp(unsigned num, unsigned shift) {
 // TODO: there should be something faster than this
 inline unsigned roundUp(unsigned n, unsigned multiple) {
     return (n + multiple - 1) / multiple;
-}
-
-//------------------------------------------------------------------------------
-/// fillWord
-/// packs elements of size T into a 32 bit word
-template<typename T>
-inline uint32_t fillWord(const void* pValue) {
-    static_assert(sizeof(T) <= sizeof(uint32_t), "T cannot be larger than return type");
-    static_assert(std::is_integral<T>::value, "T must be an integral type");
-    uint32_t value = uint32_t(*static_cast<const T*>(pValue));
-    uint32_t out = value;
-    #pragma unroll
-    for (int i = 0; i < sizeof(uint32_t) / sizeof(T); ++i) {
-        out = (out << sizeof(T) * 8) | value;
-    }
-    return out;
 }
 
 //==============================================================================
@@ -96,59 +98,6 @@ inline dim3 gridSize(const TensorDescriptor& oDesc, const dim3& tile) {
                                roundUp(oDesc.shape[1], tile.y), 
                                roundUp(oDesc.shape[2], tile.x));
 }
-
-//==============================================================================
-// kernels
-//==============================================================================
-
-//------------------------------------------------------------------------------
-// tensorA
-template<typename Op, typename IndexA, typename IndexO>
-__global__ void mapA(
-    const typename Op::In *a, const IndexA indexA,
-    typename Op::Out *out, const IndexO indexO 
-) {
-    auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
-    if (indexO.isInBounds(position)) {
-        int ia = indexA.linear(position);
-        int io = indexO.linear(position);
-        out[io] = Op::op(a[ia]);
-    }
-}
-
-//------------------------------------------------------------------------------
-// tensorA tensorB
-template<typename Op, typename IndexA, typename IndexB, typename IndexO>
-__global__ void mapAB(
-    const typename Op::In *a, const IndexA indexA,
-    const typename Op::In *b, const IndexB indexB,
-    typename Op::Out *out, const IndexO indexO 
-) {
-    auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
-    if (indexO.isInBounds(position)) {
-        int ia = indexA.linear(position);
-        int ib = indexB.linear(position);
-        int io = indexO.linear(position);
-        out[io] = Op::op(a[ia], b[ib]);
-    }
-}
-
-//------------------------------------------------------------------------------
-// tensorA Scalar
-template<typename Op, typename Scalar, typename IndexA, typename IndexO>
-__global__ void mapAScalar(
-    const typename Op::In *a, const IndexA indexA, 
-    Scalar value,
-    typename Op::Out *out, const IndexO indexO 
-) {
-    auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
-    if (indexO.isInBounds(position)) {
-        int ia = indexA.linear(position);
-        int io = indexO.linear(position);
-        out[io] = Op::op(a[ia], value);
-    }
-}
-
 
 //==============================================================================
 // dynamic dispatch functions
