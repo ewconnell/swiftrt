@@ -25,11 +25,11 @@ public final class MatmulOperation: CustomStringConvertible {
     // initializers
     @inlinable public init(
         accumulatorType: MatmulAccumulatorType,
-        scaleType: StorageElementType
+        scaleType: srtDataType
     ) {
         var temp: cublasLtMatmulDesc_t?
         cudaCheck(cublasLtMatmulDescCreate(&temp, accumulatorType.cublas, 
-                                           scaleType.cuda))
+                                           cudaDataType(scaleType)))
         desc = temp!
     }
 
@@ -66,10 +66,11 @@ public final class MatmulOperation: CustomStringConvertible {
     /// setAttribute
     @inlinable public func setAttribute<T>(
         _ attr: cublasLtMatmulDescAttributes_t,
-         _ value: inout T
+         _ value: T
     ) {
+        var newValue = value
         cudaCheck(cublasLtMatmulDescSetAttribute(
-            desc, attr, &value, MemoryLayout.size(ofValue: value)))
+            desc, attr, &newValue, MemoryLayout.size(ofValue: newValue)))
     }
 
     //--------------------------------------------------------------------------
@@ -82,8 +83,7 @@ public final class MatmulOperation: CustomStringConvertible {
             return MatmulAccumulatorType(value)
         }
         set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATMUL_DESC_COMPUTE_TYPE, &value)
+            setAttribute(CUBLASLT_MATMUL_DESC_COMPUTE_TYPE, newValue.cublas)
         }
     }
 
@@ -93,15 +93,14 @@ public final class MatmulOperation: CustomStringConvertible {
     /// converted to scale type before final scaling. Value is then
     /// converted from scale type to the type of matrix D before
     /// storing in memory. The default is the same as `accumulatorType`
-    @inlinable public var scaleType: StorageElementType {
+    @inlinable public var scaleType: srtDataType {
         get {
-            var value = CUDA_R_32F
+            var value = srtDataType(0)
             getAttribute(CUBLASLT_MATMUL_DESC_SCALE_TYPE, &value)
-            return StorageElementType(value)
+            return value
         }
         set {
-            var value = newValue.cuda
-            setAttribute(CUBLASLT_MATMUL_DESC_SCALE_TYPE, &value)
+            setAttribute(CUBLASLT_MATMUL_DESC_SCALE_TYPE, newValue)
         }
     }
 
@@ -116,8 +115,7 @@ public final class MatmulOperation: CustomStringConvertible {
             return MatmulPointerMode(value)
         }
         set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATMUL_DESC_POINTER_MODE, &value)
+            setAttribute(CUBLASLT_MATMUL_DESC_POINTER_MODE, newValue.cublas)
         }
     }
 
@@ -131,8 +129,7 @@ public final class MatmulOperation: CustomStringConvertible {
             return TransposeOp(value)
         }
         set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATMUL_DESC_TRANSA, &value)
+            setAttribute(CUBLASLT_MATMUL_DESC_TRANSA, newValue.cublas)
         }
     }
 
@@ -146,8 +143,7 @@ public final class MatmulOperation: CustomStringConvertible {
             return TransposeOp(value)
         }
         set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATMUL_DESC_TRANSB, &value)
+            setAttribute(CUBLASLT_MATMUL_DESC_TRANSB, newValue.cublas)
         }
     }
 
@@ -161,8 +157,7 @@ public final class MatmulOperation: CustomStringConvertible {
             return TransposeOp(value)
         }
         set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATMUL_DESC_TRANSC, &value)
+            setAttribute(CUBLASLT_MATMUL_DESC_TRANSC, newValue.cublas)
         }
     }
 
@@ -177,8 +172,7 @@ public final class MatmulOperation: CustomStringConvertible {
             return MatmulFillMode(value)
         }
         set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATMUL_DESC_FILL_MODE, &value)
+            setAttribute(CUBLASLT_MATMUL_DESC_FILL_MODE, newValue.cublas)
         }
     }
 
@@ -192,8 +186,7 @@ public final class MatmulOperation: CustomStringConvertible {
             return MatmulEpilogue(value)
         }
         set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATMUL_DESC_EPILOGUE, &value)
+            setAttribute(CUBLASLT_MATMUL_DESC_EPILOGUE, newValue.cublas)
         }
     }
 
@@ -206,8 +199,7 @@ public final class MatmulOperation: CustomStringConvertible {
             return value
         }
         set {
-            var value = newValue
-            setAttribute(CUBLASLT_MATMUL_DESC_BIAS_POINTER, &value)
+            setAttribute(CUBLASLT_MATMUL_DESC_BIAS_POINTER, newValue)
         }
     }
 }

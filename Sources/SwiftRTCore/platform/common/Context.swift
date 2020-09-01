@@ -27,8 +27,10 @@ import Darwin.C
 // A combination of cpu and cuda devices
 public typealias PlatformType = CudaPlatform
 public typealias StorageBufferType = DiscreteStorage
+
 #else
 public typealias PlatformType = CpuPlatform
+
 #if canImport(AsyncCpu)
     // the cpu will support asynchronous queues and synchronized discrete storage
     public typealias StorageBufferType = DiscreteStorage

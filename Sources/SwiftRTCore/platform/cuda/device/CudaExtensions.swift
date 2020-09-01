@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 import SwiftRTCuda
+import Numerics
 
 //------------------------------------------------------------------------------
 /// withTensorDescriptor
@@ -28,7 +29,7 @@ extension Tensor {
         return shape.withUnsafePointer { shapePointer in
             strides.withUnsafePointer { stridesPointer in
                 var tensorDescriptor = srtTensorDescriptor(
-                    type: TensorElement.type.cuda,
+                    type: TensorElement.type,
                     rank: UInt32(Shape.rank),
                     order: order.cublas,
                     count: count,
@@ -55,7 +56,7 @@ extension Tensor {
         return shape.withUnsafePointer { shapePointer in
             strides.withUnsafePointer { stridesPointer in
                 var tensorDescriptor = srtTensorDescriptor(
-                    type: TensorElement.type.cuda,
+                    type: TensorElement.type,
                     rank: UInt32(Shape.rank),
                     order: order.cublas,
                     count: count,
@@ -75,112 +76,135 @@ extension Tensor {
     }
 }
 
-//------------------------------------------------------------------------------
-// StorageElementType extension
-extension cudaDataType_t : Hashable {}
+//==============================================================================
+// type identifier extensions
+extension Bool {
+    @inlinable public static var type: srtDataType { boolean }
+    @inlinable public static var cudnn: cudnnDataType_t { fatalError("not implemented") }
+    @inlinable public static var cublas: cublasDataType_t { fatalError("not implemented") }
+}
 
-// cuda data types conversion
-extension StorageElementType {
-    @inlinable public init(_ cudaType: cudaDataType_t) {
-        let types: [cudaDataType_t: StorageElementType] = [
-            CUDA_R_16F: .real16F,
-            CUDA_C_16F: .complex16F,
-            CUDA_R_16BF: .real16BF,
-            CUDA_C_16BF: .complex16BF,
-            CUDA_R_32F: .real32F,
-            CUDA_C_32F: .complex32F,
-            CUDA_R_64F: .real64F,
-            CUDA_C_64F: .complex64F,
-            CUDA_R_4I: .real4I,
-            CUDA_C_4I: .complex4I,
-            CUDA_R_4U: .real4U,
-            CUDA_C_4U: .complex4U,
-            CUDA_R_8I: .real8I,
-            CUDA_C_8I: .complex8I,
-            CUDA_R_8U: .real8U,
-            CUDA_C_8U: .complex8U,
-            CUDA_R_16I: .real16I,
-            CUDA_C_16I: .complex16I,
-            CUDA_R_16U: .real16U,
-            CUDA_C_16U: .complex16U,
-            CUDA_R_32I: .real32I,
-            CUDA_C_32I: .complex32I,
-            CUDA_R_32U: .real32U,
-            CUDA_C_32U: .complex32U,
-            CUDA_R_64I: .real64I,
-            CUDA_C_64I: .complex64I,
-            CUDA_R_64U: .real64U,
-            CUDA_C_64U: .complex64U  
-        ]
-        assert(types[cudaType] != nil, "Unknown cudaDataType_t")
-        self = types[cudaType]!
-    }
+extension Bool1 {
+    @inlinable public static var type: srtDataType { fatalError("not implemented") }
+    @inlinable public static var cudnn: cudnnDataType_t { fatalError("not implemented") }
+    @inlinable public static var cublas: cublasDataType_t { fatalError("not implemented") }
+}
 
-    @inlinable public var cuda: cudaDataType_t {
-        let types: [StorageElementType : cudaDataType_t] = [
-            .bool8: CUDA_R_8U,
-            .real16F: CUDA_R_16F,
-            .complex16F: CUDA_C_16F,
-            .real16BF: CUDA_R_16BF,
-            .complex16BF: CUDA_C_16BF,
-            .real32F: CUDA_R_32F,
-            .complex32F: CUDA_C_32F,
-            .real64F: CUDA_R_64F,
-            .complex64F: CUDA_C_64F,
-            .real4I: CUDA_R_4I,
-            .complex4I: CUDA_C_4I,
-            .real4U: CUDA_R_4U,
-            .complex4U: CUDA_C_4U,
-            .real8I: CUDA_R_8I,
-            .complex8I: CUDA_C_8I,
-            .real8U: CUDA_R_8U,
-            .complex8U: CUDA_C_8U,
-            .real16I: CUDA_R_16I,
-            .complex16I: CUDA_C_16I,
-            .real16U: CUDA_R_16U,
-            .complex16U: CUDA_C_16U,
-            .real32I: CUDA_R_32I,
-            .complex32I: CUDA_C_32I,
-            .real32U: CUDA_R_32U,
-            .complex32U: CUDA_C_32U,
-            .real64I: CUDA_R_64I,
-            .complex64I: CUDA_C_64I,
-            .real64U: CUDA_R_64U,
-            .complex64U: CUDA_C_64U  
-        ]
-        assert(types[self] != nil, "Unknown cudaDataType_t: \(self)")
-        return types[self]!
+extension UInt1 {
+    @inlinable public static var type: srtDataType { real1U }
+    @inlinable public static var cudnn: cudnnDataType_t { fatalError("not implemented") }
+    @inlinable public static var cublas: cublasDataType_t { fatalError("not implemented") }
+}
+
+extension UInt4 {
+    @inlinable public static var type: srtDataType { real4U }
+    @inlinable public static var cudnn: cudnnDataType_t { fatalError("not supported") }
+    @inlinable public static var cublas: cublasDataType_t { fatalError("not supported") }
+}
+
+extension UInt8 {
+    @inlinable public static var type: srtDataType { real8U }
+    @inlinable public static var cudnn: cudnnDataType_t { CUDNN_DATA_UINT8 }
+    @inlinable public static var cublas: cublasDataType_t { CUDA_R_8U }
+}
+
+extension Int8 {
+    @inlinable public static var type: srtDataType { real8I }
+    @inlinable public static var cudnn: cudnnDataType_t { CUDNN_DATA_INT8 }
+    @inlinable public static var cublas: cublasDataType_t { CUDA_R_8I }
+}
+
+extension UInt16 {
+    @inlinable public static var type: srtDataType { real16U }
+    @inlinable public static var cudnn: cudnnDataType_t { fatalError("not supported") }
+    @inlinable public static var cublas: cublasDataType_t { CUDA_R_16U }
+}
+
+extension Int16 {
+    @inlinable public static var type: srtDataType { real16I }
+    @inlinable public static var cudnn: cudnnDataType_t { fatalError("not supported") }
+    @inlinable public static var cublas: cublasDataType_t { CUDA_R_16I }
+}
+
+extension UInt32 {
+    @inlinable public static var type: srtDataType { real32U }
+    @inlinable public static var cudnn: cudnnDataType_t { fatalError("not supported") }
+    @inlinable public static var cublas: cublasDataType_t { CUDA_R_32U }
+}
+
+extension Int32 {
+    @inlinable public static var type: srtDataType { real32I }
+    @inlinable public static var cudnn: cudnnDataType_t { CUDNN_DATA_INT32 }
+    @inlinable public static var cublas: cublasDataType_t { CUDA_R_32I }
+}
+
+extension Float16 {
+    @inlinable public static var type: srtDataType { real16F }
+    @inlinable public static var cudnn: cudnnDataType_t { CUDNN_DATA_HALF }
+    @inlinable public static var cublas: cublasDataType_t { CUDA_R_16F }
+}
+
+extension BFloat16 {
+    @inlinable public static var type: srtDataType { real16BF }
+    @inlinable public static var cudnn: cudnnDataType_t { fatalError("not supported") }
+    @inlinable public static var cublas: cublasDataType_t { CUDA_R_16BF }
+}
+
+extension Float {
+    @inlinable public static var type: srtDataType { real32F }
+    @inlinable public static var cudnn: cudnnDataType_t { CUDNN_DATA_FLOAT }
+    @inlinable public static var cublas: cublasDataType_t { CUDA_R_32F }
+}
+
+extension Double {
+    @inlinable public static var type: srtDataType { real64F }
+    @inlinable public static var cudnn: cudnnDataType_t { CUDNN_DATA_DOUBLE }
+    @inlinable public static var cublas: cublasDataType_t { CUDA_R_64F }
+}
+
+//==============================================================================
+// Complex
+extension Complex {
+    public typealias Stored = Self
+    public typealias Value = Self
+
+    @inlinable public static var type: srtDataType {
+        switch RealType.self {
+        case is Float.Type: return complex32F
+        case is Float16.Type: return complex16F
+        case is BFloat16.Type: return complex16BF
+        case is Double.Type: return complex64F
+        default: fatalError("Complex<\(RealType.self)> not implemented yet")
+        }
     }
+    @inlinable public static var cudnn: cudnnDataType_t { fatalError("not supported") }
+    @inlinable public static var cublas: cublasDataType_t { cudaDataType(type) }
 }
 
 //------------------------------------------------------------------------------
-// cudnn data types conversion
-extension cudnnDataType_t : Hashable {}
+@usableFromInline var _storedZeroComplexFloat = Complex<Float>(0)
+@usableFromInline var _storedOneComplexFloat = Complex<Float>(1)
 
-extension StorageElementType {
-    @inlinable public init(_ cudnnType: cudnnDataType_t) {
-        let types: [cudnnDataType_t : StorageElementType] = [
-            CUDNN_DATA_HALF: .real16F,
-            CUDNN_DATA_FLOAT: .real32F,
-            CUDNN_DATA_DOUBLE: .real64F,
-            CUDNN_DATA_INT8: .real8I,
-            CUDNN_DATA_INT32: .real32I,
-            CUDNN_DATA_UINT8: .real8U,
-        ]
-        assert(types[cudnnType] != nil, "Unknown cudnnDataType_t")
-        self = types[cudnnType]!
+extension Complex: StorageElement where RealType == Float {
+    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
+        UnsafeRawPointer(&_storedZeroComplexFloat) 
     }
+    
+    @inlinable public static var storedOnePointer: UnsafeRawPointer {
+        UnsafeRawPointer(&_storedOneComplexFloat)
+    }
+}
 
-    @inlinable public var cudnn: cudnnDataType_t {
-        let types: [StorageElementType : cudnnDataType_t] = [
-            .real16F: CUDNN_DATA_HALF,
-            .real32F: CUDNN_DATA_FLOAT,
-            .real64F: CUDNN_DATA_DOUBLE,
-            .real8I: CUDNN_DATA_INT8,
-            .real32I: CUDNN_DATA_INT32,
-            .real8U: CUDNN_DATA_UINT8
-        ]
-        assert(types[self] != nil, "Unknown cudnnDataType_t")
-        return types[self]!
-    }
+//==============================================================================
+// RGBA
+extension RGBA {
+    @inlinable public static var type: srtDataType { fatalError("not implemented") }
+    @inlinable public static var cudnn: cudnnDataType_t { fatalError("not implemented") }
+    @inlinable public static var cublas: cublasDataType_t { fatalError("not implemented") }
+}
+
+extension Stereo {
+    @inlinable public static var type: srtDataType { fatalError("not implemented") }
+    @inlinable public static var cudnn: cudnnDataType_t { fatalError("not implemented") }
+    @inlinable public static var cublas: cublasDataType_t { fatalError("not implemented") }
 }

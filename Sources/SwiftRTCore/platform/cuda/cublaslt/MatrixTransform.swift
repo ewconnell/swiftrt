@@ -24,8 +24,8 @@ public final class MatrixTransform: CustomStringConvertible {
 
     //--------------------------------------------------------------------------
     // initializers
-    @inlinable public init(type: StorageElementType) {
-        let scaleType = type.cuda
+    @inlinable public init(type: srtDataType) {
+        let scaleType = cudaDataType(type)
         var temp: cublasLtMatrixTransformDesc_t?
         cudaCheck(cublasLtMatrixTransformDescCreate(&temp, scaleType))
         desc = temp!
@@ -60,23 +60,23 @@ public final class MatrixTransform: CustomStringConvertible {
     /// setAttribute
     @inlinable public func setAttribute<T>(
         _ attr: cublasLtMatrixTransformDescAttributes_t,
-         _ value: inout T
+         _ value: T
     ) {
+        var newValue = value
         cudaCheck(cublasLtMatrixTransformDescSetAttribute(
-            desc, attr, &value, MemoryLayout.size(ofValue: value)))
+            desc, attr, &newValue, MemoryLayout.size(ofValue: newValue)))
     }
 
     //--------------------------------------------------------------------------
     /// Specifies the tensor element type
-    @inlinable public var elementType: StorageElementType {
+    @inlinable public var elementType: srtDataType {
         get {
-            var value = CUDA_R_32F
+            var value = real32F
             getAttribute(CUBLASLT_MATRIX_TRANSFORM_DESC_SCALE_TYPE, &value)
-            return StorageElementType(value)
+            return value
         }
         set {
-            var value = newValue.cuda
-            setAttribute(CUBLASLT_MATRIX_TRANSFORM_DESC_SCALE_TYPE, &value)
+            setAttribute(CUBLASLT_MATRIX_TRANSFORM_DESC_SCALE_TYPE, newValue)
         }
     }
 
@@ -91,8 +91,8 @@ public final class MatrixTransform: CustomStringConvertible {
             return MatmulPointerMode(value)
         }
         set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATRIX_TRANSFORM_DESC_POINTER_MODE, &value)
+            setAttribute(CUBLASLT_MATRIX_TRANSFORM_DESC_POINTER_MODE, 
+                         newValue.cublas)
         }
     }
 
@@ -106,8 +106,7 @@ public final class MatrixTransform: CustomStringConvertible {
             return TransposeOp(value)
         }
         set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATRIX_TRANSFORM_DESC_TRANSA, &value)
+            setAttribute(CUBLASLT_MATRIX_TRANSFORM_DESC_TRANSA, newValue.cublas)
         }
     }
 
@@ -121,8 +120,7 @@ public final class MatrixTransform: CustomStringConvertible {
             return TransposeOp(value)
         }
         set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATRIX_TRANSFORM_DESC_TRANSB, &value)
+            setAttribute(CUBLASLT_MATRIX_TRANSFORM_DESC_TRANSB, newValue.cublas)
         }
     }
 }

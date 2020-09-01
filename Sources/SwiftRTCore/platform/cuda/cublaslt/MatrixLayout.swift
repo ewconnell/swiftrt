@@ -15,7 +15,6 @@
 //
 import SwiftRTCuda
 
-
 //==============================================================================
 // MatrixLayout
 public final class MatrixLayout: CustomStringConvertible {
@@ -30,7 +29,7 @@ public final class MatrixLayout: CustomStringConvertible {
         cudaCheck(cublasLtMatrixLayoutCreate(
             &temp,
             // tensor data cuda data type
-            E.type.cuda, 
+            cudaDataType(E.type), 
             // number of rows
             UInt64(tensor.shape[S.rank - 2]),
             // number of cols
@@ -60,10 +59,11 @@ public final class MatrixLayout: CustomStringConvertible {
     /// setAttribute
     @inlinable public func setAttribute<T>(
         _ attr: cublasLtMatrixLayoutAttribute_t,
-         _ value: inout T
+         _ value: T
     ) {
+        var newValue = value
         cudaCheck(cublasLtMatrixLayoutSetAttribute(
-            desc, attr, &value, MemoryLayout.size(ofValue: value)))
+            desc, attr, &newValue, MemoryLayout.size(ofValue: newValue)))
     }
 
     //--------------------------------------------------------------------------
@@ -83,15 +83,14 @@ public final class MatrixLayout: CustomStringConvertible {
 
     //--------------------------------------------------------------------------
     /// Specifies the data precision type
-    @inlinable public var type: StorageElementType {
+    @inlinable public var type: Int32 {
         get {
             var value = CUDA_R_32F
             getAttribute(CUBLASLT_MATRIX_LAYOUT_TYPE, &value)
-            return StorageElementType(value)
+            return unsafeBitCast(value, to: Int32.self)
         }
         set {
-            var value = newValue.cuda
-            setAttribute(CUBLASLT_MATRIX_LAYOUT_TYPE, &value)
+            setAttribute(CUBLASLT_MATRIX_LAYOUT_TYPE, newValue)
         }
     }
 
@@ -104,8 +103,7 @@ public final class MatrixLayout: CustomStringConvertible {
             return Order(value)
         }
         set {
-            var value = newValue.cublas
-            setAttribute(CUBLASLT_MATRIX_LAYOUT_ORDER, &value)
+            setAttribute(CUBLASLT_MATRIX_LAYOUT_ORDER, newValue)
         }
     }
 
@@ -120,8 +118,7 @@ public final class MatrixLayout: CustomStringConvertible {
         }
         set {
             assert(newValue > 0 && newValue <= Int32.max)
-            var value = UInt64(newValue)
-            setAttribute(CUBLASLT_MATRIX_LAYOUT_ROWS, &value)
+            setAttribute(CUBLASLT_MATRIX_LAYOUT_ROWS, UInt64(newValue))
         }
     }
 
@@ -136,8 +133,7 @@ public final class MatrixLayout: CustomStringConvertible {
         }
         set {
             assert(newValue > 0 && newValue <= Int32.max)
-            var value = UInt64(newValue)
-            setAttribute(CUBLASLT_MATRIX_LAYOUT_COLS, &value)
+            setAttribute(CUBLASLT_MATRIX_LAYOUT_COLS, UInt64(newValue))
         }
     }
 
@@ -154,8 +150,7 @@ public final class MatrixLayout: CustomStringConvertible {
             return Int(value)
         }
         set {
-            var value = Int64(newValue)
-            setAttribute(CUBLASLT_MATRIX_LAYOUT_LD, &value)
+            setAttribute(CUBLASLT_MATRIX_LAYOUT_LD, Int64(newValue))
         }
     }
 
@@ -169,8 +164,7 @@ public final class MatrixLayout: CustomStringConvertible {
         }
         set {
             assert(newValue > 0 && newValue <= Int32.max)
-            var value = Int32(newValue)
-            setAttribute(CUBLASLT_MATRIX_LAYOUT_BATCH_COUNT, &value)
+            setAttribute(CUBLASLT_MATRIX_LAYOUT_BATCH_COUNT, Int32(newValue))
         }
     }
 
@@ -184,8 +178,7 @@ public final class MatrixLayout: CustomStringConvertible {
             return Int(value)
         }
         set {
-            var value = Int64(newValue)
-            setAttribute(CUBLASLT_MATRIX_LAYOUT_STRIDED_BATCH_OFFSET, &value)
+            setAttribute(CUBLASLT_MATRIX_LAYOUT_STRIDED_BATCH_OFFSET, Int64(newValue))
         }
     }
 
@@ -201,8 +194,7 @@ public final class MatrixLayout: CustomStringConvertible {
             return value
         }
         set {
-            var value = newValue
-            setAttribute(CUBLASLT_MATRIX_LAYOUT_PLANE_OFFSET, &value)
+            setAttribute(CUBLASLT_MATRIX_LAYOUT_PLANE_OFFSET, newValue)
         }
     }
 }

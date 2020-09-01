@@ -236,6 +236,13 @@ extension curandStatus_t : Hashable {}
 }
 
 //==============================================================================
+extension cudaDataType {
+    @inlinable public init(_ type: srtDataType) {
+        self = unsafeBitCast(type, to: Self.self)
+    }
+}
+
+//==============================================================================
 // leading dimension for matmul
 public extension Tensor {
     @inlinable var leadingDimension: Int {
@@ -418,7 +425,7 @@ public final class FilterDescriptor {
         // initialize
         cudaCheck(cudnnSetFilterNdDescriptor(
             desc,
-            E.type.cudnn,
+            E.cudnn,
             CUDNN_TENSOR_NHWC,
             Int32(tensor.count),
             tensor.shape.asInt32))
@@ -472,7 +479,7 @@ public final class TensorDescriptor {
     @inlinable public init<S: TensorShape>(
         shape: S,
         strides: S,
-        scalarType: StorageElementType
+        scalarType: cudnnDataType_t
     ) {
         assert(shape.count >= 4 && shape.count <= CUDNN_DIM_MAX,
             "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
@@ -484,7 +491,7 @@ public final class TensorDescriptor {
         // initialize
         cudaCheck(cudnnSetTensorNdDescriptor(
             self.desc,
-            scalarType.cudnn,
+            scalarType,
             Int32(shape.count),
             shape.asInt32,
             strides.asInt32))
@@ -502,7 +509,7 @@ public final class TensorDescriptor {
     //--------------------------------------------------------------------------
     // getInfo
     @inlinable public func getInfo()
-    -> (extent: [Int], strides: [Int], StorageElementType)
+    -> (extent: [Int], strides: [Int], type: cudnnDataType_t)
     {
         let reqDims = Int(CUDNN_DIM_MAX)
         var dims = [Int32](repeating: 0, count: reqDims)
@@ -521,7 +528,7 @@ public final class TensorDescriptor {
 
         return (dims[0..<Int(numDims)].map(Int.init),
                 strides[0..<Int(numDims)].map(Int.init),
-                StorageElementType(type))
+                type)
     }
 }
 
@@ -535,7 +542,7 @@ extension Tensor {
         assert(newShape == nil || newShape!.count == shape.count)
         return TensorDescriptor(shape: newShape ?? shape,
                                 strides: strides,
-                                scalarType: TensorElement.type)
+                                scalarType: TensorElement.cudnn)
     }
 }
 
@@ -550,7 +557,7 @@ public final class ReductionTensorDescriptor {
     @inlinable public init(
         op: ReductionOp,
         nan: NanPropagation,
-        scalarType: StorageElementType
+        scalarType: srtDataType
     ) {
         // create the descriptor
         var temp: cudnnReduceTensorDescriptor_t?
@@ -565,7 +572,7 @@ public final class ReductionTensorDescriptor {
         cudaCheck(cudnnSetReduceTensorDescriptor(
             desc,
             op.cudnn,
-            scalarType == .real64F ? CUDNN_DATA_DOUBLE : CUDNN_DATA_FLOAT,
+            scalarType == real64F ? CUDNN_DATA_DOUBLE : CUDNN_DATA_FLOAT,
             nan.cudnn,
             indicesAction,
             CUDNN_32BIT_INDICES

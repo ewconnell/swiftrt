@@ -52,7 +52,7 @@ extension MatmulAlgorithm {
         _ b: TensorR2<BE>, transB: TransposeOp = .noTranspose,
         _ d: inout TensorR2<DE>,
         accumulatorType: MatmulAccumulatorType,
-        scaleType: StorageElementType,
+        scaleType: srtDataType,
         preferences: MatmulPreferences,
         maxResultCount: Int = 20,
         using queue: PlatformType.Device.Queue
@@ -127,7 +127,7 @@ extension MatmulAlgorithm {
         _ b: TensorR2<BE>, transB: TransposeOp = .noTranspose,
         _ d: inout TensorR2<DE>,
         accumulatorType: MatmulAccumulatorType,
-        scaleType: StorageElementType,
+        scaleType: srtDataType,
         maxAlgorithmsToTest: Int = 100,
         maxTestVariations: Int = 100,
         timingRepeats: Int = 10,

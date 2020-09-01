@@ -40,8 +40,6 @@ public protocol VectorElement: StorageElement {
 }
 
 extension VectorElement {
-    @inlinable public static var type: StorageElementType { fatalError("not implemented") }
-
     @inlinable public static var storedZeroPointer: UnsafeRawPointer {
         fatalError("not implemented")
     }
@@ -127,8 +125,6 @@ extension RGBA: AdditiveArithmetic where Scalar: FloatingPoint { }
 @usableFromInline var _storedOneRGBAFloat32 = RGBA<Float>(1, 1, 1, 1)
 
 public extension VectorElement where Scalar == Float {
-    @inlinable static var type: StorageElementType { .vector32Fx4 }
-
     @inlinable static var storedZeroPointer: UnsafeRawPointer {
         UnsafeRawPointer(&_storedZeroRGBAFloat32) 
     }
@@ -143,8 +139,6 @@ public extension VectorElement where Scalar == Float {
 @usableFromInline var _storedOneRGBAUInt8 = RGBA<UInt8>(1, 1, 1, 1)
 
 public extension VectorElement where Scalar == UInt8 {
-    @inlinable static var type: StorageElementType { .vector8Ux4 }
-
     @inlinable static var storedZeroPointer: UnsafeRawPointer {
         UnsafeRawPointer(&_storedZeroRGBAUInt8) 
     }

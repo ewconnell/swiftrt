@@ -81,20 +81,20 @@ cudaError_t srtFill(
     // up to a multiple of the largest packed type so we don't have to worry
     // about writing out of bounds.
     switch(oDesc.type) {
-        case CUDA_R_32F:
+        case real32F:
           return elementFill<float>(out, oDesc, *(float *)element, stream);
-        case CUDA_R_64F:
+        case real64F:
           return elementFill<double>(out, oDesc, *(double *)element, stream);
 
-        case CUDA_R_16F: 
-        case CUDA_R_16BF:
-        case CUDA_R_16I:
-        case CUDA_R_16U:
+        case real16F: 
+        case real16BF:
+        case real16I:
+        case real16U:
             // pack 16 bit elements
             return elementFill<uint32_t>(out, oDesc, fillWord<uint16_t>(element), stream, 1);
 
-        case CUDA_R_8I: 
-        case CUDA_R_8U:
+        case real8I: 
+        case real8U:
             // pack 8 bit elements
             return elementFill<uint32_t>(out, oDesc, fillWord<uint8_t>(element), stream, 2);
         default: return cudaErrorNotSupported;
@@ -165,16 +165,16 @@ cudaError_t srtFillRange(
     assert(oDesc.isDense());
 
     switch (oDesc.type) {
-    case CUDA_R_32F:  return selectRangeFillRank<float>(out, oDesc, lower, stream);
-    case CUDA_R_16F:  return selectRangeFillRank<__half>(out, oDesc, float(lower), stream);
-    case CUDA_R_16BF: return selectRangeFillRank<__nv_bfloat16>(out, oDesc, float(lower), stream);
-    case CUDA_R_64F:  return selectRangeFillRank<double>(out, oDesc, lower, stream);
-    case CUDA_R_32I:  return selectRangeFillRank<int32_t>(out, oDesc, lower, stream);
-    case CUDA_R_32U:  return selectRangeFillRank<uint32_t>(out, oDesc, lower, stream);
-    case CUDA_R_16I:  return selectRangeFillRank<int16_t>(out, oDesc, lower, stream);
-    case CUDA_R_16U:  return selectRangeFillRank<uint16_t>(out, oDesc, lower, stream);
-    case CUDA_R_8I:   return selectRangeFillRank<int8_t>(out, oDesc, lower, stream);
-    case CUDA_R_8U:   return selectRangeFillRank<uint8_t>(out, oDesc, lower, stream);
+    case real32F:  return selectRangeFillRank<float>(out, oDesc, lower, stream);
+    case real16F:  return selectRangeFillRank<__half>(out, oDesc, float(lower), stream);
+    case real16BF: return selectRangeFillRank<__nv_bfloat16>(out, oDesc, float(lower), stream);
+    case real64F:  return selectRangeFillRank<double>(out, oDesc, lower, stream);
+    case real32I:  return selectRangeFillRank<int32_t>(out, oDesc, lower, stream);
+    case real32U:  return selectRangeFillRank<uint32_t>(out, oDesc, lower, stream);
+    case real16I:  return selectRangeFillRank<int16_t>(out, oDesc, lower, stream);
+    case real16U:  return selectRangeFillRank<uint16_t>(out, oDesc, lower, stream);
+    case real8I:   return selectRangeFillRank<int8_t>(out, oDesc, lower, stream);
+    case real8U:   return selectRangeFillRank<uint8_t>(out, oDesc, lower, stream);
     default: return cudaErrorNotSupported;
     }
 }

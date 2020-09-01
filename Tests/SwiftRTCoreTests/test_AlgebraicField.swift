@@ -22,14 +22,14 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // support terminal test run
     static var allTests = [
-        ("test_queryMatmulProperties", test_queryMatmulProperties),
-        ("test_minimalAdd", test_minimalAdd),
-        ("test_minimalAddVJP", test_minimalAddVJP),
+        // ("test_queryMatmulProperties", test_queryMatmulProperties),
+        // ("test_minimalAdd", test_minimalAdd),
+        // ("test_minimalAddVJP", test_minimalAddVJP),
         
-        ("test_matmul", test_matmul),
-        ("test_batchMatmul", test_batchMatmul),
-        ("test_leftBatchMatmul", test_leftBatchMatmul),
-        ("test_rightBatchMatmul", test_rightBatchMatmul),
+        // ("test_matmul", test_matmul),
+        // ("test_batchMatmul", test_batchMatmul),
+        // ("test_leftBatchMatmul", test_leftBatchMatmul),
+        // ("test_rightBatchMatmul", test_rightBatchMatmul),
         
         // ("test_perfAdd", test_perfAdd),
         ("test_add", test_add),
@@ -58,11 +58,11 @@ class test_AlgebraicField: XCTestCase {
     ]
 
     override func setUpWithError() throws {
-        // Context.log.level = .diagnostic
+        Context.log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
-        // Context.log.level = .error
+        Context.log.level = .error
     }
 
     //--------------------------------------------------------------------------

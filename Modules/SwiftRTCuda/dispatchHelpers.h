@@ -22,6 +22,20 @@
 #include "kernels.h"
 
 //==============================================================================
+// supplemental logical types
+//==============================================================================
+struct bool2 {
+    bool b0, b1;
+    bool2(bool v0, bool v1) { b0 = v0; b1 = v1; }
+};
+
+struct bool4 {
+    bool b0, b1, b2, b3;
+    bool4(bool v0, bool v1, bool v2, bool v3) { b0 = v0; b1 = v1; b2 = v2; b3 = v3; }
+    bool4(unsigned v) { *this = v; }
+};
+
+//==============================================================================
 // OpBase operator base to express input and out types
 template<typename _In, typename _Out> struct OpBase {
     typedef _In In;
@@ -328,10 +342,10 @@ static cudaError_t selectFloatingStrided(
     cudaStream_t stream
 ) {
     switch(oDesc.type) {
-    case CUDA_R_32F:  return selectRank<Op<float>>(a, aDesc, out, oDesc, stream);
-    case CUDA_R_16F:  return selectRank<Op<__half>>(a, aDesc, out, oDesc, stream);
-    case CUDA_R_16BF: return selectRank<Op<__nv_bfloat16>>(a, aDesc, out, oDesc, stream);
-    case CUDA_R_64F:  return selectRank<Op<double>>(a, aDesc, out, oDesc, stream);
+    case real32F:  return selectRank<Op<float>>(a, aDesc, out, oDesc, stream);
+    case real16F:  return selectRank<Op<__half>>(a, aDesc, out, oDesc, stream);
+    case real16BF: return selectRank<Op<__nv_bfloat16>>(a, aDesc, out, oDesc, stream);
+    case real64F:  return selectRank<Op<double>>(a, aDesc, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
@@ -346,10 +360,10 @@ static cudaError_t selectFloatingStrided(
     cudaStream_t stream
 ) {
     switch(oDesc.type) {
-    case CUDA_R_32F:  return selectRank<Op<float>,Scalar>(a, aDesc, value, out, oDesc, stream);
-    case CUDA_R_16F:  return selectRank<Op<__half>,Scalar>(a, aDesc, value, out, oDesc, stream);
-    case CUDA_R_16BF: return selectRank<Op<__nv_bfloat16>,Scalar>(a, aDesc, value, out, oDesc, stream);
-    case CUDA_R_64F:  return selectRank<Op<double>,Scalar>(a, aDesc, value, out, oDesc, stream);
+    case real32F:  return selectRank<Op<float>,Scalar>(a, aDesc, value, out, oDesc, stream);
+    case real16F:  return selectRank<Op<__half>,Scalar>(a, aDesc, value, out, oDesc, stream);
+    case real16BF: return selectRank<Op<__nv_bfloat16>,Scalar>(a, aDesc, value, out, oDesc, stream);
+    case real64F:  return selectRank<Op<double>,Scalar>(a, aDesc, value, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
@@ -363,10 +377,10 @@ static cudaError_t selectFloatingStrided(
     cudaStream_t stream
 ) {
     switch(oDesc.type) {
-    case CUDA_R_32F:  return selectRank<Op<float>>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case CUDA_R_16F:  return selectRank<Op<__half>>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case CUDA_R_16BF: return selectRank<Op<__nv_bfloat16>>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case CUDA_R_64F:  return selectRank<Op<double>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real32F:  return selectRank<Op<float>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real16F:  return selectRank<Op<__half>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real16BF: return selectRank<Op<__nv_bfloat16>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real64F:  return selectRank<Op<double>>(a, aDesc, b, bDesc, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
@@ -384,7 +398,7 @@ static cudaError_t selectAnyStrided(
     auto status = selectFloatingStrided<Op>(a, aDesc, out, oDesc, stream);
     if (status == cudaErrorNotSupported) {
         switch(oDesc.type) {
-        case CUDA_R_32I:  return selectRank<Op<int32_t>>(a, aDesc, out, oDesc, stream);
+        case real32I:  return selectRank<Op<int32_t>>(a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
     } else {
@@ -405,7 +419,7 @@ static cudaError_t selectAnyStrided(
     auto status = selectFloatingStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
     if (status == cudaErrorNotSupported) {
         switch(oDesc.type) {
-        case CUDA_R_32I:  return selectRank<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case real32I:  return selectRank<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
     } else {
@@ -423,7 +437,7 @@ static cudaError_t selectBoolStrided(
     cudaStream_t stream
 ) {
     switch(oDesc.type) {
-    case CUDA_R_8U: return selectRank<Op<uint8_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real8U: return selectRank<Op<uint8_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
@@ -441,10 +455,10 @@ static cudaError_t selectFloating(
         return selectFloatingStrided<Op>(a, aDesc, out, oDesc, stream);
     } else {
         switch(oDesc.type) {
-        case CUDA_R_32F:  return flattened<Op<float>>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_16F:  return flattened<Op<__half>>(a, aDesc, out, oDesc, stream, 1);
-        case CUDA_R_16BF: return flattened<Op<__nv_bfloat16>>(a, aDesc, out, oDesc, stream, 1);
-        case CUDA_R_64F:  return flattened<Op<double>>(a, aDesc, out, oDesc, stream);
+        case real32F:  return flattened<Op<float>>(a, aDesc, out, oDesc, stream);
+        case real16F:  return flattened<Op<__half>>(a, aDesc, out, oDesc, stream, 1);
+        case real16BF: return flattened<Op<__nv_bfloat16>>(a, aDesc, out, oDesc, stream, 1);
+        case real64F:  return flattened<Op<double>>(a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
     }
@@ -463,10 +477,10 @@ static cudaError_t selectFloating(
         return selectFloatingStrided<Op>(a, aDesc, value, out, oDesc, stream);
     } else {
         switch(oDesc.type) {
-        case CUDA_R_32F:  return flattened<Op<float>,Scalar>(a, aDesc, value, out, oDesc, stream);
-        case CUDA_R_16F:  return flattened<Op<__half>,Scalar>(a, aDesc, value, out, oDesc, stream, 1);
-        case CUDA_R_16BF: return flattened<Op<__nv_bfloat16>,Scalar>(a, aDesc, value, out, oDesc, stream, 1);
-        case CUDA_R_64F:  return flattened<Op<double>,Scalar>(a, aDesc, value, out, oDesc, stream);
+        case real32F:  return flattened<Op<float>,Scalar>(a, aDesc, value, out, oDesc, stream);
+        case real16F:  return flattened<Op<__half>,Scalar>(a, aDesc, value, out, oDesc, stream, 1);
+        case real16BF: return flattened<Op<__nv_bfloat16>,Scalar>(a, aDesc, value, out, oDesc, stream, 1);
+        case real64F:  return flattened<Op<double>,Scalar>(a, aDesc, value, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
     }
@@ -485,10 +499,10 @@ static cudaError_t selectFloating(
         return selectFloatingStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
     } else {
         switch(oDesc.type) {
-        case CUDA_R_32F:  return flattened<Op<float>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        case CUDA_R_16F:  return flattened<Op<__half>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
-        case CUDA_R_16BF: return flattened<Op<__nv_bfloat16>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
-        case CUDA_R_64F:  return flattened<Op<double>>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case real32F:  return flattened<Op<float>>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case real16F:  return flattened<Op<__half>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
+        case real16BF: return flattened<Op<__nv_bfloat16>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
+        case real64F:  return flattened<Op<double>>(a, aDesc, b, bDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
     }
@@ -509,11 +523,11 @@ static cudaError_t selectAny(
             return selectAnyStrided<Op>(a, aDesc, out, oDesc, stream);
         } else {
             switch(oDesc.type) {
-            case CUDA_R_32I: return flattened<Op<int32_t>>(a, aDesc, out, oDesc, stream);
-            case CUDA_R_8U:  return flattened<Op<uchar4>>(a, aDesc, out, oDesc, stream, 2);
-            case CUDA_R_8I:  return flattened<Op<char4>>(a, aDesc, out, oDesc, stream, 2);
-            case CUDA_R_16U: return flattened<Op<short2>>(a, aDesc, out, oDesc, stream, 1);
-            case CUDA_R_16I: return flattened<Op<short2>>(a, aDesc, out, oDesc, stream, 1);
+            case real32I: return flattened<Op<int32_t>>(a, aDesc, out, oDesc, stream);
+            case real8U:  return flattened<Op<uchar4>>(a, aDesc, out, oDesc, stream, 2);
+            case real8I:  return flattened<Op<char4>>(a, aDesc, out, oDesc, stream, 2);
+            case real16U: return flattened<Op<short2>>(a, aDesc, out, oDesc, stream, 1);
+            case real16I: return flattened<Op<short2>>(a, aDesc, out, oDesc, stream, 1);
             default: return cudaErrorNotSupported;
             }
         }
@@ -537,7 +551,7 @@ static cudaError_t selectAny(
             return selectAnyStrided<Op>(a, aDesc, out, oDesc, stream);
         } else {
             switch(oDesc.type) {
-            case CUDA_R_32I:  return flattened<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case real32I:  return flattened<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
             default: return cudaErrorNotSupported;
             }
         }
@@ -560,10 +574,10 @@ static cudaError_t selectFloatingPacked(
         return selectFloatingStrided<Op>(a, aDesc, out, oDesc, stream);
     } else {
         switch(oDesc.type) {
-        case CUDA_R_32F:  return flattened<Op<float>>(a, aDesc, out, oDesc, stream);
-        case CUDA_R_16F:  return flattened<Op<__half2>>(a, aDesc, out, oDesc, stream, 1);
-        case CUDA_R_16BF: return flattened<Op<__nv_bfloat162>>(a, aDesc, out, oDesc, stream, 1);
-        case CUDA_R_64F:  return flattened<Op<double>>(a, aDesc, out, oDesc, stream);
+        case real32F:  return flattened<Op<float>>(a, aDesc, out, oDesc, stream);
+        case real16F:  return flattened<Op<__half2>>(a, aDesc, out, oDesc, stream, 1);
+        case real16BF: return flattened<Op<__nv_bfloat162>>(a, aDesc, out, oDesc, stream, 1);
+        case real64F:  return flattened<Op<double>>(a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
     }
@@ -583,10 +597,10 @@ static cudaError_t selectFloatingPacked(
         return selectFloatingStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
     } else {
         switch(oDesc.type) {
-        case CUDA_R_32F:  return flattened<Op<float>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        case CUDA_R_16F:  return flattened<Op<__half2>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
-        case CUDA_R_16BF: return flattened<Op<__nv_bfloat162>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
-        case CUDA_R_64F:  return flattened<Op<double>>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case real32F:  return flattened<Op<float>>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case real16F:  return flattened<Op<__half2>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
+        case real16BF: return flattened<Op<__nv_bfloat162>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
+        case real64F:  return flattened<Op<double>>(a, aDesc, b, bDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
     }
@@ -609,7 +623,7 @@ static cudaError_t selectAnyPacked(
             return selectAnyStrided<Op>(a, aDesc, out, oDesc, stream);
         } else {
             switch(oDesc.type) {
-            case CUDA_R_32I:  return flattened<Op<int32_t>>(a, aDesc, out, oDesc, stream);
+            case real32I:  return flattened<Op<int32_t>>(a, aDesc, out, oDesc, stream);
             default: return cudaErrorNotSupported;
             }
         }
@@ -635,11 +649,11 @@ static cudaError_t selectAnyPacked(
             return selectAnyStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
         } else {
             switch(oDesc.type) {
-            case CUDA_R_32I: return flattened<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
-            case CUDA_R_8I:  return flattened<Op<char4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
-            case CUDA_R_8U:  return flattened<Op<uchar4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
-            case CUDA_R_16I: return flattened<Op<short2>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
-            case CUDA_R_16U: return flattened<Op<ushort2>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
+            case real32I: return flattened<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case real8I:  return flattened<Op<char4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
+            case real8U:  return flattened<Op<uchar4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
+            case real16I: return flattened<Op<short2>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
+            case real16U: return flattened<Op<ushort2>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
             default: return cudaErrorNotSupported;
             }
         }
@@ -663,7 +677,7 @@ static cudaError_t selectBool(
         return cudaErrorNotSupported;
     } else {
         switch(oDesc.type) {
-        case CUDA_R_8U: return flattened<Op<uchar4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
+        case boolean: return flattened<Op<bool4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
         default: return cudaErrorNotSupported;
         }
     }

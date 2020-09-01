@@ -16,6 +16,10 @@
 import Foundation
 import Numerics
 
+#if canImport(SwiftRTCuda)
+import SwiftRTCuda
+#endif
+
 //==============================================================================
 /// StorageElement
 /// tensor elements conform to `StorageElement`, which enables reading, writing,
@@ -26,10 +30,6 @@ public protocol StorageElement {
     associatedtype Stored
     associatedtype Value
     
-    //--------------------------------------------------------------------------
-    /// a unique element type identifier used for driver dispatch.
-    static var type: StorageElementType { get }
-
     /// a pointer to a `Stored` zero used for driver support 
     static var storedZeroPointer: UnsafeRawPointer { get }
 
@@ -124,32 +124,26 @@ public protocol StorageElement {
         in buffer: UnsafeMutableBufferPointer<Stored>,
         at index: Int
     )
+
+#if canImport(SwiftRTCuda)
+    //--------------------------------------------------------------------------
+    /// element data type identifier used for driver library dispatch
+    static var type: srtDataType { get }
+    static var cudnn: cudnnDataType_t { get }
+    static var cublas: cublasDataType_t { get }
+#endif
 }
 
 //==============================================================================
-/// StorageElementType
-/// Used primarily for driver kernel dispatch and serialization
-public enum StorageElementType: Int, Codable {
-    // floating point
-    case real16F, complex16F
-    case real16BF, complex16BF
-    case real32F, complex32F
-    case real64F, complex64F
-
-    // integer
-    case real1U
-    case real4I, real4U, complex4I, complex4U
-    case real8I, real8U, complex8I, complex8U
-    case real16I, real16U, complex16I, complex16U
-    case real32I, real32U, complex32I, complex32U
-    case real64U, real64I, complex64I, complex64U
-
-    // vector types
-    case vector8Ux4
-    case vector32Fx4
-
-    // non numeric
-    case bool1, bool8
+// to support aggregate types where the Scalar case isn't implemented yet
+extension StorageElement {
+    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
+        fatalError("not supported")
+    }
+    
+    @inlinable public static var storedOnePointer: UnsafeRawPointer {
+        fatalError("not supported")
+    }
 }
 
 //==============================================================================
@@ -292,7 +286,6 @@ public struct Bool1: PackedStorageElement {
     @inlinable public static var valueMask: Stored { 0x1 }
     @inlinable public static var valueMin: Value { false }
     @inlinable public static var valueMax: Value { true }
-    @inlinable public static var type: StorageElementType { .bool1 }
 
     //-------------------------------------
     // pointers
@@ -367,7 +360,6 @@ public struct UInt1: PackedStorageElement {
     @inlinable public static var valueMask: Stored { 0x1 }
     @inlinable public static var valueMin: Value { 0 }
     @inlinable public static var valueMax: Value { 1 }
-    @inlinable public static var type: StorageElementType { .real1U }
 
     //-------------------------------------
     // pointers
@@ -415,7 +407,6 @@ public struct UInt4: PackedStorageElement {
     @inlinable public static var valueMask: Stored { 0x0F }
     @inlinable public static var valueMin: Value { 0 }
     @inlinable public static var valueMax: Value { 15 }
-    @inlinable public static var type: StorageElementType { .real4U }
 
     //-------------------------------------
     // pointers
@@ -441,7 +432,6 @@ extension Float16: StorageElement {
     @inlinable public static func storedIndex(_ index: Int) -> Int { index }
     @inlinable public static func storedCount(_ count: Int) -> Int { count }
     @inlinable public static func alignment(_ index: Int) -> Int { 0 }
-    @inlinable public static var type: StorageElementType { .real16F }
 
     //-------------------------------------
     // pointers
@@ -493,7 +483,6 @@ extension BFloat16: StorageElement {
     @inlinable public static func storedIndex(_ index: Int) -> Int { index }
     @inlinable public static func storedCount(_ count: Int) -> Int { count }
     @inlinable public static func alignment(_ index: Int) -> Int { 0 }
-    @inlinable public static var type: StorageElementType { .real16BF }
 
     //-------------------------------------
     // pointers
@@ -544,7 +533,6 @@ extension BFloat16: StorageElement {
 extension Bool: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-    @inlinable public static var type: StorageElementType { .bool8 }
 
     //-------------------------------------
     // pointers
@@ -563,7 +551,6 @@ extension Bool: StorageElement {
 extension Int8: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-    @inlinable public static var type: StorageElementType { .real8I }
 
     //-------------------------------------
     // pointers
@@ -582,7 +569,6 @@ extension Int8: StorageElement {
 extension UInt8: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-    @inlinable public static var type: StorageElementType { .real8U }
 
     //-------------------------------------
     // pointers
@@ -601,7 +587,6 @@ extension UInt8: StorageElement {
 extension Int16: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-    @inlinable public static var type: StorageElementType { .real16I }
 
     //-------------------------------------
     // pointers
@@ -620,7 +605,6 @@ extension Int16: StorageElement {
 extension UInt16: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-    @inlinable public static var type: StorageElementType { .real16U }
 
     //-------------------------------------
     // pointers
@@ -639,7 +623,6 @@ extension UInt16: StorageElement {
 extension Int32: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-    @inlinable public static var type: StorageElementType { .real32I }
 
     //-------------------------------------
     // pointers
@@ -658,7 +641,6 @@ extension Int32: StorageElement {
 extension UInt32: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-    @inlinable public static var type: StorageElementType { .real32U }
 
     //-------------------------------------
     // pointers
@@ -677,7 +659,6 @@ extension UInt32: StorageElement {
 extension Float: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-    @inlinable public static var type: StorageElementType { .real32F }
 
     //-------------------------------------
     // pointers
@@ -696,7 +677,6 @@ extension Float: StorageElement {
 extension Double: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-    @inlinable public static var type: StorageElementType { .real64F }
 
     //-------------------------------------
     // pointers
@@ -711,34 +691,6 @@ extension Double: StorageElement {
         UnsafeRawPointer(&_storedOne)
     }
 }
-
-//------------------------------------------------------------------------------
-extension Complex: StorageElement {
-    public typealias Stored = Self
-    public typealias Value = Self
-    @inlinable public static var type: StorageElementType {
-        switch RealType.self {
-        case is Float.Type: return .complex32F
-        case is Float16.Type: return .complex16F
-        case is BFloat16.Type: return .complex16BF
-        case is Double.Type: return .complex64F
-        default: fatalError("Complex<\(RealType.self)> not implemented yet")
-        }
-    }
-
-    //-------------------------------------
-    // pointers
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZeroComplexFloat) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOneComplexFloat)
-    }
-}
-
-@usableFromInline var _storedZeroComplexFloat = Complex<Float>(0)
-@usableFromInline var _storedOneComplexFloat = Complex<Float>(1)
 
 //==============================================================================
 /// BufferElements

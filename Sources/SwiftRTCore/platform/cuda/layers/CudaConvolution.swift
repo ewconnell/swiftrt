@@ -275,8 +275,8 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
 
         //----------------------------------
         // create convolution descriptor
-        let convolutionStorageElementType: StorageElementType =
-            Element.type == .real64F ? .real64F : .real32F
+        let convolutionStorageElementType: cudnnDataType_t =
+            Element.type == real64F ? CUDNN_DATA_DOUBLE : CUDNN_DATA_FLOAT
 
         let pad = (padding == .valid) ? Shape.zero : (filter.shape / 2)
 
@@ -819,7 +819,7 @@ public final class ConvolutionDescriptor<Shape: TensorShape> {
 
     // initializers
     @inlinable public init(
-        scalarType: StorageElementType,
+        scalarType: cudnnDataType_t,
         rank: Int,
         padding: Shape,
         strides: Shape,
@@ -839,7 +839,7 @@ public final class ConvolutionDescriptor<Shape: TensorShape> {
             strides.asInt32,
             dilations.asInt32,
             mode.cudnn,
-            scalarType.cudnn))
+            scalarType))
     }
 
     @inlinable deinit {
