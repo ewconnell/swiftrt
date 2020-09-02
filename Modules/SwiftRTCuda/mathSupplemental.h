@@ -297,7 +297,10 @@ PROMOTED2_BFLOAT162(subtract)
 template<typename T>
 __device__ inline T neg(const T& a) { return -a; }
 
-//------------------------------------------------------------------------------
+NATIVE_FLOAT162(neg, __hneg2)
+NATIVE_BFLOAT162(neg, __hneg2)
+
+//==============================================================================
 // pow Float16
 __device__ inline __half pow(const __half& a, const int n) {
     return pow(float(a), n);
@@ -320,19 +323,37 @@ __device__ inline __nv_bfloat162 pow(const __nv_bfloat162& a, const int n) {
 
 #endif
 
-//------------------------------------------------------------------------------
+//==============================================================================
 // root 
 template<typename T>
 __device__ inline T root(const T& a, const int n) { return pow(a, 1.0f / float(n)); }
 
-//------------------------------------------------------------------------------
+//==============================================================================
 // sign 
 template<typename T>
 __device__ inline T sign(const T& a) { return a < T(0) ? T(-1) : T(1); }
 
+__device__ inline uint16_t sign(const uint16_t& a) { return 1; }
+__device__ inline uint8_t sign(const uint8_t& a) { return 1; }
+
+// Float16
+__device__ inline __half2 sign(const __half2& a) {
+    __half2 out; 
+    out.x = a.x < __half(0.0f) ? __half(-1.0f) : __half(1.0f); 
+    out.y = a.y < __half(0.0f) ? __half(-1.0f) : __half(1.0f); 
+    return out;
+}
+
 // BFloat16
 __device__ inline __nv_bfloat16 sign(const __nv_bfloat16& a) {
     return a < __nv_bfloat16(0.0f) ? __nv_bfloat16(-1.0f) : __nv_bfloat16(1.0f);
+}
+
+__device__ inline __nv_bfloat162 sign(const __nv_bfloat162& a) {
+    __nv_bfloat162 out;
+    out.x = a.x < __nv_bfloat16(0.0f) ? __nv_bfloat16(-1.0f) : __nv_bfloat16(1.0f);
+    out.y = a.y < __nv_bfloat16(0.0f) ? __nv_bfloat16(-1.0f) : __nv_bfloat16(1.0f);
+    return out;
 }
 
 // uchar4
@@ -364,10 +385,17 @@ __device__ inline short2 sign(const short2& a) {
     return out;
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
 // squared 
 template<typename T>
 __device__ inline T squared(const T& a) { return a * a; }
+
+__device__ inline __nv_bfloat162 squared(const __nv_bfloat162& a) {
+    __nv_bfloat162 out;
+    out.x = a.x * a.x;
+    out.y = a.y * a.y;
+    return out;
+}
 
 //------------------------------------------------------------------------------
 // sigmoid Float16
@@ -375,7 +403,7 @@ template<typename T>
 __device__ inline T sigmoid(const T& a) { return T(1) / (T(1) + exp(-a)); }
 
 __device__ inline __half2 sigmoid(const __half2& a) {
-    const __half2 one = __half2(1,1);
+    const __half2 one = __half2(1, 1);
     return one / (one + exp(-a));
 }
 
@@ -411,6 +439,25 @@ __device__ inline short2 operator-(const short2& v) {
     auto out = __vneg2(UINT_CREF(v));
     return CAST(short2, out);
 }
+
+//==============================================================================
+// abs
+
+//--------------------------------------
+// char4
+__device__ inline char4 abs(const char4& v) {
+    auto out = __vabs4(UINT_CREF(v));
+    return CAST(char4, out);
+}
+__device__ inline uchar4 abs(const uchar4& v) { return v; }
+
+//--------------------------------------
+// short2
+__device__ inline short2 abs(const short2& v) {
+    auto out = __vabs2(UINT_CREF(v));
+    return CAST(short2, out);
+}
+__device__ inline ushort2 abs(const ushort2& v) { return v; }
 
 //==============================================================================
 // add

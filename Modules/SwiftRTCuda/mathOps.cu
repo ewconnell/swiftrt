@@ -87,7 +87,7 @@ cudaError_t srtAbs(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectAnyPacked<Abs>(a, aDesc, out, oDesc, stream);
+    return selectAny<Abs>(a, aDesc, out, oDesc, stream);
 }
 
 // Must be promoted types
@@ -116,7 +116,7 @@ cudaError_t srtAdd(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return selectAnyPacked<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectAny<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAsin(
@@ -172,7 +172,7 @@ cudaError_t srtCos(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectFloatingPacked<Cos>(a, aDesc, out, oDesc, stream);
+    return selectFloating<Cos>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtCosh(
@@ -191,7 +191,7 @@ cudaError_t srtDiv(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return selectAnyPacked<Div>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectAny<Div>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtErf(
@@ -218,7 +218,7 @@ cudaError_t srtExp(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectFloatingPacked<Exp>(a, aDesc, out, oDesc, stream);
+    return selectFloating<Exp>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtExp2(
@@ -227,7 +227,7 @@ cudaError_t srtExp2(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectFloatingPacked<Exp2>(a, aDesc, out, oDesc, stream);
+    return selectFloating<Exp2>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtExp10(
@@ -236,7 +236,7 @@ cudaError_t srtExp10(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectFloatingPacked<Exp10>(a, aDesc, out, oDesc, stream);
+    return selectFloating<Exp10>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtExpMinusOne(
@@ -273,7 +273,7 @@ cudaError_t srtLog(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectFloatingPacked<Log>(a, aDesc, out, oDesc, stream);
+    return selectFloating<Log>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLogOnePlus(
@@ -291,7 +291,7 @@ cudaError_t srtLog2(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectFloatingPacked<Log2>(a, aDesc, out, oDesc, stream);
+    return selectFloating<Log2>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLog10(
@@ -300,7 +300,7 @@ cudaError_t srtLog10(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectFloatingPacked<Log10>(a, aDesc, out, oDesc, stream);
+    return selectFloating<Log10>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLogGamma(
@@ -319,7 +319,7 @@ cudaError_t srtMul(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return selectAnyPacked<Mul>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectAny<Mul>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtNeg(
@@ -365,7 +365,7 @@ cudaError_t srtSigmoid(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectFloatingPacked<Sigmoid>(a, aDesc, out, oDesc, stream);
+    return selectFloating<Sigmoid>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSign(
@@ -383,7 +383,7 @@ cudaError_t srtSin(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectFloatingPacked<Sin>(a, aDesc, out, oDesc, stream);
+    return selectFloating<Sin>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSinh(
@@ -392,7 +392,7 @@ cudaError_t srtSinh(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectFloatingPacked<Sinh>(a, aDesc, out, oDesc, stream);
+    return selectFloating<Sinh>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSqrt(
@@ -401,7 +401,7 @@ cudaError_t srtSqrt(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectFloatingPacked<Sqrt>(a, aDesc, out, oDesc, stream);
+    return selectFloating<Sqrt>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSquared(
@@ -420,7 +420,7 @@ cudaError_t srtSub(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return selectAnyPacked<Sub>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectAny<Sub>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtTan(

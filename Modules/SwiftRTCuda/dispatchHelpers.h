@@ -20,6 +20,7 @@
 #include <cuda.h>
 #include <type_traits>
 #include "kernels.h"
+#include "complex.h"
 
 //==============================================================================
 // supplemental logical types
@@ -134,8 +135,7 @@ static cudaError_t flattened(
     dim3 tile = tileSize(packedCount);
     dim3 grid = gridSize<1>(oDesc, tile);
 
-    mapA<Op,Flat,Flat>
-        <<<grid, tile, 0, stream>>>(a, Flat(aDesc), out, Flat(oDesc));
+    mapA<Op,Flat,Flat><<<grid, tile, 0, stream>>>(a, Flat(aDesc), out, Flat(oDesc));
 
     return cudaSuccess;
 }
@@ -381,6 +381,7 @@ static cudaError_t selectFloatingStrided(
     case real16F:  return selectRank<Op<__half>>(a, aDesc, b, bDesc, out, oDesc, stream);
     case real16BF: return selectRank<Op<__nv_bfloat16>>(a, aDesc, b, bDesc, out, oDesc, stream);
     case real64F:  return selectRank<Op<double>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    // case complex32F: return selectRank<Op<Complex<float>>>(a, aDesc, b, bDesc, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
@@ -398,7 +399,11 @@ static cudaError_t selectAnyStrided(
     auto status = selectFloatingStrided<Op>(a, aDesc, out, oDesc, stream);
     if (status == cudaErrorNotSupported) {
         switch(oDesc.type) {
-        case real32I:  return selectRank<Op<int32_t>>(a, aDesc, out, oDesc, stream);
+        case real32I: return selectRank<Op<int32_t>>(a, aDesc, out, oDesc, stream);
+        case real8I:  return selectRank<Op<int8_t>>(a, aDesc, out, oDesc, stream);
+        case real8U:  return selectRank<Op<uint8_t>>(a, aDesc, out, oDesc, stream);
+        case real16I: return selectRank<Op<int16_t>>(a, aDesc, out, oDesc, stream);
+        case real16U: return selectRank<Op<uint16_t>>(a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
     } else {
@@ -419,7 +424,11 @@ static cudaError_t selectAnyStrided(
     auto status = selectFloatingStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
     if (status == cudaErrorNotSupported) {
         switch(oDesc.type) {
-        case real32I:  return selectRank<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case real32I: return selectRank<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case real8I:  return selectRank<Op<int8_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case real8U:  return selectRank<Op<uint8_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case real16I: return selectRank<Op<int16_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case real16U: return selectRank<Op<uint16_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
     } else {
@@ -437,7 +446,7 @@ static cudaError_t selectBoolStrided(
     cudaStream_t stream
 ) {
     switch(oDesc.type) {
-    case real8U: return selectRank<Op<uint8_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real8U: return selectRank<Op<bool>>(a, aDesc, b, bDesc, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
@@ -456,8 +465,8 @@ static cudaError_t selectFloating(
     } else {
         switch(oDesc.type) {
         case real32F:  return flattened<Op<float>>(a, aDesc, out, oDesc, stream);
-        case real16F:  return flattened<Op<__half>>(a, aDesc, out, oDesc, stream, 1);
-        case real16BF: return flattened<Op<__nv_bfloat16>>(a, aDesc, out, oDesc, stream, 1);
+        case real16F:  return flattened<Op<__half2>>(a, aDesc, out, oDesc, stream, 1);
+        case real16BF: return flattened<Op<__nv_bfloat162>>(a, aDesc, out, oDesc, stream, 1);
         case real64F:  return flattened<Op<double>>(a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -478,8 +487,8 @@ static cudaError_t selectFloating(
     } else {
         switch(oDesc.type) {
         case real32F:  return flattened<Op<float>,Scalar>(a, aDesc, value, out, oDesc, stream);
-        case real16F:  return flattened<Op<__half>,Scalar>(a, aDesc, value, out, oDesc, stream, 1);
-        case real16BF: return flattened<Op<__nv_bfloat16>,Scalar>(a, aDesc, value, out, oDesc, stream, 1);
+        case real16F:  return flattened<Op<__half2>,Scalar>(a, aDesc, value, out, oDesc, stream, 1);
+        case real16BF: return flattened<Op<__nv_bfloat162>,Scalar>(a, aDesc, value, out, oDesc, stream, 1);
         case real64F:  return flattened<Op<double>,Scalar>(a, aDesc, value, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -500,8 +509,8 @@ static cudaError_t selectFloating(
     } else {
         switch(oDesc.type) {
         case real32F:  return flattened<Op<float>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        case real16F:  return flattened<Op<__half>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
-        case real16BF: return flattened<Op<__nv_bfloat16>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
+        case real16F:  return flattened<Op<__half2>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
+        case real16BF: return flattened<Op<__nv_bfloat162>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
         case real64F:  return flattened<Op<double>>(a, aDesc, b, bDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -545,115 +554,13 @@ static cudaError_t selectAny(
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    auto status = selectFloating<Op>(a, aDesc, out, oDesc, stream);
-    if (status == cudaErrorNotSupported) {
-        if (aDesc.isStrided() || bDesc.isStrided()) {
-            return selectAnyStrided<Op>(a, aDesc, out, oDesc, stream);
-        } else {
-            switch(oDesc.type) {
-            case real32I:  return flattened<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
-            default: return cudaErrorNotSupported;
-            }
-        }
-    } else {
-        return status;
-    }
-}
-
-//==============================================================================
-// selectFloatingPacked tensorA
-// converts from dynamic to static type. This is called for operators that
-// have native packed implementations such has __half2 or __nv_bfloat162
-template<template<typename T> class Op>
-static cudaError_t selectFloatingPacked(
-    const void* a, const TensorDescriptor& aDesc,
-    void* out, const TensorDescriptor& oDesc,
-    cudaStream_t stream
-) {
-    if (aDesc.isStrided()) {
-        return selectFloatingStrided<Op>(a, aDesc, out, oDesc, stream);
-    } else {
-        switch(oDesc.type) {
-        case real32F:  return flattened<Op<float>>(a, aDesc, out, oDesc, stream);
-        case real16F:  return flattened<Op<__half2>>(a, aDesc, out, oDesc, stream, 1);
-        case real16BF: return flattened<Op<__nv_bfloat162>>(a, aDesc, out, oDesc, stream, 1);
-        case real64F:  return flattened<Op<double>>(a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
-    }
-}
-
-// selectFloatingPacked tensorA tensorB
-// converts from dynamic to static type. This is called for operators that
-// have native packed implementations such has __half2 or __nv_bfloat162
-template<template<typename T> class Op>
-static cudaError_t selectFloatingPacked(
-    const void* a, const TensorDescriptor& aDesc,
-    const void* b, const TensorDescriptor& bDesc,
-    void* out, const TensorDescriptor& oDesc,
-    cudaStream_t stream
-) {
-    if (aDesc.isStrided() || bDesc.isStrided()) {
-        return selectFloatingStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
-    } else {
-        switch(oDesc.type) {
-        case real32F:  return flattened<Op<float>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        case real16F:  return flattened<Op<__half2>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
-        case real16BF: return flattened<Op<__nv_bfloat162>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
-        case real64F:  return flattened<Op<double>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
-    }
-}
-
-//==============================================================================
-// selectAnyPacked tensorA
-// converts from dynamic to static type. This is called for operators that
-// have native packed implementations such has __half2 or __nv_bfloat162
-template<template<typename T> class Op>
-static cudaError_t selectAnyPacked(
-    const void* a, const TensorDescriptor& aDesc,
-    void* out, const TensorDescriptor& oDesc,
-    cudaStream_t stream
-) {
-    auto status = selectFloatingPacked<Op>(a, aDesc, out, oDesc, stream);
-
-    if (status == cudaErrorNotSupported) {
-        if (aDesc.isStrided()) {
-            return selectAnyStrided<Op>(a, aDesc, out, oDesc, stream);
-        } else {
-            switch(oDesc.type) {
-            case real32I:  return flattened<Op<int32_t>>(a, aDesc, out, oDesc, stream);
-            default: return cudaErrorNotSupported;
-            }
-        }
-    } else {
-        return status;
-    }
-}
-
-// selectAnyPacked tensorA tensorB
-// converts from dynamic to static type. This is called for operators that
-// have native packed implementations such has __half2 or __nv_bfloat162
-template<template<typename T> class Op>
-static cudaError_t selectAnyPacked(
-    const void* a, const TensorDescriptor& aDesc,
-    const void* b, const TensorDescriptor& bDesc,
-    void* out, const TensorDescriptor& oDesc,
-    cudaStream_t stream
-) {
-    auto status = selectFloatingPacked<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
-
+    auto status = selectFloating<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
     if (status == cudaErrorNotSupported) {
         if (aDesc.isStrided() || bDesc.isStrided()) {
             return selectAnyStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
         } else {
             switch(oDesc.type) {
-            case real32I: return flattened<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
-            case real8I:  return flattened<Op<char4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
-            case real8U:  return flattened<Op<uchar4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
-            case real16I: return flattened<Op<short2>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
-            case real16U: return flattened<Op<ushort2>>(a, aDesc, b, bDesc, out, oDesc, stream, 1);
+            case real32I:  return flattened<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
             default: return cudaErrorNotSupported;
             }
         }
