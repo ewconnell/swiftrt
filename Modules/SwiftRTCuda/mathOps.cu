@@ -328,7 +328,7 @@ cudaError_t srtNeg(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectIntFloating<Neg>(a, aDesc, out, oDesc, stream);
+    return selectNumeric<Neg>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtPow(
@@ -410,7 +410,7 @@ cudaError_t srtSquared(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectFloating<Squared>(a, aDesc, out, oDesc, stream);
+    return selectNumeric<Squared>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSub(

@@ -410,6 +410,10 @@ struct Complex {
         return Complex(x - w.x, y - w.y);
     }
     
+    __CUDA_HOSTDEVICE__ inline Complex operator-() const {
+        return Complex(-x, -y);
+    }
+
     __CUDA_HOSTDEVICE__ inline void operator+=(Complex w) {
         *this = *this + w;
     }
