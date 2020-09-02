@@ -88,7 +88,7 @@ cudaError_t srtEqual(
     cudaStream_t stream)
 {
     // Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    // return selectAnyPacked<Equal>(a, aDesc, b, bDesc, out, oDesc, stream);
+    // return selectIntFloatingPacked<Equal>(a, aDesc, b, bDesc, out, oDesc, stream);
     return cudaErrorNotSupported;
 }
 

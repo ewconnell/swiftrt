@@ -16,7 +16,7 @@
 #ifndef complex_h
 #define complex_h
 
-#include <math.h>
+#include <cmath>
 #include <optional>
 
 //******************************************************************************
@@ -41,12 +41,12 @@ struct Complex {
 
     //--------------------------------------------------------------------------
     /// A complex number constructed by specifying the real and imaginary parts.
-    inline Complex(RealType real, RealType imaginary) {
+    __device__ inline Complex(RealType real, RealType imaginary) {
         x = real;
         y = imaginary;
     }
 
-    inline Complex(RealType real) {
+    __device__ inline Complex(RealType real) {
         x = real;
         y = 0;
     }
@@ -58,14 +58,14 @@ struct Complex {
     /// The real part of this complex value.
     ///
     /// If `z` is not finite, `z.real` is `.nan`.
-    inline RealType real() { isFinite() ? x : std::nan; }
-    inline RealType real(RealType newValue) { x = newValue; }
+    __device__ inline RealType real() { isFinite() ? x : std::nan; }
+    __device__ inline RealType real(RealType newValue) { x = newValue; }
 
     /// The imaginary part of this complex value.
     ///
     /// If `z` is not finite, `z.imaginary` is `.nan`.
-    inline RealType imaginary() { isFinite() ? y : std::nan; }
-    inline RealType imaginary(RealType newValue) { y = newValue; }
+    __device__ inline RealType imaginary() { isFinite() ? y : std::nan; }
+    __device__ inline RealType imaginary(RealType newValue) { y = newValue; }
 
     /// The additive identity, with real and imaginary parts both zero.
     ///
@@ -74,7 +74,7 @@ struct Complex {
     /// - .one
     /// - .i
     /// - .infinity
-    inline static Complex zero() { return Complex(0, 0); }
+    __device__ inline static Complex zero() { return Complex(0, 0); }
 
     /// The multiplicative identity, with real part one and imaginary part zero.
     ///
@@ -83,7 +83,7 @@ struct Complex {
     /// - .zero
     /// - .i
     /// - .infinity
-    inline static Complex one() { return Complex(1, 0); }
+    __device__ inline static Complex one() { return Complex(1, 0); }
 
     /// The imaginary unit.
     ///
@@ -92,7 +92,7 @@ struct Complex {
     /// - .zero
     /// - .one
     /// - .infinity
-    inline static Complex i() { return Complex(0, 1); }
+    __device__ inline static Complex i() { return Complex(0, 1); }
 
     /// The point at infinity.
     ///
@@ -101,10 +101,10 @@ struct Complex {
     /// - .zero
     /// - .one
     /// - .i
-    inline static Complex infinity() { return Complex(INFINITY, 0); }
+    __device__ inline static Complex infinity() { return Complex(INFINITY, 0); }
 
     /// The complex conjugate of this value.
-    inline Complex conjugate() { return Complex(x, -y); }
+    __device__ inline Complex conjugate() { return Complex(x, -y); }
 
     /// True if this value is finite.
     ///
@@ -115,7 +115,7 @@ struct Complex {
     /// - `.isNormal`
     /// - `.isSubnormal`
     /// - `.isZero`
-    inline bool isFinite() {
+    __device__ inline bool isFinite() {
         return isfinite(x) && isfinite(y);
     }
 
@@ -130,7 +130,7 @@ struct Complex {
     /// - `.isFinite`
     /// - `.isSubnormal`
     /// - `.isZero`
-    inline bool isNormal() {
+    __device__ inline bool isNormal() {
         return isFinite() && (std::isnormal(x) || std::isnormal(y));
     }
 
@@ -144,7 +144,7 @@ struct Complex {
     /// - `.isFinite`
     /// - `.isNormal`
     /// - `.isZero`
-    inline bool isSubnormal() { return isFinite() && !isNormal() && !isZero(); }
+    __device__ inline bool isSubnormal() { return isFinite() && !isNormal() && !isZero(); }
 
     /// True if this value is zero.
     ///
@@ -155,7 +155,7 @@ struct Complex {
     /// - `.isFinite`
     /// - `.isNormal`
     /// - `.isSubnormal`
-    inline bool isZero() { return x == 0 && y == 0; }
+    __device__ inline bool isZero() { return x == 0 && y == 0; }
 
     /// The ∞-norm of the value (`max(abs(real), abs(imaginary))`).
     ///
@@ -172,11 +172,11 @@ struct Complex {
     /// -
     /// - `.length`
     /// - `.lengthSquared`
-    inline RealType magnitude() {
+    __device__ inline RealType magnitude() {
         if (isFinite()) {
             return max(abs(x), abs(y));
         } else {
-            return infinity();
+            return INFINITY;
         }
     }
 
@@ -195,7 +195,7 @@ struct Complex {
     /// before passing across language boundaries, but it may also be useful
     /// for some serialization tasks. It's also a useful implementation detail for
     /// some primitive operations.
-    inline Complex canonicalized() {
+    __device__ inline Complex canonicalized() {
         if (isZero()) {
             return zero();
         } else if (isFinite()) {
@@ -242,7 +242,7 @@ struct Complex {
     /// - `.phase`
     /// - `.polar`
     /// - `init(r:θ:)`
-    inline RealType length() {
+    __device__ inline RealType length() {
         auto naive = lengthSquared();
         if (naive.isNormal()) {
             return sqrt(naive);
@@ -255,7 +255,7 @@ struct Complex {
     //  of the inline function. Note that even `carefulLength` can overflow
     //  for finite inputs, but only when the result is outside the range
     //  of representable values.
-    inline RealType carefulLength() {
+    __device__ inline RealType carefulLength() {
         if (isFinite()) {
             return hypot(x, y);
         } else {
@@ -278,7 +278,7 @@ struct Complex {
     /// -
     /// - `.length`
     /// - `.magnitude`
-    inline RealType lengthSquared() {
+    __device__ inline RealType lengthSquared() {
         return x*x + y*y;
     }
     
@@ -297,7 +297,7 @@ struct Complex {
     /// - `.length`
     /// - `.polar`
     /// - `init(r:θ:)`
-    inline RealType phase() {
+    __device__ inline RealType phase() {
         if (isFinite() && !isZero()) {
             return atan2(y, x);
         }  else {
@@ -320,13 +320,13 @@ struct Complex {
     struct Polar {
         RealType length;
         RealType phase;
-        inline Polar(RealType l, RealType p) {
+        __device__ inline Polar(RealType l, RealType p) {
             length = l;
             phase = p;
         }
     };
 
-    inline Polar polar() {
+    __device__ inline Polar polar() {
         return Polar(length(), phase());
     }
     
@@ -353,7 +353,7 @@ struct Complex {
     /// - `.length`
     /// - `.phase`
     /// - `.polar`
-    inline Complex(Polar polar) {
+    __device__ inline Complex(Polar polar) {
         if (polar.phase.isFinite()) {
             *this = Complex(cos(polar.phase), sin(polar.phase)).multipliedBy(polar.length);
         } else {
@@ -370,7 +370,7 @@ struct Complex {
     // The Complex type identifies all non-finite points (waving hands slightly,
     // we identify all NaNs and infinites as the point at infinity on the Riemann
     // sphere).
-    inline bool operator==(Complex b) {
+    __device__ inline bool operator==(Complex b) {
         // Identify all numbers with either component non-finite as a single
         // "point at infinity".
         if (!(isFinite() || b.isFinite())) return true;
@@ -385,19 +385,19 @@ struct Complex {
     // AdditiveArithmetic
     //==========================================================================
 
-    inline Complex operator+(Complex w) const {
+    __device__ inline Complex operator+(Complex w) const {
         return Complex(x + w.x, y + w.y);
     }
     
-    inline Complex operator-(Complex w) const {
+    __device__ inline Complex operator-(Complex w) const {
         return Complex(x - w.x, y - w.y);
     }
     
-    inline void operator+=(Complex w) {
+    __device__ inline void operator+=(Complex w) {
         *this = *this + w;
     }
     
-    inline void operator-=(Complex w) {
+    __device__ inline void operator-=(Complex w) {
         *this = *this - w;
     }
 
@@ -420,39 +420,39 @@ struct Complex {
     // TODO: figure out if there's some way to avoid these surprising results
     // and turn these into operators if/when we have it.
     // (https://github.com/apple/swift-numerics/issues/12)
-    inline Complex multipliedBy(RealType a) const {
+    __device__ inline Complex multipliedBy(RealType a) const {
         return Complex(x*a, y*a);
     }
 
-    inline Complex dividedBy(RealType a) const {
+    __device__ inline Complex dividedBy(RealType a) const {
         return Complex(x/a, y/a);
     }
 
-    inline Complex operator*(Complex w) const {
+    __device__ inline Complex operator*(Complex w) const {
         return Complex(x*w.x - y*w.y, x*w.y + y*w.x);
     }
     
-    inline Complex operator/(Complex w) const {
+    __device__ inline Complex operator/(Complex w) const {
         // Try the naive expression z/w = z*conj(w) / |w|^2; if we can compute
         // this without over/underflow, everything is fine and the result is
         // correct. If not, we have to rescale and do the computation carefully.
-        auto lenSq = w.lengthSquared();
-        if (lenSq.isNormal()) {
+        RealType lenSq = w.lengthSquared();
+        if (std::isnormal(lenSq)) {
             return *this * (w.conjugate().dividedBy(lenSq));
         } else {
             return rescaledDivide(*this, w);
         }
     }
 
-    inline void operator*=(Complex w) {
+    __device__ inline void operator*=(Complex w) {
         *this = *this * w;
     }
 
-    inline void operator/=(Complex w)  {
+    __device__ inline void operator/=(Complex w)  {
         *this = *this / w;
     }
 
-    static Complex rescaledDivide(Complex z, Complex w) {
+    __device__ static Complex rescaledDivide(Complex z, Complex w) {
         if (w.isZero()) return infinity();
         if (z.isZero() || !w.isFinite()) return zero();
         // TODO: detect when RealType is Float and just promote to Double, then
@@ -473,13 +473,13 @@ struct Complex {
         // - (r / wScale) * zScale
         //
         // The simplest case is when zScale / wScale is normal:
-        if ((zScale / wScale).isNormal()) {
+        if (std::isnormal(zScale / wScale)) {
             return r.multipliedBy(zScale / wScale);
         }
         // Otherwise, we need to compute either rNorm * zScale or rNorm / wScale
         // first. Choose the first if the first scaling behaves well, otherwise
         // choose the other one.
-        if ((r.magnitude * zScale).isNormal()) {
+        if (std::isnormal(r.magnitude() * zScale)) {
             return r.multipliedBy(zScale).dividedBy(wScale);
         }
         return r.dividedBy(wScale).multipliedBy(zScale);
@@ -489,7 +489,7 @@ struct Complex {
     ///
     /// If such a value cannot be produced (because the phase of zero and infinity is undefined),
     /// `nil` is returned.
-    inline std::optional<Complex> normalized() {
+    __device__ inline std::optional<Complex> normalized() {
         if (length().isNormal()) {
             return this->dividedBy(length());
         }
@@ -516,7 +516,7 @@ struct Complex {
     ///   return data.map { $0 / divisor }
     /// }
     /// ```
-    inline std::optional<Complex> reciprocal() {
+    __device__ inline std::optional<Complex> reciprocal() {
         auto recip = 1/(*this);
         if (recip.isNormal() || isZero() || !isFinite()) {
             return recip;

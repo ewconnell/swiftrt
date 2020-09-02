@@ -87,7 +87,7 @@ cudaError_t srtAbs(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectAny<Abs>(a, aDesc, out, oDesc, stream);
+    return selectIntFloating<Abs>(a, aDesc, out, oDesc, stream);
 }
 
 // Must be promoted types
@@ -116,7 +116,7 @@ cudaError_t srtAdd(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return selectAny<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectNumeric<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAsin(
@@ -191,7 +191,7 @@ cudaError_t srtDiv(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return selectAny<Div>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectNumeric<Div>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtErf(
@@ -319,7 +319,7 @@ cudaError_t srtMul(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return selectAny<Mul>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectNumeric<Mul>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtNeg(
@@ -328,7 +328,7 @@ cudaError_t srtNeg(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectAny<Neg>(a, aDesc, out, oDesc, stream);
+    return selectIntFloating<Neg>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtPow(
@@ -374,7 +374,7 @@ cudaError_t srtSign(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectAny<Sign>(a, aDesc, out, oDesc, stream);
+    return selectIntFloating<Sign>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSin(
@@ -420,7 +420,7 @@ cudaError_t srtSub(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return selectAny<Sub>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectNumeric<Sub>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtTan(

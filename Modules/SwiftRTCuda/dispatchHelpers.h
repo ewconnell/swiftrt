@@ -381,16 +381,32 @@ static cudaError_t selectFloatingStrided(
     case real16F:  return selectRank<Op<__half>>(a, aDesc, b, bDesc, out, oDesc, stream);
     case real16BF: return selectRank<Op<__nv_bfloat16>>(a, aDesc, b, bDesc, out, oDesc, stream);
     case real64F:  return selectRank<Op<double>>(a, aDesc, b, bDesc, out, oDesc, stream);
-    // case complex32F: return selectRank<Op<Complex<float>>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    default: return cudaErrorNotSupported;
+    }
+}
+
+// selectComplexStrided tensorA tensorB
+template<template<typename T> class Op>
+static cudaError_t selectComplexStrided(
+    const void* a, const TensorDescriptor& aDesc,
+    const void* b, const TensorDescriptor& bDesc,
+    void* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    switch(oDesc.type) {
+    case complex32F:  return selectRank<Op<Complex<float>>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case complex16F:  return selectRank<Op<Complex<__half>>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case complex16BF: return selectRank<Op<Complex<__nv_bfloat16>>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case complex64F:  return selectRank<Op<Complex<double>>>(a, aDesc, b, bDesc, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
 
 //==============================================================================
-// selectAnyStrided tensorA
+// selectIntFloatingStrided tensorA
 // converts from dynamic to static type and delegates for stride selection
 template<template<typename T> class Op>
-static cudaError_t selectAnyStrided(
+static cudaError_t selectIntFloatingStrided(
     const void* a, const TensorDescriptor& aDesc,
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
@@ -411,10 +427,10 @@ static cudaError_t selectAnyStrided(
     }
 }
 
-// selectAnyStrided tensorA tensorB
+// selectIntFloatingStrided tensorA tensorB
 // converts from dynamic to static type and delegates for stride selection
 template<template<typename T> class Op>
-static cudaError_t selectAnyStrided(
+static cudaError_t selectIntFloatingStrided(
     const void* a, const TensorDescriptor& aDesc,
     const void* b, const TensorDescriptor& bDesc,
     void* out, const TensorDescriptor& oDesc,
@@ -518,10 +534,10 @@ static cudaError_t selectFloating(
 }
 
 //==============================================================================
-// selectAny tensorA
+// selectIntFloating tensorA
 // converts from dynamic to static type and delegates for stride selection
 template<template<typename T> class Op>
-static cudaError_t selectAny(
+static cudaError_t selectIntFloating(
     const void* a, const TensorDescriptor& aDesc,
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
@@ -529,7 +545,7 @@ static cudaError_t selectAny(
     auto status = selectFloating<Op>(a, aDesc, out, oDesc, stream);
     if (status == cudaErrorNotSupported) {
         if (aDesc.isStrided()) {
-            return selectAnyStrided<Op>(a, aDesc, out, oDesc, stream);
+            return selectIntFloatingStrided<Op>(a, aDesc, out, oDesc, stream);
         } else {
             switch(oDesc.type) {
             case real32I: return flattened<Op<int32_t>>(a, aDesc, out, oDesc, stream);
@@ -545,22 +561,54 @@ static cudaError_t selectAny(
     }
 }
 
-// selectAny tensorA tensorB
+// selectIntFloating tensorA tensorB
 // converts from dynamic to static type and delegates for stride selection
 template<template<typename T> class Op>
-static cudaError_t selectAny(
+static cudaError_t selectIntFloating(
     const void* a, const TensorDescriptor& aDesc,
     const void* b, const TensorDescriptor& bDesc,
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
+    // first check if it's a floating type
     auto status = selectFloating<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
     if (status == cudaErrorNotSupported) {
         if (aDesc.isStrided() || bDesc.isStrided()) {
-            return selectAnyStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
+            return selectIntFloatingStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
         } else {
             switch(oDesc.type) {
             case real32I:  return flattened<Op<int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            default: return cudaErrorNotSupported;
+            }
+        }
+    } else {
+        return status;
+    }
+}
+
+//==============================================================================
+// selectBool tensorA tensorB
+// converts from dynamic Int, Float, Complex to static type
+template<template<typename T> class Op>
+static cudaError_t selectNumeric(
+    const void* a, const TensorDescriptor& aDesc,
+    const void* b, const TensorDescriptor& bDesc,
+    void* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    // first check if it's an integer or floating type
+    auto status = selectIntFloating<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
+    if (status == cudaErrorNotSupported) {
+        if (aDesc.isStrided() || bDesc.isStrided()) {
+            // return selectComplexStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
+            return cudaErrorNotSupported;
+        } else {
+            // switch on complex type
+            switch(oDesc.type) {
+            case complex32F:  return flattened<Op<Complex<float>>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            // case complex16F:  return flattened<Op<Complex<__half>>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            // case complex16BF: return flattened<Op<Complex<__nv_bfloat16>>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            // case complex64F:  return flattened<Op<Complex<double>>>(a, aDesc, b, bDesc, out, oDesc, stream);
             default: return cudaErrorNotSupported;
             }
         }
