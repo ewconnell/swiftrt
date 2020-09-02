@@ -16,6 +16,7 @@
 #include <cuda_fp16.h>
 #include <cuda_bf16.h>
 
+#include "commonCDefs.h"
 #include "fillOps.h"
 #include "dispatchHelpers.h"
 #include "index.h"
@@ -97,6 +98,9 @@ cudaError_t srtFill(
         case real8U:
             // pack 8 bit elements
             return elementFill<uint32_t>(out, oDesc, fillWord<uint8_t>(element), stream, 2);
+
+        case complex32F:
+            return elementFill<Complex<float> >(out, oDesc, *(Complex<float> *)element, stream);
         default: return cudaErrorNotSupported;
     }
 }
@@ -175,6 +179,7 @@ cudaError_t srtFillRange(
     case real16U:  return selectRangeFillRank<uint16_t>(out, oDesc, lower, stream);
     case real8I:   return selectRangeFillRank<int8_t>(out, oDesc, lower, stream);
     case real8U:   return selectRangeFillRank<uint8_t>(out, oDesc, lower, stream);
+    case complex32F: return selectRangeFillRank<Complex<float> >(out, oDesc, lower, stream);
     default: return cudaErrorNotSupported;
     }
 }

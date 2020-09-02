@@ -330,49 +330,50 @@ class test_AlgebraicField: XCTestCase {
         let b = array(data, (2, 2))
         let v = ones(like: a)
 
-        // add a scalar
-        XCTAssert((a + 1) == [[2, 3], [4, 5]])
+        // // add a scalar
+        // XCTAssert((a + 1) == [[2, 3], [4, 5]])
 
-        // add tensors
-        XCTAssert((a + b) == [[2, 4], [6, 8]])
+        // // add tensors
+        // XCTAssert((a + b) == [[2, 4], [6, 8]])
 
-        // subtract a scalar
-        XCTAssert((a - 1) == [[0, 1], [2, 3]])
+        // // subtract a scalar
+        // XCTAssert((a - 1) == [[0, 1], [2, 3]])
 
-        // subtract tensors
-        XCTAssert((a - b) == [[0, 0], [0, 0]])
+        // // subtract tensors
+        // XCTAssert((a - b) == [[0, 0], [0, 0]])
 
-        // mul a scalar
-        XCTAssert((a * 2) == [[2, 4], [6, 8]])
+        // // mul a scalar
+        // XCTAssert((a * 2) == [[2, 4], [6, 8]])
 
-        // mul tensors
-        XCTAssert((a * b) == [[1, 4], [9, 16]])
+        // // mul tensors
+        // XCTAssert((a * b) == [[1, 4], [9, 16]])
 
-        // divide by a scalar
-        let divExpected = [[CF(0.5), CF(1)], [CF(1.5), CF(2)]]
-        XCTAssert((a / 2) == divExpected)
+        // // divide by a scalar
+        // let divExpected = [[CF(0.5), CF(1)], [CF(1.5), CF(2)]]
+        // XCTAssert((a / 2) == divExpected)
 
-        // divide by a tensor
-        XCTAssert((a / b) == [[1, 1], [1, 1]])
+        // // divide by a tensor
+        // XCTAssert((a / b) == [[1, 1], [1, 1]])
 
-        // test add derivative
+        // // test add derivative
+        // do {
+        //     let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(v)
+        //     XCTAssert(g1 == [[1, 1], [1, 1]])
+        //     XCTAssert(g2 == [[1, 1], [1, 1]])
+        // }
+
+        // do {
+        //     let (g1, g2) = pullback(at: a, b, in: { $0 - $1 })(v)
+        //     XCTAssert(g1 == [[1, 1], [1, 1]])
+        //     XCTAssert(g2 == [[-1, -1], [-1, -1]])
+        // }
+        // do {
+        //     let (g1, g2) = pullback(at: a, b, in: { $0 * $1 })(v)
+        //     XCTAssert(g1 == [[1, 2], [3, 4]])
+        //     XCTAssert(g2 == [[1, 2], [3, 4]])
+        // }
         do {
-            let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(v)
-            XCTAssert(g1 == [[1, 1], [1, 1]])
-            XCTAssert(g2 == [[1, 1], [1, 1]])
-        }
-
-        do {
-            let (g1, g2) = pullback(at: a, b, in: { $0 - $1 })(v)
-            XCTAssert(g1 == [[1, 1], [1, 1]])
-            XCTAssert(g2 == [[-1, -1], [-1, -1]])
-        }
-        do {
-            let (g1, g2) = pullback(at: a, b, in: { $0 * $1 })(v)
-            XCTAssert(g1 == [[1, 2], [3, 4]])
-            XCTAssert(g2 == [[1, 2], [3, 4]])
-        }
-        do {
+            print("start")
             let (g1, g2) = pullback(at: a, b, in: { $0 / $1 })(v)
             let data = [1, 0.5, 0.333333343, 0.25].map { CF($0) }
             let g1Expected = array(data, (2, 2))

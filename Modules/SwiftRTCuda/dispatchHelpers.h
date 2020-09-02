@@ -255,8 +255,11 @@ static cudaError_t initIndex(
     dim3 tile = tileSize<IndexO::Rank>(oDesc);
     dim3 grid = gridSize<IndexO::Rank>(oDesc, tile);
 
+    IndexA indexA = IndexA(aDesc);
+    IndexB indexB = IndexB(bDesc);
+     
     mapAB<Op,IndexA,IndexB,IndexO><<<grid, tile, 0, stream>>>
-        (a, IndexA(aDesc), b, IndexB(bDesc), out, IndexO(oDesc));
+        (a, indexA, b, indexB, out, IndexO(oDesc));
 
     return cudaSuccess;
 }
@@ -395,9 +398,9 @@ static cudaError_t selectComplexStrided(
 ) {
     switch(oDesc.type) {
     case complex32F:  return selectRank<Op<Complex<float>>>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case complex16F:  return selectRank<Op<Complex<__half>>>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case complex16BF: return selectRank<Op<Complex<__nv_bfloat16>>>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case complex64F:  return selectRank<Op<Complex<double>>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    // case complex16F:  return selectRank<Op<Complex<__half>>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    // case complex16BF: return selectRank<Op<Complex<__nv_bfloat16>>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    // case complex64F:  return selectRank<Op<Complex<double>>>(a, aDesc, b, bDesc, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
@@ -600,7 +603,7 @@ static cudaError_t selectNumeric(
     auto status = selectIntFloating<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
     if (status == cudaErrorNotSupported) {
         if (aDesc.isStrided() || bDesc.isStrided()) {
-            // return selectComplexStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
+            return selectComplexStrided<Op>(a, aDesc, b, bDesc, out, oDesc, stream);
             return cudaErrorNotSupported;
         } else {
             // switch on complex type
