@@ -30,13 +30,6 @@ public protocol StorageElement {
     associatedtype Stored
     associatedtype Value
     
-    /// a pointer to a `Stored` zero used for driver support 
-    static var storedZeroPointer: UnsafeRawPointer { get }
-
-    /// a pointer to a `Stored` one used for driver support 
-    static var storedOnePointer: UnsafeRawPointer { get }
-
-    //--------------------------------------------------------------------------
     /// alignment
     /// the Value alignment with the Stored type for the given logical index
     /// For example `Int1` the alignment is 0 - 7, Int4 0 - 1
@@ -126,6 +119,12 @@ public protocol StorageElement {
     )
 
 #if canImport(SwiftRTCuda)
+    /// a pointer to a `Stored` zero used for driver support 
+    static var storedZeroPointer: UnsafeRawPointer { get }
+
+    /// a pointer to a `Stored` one used for driver support 
+    static var storedOnePointer: UnsafeRawPointer { get }
+
     //--------------------------------------------------------------------------
     /// element data type identifier used for driver library dispatch
     static var type: srtDataType { get }
@@ -692,6 +691,26 @@ extension Double: StorageElement {
     }
 }
 
+//------------------------------------------------------------------------------
+extension Complex {
+    public typealias Stored = Self
+    public typealias Value = Self
+}
+
+@usableFromInline var _storedZeroComplexFloat = Complex<Float>(0)
+@usableFromInline var _storedOneComplexFloat = Complex<Float>(1)
+
+extension Complex: StorageElement where RealType == Float {
+    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
+        UnsafeRawPointer(&_storedZeroComplexFloat) 
+    }
+    
+    @inlinable public static var storedOnePointer: UnsafeRawPointer {
+        UnsafeRawPointer(&_storedOneComplexFloat)
+    }
+}
+
+
 //==============================================================================
 /// BufferElements
 /// Iterates the buffer elements in order, independent of logical orientation
@@ -916,3 +935,4 @@ where Shape: TensorShape, TensorElement: StorageElement
         }
     }
 }
+

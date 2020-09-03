@@ -165,9 +165,6 @@ extension Double {
 //==============================================================================
 // Complex
 extension Complex {
-    public typealias Stored = Self
-    public typealias Value = Self
-
     @inlinable public static var type: srtDataType {
         switch RealType.self {
         case is Float.Type: return complex32F
