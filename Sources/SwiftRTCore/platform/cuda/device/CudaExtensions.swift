@@ -178,20 +178,6 @@ extension Complex {
     @inlinable public static var cublas: cublasDataType_t { cudaDataType(type) }
 }
 
-//------------------------------------------------------------------------------
-@usableFromInline var _storedZeroComplexFloat = Complex<Float>(0)
-@usableFromInline var _storedOneComplexFloat = Complex<Float>(1)
-
-extension Complex: StorageElement where RealType == Float {
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZeroComplexFloat) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOneComplexFloat)
-    }
-}
-
 //==============================================================================
 // RGBA
 extension RGBA {
