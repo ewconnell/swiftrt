@@ -24,12 +24,13 @@
 #include <limits>
 
 /* Set up function decorations */
+#ifndef __CUDA_HOSTDEVICE__
 #if defined(__CUDACC__)
 #define __CUDA_HOSTDEVICE__ __host__ __device__
 #else /* !defined(__CUDACC__) */
 #define __CUDA_HOSTDEVICE__
 #endif /* defined(__CUDACC_) */
-
+#endif
 
 //******************************************************************************
 // This is the Complex module from Swift Numerics ported to C++
