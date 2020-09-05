@@ -228,8 +228,8 @@ public extension Tensor {
     /// initializes the tensor with a progressive logical index value
     ///
     /// - Parameters:
-    ///  - range: the index range. The number of elements in the range
-    ///    must be equal to the number of elements described by shape.
+    ///  - from: the initial value in the range
+    ///  - to: the last value in the range
     ///  - shape: the shape of the tensor
     ///  - order: the storage order of the elements
     ///  - name: the name of the tensor
