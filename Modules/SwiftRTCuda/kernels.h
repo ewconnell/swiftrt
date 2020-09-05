@@ -26,8 +26,8 @@
 // tensorA
 template<typename Op, typename IndexA, typename IndexO>
 __global__ void mapA(
-    const typename Op::In *a, const IndexA indexA,
-    typename Op::Out *out, const IndexO indexO 
+    const typename Op::In* __restrict__ a, const IndexA indexA,
+    typename Op::Out* __restrict__ out, const IndexO indexO
 ) {
     auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
     if (indexO.isInBounds(position)) {
@@ -41,9 +41,9 @@ __global__ void mapA(
 // tensorA tensorB
 template<typename Op, typename IndexA, typename IndexB, typename IndexO>
 __global__ void mapAB(
-    const typename Op::In *a, const IndexA indexA,
-    const typename Op::In *b, const IndexB indexB,
-    typename Op::Out *out, const IndexO indexO 
+    const typename Op::In* __restrict__ a, const IndexA indexA,
+    const typename Op::In* __restrict__ b, const IndexB indexB,
+    typename Op::Out* __restrict__ out, const IndexO indexO
 ) {
     auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
     if (indexO.isInBounds(position)) {
@@ -58,9 +58,9 @@ __global__ void mapAB(
 // tensorA Scalar
 template<typename Op, typename Scalar, typename IndexA, typename IndexO>
 __global__ void mapAScalar(
-    const typename Op::In *a, const IndexA indexA, 
+    const typename Op::In* __restrict__ a, const IndexA indexA,
     Scalar value,
-    typename Op::Out *out, const IndexO indexO 
+    typename Op::Out* __restrict__ out, const IndexO indexO
 ) {
     auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
     if (indexO.isInBounds(position)) {

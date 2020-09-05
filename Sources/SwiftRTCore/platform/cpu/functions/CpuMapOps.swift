@@ -60,36 +60,51 @@ extension DeviceQueue {
 
     //==========================================================================
     // range
-    @inlinable func mapOp<S,E,C>(
+    @inlinable func mapOp<S,E>(
         _ opName: String,
-        _ elements: C,
+        from first: E.Value,
+        to last: E.Value,
+        by step: E.Value,
         _ r: inout Tensor<S,E>
-    ) where C: Collection, C.Element == E.Value {
+    ) where E.Value: Numeric {
         // the op
-        func execute<I0: Collection, O: MutableCollection>(
-            _ i0: I0,
+        func execute<O>(
+            _ first: O.Element,
+            _ last: O.Element,
+            _ step: O.Element,
             _ out: O
-        ) where I0.Element == O.Element {
+        ) where O: MutableCollection, O.Element: Numeric {
             var out = out
             if mode == .async {
                 queue.async(group: group) {
                     diagnostic(.queueCpu, "\(opName) on \(name)",
                                categories: .queueCpu)
-                    zip(out.indices, i0).forEach { out[$0] = $1 }
+                    
+                    var io = out.indices.startIndex
+                    for i in 0..<(out.count - 1) {
+                        out[io] = first + O.Element(exactly: i)! * step
+                        io = out.index(after: io)
+                    }
+                    out[io] = last
                 }
             } else {
-                zip(out.indices, i0).forEach { out[$0] = $1 }
+                var io = out.indices.startIndex
+                for i in 0..<(out.count - 1) {
+                    out[io] = first + O.Element(exactly: i)! * step
+                    io = out.index(after: io)
+                }
+                out[io] = last
             }
         }
         
         // queue data transfers and execute
         if r.isBufferIterable {
-            execute(elements, r.mutableBuffer)
+            execute(first, last, step, r.mutableBuffer)
         } else {
-            execute(elements, r.mutableElements)
+            execute(first, last, step, r.mutableElements)
         }
     }
-    
+
     //==========================================================================
     // inplace
     @inlinable func mapOp<S,E>(

@@ -220,13 +220,15 @@ where S: TensorShape
     Context.currentQueue.fill(&x, with: element)
 }
 
-@inlinable public func fill<S,E: StorageElement,B>(
+@inlinable public func fill<S,E: StorageElement>(
     _ x: inout Tensor<S,E>,
-    with range: Range<B>
-) where S: TensorShape, E.Value: Numeric,
-    B: SignedInteger, B.Stride: SignedInteger
-{
-    Context.currentQueue.fill(&x, with: range)
+    with range: Range<Int>
+) where E.Value: Numeric {
+    Context.currentQueue.fill(
+        &x,
+        from: E.Value(exactly: range.lowerBound)!,
+        to: E.Value(exactly: range.upperBound - 1)!,
+        by: E.Value(exactly: 1)!)
 }
 
 //==============================================================================

@@ -710,6 +710,13 @@ extension Complex: StorageElement where RealType == Float {
     }
 }
 
+//==============================================================================
+/// ScalarMultiplicative
+/// conforming types can be multiplied by a scalar value.
+// This is currently used by the `fill(x:from:to:result:` driver function.
+public protocol ScalarMultiplicative {
+    static func *<T: Numeric>(_ x: Self, _ scalar: T) -> Self
+}
 
 //==============================================================================
 /// BufferElements

@@ -25,12 +25,25 @@ extension CpuQueue
         with element: E.Value
     ) where S: TensorShape { cpu_fill(&x, with: element) }
     //--------------------------------------------------------------------------
-    @inlinable func fill<S,E,B>(
+    @inlinable func fill<S,E>(
         _ x: inout Tensor<S,E>,
-        with range: Range<B>
-    ) where S: TensorShape, E: StorageElement, E.Value: Numeric,
-            B: SignedInteger, B.Stride: SignedInteger
-    { cpu_fill(&x, with: range) }
+        with range: Range<Int>
+    ) where E: StorageElement, E.Value: Numeric {
+        cpu_fill(&x,
+                 from: E.Value(exactly: range.lowerBound)!,
+                 to: E.Value(exactly: range.upperBound - 1)!,
+                 by: E.Value(exactly: 1)!)
+    }
+    //--------------------------------------------------------------------------
+    @inlinable func fill<S,E>(
+        _ x: inout Tensor<S,E>,
+        from first: E.Value,
+        to last: E.Value,
+        by step: E.Value
+    ) where E: StorageElement, E.Value: Numeric {
+        cpu_fill(&x, from: first, to: last, by: step)
+    }
+    
     //--------------------------------------------------------------------------
     @inlinable func eye<S,E: StorageElement>(
         _ x: inout Tensor<S,E>,
@@ -100,13 +113,13 @@ extension CpuFunctions where Self: DeviceQueue {
     }
     
     //--------------------------------------------------------------------------
-    @inlinable func cpu_fill<S,E,B>(
+    @inlinable func cpu_fill<S,E>(
         _ result: inout Tensor<S,E>,
-        with range: Range<B>
-    ) where S: TensorShape, E.Value: Numeric,
-            B: SignedInteger, B.Stride: SignedInteger
-    {
-        mapOp("cpu_fill range", range.lazy.map { E.Value(exactly: $0)! }, &result)
+        from first: E.Value,
+        to last: E.Value,
+        by step: E.Value
+    ) where E.Value: Numeric {
+        mapOp("cpu_fill range", from: first, to: last, by: step, &result)
     }
     //--------------------------------------------------------------------------
     @inlinable func cpu_fill<S,E>(

@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 import Foundation
+import Numerics
 
 //==============================================================================
 // ranked convenience types
@@ -52,17 +53,17 @@ public typealias TensorR6<Element: StorageElement> = Tensor<Shape6, Element>
 
 //------------------------------------------------------------------------------
 // TODO: THIS NEEDS TO BE REMOVED. IT'S A HACK FOR AD SUPPORT
-@usableFromInline func match<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
-    -> (Tensor<S,E>, Tensor<S,E>) where S: TensorShape
-{
-    if lhs.count == rhs.count {
-        return (lhs, rhs)
-    } else if lhs.count > rhs.count {
-        return (lhs, Tensor<S,E>(repeating: rhs, to: lhs.shape))
-    } else {
-        return (Tensor<S,E>(repeating: lhs, to: rhs.shape), rhs)
-    }
-}
+//@usableFromInline func match<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
+//    -> (Tensor<S,E>, Tensor<S,E>) where S: TensorShape
+//{
+//    if lhs.count == rhs.count {
+//        return (lhs, rhs)
+//    } else if lhs.count > rhs.count {
+//        return (lhs, Tensor<S,E>(repeating: rhs, to: lhs.shape))
+//    } else {
+//        return (Tensor<S,E>(repeating: lhs, to: rhs.shape), rhs)
+//    }
+//}
 
 //==============================================================================
 // Tensor initializers
@@ -198,7 +199,7 @@ extension Tensor where TensorElement.Value: DifferentiableElement
 }
 
 //==============================================================================
-// Tensor collection initializers
+// Tensor range initializers
 //==============================================================================
 
 public extension Tensor {
@@ -221,7 +222,47 @@ public extension Tensor {
         self.init(shape: shape, order: order, name: name)
         Context.currentQueue.fill(&self, with: range)
     }
+    
+    //--------------------------------------------------------------------------
+    /// `init(from:to:shape:order:name:`
+    /// initializes the tensor with a progressive logical index value
+    ///
+    /// - Parameters:
+    ///  - range: the index range. The number of elements in the range
+    ///    must be equal to the number of elements described by shape.
+    ///  - shape: the shape of the tensor
+    ///  - order: the storage order of the elements
+    ///  - name: the name of the tensor
+    @inlinable init(
+        from first: TensorElement.Value,
+        to last: TensorElement.Value,
+        _ shape: Shape,
+        order: Order = .defaultOrder,
+        name: String = defaultTensorName
+    ) where TensorElement.Value: BinaryInteger {
+        self.init(shape: shape, order: order, name: name)
+        let step = (last - first) / TensorElement.Value(exactly: count)!
+        Context.currentQueue.fill(&self, from: first, to: last, by: step)
+    }
 
+    @inlinable init(
+        from first: TensorElement.Value,
+        to last: TensorElement.Value,
+        _ shape: Shape,
+        order: Order = .defaultOrder,
+        name: String = defaultTensorName
+    ) where TensorElement.Value: AlgebraicField {
+        self.init(shape: shape, order: order, name: name)
+        let step = (last - first) / TensorElement.Value(exactly: count)!
+        Context.currentQueue.fill(&self, from: first, to: last, by: step)
+    }
+}
+
+//==============================================================================
+// Tensor collection initializers
+//==============================================================================
+
+public extension Tensor {
     //--------------------------------------------------------------------------
     /// `init(stored:shape:order:name:`
     /// initializes the tensor storage buffer with `storage elements`

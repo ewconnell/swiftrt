@@ -16,11 +16,14 @@
 import XCTest
 import Foundation
 import SwiftRT
+import Numerics
 
 class test_Initialize: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_FloatRange", test_FloatRange),
+        ("test_complexRange", test_complexRange),
         ("test_castElements", test_castElements),
         ("test_copy", test_copy),
         ("test_copyOnWrite", test_copyOnWrite),
@@ -45,6 +48,26 @@ class test_Initialize: XCTestCase {
         // Context.log.level = .error
     }
 
+    //--------------------------------------------------------------------------
+    func test_FloatRange() {
+        let a = Tensor2(from: 0.5, to: 1.49, [2, 2])
+        XCTAssert(a == [
+            [0.5, 0.7475],
+            [0.995, 1.49]
+        ])
+    }
+
+    //--------------------------------------------------------------------------
+    func test_complexRange() {
+        let start = Complex<Float>(-1.7, 1.7)
+        let end = Complex<Float>(1.7, -1.7)
+        let a = TensorR2<Complex<Float>>(from: start, to: end, [2, 2])
+        XCTAssert(a == [
+            [Complex<Float>(-1.7, 1.7), Complex<Float>(-0.85, 0.85)],
+            [Complex<Float>(0.0, 0.0), Complex<Float>(1.7, -1.7)]
+        ])
+    }
+    
     //--------------------------------------------------------------------------
     func test_castElements() {
         let fMatrix = array(0..<6, (3, 2))
