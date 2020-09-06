@@ -63,7 +63,7 @@ numShapes = 6
 @inlinable public func reshape<E>(
     _ a: Tensor<Shape${n}, E>,
     _ newShape: ${shapeType},
-    order: Order = .defaultValue
+    order: Order = .defaultOrder
 ) -> Tensor<Shape${i}, E> {
     Tensor<Shape${i}, E>(reshaping: a, to: Shape${i}(newShape), order: order)
 }
@@ -195,7 +195,7 @@ numShapes = 6
 @inlinable public func repeating<Element>(
     _ value: Element,
     _ shape: Shape${n}.Tuple,
-    _ order: Order = .defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape${n}, Element> where Element == Element.Value {
     Tensor<Shape${n},Element>(repeating: value, to: Shape${n}(shape), order: order)
 }
@@ -205,7 +205,7 @@ numShapes = 6
 @inlinable public func repeating(
     _ value: Int,
     _ shape: Shape${n}.Tuple,
-    _ order: Order = .defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape${n}, DType> {
     Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape), order: order)
 }
@@ -216,7 +216,7 @@ numShapes = 6
 @inlinable public func repeating(
     _ value: Double,
     _ shape: Shape${n}.Tuple,
-    _ order: Order = .defaultValue
+    _ order: Order = .defaultOrder
 ) -> Tensor<Shape${n}, DType> {
     Tensor<Shape${n},DType>(repeating: DType(value), to: Shape${n}(shape), order: order)
 }
@@ -227,7 +227,7 @@ numShapes = 6
 @inlinable public func repeating<Element>(
     _ value: Element.Value,
     _ shape: Shape${n}.Tuple,
-    _ order: Order = .defaultValue,
+    _ order: Order = .defaultOrder,
     type: Element.Type
 ) -> Tensor<Shape${n},Element> {
     Tensor<Shape${n}, Element>(repeating: value, to: Shape${n}(shape), order: order)
@@ -257,6 +257,7 @@ numShapes = 6
                       order: prototype.order)
 }
 
+//------------------------------------------------------------------------------
 // different type same shape
 @differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<S,E, Element>(
@@ -267,6 +268,32 @@ numShapes = 6
 {
     Tensor<S,Element>(repeating: value, to: prototype.shape,
                       order: prototype.order)
+}
+
+//************************** Implicit typing
+
+//---------------------------
+// Int --> DType
+@differentiable(where E.Value: DifferentiableElement)
+@inlinable public func repeating<S,E>(
+    _ value: Int,
+    like prototype: Tensor<S,E>
+) -> Tensor<S,DType> {
+    Tensor<S,DType>(repeating: DType(value), to: prototype.shape,
+                    order: prototype.order)
+}
+
+//---------------------------
+// Double --> DType
+@differentiable(where E.Value: DifferentiableElement)
+@inlinable public func repeating<S,E>(
+    _ value: Double,
+    like prototype: Tensor<S,E>
+) -> Tensor<S,DType> {
+    // TODO: why is this needed? Ask Dan Zheng
+    let value = withoutDerivative(at: DType(value))
+    return Tensor<S,DType>(repeating: value, to: prototype.shape,
+                    order: prototype.order)
 }
 
 //------------------------------------------------------------------------------

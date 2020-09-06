@@ -1124,6 +1124,7 @@ import Foundation
                       order: prototype.order)
 }
 
+//------------------------------------------------------------------------------
 // different type same shape
 @differentiable(where Element.Value: DifferentiableElement)
 @inlinable public func repeating<S,E, Element>(
@@ -1134,6 +1135,32 @@ import Foundation
 {
     Tensor<S,Element>(repeating: value, to: prototype.shape,
                       order: prototype.order)
+}
+
+//************************** Implicit typing
+
+//---------------------------
+// Int --> DType
+@differentiable(where E.Value: DifferentiableElement)
+@inlinable public func repeating<S,E>(
+    _ value: Int,
+    like prototype: Tensor<S,E>
+) -> Tensor<S,DType> {
+    Tensor<S,DType>(repeating: DType(value), to: prototype.shape,
+                    order: prototype.order)
+}
+
+//---------------------------
+// Double --> DType
+@differentiable(where E.Value: DifferentiableElement)
+@inlinable public func repeating<S,E>(
+    _ value: Double,
+    like prototype: Tensor<S,E>
+) -> Tensor<S,DType> {
+    // TODO: why is this needed? Ask Dan Zheng
+    let value = withoutDerivative(at: DType(value))
+    return Tensor<S,DType>(repeating: value, to: prototype.shape,
+                    order: prototype.order)
 }
 
 //------------------------------------------------------------------------------
