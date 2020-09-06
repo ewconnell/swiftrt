@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 import Foundation
+import Numerics
 
 // gyb utility docs
 // https://nshipster.com/swift-gyb/
@@ -55,6 +56,18 @@ import Foundation
 ) -> Tensor<Shape1,DType>
 {
     Tensor<Shape1,DType>(range: range, Shape1(range.count), name: name)
+}
+
+//---------------------------
+// linear space
+@inlinable public func array<E>(
+    from first: E,
+    to last: E,
+    count: Int,
+    name: String = defaultTensorName
+) -> Tensor<Shape1,E> where E == E.Value, E: AlgebraicField
+{
+    Tensor<Shape1,E>(from: first, to: last, Shape1(count), name: name)
 }
 
 //---------------------------
@@ -190,6 +203,19 @@ import Foundation
 {
     Tensor<Shape2,DType>(range: range, Shape2(shape),
                             order: order, name: name)
+}
+
+//---------------------------
+// linear space
+@inlinable public func array<E>(
+    from first: E,
+    to last: E,
+    _ shape: Shape2.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,E> where E == E.Value, E: AlgebraicField
+{
+    Tensor<Shape2,E>(from: first, to: last, Shape2(shape), order: order, name: name)
 }
 
 //---------------------------
@@ -359,6 +385,19 @@ where C.Element == Bool, Element.Value == Bool
 }
 
 //---------------------------
+// linear space
+@inlinable public func array<E>(
+    from first: E,
+    to last: E,
+    _ shape: Shape3.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,E> where E == E.Value, E: AlgebraicField
+{
+    Tensor<Shape3,E>(from: first, to: last, Shape3(shape), order: order, name: name)
+}
+
+//---------------------------
 // C.Element == Element.Stored
 @inlinable public func array<C: Collection>(
     stored elements: C,
@@ -522,6 +561,19 @@ where C.Element == Bool, Element.Value == Bool
 {
     Tensor<Shape4,DType>(range: range, Shape4(shape),
                             order: order, name: name)
+}
+
+//---------------------------
+// linear space
+@inlinable public func array<E>(
+    from first: E,
+    to last: E,
+    _ shape: Shape4.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,E> where E == E.Value, E: AlgebraicField
+{
+    Tensor<Shape4,E>(from: first, to: last, Shape4(shape), order: order, name: name)
 }
 
 //---------------------------
@@ -691,6 +743,19 @@ where C.Element == Bool, Element.Value == Bool
 }
 
 //---------------------------
+// linear space
+@inlinable public func array<E>(
+    from first: E,
+    to last: E,
+    _ shape: Shape5.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,E> where E == E.Value, E: AlgebraicField
+{
+    Tensor<Shape5,E>(from: first, to: last, Shape5(shape), order: order, name: name)
+}
+
+//---------------------------
 // C.Element == Element.Stored
 @inlinable public func array<C: Collection>(
     stored elements: C,
@@ -854,6 +919,19 @@ where C.Element == Bool, Element.Value == Bool
 {
     Tensor<Shape6,DType>(range: range, Shape6(shape),
                             order: order, name: name)
+}
+
+//---------------------------
+// linear space
+@inlinable public func array<E>(
+    from first: E,
+    to last: E,
+    _ shape: Shape6.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,E> where E == E.Value, E: AlgebraicField
+{
+    Tensor<Shape6,E>(from: first, to: last, Shape6(shape), order: order, name: name)
 }
 
 //---------------------------

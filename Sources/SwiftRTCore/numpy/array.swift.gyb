@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 import Foundation
+import Numerics
 
 // gyb utility docs
 // https://nshipster.com/swift-gyb/
@@ -58,6 +59,18 @@ numShapes = 6
 ) -> Tensor<Shape1,DType>
 {
     Tensor<Shape1,DType>(range: range, Shape1(range.count), name: name)
+}
+
+//---------------------------
+// linear space
+@inlinable public func array<E>(
+    from first: E,
+    to last: E,
+    count: Int,
+    name: String = defaultTensorName
+) -> Tensor<Shape1,E> where E == E.Value, E: AlgebraicField
+{
+    Tensor<Shape1,E>(from: first, to: last, Shape1(count), name: name)
 }
 
 //---------------------------
@@ -194,6 +207,19 @@ numShapes = 6
 {
     Tensor<Shape${n},DType>(range: range, Shape${n}(shape),
                             order: order, name: name)
+}
+
+//---------------------------
+// linear space
+@inlinable public func array<E>(
+    from first: E,
+    to last: E,
+    _ shape: Shape${n}.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape${n},E> where E == E.Value, E: AlgebraicField
+{
+    Tensor<Shape${n},E>(from: first, to: last, Shape${n}(shape), order: order, name: name)
 }
 
 //---------------------------
