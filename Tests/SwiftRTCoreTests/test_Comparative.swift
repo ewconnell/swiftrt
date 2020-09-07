@@ -16,11 +16,13 @@
 import XCTest
 import Foundation
 import SwiftRT
+import Numerics
 
 class test_Comparative: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_complexOrder", test_complexOrder),
         ("test_elementWiseAndOr", test_elementWiseAndOr),
         ("test_elementsAlmostEqual", test_elementsAlmostEqual),
         ("test_boolEquality", test_boolEquality),
@@ -39,6 +41,24 @@ class test_Comparative: XCTestCase {
         // Context.log.level = .error
     }
 
+    //--------------------------------------------------------------------------
+    func test_complexOrder() {
+        do {
+            let a = array(from: Complex<Float>(0), to: Complex<Float>(2), count: 5)
+            let b = array(from: Complex<Float>(0.5), to: Complex<Float>(1), count: 5)
+            let x = a .> b
+            XCTAssert(x == [false, false, true, true, true])
+        }
+
+        do {
+            let a = array([Complex<Float>(1), Complex<Float>(1.5), Complex<Float>(2)])
+            let b = array([Complex<Float>(0), Complex<Float>(1.5), Complex<Float>(2.5)])
+            let x = a .>= b
+            print(x)
+            XCTAssert(x == [true, true, false])
+        }
+    }
+    
     //--------------------------------------------------------------------------
     func test_elementWiseAndOr() {
         let a = array([true, false, true, false, true])
