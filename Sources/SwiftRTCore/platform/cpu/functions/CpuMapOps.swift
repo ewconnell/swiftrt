@@ -291,6 +291,50 @@ extension DeviceQueue {
     }
 
     //==========================================================================
+    // mapOpAddTE
+    // adds an element to all values of a tensor
+    @inlinable func mapOpAddTE<S,E>(
+        _ opName: String,
+        _ a: Tensor<S,E>,
+        _ element: E.Value,
+        _ r: inout Tensor<S,E>
+    ) where E.Value: AdditiveArithmetic {
+        // the op
+        func execute<I: Collection, O: MutableCollection>(
+            _ input: I, _ elt: I.Element, _ out: O
+        ) where I.Element: AdditiveArithmetic, I.Element == O.Element {
+            var out = out
+            if mode == .async {
+                diagnostic(.queueCpu, "\(opName) on \(name)",
+                           categories: .queueCpu)
+                queue.async(group: group) {
+                    zip(out.indices, input).forEach {
+                        out[$0] = $1 + elt
+                    }
+                }
+            } else {
+                zip(out.indices, input).forEach {
+                    out[$0] = $1 + elt
+                }
+            }
+        }
+
+        if a.isBufferIterable {
+            if r.isBufferIterable {
+                execute(a.buffer, element, r.mutableBuffer)
+            } else {
+                execute(a.buffer, element, r.mutableElements)
+            }
+        } else {
+            if r.isBufferIterable {
+                execute(a.elements, element, r.mutableBuffer)
+            } else {
+                execute(a.elements, element, r.mutableElements)
+            }
+        }
+    }
+
+    //==========================================================================
     // mapOpAdd
     // 20% boost over passed in op
     @inlinable func mapOpAdd<S,E>(

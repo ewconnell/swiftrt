@@ -44,10 +44,37 @@ import Numerics
 @derivative(of: add)
 @usableFromInline func _vjpAdd<S, E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-    where S: TensorShape, E.Value: DifferentiableElement
+    where E.Value: DifferentiableElement
 {
     return (lhs + rhs, { v in (v, v) })
 }
+
+////==============================================================================
+///// add
+///// performs an elementwise add
+///// - Parameters:
+/////  - lhs: left hand tensor
+/////  - rhs: element value
+///// - Returns: result
+//@differentiable(wrt: lhs where E.Value: DifferentiableElement)
+//@inlinable public func add<S,E>(
+//    _ lhs: Tensor<S,E>,
+//    _ rhs: E.Value
+//) -> Tensor<S,E> where E.Value: AdditiveArithmetic {
+//    var result = Tensor(like: lhs)
+//    Context.currentQueue.add(lhs, rhs, &result)
+//    return result
+//}
+//
+//@derivative(of: add, wrt: lhs)
+//@usableFromInline func _vjpAdd<S,E>(
+//    _ lhs: Tensor<S,E>,
+//    _ rhs: E.Value
+//) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+//where E.Value: DifferentiableElement
+//{
+//    return (lhs + rhs, { $0 })
+//}
 
 //------------------------------------------------------------------------------
 extension Tensor where TensorElement.Value: AdditiveArithmetic {
