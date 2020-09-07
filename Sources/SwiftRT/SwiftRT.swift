@@ -17,6 +17,7 @@
 // A module that re-exports the complete SwiftRT public API.
 @_exported import SwiftRTCore
 @_exported import SwiftRTLayers
+@_exported import Numerics
 
 // Copied from SwiftRTCore/operators/Infix.swift
 // Comparative
