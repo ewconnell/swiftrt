@@ -25,14 +25,12 @@ import Numerics
 // 2) if the real components are equal, then the imaginaries are compared
 //
 extension Complex: Comparable {
-    public static func < (lhs: Complex<RealType>, rhs: Complex<RealType>) -> Bool {
+    @inlinable public static func < (lhs: Complex<RealType>, rhs: Complex<RealType>) -> Bool {
         if lhs.real == rhs.real {
             return lhs.imaginary < rhs.imaginary
         } else {
             return lhs.real < rhs.real
         }
     }
-    
-    
 }
 
