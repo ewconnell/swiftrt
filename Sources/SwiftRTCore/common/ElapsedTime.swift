@@ -36,7 +36,7 @@ extension String {
 /// used to measure and log a set of `body` iterations
 @discardableResult
 public func elapsedTime(logLabel: String? = nil, iterations: Int = 10,
-                        warmUps: Int = 2, precision: Int = 6,
+                        warmUps: Int = 1, precision: Int = 6,
                         _ body: () -> Void) -> TimeInterval
 {
     // warm ups are to factor out module or data load times

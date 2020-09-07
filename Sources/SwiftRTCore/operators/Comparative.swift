@@ -369,6 +369,10 @@ public extension Tensor where TensorElement.Value: Comparable {
     }
 }
 
+@inlinable public func .><S,E>(_ lhs: Tensor<S,Complex<E>>, _ rhs: E) -> Tensor<S,Bool> {
+    greater(lhs, repeating(Complex<E>(rhs), like: lhs))
+}
+
 //==============================================================================
 /// greaterOrEqual
 /// Computes `lhs .>= rhs` element-wise and returns a tensor of Bool values
