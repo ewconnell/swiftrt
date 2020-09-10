@@ -14,189 +14,169 @@
 // limitations under the License.
 import Numerics
 
-//==============================================================================
-/// add
-/// performs an elementwise add
-/// - Parameters:
-///  - lhs: left hand tensor
-///  - rhs: right hand tensor
-/// - Returns: result
-@differentiable(where E.Value: DifferentiableElement)
-@inlinable public func add<S,E>(
-    _ lhs: Tensor<S,E>,
-    _ rhs: Tensor<S,E>
-) -> Tensor<S,E> where S: TensorShape, E.Value: AdditiveArithmetic
-{
-    /// MAKE THIS GO AWAY!! assert(lhs.shape == rhs.shape) should be true
-    /// Hack to work around AD zero materialization design problem
-    if lhs.isZero {
-        return rhs
-    } else if rhs.isZero {
-        return lhs
-    } else {
-        assert(lhs.shape == rhs.shape)
-        var result = Tensor(like: lhs)
-        Context.currentQueue.add(lhs, rhs, &result)
-        return result
-    }
-}
-
-@derivative(of: add)
-@usableFromInline func _vjpAdd<S, E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
-    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-    where E.Value: DifferentiableElement
-{
-    return (lhs + rhs, { v in (v, v) })
-}
-
-////==============================================================================
-///// add
-///// performs an elementwise add
-///// - Parameters:
-/////  - lhs: left hand tensor
-/////  - rhs: element value
-///// - Returns: result
-//@differentiable(wrt: lhs where E.Value: DifferentiableElement)
-//@inlinable public func add<S,E>(
-//    _ lhs: Tensor<S,E>,
-//    _ rhs: E.Value
-//) -> Tensor<S,E> where E.Value: AdditiveArithmetic {
-//    var result = Tensor(like: lhs)
-//    Context.currentQueue.add(lhs, rhs, &result)
-//    return result
-//}
-//
-//@derivative(of: add, wrt: lhs)
-//@usableFromInline func _vjpAdd<S,E>(
-//    _ lhs: Tensor<S,E>,
-//    _ rhs: E.Value
-//) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-//where E.Value: DifferentiableElement
-//{
-//    return (lhs + rhs, { $0 })
-//}
-
-//------------------------------------------------------------------------------
 extension Tensor where TensorElement.Value: AdditiveArithmetic {
+    //--------------------------------------------------------------------------
+    // tensor + tensor
     @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable public static func +(lhs: Self, rhs: Self) -> Self {
-        add(lhs, rhs)
+        /// MAKE THIS GO AWAY!! assert(lhs.shape == rhs.shape) should be true
+        /// Hack to work around AD zero materialization design problem
+        if lhs.isZero {
+            return rhs
+        } else if rhs.isZero {
+            return lhs
+        } else {
+            assert(lhs.shape == rhs.shape)
+            var result = Tensor(like: lhs)
+            Context.currentQueue.add(lhs, rhs, &result)
+            return result
+        }
     }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
-    @inlinable public static func +=(lhs: inout Self, rhs: TensorElement.Value) {
-        lhs = (lhs + rhs)
-    }
-
-    //--------------------------------
-    // tensor + Element
-    @differentiable(where TensorElement.Value: DifferentiableElement)
-    @differentiable(wrt: lhs where TensorElement.Value: DifferentiableElement)
-    @inlinable public static func +(lhs: Self, rhs: TensorElement.Value) -> Self {
-        add(lhs, repeating(rhs, like: lhs))
-    }
-    
-    @derivative(of: +, wrt: rhs)
-    @usableFromInline static func _vjpAdd(_ lhs: TensorElement.Value, _ rhs: Self) -> (
-        value: Self, pullback: (TangentVector) -> TangentVector
+    @derivative(of: +)
+    @usableFromInline static func _vjpAdd(_ lhs: Self, _ rhs: Self)
+        -> (value: Self, pullback: (Self) -> (Self, Self)
     ) where Element: DifferentiableElement {
-        (lhs + rhs, { $0 })
+        (lhs + rhs, { ($0, $0) })
     }
-    
-    //--------------------------------
-    // Element + tensor
-    @differentiable(where TensorElement.Value: DifferentiableElement)
-    @differentiable(wrt: rhs where TensorElement.Value: DifferentiableElement)
-    @inlinable public static func +(lhs: TensorElement.Value, rhs: Self) -> Self {
-        add(repeating(lhs, like: rhs), rhs)
+
+    //--------------------------------------------------------------------------
+    // tensor + Element
+    @differentiable(where Element: DifferentiableElement)
+    @differentiable(wrt: lhs where Element: DifferentiableElement)
+    @inlinable public static func +(lhs: Self, rhs: Element) -> Self {
+        var out = Tensor(like: lhs)
+        Context.currentQueue.add(lhs, rhs, &out)
+        return out
+    }
+
+    @derivative(of: +)
+    @usableFromInline static func _vjpAdd(_ lhs: Self, _ rhs: Element) -> (
+        value: Self, pullback: (Self) -> (Self, Element)
+    ) where Element: DifferentiableElement {
+        (lhs + rhs, { ($0, $0.sum().element) })
     }
 
     @derivative(of: +, wrt: lhs)
-    @usableFromInline static func _vjpAdd(_ lhs: Self, _ rhs: TensorElement.Value) -> (
-        value: Self, pullback: (TangentVector) -> TangentVector
+    @usableFromInline static func _vjpAdd(_ lhs: Self, _ rhs: Element) -> (
+        value: Self, pullback: (Self) -> Self
     ) where Element: DifferentiableElement {
         (lhs + rhs, { $0 })
     }
+    
+    // tensor += Element
+    @differentiable(where Element: DifferentiableElement)
+    @inlinable public static func +=(lhs: inout Self, rhs: Element) {
+        lhs = lhs + rhs
+    }
+    
+    //--------------------------------------------------------------------------
+    // Element + tensor
+    @differentiable(where Element: DifferentiableElement)
+    @differentiable(wrt: rhs where Element: DifferentiableElement)
+    @inlinable public static func +(lhs: Element, rhs: Self) -> Self {
+        rhs + lhs
+    }
 
+    @derivative(of: +)
+    @usableFromInline static func _vjpAdd(_ lhs: Element, _ rhs: Self) -> (
+        value: Self, pullback: (Self) -> (Element, Self)
+    ) where Element: DifferentiableElement {
+        (lhs + rhs, { ($0.sum().element, $0) })
+    }
+
+    @derivative(of: +, wrt: rhs)
+    @usableFromInline static func _vjpAdd(_ lhs: Element, _ rhs: Self) -> (
+        value: Self, pullback: (Self) -> Self
+    ) where Element: DifferentiableElement {
+        (lhs + rhs, { $0 })
+    }
+    
+    //--------------------------------------------------------------------------
     // VectorProtocol
     @differentiable(where TensorElement.Value: DifferentiableElement)
-    @inlinable public func adding(_ x: TensorElement.Value) -> Self {
+    @inlinable public func adding(_ x: Element) -> Self {
         self + x
     }
 }
 
 //==============================================================================
 /// subtract
-/// performs an elementwise subtract
-/// - Parameters:
-///  - lhs: left hand tensor
-///  - rhs: right hand tensor
-/// - Returns: result
-@differentiable(where E.Value: DifferentiableElement)
-@inlinable public func subtract<S,E>(
-    _ lhs: Tensor<S,E>,
-    _ rhs: Tensor<S,E>
-) -> Tensor<S,E> where S: TensorShape, E.Value: AdditiveArithmetic
-{
-    assert(lhs.shape == rhs.shape)
-    var result = Tensor(like: lhs)
-    Context.currentQueue.subtract(lhs, rhs, &result)
-    return result
-}
-
-@derivative(of: subtract)
-@usableFromInline func _vjpSubtract<S, E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
-    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-where S: TensorShape, E.Value: DifferentiableElement
-{
-    (lhs - rhs, { v in (v, E.Value.zero - v) })
-}
-
 extension Tensor where TensorElement.Value: AdditiveArithmetic {
+    //--------------------------------------------------------------------------
+    // tensor - tensor
     @differentiable(where TensorElement.Value: DifferentiableElement)
     @inlinable public static func -(lhs: Self, rhs: Self) -> Self {
-        subtract(lhs, rhs)
+        assert(lhs.shape == rhs.shape)
+        var result = Tensor(like: lhs)
+        Context.currentQueue.subtract(lhs, rhs, &result)
+        return result
     }
 
-    //--------------------------------
+    @derivative(of: -)
+    @usableFromInline static func _vjpSubtract(_ lhs: Self, _ rhs: Self)
+    -> (value: Self, pullback: (Self) -> (Self, Self)
+    ) where Element: DifferentiableElement {
+        (lhs - rhs, { ($0, 0 - $0) })
+    }
+
+    //--------------------------------------------------------------------------
     // tensor - Element
-    @differentiable(where TensorElement.Value: DifferentiableElement)
-    @differentiable(wrt: lhs where TensorElement.Value: DifferentiableElement)
-    @inlinable public static func -(lhs: Self, rhs: TensorElement.Value) -> Self {
-        subtract(lhs, repeating(rhs, like: lhs))
+    @differentiable(where Element: DifferentiableElement & SignedNumeric)
+    @differentiable(wrt: lhs where Element: DifferentiableElement)
+    @inlinable public static func -(lhs: Self, rhs: Element) -> Self {
+        var out = Tensor(like: lhs)
+//        Context.currentQueue.subtract(lhs, rhs, &out)
+        return out
     }
 
+    @derivative(of: -)
+    @usableFromInline static func _vjpSubtract(_ lhs: Self, _ rhs: Element) -> (
+        value: Self, pullback: (Self) -> (Self, Element)
+    ) where Element: DifferentiableElement & SignedNumeric {
+        (lhs + rhs, { ($0, $0.sum().element) })
+    }
+    
     @derivative(of: -, wrt: lhs)
-    @usableFromInline static func _vjpSubtract(_ lhs: Self, _ rhs: TensorElement.Value) -> (
-        value: Self, pullback: (TangentVector) -> TangentVector
-    ) where TensorElement.Value: DifferentiableElement {
+    @usableFromInline static func _vjpSubtract(_ lhs: Self, _ rhs: Element) -> (
+        value: Self, pullback: (Self) -> Self
+    ) where Element: DifferentiableElement {
         (lhs - rhs, { $0 })
     }
 
-    //--------------------------------
+    @differentiable(where Element: DifferentiableElement & SignedNumeric)
+    @inlinable public static func -=(lhs: inout Self, rhs: Element) {
+        lhs = lhs - rhs
+    }
+
+    //--------------------------------------------------------------------------
     // Element - tensor
-    @differentiable(where TensorElement.Value: DifferentiableElement)
-    @differentiable(wrt: rhs where TensorElement.Value: DifferentiableElement)
-    @inlinable public static func -(lhs: TensorElement.Value, rhs: Self) -> Self {
-        subtract(repeating(lhs, like: rhs), rhs)
+    @differentiable(where Element: DifferentiableElement & SignedNumeric)
+    @differentiable(wrt: rhs where Element: DifferentiableElement & SignedNumeric)
+    @inlinable public static func -(lhs: Element, rhs: Self) -> Self {
+        var out = Tensor(like: rhs)
+        //        Context.currentQueue.subtract(lhs, rhs, &out)
+        return out
     }
 
+    @derivative(of: -)
+    @usableFromInline static func _vjpSubtract(_ lhs: Element, _ rhs: Self) -> (
+        value: Self, pullback: (Self) -> (Element, Self)
+    ) where Element: DifferentiableElement & SignedNumeric {
+        (lhs + rhs, { ($0.sum().element, -$0) })
+    }
+    
     @derivative(of: -, wrt: rhs)
-    @usableFromInline static func _vjpSubtract(_ lhs: TensorElement.Value, _ rhs: Self) -> (
-        value: Self, pullback: (TangentVector) -> TangentVector
-    ) where TensorElement.Value: DifferentiableElement {
-        (lhs - rhs, { Element.zero - $0 })
+    @usableFromInline static func _vjpSubtract(_ lhs: Element, _ rhs: Self) -> (
+        value: Self, pullback: (Self) -> Self
+    ) where Element: DifferentiableElement & SignedNumeric {
+        (lhs - rhs, { -$0 })
     }
 
-    //--------------------------------
-    @differentiable(where TensorElement.Value: DifferentiableElement)
-    @inlinable public static func -=(lhs: inout Self, rhs: TensorElement.Value) {
-        lhs = (lhs - rhs)
-    }
-
+    //--------------------------------------------------------------------------
     // VectorProtocol
-    @differentiable(where TensorElement.Value: DifferentiableElement)
-    @inlinable public func subtracting(_ x: TensorElement.Value) -> Self {
+    @differentiable(where Element: DifferentiableElement & SignedNumeric)
+    @inlinable public func subtracting(_ x: Element) -> Self {
         self - x
     }
 }
