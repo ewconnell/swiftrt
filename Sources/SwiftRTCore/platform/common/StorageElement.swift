@@ -741,7 +741,7 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
     /// - Parameters:
     ///  - tensor: the tensor that will be read
     @inlinable public init(tensor: Tensor<Shape, TensorElement>) {
-        assert(tensor.isBufferIterable, "tensor order is not buffer iterable")
+        assert(tensor.isContiguous, "can only iterate contiguous buffer elements")
 
         // make the data range available for reading by the cpu
         isSingleElement = tensor.isSingleElement
@@ -767,7 +767,7 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
     /// - Parameters:
     ///  - tensor: the tensor that will be written
     @inlinable public init(tensor: inout Tensor<Shape, TensorElement>) {
-        assert(tensor.isBufferIterable, "tensor order is not buffer iterable")
+        assert(tensor.isContiguous, "can only iterate contiguous buffer elements")
 
         // convert logical base and strided span count to stored.
         // They will not be equal for packed element types like `Int4`
