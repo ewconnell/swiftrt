@@ -259,21 +259,21 @@ public protocol TensorProtocol: Logging {
 }
 
 public protocol DifferentiableTensor: TensorProtocol & Differentiable
-where Self == TangentVector, TensorElement.Value: DifferentiableElement {}
+where Self == TangentVector, TensorElement.Value: DifferentiableNumeric {}
 
-/// DifferentiableElement
-public protocol DifferentiableElement:
+/// DifferentiableNumeric
+public protocol DifferentiableNumeric:
     Differentiable & Numeric where Self == TangentVector {}
 
-extension Float: DifferentiableElement {}
-extension Double: DifferentiableElement {}
+extension Float: DifferentiableNumeric {}
+extension Double: DifferentiableNumeric {}
 
-extension Complex: DifferentiableElement
+extension Complex: DifferentiableNumeric
 where RealType: Differentiable, RealType.TangentVector == RealType {}
 
 // Differentiable conformance
 extension Tensor: Differentiable & DifferentiableTensor
-    where Element: DifferentiableElement
+    where Element: DifferentiableNumeric
 {
     public typealias TangentVector = Self
 }
@@ -455,7 +455,7 @@ public extension Tensor {
 
     //--------------------------------------------------------------------------
     // sub view subscript
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
         get { createView(lower, upper, isShared) }
         set {
@@ -532,7 +532,7 @@ public extension Tensor {
 
 //==============================================================================
 /// Derivative registration
-extension Tensor where TensorElement.Value: DifferentiableElement {
+extension Tensor where TensorElement.Value: DifferentiableNumeric {
     // https://github.com/apple/swift/blob/37b507b31c77ef969151f385cd1902dd44fb3b7f/stdlib/public/core/Array.swift#L2091
     
     @derivative(of: subscript)
@@ -648,7 +648,7 @@ public extension Tensor {
     /// element
     /// can get and set the value of a single element tensor.
     /// - Returns: the only element in the tensor
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable var element: Element {
         get {
             assert(count == 1, "the `element` property expects " +
@@ -666,7 +666,7 @@ public extension Tensor {
     @inlinable func vjpElement() -> (
       value: Element,
       pullback: (Element) -> Self
-    ) where Element: DifferentiableElement {
+    ) where Element: DifferentiableNumeric {
       (element, { v in
         var result = zeros(like: self)
         result.element = v

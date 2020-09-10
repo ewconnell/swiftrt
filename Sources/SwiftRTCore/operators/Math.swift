@@ -32,7 +32,7 @@ where S: TensorShape, E.Value: Comparable & SignedNumeric
 @usableFromInline func _vjpAbs<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape,
-          E.Value: DifferentiableElement & Comparable & SignedNumeric
+          E.Value: DifferentiableNumeric & Comparable & SignedNumeric
 {
     let signX = sign(x)
     return (abs(x), { $0 * signX })
@@ -41,10 +41,10 @@ where S: TensorShape, E.Value: Comparable & SignedNumeric
 // Tensor extension to disambiguate with Swift.abs
 public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
     // make glboal function visible for extension implementations
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func abs(_ x: Self) -> Self { SwiftRTCore.abs(x) }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func abs() -> Self { abs(self) }
 }
 
@@ -64,7 +64,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 @derivative(of: acos)
 @usableFromInline func _vjpAcos<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     (acos(x), { v in -v / sqrt(1 - x.squared()) })
 }
@@ -85,7 +85,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 @derivative(of: acosh)
 @usableFromInline func _vjpAcosh<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     (acosh(x), { v in v / asinh(x) })
 }
@@ -106,7 +106,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 @derivative(of: asin)
 @usableFromInline func _vjpAsin<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     (asin(x), { v in v / sqrt(1 - x.squared()) })
 }
@@ -117,7 +117,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 /// - Parameter x: value tensor
 /// - Returns: result
 @inlinable public func asinh<S,E>(_ x: Tensor<S,E>) -> Tensor<S,E>
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     var result = Tensor(like: x)
     Context.currentQueue.asinh(x, &result)
@@ -127,7 +127,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 @derivative(of: asinh)
 @usableFromInline func _vjpAsinh<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     (asinh(x), { v in v / acosh(x) })
 }
@@ -148,7 +148,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 @derivative(of: atan)
 @usableFromInline func _vjpAtan<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     (atan(x), { v in v / (1 + x.squared()) })
 }
@@ -169,7 +169,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 @derivative(of: atanh)
 @usableFromInline func _vjpAtanh<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     (atanh(x), { v in v / (1 - x.squared()) })
 }
@@ -191,7 +191,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 @derivative(of: atan2)
 @usableFromInline func _vjpAtan2<S,E>(y: Tensor<S,E>, x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     // TODO
     fatalError("Not implemented")
@@ -234,7 +234,7 @@ where S: TensorShape, E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint
 @derivative(of: cos)
 @usableFromInline func _vjpCos<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     (cos(x), { v in -v * sin(x) })
 }
@@ -255,7 +255,7 @@ where S: TensorShape, E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint
 @derivative(of: cosh)
 @usableFromInline func _vjpCosh<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     (cosh(x), { v in v * sinh(x) })
 }
@@ -276,7 +276,7 @@ where S: TensorShape, E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint
 @derivative(of: erf)
 @usableFromInline func _vjpErf<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     fatalError("Not implemented")
 }
@@ -297,7 +297,7 @@ where S: TensorShape, E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint
 @derivative(of: erfc)
 @usableFromInline func _vjpErfc<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     fatalError("Not implemented")
 }
@@ -318,7 +318,7 @@ where S: TensorShape, E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint
 @derivative(of: exp)
 @usableFromInline func _vjpExp<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     let value = exp(x)
     return (value, { v in value * v } )
@@ -327,10 +327,10 @@ where S: TensorShape, E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint
 // Tensor extension
 public extension Tensor where TensorElement.Value: Real {
     // make glboal function visible for extension implementations
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func exp(_ x: Self) -> Self { SwiftRTCore.exp(x) }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func exp() -> Self { exp(self) }
 }
 
@@ -377,7 +377,7 @@ public extension Tensor where TensorElement.Value: Real {
 @derivative(of: expMinusOne)
 @usableFromInline func _vjpExpMinusOne<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     let y = expMinusOne(x)
     return (y, { v in v * y })
@@ -399,7 +399,7 @@ public extension Tensor where TensorElement.Value: Real {
 @derivative(of: gamma)
 @usableFromInline func _vjpGamma<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     fatalError("Not implemented")
 }
@@ -421,7 +421,7 @@ public extension Tensor where TensorElement.Value: Real {
 @derivative(of: hypot)
 @usableFromInline func _vjpHypot<S,E>(x: Tensor<S,E>, y: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     // TODO:
     fatalError("Not implemented")
@@ -443,7 +443,7 @@ public extension Tensor where TensorElement.Value: Real {
 @derivative(of: log(_:))
 @usableFromInline func _vjpLog<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     (log(x), { v in v / x })
 }
@@ -467,10 +467,10 @@ public extension Tensor where TensorElement.Value: Real {
 // Tensor extension
 public extension Tensor where TensorElement.Value: Real {
     // make glboal function visible for extension implementations
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func log(_ x: Self) -> Self { SwiftRTCore.log(x) }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func log() -> Self { log(self) }
 }
 
@@ -490,7 +490,7 @@ public extension Tensor where TensorElement.Value: Real {
 @derivative(of: log(onePlus:))
 @usableFromInline func _vjpLogOnePlus<S,E>(onePlus x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     fatalError("Not implemented")
 }
@@ -511,7 +511,7 @@ public extension Tensor where TensorElement.Value: Real {
 @derivative(of: logGamma)
 @usableFromInline func _vjpLogGamma<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     fatalError("Not implemented")
 }
@@ -532,7 +532,7 @@ public extension Tensor where TensorElement.Value: Real {
 @derivative(of: neg)
 @usableFromInline func _vjpNeg<S,E>(_ x: Tensor<S,E>) ->
     (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & SignedNumeric
+    where S: TensorShape, E.Value: DifferentiableNumeric & SignedNumeric
 {
     (-x, { v in -v })
 }
@@ -540,10 +540,10 @@ public extension Tensor where TensorElement.Value: Real {
 // Tensor extension
 public extension Tensor where TensorElement.Value: SignedNumeric {
     // make glboal function visible for extension implementations
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable static prefix func - (x: Self) -> Self { SwiftRTCore.neg(x) }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func neg() -> Self { -self }
 }
 
@@ -563,7 +563,7 @@ public extension Tensor where TensorElement.Value: SignedNumeric {
 @derivative(of: sin)
 @usableFromInline func _vjpSin<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     (sin(x), { v in v * cos(x) })
 }
@@ -584,7 +584,7 @@ public extension Tensor where TensorElement.Value: SignedNumeric {
 @derivative(of: sinh)
 @usableFromInline func _vjpSinh<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     (sinh(x), { v in v * cosh(x) })
 }
@@ -605,7 +605,7 @@ where S: TensorShape, E.Value: Numeric
 @derivative(of: squared)
 @usableFromInline func _vjpSquared<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>))
-    where S: TensorShape, E.Value: DifferentiableElement
+    where S: TensorShape, E.Value: DifferentiableNumeric
 {
     (squared(x), { v in v * (x + x) })
 }
@@ -613,10 +613,10 @@ where S: TensorShape, E.Value: Numeric
 // Tensor extension
 public extension Tensor where TensorElement.Value: Numeric {
     // make glboal function visible for extension implementations
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func squared(_ x: Self) -> Self { SwiftRTCore.squared(x) }
     
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func squared() -> Self { squared(self) }
 }
 
@@ -644,7 +644,7 @@ public extension Numeric {
 @derivative(of: pow)
 @usableFromInline func _vjpPow<S,E>(_ x: Tensor<S,E>, _ y: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     fatalError()
     //        let value = pow(x, y)
@@ -668,7 +668,7 @@ public extension Numeric {
 // Tensor extension
 public extension Tensor where TensorElement.Value: Real {
     // make glboal function visible for extension implementations
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func pow(_ x: Self, _ y: Self) -> Self { SwiftRTCore.pow(x, y) }
 }
 
@@ -689,7 +689,7 @@ public extension Tensor where TensorElement.Value: Real {
 @derivative(of: root)
 @usableFromInline func _vjpRoot<S,E>(_ x: Tensor<S,E>, _ n: Int)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>))
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     fatalError("Not implemented")
 }
@@ -710,7 +710,7 @@ public extension Tensor where TensorElement.Value: Real {
 @derivative(of: sqrt)
 @usableFromInline func _vjpSqrt<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     let value = sqrt(x)
     return (value, { v in v / (2 * value) })
@@ -719,10 +719,10 @@ public extension Tensor where TensorElement.Value: Real {
 // Tensor extension
 public extension Tensor where TensorElement.Value: Real {
     // make glboal function visible for extension implementations
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func sqrt(_ x: Self) -> Self { SwiftRTCore.sqrt(x) }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func sqrt() -> Self { sqrt(self) }
 }
 
@@ -743,7 +743,7 @@ public extension Tensor where TensorElement.Value: Real {
 @usableFromInline func _vjpSign<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape,
-          E.Value: DifferentiableElement & Comparable & SignedNumeric
+          E.Value: DifferentiableNumeric & Comparable & SignedNumeric
 {
     (sign(x), { _ in repeating(0, like: x) })
 }
@@ -751,10 +751,10 @@ public extension Tensor where TensorElement.Value: Real {
 // Tensor extension
 public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
     // make glboal function visible for extension implementations
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func sign(_ x: Self) -> Self { SwiftRTCore.sign(x) }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func sign() -> Self { sign(self) }
 }
 
@@ -775,7 +775,7 @@ where S: TensorShape, E.Value: Real
 @derivative(of: sigmoid)
 @usableFromInline func _vjpSigmoid<S,E>(_ x: Tensor<S,E>)
 -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-where S: TensorShape, E.Value: DifferentiableElement & Real
+where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     (sigmoid(x), { v in
         fatalError()
@@ -785,10 +785,10 @@ where S: TensorShape, E.Value: DifferentiableElement & Real
 // Tensor extension
 public extension Tensor where TensorElement.Value: Real {
     // make glboal function visible for extension implementations
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func sigmoid(_ x: Self) -> Self { SwiftRTCore.sigmoid(x) }
     
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func sigmoid() -> Self { sign(self) }
 }
 
@@ -808,7 +808,7 @@ public extension Tensor where TensorElement.Value: Real {
 @derivative(of: tan)
 @usableFromInline func _vjpTan<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     let value = tan(x)
     return (value, { v in v * (1 + value.squared()) })
@@ -830,7 +830,7 @@ public extension Tensor where TensorElement.Value: Real {
 @derivative(of: tanh)
 @usableFromInline func _vjpTanh<S,E>(_ x: Tensor<S,E>)
     -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableElement & Real
+    where S: TensorShape, E.Value: DifferentiableNumeric & Real
 {
     let value = tanh(x)
     return (value, { v in v * (1 - value.squared()) })

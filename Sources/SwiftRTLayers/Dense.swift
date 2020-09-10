@@ -20,7 +20,7 @@ import SwiftRTCore
 public struct Dense<S,E> : Layer
 where S: TensorShape,
       E: StorageElement,
-      E.Value: DifferentiableElement & BinaryFloatingPoint
+      E.Value: DifferentiableNumeric & BinaryFloatingPoint
 {
     /// The element-wise activation function.
     @noDerivative public let activation: ActivationType

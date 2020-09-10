@@ -24,7 +24,7 @@ import Foundation
 ///  - axis: The axis along which the tensors will be joined.
 ///  - into: the destination to place the result. The shape must be correct.
 ///
-@differentiable(where E.Value: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableNumeric)
 @inlinable public func concatenate<S,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0,
@@ -43,7 +43,7 @@ import Foundation
     }
 }
 
-@differentiable(where E.Value: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableNumeric)
 @inlinable public func concatenate<S,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0
@@ -56,7 +56,7 @@ import Foundation
     return result
 }
 
-@differentiable(where E.Value: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableNumeric)
 @inlinable public func concatenate<S,E>(
     _ tensors: Tensor<S,E>...,
     axis: Int = 0
@@ -66,7 +66,7 @@ import Foundation
 }
 
 public extension Tensor {
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func concatenated(
         with others: Self...,
         alongAxis axis: Int = 0

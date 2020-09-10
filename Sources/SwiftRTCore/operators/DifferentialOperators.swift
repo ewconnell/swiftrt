@@ -26,7 +26,7 @@ public func valueWithGradient<T, Shape, Element>(
   at x: T,
   in f: @differentiable (T) -> Tensor<Shape, Element>
 ) -> (value: Tensor<Shape, Element>, gradient: T.TangentVector)
-where T: Differentiable, Element: DifferentiableElement {
+where T: Differentiable, Element: DifferentiableNumeric {
   let (y, pullback) = valueWithPullback(at: x, in: f)
   precondition(
     y.shape.scalarCount == 0,
@@ -43,7 +43,7 @@ public func valueWithGradient<T, U, Shape, Element>(
   _ y: U,
   in f: @differentiable (T, U) -> Tensor<Shape, Element>
 ) -> (value: Tensor<Shape, Element>, gradient: (T.TangentVector, U.TangentVector))
-where T: Differentiable, U: Differentiable, Element: DifferentiableElement {
+where T: Differentiable, U: Differentiable, Element: DifferentiableNumeric {
   let (y, pullback) = valueWithPullback(at: x, y, in: f)
   precondition(
     y.shape.scalarCount == 0,
@@ -61,7 +61,7 @@ public func valueWithGradient<T, U, V, Shape, Element>(
   _ z: V,
   in f: @differentiable (T, U, V) -> Tensor<Shape, Element>
 ) -> (value: Tensor<Shape, Element>, gradient: (T.TangentVector, U.TangentVector, V.TangentVector))
-where T: Differentiable, U: Differentiable, V: Differentiable, Element: DifferentiableElement {
+where T: Differentiable, U: Differentiable, V: Differentiable, Element: DifferentiableNumeric {
   let (y, pullback) = valueWithPullback(at: x, y, z, in: f)
   precondition(
     y.shape.scalarCount == 0,
@@ -78,7 +78,7 @@ where T: Differentiable, U: Differentiable, V: Differentiable, Element: Differen
 public func valueWithGradient<T, Shape, Element>(
   of f: @escaping @differentiable (T) -> Tensor<Shape, Element>
 ) -> (T) -> (value: Tensor<Shape, Element>, gradient: T.TangentVector)
-where T: Differentiable, Element: DifferentiableElement {
+where T: Differentiable, Element: DifferentiableNumeric {
   return { x in valueWithGradient(at: x, in: f) }
 }
 
@@ -86,7 +86,7 @@ where T: Differentiable, Element: DifferentiableElement {
 public func valueWithGradient<T, U, Shape, Element>(
   of f: @escaping @differentiable (T, U) -> Tensor<Shape, Element>
 ) -> (T, U) -> (value: Tensor<Shape, Element>, gradient: (T.TangentVector, U.TangentVector))
-where T: Differentiable, U: Differentiable, Element: DifferentiableElement {
+where T: Differentiable, U: Differentiable, Element: DifferentiableNumeric {
   return { x, y in valueWithGradient(at: x, y, in: f) }
 }
 
@@ -97,7 +97,7 @@ public func valueWithGradient<T, U, V, Shape, Element>(
   value: Tensor<Shape, Element>,
   gradient: (T.TangentVector, U.TangentVector, V.TangentVector)
 )
-where T: Differentiable, U: Differentiable, V: Differentiable, Element: DifferentiableElement {
+where T: Differentiable, U: Differentiable, V: Differentiable, Element: DifferentiableNumeric {
   return { x, y, z in valueWithGradient(at: x, y, z, in: f) }
 }
 
@@ -107,7 +107,7 @@ where T: Differentiable, U: Differentiable, V: Differentiable, Element: Differen
 public func gradient<T, Shape, Element>(
   at x: T,
   in f: @differentiable (T) -> Tensor<Shape, Element>
-) -> T.TangentVector where T: Differentiable, Element: DifferentiableElement {
+) -> T.TangentVector where T: Differentiable, Element: DifferentiableNumeric {
   return valueWithGradient(at: x, in: f).1
 }
 
@@ -117,7 +117,7 @@ public func gradient<T, U, Shape, Element>(
   _ y: U,
   in f: @differentiable (T, U) -> Tensor<Shape, Element>
 ) -> (T.TangentVector, U.TangentVector)
-where T: Differentiable, U: Differentiable, Element: DifferentiableElement {
+where T: Differentiable, U: Differentiable, Element: DifferentiableNumeric {
   return valueWithGradient(at: x, y, in: f).1
 }
 
@@ -128,7 +128,7 @@ public func gradient<T, U, V, Shape, Element>(
   _ z: V,
   in f: @differentiable (T, U, V) -> Tensor<Shape, Element>
 ) -> (T.TangentVector, U.TangentVector, V.TangentVector)
-where T: Differentiable, U: Differentiable, V: Differentiable, Element: DifferentiableElement {
+where T: Differentiable, U: Differentiable, V: Differentiable, Element: DifferentiableNumeric {
   return valueWithGradient(at: x, y, z, in: f).1
 }
 
@@ -137,7 +137,7 @@ where T: Differentiable, U: Differentiable, V: Differentiable, Element: Differen
 @inlinable
 public func gradient<T, Shape, Element>(
   of f: @escaping @differentiable (T) -> Tensor<Shape, Element>
-) -> (T) -> T.TangentVector where T: Differentiable, Element: DifferentiableElement {
+) -> (T) -> T.TangentVector where T: Differentiable, Element: DifferentiableNumeric {
   return { x in gradient(at: x, in: f) }
 }
 
@@ -145,7 +145,7 @@ public func gradient<T, Shape, Element>(
 public func gradient<T, U, Shape, Element>(
   of f: @escaping @differentiable (T, U) -> Tensor<Shape, Element>
 ) -> (T, U) -> (T.TangentVector, U.TangentVector)
-where T: Differentiable, U: Differentiable, Element: DifferentiableElement {
+where T: Differentiable, U: Differentiable, Element: DifferentiableNumeric {
   return { x, y in gradient(at: x, y, in: f) }
 }
 
@@ -153,6 +153,6 @@ where T: Differentiable, U: Differentiable, Element: DifferentiableElement {
 public func gradient<T, U, V, Shape, Element>(
   of f: @escaping @differentiable (T, U, V) -> Tensor<Shape, Element>
 ) -> (T, U, V) -> (T.TangentVector, U.TangentVector, V.TangentVector)
-where T: Differentiable, U: Differentiable, V: Differentiable, Element: DifferentiableElement {
+where T: Differentiable, U: Differentiable, V: Differentiable, Element: DifferentiableNumeric {
   return { x, y, z in gradient(at: x, y, z, in: f) }
 }

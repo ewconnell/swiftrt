@@ -322,7 +322,7 @@
                 <a class="nav-group-task-link" href="../Differential%20Operators.html#/s:11SwiftRTCore17valueWithGradientyXeXeF">valueWithGradient(of:)</a>
               </li>
               <li class="nav-group-task">
-                <a class="nav-group-task-link" href="../Differential%20Operators.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableElement</a>
+                <a class="nav-group-task-link" href="../Differential%20Operators.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableNumeric</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Differential%20Operators.html#/s:11SwiftRTCore20DifferentiableTensorP">DifferentiableTensor</a>
@@ -2062,7 +2062,7 @@
 <span class="k">where</span> <span class="kt">Shape</span><span class="p">:</span> <span class="kt"><a href="../Protocols/TensorShape.html">TensorShape</a></span><span class="p">,</span> <span class="kt">TensorElement</span><span class="p">:</span> <span class="kt"><a href="../Protocols/StorageElement.html">StorageElement</a></span></code></pre>
 <pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Tensor</span><span class="p">:</span> <span class="kt">Equatable</span> <span class="k">where</span> <span class="kt">TensorElement</span><span class="o">.</span><span class="kt">Value</span><span class="p">:</span> <span class="kt">Equatable</span></code></pre>
 <pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Tensor</span><span class="p">:</span> <span class="kt">Differentiable</span> <span class="o">&amp;</span> <span class="kt"><a href="../Differential%20Operators.html#/s:11SwiftRTCore20DifferentiableTensorP">DifferentiableTensor</a></span>
-    <span class="k">where</span> <span class="kt">Element</span><span class="p">:</span> <span class="kt"><a href="../Differential%20Operators.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableElement</a></span></code></pre>
+    <span class="k">where</span> <span class="kt">Element</span><span class="p">:</span> <span class="kt"><a href="../Differential%20Operators.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableNumeric</a></span></code></pre>
 <pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Tensor</span><span class="p">:</span> <span class="kt">AdditiveArithmetic</span> <span class="k">where</span> <span class="kt">Element</span><span class="p">:</span> <span class="kt">Numeric</span></code></pre>
 <pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Tensor</span><span class="p">:</span> <span class="kt">Codable</span> <span class="k">where</span> <span class="kt">Element</span><span class="p">:</span> <span class="kt">Codable</span></code></pre>
 
@@ -3682,7 +3682,7 @@ can get and set the value of a single element tensor.</p>
 <span class="kd">func</span> <span class="nf">vjpElement</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="p">(</span>
   <span class="nv">value</span><span class="p">:</span> <span class="kt"><a href="../Structs/Tensor.html#/s:ST7ElementQa">Element</a></span><span class="p">,</span>
   <span class="nv">pullback</span><span class="p">:</span> <span class="p">(</span><span class="kt"><a href="../Structs/Tensor.html#/s:ST7ElementQa">Element</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">Self</span>
-<span class="p">)</span> <span class="k">where</span> <span class="kt"><a href="../Structs/Tensor.html#/s:ST7ElementQa">Element</a></span><span class="p">:</span> <span class="kt"><a href="../Differential%20Operators.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableElement</a></span></code></pre>
+<span class="p">)</span> <span class="k">where</span> <span class="kt"><a href="../Structs/Tensor.html#/s:ST7ElementQa">Element</a></span><span class="p">:</span> <span class="kt"><a href="../Differential%20Operators.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableNumeric</a></span></code></pre>
 
                         </div>
                       </div>
@@ -10823,10 +10823,10 @@ the number of input features multiplied by the receptive field size.</p>
             <div class="task-group">
               <div class="task-name-container">
                 <a name="/Available%20where%20%60Element%60%3A%20%60DifferentiableElement%60"></a>
-                <a name="//apple_ref/swift/Section/Available where `Element`: `DifferentiableElement`" class="dashAnchor"></a>
+                <a name="//apple_ref/swift/Section/Available where `Element`: `DifferentiableNumeric`" class="dashAnchor"></a>
                 <div class="section-name-container">
                   <a class="section-name-link" href="#/Available%20where%20%60Element%60%3A%20%60DifferentiableElement%60"></a>
-                  <h3 class="section-name"><p>Available where <code><a href="../Structs/Tensor.html#/s:ST7ElementQa">Element</a></code>: <code><a href="../Differential%20Operators.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableElement</a></code></p>
+                  <h3 class="section-name"><p>Available where <code><a href="../Structs/Tensor.html#/s:ST7ElementQa">Element</a></code>: <code><a href="../Differential%20Operators.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableNumeric</a></code></p>
 </h3>
                 </div>
               </div>

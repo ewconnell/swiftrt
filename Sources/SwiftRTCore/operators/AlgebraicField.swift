@@ -17,7 +17,7 @@ import Numerics
 extension Tensor where TensorElement.Value: AdditiveArithmetic {
     //--------------------------------------------------------------------------
     // tensor + tensor
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable public static func +(lhs: Self, rhs: Self) -> Self {
         /// MAKE THIS GO AWAY!! assert(lhs.shape == rhs.shape) should be true
         /// Hack to work around AD zero materialization design problem
@@ -36,14 +36,14 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
     @derivative(of: +)
     @usableFromInline static func _vjpAdd(_ lhs: Self, _ rhs: Self)
         -> (value: Self, pullback: (Self) -> (Self, Self)
-    ) where Element: DifferentiableElement {
+    ) where Element: DifferentiableNumeric {
         (lhs + rhs, { ($0, $0) })
     }
 
     //--------------------------------------------------------------------------
     // tensor + Element
-    @differentiable(where Element: DifferentiableElement)
-    @differentiable(wrt: lhs where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableNumeric)
+    @differentiable(wrt: lhs where Element: DifferentiableNumeric)
     @inlinable public static func +(lhs: Self, rhs: Element) -> Self {
         var out = Tensor(like: lhs)
         Context.currentQueue.add(lhs, rhs, &out)
@@ -53,27 +53,27 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
     @derivative(of: +)
     @usableFromInline static func _vjpAdd(_ lhs: Self, _ rhs: Element) -> (
         value: Self, pullback: (Self) -> (Self, Element)
-    ) where Element: DifferentiableElement {
+    ) where Element: DifferentiableNumeric {
         (lhs + rhs, { ($0, $0.sum().element) })
     }
 
     @derivative(of: +, wrt: lhs)
     @usableFromInline static func _vjpAdd(_ lhs: Self, _ rhs: Element) -> (
         value: Self, pullback: (Self) -> Self
-    ) where Element: DifferentiableElement {
+    ) where Element: DifferentiableNumeric {
         (lhs + rhs, { $0 })
     }
     
     // tensor += Element
-    @differentiable(where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableNumeric)
     @inlinable public static func +=(lhs: inout Self, rhs: Element) {
         lhs = lhs + rhs
     }
     
     //--------------------------------------------------------------------------
     // Element + tensor
-    @differentiable(where Element: DifferentiableElement)
-    @differentiable(wrt: rhs where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableNumeric)
+    @differentiable(wrt: rhs where Element: DifferentiableNumeric)
     @inlinable public static func +(lhs: Element, rhs: Self) -> Self {
         rhs + lhs
     }
@@ -81,20 +81,20 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
     @derivative(of: +)
     @usableFromInline static func _vjpAdd(_ lhs: Element, _ rhs: Self) -> (
         value: Self, pullback: (Self) -> (Element, Self)
-    ) where Element: DifferentiableElement {
+    ) where Element: DifferentiableNumeric {
         (lhs + rhs, { ($0.sum().element, $0) })
     }
 
     @derivative(of: +, wrt: rhs)
     @usableFromInline static func _vjpAdd(_ lhs: Element, _ rhs: Self) -> (
         value: Self, pullback: (Self) -> Self
-    ) where Element: DifferentiableElement {
+    ) where Element: DifferentiableNumeric {
         (lhs + rhs, { $0 })
     }
     
     //--------------------------------------------------------------------------
     // VectorProtocol
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable public func adding(_ x: Element) -> Self {
         self + x
     }
@@ -105,7 +105,7 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
 extension Tensor where TensorElement.Value: AdditiveArithmetic {
     //--------------------------------------------------------------------------
     // tensor - tensor
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable public static func -(lhs: Self, rhs: Self) -> Self {
         assert(lhs.shape == rhs.shape)
         var result = Tensor(like: lhs)
@@ -116,14 +116,14 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
     @derivative(of: -)
     @usableFromInline static func _vjpSubtract(_ lhs: Self, _ rhs: Self)
     -> (value: Self, pullback: (Self) -> (Self, Self)
-    ) where Element: DifferentiableElement {
+    ) where Element: DifferentiableNumeric {
         (lhs - rhs, { ($0, 0 - $0) })
     }
 
     //--------------------------------------------------------------------------
     // tensor - Element
-    @differentiable(where Element: DifferentiableElement & SignedNumeric)
-    @differentiable(wrt: lhs where Element: DifferentiableElement)
+    @differentiable(where Element: DifferentiableNumeric & SignedNumeric)
+    @differentiable(wrt: lhs where Element: DifferentiableNumeric)
     @inlinable public static func -(lhs: Self, rhs: Element) -> Self {
         var out = Tensor(like: lhs)
 //        Context.currentQueue.subtract(lhs, rhs, &out)
@@ -133,26 +133,26 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
     @derivative(of: -)
     @usableFromInline static func _vjpSubtract(_ lhs: Self, _ rhs: Element) -> (
         value: Self, pullback: (Self) -> (Self, Element)
-    ) where Element: DifferentiableElement & SignedNumeric {
+    ) where Element: DifferentiableNumeric & SignedNumeric {
         (lhs + rhs, { ($0, $0.sum().element) })
     }
     
     @derivative(of: -, wrt: lhs)
     @usableFromInline static func _vjpSubtract(_ lhs: Self, _ rhs: Element) -> (
         value: Self, pullback: (Self) -> Self
-    ) where Element: DifferentiableElement {
+    ) where Element: DifferentiableNumeric {
         (lhs - rhs, { $0 })
     }
 
-    @differentiable(where Element: DifferentiableElement & SignedNumeric)
+    @differentiable(where Element: DifferentiableNumeric & SignedNumeric)
     @inlinable public static func -=(lhs: inout Self, rhs: Element) {
         lhs = lhs - rhs
     }
 
     //--------------------------------------------------------------------------
     // Element - tensor
-    @differentiable(where Element: DifferentiableElement & SignedNumeric)
-    @differentiable(wrt: rhs where Element: DifferentiableElement & SignedNumeric)
+    @differentiable(where Element: DifferentiableNumeric & SignedNumeric)
+    @differentiable(wrt: rhs where Element: DifferentiableNumeric & SignedNumeric)
     @inlinable public static func -(lhs: Element, rhs: Self) -> Self {
         var out = Tensor(like: rhs)
         //        Context.currentQueue.subtract(lhs, rhs, &out)
@@ -162,20 +162,20 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
     @derivative(of: -)
     @usableFromInline static func _vjpSubtract(_ lhs: Element, _ rhs: Self) -> (
         value: Self, pullback: (Self) -> (Element, Self)
-    ) where Element: DifferentiableElement & SignedNumeric {
+    ) where Element: DifferentiableNumeric & SignedNumeric {
         (lhs + rhs, { ($0.sum().element, -$0) })
     }
     
     @derivative(of: -, wrt: rhs)
     @usableFromInline static func _vjpSubtract(_ lhs: Element, _ rhs: Self) -> (
         value: Self, pullback: (Self) -> Self
-    ) where Element: DifferentiableElement & SignedNumeric {
+    ) where Element: DifferentiableNumeric & SignedNumeric {
         (lhs - rhs, { -$0 })
     }
 
     //--------------------------------------------------------------------------
     // VectorProtocol
-    @differentiable(where Element: DifferentiableElement & SignedNumeric)
+    @differentiable(where Element: DifferentiableNumeric & SignedNumeric)
     @inlinable public func subtracting(_ x: Element) -> Self {
         self - x
     }
@@ -188,7 +188,7 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
 ///  - lhs: left hand tensor
 ///  - rhs: right hand tensor.
 /// - Returns: a new tensor containing the result
-@differentiable(where E.Value: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableNumeric)
 @inlinable public func mul<S,E>(
     _ lhs: Tensor<S,E>,
     _ rhs: Tensor<S,E>
@@ -203,13 +203,13 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
 @derivative(of: mul)
 @usableFromInline func _vjpMultiply<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) ->
     (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-    where S: TensorShape, E.Value: DifferentiableElement
+    where S: TensorShape, E.Value: DifferentiableNumeric
 {
     (lhs * rhs, { v in (v * rhs, v * lhs) })
 }
 
 extension Tensor where TensorElement.Value: Numeric {
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable public static func * (lhs: Self, rhs: Self) -> Self { mul(lhs, rhs) }
 
     @inlinable public static func *= (lhs: inout Self, rhs: TensorElement.Value) {
@@ -222,8 +222,8 @@ extension Tensor where TensorElement.Value: Numeric {
 
     //--------------------------------
     // tensor * Element
-    @differentiable(where TensorElement.Value: DifferentiableElement)
-    @differentiable(wrt: lhs where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
+    @differentiable(wrt: lhs where TensorElement.Value: DifferentiableNumeric)
     @inlinable public static func * (lhs: Self, rhs: TensorElement.Value) -> Self {
         mul(lhs, repeating(rhs, like: lhs))
     }
@@ -231,14 +231,14 @@ extension Tensor where TensorElement.Value: Numeric {
     @derivative(of: *, wrt: lhs)
     @usableFromInline static func _vjpMultiply(_ lhs: Self, _ rhs: TensorElement.Value) -> (
         value: Self, pullback: (TangentVector) -> TangentVector
-    ) where TensorElement.Value: DifferentiableElement {
+    ) where TensorElement.Value: DifferentiableNumeric {
         (lhs * rhs, { $0 * rhs })
     }
 
     //--------------------------------
     // Element * tensor
-    @differentiable(where TensorElement.Value: DifferentiableElement)
-    @differentiable(wrt: rhs where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
+    @differentiable(wrt: rhs where TensorElement.Value: DifferentiableNumeric)
     @inlinable public static func * (lhs: TensorElement.Value, rhs: Self) -> Self {
         mul(repeating(lhs, like: rhs), rhs)
     }
@@ -246,19 +246,19 @@ extension Tensor where TensorElement.Value: Numeric {
     @derivative(of: *, wrt: rhs)
     @usableFromInline static func _vjpMultiply(_ lhs: TensorElement.Value, _ rhs: Self) -> (
         value: Self, pullback: (TangentVector) -> TangentVector
-    ) where TensorElement.Value: DifferentiableElement {
+    ) where TensorElement.Value: DifferentiableNumeric {
         (lhs * rhs, { lhs * $0 })
     }
 
     //--------------------------------
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable public func scaled(by scalar: TensorElement.Value) -> Self {
         self * scalar
     }
 
     // TODO: this syntax is incorrect and is only here to conform to
     // PointwiseMultiplicative and should be removed
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable public static func .* (lhs: Self, rhs: Self) -> Self {
         lhs * rhs
     }
@@ -270,7 +270,7 @@ extension Tensor where TensorElement.Value: Numeric {
 /// - Parameter lhs: left hand tensor
 /// - Parameter rhs: right hand tensor.
 /// - Returns: a new tensor containing the result
-@differentiable(where E.Value: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableNumeric)
 @inlinable public func div<S,E>(
     _ lhs: Tensor<S,E>,
     _ rhs: Tensor<S,E>
@@ -285,13 +285,13 @@ extension Tensor where TensorElement.Value: Numeric {
 @derivative(of: div)
 @usableFromInline func _vjpDivide<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>) ->
     (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-    where S: TensorShape, E.Value: DifferentiableElement & AlgebraicField
+    where S: TensorShape, E.Value: DifferentiableNumeric & AlgebraicField
 {
     (lhs / rhs, { v in (v / rhs, -lhs / rhs.squared() * v) })
 }
 
 extension Tensor where TensorElement.Value: AlgebraicField {
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable public static func / (lhs: Self, rhs: Self) -> Self { div(lhs, rhs) }
 
     @inlinable public static func /= (lhs: inout Self, rhs: TensorElement.Value) {
@@ -302,8 +302,8 @@ extension Tensor where TensorElement.Value: AlgebraicField {
 
     //--------------------------------
     // tensor / Element
-    @differentiable(where TensorElement.Value: DifferentiableElement)
-    @differentiable(wrt: lhs where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
+    @differentiable(wrt: lhs where TensorElement.Value: DifferentiableNumeric)
     @inlinable public static func / (lhs: Self, rhs: TensorElement.Value) -> Self {
         div(lhs, repeating(rhs, like: lhs))
     }
@@ -311,14 +311,14 @@ extension Tensor where TensorElement.Value: AlgebraicField {
     @derivative(of: /, wrt: lhs)
     @usableFromInline static func _vjpDivide(_ lhs: Self, _ rhs: TensorElement.Value) -> (
         value: Self, pullback: (TangentVector) -> TangentVector
-    ) where TensorElement.Value: DifferentiableElement {
+    ) where TensorElement.Value: DifferentiableNumeric {
         (lhs / rhs, { $0 / rhs })
     }
 
     //--------------------------------
     // Element / tensor
-    @differentiable(where TensorElement.Value: DifferentiableElement)
-    @differentiable(wrt: rhs where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
+    @differentiable(wrt: rhs where TensorElement.Value: DifferentiableNumeric)
     @inlinable public static func / (lhs: TensorElement.Value, rhs: Self) -> Self {
         div(repeating(lhs, like: rhs), rhs)
     }
@@ -326,12 +326,12 @@ extension Tensor where TensorElement.Value: AlgebraicField {
     @derivative(of: /, wrt: rhs)
     @usableFromInline static func _vjpDivide(_ lhs: TensorElement.Value, _ rhs: Self) -> (
         value: Self, pullback: (TangentVector) -> TangentVector
-    ) where TensorElement.Value: DifferentiableElement {
+    ) where TensorElement.Value: DifferentiableNumeric {
         (lhs / rhs, { -lhs / rhs.squared() * $0 })
     }
 
     // PointwiseMultiplicative
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable public var reciprocal: Self {
         1 / self
     }

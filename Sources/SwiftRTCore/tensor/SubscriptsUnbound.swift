@@ -59,7 +59,7 @@ public extension Tensor {
 // Rank2 array property and subscripts
 public extension Tensor where Shape == Shape2 {
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R0>(r0: R0, r1: UnboundedRange) -> Self
     where R0: SignedRangeExpression
     {
@@ -67,7 +67,7 @@ public extension Tensor where Shape == Shape2 {
         set { self[r0, 0...] = newValue }
     }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R1>(r0: UnboundedRange, r1: R1) -> Self
     where R1: SignedRangeExpression
     {
@@ -80,7 +80,7 @@ public extension Tensor where Shape == Shape2 {
 // Rank3 array property and subscripts
 public extension Tensor where Shape == Shape3 {
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R0>(r0: R0, r1: UnboundedRange, r2: UnboundedRange) -> Self
     where R0: SignedRangeExpression
     {
@@ -88,7 +88,7 @@ public extension Tensor where Shape == Shape3 {
         set { self[r0, 0..., 0...] = newValue }
     }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R0, R1>(r0: R0, r1: R1, r2: UnboundedRange) -> Self
     where R0: SignedRangeExpression,
           R1: SignedRangeExpression
@@ -97,7 +97,7 @@ public extension Tensor where Shape == Shape3 {
         set { self[r0, r1, 0...] = newValue }
     }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R0, R2>(r0: R0, r1: UnboundedRange, r2: R2) -> Self
     where R0: SignedRangeExpression,
           R2: SignedRangeExpression
@@ -106,7 +106,7 @@ public extension Tensor where Shape == Shape3 {
         set { self[r0, 0..., r2] = newValue }
     }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R1>(r0: UnboundedRange, r1: R1, r2: UnboundedRange) -> Self
     where R1: SignedRangeExpression
     {
@@ -114,7 +114,7 @@ public extension Tensor where Shape == Shape3 {
         set { self[0..., r1, 0...] = newValue }
     }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R2>(r0: UnboundedRange, r1: UnboundedRange, r2: R2) -> Self
     where R2: SignedRangeExpression
     {
@@ -127,7 +127,7 @@ public extension Tensor where Shape == Shape3 {
 // Rank4 array property and subscripts
 public extension Tensor where Shape == Shape4 {
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R0>(
         r0: R0,
         r1: UnboundedRange,
@@ -139,7 +139,7 @@ public extension Tensor where Shape == Shape4 {
         set { self[r0, 0..., 0..., 0...] = newValue }
     }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R0, R1>(
         r0: R0,
         r1: R1,
@@ -152,7 +152,7 @@ public extension Tensor where Shape == Shape4 {
         set { self[r0, r1, 0..., 0...] = newValue }
     }
     
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R0, R2>(
         r0: R0,
         r1: UnboundedRange,
@@ -165,7 +165,7 @@ public extension Tensor where Shape == Shape4 {
         set { self[r0, 0..., r2, 0...] = newValue }
     }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R1>(
         r0: UnboundedRange,
         r1: R1,
@@ -177,7 +177,7 @@ public extension Tensor where Shape == Shape4 {
         set { self[0..., r1, 0..., 0...] = newValue }
     }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R2>(
         r0: UnboundedRange,
         r1: UnboundedRange,
@@ -189,7 +189,7 @@ public extension Tensor where Shape == Shape4 {
         set { self[0..., 0..., r2, 0...] = newValue }
     }
     
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R0,R3>(
         r0: R0,
         r1: UnboundedRange,
@@ -202,7 +202,7 @@ public extension Tensor where Shape == Shape4 {
         set { self[r0, 0..., 0..., r3] = newValue }
     }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R0,R1,R3>(
         r0: R0,
         r1: R1,
@@ -216,7 +216,7 @@ public extension Tensor where Shape == Shape4 {
         set { self[r0, r1, 0..., r3] = newValue }
     }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R0,R2,R3>(
         r0: R0,
         r1: UnboundedRange,
@@ -230,7 +230,7 @@ public extension Tensor where Shape == Shape4 {
         set { self[r0, 0..., r2, r3] = newValue }
     }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R1,R3>(
         r0: UnboundedRange,
         r1: R1,
@@ -243,7 +243,7 @@ public extension Tensor where Shape == Shape4 {
         set { self[0..., r1, 0..., r3] = newValue }
     }
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable subscript<R2,R3>(
         r0: UnboundedRange,
         r1: UnboundedRange,

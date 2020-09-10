@@ -19,7 +19,7 @@ import SwiftRTCore
 /// Embedding
 public struct Embedding<Element> : Module
 where Element: StorageElement,
-      Element.Value: DifferentiableElement & BinaryFloatingPoint
+      Element.Value: DifferentiableNumeric & BinaryFloatingPoint
 {
     /// A learnable lookup table that maps vocabulary indices to their dense vector representations.
     public var embeddings: TensorR2<Element>

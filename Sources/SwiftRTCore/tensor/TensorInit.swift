@@ -131,7 +131,7 @@ public extension Tensor {
     ///  - shape: the shape of the tensor
     ///  - order: the storage order of the elements
     ///  - name: the name of the tensor
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable init(
         repeating element: TensorElement.Value,
         to shape: Shape,
@@ -147,7 +147,7 @@ public extension Tensor {
     /// - Parameters:
     ///  - other: the tensor to repeat
     ///  - shape: the shape of the tensor
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable init(repeating other: Self, to shape: Shape) {
         let strides = repeatedStrides(matching: other, to: shape)
         let count = shape.elementCount()
@@ -174,7 +174,7 @@ public extension Tensor {
     }
 }
 
-extension Tensor where TensorElement.Value: DifferentiableElement
+extension Tensor where TensorElement.Value: DifferentiableNumeric
 {
     @derivative(of: init(repeating:to:order:name:))
     @usableFromInline static func _vjpInit(
@@ -480,7 +480,7 @@ public extension Tensor {
 ///  - order: the storage order of the new tensor
 public extension Tensor {
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable init<S>(
         reshaping other: Tensor<S,TensorElement>,
         to newShape: Shape,
@@ -553,7 +553,7 @@ public extension Tensor {
     }
 }
 
-extension Tensor where TensorElement.Value: DifferentiableElement
+extension Tensor where TensorElement.Value: DifferentiableNumeric
 {
     @derivative(of: init(reshaping:to:order:))
     @usableFromInline static func _vjpInit<S>(
@@ -579,7 +579,7 @@ extension Tensor where TensorElement.Value: DifferentiableElement
 
 public extension Tensor {
     
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable init<S, Axes>(
         expanding other: Tensor<S,TensorElement>,
         axes: Axes
@@ -636,7 +636,7 @@ public extension Tensor {
                   shared: other.isShared)
     }
     
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable init<S>(expanding other: Tensor<S,TensorElement>, axes: Int...)
         where S: TensorShape
     {
@@ -644,7 +644,7 @@ public extension Tensor {
     }
 }
 
-extension Tensor where TensorElement.Value: DifferentiableElement
+extension Tensor where TensorElement.Value: DifferentiableNumeric
 {
     @derivative(of: init(expanding:axes:))
     @usableFromInline static func _vjpInit<S, Axes>(
@@ -665,7 +665,7 @@ extension Tensor where TensorElement.Value: DifferentiableElement
 ///  - axes: a list of axes to squeeze
 public extension Tensor {
     
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable init<S,Axes>(
         squeezing other: Tensor<S,TensorElement>,
         axes: Axes
@@ -699,7 +699,7 @@ public extension Tensor {
                   shared: other.isShared)
     }
     
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable init<S>(squeezing other: Tensor<S,TensorElement>, axes: Int...)
         where S: TensorShape
     {
@@ -707,7 +707,7 @@ public extension Tensor {
     }
 }
 
-extension Tensor where TensorElement.Value: DifferentiableElement
+extension Tensor where TensorElement.Value: DifferentiableNumeric
 {
     @derivative(of: init(squeezing:axes:))
     @usableFromInline static func _vjpInit<S, Axes>(
@@ -728,7 +728,7 @@ extension Tensor where TensorElement.Value: DifferentiableElement
 ///  - axis: the axis to stack along
 public extension Tensor {
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable init<S>(
         stacking others: [Tensor<S,TensorElement>],
         axis: Int = 0
@@ -742,7 +742,7 @@ public extension Tensor {
         stack(others, axis: positiveAxis, into: &self)
     }
     
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable init<S>(
         stacking others: Tensor<S,TensorElement>...,
         axis: Int = 0
@@ -776,7 +776,7 @@ public extension Tensor {
 ///  - others: the collection to squeeze
 ///  - axis: the axis to stack along
 ///  - result: the output tensor
-@differentiable(where E.Value: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableNumeric)
 @inlinable public func stack<S,SR,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0,
@@ -900,7 +900,7 @@ public extension Tensor {
 ///   `-rank..<rank`
 public extension Tensor {
 
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable init(
         transposing other: Self,
         permutatedBy permutations: Shape? = nil)
@@ -942,16 +942,16 @@ public extension Tensor {
     }
     
     /// - Returns: transpose of self
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable var t: Self { Self(transposing: self) }
     
-    @differentiable(where TensorElement.Value: DifferentiableElement)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func transposed(permutatedBy permutations: Shape) -> Self {
         Self(transposing: self, permutatedBy: permutations)
     }
 }
 
-extension Tensor where TensorElement.Value: DifferentiableElement {
+extension Tensor where TensorElement.Value: DifferentiableNumeric {
     
     @derivative(of: init(transposing:permutatedBy:))
     @usableFromInline static func _vjpInit(

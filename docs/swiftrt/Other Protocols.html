@@ -1758,7 +1758,7 @@
                 <a class="nav-group-task-link" href="Protocols/DeviceQueue.html">DeviceQueue</a>
               </li>
               <li class="nav-group-task">
-                <a class="nav-group-task-link" href="Other%20Protocols.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableElement</a>
+                <a class="nav-group-task-link" href="Other%20Protocols.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableNumeric</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Other%20Protocols.html#/s:11SwiftRTCore20DifferentiableTensorP">DifferentiableTensor</a>
@@ -2756,7 +2756,7 @@ to reduce the number of generic requirements when writing
                         <div class="language">
                           <p class="aside-title">Swift</p>
                           <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">DifferentiableTensor</span><span class="p">:</span> <span class="kt"><a href="Protocols/TensorProtocol.html">TensorProtocol</a></span> <span class="o">&amp;</span> <span class="kt">Differentiable</span>
-<span class="k">where</span> <span class="k">Self</span> <span class="o">==</span> <span class="kt">TangentVector</span><span class="p">,</span> <span class="kt">TensorElement</span><span class="o">.</span><span class="kt">Value</span><span class="p">:</span> <span class="kt"><a href="Other%20Protocols.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableElement</a></span></code></pre>
+<span class="k">where</span> <span class="k">Self</span> <span class="o">==</span> <span class="kt">TangentVector</span><span class="p">,</span> <span class="kt">TensorElement</span><span class="o">.</span><span class="kt">Value</span><span class="p">:</span> <span class="kt"><a href="Other%20Protocols.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableNumeric</a></span></code></pre>
 
                         </div>
                       </div>
@@ -2770,8 +2770,8 @@ to reduce the number of generic requirements when writing
                   <div>
                     <code>
                     <a name="/s:11SwiftRTCore21DifferentiableElementP"></a>
-                    <a name="//apple_ref/swift/Protocol/DifferentiableElement" class="dashAnchor"></a>
-                    <a class="token" href="#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableElement</a>
+                    <a name="//apple_ref/swift/Protocol/DifferentiableNumeric" class="dashAnchor"></a>
+                    <a class="token" href="#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableNumeric</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -2779,14 +2779,14 @@ to reduce the number of generic requirements when writing
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>DifferentiableElement</p>
+                        <p>DifferentiableNumeric</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">DifferentiableElement</span><span class="p">:</span>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">DifferentiableNumeric</span><span class="p">:</span>
     <span class="kt">Differentiable</span> <span class="o">&amp;</span> <span class="kt">Numeric</span> <span class="k">where</span> <span class="k">Self</span> <span class="o">==</span> <span class="kt">TangentVector</span></code></pre>
 
                         </div>

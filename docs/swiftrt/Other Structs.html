@@ -1758,7 +1758,7 @@
                 <a class="nav-group-task-link" href="Protocols/DeviceQueue.html">DeviceQueue</a>
               </li>
               <li class="nav-group-task">
-                <a class="nav-group-task-link" href="Other%20Protocols.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableElement</a>
+                <a class="nav-group-task-link" href="Other%20Protocols.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableNumeric</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Other%20Protocols.html#/s:11SwiftRTCore20DifferentiableTensorP">DifferentiableTensor</a>
@@ -2132,7 +2132,7 @@ this is used to manage which logWriter to use and message parameters</p>
 <span class="k">where</span> <span class="kt">Shape</span><span class="p">:</span> <span class="kt"><a href="Protocols/TensorShape.html">TensorShape</a></span><span class="p">,</span> <span class="kt">TensorElement</span><span class="p">:</span> <span class="kt"><a href="Protocols/StorageElement.html">StorageElement</a></span></code></pre>
 <pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Tensor</span><span class="p">:</span> <span class="kt">Equatable</span> <span class="k">where</span> <span class="kt">TensorElement</span><span class="o">.</span><span class="kt">Value</span><span class="p">:</span> <span class="kt">Equatable</span></code></pre>
 <pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Tensor</span><span class="p">:</span> <span class="kt">Differentiable</span> <span class="o">&amp;</span> <span class="kt"><a href="Other%20Protocols.html#/s:11SwiftRTCore20DifferentiableTensorP">DifferentiableTensor</a></span>
-    <span class="k">where</span> <span class="kt">Element</span><span class="p">:</span> <span class="kt"><a href="Other%20Protocols.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableElement</a></span></code></pre>
+    <span class="k">where</span> <span class="kt">Element</span><span class="p">:</span> <span class="kt"><a href="Other%20Protocols.html#/s:11SwiftRTCore21DifferentiableElementP">DifferentiableNumeric</a></span></code></pre>
 <pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Tensor</span><span class="p">:</span> <span class="kt">AdditiveArithmetic</span> <span class="k">where</span> <span class="kt">Element</span><span class="p">:</span> <span class="kt">Numeric</span></code></pre>
 <pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">Tensor</span><span class="p">:</span> <span class="kt">Codable</span> <span class="k">where</span> <span class="kt">Element</span><span class="p">:</span> <span class="kt">Codable</span></code></pre>
 

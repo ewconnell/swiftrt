@@ -23,7 +23,7 @@ import Foundation
     _ lhs: TensorR2<E>, _ transposeLhs: Bool,
     _ rhs: TensorR2<E>, _ transposeRhs: Bool
 ) -> (TensorR2<E>, TensorR2<E>)
-where E: StorageElement, E.Value: StorageElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
 {
     let (lhsGrad, rhsGrad): (TensorR2<E>, TensorR2<E>)
     switch (transposeLhs, transposeRhs) {
@@ -53,9 +53,9 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 ///  - transposeRhs: `true` to transpose `rhs`, default is `false`
 /// - Returns: a new tensor containing the result
 // https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
-@differentiable(where E.Value: DifferentiableElement)
-@differentiable(wrt: lhs where E.Value: DifferentiableElement)
-@differentiable(wrt: rhs where E.Value: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableNumeric)
+@differentiable(wrt: lhs where E.Value: DifferentiableNumeric)
+@differentiable(wrt: rhs where E.Value: DifferentiableNumeric)
 @inlinable public func matmul<E>(
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
@@ -79,7 +79,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR2<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
 {
     (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
      { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
@@ -90,7 +90,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
 {
     (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
      { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).0 })
@@ -101,7 +101,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
 {
     (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
      { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).1 })
@@ -117,9 +117,9 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 ///  - transposeRhs: `true` to transpose `rhs`, default is `false`
 /// - Returns: a new tensor containing the result
 // https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
-@differentiable(where E.Value: DifferentiableElement)
-@differentiable(wrt: (lhs, bias) where E.Value: DifferentiableElement)
-@differentiable(wrt: (rhs, bias) where E.Value: DifferentiableElement)
+@differentiable(where E.Value: DifferentiableNumeric)
+@differentiable(wrt: (lhs, bias) where E.Value: DifferentiableNumeric)
+@differentiable(wrt: (rhs, bias) where E.Value: DifferentiableNumeric)
 @inlinable public func matmul<E>(
     _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
@@ -142,7 +142,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR2<E>, TensorR1<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
 {
     fatalError()
 //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
@@ -155,7 +155,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR1<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
 {
     fatalError()
 //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
@@ -168,7 +168,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
     _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
     bias: TensorR1<E>
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR1<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableElement
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
 {
     fatalError()
 //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
@@ -185,7 +185,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 /////  - transposeRhs: `true` to transpose `rhs`, default is `false`
 ///// - Returns: a new tensor containing the result
 //// https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
-//@differentiable(where E.Value: DifferentiableElement)
+//@differentiable(where E.Value: DifferentiableNumeric)
 //@inlinable public func matmul<S,E>(
 //    _ lhs: Tensor<S,E>, transposed transposeLhs: Bool = false,
 //    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
@@ -199,7 +199,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 //    _ lhs: Tensor<S,E>, transposed transposeLhs: Bool = false,
 //    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 //) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, TensorR2<E>))
-//where S: TensorShape, E.Value: DifferentiableElement
+//where S: TensorShape, E.Value: DifferentiableNumeric
 //{
 //    fatalError()
 //}
@@ -214,7 +214,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 /////  - transposeRhs: `true` to transpose `rhs`, default is `false`
 ///// - Returns: a new tensor containing the result
 //// https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
-//@differentiable(where E.Value: DifferentiableElement)
+//@differentiable(where E.Value: DifferentiableNumeric)
 //@inlinable public func matmul<S,E>(
 //    _ lhs: TensorR2<E>, transposed transposeRhs: Bool = false,
 //    _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
@@ -228,7 +228,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 //    _ lhs: TensorR2<E>, transposed transposeRhs: Bool = false,
 //    _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
 //) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (TensorR2<E>, Tensor<S,E>))
-//where S: TensorShape, E.Value: DifferentiableElement
+//where S: TensorShape, E.Value: DifferentiableNumeric
 //{
 //    fatalError()
 //}
@@ -243,7 +243,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 /////  - transposeRhs: `true` to transpose `rhs`, default is `false`
 ///// - Returns: a new tensor containing the result
 //// https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
-//@differentiable(where E.Value: DifferentiableElement)
+//@differentiable(where E.Value: DifferentiableNumeric)
 //@inlinable public func matmul<S,E>(
 //    _ lhs: Tensor<S,E>, transposed transposeRhs: Bool = false,
 //    _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
@@ -257,7 +257,7 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableElement
 //    _ lhs: Tensor<S,E>, transposed transposeRhs: Bool = false,
 //    _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
 //) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-//where S: TensorShape, E.Value: DifferentiableElement
+//where S: TensorShape, E.Value: DifferentiableNumeric
 //{
 //    fatalError()
 //}
