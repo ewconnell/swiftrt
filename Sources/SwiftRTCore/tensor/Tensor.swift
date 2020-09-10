@@ -297,12 +297,12 @@ extension Tensor: Codable where Element: Codable {
         try container.encode(shape, forKey: .shape)
         try container.encode(order, forKey: .order)
         var dataContainer = container.nestedUnkeyedContainer(forKey: .data)
-        if isBufferIterable {
+        if isContiguous {
             try self.buffer.forEach {
                 try dataContainer.encode($0)
             }
         } else {
-            try self.forEach {
+            try self.elements.forEach {
                 try dataContainer.encode($0)
             }
         }
@@ -379,10 +379,6 @@ public struct ElementIndex<Shape>: Comparable, Codable
 //==============================================================================
 // Tensor collection and sub view extensions
 public extension Tensor {
-    @inlinable var isBufferIterable: Bool {
-        isSingleElement || isContiguous
-    }
-    
     //--------------------------------------------------------------------------
     // sequential buffer element iterators
     @inlinable var buffer: BufferElements<Shape,TensorElement> {
@@ -525,7 +521,7 @@ public extension Tensor {
     /// - Returns: the collection elements as a 1D Swift array
     @inlinable var flatArray: [Element] {
         usingAppThreadQueue {
-            isBufferIterable ? [Element](buffer) : [Element](elements)
+            isContiguous ? [Element](buffer) : [Element](elements)
         }
     }
 }

@@ -42,7 +42,7 @@ class test_Shape: XCTestCase {
         ("test_initEmpty", test_initEmpty),
         ("test_initRepeating", test_initRepeating),
         ("test_initSingle", test_initSingle),
-        ("test_BufferIterableViews", test_BufferIterableViews),
+        ("test_contiguousViews", test_contiguousViews),
         ("test_transposed", test_transposed),
         ("testTransposedPullback", testTransposedPullback),
     ]
@@ -451,21 +451,21 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    func test_BufferIterableViews() {
+    func test_contiguousViews() {
         // vector views are always sequential
         let v = array(0..<6)
         let subv = v[1...2]
-        XCTAssert(subv.isBufferIterable)
+        XCTAssert(subv.isContiguous)
         
         // a batch of rows are sequential
         let m = empty((4, 5))
         let mrows = m[1...2, ...]
-        XCTAssert(mrows.isBufferIterable)
+        XCTAssert(mrows.isContiguous)
         
         // a batch of columns are not sequential
         let m1 = empty((4, 5))
         let mcols = m1[..., 1...2]
-        XCTAssert(!mcols.isBufferIterable)
+        XCTAssert(!mcols.isContiguous)
     }
     
     //--------------------------------------------------------------------------

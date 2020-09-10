@@ -606,7 +606,7 @@ where C.Element == Bool, Element.Value == Bool
 public extension Tensor where Shape == Shape1 {
     @inlinable var array: [Element] {
         usingAppThreadQueue {
-            isBufferIterable ? [Element](buffer) : [Element](elements)
+            isContiguous ? [Element](buffer) : [Element](elements)
         }
     }
 }
@@ -623,7 +623,7 @@ public extension Tensor where Shape == Shape${n} {
         ${indent}for d${i} in 0..<shape[${i}] {
 % end
         ${'    ' * (i + 2)}let row = self[${', '.join(['d' + str(j) for j in range(n - 1)])}, 0...]
-        ${'    ' * (i + 2)}let elements = row.isBufferIterable && row.order == .row ?
+        ${'    ' * (i + 2)}let elements = row.isContiguous && row.order == .row ?
         ${'    ' * (i + 3)}[Element](row.buffer) : [Element](row.elements)
         ${'    ' * (i + 2)}array${n - i}.append(elements)
 % for i in reversed(range(n - 1)):

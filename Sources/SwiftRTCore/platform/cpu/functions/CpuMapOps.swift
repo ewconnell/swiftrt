@@ -31,11 +31,11 @@ extension DeviceQueue {
         _ opName: @autoclosure () -> String,
         _ op: @escaping () -> E.Value
     ) {
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
         var out = out.mutableBuffer
         if mode == .sync {
             out.indices.forEach { out[$0] = op() }
         } else {
-            diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
             queue.async(group: group) {
                 out.indices.forEach { out[$0] = op() }
             }
@@ -51,7 +51,7 @@ extension DeviceQueue {
         _ out: inout Tensor<S,E>,
         _ opName: @autoclosure () -> String
     ) where E.Value: Numeric {
-        
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
         var out = out.mutableBuffer
         
         if mode == .sync {
@@ -62,7 +62,6 @@ extension DeviceQueue {
             }
             out[io] = last
         } else {
-            diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
             queue.async(group: group) {
                 var io = out.indices.startIndex
                 for i in 0..<(out.count - 1) {
@@ -81,12 +80,12 @@ extension DeviceQueue {
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value) -> E.Value
     ) {
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
         var out = out.mutableBuffer
         
         if mode == .sync {
             out.indices.forEach { out[$0] = op(out[$0]) }
         } else {
-            diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
             queue.async(group: group) {
                 out.indices.forEach { out[$0] = op(out[$0]) }
             }
@@ -101,6 +100,7 @@ extension DeviceQueue {
         _ opName: @autoclosure () -> String,
         _ op: @escaping (RE.Value, E.Value) -> RE.Value
     ) {
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
         // the op
         func execute<I0: Collection, O: MutableCollection>(
             _ i0: I0,
@@ -111,7 +111,6 @@ extension DeviceQueue {
             if mode == .sync {
                 zip(out.indices, i0).forEach { out[$0] = op(out[$0], $1) }
             } else {
-                diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, i0).forEach { out[$0] = op(out[$0], $1) }
                 }
@@ -146,7 +145,8 @@ extension DeviceQueue {
         _ op: @escaping (E.Value) -> RE.Value
     ) {
         assert(out.isContiguous)
-        // the op
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+
         func execute<A: Collection, O: MutableCollection>(
             _ a: A,
             _ out: O,
@@ -156,7 +156,6 @@ extension DeviceQueue {
             if mode == .sync {
                 zip(out.indices, a).forEach { out[$0] = op($1) }
             } else {
-                diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, a).forEach { out[$0] = op($1) }
                 }
@@ -186,7 +185,8 @@ extension DeviceQueue {
     ) {
         assert(a.order == b.order && a.order == out.order && out.isContiguous,
                _messageLayoutsMustMatch)
-        // the op
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+
         func execute<A: Collection, B: Collection, O: MutableCollection>(
             _ a: A, _ b: B, _ out: O,
             _ op: @escaping (A.Element, B.Element) -> O.Element
@@ -197,7 +197,6 @@ extension DeviceQueue {
                     out[$0] = op($1.0, $1.1)
                 }
             } else {
-                diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, zip(a, b)).forEach {
                         out[$0] = op($1.0, $1.1)
@@ -233,6 +232,7 @@ extension DeviceQueue {
     ) where E.Value: AdditiveArithmetic {
         assert(a.order == b.order && a.order == out.order && out.isContiguous,
                _messageLayoutsMustMatch)
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
         func execute<A: Collection, B: Collection, O: MutableCollection>(
             _ a: A, _ b: B, _ out: O,
@@ -240,11 +240,8 @@ extension DeviceQueue {
         ) where A.Element: AdditiveArithmetic, A.Element == B.Element {
             var out = out
             if mode == .sync {
-                zip(out.indices, zip(a, b)).forEach {
-                    out[$0] = op($1.0, $1.1)
-                }
+                zip(out.indices, zip(a, b)).forEach { out[$0] = op($1.0, $1.1) }
             } else {
-                diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, zip(a, b)).forEach {
                         out[$0] = op($1.0, $1.1)
@@ -277,7 +274,8 @@ extension DeviceQueue {
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value, E.Value) -> E.Value
     ) {
-        
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+
         func execute<A: Collection, O: MutableCollection>(
             _ a: A, _ elt: A.Element, _ out: O,
             _ op: @escaping (A.Element, A.Element) -> O.Element
@@ -286,7 +284,6 @@ extension DeviceQueue {
             if mode == .sync {
                 zip(out.indices, a).forEach { out[$0] = op($1, elt) }
             } else {
-                diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, a).forEach { out[$0] = op($1, elt) }
                 }
@@ -309,7 +306,8 @@ extension DeviceQueue {
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value, E.Value) -> E.Value
     ) {
-        
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+
         func execute<A: Collection, O: MutableCollection>(
             _ elt: A.Element, _ a: A, _ out: O,
             _ op: @escaping (A.Element, A.Element) -> O.Element
@@ -318,7 +316,6 @@ extension DeviceQueue {
             if mode == .sync {
                 zip(out.indices, a).forEach { out[$0] = op(elt, $1) }
             } else {
-                diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, a).forEach { out[$0] = op(elt, $1) }
                 }
@@ -341,6 +338,7 @@ extension DeviceQueue {
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value, E.Value) -> E.Value
     ) where E.Value: AdditiveArithmetic {
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
         func execute<A: Collection, O: MutableCollection>(
             _ a: A, _ elt: A.Element, _ out: O,
@@ -350,7 +348,6 @@ extension DeviceQueue {
             if mode == .sync {
                 zip(out.indices, a).forEach { out[$0] = op($1, elt) }
             } else {
-                diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, a).forEach { out[$0] = op($1, elt) }
                 }
@@ -373,7 +370,8 @@ extension DeviceQueue {
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value, E.Value) -> E.Value
     ) where E.Value: AdditiveArithmetic {
-        
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+
         func execute<A: Collection, O: MutableCollection>(
             _ elt: A.Element, _ a: A, _ out: O,
             _ op: @escaping (A.Element, A.Element) -> O.Element
@@ -382,7 +380,6 @@ extension DeviceQueue {
             if mode == .sync {
                 zip(out.indices, a).forEach { out[$0] = op(elt, $1) }
             } else {
-                diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, a).forEach { out[$0] = op(elt, $1) }
                 }
@@ -408,6 +405,7 @@ extension DeviceQueue {
     ) {
         assert(a.order == b.order && a.order == c.order &&
                 a.order == out.order && out.isContiguous)
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
         func execute<A: Collection, B: Collection, C: Collection,
                      O: MutableCollection>(
@@ -420,7 +418,6 @@ extension DeviceQueue {
                     out[$0] = op($1.0, $1.1.0, $1.1.1)
                 }
             } else {
-                diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
                 queue.async(group: group) {
                     zip(out.indices, zip(a, zip(b, c))).forEach {
                         out[$0] = op($1.0, $1.1.0, $1.1.1)
@@ -474,6 +471,7 @@ extension DeviceQueue {
     ) {
         assert(a.isContiguous && b.isContiguous && c.isContiguous &&
                 out1.isContiguous && out2.isContiguous)
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
         func execute<A: Collection, B: Collection, C: Collection,
                      O1: MutableCollection, O2: MutableCollection>(
@@ -489,7 +487,6 @@ extension DeviceQueue {
                     o2[$0.1] = o2v
                 }
             } else {
-                diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
                 queue.async(group: group) {
                     zip(zip(o1.indices, o2.indices), zip(a, zip(b, c))).forEach {
                         let (o1v, o2v) = op($1.0, $1.1.0, $1.1.1)

@@ -25,7 +25,15 @@ public final class CpuStorage: StorageBuffer {
     public let isReadOnly: Bool
     public let isReference: Bool
     public var isZero: Bool
-    public var name: String
+    
+    @usableFromInline var _name: String
+    public var name: String {
+        get {
+            _name == defaultTensorName ?
+                "\(defaultTensorName)(\(id))" : _name
+        }
+        set { _name = newValue }
+    }
 
     //--------------------------------------------------------------------------
     // implementation properties
@@ -42,7 +50,7 @@ public final class CpuStorage: StorageBuffer {
     ) {
         assert(MemoryLayout<Element>.size != 0,
                "type: \(Element.self) is size 0")
-        self.name = name
+        _name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * count
         id = Context.nextBufferId
@@ -55,7 +63,7 @@ public final class CpuStorage: StorageBuffer {
             alignment: alignment)
 
         #if DEBUG
-        diagnostic(.alloc, "\(diagnosticName) " +
+        diagnostic(.alloc, "\(self.name) " +
             "\(Element.self)[\(count)]", categories: .dataAlloc)
         #endif
     }
@@ -93,7 +101,7 @@ public final class CpuStorage: StorageBuffer {
         isReadOnly = other.isReadOnly
         isReference = other.isReference
         isZero = other.isZero
-        name = other.name
+        _name = other.name
         if isReference {
             hostBuffer = other.hostBuffer
         } else {
@@ -110,7 +118,7 @@ public final class CpuStorage: StorageBuffer {
         referenceTo buffer: UnsafeBufferPointer<Element>,
         name: String
     ) {
-        self.name = name
+        _name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * buffer.count
         let buff = UnsafeMutableBufferPointer(mutating: buffer)
@@ -120,7 +128,7 @@ public final class CpuStorage: StorageBuffer {
         isReference = true
         isZero = false
 
-        diagnostic(.reference, "\(diagnosticName) " +
+        diagnostic(.reference, "\(self.name) " +
             "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
     }
     
@@ -130,7 +138,7 @@ public final class CpuStorage: StorageBuffer {
         referenceTo buffer: UnsafeMutableBufferPointer<Element>,
         name: String
     ) {
-        self.name = name
+        _name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * buffer.count
         hostBuffer = UnsafeMutableRawBufferPointer(buffer)
@@ -139,7 +147,7 @@ public final class CpuStorage: StorageBuffer {
         isReference = true
         isZero = false
 
-        diagnostic(.reference, "\(diagnosticName) " +
+        diagnostic(.reference, "\(self.name) " +
             "\(Element.self)[\(buffer.count)]", categories: .dataAlloc)
     }
     
@@ -158,7 +166,7 @@ public final class CpuStorage: StorageBuffer {
         if !isReference {
             hostBuffer.deallocate()
             #if DEBUG
-            diagnostic(.release, diagnosticName, categories: .dataAlloc)
+            diagnostic(.release, self.name, categories: .dataAlloc)
             #endif
         }
     }

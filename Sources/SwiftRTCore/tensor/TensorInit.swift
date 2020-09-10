@@ -69,10 +69,6 @@ public typealias TensorR6<Element: StorageElement> = Tensor<Shape6, Element>
 // Tensor initializers
 //==============================================================================
 public extension Tensor {
-    @inlinable var diagnosticName: String {
-        "\(name)R\(Shape.rank)_(\(storage.id))"
-    }
-
     //--------------------------------------------------------------------------
     /// init(shape:order:
     /// creates a dense shape
@@ -533,8 +529,8 @@ public extension Tensor {
             
             // performs an indexed copy which reorders the elements
             Context.currentQueue.diagnostic(.reorder,
-                "copying \(other.diagnosticName) --> " +
-                "\(source.diagnosticName) \(Element.self)[\(source.count)]" +
+                "copying \(other.name) --> " +
+                "\(source.name) \(Element.self)[\(source.count)]" +
                 " on \(Context.currentQueue.name)",
                 categories: [.dataCopy, .dataReorder])
             
