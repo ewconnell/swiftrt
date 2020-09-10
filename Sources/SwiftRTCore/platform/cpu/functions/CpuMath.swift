@@ -238,11 +238,28 @@ extension CpuQueue
     where E.Value: Real { cpu_sinh(x, &out) }
     //--------------------------------------------------------------------------
     @inlinable func subtract<S,E>(
-        _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
+        _ lhs: Tensor<S,E>,
+        _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
         cpu_subtract(lhs,rhs,&out)
     }
+
+    @inlinable func subtract<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: AdditiveArithmetic {
+        cpu_subtract(lhs,rhs,&out)
+    }
+    @inlinable func subtract<S,E>(
+        _ lhs: E.Value,
+        _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: AdditiveArithmetic {
+        cpu_subtract(lhs,rhs,&out)
+    }
+
     //--------------------------------------------------------------------------
     @inlinable func sqrt<S,E>(_ x: Tensor<S,E>, _ out: inout Tensor<S,E>)
     where E.Value: Real { cpu_sqrt(x, &out) }
@@ -688,7 +705,19 @@ extension CpuFunctions where Self: DeviceQueue
     where E.Value: AdditiveArithmetic {
         mapOpSub("cpu_subtract", lhs, rhs, &out)
     }
-    
+
+    @inlinable func cpu_subtract<S,E>(
+        _ lhs: Tensor<S,E>, _ rhs: E.Value,
+        _ out: inout Tensor<S,E>)
+    where E.Value: AdditiveArithmetic {
+    }
+
+    @inlinable func cpu_subtract<S,E>(
+        _ lhs: E.Value, _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,E>)
+    where E.Value: AdditiveArithmetic {
+    }
+
     //--------------------------------------------------------------------------
     @inlinable func cpu_sqrt<S,E>(_ x: Tensor<S,E>, _ out: inout Tensor<S,E>)
     where E.Value: Real {

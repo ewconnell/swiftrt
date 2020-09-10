@@ -105,7 +105,7 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
 extension Tensor where TensorElement.Value: AdditiveArithmetic {
     //--------------------------------------------------------------------------
     // tensor - tensor
-    @differentiable(where TensorElement.Value: DifferentiableNumeric)
+    @differentiable(where TensorElement.Value: DifferentiableNumeric & SignedNumeric)
     @inlinable public static func -(lhs: Self, rhs: Self) -> Self {
         assert(lhs.shape == rhs.shape)
         var result = Tensor(like: lhs)
@@ -116,8 +116,8 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
     @derivative(of: -)
     @usableFromInline static func _vjpSubtract(_ lhs: Self, _ rhs: Self)
     -> (value: Self, pullback: (Self) -> (Self, Self)
-    ) where Element: DifferentiableNumeric {
-        (lhs - rhs, { ($0, 0 - $0) })
+    ) where Element: DifferentiableNumeric & SignedNumeric {
+        (lhs - rhs, { ($0, -$0) })
     }
 
     //--------------------------------------------------------------------------
@@ -126,7 +126,7 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
     @differentiable(wrt: lhs where Element: DifferentiableNumeric)
     @inlinable public static func -(lhs: Self, rhs: Element) -> Self {
         var out = Tensor(like: lhs)
-//        Context.currentQueue.subtract(lhs, rhs, &out)
+        Context.currentQueue.subtract(lhs, rhs, &out)
         return out
     }
 
@@ -155,7 +155,7 @@ extension Tensor where TensorElement.Value: AdditiveArithmetic {
     @differentiable(wrt: rhs where Element: DifferentiableNumeric & SignedNumeric)
     @inlinable public static func -(lhs: Element, rhs: Self) -> Self {
         var out = Tensor(like: rhs)
-        //        Context.currentQueue.subtract(lhs, rhs, &out)
+        Context.currentQueue.subtract(lhs, rhs, &out)
         return out
     }
 
