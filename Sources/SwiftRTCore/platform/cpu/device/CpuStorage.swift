@@ -27,10 +27,9 @@ public final class CpuStorage: StorageBuffer {
     public var isZero: Bool
     
     @usableFromInline var _name: String
-    public var name: String {
+    @inlinable public var name: String {
         get {
-            _name == defaultTensorName ?
-                "\(defaultTensorName)(\(id))" : _name
+            _name == defaultTensorName ? "\(defaultTensorName)(\(id))" : _name
         }
         set { _name = newValue }
     }

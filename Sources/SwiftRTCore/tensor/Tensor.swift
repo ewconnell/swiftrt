@@ -67,10 +67,6 @@ where Shape: TensorShape, TensorElement: StorageElement
 
     /// `true` if the tensor elements are densely packed
     @inlinable public var isContiguous: Bool { spanCount == count }
-    
-    /// `true` if the tensor contains a single stored element. This is
-    /// common for scalar tensors that are repeated.
-    @inlinable public var isSingleElement: Bool { spanCount == 1 }
 
     /// `true` if the tensor value is zero
     @inlinable public var isZero: Bool { storage.isZero }
@@ -240,11 +236,7 @@ public enum Order: Int, Codable {
     public static var defaultOrder: Order = Order.row
 }
 
-@usableFromInline let _messageLayoutsMustMatch = "input Order must match"
-
-@usableFromInline func layoutsMatch(_ layouts: Order...) -> Bool {
-    layouts.first(where: { $0 != layouts[0] }) == nil
-}
+@usableFromInline let _messageOrdersMustMatch = "storage orders must match"
 
 //==============================================================================
 /// DifferentiableTensor

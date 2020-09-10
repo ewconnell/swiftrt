@@ -730,7 +730,6 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
 {
     // properties
     public let hostBuffer: UnsafeMutableBufferPointer<TensorElement.Stored>
-    public let isSingleElement: Bool
     public let startIndex: Int
     public let endIndex: Int
     
@@ -744,7 +743,6 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
         assert(tensor.isContiguous, "can only iterate contiguous buffer elements")
 
         // make the data range available for reading by the cpu
-        isSingleElement = tensor.isSingleElement
         let buffer = tensor.read(using: Context.currentQueue)
         
         // Init members and note that this does not actually mutate, even
@@ -771,8 +769,6 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
 
         // convert logical base and strided span count to stored.
         // They will not be equal for packed element types like `Int4`
-        isSingleElement = tensor.isSingleElement
-
         // make the data range available for reading/writing by the cpu
         hostBuffer = tensor.readWrite(using: Context.currentQueue)
         
@@ -786,29 +782,19 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
     
     //--------------------------------------------------------------------------
     // index(after:
-    @inlinable public func index(after i: Int) -> Int {
-        i + 1
-    }
+    @inlinable public func index(after i: Int) -> Int { i + 1 }
     
     //--------------------------------------------------------------------------
     // subscript
     @inlinable public subscript(position: Int) -> TensorElement.Value {
         get {
-            if isSingleElement {
-                return TensorElement.value(at: startIndex, from: hostBuffer[0])
-            } else {
-                let si = TensorElement.storedIndex(position)
-                return TensorElement.value(at: position, from: hostBuffer[si])
-            }
+            let si = TensorElement.storedIndex(position)
+            return TensorElement.value(at: position, from: hostBuffer[si])
         }
         
         set(v) {
-            if isSingleElement {
-                TensorElement.store(value: v, at: startIndex, to: &hostBuffer[0])
-            } else {
-                let si = TensorElement.storedIndex(position)
-                TensorElement.store(value: v, at: position, to: &hostBuffer[si])
-            }
+            let si = TensorElement.storedIndex(position)
+            TensorElement.store(value: v, at: position, to: &hostBuffer[si])
         }
     }
 }

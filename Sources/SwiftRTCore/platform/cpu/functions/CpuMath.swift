@@ -49,7 +49,7 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
-        mapOp_Additive(lhs, rhs, &out, "add(\(lhs.name), \(rhs.name))", +)
+        mapOp(lhs, rhs, &out, "add(\(lhs.name), \(rhs.name))", +)
     }
     
     @inlinable func cpu_add<S,E>(
@@ -57,7 +57,7 @@ extension DeviceQueue {
         _ rhs: E.Value,
         _ out: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
-        mapOp_Additive(lhs, rhs, &out, "add(\(lhs.name), \(rhs))", +)
+        mapOp(lhs, rhs, &out, "add(\(lhs.name), \(rhs))", +)
     }
     
     //--------------------------------------------------------------------------
@@ -532,7 +532,7 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>)
     where E.Value: AdditiveArithmetic {
-        mapOp_Additive(lhs, rhs, &out, "subtract(\(lhs.name), \(rhs.name))", -)
+        mapOp(lhs, rhs, &out, "subtract(\(lhs.name), \(rhs.name))", -)
     }
 
     @inlinable func cpu_subtract<S,E>(
@@ -540,7 +540,7 @@ extension DeviceQueue {
         _ rhs: E.Value,
         _ out: inout Tensor<S,E>)
     where E.Value: AdditiveArithmetic {
-        mapOp_Additive(lhs, rhs, &out, "subtract(\(lhs.name), \(rhs))", -)
+        mapOp(lhs, rhs, &out, "subtract(\(lhs.name), \(rhs))", -)
     }
 
     @inlinable func cpu_subtract<S,E>(
@@ -548,7 +548,7 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>)
     where E.Value: AdditiveArithmetic {
-        mapOp_Additive(lhs, rhs, &out, "subtract(\(lhs), \(rhs.name))", -)
+        mapOp(lhs, rhs, &out, "subtract(\(lhs), \(rhs.name))", -)
     }
 
     //--------------------------------------------------------------------------

@@ -38,7 +38,7 @@ class test_Vectorizing: XCTestCase {
     ]
     
     override func setUpWithError() throws {
-        // Context.log.level = .diagnostic
+//         Context.log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
@@ -55,7 +55,7 @@ class test_Vectorizing: XCTestCase {
         let b = ones((1024, 1024))
         var count: DType = 0
 
-        // 0.0205
+        // 0.0135
         self.measure {
             for _ in 0..<10 {
                 count += (a + b).first
@@ -72,7 +72,7 @@ class test_Vectorizing: XCTestCase {
         let b = ones((1024, 1024))
         var count: DType = 0
         
-        // 0.0205
+        // 0.0135
         self.measure {
             for _ in 0..<10 {
                 count += (a - b).first
@@ -89,7 +89,7 @@ class test_Vectorizing: XCTestCase {
         let b = ones((1024, 1024))
         var count: DType = 0
         
-        // 0.0205
+        // 0.0135
         self.measure {
             for _ in 0..<10 {
                 count += (a * b).first
@@ -106,7 +106,7 @@ class test_Vectorizing: XCTestCase {
         let b = ones((1024, 1024))
         var count: DType = 0
         
-        // 0.0205
+        // 0.0135
         self.measure {
             for _ in 0..<10 {
                 count += (a / b).first
