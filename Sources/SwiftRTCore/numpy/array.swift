@@ -38,6 +38,7 @@ import Numerics
 ///  - order: { .C, .F }, optional, default .C
 ///    Whether to store multi-dimensional data in row-major (C-style)
 ///    or column-major (Fortran-style) order in memory.
+///  - name: optional name
 /// - Returns: Tensor of uninitialized (arbitrary) data of the given shape,
 ///   type, and order. Elements will not be initialized.
 
@@ -53,8 +54,7 @@ import Numerics
 @inlinable public func array(
     _ range: Range<Int>,
     name: String = defaultTensorName
-) -> Tensor<Shape1,DType>
-{
+) -> Tensor<Shape1,DType> {
     Tensor<Shape1,DType>(range: range, Shape1(range.count), name: name)
 }
 
@@ -65,8 +65,7 @@ import Numerics
     to last: E,
     count: Int,
     name: String = defaultTensorName
-) -> Tensor<Shape1,E> where E == E.Value, E: AlgebraicField
-{
+) -> Tensor<Shape1,E> where E == E.Value, E: AlgebraicField {
     Tensor<Shape1,E>(from: first, to: last, Shape1(count), name: name)
 }
 
@@ -75,8 +74,7 @@ import Numerics
 @inlinable public func array<C: Collection>(
     stored elements: C,
     name: String = defaultTensorName
-) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Stored
-{
+) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Stored {
     Tensor<Shape1,C.Element>(stored: elements, Shape1(elements.count), name: name)
 }
 
@@ -85,8 +83,7 @@ import Numerics
 @inlinable public func array<C: Collection>(
     _ elements: C,
     name: String = defaultTensorName
-) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Value
-{
+) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Value {
     Tensor<Shape1,C.Element>(elements, Shape1(elements.count), name: name)
 }
 
@@ -95,8 +92,7 @@ import Numerics
 @inlinable public func array<C: Collection>(
     _ elements: C,
     name: String = defaultTensorName
-) -> Tensor<Shape1,DType> where C.Element == Int
-{
+) -> Tensor<Shape1,DType> where C.Element == Int {
     Tensor<Shape1,DType>(elements, Shape1(elements.count), name: name)
 }
 
@@ -105,8 +101,7 @@ import Numerics
 @inlinable public func array<C: Collection>(
     _ elements: C,
     name: String = defaultTensorName
-) -> Tensor<Shape1,DType> where C.Element == Double
-{
+) -> Tensor<Shape1,DType> where C.Element == Double {
     Tensor<Shape1,DType>(elements, Shape1(elements.count), name: name)
 }
 
@@ -118,9 +113,7 @@ import Numerics
     _ elements: C,
     type: Element.Type,
     name: String = defaultTensorName
-) -> Tensor<Shape1,Element>
-    where C.Element == Bool, Element.Value: Numeric
-{
+) -> Tensor<Shape1,Element> where C.Element == Bool, Element.Value: Numeric {
     Tensor<Shape1, Element>(elements, Shape1(elements.count), name: name)
 }
 
@@ -130,9 +123,7 @@ import Numerics
     _ elements: C,
     type: Element.Type,
     name: String = defaultTensorName
-) -> Tensor<Shape1,Bool>
-    where C.Element: Numeric, Element.Value == Bool
-{
+) -> Tensor<Shape1,Bool> where C.Element: Numeric, Element.Value == Bool {
     Tensor<Shape1,Bool>(elements, Shape1(elements.count), name: name)
 }
 
@@ -142,9 +133,7 @@ import Numerics
     _ elements: C,
     type: Element.Type,
     name: String = defaultTensorName
-) -> Tensor<Shape1,Element>
-    where C.Element == Bool, Element.Value == Bool
-{
+) -> Tensor<Shape1,Element> where C.Element == Bool, Element.Value == Bool {
     Tensor<Shape1,Element>(elements, Shape1(elements.count), name: name)
 }
 
@@ -199,10 +188,17 @@ import Numerics
     _ shape: Shape2.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape2,DType>
-{
-    Tensor<Shape2,DType>(range: range, Shape2(shape),
-                            order: order, name: name)
+) -> Tensor<Shape2,DType> {
+    Tensor<Shape2,DType>(range: range, Shape2(shape), order: order, name: name)
+}
+
+@inlinable public func array(
+    _ range: Range<Int>,
+    _ shape: Shape2,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,DType> {
+    Tensor<Shape2,DType>(range: range, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -213,9 +209,19 @@ import Numerics
     _ shape: Shape2.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape2,E> where E == E.Value, E: AlgebraicField
-{
-    Tensor<Shape2,E>(from: first, to: last, Shape2(shape), order: order, name: name)
+) -> Tensor<Shape2,E> where E == E.Value, E: AlgebraicField {
+    Tensor<Shape2,E>(from: first, to: last, Shape2(shape),
+                        order: order, name: name)
+}
+
+@inlinable public func array<E>(
+    from first: E,
+    to last: E,
+    _ shape: Shape2,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,E> where E == E.Value, E: AlgebraicField {
+    Tensor<Shape2,E>(from: first, to: last, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -225,12 +231,20 @@ import Numerics
     _ shape: Shape2.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape2,C.Element> where C.Element == C.Element.Stored
-{
+) -> Tensor<Shape2,C.Element> where C.Element == C.Element.Stored {
     Tensor<Shape2,C.Element>(stored: elements, Shape2(shape),
                                 order: order, name: name)
 }
 
+@inlinable public func array<C: Collection>(
+    stored elements: C,
+    _ shape: Shape2,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,C.Element> where C.Element == C.Element.Stored {
+    Tensor<Shape2,C.Element>(stored: elements, shape, order: order, name: name)
+}
+
 //---------------------------
 // C.Element == Element.Value
 @inlinable public func array<C: Collection>(
@@ -238,21 +252,17 @@ import Numerics
     _ shape: Shape2.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape2,C.Element> where C.Element == C.Element.Value
-{
+) -> Tensor<Shape2,C.Element> where C.Element == C.Element.Value {
     Tensor<Shape2,C.Element>(elements, Shape2(shape), order: order, name: name)
 }
 
-//---------------------------
-// C.Element == Element.Value
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape2.Tuple,
+    _ shape: Shape2,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape2,DType> where C.Element == Int
-{
-    Tensor<Shape2,DType>(elements, Shape2(shape), order: order, name: name)
+) -> Tensor<Shape2,C.Element> where C.Element == C.Element.Value {
+    Tensor<Shape2,C.Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -262,9 +272,37 @@ import Numerics
     _ shape: Shape2.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape2,DType> where C.Element == Double
-{
+) -> Tensor<Shape2,DType> where C.Element == Int {
     Tensor<Shape2,DType>(elements, Shape2(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape2,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,DType> where C.Element == Int {
+    Tensor<Shape2,DType>(elements, shape, order: order, name: name)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape2.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,DType> where C.Element == Double {
+    Tensor<Shape2,DType>(elements, Shape2(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape2,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,DType> where C.Element == Double {
+    Tensor<Shape2,DType>(elements, shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -277,10 +315,19 @@ import Numerics
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape2,Element> where Element.Value: Numeric 
-{
+) -> Tensor<Shape2,Element> where Element.Value: Numeric {
     Tensor<Shape2,Element>(range: range, Shape2(shape),
                             order: order, name: name)
+}
+
+@inlinable public func array<Element>(
+    _ range: Range<Int>,
+    _ shape: Shape2,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,Element> where Element.Value: Numeric {
+    Tensor<Shape2,Element>(range: range, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -291,10 +338,18 @@ import Numerics
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape2,Element>
-    where C.Element == Bool, Element.Value: Numeric
-{
+) -> Tensor<Shape2,Element> where C.Element == Bool, Element.Value: Numeric {
     Tensor<Shape2,Element>(elements, Shape2(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape2,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,Element> where C.Element == Bool, Element.Value: Numeric {
+    Tensor<Shape2,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -305,10 +360,18 @@ import Numerics
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape2,Element>
-where C.Element: Numeric, Element.Value == Bool
-{
+) -> Tensor<Shape2,Element> where C.Element: Numeric, Element.Value == Bool {
     Tensor<Shape2,Element>(elements, Shape2(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape2,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,Element> where C.Element: Numeric, Element.Value == Bool {
+    Tensor<Shape2,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -319,10 +382,18 @@ where C.Element: Numeric, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape2,Element>
-where C.Element == Bool, Element.Value == Bool
-{
+) -> Tensor<Shape2,Element> where C.Element == Bool, Element.Value == Bool {
     Tensor<Shape2,Element>(elements, Shape2(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape2,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,Element> where C.Element == Bool, Element.Value == Bool {
+    Tensor<Shape2,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -334,9 +405,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element>
-    where C.Element: BinaryInteger, Element.Value: Numeric
-{
+    where C.Element: BinaryInteger, Element.Value: Numeric {
     Tensor<Shape2,Element>(elements, Shape2(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape2,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,Element>
+    where C.Element: BinaryInteger, Element.Value: Numeric {
+    Tensor<Shape2,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -348,9 +429,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element>
-    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
-{
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
     Tensor<Shape2,Element>(elements, Shape2(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape2,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,Element>
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
+    Tensor<Shape2,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -362,9 +453,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element>
-    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
-{
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
     Tensor<Shape2,Element>(elements, Shape2(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape2,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape2,Element>
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
+    Tensor<Shape2,Element>(elements, shape, order: order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -378,10 +479,17 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape3.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape3,DType>
-{
-    Tensor<Shape3,DType>(range: range, Shape3(shape),
-                            order: order, name: name)
+) -> Tensor<Shape3,DType> {
+    Tensor<Shape3,DType>(range: range, Shape3(shape), order: order, name: name)
+}
+
+@inlinable public func array(
+    _ range: Range<Int>,
+    _ shape: Shape3,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,DType> {
+    Tensor<Shape3,DType>(range: range, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -392,9 +500,19 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape3.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape3,E> where E == E.Value, E: AlgebraicField
-{
-    Tensor<Shape3,E>(from: first, to: last, Shape3(shape), order: order, name: name)
+) -> Tensor<Shape3,E> where E == E.Value, E: AlgebraicField {
+    Tensor<Shape3,E>(from: first, to: last, Shape3(shape),
+                        order: order, name: name)
+}
+
+@inlinable public func array<E>(
+    from first: E,
+    to last: E,
+    _ shape: Shape3,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,E> where E == E.Value, E: AlgebraicField {
+    Tensor<Shape3,E>(from: first, to: last, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -404,12 +522,20 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape3.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape3,C.Element> where C.Element == C.Element.Stored
-{
+) -> Tensor<Shape3,C.Element> where C.Element == C.Element.Stored {
     Tensor<Shape3,C.Element>(stored: elements, Shape3(shape),
                                 order: order, name: name)
 }
 
+@inlinable public func array<C: Collection>(
+    stored elements: C,
+    _ shape: Shape3,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,C.Element> where C.Element == C.Element.Stored {
+    Tensor<Shape3,C.Element>(stored: elements, shape, order: order, name: name)
+}
+
 //---------------------------
 // C.Element == Element.Value
 @inlinable public func array<C: Collection>(
@@ -417,21 +543,17 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape3.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape3,C.Element> where C.Element == C.Element.Value
-{
+) -> Tensor<Shape3,C.Element> where C.Element == C.Element.Value {
     Tensor<Shape3,C.Element>(elements, Shape3(shape), order: order, name: name)
 }
 
-//---------------------------
-// C.Element == Element.Value
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape3.Tuple,
+    _ shape: Shape3,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape3,DType> where C.Element == Int
-{
-    Tensor<Shape3,DType>(elements, Shape3(shape), order: order, name: name)
+) -> Tensor<Shape3,C.Element> where C.Element == C.Element.Value {
+    Tensor<Shape3,C.Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -441,9 +563,37 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape3.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape3,DType> where C.Element == Double
-{
+) -> Tensor<Shape3,DType> where C.Element == Int {
     Tensor<Shape3,DType>(elements, Shape3(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape3,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,DType> where C.Element == Int {
+    Tensor<Shape3,DType>(elements, shape, order: order, name: name)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape3.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,DType> where C.Element == Double {
+    Tensor<Shape3,DType>(elements, Shape3(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape3,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,DType> where C.Element == Double {
+    Tensor<Shape3,DType>(elements, shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -456,10 +606,19 @@ where C.Element == Bool, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape3,Element> where Element.Value: Numeric 
-{
+) -> Tensor<Shape3,Element> where Element.Value: Numeric {
     Tensor<Shape3,Element>(range: range, Shape3(shape),
                             order: order, name: name)
+}
+
+@inlinable public func array<Element>(
+    _ range: Range<Int>,
+    _ shape: Shape3,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,Element> where Element.Value: Numeric {
+    Tensor<Shape3,Element>(range: range, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -470,10 +629,18 @@ where C.Element == Bool, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape3,Element>
-    where C.Element == Bool, Element.Value: Numeric
-{
+) -> Tensor<Shape3,Element> where C.Element == Bool, Element.Value: Numeric {
     Tensor<Shape3,Element>(elements, Shape3(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape3,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,Element> where C.Element == Bool, Element.Value: Numeric {
+    Tensor<Shape3,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -484,10 +651,18 @@ where C.Element == Bool, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape3,Element>
-where C.Element: Numeric, Element.Value == Bool
-{
+) -> Tensor<Shape3,Element> where C.Element: Numeric, Element.Value == Bool {
     Tensor<Shape3,Element>(elements, Shape3(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape3,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,Element> where C.Element: Numeric, Element.Value == Bool {
+    Tensor<Shape3,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -498,10 +673,18 @@ where C.Element: Numeric, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape3,Element>
-where C.Element == Bool, Element.Value == Bool
-{
+) -> Tensor<Shape3,Element> where C.Element == Bool, Element.Value == Bool {
     Tensor<Shape3,Element>(elements, Shape3(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape3,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,Element> where C.Element == Bool, Element.Value == Bool {
+    Tensor<Shape3,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -513,9 +696,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element>
-    where C.Element: BinaryInteger, Element.Value: Numeric
-{
+    where C.Element: BinaryInteger, Element.Value: Numeric {
     Tensor<Shape3,Element>(elements, Shape3(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape3,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,Element>
+    where C.Element: BinaryInteger, Element.Value: Numeric {
+    Tensor<Shape3,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -527,9 +720,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element>
-    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
-{
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
     Tensor<Shape3,Element>(elements, Shape3(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape3,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,Element>
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
+    Tensor<Shape3,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -541,9 +744,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element>
-    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
-{
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
     Tensor<Shape3,Element>(elements, Shape3(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape3,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape3,Element>
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
+    Tensor<Shape3,Element>(elements, shape, order: order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -557,10 +770,17 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape4.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape4,DType>
-{
-    Tensor<Shape4,DType>(range: range, Shape4(shape),
-                            order: order, name: name)
+) -> Tensor<Shape4,DType> {
+    Tensor<Shape4,DType>(range: range, Shape4(shape), order: order, name: name)
+}
+
+@inlinable public func array(
+    _ range: Range<Int>,
+    _ shape: Shape4,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,DType> {
+    Tensor<Shape4,DType>(range: range, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -571,9 +791,19 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape4.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape4,E> where E == E.Value, E: AlgebraicField
-{
-    Tensor<Shape4,E>(from: first, to: last, Shape4(shape), order: order, name: name)
+) -> Tensor<Shape4,E> where E == E.Value, E: AlgebraicField {
+    Tensor<Shape4,E>(from: first, to: last, Shape4(shape),
+                        order: order, name: name)
+}
+
+@inlinable public func array<E>(
+    from first: E,
+    to last: E,
+    _ shape: Shape4,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,E> where E == E.Value, E: AlgebraicField {
+    Tensor<Shape4,E>(from: first, to: last, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -583,12 +813,20 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape4.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape4,C.Element> where C.Element == C.Element.Stored
-{
+) -> Tensor<Shape4,C.Element> where C.Element == C.Element.Stored {
     Tensor<Shape4,C.Element>(stored: elements, Shape4(shape),
                                 order: order, name: name)
 }
 
+@inlinable public func array<C: Collection>(
+    stored elements: C,
+    _ shape: Shape4,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,C.Element> where C.Element == C.Element.Stored {
+    Tensor<Shape4,C.Element>(stored: elements, shape, order: order, name: name)
+}
+
 //---------------------------
 // C.Element == Element.Value
 @inlinable public func array<C: Collection>(
@@ -596,21 +834,17 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape4.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape4,C.Element> where C.Element == C.Element.Value
-{
+) -> Tensor<Shape4,C.Element> where C.Element == C.Element.Value {
     Tensor<Shape4,C.Element>(elements, Shape4(shape), order: order, name: name)
 }
 
-//---------------------------
-// C.Element == Element.Value
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape4.Tuple,
+    _ shape: Shape4,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape4,DType> where C.Element == Int
-{
-    Tensor<Shape4,DType>(elements, Shape4(shape), order: order, name: name)
+) -> Tensor<Shape4,C.Element> where C.Element == C.Element.Value {
+    Tensor<Shape4,C.Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -620,9 +854,37 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape4.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape4,DType> where C.Element == Double
-{
+) -> Tensor<Shape4,DType> where C.Element == Int {
     Tensor<Shape4,DType>(elements, Shape4(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape4,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,DType> where C.Element == Int {
+    Tensor<Shape4,DType>(elements, shape, order: order, name: name)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape4.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,DType> where C.Element == Double {
+    Tensor<Shape4,DType>(elements, Shape4(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape4,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,DType> where C.Element == Double {
+    Tensor<Shape4,DType>(elements, shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -635,10 +897,19 @@ where C.Element == Bool, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape4,Element> where Element.Value: Numeric 
-{
+) -> Tensor<Shape4,Element> where Element.Value: Numeric {
     Tensor<Shape4,Element>(range: range, Shape4(shape),
                             order: order, name: name)
+}
+
+@inlinable public func array<Element>(
+    _ range: Range<Int>,
+    _ shape: Shape4,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,Element> where Element.Value: Numeric {
+    Tensor<Shape4,Element>(range: range, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -649,10 +920,18 @@ where C.Element == Bool, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape4,Element>
-    where C.Element == Bool, Element.Value: Numeric
-{
+) -> Tensor<Shape4,Element> where C.Element == Bool, Element.Value: Numeric {
     Tensor<Shape4,Element>(elements, Shape4(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape4,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,Element> where C.Element == Bool, Element.Value: Numeric {
+    Tensor<Shape4,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -663,10 +942,18 @@ where C.Element == Bool, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape4,Element>
-where C.Element: Numeric, Element.Value == Bool
-{
+) -> Tensor<Shape4,Element> where C.Element: Numeric, Element.Value == Bool {
     Tensor<Shape4,Element>(elements, Shape4(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape4,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,Element> where C.Element: Numeric, Element.Value == Bool {
+    Tensor<Shape4,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -677,10 +964,18 @@ where C.Element: Numeric, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape4,Element>
-where C.Element == Bool, Element.Value == Bool
-{
+) -> Tensor<Shape4,Element> where C.Element == Bool, Element.Value == Bool {
     Tensor<Shape4,Element>(elements, Shape4(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape4,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,Element> where C.Element == Bool, Element.Value == Bool {
+    Tensor<Shape4,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -692,9 +987,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element>
-    where C.Element: BinaryInteger, Element.Value: Numeric
-{
+    where C.Element: BinaryInteger, Element.Value: Numeric {
     Tensor<Shape4,Element>(elements, Shape4(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape4,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,Element>
+    where C.Element: BinaryInteger, Element.Value: Numeric {
+    Tensor<Shape4,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -706,9 +1011,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element>
-    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
-{
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
     Tensor<Shape4,Element>(elements, Shape4(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape4,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,Element>
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
+    Tensor<Shape4,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -720,9 +1035,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element>
-    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
-{
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
     Tensor<Shape4,Element>(elements, Shape4(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape4,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape4,Element>
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
+    Tensor<Shape4,Element>(elements, shape, order: order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -736,10 +1061,17 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape5.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape5,DType>
-{
-    Tensor<Shape5,DType>(range: range, Shape5(shape),
-                            order: order, name: name)
+) -> Tensor<Shape5,DType> {
+    Tensor<Shape5,DType>(range: range, Shape5(shape), order: order, name: name)
+}
+
+@inlinable public func array(
+    _ range: Range<Int>,
+    _ shape: Shape5,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,DType> {
+    Tensor<Shape5,DType>(range: range, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -750,9 +1082,19 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape5.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape5,E> where E == E.Value, E: AlgebraicField
-{
-    Tensor<Shape5,E>(from: first, to: last, Shape5(shape), order: order, name: name)
+) -> Tensor<Shape5,E> where E == E.Value, E: AlgebraicField {
+    Tensor<Shape5,E>(from: first, to: last, Shape5(shape),
+                        order: order, name: name)
+}
+
+@inlinable public func array<E>(
+    from first: E,
+    to last: E,
+    _ shape: Shape5,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,E> where E == E.Value, E: AlgebraicField {
+    Tensor<Shape5,E>(from: first, to: last, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -762,12 +1104,20 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape5.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape5,C.Element> where C.Element == C.Element.Stored
-{
+) -> Tensor<Shape5,C.Element> where C.Element == C.Element.Stored {
     Tensor<Shape5,C.Element>(stored: elements, Shape5(shape),
                                 order: order, name: name)
 }
 
+@inlinable public func array<C: Collection>(
+    stored elements: C,
+    _ shape: Shape5,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,C.Element> where C.Element == C.Element.Stored {
+    Tensor<Shape5,C.Element>(stored: elements, shape, order: order, name: name)
+}
+
 //---------------------------
 // C.Element == Element.Value
 @inlinable public func array<C: Collection>(
@@ -775,21 +1125,17 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape5.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape5,C.Element> where C.Element == C.Element.Value
-{
+) -> Tensor<Shape5,C.Element> where C.Element == C.Element.Value {
     Tensor<Shape5,C.Element>(elements, Shape5(shape), order: order, name: name)
 }
 
-//---------------------------
-// C.Element == Element.Value
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape5.Tuple,
+    _ shape: Shape5,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape5,DType> where C.Element == Int
-{
-    Tensor<Shape5,DType>(elements, Shape5(shape), order: order, name: name)
+) -> Tensor<Shape5,C.Element> where C.Element == C.Element.Value {
+    Tensor<Shape5,C.Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -799,9 +1145,37 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape5.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape5,DType> where C.Element == Double
-{
+) -> Tensor<Shape5,DType> where C.Element == Int {
     Tensor<Shape5,DType>(elements, Shape5(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape5,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,DType> where C.Element == Int {
+    Tensor<Shape5,DType>(elements, shape, order: order, name: name)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape5.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,DType> where C.Element == Double {
+    Tensor<Shape5,DType>(elements, Shape5(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape5,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,DType> where C.Element == Double {
+    Tensor<Shape5,DType>(elements, shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -814,10 +1188,19 @@ where C.Element == Bool, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape5,Element> where Element.Value: Numeric 
-{
+) -> Tensor<Shape5,Element> where Element.Value: Numeric {
     Tensor<Shape5,Element>(range: range, Shape5(shape),
                             order: order, name: name)
+}
+
+@inlinable public func array<Element>(
+    _ range: Range<Int>,
+    _ shape: Shape5,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,Element> where Element.Value: Numeric {
+    Tensor<Shape5,Element>(range: range, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -828,10 +1211,18 @@ where C.Element == Bool, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape5,Element>
-    where C.Element == Bool, Element.Value: Numeric
-{
+) -> Tensor<Shape5,Element> where C.Element == Bool, Element.Value: Numeric {
     Tensor<Shape5,Element>(elements, Shape5(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape5,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,Element> where C.Element == Bool, Element.Value: Numeric {
+    Tensor<Shape5,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -842,10 +1233,18 @@ where C.Element == Bool, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape5,Element>
-where C.Element: Numeric, Element.Value == Bool
-{
+) -> Tensor<Shape5,Element> where C.Element: Numeric, Element.Value == Bool {
     Tensor<Shape5,Element>(elements, Shape5(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape5,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,Element> where C.Element: Numeric, Element.Value == Bool {
+    Tensor<Shape5,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -856,10 +1255,18 @@ where C.Element: Numeric, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape5,Element>
-where C.Element == Bool, Element.Value == Bool
-{
+) -> Tensor<Shape5,Element> where C.Element == Bool, Element.Value == Bool {
     Tensor<Shape5,Element>(elements, Shape5(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape5,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,Element> where C.Element == Bool, Element.Value == Bool {
+    Tensor<Shape5,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -871,9 +1278,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element>
-    where C.Element: BinaryInteger, Element.Value: Numeric
-{
+    where C.Element: BinaryInteger, Element.Value: Numeric {
     Tensor<Shape5,Element>(elements, Shape5(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape5,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,Element>
+    where C.Element: BinaryInteger, Element.Value: Numeric {
+    Tensor<Shape5,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -885,9 +1302,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element>
-    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
-{
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
     Tensor<Shape5,Element>(elements, Shape5(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape5,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,Element>
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
+    Tensor<Shape5,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -899,9 +1326,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element>
-    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
-{
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
     Tensor<Shape5,Element>(elements, Shape5(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape5,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape5,Element>
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
+    Tensor<Shape5,Element>(elements, shape, order: order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -915,10 +1352,17 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape6.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape6,DType>
-{
-    Tensor<Shape6,DType>(range: range, Shape6(shape),
-                            order: order, name: name)
+) -> Tensor<Shape6,DType> {
+    Tensor<Shape6,DType>(range: range, Shape6(shape), order: order, name: name)
+}
+
+@inlinable public func array(
+    _ range: Range<Int>,
+    _ shape: Shape6,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,DType> {
+    Tensor<Shape6,DType>(range: range, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -929,9 +1373,19 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape6.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape6,E> where E == E.Value, E: AlgebraicField
-{
-    Tensor<Shape6,E>(from: first, to: last, Shape6(shape), order: order, name: name)
+) -> Tensor<Shape6,E> where E == E.Value, E: AlgebraicField {
+    Tensor<Shape6,E>(from: first, to: last, Shape6(shape),
+                        order: order, name: name)
+}
+
+@inlinable public func array<E>(
+    from first: E,
+    to last: E,
+    _ shape: Shape6,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,E> where E == E.Value, E: AlgebraicField {
+    Tensor<Shape6,E>(from: first, to: last, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -941,12 +1395,20 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape6.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape6,C.Element> where C.Element == C.Element.Stored
-{
+) -> Tensor<Shape6,C.Element> where C.Element == C.Element.Stored {
     Tensor<Shape6,C.Element>(stored: elements, Shape6(shape),
                                 order: order, name: name)
 }
 
+@inlinable public func array<C: Collection>(
+    stored elements: C,
+    _ shape: Shape6,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,C.Element> where C.Element == C.Element.Stored {
+    Tensor<Shape6,C.Element>(stored: elements, shape, order: order, name: name)
+}
+
 //---------------------------
 // C.Element == Element.Value
 @inlinable public func array<C: Collection>(
@@ -954,21 +1416,17 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape6.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape6,C.Element> where C.Element == C.Element.Value
-{
+) -> Tensor<Shape6,C.Element> where C.Element == C.Element.Value {
     Tensor<Shape6,C.Element>(elements, Shape6(shape), order: order, name: name)
 }
 
-//---------------------------
-// C.Element == Element.Value
 @inlinable public func array<C: Collection>(
     _ elements: C,
-    _ shape: Shape6.Tuple,
+    _ shape: Shape6,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape6,DType> where C.Element == Int
-{
-    Tensor<Shape6,DType>(elements, Shape6(shape), order: order, name: name)
+) -> Tensor<Shape6,C.Element> where C.Element == C.Element.Value {
+    Tensor<Shape6,C.Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -978,9 +1436,37 @@ where C.Element == Bool, Element.Value == Bool
     _ shape: Shape6.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape6,DType> where C.Element == Double
-{
+) -> Tensor<Shape6,DType> where C.Element == Int {
     Tensor<Shape6,DType>(elements, Shape6(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape6,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,DType> where C.Element == Int {
+    Tensor<Shape6,DType>(elements, shape, order: order, name: name)
+}
+
+//---------------------------
+// C.Element == Element.Value
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape6.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,DType> where C.Element == Double {
+    Tensor<Shape6,DType>(elements, Shape6(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection>(
+    _ elements: C,
+    _ shape: Shape6,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,DType> where C.Element == Double {
+    Tensor<Shape6,DType>(elements, shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -993,10 +1479,19 @@ where C.Element == Bool, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape6,Element> where Element.Value: Numeric 
-{
+) -> Tensor<Shape6,Element> where Element.Value: Numeric {
     Tensor<Shape6,Element>(range: range, Shape6(shape),
                             order: order, name: name)
+}
+
+@inlinable public func array<Element>(
+    _ range: Range<Int>,
+    _ shape: Shape6,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,Element> where Element.Value: Numeric {
+    Tensor<Shape6,Element>(range: range, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1007,10 +1502,18 @@ where C.Element == Bool, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape6,Element>
-    where C.Element == Bool, Element.Value: Numeric
-{
+) -> Tensor<Shape6,Element> where C.Element == Bool, Element.Value: Numeric {
     Tensor<Shape6,Element>(elements, Shape6(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape6,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,Element> where C.Element == Bool, Element.Value: Numeric {
+    Tensor<Shape6,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1021,10 +1524,18 @@ where C.Element == Bool, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape6,Element>
-where C.Element: Numeric, Element.Value == Bool
-{
+) -> Tensor<Shape6,Element> where C.Element: Numeric, Element.Value == Bool {
     Tensor<Shape6,Element>(elements, Shape6(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape6,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,Element> where C.Element: Numeric, Element.Value == Bool {
+    Tensor<Shape6,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1035,10 +1546,18 @@ where C.Element: Numeric, Element.Value == Bool
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
-) -> Tensor<Shape6,Element>
-where C.Element == Bool, Element.Value == Bool
-{
+) -> Tensor<Shape6,Element> where C.Element == Bool, Element.Value == Bool {
     Tensor<Shape6,Element>(elements, Shape6(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape6,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,Element> where C.Element == Bool, Element.Value == Bool {
+    Tensor<Shape6,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1050,9 +1569,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element>
-    where C.Element: BinaryInteger, Element.Value: Numeric
-{
+    where C.Element: BinaryInteger, Element.Value: Numeric {
     Tensor<Shape6,Element>(elements, Shape6(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape6,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,Element>
+    where C.Element: BinaryInteger, Element.Value: Numeric {
+    Tensor<Shape6,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1064,9 +1593,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element>
-    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
-{
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
     Tensor<Shape6,Element>(elements, Shape6(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape6,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,Element>
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
+    Tensor<Shape6,Element>(elements, shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1078,9 +1617,19 @@ where C.Element == Bool, Element.Value == Bool
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element>
-    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
-{
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
     Tensor<Shape6,Element>(elements, Shape6(shape), order: order, name: name)
+}
+
+@inlinable public func array<C: Collection, Element>(
+    _ elements: C,
+    _ shape: Shape6,
+    type: Element.Type,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor<Shape6,Element>
+    where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
+    Tensor<Shape6,Element>(elements, shape, order: order, name: name)
 }
 
 
