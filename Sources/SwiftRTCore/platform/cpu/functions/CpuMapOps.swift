@@ -102,17 +102,17 @@ extension DeviceQueue {
     ) {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
         // the op
-        func execute<I0: Collection, O: MutableCollection>(
-            _ i0: I0,
+        func execute<A: Collection, O: MutableCollection>(
+            _ a: A,
             _ out: O,
-            _ op: @escaping (O.Element, I0.Element) -> O.Element
+            _ op: @escaping (O.Element, A.Element) -> O.Element
         ) {
             var out = out
             if mode == .sync {
-                zip(out.indices, i0).forEach { out[$0] = op(out[$0], $1) }
+                zip(out.indices, a).forEach { out[$0] = op(out[$0], $1) }
             } else {
                 queue.async(group: group) {
-                    zip(out.indices, i0).forEach { out[$0] = op(out[$0], $1) }
+                    zip(out.indices, a).forEach { out[$0] = op(out[$0], $1) }
                 }
             }
         }
@@ -188,35 +188,34 @@ extension DeviceQueue {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
         func execute<A: Collection, B: Collection, O: MutableCollection>(
-            _ a: A, _ b: B, _ out: inout O,
+            _ a: A, _ b: B, _ out: O,
             _ op: @escaping (A.Element, B.Element) -> O.Element
         ) {
+            var out = out
             if mode == .sync {
                 zip(out.indices, zip(a, b)).forEach {
                     out[$0] = op($1.0, $1.1)
                 }
             } else {
-                var o = out
                 queue.async(group: group) {
-                    zip(o.indices, zip(a, b)).forEach {
-                        o[$0] = op($1.0, $1.1)
+                    zip(out.indices, zip(a, b)).forEach {
+                        out[$0] = op($1.0, $1.1)
                     }
                 }
             }
         }
         
-        var out = out.mutableBuffer
         if a.isContiguous {
             if b.isContiguous {
-                execute(a.buffer, b.buffer, &out, op)
+                execute(a.buffer, b.buffer, out.mutableBuffer, op)
             } else {
-                execute(a.buffer, b.elements, &out, op)
+                execute(a.buffer, b.elements, out.mutableBuffer, op)
             }
         } else {
             if b.isContiguous {
-                execute(a.elements, b.buffer, &out, op)
+                execute(a.elements, b.buffer, out.mutableBuffer, op)
             } else {
-                execute(a.elements, b.elements, &out, op)
+                execute(a.elements, b.elements, out.mutableBuffer, op)
             }
         }
     }
@@ -236,35 +235,34 @@ extension DeviceQueue {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
         
         func execute<A: Collection, B: Collection, O: MutableCollection>(
-            _ a: A, _ b: B, _ c: A.Element, _ out: inout O,
+            _ a: A, _ b: B, _ c: A.Element, _ out: O,
             _ op: @escaping (A.Element, B.Element, A.Element) -> O.Element
         ) {
+            var out = out
             if mode == .sync {
                 zip(out.indices, zip(a, b)).forEach {
                     out[$0] = op($1.0, $1.1, c)
                 }
             } else {
-                var o = out
                 queue.async(group: group) {
-                    zip(o.indices, zip(a, b)).forEach {
-                        o[$0] = op($1.0, $1.1, c)
+                    zip(out.indices, zip(a, b)).forEach {
+                        out[$0] = op($1.0, $1.1, c)
                     }
                 }
             }
         }
         
-        var out = out.mutableBuffer
         if a.isContiguous {
             if b.isContiguous {
-                execute(a.buffer, b.buffer, c, &out, op)
+                execute(a.buffer, b.buffer, c, out.mutableBuffer, op)
             } else {
-                execute(a.buffer, b.elements, c, &out, op)
+                execute(a.buffer, b.elements, c, out.mutableBuffer, op)
             }
         } else {
             if b.isContiguous {
-                execute(a.elements, b.buffer, c, &out, op)
+                execute(a.elements, b.buffer, c, out.mutableBuffer, op)
             } else {
-                execute(a.elements, b.elements, c, &out, op)
+                execute(a.elements, b.elements, c, out.mutableBuffer, op)
             }
         }
     }
@@ -349,15 +347,15 @@ extension DeviceQueue {
 
         func execute<A: Collection, B: Collection, C: Collection,
                      O: MutableCollection>(
-            _ a: A, _ b: B, _ c: C, _ out: inout O,
+            _ a: A, _ b: B, _ c: C, _ out: O,
             _ op: @escaping (A.Element, B.Element, C.Element) -> O.Element
         ) {
+            var out = out
             if mode == .sync {
                 zip(out.indices, zip(a, zip(b, c))).forEach {
                     out[$0] = op($1.0, $1.1.0, $1.1.1)
                 }
             } else {
-                var out = out
                 queue.async(group: group) {
                     zip(out.indices, zip(a, zip(b, c))).forEach {
                         out[$0] = op($1.0, $1.1.0, $1.1.1)
@@ -366,33 +364,33 @@ extension DeviceQueue {
             }
         }
         
-        var out = out.mutableBuffer
+        let out = out.mutableBuffer
         if a.isContiguous {
             if b.isContiguous {
                 if c.isContiguous {
-                    execute(a.buffer, b.buffer, c.buffer, &out, op)
+                    execute(a.buffer, b.buffer, c.buffer, out, op)
                 } else {
-                    execute(a.buffer, b.buffer, c.elements, &out, op)
+                    execute(a.buffer, b.buffer, c.elements, out, op)
                 }
             } else {
                 if c.isContiguous {
-                    execute(a.buffer, b.elements, c.buffer, &out, op)
+                    execute(a.buffer, b.elements, c.buffer, out, op)
                 } else {
-                    execute(a.buffer, b.elements, c.elements, &out, op)
+                    execute(a.buffer, b.elements, c.elements, out, op)
                 }
             }
         } else {
             if b.isContiguous {
                 if c.isContiguous {
-                    execute(a.elements, b.buffer, c.buffer, &out, op)
+                    execute(a.elements, b.buffer, c.buffer, out, op)
                 } else {
-                    execute(a.elements, b.buffer, c.elements, &out, op)
+                    execute(a.elements, b.buffer, c.elements, out, op)
                 }
             } else {
                 if c.isContiguous {
-                    execute(a.elements, b.elements, c.buffer, &out, op)
+                    execute(a.elements, b.elements, c.buffer, out, op)
                 } else {
-                    execute(a.elements, b.elements, c.elements, &out, op)
+                    execute(a.elements, b.elements, c.elements, out, op)
                 }
             }
         }
