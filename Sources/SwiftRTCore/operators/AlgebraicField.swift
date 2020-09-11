@@ -184,6 +184,34 @@ extension Tensor where Element: AdditiveArithmetic {
 
 //==============================================================================
 /// mul
+
+//--------------------------------------------------------------------------
+// tensor * tensor + Element
+//    @differentiable(where Element: DifferentiableNumeric)
+@inlinable public func multiply<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: Tensor<S,E>,
+    add bias: E.Value
+) -> Tensor<S,E> where E.Value: Numeric {
+    assert(lhs.shape == rhs.shape)
+    var out = Tensor(like: lhs)
+    Context.currentQueue.multiply(lhs, rhs, add: bias, &out)
+    return out
+}
+
+@inlinable public func multiply<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: Tensor<S,E>,
+    add bias: Tensor<S,E>
+) -> Tensor<S,E> where E.Value: Numeric {
+    assert(lhs.shape == rhs.shape && lhs.shape == bias.shape)
+    var out = Tensor(like: lhs)
+    Context.currentQueue.multiply(lhs, rhs, add: bias, &out)
+    return out
+}
+
+//==============================================================================
+/// mul
 extension Tensor where Element: Numeric {
     //--------------------------------------------------------------------------
     // tensor * tensor

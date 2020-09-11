@@ -430,6 +430,30 @@ extension DeviceQueue {
     }
 
     //--------------------------------------------------------------------------
+    // fused multiply add
+    @inlinable func cpu_multiply<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: Tensor<S,E>,
+        add bias: E.Value,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Numeric {
+        mapOp(lhs, rhs, bias, &out,
+              "multiply(\(lhs.name), \(rhs.name), add: \(bias)")
+            { $0 * $1 + $2 }
+    }
+    
+    @inlinable func cpu_multiply<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: Tensor<S,E>,
+        add bias: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Numeric {
+        mapOp(lhs, rhs, bias, &out,
+              "multiply(\(lhs.name), \(rhs.name), add: \(bias.name)")
+            { $0 * $1 + $2 }
+    }
+
+    //--------------------------------------------------------------------------
     @inlinable func cpu_neg<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
@@ -854,6 +878,26 @@ extension CpuQueue {
         cpu_mul(lhs, rhs, &out)
     }
 
+    //--------------------------------------------------------------------------
+    // fused multiply add
+    @inlinable func multiply<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: Tensor<S,E>,
+        add bias: E.Value,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Numeric {
+        cpu_multiply(lhs, rhs, add: bias, &out)
+    }
+
+    @inlinable func multiply<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: Tensor<S,E>,
+        add bias: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Numeric {
+        cpu_multiply(lhs, rhs, add: bias, &out)
+    }
+    
     //--------------------------------------------------------------------------
     @inlinable func neg<S,E>(_ x: Tensor<S,E>, _ out: inout Tensor<S,E>)
     where E.Value: SignedNumeric { cpu_neg(x, &out) }
