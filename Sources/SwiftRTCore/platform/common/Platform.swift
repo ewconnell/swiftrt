@@ -110,8 +110,12 @@ public extension Platform {
         _ queueId: Int
     ) -> Device.Queue {
         let device = devices[deviceId % devices.count]
-        assert(device.queues.count > 0, "the number of available queues is 0")
-        return device.queues[queueId % device.queues.count]
+        if deviceId == 0 && device.queues.count == 0 {
+            return appThreadQueue
+        } else {
+            assert(device.queues.count > 0, "the number of available queues is 0")
+            return device.queues[queueId % device.queues.count]
+        }
     }
 }
 
