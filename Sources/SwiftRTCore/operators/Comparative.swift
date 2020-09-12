@@ -222,13 +222,21 @@ public extension Tensor where TensorElement.Value: Comparable {
     return result
 }
 
+@differentiable(where E.Value: DifferentiableNumeric)
+@inlinable public func min<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: Int
+) -> Tensor<S,E> where E.Value: Comparable & Numeric {
+    min(lhs, E.Value(exactly: rhs)!)
+}
+
 @derivative(of: min)
 @usableFromInline func _vjpMin<S,E>(
     _ lhs: Tensor<S,E>,
     _ rhs: E.Value
-) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, E.Value))
-where S: TensorShape, E.Value: Comparable & DifferentiableNumeric {
-
+) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, E.Value)
+) where S: TensorShape, E.Value: Comparable & DifferentiableNumeric {
+    fatalError()
 }
 
 @derivative(of: min, wrt: lhs)

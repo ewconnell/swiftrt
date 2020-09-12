@@ -29,8 +29,7 @@ import Foundation
     _ tensors: [Tensor<S,E>],
     axis: Int = 0,
     into result: inout Tensor<S,E>
-) where S: TensorShape
-{
+) {
     let axis = axis < 0 ? axis + S.rank : axis
     assert(tensors.count > 1)
     assert(result.shape == concatenatedShape(tensors,axis),
@@ -47,8 +46,7 @@ import Foundation
 @inlinable public func concatenate<S,E>(
     _ tensors: [Tensor<S,E>],
     axis: Int = 0
-) -> Tensor<S,E> where S: TensorShape
-{
+) -> Tensor<S,E> {
     let axis = axis < 0 ? axis + S.rank : axis
     var result = withoutDerivative(
             at: Tensor<S,E>(shape: concatenatedShape(tensors,axis)))
@@ -60,8 +58,7 @@ import Foundation
 @inlinable public func concatenate<S,E>(
     _ tensors: Tensor<S,E>...,
     axis: Int = 0
-) -> Tensor<S,E> where S: TensorShape
-{
+) -> Tensor<S,E> {
     concatenate(tensors, axis: axis)
 }
 
@@ -79,8 +76,7 @@ public extension Tensor {
 @inlinable public func concatenatedShape<S,E>(
     _ tensors: [Tensor<S,E>],
     _ axis: Int
-) -> S
-{
+) -> S {
     assert(axis >= 0)
     var shape = tensors[0].shape
     for i in 1..<tensors.count {
@@ -98,7 +94,6 @@ public extension Tensor {
     into result: inout Tensor<S,E>
 ) -> (value: (), pullback: (inout Tensor<S, E>.TangentVector)
         -> Array<Tensor<S,E>>.TangentVector)
-where S: TensorShape
 {
     let shapes = tensors.map { $0.shape }
     func pullback(_ resultTangent: inout Tensor<S,E>.TangentVector)
@@ -140,8 +135,7 @@ where S: TensorShape
 @inlinable public func copy<S,E>(
     from source: Tensor<S,E>,
     to destination: inout Tensor<S,E>
-)
-{
+) {
     Context.currentQueue.copy(from: source, to: &destination)
 }
 
@@ -160,8 +154,7 @@ where S: TensorShape
     from lower: E.Value,
     to upper: E.Value,
     seed: RandomSeed
-) where S: TensorShape, E.Value: BinaryFloatingPoint
-{
+) where E.Value: BinaryFloatingPoint {
     Context.currentQueue.fill(randomUniform: &x, lower, upper, seed)
 }
 
@@ -169,45 +162,38 @@ where S: TensorShape
 @inlinable func fill<S,E>(
     randomNormal x: inout Tensor<S,E>,
     mean: E.Value,
-    standardDeviation: E.Value,
+    std: E.Value,
     seed: RandomSeed
-)
-    where S: TensorShape, E.Value: BinaryFloatingPoint
-{
-    Context.currentQueue.fill(randomNormal: &x, mean, standardDeviation, seed)
+) where E.Value: BinaryFloatingPoint {
+    Context.currentQueue.fill(randomNormal: &x, mean, std, seed)
 }
 
 @inlinable func fill<S,E>(
     randomNormal x: inout Tensor<S,E>,
     mean: Tensor<S,E>,
-    standardDeviation: Tensor<S,E>,
-    seed: RandomSeed)
-    where S: TensorShape, E.Value: BinaryFloatingPoint
-{
-    Context.currentQueue.fill(randomNormal: &x, mean, standardDeviation, seed)
+    std: Tensor<S,E>,
+    seed: RandomSeed
+) where E.Value: BinaryFloatingPoint {
+    Context.currentQueue.fill(randomNormal: &x, mean, std, seed)
 }
 
 //-------------------------------------
 @inlinable func fill<S,E>(
     randomTruncatedNormal x: inout Tensor<S,E>,
     mean: E.Value,
-    standardDeviation: E.Value,
+    std: E.Value,
     seed: RandomSeed
-) where S: TensorShape, E.Value: BinaryFloatingPoint
-{
-    Context.currentQueue
-        .fill(randomTruncatedNormal: &x, mean, standardDeviation, seed)
+) where E.Value: BinaryFloatingPoint {
+    Context.currentQueue.fill(randomTruncatedNormal: &x, mean, std, seed)
 }
 
 @inlinable func fill<S,E>(
     randomTruncatedNormal x: inout Tensor<S,E>,
     mean: Tensor<S,E>,
-    standardDeviation: Tensor<S,E>,
+    std: Tensor<S,E>,
     seed: RandomSeed
-) where S: TensorShape, E.Value: BinaryFloatingPoint
-{
-    Context.currentQueue
-        .fill(randomTruncatedNormal: &x, mean, standardDeviation, seed)
+) where E.Value: BinaryFloatingPoint {
+    Context.currentQueue.fill(randomTruncatedNormal: &x, mean, std, seed)
 }
 
 //==============================================================================
@@ -216,7 +202,7 @@ where S: TensorShape
 @inlinable public func fill<S, E: StorageElement>(
     _ x: inout Tensor<S,E>,
     with element: E.Value
-) where S: TensorShape{
+) {
     Context.currentQueue.fill(&x, with: element)
 }
 
@@ -235,9 +221,9 @@ where S: TensorShape
 /// fillWithIndex
 /// a convenience function to fill the tensor with index values from
 /// `0..<count`. If a different range is desired, use `fill(with range:`
-@inlinable func fillWithIndex<S,E>(_ x: inout Tensor<S,E>)
-    where S: TensorShape, E.Value: Comparable & Numeric
-{
+@inlinable func fillWithIndex<S,E>(
+    _ x: inout Tensor<S,E>
+) where E.Value: Comparable & Numeric {
     fill(&x, with: 0..<x.count)
 }
 
@@ -248,8 +234,7 @@ where S: TensorShape
     x: Tensor<S,E>,
     with y: Tensor<S,E>,
     where condition: Tensor<S,Bool>
-) -> Tensor<S,E> where S: TensorShape
-{
+) -> Tensor<S,E> {
     var result = Tensor(like: x)
     Context.currentQueue.replace(x, y, condition, &result)
     return result
@@ -269,4 +254,16 @@ public extension Tensor where TensorElement.Value: Comparable {
     ) -> Self {
         replacing(with: repeating(value, like: self), where: condition)
     }
+    
+    @inlinable subscript(condition: Tensor<Shape,Bool>) -> Self {
+        get {
+            // TODO: extract elements based on condition
+            fatalError("not implemented")
+        }
+        set {
+            // inplace replacement
+            Context.currentQueue.replace(self, newValue, condition, &self)
+        }
+    }
+
 }

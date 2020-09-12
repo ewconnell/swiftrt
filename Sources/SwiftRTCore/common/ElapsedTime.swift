@@ -35,7 +35,7 @@ extension String {
 /// elapsedTime
 /// used to measure and log a set of `body` iterations
 @discardableResult
-public func elapsedTime(logLabel: String? = nil, iterations: Int = 10,
+public func elapsedTime(_ logLabel: String? = nil, iterations: Int = 10,
                         warmUps: Int = 1, precision: Int = 6,
                         _ body: () -> Void) -> TimeInterval
 {

@@ -665,6 +665,13 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     full(Shape1(1), value, DType.self, name: name)
 }
 
+@inlinable public func full(
+    _ value: Int,
+    name: String = defaultTensorName
+) -> Tensor<Shape1, DType> {
+    full(Shape1(1), DType(value), DType.self, name: name)
+}
+
 @inlinable public func full<Element: StorageElement>(
     _ value: Element.Value,
     type: Element.Type,
@@ -692,6 +699,25 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor1 {
     full(shape, value, DType.self, order, name: name)
+}
+
+// shape, value, implicit Int
+@inlinable public func full(
+    _ shape: Shape1.Tuple,
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor1 {
+    full(shape, DType(value), DType.self, order, name: name)
+}
+
+@inlinable public func full(
+    _ shape: Shape1,
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor1 {
+    full(shape, DType(value), DType.self, order, name: name)
 }
 
 // shape, value, type
@@ -736,6 +762,25 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     full(shape, value, DType.self, order, name: name)
 }
 
+// shape, value, implicit Int
+@inlinable public func full(
+    _ shape: Shape2.Tuple,
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor2 {
+    full(shape, DType(value), DType.self, order, name: name)
+}
+
+@inlinable public func full(
+    _ shape: Shape2,
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor2 {
+    full(shape, DType(value), DType.self, order, name: name)
+}
+
 // shape, value, type
 @inlinable public func full<Element: StorageElement>(
     _ shape: Shape2.Tuple,
@@ -776,6 +821,25 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor3 {
     full(shape, value, DType.self, order, name: name)
+}
+
+// shape, value, implicit Int
+@inlinable public func full(
+    _ shape: Shape3.Tuple,
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor3 {
+    full(shape, DType(value), DType.self, order, name: name)
+}
+
+@inlinable public func full(
+    _ shape: Shape3,
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor3 {
+    full(shape, DType(value), DType.self, order, name: name)
 }
 
 // shape, value, type
@@ -820,6 +884,25 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     full(shape, value, DType.self, order, name: name)
 }
 
+// shape, value, implicit Int
+@inlinable public func full(
+    _ shape: Shape4.Tuple,
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor4 {
+    full(shape, DType(value), DType.self, order, name: name)
+}
+
+@inlinable public func full(
+    _ shape: Shape4,
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor4 {
+    full(shape, DType(value), DType.self, order, name: name)
+}
+
 // shape, value, type
 @inlinable public func full<Element: StorageElement>(
     _ shape: Shape4.Tuple,
@@ -862,6 +945,25 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     full(shape, value, DType.self, order, name: name)
 }
 
+// shape, value, implicit Int
+@inlinable public func full(
+    _ shape: Shape5.Tuple,
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor5 {
+    full(shape, DType(value), DType.self, order, name: name)
+}
+
+@inlinable public func full(
+    _ shape: Shape5,
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor5 {
+    full(shape, DType(value), DType.self, order, name: name)
+}
+
 // shape, value, type
 @inlinable public func full<Element: StorageElement>(
     _ shape: Shape5.Tuple,
@@ -902,6 +1004,25 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor6 {
     full(shape, value, DType.self, order, name: name)
+}
+
+// shape, value, implicit Int
+@inlinable public func full(
+    _ shape: Shape6.Tuple,
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor6 {
+    full(shape, DType(value), DType.self, order, name: name)
+}
+
+@inlinable public func full(
+    _ shape: Shape6,
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor6 {
+    full(shape, DType(value), DType.self, order, name: name)
 }
 
 // shape, value, type

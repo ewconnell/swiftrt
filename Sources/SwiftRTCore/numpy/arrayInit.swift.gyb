@@ -261,6 +261,13 @@ public typealias Tensor${n} = Tensor<Shape${n},DType>
     full(Shape1(1), value, DType.self, name: name)
 }
 
+@inlinable public func full(
+    _ value: Int,
+    name: String = defaultTensorName
+) -> Tensor<Shape1, DType> {
+    full(Shape1(1), DType(value), DType.self, name: name)
+}
+
 @inlinable public func full<Element: StorageElement>(
     _ value: Element.Value,
     type: Element.Type,
@@ -289,6 +296,25 @@ public typealias Tensor${n} = Tensor<Shape${n},DType>
     name: String = defaultTensorName
 ) -> Tensor${n} {
     full(shape, value, DType.self, order, name: name)
+}
+
+// shape, value, implicit Int
+@inlinable public func full(
+    _ shape: Shape${n}.Tuple,
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor${n} {
+    full(shape, DType(value), DType.self, order, name: name)
+}
+
+@inlinable public func full(
+    _ shape: Shape${n},
+    _ value: Int,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+) -> Tensor${n} {
+    full(shape, DType(value), DType.self, order, name: name)
 }
 
 // shape, value, type
