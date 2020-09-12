@@ -858,9 +858,22 @@ extension CpuQueue {
                              _ out: inout Tensor<S,E>)
     where E.Value: Comparable { cpu_max(lhs, rhs, &out) }
     //--------------------------------------------------------------------------
-    @inlinable func min<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
-                             _ out: inout Tensor<S,E>)
-    where E.Value: Comparable { cpu_min(lhs, rhs, &out) }
+    @inlinable func min<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable {
+        cpu_min(lhs, rhs, &out)
+    }
+
+    @inlinable func min<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable {
+        cpu_min(lhs, rhs, &out)
+    }
+
     //--------------------------------------------------------------------------
     @inlinable func mul<S,E>(
         _ lhs: Tensor<S,E>,

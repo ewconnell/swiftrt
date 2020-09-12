@@ -185,9 +185,10 @@ public extension Tensor where TensorElement.Value: Comparable {
 /// - Parameter rhs: right hand tensor
 /// - Returns: result
 @differentiable(where E.Value: DifferentiableNumeric)
-@inlinable public func min<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
--> Tensor<S,E> where S: TensorShape, E.Value: Comparable
-{
+@inlinable public func min<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: Tensor<S,E>
+) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
     assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
     var result = Tensor(like: lhs)
     Context.currentQueue.min(lhs, rhs, &result)
@@ -195,8 +196,10 @@ public extension Tensor where TensorElement.Value: Comparable {
 }
 
 @derivative(of: min)
-@usableFromInline func _vjpMin<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
-    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
+@usableFromInline func _vjpMin<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: Tensor<S,E>
+) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
     where S: TensorShape, E.Value: DifferentiableNumeric & Comparable
 {
     (value: min(lhs, rhs), {
@@ -210,15 +213,29 @@ public extension Tensor where TensorElement.Value: Comparable {
 //--------------------------------
 // tensor Element
 @differentiable(where E.Value: DifferentiableNumeric)
-@inlinable public func min<S,E>(_ lhs: Tensor<S,E>, _ rhs: E.Value)
-    -> Tensor<S,E> where S: TensorShape, E.Value: Comparable
-{
-    min(lhs, repeating(rhs, like: lhs))
+@inlinable public func min<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: E.Value
+) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
+    var result = Tensor(like: lhs)
+    Context.currentQueue.min(lhs, rhs, &result)
+    return result
+}
+
+@derivative(of: min)
+@usableFromInline func _vjpMin<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: E.Value
+) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, E.Value))
+where S: TensorShape, E.Value: Comparable & DifferentiableNumeric {
+
 }
 
 @derivative(of: min, wrt: lhs)
-@usableFromInline func _vjpMin<S,E>(_ lhs: Tensor<S,E>, _ rhs: E.Value)
--> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+@usableFromInline func _vjpMin<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: E.Value
+) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
 where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableNumeric
 {
     let element = repeating(rhs, like: lhs)
