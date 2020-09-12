@@ -499,8 +499,7 @@ public extension Tensor {
 
         } else if !(isKnownUniquelyReferenced(&storage) || isShared) {
             // if not uniquely held then copy before creating the shared view
-            diagnostic(.mutation, "\(storage.name)(\(storage.id)) " +
-                        "\(Element.self)[\(count)]",
+            diagnostic(.mutation, "\(storage.name) \(Element.self)[\(count)]",
                        categories: [.dataCopy, .dataMutation])
             
             storage = StorageBufferType(type: Element.self, copying: storage,
