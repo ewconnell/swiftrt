@@ -263,17 +263,34 @@ extension DeviceQueue {
     @inlinable func cpu_greater<S,E>(
         _ lhs: Tensor<S,E>,
         _ rhs: Tensor<S,E>,
-        _ out: inout Tensor<S,Bool>)
-    where E.Value: Comparable {
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable {
         mapOp(lhs, rhs, &out, "greater(\(lhs.name), \(rhs.name))", >)
     }
-    
+
+    @inlinable func cpu_greater<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable {
+        mapOp(lhs, rhs, &out, "greater(\(lhs.name), \(rhs))", >)
+    }
+
     //--------------------------------------------------------------------------
     @inlinable func cpu_greaterOrEqual<S,E>(
-        _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
-        _ out: inout Tensor<S,Bool>)
-    where E.Value: Comparable {
+        _ lhs: Tensor<S,E>,
+        _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable {
         mapOp(lhs, rhs, &out, "greaterOrEqual(\(lhs.name), \(rhs.name))", >=)
+    }
+    
+    @inlinable func cpu_greaterOrEqual<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable {
+        mapOp(lhs, rhs, &out, "greaterOrEqual(\(lhs.name), \(rhs))", >=)
     }
     
     //--------------------------------------------------------------------------
@@ -294,6 +311,13 @@ extension DeviceQueue {
         mapOp(lhs, rhs, &out, "less(\(lhs.name), \(rhs.name))", <)
     }
     
+    @inlinable func cpu_less<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable {
+        mapOp(lhs, rhs, &out, "less(\(lhs.name), \(rhs))", <)
+    }
     //--------------------------------------------------------------------------
     @inlinable func cpu_lessOrEqual<S,E>(
         _ lhs: Tensor<S,E>,
@@ -301,6 +325,14 @@ extension DeviceQueue {
         _ out: inout Tensor<S,Bool>
     ) where E.Value: Comparable {
         mapOp(lhs, rhs, &out, "lessOrEqual(\(lhs.name), \(rhs.name))", <=)
+    }
+    
+    @inlinable func cpu_lessOrEqual<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable {
+        mapOp(lhs, rhs, &out, "lessOrEqual(\(lhs.name), \(rhs))", <=)
     }
     
     //--------------------------------------------------------------------------
@@ -398,7 +430,15 @@ extension DeviceQueue {
     ) where E.Value: Comparable {
         mapOp(lhs, rhs, &out, "max(\(lhs.name), \(rhs.name))") { $0 >= $1 ? $0 : $1 }
     }
-    
+
+    @inlinable func cpu_max<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable {
+        mapOp(lhs, rhs, &out, "max(\(lhs.name), \(rhs))") { $0 >= $1 ? $0 : $1 }
+    }
+
     //--------------------------------------------------------------------------
     @inlinable func cpu_min<S,E>(
         _ lhs: Tensor<S,E>,
@@ -801,12 +841,30 @@ extension CpuQueue {
     @inlinable func gamma<S,E>(_ x: Tensor<S,E>, _ out: inout Tensor<S,E>)
     where E.Value: Real { cpu_gamma(x, &out) }
     //--------------------------------------------------------------------------
-    @inlinable func greater<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
-                                 _ out: inout Tensor<S,Bool>)
-    where E.Value: Comparable { cpu_greater(lhs, rhs, &out) }
+    @inlinable func greater<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable { cpu_greater(lhs, rhs, &out) }
+
+    @inlinable func greater<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable { cpu_greater(lhs, rhs, &out) }
+    
     //--------------------------------------------------------------------------
     @inlinable func greaterOrEqual<S,E>(
-        _ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
+        _ lhs: Tensor<S,E>,
+        _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable {
+        cpu_greaterOrEqual(lhs, rhs, &out)
+    }
+
+    @inlinable func greaterOrEqual<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: E.Value,
         _ out: inout Tensor<S,Bool>
     ) where E.Value: Comparable {
         cpu_greaterOrEqual(lhs, rhs, &out)
@@ -816,13 +874,31 @@ extension CpuQueue {
                                _ out: inout Tensor<S,E>)
     where E.Value: Real { cpu_hypot(x, y, &out) }
     //--------------------------------------------------------------------------
-    @inlinable func less<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
-                              _ out: inout Tensor<S,Bool>)
-    where E.Value: Comparable { cpu_less(lhs, rhs, &out) }
+    @inlinable func less<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable { cpu_less(lhs, rhs, &out) }
+
+    @inlinable func less<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable { cpu_less(lhs, rhs, &out) }
+    
     //--------------------------------------------------------------------------
-    @inlinable func lessOrEqual<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
-                                     _ out: inout Tensor<S,Bool>)
-    where E.Value: Comparable { cpu_lessOrEqual(lhs, rhs, &out) }
+    @inlinable func lessOrEqual<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable { cpu_lessOrEqual(lhs, rhs, &out) }
+
+    @inlinable func lessOrEqual<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable { cpu_lessOrEqual(lhs, rhs, &out) }
+    
     //--------------------------------------------------------------------------
     @inlinable func log<S,E>(_ x: Tensor<S,E>, _ out: inout Tensor<S,E>)
     where E.Value: Real { cpu_log(x, &out) }
@@ -858,9 +934,17 @@ extension CpuQueue {
         cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &out)
     }
     //--------------------------------------------------------------------------
-    @inlinable func max<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>,
-                             _ out: inout Tensor<S,E>)
-    where E.Value: Comparable { cpu_max(lhs, rhs, &out) }
+    @inlinable func max<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable { cpu_max(lhs, rhs, &out) }
+
+    @inlinable func max<S,E>(
+        _ lhs: Tensor<S,E>,
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable { cpu_max(lhs, rhs, &out) }
     //--------------------------------------------------------------------------
     @inlinable func min<S,E>(
         _ lhs: Tensor<S,E>,

@@ -262,7 +262,10 @@ public extension Tensor where TensorElement.Value: Comparable {
         }
         set {
             // inplace replacement
+            let wasShared = isShared
+            isShared = true
             Context.currentQueue.replace(self, newValue, condition, &self)
+            isShared = wasShared
         }
     }
 

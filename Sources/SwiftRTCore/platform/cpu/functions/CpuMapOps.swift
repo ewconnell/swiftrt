@@ -137,7 +137,7 @@ extension DeviceQueue {
     }
     
     //==========================================================================
-    // mapOp 1
+    // mapOp tensor
     @inlinable func mapOp<S,E,RE>(
         _ a: Tensor<S,E>,
         _ out: inout Tensor<S,RE>,
@@ -270,12 +270,12 @@ extension DeviceQueue {
 
     //==========================================================================
     // mapOp tensor element
-    @inlinable func mapOp<S,E>(
+    @inlinable func mapOp<S,E,OE>(
         _ a: Tensor<S,E>,
         _ element: E.Value,
-        _ out: inout Tensor<S,E>,
+        _ out: inout Tensor<S,OE>,
         _ opName: @autoclosure () -> String,
-        _ op: @escaping (E.Value, E.Value) -> E.Value
+        _ op: @escaping (E.Value, E.Value) -> OE.Value
     ) {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
@@ -302,12 +302,12 @@ extension DeviceQueue {
 
     //==========================================================================
     // mapOp element tensor
-    @inlinable func mapOp<S,E>(
+    @inlinable func mapOp<S,E,OE>(
         _ element: E.Value,
         _ a: Tensor<S,E>,
-        _ out: inout Tensor<S,E>,
+        _ out: inout Tensor<S,OE>,
         _ opName: @autoclosure () -> String,
-        _ op: @escaping (E.Value, E.Value) -> E.Value
+        _ op: @escaping (E.Value, E.Value) -> OE.Value
     ) {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
@@ -333,14 +333,14 @@ extension DeviceQueue {
     }
 
     //==========================================================================
-    // mapOp 3
-    @inlinable func mapOp<S,E0, E1, E2, R1>(
+    // mapOp tensor tensor tensor
+    @inlinable func mapOp<S,E0, E1, E2, OE>(
         _ a: Tensor<S,E0>,
         _ b: Tensor<S,E1>,
         _ c: Tensor<S,E2>,
-        _ out: inout Tensor<S,R1>,
+        _ out: inout Tensor<S,OE>,
         _ opName: @autoclosure () -> String,
-        _ op: @escaping (E0.Value, E1.Value, E2.Value) -> R1.Value
+        _ op: @escaping (E0.Value, E1.Value, E2.Value) -> OE.Value
     ) {
         assert(a.order == b.order && a.order == c.order &&
                 a.order == out.order && out.isContiguous)
@@ -398,7 +398,7 @@ extension DeviceQueue {
     }
     
     //==========================================================================
-    // mapOp 3
+    // mapOp tensor tensor tensor out out
     @inlinable func mapOp<S,E0, E1, E2, O1, O2>(
         _ a: Tensor<S,E0>,
         _ b: Tensor<S,E1>,

@@ -260,8 +260,8 @@ public protocol DifferentiableNumeric:
 extension Float: DifferentiableNumeric {}
 extension Double: DifferentiableNumeric {}
 
-extension Complex: DifferentiableNumeric
-where RealType: Differentiable, RealType.TangentVector == RealType {}
+//extension Complex: DifferentiableNumeric
+//where RealType: Differentiable, RealType.TangentVector == RealType {}
 
 // Differentiable conformance
 extension Tensor: Differentiable & DifferentiableTensor
