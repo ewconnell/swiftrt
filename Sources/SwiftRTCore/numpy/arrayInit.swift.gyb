@@ -417,6 +417,18 @@ public typealias Tensor${n} = Tensor<Shape${n},DType>
     _ value: Element.Value,
     type: Element.Type,
     order: Order? = nil,
+    shape: Shape${n}.Tuple,
+    name: String = defaultTensorName
+) -> Tensor<Shape${n}, Element> {
+    assert(prototype.count == Shape${n}(shape).elementCount())
+    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+}
+
+@inlinable public func full<S,E,Element>(
+    like prototype: Tensor<S,E>,
+    _ value: Element.Value,
+    type: Element.Type,
+    order: Order? = nil,
     shape: Shape${n},
     name: String = defaultTensorName
 ) -> Tensor<Shape${n}, Element> {

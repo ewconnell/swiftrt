@@ -149,13 +149,13 @@ extension DeviceQueue {
 
         func execute<A: Collection, O: MutableCollection>(
             _ a: A,
-            _ out: O,
+            _ out: inout O,
             _ op: @escaping (A.Element) -> O.Element
         ) {
-            var out = out
             if mode == .sync {
                 zip(out.indices, a).forEach { out[$0] = op($1) }
             } else {
+                var out = out
                 queue.async(group: group) {
                     zip(out.indices, a).forEach { out[$0] = op($1) }
                 }
@@ -163,17 +163,18 @@ extension DeviceQueue {
         }
 
         // check order because they will not match for order conversion ops
+        var o = out.mutableBuffer
         if a.order == out.order {
             if a.isContiguous {
-                execute(a.buffer, out.mutableBuffer, op)
+                execute(a.buffer, &o, op)
             } else {
-                execute(a.elements, out.mutableBuffer, op)
+                execute(a.elements, &o, op)
             }
         } else {
-            execute(a.elements, out.mutableElements, op)
+            execute(a.elements, &o, op)
         }
     }
-    
+
     //==========================================================================
     // mapOp tensor tensor
     @inlinable func mapOp<S,E,RE>(

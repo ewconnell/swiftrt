@@ -1236,6 +1236,18 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     _ value: Element.Value,
     type: Element.Type,
     order: Order? = nil,
+    shape: Shape1.Tuple,
+    name: String = defaultTensorName
+) -> Tensor<Shape1, Element> {
+    assert(prototype.count == Shape1(shape).elementCount())
+    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+}
+
+@inlinable public func full<S,E,Element>(
+    like prototype: Tensor<S,E>,
+    _ value: Element.Value,
+    type: Element.Type,
+    order: Order? = nil,
     shape: Shape1,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> {
@@ -1244,6 +1256,18 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 }
 
 // Rank2
+@inlinable public func full<S,E,Element>(
+    like prototype: Tensor<S,E>,
+    _ value: Element.Value,
+    type: Element.Type,
+    order: Order? = nil,
+    shape: Shape2.Tuple,
+    name: String = defaultTensorName
+) -> Tensor<Shape2, Element> {
+    assert(prototype.count == Shape2(shape).elementCount())
+    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+}
+
 @inlinable public func full<S,E,Element>(
     like prototype: Tensor<S,E>,
     _ value: Element.Value,
@@ -1262,6 +1286,18 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     _ value: Element.Value,
     type: Element.Type,
     order: Order? = nil,
+    shape: Shape3.Tuple,
+    name: String = defaultTensorName
+) -> Tensor<Shape3, Element> {
+    assert(prototype.count == Shape3(shape).elementCount())
+    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+}
+
+@inlinable public func full<S,E,Element>(
+    like prototype: Tensor<S,E>,
+    _ value: Element.Value,
+    type: Element.Type,
+    order: Order? = nil,
     shape: Shape3,
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> {
@@ -1270,6 +1306,18 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 }
 
 // Rank4
+@inlinable public func full<S,E,Element>(
+    like prototype: Tensor<S,E>,
+    _ value: Element.Value,
+    type: Element.Type,
+    order: Order? = nil,
+    shape: Shape4.Tuple,
+    name: String = defaultTensorName
+) -> Tensor<Shape4, Element> {
+    assert(prototype.count == Shape4(shape).elementCount())
+    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+}
+
 @inlinable public func full<S,E,Element>(
     like prototype: Tensor<S,E>,
     _ value: Element.Value,
@@ -1288,6 +1336,18 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     _ value: Element.Value,
     type: Element.Type,
     order: Order? = nil,
+    shape: Shape5.Tuple,
+    name: String = defaultTensorName
+) -> Tensor<Shape5, Element> {
+    assert(prototype.count == Shape5(shape).elementCount())
+    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+}
+
+@inlinable public func full<S,E,Element>(
+    like prototype: Tensor<S,E>,
+    _ value: Element.Value,
+    type: Element.Type,
+    order: Order? = nil,
     shape: Shape5,
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> {
@@ -1296,6 +1356,18 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 }
 
 // Rank6
+@inlinable public func full<S,E,Element>(
+    like prototype: Tensor<S,E>,
+    _ value: Element.Value,
+    type: Element.Type,
+    order: Order? = nil,
+    shape: Shape6.Tuple,
+    name: String = defaultTensorName
+) -> Tensor<Shape6, Element> {
+    assert(prototype.count == Shape6(shape).elementCount())
+    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+}
+
 @inlinable public func full<S,E,Element>(
     like prototype: Tensor<S,E>,
     _ value: Element.Value,

@@ -25,8 +25,8 @@ extension String {
         let seconds = interval % 60
         let minutes = (interval / 60) % 60
         let hours = (interval / 3600)
-        let remStr = String(format: "%.\(precision)f", remainder)
-        self = String(format: "%0.2d:%0.2d:%0.2d.\(remStr)",
+        let remStr = String(format: "%.\(precision)f", remainder).dropFirst()
+        self = String(format: "%0.2d:%0.2d:%0.2d\(remStr)",
                       hours, minutes, seconds)
     }
 }
@@ -34,31 +34,26 @@ extension String {
 //==============================================================================
 /// elapsedTime
 /// used to measure and log a set of `body` iterations
-@discardableResult
-public func elapsedTime(_ logLabel: String? = nil, iterations: Int = 10,
-                        warmUps: Int = 1, precision: Int = 6,
-                        _ body: () -> Void) -> TimeInterval
+@discardableResult public func elapsedTime(
+    _ logLabel: String = #function,
+    runs: Int = 1,
+    warmUp: Bool = true,
+    precision: Int = 5,
+    _ body: () -> Void) -> TimeInterval
 {
-    // warm ups are to factor out module or data load times
-    if let label = logLabel, warmUps > 0 {
-        var warmUpTimings = [TimeInterval]()
-        for _ in 0..<warmUps {
-            let start = Date()
-            body()
-            let elapsed = Date().timeIntervalSince(start)
-            warmUpTimings.append(elapsed)
-        }
-
-        let warmUpAverage = warmUpTimings.reduce(0, +) /
-            Double(warmUpTimings.count)
-        
-        logTimings("\(label) average start up", warmUpTimings,
-                   warmUpAverage, precision)
+    // warmup are to factor out module or data load times
+    if warmUp {
+        let start = Date()
+        body()
+        let elapsed = Date().timeIntervalSince(start)
+        let str = String(timeInterval: elapsed, precision: precision)
+        let message = "Elapsed: \(logLabel)  warmup \(str)"
+        Context.log.write(level: .status, message: message)
     }
     
     // collect the timings and take the average
     var timings = [TimeInterval]()
-    for _ in 0..<iterations {
+    for _ in 0..<runs {
         let start = Date()
         body()
         let elapsed = Date().timeIntervalSince(start)
@@ -67,22 +62,24 @@ public func elapsedTime(_ logLabel: String? = nil, iterations: Int = 10,
     let average = timings.reduce(0, +) / Double(timings.count)
 
     // log results if requested
-    if let label = logLabel {
-        logTimings("\(label) average iteration", timings, average, precision)
-    }
+    logTimings("Elapsed: \(logLabel) average", timings, average, precision)
     return average
 }
 
-func logTimings(_ label: String, _ timings: [TimeInterval],
-                _ average: TimeInterval, _ precision: Int)
-{
+func logTimings(
+    _ label: String,
+    _ timings: [TimeInterval],
+    _ average: TimeInterval,
+    _ precision: Int
+) {
     let avgStr = String(timeInterval: average, precision: precision)
-    Context.log.write(level: .status, message:
-        "\(label) time: \(avgStr)")
+    Context.log.write(level: .status, message: "\(label) \(avgStr)")
+    
     for i in 0..<timings.count {
-        let timeStr = String(format: "%.\(precision)f", timings[i])
+        let timeStr = String(timeInterval: timings[i], precision: precision)
         Context.log.write(level: .status,
-                           message: "Run: \(i) time: \(timeStr)")
+                          message: "run: \(i) time: \(timeStr)",
+                          nestingLevel: 1)
     }
     Context.log.write(level: .status, message: "")
 }

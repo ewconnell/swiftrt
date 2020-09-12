@@ -24,7 +24,7 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable & SignedNumeric {
-        mapOp(x, &out, "abs(\(x.name))") { Swift.abs($0) }
+        mapOp(x, &out, "abs(\(x.name))") { abs($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -391,7 +391,6 @@ extension DeviceQueue {
     }
     
     //--------------------------------------------------------------------------
-    // NOTE: do not change the closure expression. The optimizer recognizes it
     @inlinable func cpu_max<S,E>(
         _ lhs: Tensor<S,E>,
         _ rhs: Tensor<S,E>,
@@ -401,13 +400,12 @@ extension DeviceQueue {
     }
     
     //--------------------------------------------------------------------------
-    // NOTE: do not change the closure expression. The optimizer recognizes it
     @inlinable func cpu_min<S,E>(
         _ lhs: Tensor<S,E>,
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "min(\(lhs.name), \(rhs.name))") { Swift.min($0, $1) }
+        mapOp(lhs, rhs, &out, "min(\(lhs.name), \(rhs.name))") { $0 < $1 ? $0 : $1 }
     }
 
     @inlinable func cpu_min<S,E>(
@@ -415,7 +413,7 @@ extension DeviceQueue {
         _ rhs: E.Value,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "min(\(lhs.name), \(rhs))") { Swift.min($0, $1) }
+        mapOp(lhs, rhs, &out, "min(\(lhs.name), \(rhs))") { $0 < $1 ? $0 : $1 }
     }
 
     //--------------------------------------------------------------------------
