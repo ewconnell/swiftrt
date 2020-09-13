@@ -254,19 +254,4 @@ public extension Tensor where TensorElement.Value: Comparable {
     ) -> Self {
         replacing(with: repeating(value, like: self), where: condition)
     }
-    
-    @inlinable subscript(condition: Tensor<Shape,Bool>) -> Self {
-        get {
-            // TODO: extract elements based on condition
-            fatalError("not implemented")
-        }
-        set {
-            // inplace replacement
-            let wasShared = isShared
-            isShared = true
-            Context.currentQueue.replace(self, newValue, condition, &self)
-            isShared = wasShared
-        }
-    }
-
 }

@@ -369,6 +369,21 @@ public struct ElementIndex<Shape>: Comparable, Codable
 }
 
 //==============================================================================
+/// inplace
+/// prepares a tensor to be modified inplace without causing mutation.
+/// Primarily used by tensor subscript set functions
+@inlinable public func inplace<S,E>(
+    _ tensor: inout Tensor<S,E>,
+    _ body: (inout Tensor<S,E>) -> Void
+) {
+    tensor.prepareForWrite(using: Context.currentQueue)
+    let sharing = tensor.isShared
+    tensor.isShared = true
+    body(&tensor)
+    tensor.isShared = sharing
+}
+
+//==============================================================================
 // Tensor collection and sub view extensions
 public extension Tensor {
     //--------------------------------------------------------------------------
@@ -453,6 +468,22 @@ public extension Tensor {
         }
     }
     
+    //--------------------------------------------------------------------------
+    // conditional assignment subscript
+    @inlinable subscript(condition: Tensor<Shape,Bool>) -> Self {
+        get {
+            // TODO: extract elements based on condition
+            fatalError("not implemented")
+        }
+
+        // in-place write
+        set {
+            inplace(&self) {
+                Context.currentQueue.replace($0, newValue, condition, &$0)
+            }
+        }
+    }
+
     //--------------------------------------------------------------------------
     // creates a tensor subview
     @inlinable func createView(
