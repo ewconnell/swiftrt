@@ -6,7 +6,7 @@ import Foundation
 
 //------------------------------------------------------------------------------
 // determine platform build type
-let validPlatforms = Set(arrayLiteral: "cpu", "cpu_async", "cuda")
+let validPlatforms = Set(arrayLiteral: "cpu", "async_cpu", "cuda")
 let environment = ProcessInfo.processInfo.environment
 let platform = (environment["SWIFTRT_PLATFORM"] ?? "cpu").lowercased()
 if !validPlatforms.contains(platform) {
@@ -52,7 +52,6 @@ if buildCuda {
 //==============================================================================
 // enable the AsyncCpu module import for conditional build
 if cpuIsAsync {
-    // products.append(.library(name: "SwiftRTCuda", targets: ["SwiftRTCuda"]))
     coreDependencies.append("AsyncCpu")
     testDependencies.append("AsyncCpu")
     targets.append(.systemLibrary(name: "AsyncCpu", path: "Modules/AsyncCpu"))
