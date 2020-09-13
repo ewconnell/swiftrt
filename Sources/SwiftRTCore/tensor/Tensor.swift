@@ -470,14 +470,14 @@ public extension Tensor {
     
     //--------------------------------------------------------------------------
     // conditional assignment subscript
-    @inlinable subscript(condition: Tensor<Shape,Bool>) -> Self {
+    @inlinable subscript(condition: Tensor<Shape, Bool>) -> Self {
         get {
             // TODO: extract elements based on condition
             fatalError("not implemented")
         }
 
-        // in-place write
         set {
+            // inplace write
             inplace(&self) {
                 Context.currentQueue.replace($0, newValue, condition, &$0)
             }
