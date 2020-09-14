@@ -48,9 +48,8 @@ public class CpuPlatform: Platform {
                              name: "appThread",
                              queueMode: .sync,
                              memoryType: .unified)
-        
-        // if the number of requested async queues is 0, then make the
-        // appThreadQueue the default
-        queueStack = device.queues.count == 0 ? [appThreadQueue] : [device.queues[0]]
+
+        // make the app thread queue current by default
+        queueStack = [appThreadQueue]
     }
 }
