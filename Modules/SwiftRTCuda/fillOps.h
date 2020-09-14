@@ -39,7 +39,9 @@ cudaError_t srtFill(
 
 cudaError_t srtFillRange(
     void* out, const srtTensorDescriptor* oDesc,
-    const long lower,
+    const void* first,
+    const void* last,
+    const void* step,
     cudaStream_t stream);
 
 cudaError_t srtEye(

@@ -162,26 +162,29 @@ static cudaError_t selectRangeFillRank(
 /// Fills the output with logical position indexes  
 cudaError_t srtFillRange(
     void* out, const srtTensorDescriptor* poDesc,
-    const long lower,
+    const void* first,
+    const void* last,
+    const void* step,
     cudaStream_t stream
 ) {
     const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*poDesc);
     assert(oDesc.isDense());
 
-    switch (oDesc.type) {
-    case real32F:  return selectRangeFillRank<float>(out, oDesc, lower, stream);
-    case real16F:  return selectRangeFillRank<__half>(out, oDesc, float(lower), stream);
-    case real16BF: return selectRangeFillRank<__nv_bfloat16>(out, oDesc, float(lower), stream);
-    case real64F:  return selectRangeFillRank<double>(out, oDesc, lower, stream);
-    case real32I:  return selectRangeFillRank<int32_t>(out, oDesc, lower, stream);
-    case real32U:  return selectRangeFillRank<uint32_t>(out, oDesc, lower, stream);
-    case real16I:  return selectRangeFillRank<int16_t>(out, oDesc, lower, stream);
-    case real16U:  return selectRangeFillRank<uint16_t>(out, oDesc, lower, stream);
-    case real8I:   return selectRangeFillRank<int8_t>(out, oDesc, lower, stream);
-    case real8U:   return selectRangeFillRank<uint8_t>(out, oDesc, lower, stream);
-    case complex32F: return selectRangeFillRank<Complex<float> >(out, oDesc, lower, stream);
-    default: return cudaErrorNotSupported;
-    }
+    // switch (oDesc.type) {
+    // case real32F:  return selectRangeFillRank<float>(out, oDesc, lower, stream);
+    // case real16F:  return selectRangeFillRank<__half>(out, oDesc, float(lower), stream);
+    // case real16BF: return selectRangeFillRank<__nv_bfloat16>(out, oDesc, float(lower), stream);
+    // case real64F:  return selectRangeFillRank<double>(out, oDesc, lower, stream);
+    // case real32I:  return selectRangeFillRank<int32_t>(out, oDesc, lower, stream);
+    // case real32U:  return selectRangeFillRank<uint32_t>(out, oDesc, lower, stream);
+    // case real16I:  return selectRangeFillRank<int16_t>(out, oDesc, lower, stream);
+    // case real16U:  return selectRangeFillRank<uint16_t>(out, oDesc, lower, stream);
+    // case real8I:   return selectRangeFillRank<int8_t>(out, oDesc, lower, stream);
+    // case real8U:   return selectRangeFillRank<uint8_t>(out, oDesc, lower, stream);
+    // case complex32F: return selectRangeFillRank<Complex<float> >(out, oDesc, lower, stream);
+    // default: return cudaErrorNotSupported;
+    // }
+    return cudaErrorNotSupported;
 }
 
 //==============================================================================

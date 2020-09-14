@@ -71,8 +71,7 @@ extension CudaQueue
             withUnsafePointer(to: first) { f in
                 withUnsafePointer(to: last) { l in
                     withUnsafePointer(to: step) { s in
-                        // srtFillRange(o, oDesc, f, l, s, stream)
-                        return cudaErrorNotSupported
+                        srtFillRange(o, oDesc, f, l, s, stream)
                     }
                 }
             }
