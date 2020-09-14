@@ -50,9 +50,21 @@ cudaError_t srtGreater(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
+cudaError_t srtGreaterTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
 cudaError_t srtGreaterOrEqual(
     const void* a, const srtTensorDescriptor* aDesc,
     const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtGreaterOrEqualTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
@@ -62,9 +74,33 @@ cudaError_t srtLess(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
+cudaError_t srtLessTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
 cudaError_t srtLessOrEqual(
     const void* a, const srtTensorDescriptor* aDesc,
     const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtLessOrEqualTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtMin(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtMinTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
@@ -74,9 +110,9 @@ cudaError_t srtMax(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
-cudaError_t srtMin(
+cudaError_t srtMaxTE(
     const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
+    const void* element,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 

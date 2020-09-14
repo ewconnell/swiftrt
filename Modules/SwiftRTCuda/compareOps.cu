@@ -85,8 +85,8 @@ cudaError_t srtEqual(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,
     void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream)
-{
+    cudaStream_t stream
+) {
     // Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
     // return selectIntFloatingPacked<Equal>(a, aDesc, b, bDesc, out, oDesc, stream);
     return cudaErrorNotSupported;
@@ -96,29 +96,56 @@ cudaError_t srtGreater(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,
     void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream)
-{
+    cudaStream_t stream
+) {
     return cudaErrorNotSupported;
 }
 
+cudaError_t srtGreaterTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
+}
+    
 cudaError_t srtGreaterOrEqual(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,
     void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream)
-{
+    cudaStream_t stream
+) {
     return cudaErrorNotSupported;
 }
 
+cudaError_t srtGreaterOrEqualTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
+}
+    
 cudaError_t srtLess(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,
     void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream)
-{
+    cudaStream_t stream
+) {
     return cudaErrorNotSupported;
 }
 
+cudaError_t srtLessTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
+}
+    
 cudaError_t srtLessOrEqual(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,
@@ -128,15 +155,15 @@ cudaError_t srtLessOrEqual(
     return cudaErrorNotSupported;
 }
 
-cudaError_t srtMax(
-    const void* a, const srtTensorDescriptor* paDesc,
-    const void* b, const srtTensorDescriptor* pbDesc,
-    void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream)
-{
+cudaError_t srtLessOrEqualTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
     return cudaErrorNotSupported;
 }
-
+    
 cudaError_t srtMin(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,
@@ -146,6 +173,33 @@ cudaError_t srtMin(
     return cudaErrorNotSupported;
 }
 
+cudaError_t srtMinTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
+}
+    
+cudaError_t srtMax(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream)
+{
+    return cudaErrorNotSupported;
+}
+
+cudaError_t srtMaxTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
+}
+    
 cudaError_t srtNotEqual(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,

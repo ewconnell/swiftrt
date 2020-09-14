@@ -130,8 +130,7 @@ extension CudaQueue {
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
                 withUnsafePointer(to: rhs) { r in
-                    // srtGreaterTE(l, lDesc, r, o, oDesc, stream)
-                    return cudaErrorNotSupported
+                    srtGreaterTE(l, lDesc, r, o, oDesc, stream)
                 }
             }
         }
@@ -177,8 +176,7 @@ extension CudaQueue {
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
                 withUnsafePointer(to: rhs) { r in
-                    // srtGreaterOrEqualTE(l, lDesc, r, o, oDesc, stream)
-                    return cudaErrorNotSupported
+                    srtGreaterOrEqualTE(l, lDesc, r, o, oDesc, stream)
                 }
             }
         }
@@ -224,8 +222,7 @@ extension CudaQueue {
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
                 withUnsafePointer(to: rhs) { r in
-                    // srtLessTE(l, lDesc, r, o, oDesc, stream)
-                    return cudaErrorNotSupported
+                    srtLessTE(l, lDesc, r, o, oDesc, stream)
                 }
             }
         }
@@ -271,8 +268,7 @@ extension CudaQueue {
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
                 withUnsafePointer(to: rhs) { r in
-                    // srtLessOrEqualTE(l, lDesc, r, o, oDesc, stream)
-                    return cudaErrorNotSupported
+                    srtLessOrEqualTE(l, lDesc, r, o, oDesc, stream)
                 }
             }
         }
@@ -317,8 +313,7 @@ extension CudaQueue {
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
                 withUnsafePointer(to: rhs) { r in
-                    // srtMinTE(l, lDesc, r, o, oDesc, stream)
-                    return cudaErrorNotSupported
+                    srtMinTE(l, lDesc, r, o, oDesc, stream)
                 }
             }
         }
@@ -360,8 +355,7 @@ extension CudaQueue {
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
                 withUnsafePointer(to: rhs) { r in
-                    // srtMaxTE(l, lDesc, r, o, oDesc, stream)
-                    return cudaErrorNotSupported
+                    srtMaxTE(l, lDesc, r, o, oDesc, stream)
                 }
             }
         }
