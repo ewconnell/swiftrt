@@ -482,7 +482,7 @@ extension DeviceQueue {
         _ out: inout Tensor<S,E>
     ) where E.Value: Numeric {
         mapOp(lhs, rhs, bias, &out,
-              "multiply(\(lhs.name), \(rhs.name), add: \(bias)")
+              "multiply(\(lhs.name), \(rhs.name), add: \(bias))")
             { $0 * $1 + $2 }
     }
     
@@ -493,7 +493,7 @@ extension DeviceQueue {
         _ out: inout Tensor<S,E>
     ) where E.Value: Numeric {
         mapOp(lhs, rhs, bias, &out,
-              "multiply(\(lhs.name), \(rhs.name), add: \(bias.name)")
+              "multiply(\(lhs.name), \(rhs.name), add: \(bias.name))")
             { $0 * $1 + $2 }
     }
 
