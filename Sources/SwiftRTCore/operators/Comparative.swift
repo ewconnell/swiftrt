@@ -40,109 +40,6 @@ public extension Tensor where TensorElement.Value == Bool {
 }
 
 //==============================================================================
-/// max
-/// Computes the element-wise maximum of two tensors
-/// - Parameter lhs: left hand tensor
-/// - Parameter rhs: right hand tensor
-/// - Returns: result
-
-// tensor tensor
-@differentiable(where E.Value: DifferentiableNumeric)
-@inlinable public func max<S,E>(
-    _ lhs: Tensor<S,E>,
-    _ rhs: Tensor<S,E>
-) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
-    assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
-    var result = Tensor(like: lhs)
-    Context.currentQueue.max(lhs, rhs, &result)
-    return result
-}
-
-@derivative(of: max)
-@usableFromInline func _vjpMax<S,E>(
-    _ lhs: Tensor<S,E>,
-    _ rhs: Tensor<S,E>
-) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-where S: TensorShape, E.Value: DifferentiableNumeric & Comparable {
-    (value: max(lhs, rhs), {
-        var resultTrue = Tensor(like: lhs)
-        var resultFalse = Tensor(like: lhs)
-        Context.currentQueue.vjpMax(lhs, rhs, $0, &resultTrue, &resultFalse)
-        return (resultTrue, resultFalse)
-    })
-}
-
-//--------------------------------
-// tensor Element
-@differentiable(where E.Value: DifferentiableNumeric)
-@inlinable public func max<S,E>(
-    _ lhs: Tensor<S,E>,
-    _ rhs: E.Value
-) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
-    var result = Tensor(like: lhs)
-    Context.currentQueue.max(lhs, rhs, &result)
-    return result
-}
-
-@differentiable(where E.Value: DifferentiableNumeric)
-@inlinable public func max<S,E>(
-    _ lhs: Tensor<S,E>,
-    _ rhs: Int
-) -> Tensor<S,E> where E.Value: Comparable & Numeric {
-    max(lhs, E.Value(exactly: rhs)!)
-}
-
-@derivative(of: max)
-@usableFromInline func _vjpMax<S,E>(
-    _ lhs: Tensor<S,E>,
-    _ rhs: E.Value
-) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, E.Value))
-where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableNumeric {
-    // Dan
-    fatalError()
-}
-
-@derivative(of: max, wrt: lhs)
-@usableFromInline func _vjpMax<S,E>(
-    _ lhs: Tensor<S,E>,
-    _ rhs: E.Value
-) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableNumeric {
-    // Dan
-    fatalError()
-}
-
-//--------------------------------
-// Element tensor
-// delegate to reverse
-@differentiable(where E.Value: DifferentiableNumeric)
-@inlinable public func max<S,E>(
-    _ lhs: E.Value,
-    _ rhs: Tensor<S,E>
-) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
-    max(rhs, lhs)
-}
-
-// These are added to disambiguate from Swift max when writing
-// a TensorView extension
-public extension Tensor where TensorElement.Value: Comparable {
-    @differentiable(where TensorElement.Value: DifferentiableNumeric)
-    @inlinable func max(_ lhs: Self, _ rhs: Self) -> Self {
-        SwiftRTCore.max(lhs, rhs)
-    }
-
-    @differentiable(where TensorElement.Value: DifferentiableNumeric)
-    @inlinable func max(_ lhs: Self, _ rhs: TensorElement.Value) -> Self {
-        SwiftRTCore.max(lhs, rhs)
-    }
-
-    @differentiable(where TensorElement.Value: DifferentiableNumeric)
-    @inlinable func max(_ lhs: TensorElement.Value, _ rhs: Self) -> Self {
-        SwiftRTCore.max(lhs, rhs)
-    }
-}
-
-//==============================================================================
 /// min
 /// Computes the element-wise minimum of two tensors
 /// - Parameter lhs: left hand tensor
@@ -240,6 +137,109 @@ public extension Tensor where TensorElement.Value: Comparable {
     @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func min(_ lhs: TensorElement.Value, _ rhs: Self) -> Self {
         SwiftRTCore.min(lhs, rhs)
+    }
+}
+
+//==============================================================================
+/// max
+/// Computes the element-wise maximum of two tensors
+/// - Parameter lhs: left hand tensor
+/// - Parameter rhs: right hand tensor
+/// - Returns: result
+
+// tensor tensor
+@differentiable(where E.Value: DifferentiableNumeric)
+@inlinable public func max<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: Tensor<S,E>
+) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
+    assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
+    var result = Tensor(like: lhs)
+    Context.currentQueue.max(lhs, rhs, &result)
+    return result
+}
+
+@derivative(of: max)
+@usableFromInline func _vjpMax<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: Tensor<S,E>
+) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
+where S: TensorShape, E.Value: DifferentiableNumeric & Comparable {
+    (value: max(lhs, rhs), {
+        var resultTrue = Tensor(like: lhs)
+        var resultFalse = Tensor(like: lhs)
+        Context.currentQueue.vjpMax(lhs, rhs, $0, &resultTrue, &resultFalse)
+        return (resultTrue, resultFalse)
+    })
+}
+
+//--------------------------------
+// tensor Element
+@differentiable(where E.Value: DifferentiableNumeric)
+@inlinable public func max<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: E.Value
+) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
+    var result = Tensor(like: lhs)
+    Context.currentQueue.max(lhs, rhs, &result)
+    return result
+}
+
+@differentiable(where E.Value: DifferentiableNumeric)
+@inlinable public func max<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: Int
+) -> Tensor<S,E> where E.Value: Comparable & Numeric {
+    max(lhs, E.Value(exactly: rhs)!)
+}
+
+@derivative(of: max)
+@usableFromInline func _vjpMax<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: E.Value
+) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, E.Value))
+where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableNumeric {
+    // Dan
+    fatalError()
+}
+
+@derivative(of: max, wrt: lhs)
+@usableFromInline func _vjpMax<S,E>(
+    _ lhs: Tensor<S,E>,
+    _ rhs: E.Value
+) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableNumeric {
+    // Dan
+    fatalError()
+}
+
+//--------------------------------
+// Element tensor
+// delegate to reverse
+@differentiable(where E.Value: DifferentiableNumeric)
+@inlinable public func max<S,E>(
+    _ lhs: E.Value,
+    _ rhs: Tensor<S,E>
+) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
+    max(rhs, lhs)
+}
+
+// These are added to disambiguate from Swift max when writing
+// a TensorView extension
+public extension Tensor where TensorElement.Value: Comparable {
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
+    @inlinable func max(_ lhs: Self, _ rhs: Self) -> Self {
+        SwiftRTCore.max(lhs, rhs)
+    }
+    
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
+    @inlinable func max(_ lhs: Self, _ rhs: TensorElement.Value) -> Self {
+        SwiftRTCore.max(lhs, rhs)
+    }
+    
+    @differentiable(where TensorElement.Value: DifferentiableNumeric)
+    @inlinable func max(_ lhs: TensorElement.Value, _ rhs: Self) -> Self {
+        SwiftRTCore.max(lhs, rhs)
     }
 }
 

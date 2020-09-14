@@ -282,8 +282,7 @@ public extension Tensor where TensorElement.Value: Numeric {
 @inlinable public func min<S,E>(
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
-) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable
-{
+) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
     if let axes = axes {
         var result = Tensor<S,E>(shape: x.reductionShape(alongAxes: axes))
         copy(from: x[S.zero, result.shape], to: &result)
@@ -296,10 +295,11 @@ public extension Tensor where TensorElement.Value: Numeric {
     }
 }
 
-
 @derivative(of: min)
-@usableFromInline func _vjpMin<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
-    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+@usableFromInline func _vjpMin<S,E>(
+    _ x: Tensor<S,E>,
+    alongAxes axes: Set<Int>? = nil
+) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where S: TensorShape, E.Value: DifferentiableNumeric & Comparable
 {
     fatalError()
