@@ -28,7 +28,8 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_and(lhs, rhs, &out); return }
-        diagnostic(.queueGpu, "and() on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "and(\(lhs.name), \(rhs.name))",
+                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
@@ -53,8 +54,8 @@ extension CudaQueue {
             cpu_elementsAlmostEqual(lhs, rhs, tolerance, &out)
             return
         }
-        diagnostic(.queueGpu, "elementsAlmostEqual() on \(name)", 
-                   categories: .queueGpu)
+        diagnostic(.queueGpu, "elementsAlmostEqual(\(lhs.name), \(rhs.name), " +
+                    "tolerance: \(tolerance))",  categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
@@ -77,7 +78,8 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_equal(lhs, rhs, &out); return }
-        diagnostic(.queueGpu, "equal() on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "equal(\(lhs.name), \(rhs.name))",
+                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
@@ -90,6 +92,9 @@ extension CudaQueue {
     }
 
     //--------------------------------------------------------------------------
+    // greater
+
+    // greater tensor tensor
     @inlinable public func greater<S,E>(
         _ lhs: Tensor<S,E>, 
         _ rhs: Tensor<S,E>,
@@ -98,7 +103,8 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_greater(lhs, rhs, &out); return }
-        diagnostic(.queueGpu, "greater() on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "greater(\(lhs.name), \(rhs.name))",
+                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
@@ -110,7 +116,32 @@ extension CudaQueue {
         cpuFallback(status) { $0.greater(lhs, rhs, &out) }
     }
 
+    // greater tensor Element
+    @inlinable public func greater<S,E>(
+        _ lhs: Tensor<S,E>, 
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_greater(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "greater(\(lhs.name), \(rhs))",
+                    categories: .queueGpu)
+
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                withUnsafePointer(to: rhs) { r in
+                    // srtGreaterTE(l, lDesc, r, o, oDesc, stream)
+                    return cudaErrorNotSupported
+                }
+            }
+        }
+        cpuFallback(status) { $0.greater(lhs, rhs, &out) }
+    }
+
     //--------------------------------------------------------------------------
+    // greaterOrEqual
+
+    // greaterOrEqual tensor tensor
     @inlinable public func greaterOrEqual<S,E>(
         _ lhs: Tensor<S,E>, 
         _ rhs: Tensor<S,E>,
@@ -119,7 +150,8 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_greaterOrEqual(lhs, rhs, &out); return }
-        diagnostic(.queueGpu, "greaterOrEqual() on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "greaterOrEqual(\(lhs.name), \(rhs.name))",
+                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
@@ -131,7 +163,32 @@ extension CudaQueue {
         cpuFallback(status) { $0.greaterOrEqual(lhs, rhs, &out) }
     }
 
+    // greaterOrEqual tensor Element
+    @inlinable public func greaterOrEqual<S,E>(
+        _ lhs: Tensor<S,E>, 
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_greaterOrEqual(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "greaterOrEqual(\(lhs.name), \(rhs))",
+                    categories: .queueGpu)
+
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                withUnsafePointer(to: rhs) { r in
+                    // srtGreaterOrEqualTE(l, lDesc, r, o, oDesc, stream)
+                    return cudaErrorNotSupported
+                }
+            }
+        }
+        cpuFallback(status) { $0.greaterOrEqual(lhs, rhs, &out) }
+    }
+
     //--------------------------------------------------------------------------
+    // less
+
+    // less tensor tensor
     @inlinable public func less<S,E>(
         _ lhs: Tensor<S,E>, 
         _ rhs: Tensor<S,E>,
@@ -140,7 +197,8 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_less(lhs, rhs, &out); return }
-        diagnostic(.queueGpu, "less() on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "less(\(lhs.name), \(rhs.name))",
+                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
@@ -152,7 +210,32 @@ extension CudaQueue {
         cpuFallback(status) { $0.less(lhs, rhs, &out) }
     }
 
+    // less tensor Element
+    @inlinable public func less<S,E>(
+        _ lhs: Tensor<S,E>, 
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,Bool>
+    ) where E.Value: Comparable {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_less(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "less(\(lhs.name), \(rhs))",
+                    categories: .queueGpu)
+
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                withUnsafePointer(to: rhs) { r in
+                    // srtLessTE(l, lDesc, r, o, oDesc, stream)
+                    return cudaErrorNotSupported
+                }
+            }
+        }
+        cpuFallback(status) { $0.less(lhs, rhs, &out) }
+    }
+
     //--------------------------------------------------------------------------
+    // lessOrEqual
+
+    // lessOrEqual tensor tensor
     @inlinable public func lessOrEqual<S,E>(
         _ lhs: Tensor<S,E>, 
         _ rhs: Tensor<S,E>,
@@ -161,7 +244,8 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_lessOrEqual(lhs, rhs, &out); return }
-        diagnostic(.queueGpu, "lessOrEqual() on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "lessOrEqual(\(lhs.name), \(rhs.name))",
+                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
@@ -173,28 +257,32 @@ extension CudaQueue {
         cpuFallback(status) { $0.lessOrEqual(lhs, rhs, &out) }
     }
 
-    //--------------------------------------------------------------------------
-    @inlinable public func max<S,E>(
+    // less tensor Element
+    @inlinable public func lessOrEqual<S,E>(
         _ lhs: Tensor<S,E>, 
-        _ rhs: Tensor<S,E>,
-        _ out: inout Tensor<S,E>
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,Bool>
     ) where E.Value: Comparable {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
-        assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
-        guard useGpu else { cpu_max(lhs, rhs, &out); return }
-        diagnostic(.queueGpu, "max() on \(name)", categories: .queueGpu)
+        guard useGpu else { cpu_lessOrEqual(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "lessOrEqual(\(lhs.name), \(rhs))",
+                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
-                rhs.withTensor(using: self) { r, rDesc in
-                    srtMax(l, lDesc, r, rDesc, o, oDesc, stream)
+                withUnsafePointer(to: rhs) { r in
+                    // srtLessOrEqualTE(l, lDesc, r, o, oDesc, stream)
+                    return cudaErrorNotSupported
                 }
             }
         }
-        cpuFallback(status) { $0.max(lhs, rhs, &out) }
+        cpuFallback(status) { $0.lessOrEqual(lhs, rhs, &out) }
     }
 
     //--------------------------------------------------------------------------
+    // min
+
+    // min tensor tensor
     @inlinable public func min<S,E>(
         _ lhs: Tensor<S,E>, 
         _ rhs: Tensor<S,E>,
@@ -203,7 +291,8 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_min(lhs, rhs, &out); return }
-        diagnostic(.queueGpu, "min() on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "min(\(lhs.name), \(rhs.name))",
+                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
@@ -215,6 +304,70 @@ extension CudaQueue {
         cpuFallback(status) { $0.min(lhs, rhs, &out) }
     }
 
+    // min tensor Element
+    @inlinable public func min<S,E>(
+        _ lhs: Tensor<S,E>, 
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_min(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "min(\(lhs.name), \(rhs))", categories: .queueGpu)
+
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                withUnsafePointer(to: rhs) { r in
+                    // srtMinTE(l, lDesc, r, o, oDesc, stream)
+                    return cudaErrorNotSupported
+                }
+            }
+        }
+        cpuFallback(status) { $0.min(lhs, rhs, &out) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable public func max<S,E>(
+        _ lhs: Tensor<S,E>, 
+        _ rhs: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
+        guard useGpu else { cpu_max(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "max(\(lhs.name), \(rhs.name))",
+                    categories: .queueGpu)
+
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtMax(l, lDesc, r, rDesc, o, oDesc, stream)
+                }
+            }
+        }
+        cpuFallback(status) { $0.max(lhs, rhs, &out) }
+    }
+
+    // max tensor Element
+    @inlinable public func max<S,E>(
+        _ lhs: Tensor<S,E>, 
+        _ rhs: E.Value,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_max(lhs, rhs, &out); return }
+        diagnostic(.queueGpu, "max(\(lhs.name), \(rhs))", categories: .queueGpu)
+
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            lhs.withTensor(using: self) { l, lDesc in
+                withUnsafePointer(to: rhs) { r in
+                    // srtMaxTE(l, lDesc, r, o, oDesc, stream)
+                    return cudaErrorNotSupported
+                }
+            }
+        }
+        cpuFallback(status) { $0.max(lhs, rhs, &out) }
+    }
+
     //--------------------------------------------------------------------------
     @inlinable public func notEqual<S,E>(
         _ lhs: Tensor<S,E>, 
@@ -224,7 +377,8 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_notEqual(lhs, rhs, &out); return }
-        diagnostic(.queueGpu, "notEqual() on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "notEqual(\(lhs.name), \(rhs.name))",
+                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
@@ -245,7 +399,8 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
         guard useGpu else { cpu_or(lhs, rhs, &out); return }
-        diagnostic(.queueGpu, "or() on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "or(\(lhs.name), \(rhs.name))", 
+                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
@@ -268,7 +423,9 @@ extension CudaQueue {
         assert(x.order == y.order && x.order == condition.order,
                _messageTensorOrderMismatch)
         guard useGpu else { cpu_replace(x, y, condition, &out); return }
-        diagnostic(.queueGpu, "replace() on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, 
+            "replace(x: \(x.name), y: \(y.name), condition: \(condition.name))",
+            categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             x.withTensor(using: self) { xData, x in

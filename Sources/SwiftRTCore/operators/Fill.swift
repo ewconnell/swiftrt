@@ -200,22 +200,31 @@ public extension Tensor {
 /// fill<S,E>(x:value:
 /// fills the view with the specified value
 @inlinable public func fill<S, E: StorageElement>(
-    _ x: inout Tensor<S,E>,
+    _ out: inout Tensor<S,E>,
     with element: E.Value
 ) {
-    Context.currentQueue.fill(&x, with: element)
+    Context.currentQueue.fill(&out, with: element)
+}
+
+@inlinable public func fill<S,E>(
+    _ out: inout Tensor<S,E>,
+    from first: E.Value,
+    to last: E.Value,
+    by step: E.Value
+) where E.Value: Numeric {
+    Context.currentQueue.fill(&out, from: first, to: last, by: step)
 }
 
 @inlinable public func fill<S,E: StorageElement>(
-    _ x: inout Tensor<S,E>,
+    _ out: inout Tensor<S,E>,
     with range: Range<Int>
 ) where E.Value: Numeric {
-    Context.currentQueue.fill(
-        &x,
-        from: E.Value(exactly: range.lowerBound)!,
-        to: E.Value(exactly: range.upperBound - 1)!,
-        by: E.Value(exactly: 1)!)
+    fill(&out,
+         from: E.Value(exactly: range.lowerBound)!,
+         to: E.Value(exactly: range.upperBound - 1)!,
+         by: E.Value(exactly: 1)!)
 }
+
 
 //==============================================================================
 /// fillWithIndex

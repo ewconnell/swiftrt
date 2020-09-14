@@ -216,7 +216,7 @@ public extension Tensor {
         name: String = defaultTensorName
     ) where TensorElement.Value: Numeric {
         self.init(shape: shape, order: order, name: name)
-        Context.currentQueue.fill(&self, with: range)
+        fill(&self, with: range)
     }
     
     //--------------------------------------------------------------------------

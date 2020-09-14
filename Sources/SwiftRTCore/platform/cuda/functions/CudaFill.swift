@@ -25,7 +25,8 @@ extension CudaQueue
         to out: inout Tensor<S,E>
     ) {
         guard useGpu else { cpu_copy(from: x, to: &out); return }
-        diagnostic(.queueGpu, "copy(from:to:) on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "copy(from: \(x.name), to: \(out.name))",
+                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             x.withTensor(using: self) { xData, x in
@@ -42,7 +43,8 @@ extension CudaQueue
     ) {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_fill(&out, with: element); return }
-        diagnostic(.queueGpu, "fill(_:element:) on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "fill(\(out.name), with: \(element))", 
+                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             withUnsafePointer(to: element) {
@@ -53,20 +55,29 @@ extension CudaQueue
     }
 
     //--------------------------------------------------------------------------
-    @inlinable func fill<S,E,B>(
+    @inlinable func fill<S,E>(
         _ out: inout Tensor<S,E>,
-        with range: Range<B>
-    ) where E: StorageElement, E.Value: Numeric,
-            B: SignedInteger, B.Stride: SignedInteger
-    {
+        from first: E.Value,
+        to last: E.Value,
+        by step: E.Value
+    ) where E.Value: Numeric {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
-        guard useGpu else { cpu_fill(&out, with: range); return }
-        diagnostic(.queueGpu, "fill(_:range:) on \(name)", categories: .queueGpu)
+        guard useGpu else { cpu_fill(&out, from: first, to: last, by: step); return }
+        diagnostic(.queueGpu, 
+            "fill(\(out.name), from: \(first), to: \(last), by: \(step)) on \(name)",
+            categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
-            srtFillRange(o, oDesc, Int(range.lowerBound), stream)
+            withUnsafePointer(to: first) { f in
+                withUnsafePointer(to: last) { l in
+                    withUnsafePointer(to: step) { s in
+                        // srtFillRange(o, oDesc, f, l, s, stream)
+                        return cudaErrorNotSupported
+                    }
+                }
+            }
         }
-        cpuFallback(status) { $0.fill(&out, with: range) }
+        cpuFallback(status) { $0.fill(&out, from: first, to: last, by: step)}
     }
 
     //--------------------------------------------------------------------------
@@ -76,7 +87,8 @@ extension CudaQueue
     ) where E.Value: Numeric {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_eye(&out, offset: offset); return }
-        diagnostic(.queueGpu, "eye(_:offset:) on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "eye(\(out.name), offset: \(offset))",
+                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             srtEye(o, oDesc, offset, stream)
@@ -95,7 +107,9 @@ extension CudaQueue
         guard useGpu else {
             cpu_fill(randomUniform: &out, lower, upper, seed); return
         }
-        diagnostic(.queueGpu, "fill(randomUniform) on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "fill(randomUniform: \(out.name), " +
+            "lower: \(lower), upper: \(upper), seed: \(seed))", 
+            categories: .queueGpu)
 
         let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
 
@@ -120,7 +134,9 @@ extension CudaQueue
         guard useGpu else {
             cpu_fill(randomNormal: &out, mean, std, seed); return
         }
-        diagnostic(.queueGpu, "fill(randomNormal) on \(name)", categories: .queueGpu)
+        diagnostic(.queueGpu, "fill(randomNormal: \(out.name), " +
+            "mean: \(mean), std: \(std), ssed: \(seed))",
+            categories: .queueGpu)
 
         let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
 
@@ -147,8 +163,9 @@ extension CudaQueue
         guard useGpu else {
             cpu_fill(randomNormal: &out, mean, std, seed); return
         }
-        diagnostic(.queueGpu, "fill(randomNormal) on \(name)",
-                   categories: .queueGpu)
+        diagnostic(.queueGpu, "fill(randomNormal: \(out.name), " +
+            "mean: \(mean.name), std: \(std.name), seed: \(seed))",
+            categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             srtFillRandomNormalTensorArgs(
@@ -173,8 +190,9 @@ extension CudaQueue
             cpu_fill(randomTruncatedNormal: &out, mean, std, seed)
             return
         }
-        diagnostic(.queueGpu, "fill(randomTruncatedNormal) on \(name)", 
-                   categories: .queueGpu)
+        diagnostic(.queueGpu, "fill(randomTruncatedNormal: \(out.name), " +
+            "mean: \(mean), std: \(std), seed: \(seed))", 
+            categories: .queueGpu)
 
         let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
 
@@ -203,7 +221,8 @@ extension CudaQueue
             cpu_fill(randomTruncatedNormal: &out, mean, std, seed) 
             return
         }
-        diagnostic(.queueGpu, "fill(randomTruncatedNormal) on \(name)", 
+        diagnostic(.queueGpu, "fill(randomTruncatedNormal: \(out.name), " +
+            "mean: \(mean.name), std: \(std.name), seed: \(seed))", 
                    categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
