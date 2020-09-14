@@ -97,7 +97,8 @@ public final class DiscreteStorage: StorageBuffer {
         storedElement: Element, 
         name: String
     ) where Element: Numeric {
-        // TODO: change this to cache single scalars
+        // TODO: maybe remove this special case now that the driver
+        // takes single elements directly
         self.init(storedType: Element.self, count: 1, name: name)
         let buffer = readWrite(type: Element.self, at: 0, count: 1,
                                using: Context.appThreadQueue)
