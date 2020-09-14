@@ -46,6 +46,12 @@ cudaError_t srtAdd(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
+cudaError_t srtAddTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
 cudaError_t srtAsin(
     const void* x, const srtTensorDescriptor* xDesc,
     void* out, const srtTensorDescriptor* oDesc,
@@ -84,6 +90,18 @@ cudaError_t srtCosh(
 
 cudaError_t srtDiv(
     const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtDivTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtDivET(
+    const void* element,
     const void* b, const srtTensorDescriptor* bDesc,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
@@ -160,6 +178,26 @@ cudaError_t srtMul(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
+cudaError_t srtMulTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtMultiplyAdd(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    const void* c, const srtTensorDescriptor* cDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtMultiplyAddTTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
 cudaError_t srtNeg(
     const void* x, const srtTensorDescriptor* xDesc,
     void* out, const srtTensorDescriptor* oDesc,
@@ -213,6 +251,18 @@ cudaError_t srtSquared(
 
 cudaError_t srtSub(
     const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtSubTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtSubET(
+    const void* element,
     const void* b, const srtTensorDescriptor* bDesc,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);

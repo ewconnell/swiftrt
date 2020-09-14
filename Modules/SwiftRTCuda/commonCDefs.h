@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 //==============================================================================
-// srtDataTypes
+//  srtDataTypes
 typedef enum {
     unknown     = -1,
     // floating point types
@@ -68,7 +68,7 @@ typedef enum {
 } srtDataType;
 
 //==============================================================================
-// srtTensorDescriptor
+//  srtTensorDescriptor
 typedef struct {
     /// the TensorElement cuda data type
     srtDataType type;

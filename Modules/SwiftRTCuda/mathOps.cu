@@ -119,6 +119,15 @@ cudaError_t srtAdd(
     return selectNumeric<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
+cudaError_t srtAddTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
+}
+
 cudaError_t srtAsin(
     const void* a, const srtTensorDescriptor* paDesc,
     void* out, const srtTensorDescriptor* poDesc,
@@ -192,6 +201,24 @@ cudaError_t srtDiv(
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
     return selectNumeric<Div>(a, aDesc, b, bDesc, out, oDesc, stream);
+}
+
+cudaError_t srtDivTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
+}
+
+cudaError_t srtDivET(
+    const void* element,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
 }
 
 cudaError_t srtErf(
@@ -322,6 +349,35 @@ cudaError_t srtMul(
     return selectNumeric<Mul>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
+cudaError_t srtMulTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
+}
+
+cudaError_t srtMultiplyAdd(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    const void* c, const srtTensorDescriptor* cDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
+}
+
+cudaError_t srtMultiplyAddTTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
+}
+
 cudaError_t srtNeg(
     const void* a, const srtTensorDescriptor* paDesc,
     void* out, const srtTensorDescriptor* poDesc,
@@ -421,6 +477,24 @@ cudaError_t srtSub(
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
     return selectNumeric<Sub>(a, aDesc, b, bDesc, out, oDesc, stream);
+}
+
+cudaError_t srtSubTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
+}
+
+cudaError_t srtSubET(
+    const void* element,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
 }
 
 cudaError_t srtTan(

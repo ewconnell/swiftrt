@@ -56,8 +56,9 @@ extension CudaQueue {
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
-                // srtAdd(l, lDesc, rhs, o, oDesc, stream)
-                return cudaErrorNotSupported
+                withUnsafePointer(to: rhs) { r in
+                    srtAddTE(l, lDesc, r, o, oDesc, stream)
+                }
             }
         }
         cpuFallback(status) { $0.add(lhs, rhs, &out) }
@@ -99,8 +100,9 @@ extension CudaQueue {
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
-                // srtDiv(l, lDesc, rhs, o, oDesc, stream)
-                return cudaErrorNotSupported
+                withUnsafePointer(to: rhs) { r in
+                    srtDivTE(l, lDesc, r, o, oDesc, stream)
+                }
             }
         }
         cpuFallback(status) { $0.div(lhs, rhs, &out) }
@@ -118,9 +120,10 @@ extension CudaQueue {
         diagnostic(.queueGpu, "div(\(lhs), \(rhs.name))", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
-            rhs.withTensor(using: self) { r, rDesc in
-                // srtDiv(lhs, r, rDesc, o, oDesc, stream)
-                return cudaErrorNotSupported
+            withUnsafePointer(to: lhs) { l in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtDivET(l, r, rDesc, o, oDesc, stream)
+                }
             }
         }
         cpuFallback(status) { $0.div(lhs, rhs, &out) }
@@ -163,8 +166,9 @@ extension CudaQueue {
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
-                // srtMul(l, lDesc, rhs, o, oDesc, stream)
-                return cudaErrorNotSupported
+                withUnsafePointer(to: rhs) { r in
+                    srtMulTE(l, lDesc, r, o, oDesc, stream)
+                }
             }
         }
         cpuFallback(status) { $0.mul(lhs, rhs, &out) }
@@ -207,8 +211,9 @@ extension CudaQueue {
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
-                // srtSub(l, lDesc, rhs, o, oDesc, stream)
-                return cudaErrorNotSupported
+                withUnsafePointer(to: rhs) { r in
+                    srtSubTE(l, lDesc, r, o, oDesc, stream)
+                }
             }
         }
         cpuFallback(status) { $0.subtract(lhs, rhs, &out) }
@@ -227,9 +232,10 @@ extension CudaQueue {
                     categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
-            rhs.withTensor(using: self) { r, rDesc in
-                // srtSub(lhs, r, rDesc, o, oDesc, stream)
-                return cudaErrorNotSupported
+            withUnsafePointer(to: lhs) { l in
+                rhs.withTensor(using: self) { r, rDesc in
+                    srtSubET(l, r, rDesc, o, oDesc, stream)
+                }
             }
         }
         cpuFallback(status) { $0.subtract(lhs, rhs, &out) }
@@ -256,8 +262,7 @@ extension CudaQueue {
             lhs.withTensor(using: self) { l, lDesc in
                 rhs.withTensor(using: self) { r, rDesc in
                     bias.withTensor(using: self) { b, bDesc in
-                        // srtMultiplyAdd(l, lDesc, r, rDesc, o, b, bDesc, oDesc, stream)
-                        return cudaErrorNotSupported
+                        srtMultiplyAdd(l, lDesc, r, rDesc, b, bDesc, o, oDesc, stream)
                     }
                 }
             }
@@ -282,14 +287,14 @@ extension CudaQueue {
         let status = out.withMutableTensor(using: self) { o, oDesc in
             lhs.withTensor(using: self) { l, lDesc in
                 rhs.withTensor(using: self) { r, rDesc in
-                    // srtMultiplyAdd(l, lDesc, r, rDesc, o, b, oDesc, stream)
-                    return cudaErrorNotSupported
+                    withUnsafePointer(to: bias) { b in
+                        srtMultiplyAddTTE(l, lDesc, r, rDesc, b, o, oDesc, stream)
+                    }
                 }
             }
         }
         cpuFallback(status) { $0.subtract(lhs, rhs, &out) }
     }
-
 }
 
 //==============================================================================
