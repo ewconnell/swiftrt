@@ -59,9 +59,13 @@ where Shape: TensorShape, TensorElement: StorageElement
     // functional properties
     /// the unique storage id
     @inlinable public var id: Int { storage.id }
+    
     /// the name of the collection
     @inlinable public var name: String {
-        get { storage.name }
+        get {
+            storage.name == defaultTensorName ?
+                "\(defaultTensorName)(\(id))" : storage.name
+        }
         set { storage.name = newValue }
     }
 

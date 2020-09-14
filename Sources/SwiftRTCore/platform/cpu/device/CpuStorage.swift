@@ -25,14 +25,7 @@ public final class CpuStorage: StorageBuffer {
     public let isReadOnly: Bool
     public let isReference: Bool
     public var isZero: Bool
-    
-    @usableFromInline var _name: String
-    @inlinable public var name: String {
-        get {
-            _name == defaultTensorName ? "\(defaultTensorName)(\(id))" : _name
-        }
-        set { _name = newValue }
-    }
+    public var name: String
 
     //--------------------------------------------------------------------------
     // implementation properties
@@ -49,7 +42,7 @@ public final class CpuStorage: StorageBuffer {
     ) {
         assert(MemoryLayout<Element>.size != 0,
                "type: \(Element.self) is size 0")
-        _name = name
+        self.name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * count
         id = Context.nextBufferId
@@ -100,7 +93,7 @@ public final class CpuStorage: StorageBuffer {
         isReadOnly = other.isReadOnly
         isReference = other.isReference
         isZero = other.isZero
-        _name = other.name
+        self.name = other.name
         if isReference {
             hostBuffer = other.hostBuffer
         } else {
@@ -117,7 +110,7 @@ public final class CpuStorage: StorageBuffer {
         referenceTo buffer: UnsafeBufferPointer<Element>,
         name: String
     ) {
-        _name = name
+        self.name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * buffer.count
         let buff = UnsafeMutableBufferPointer(mutating: buffer)
@@ -137,7 +130,7 @@ public final class CpuStorage: StorageBuffer {
         referenceTo buffer: UnsafeMutableBufferPointer<Element>,
         name: String
     ) {
-        _name = name
+        self.name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * buffer.count
         hostBuffer = UnsafeMutableRawBufferPointer(buffer)
