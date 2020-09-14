@@ -101,7 +101,7 @@ extension CpuFunctions where Self: DeviceQueue {
         _ result: inout Tensor<S,E>,
         offset: Int
     ) where S: TensorShape, E.Value: Numeric {
-        mapOp(&result, "eye() on \(name)") { 0 }
+        mapOp(&result, "eye()") { 0 }
     }
     
     //--------------------------------------------------------------------------
@@ -109,7 +109,7 @@ extension CpuFunctions where Self: DeviceQueue {
         _ result: inout Tensor<S,E>,
         with element: E.Value
     ) where S: TensorShape {
-        mapOp(&result, "fill(with: \(element) on \(name)") { element }
+        mapOp(&result, "fill(with: \(element)") { element }
     }
     
     //--------------------------------------------------------------------------
@@ -120,7 +120,7 @@ extension CpuFunctions where Self: DeviceQueue {
         by step: E.Value
     ) where E.Value: Numeric {
         mapOp(from: first, to: last, by: step, &result,
-              "fill(from: \(first), to: \(last), by: \(step)) on \(name)")
+              "fill(from: \(first), to: \(last), by: \(step))")
     }
     //--------------------------------------------------------------------------
     @inlinable func cpu_fill<S,E>(
