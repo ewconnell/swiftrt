@@ -26,7 +26,7 @@ import Numerics
 @inlinable public func all<S>(
     _ x: Tensor<S,Bool>,
     alongAxes axes: Set<Int>? = nil
-) -> Tensor<S,Bool> where S: TensorShape {
+) -> Tensor<S,Bool> {
     if let axes = axes {
         let resultShape = x.reductionShape(alongAxes: axes)
         var result = Tensor<S,Bool>(shape: resultShape)
@@ -59,10 +59,10 @@ public extension Tensor where TensorElement == Bool {
 /// - Parameter x: value tensor
 /// - Parameter axes: the axes to operate on
 /// - Returns: a new tensor containing the result
-@inlinable
-public func any<S>(_ x: Tensor<S,Bool>, alongAxes axes: Set<Int>? = nil)
-    -> Tensor<S,Bool> where S: TensorShape
-{
+@inlinable public func any<S>(
+    _ x: Tensor<S,Bool>,
+    alongAxes axes: Set<Int>? = nil
+) -> Tensor<S,Bool> {
     if let axes = axes {
         let resultShape = x.reductionShape(alongAxes: axes)
         var result = Tensor<S,Bool>(shape: resultShape)
@@ -93,10 +93,10 @@ public extension Tensor where TensorElement == Bool {
 /// Sums `x` along the specified axes
 /// - Parameter x: value tensor
 /// - Parameter along: the axes to operate on
-@inlinable
-public func sum<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
--> Tensor<S,E> where S: TensorShape, E.Value: Numeric
-{
+@inlinable public func sum<S,E>(
+    _ x: Tensor<S,E>,
+    alongAxes axes: Set<Int>? = nil
+) -> Tensor<S,E> where E.Value: Numeric {
     if let axes = axes {
         let resultShape = x.reductionShape(alongAxes: axes)
         var result = Tensor<S,E>(zeros: resultShape)
@@ -110,10 +110,11 @@ public func sum<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
 }
 
 @derivative(of: sum)
-@usableFromInline func _vjpSum<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
-    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableNumeric
-{
+@usableFromInline func _vjpSum<S,E>(
+    _ x: Tensor<S,E>,
+    alongAxes axes: Set<Int>? = nil
+) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+where E.Value: DifferentiableNumeric {
     let xshape = x.shape
     if let axes = axes {
         return (sum(x, alongAxes: axes), {
@@ -147,8 +148,7 @@ public extension Tensor where TensorElement.Value: Numeric {
 @inlinable public func mean<S,E>(
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
-) -> Tensor<S,E> where S: TensorShape, E.Value: AlgebraicField
-{
+) -> Tensor<S,E> where E.Value: AlgebraicField {
     if let axes = axes {
         // the divisor is the product of the `axes` that are summed
         let divisor = (axes.reduce(E.Value.one) {
@@ -170,11 +170,9 @@ public extension Tensor where TensorElement.Value: Numeric {
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableNumeric & AlgebraicField
-{
-    let value = x.mean(alongAxes: axes)
+where E.Value: DifferentiableNumeric & AlgebraicField {
     let count = E.Value(exactly: x.count)!
-    return (value, { [xshape = x.shape] in
+    return (x.mean(alongAxes: axes), { [xshape = x.shape] in
         Tensor<S,E>(repeating: $0, to: xshape) / count
     })
 }
@@ -199,8 +197,7 @@ public extension Tensor where TensorElement.Value: AlgebraicField {
 @inlinable public func prod<S,E>(
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
-) -> Tensor<S,E> where S: TensorShape, E.Value: Numeric
-{
+) -> Tensor<S,E> where E.Value: Numeric {
     var result = Tensor<S,E>(zeros: x.reductionShape(alongAxes: axes))
     Context.currentQueue.reduce("prod", x, &result, .mul, { $0 * $1 }, nil)
     return result
@@ -211,10 +208,8 @@ public extension Tensor where TensorElement.Value: AlgebraicField {
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableNumeric
-{
-    let value = prod(x, alongAxes: axes)
-    return (value, { [xshape = x.shape] in
+where E.Value: DifferentiableNumeric {
+    (prod(x, alongAxes: axes), { [xshape = x.shape] in
         Tensor<S,E>(repeating: $0, to: xshape)
     })
 }
@@ -239,8 +234,7 @@ public extension Tensor where TensorElement.Value: Numeric {
 @inlinable public func prodNonZeros<S,E>(
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
-) -> Tensor<S,E> where S: TensorShape, E.Value: Numeric
-{
+) -> Tensor<S,E> where E.Value: Numeric {
     var result = Tensor<S,E>(zeros: x.reductionShape(alongAxes: axes))
     Context.currentQueue.reduce("prodNonZeros", x, &result, .mulNonZeros,
                                 { $1 == 0 ? $0 : $0 * $1 }, nil)
@@ -252,9 +246,9 @@ public extension Tensor where TensorElement.Value: Numeric {
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableNumeric
-{
+where E.Value: DifferentiableNumeric {
     // REVIEW: this is probably wrong
+    // Dan
     let value = prodNonZeros(x, alongAxes: axes)
     return (value, { [xshape = x.shape] in
         Tensor<S,E>(repeating: $0, to: xshape)
@@ -282,11 +276,12 @@ public extension Tensor where TensorElement.Value: Numeric {
 @inlinable public func min<S,E>(
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
-) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
+) -> Tensor<S,E> where E.Value: Comparable {
     if let axes = axes {
         var result = Tensor<S,E>(shape: x.reductionShape(alongAxes: axes))
         copy(from: x[S.zero, result.shape], to: &result)
-        Context.currentQueue.reduce("min", x, &result, .min, { Swift.min($0,$1) }, nil)
+        Context.currentQueue.reduce("min", x, &result, .min,
+                                    { Swift.min($0,$1) }, nil)
         return result
     } else {
         var result = Tensor<S,E>(shape: S.one)
@@ -300,13 +295,13 @@ public extension Tensor where TensorElement.Value: Numeric {
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableNumeric & Comparable
-{
+where E.Value: DifferentiableNumeric & Comparable {
+    // Dan
     fatalError()
 }
 
-public extension Tensor where TensorElement.Value: Comparable
-{
+public extension Tensor where TensorElement.Value: Comparable {
+    
     @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func min(alongAxes axes: Set<Int>? = nil) -> Self {
         SwiftRTCore.min(self, alongAxes: axes)
@@ -326,12 +321,12 @@ public extension Tensor where TensorElement.Value: Comparable
 @inlinable public func max<S,E>(
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
-) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable
-{
+) -> Tensor<S,E> where E.Value: Comparable {
     if let axes = axes {
         var result = Tensor<S,E>(shape: x.reductionShape(alongAxes: axes))
         copy(from: x[S.zero, result.shape], to: &result)
-        Context.currentQueue.reduce("max", x, &result, .max, { Swift.max($0,$1) }, nil)
+        Context.currentQueue.reduce("max", x, &result, .max,
+                                    { Swift.max($0,$1) }, nil)
         return result
     } else {
         var result = Tensor<S,E>(shape: S.one)
@@ -342,15 +337,18 @@ public extension Tensor where TensorElement.Value: Comparable
 
 
 @derivative(of: max)
-@usableFromInline func _vjpMax<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
-    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableNumeric & Comparable
+@usableFromInline func _vjpMax<S,E>(
+    _ x: Tensor<S,E>,
+    alongAxes axes: Set<Int>? = nil
+) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+where E.Value: DifferentiableNumeric & Comparable
 {
+    // Dan
     fatalError()
 }
 
-public extension Tensor where TensorElement.Value: Comparable
-{
+public extension Tensor where TensorElement.Value: Comparable {
+    
     @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func max(alongAxes axes: Set<Int>? = nil) -> Self {
         SwiftRTCore.max(self, alongAxes: axes)
@@ -362,16 +360,15 @@ public extension Tensor where TensorElement.Value: Comparable
     }
 }
 
-////==============================================================================
-///// absmax(x:along:
-///// absolute max of `x` along the specified axes
-///// - Parameter x: value tensor
-///// - Parameter along: the axes to operate on
+//==============================================================================
+/// absmax(x:along:
+/// absolute max of `x` along the specified axes
+/// - Parameter x: value tensor
+/// - Parameter along: the axes to operate on
 @inlinable public func absmax<S,E>(
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
-) -> Tensor<S,E> where S: TensorShape, E.Value: SignedNumeric & Comparable
-{
+) -> Tensor<S,E> where E.Value: SignedNumeric & Comparable {
     var result = Tensor<S,E>(shape: x.reductionShape(alongAxes: axes))
     copy(from: x[S.zero, result.shape], to: &result)
     Context.currentQueue.reduce("absmax", x, &result, .amax, {
@@ -382,15 +379,18 @@ public extension Tensor where TensorElement.Value: Comparable
 
 
 @derivative(of: absmax)
-@usableFromInline func _vjpAbsmax<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
-    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableNumeric & SignedNumeric & Comparable
+@usableFromInline func _vjpAbsmax<S,E>(
+    _ x: Tensor<S,E>,
+    alongAxes axes: Set<Int>? = nil
+) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+where E.Value: DifferentiableNumeric & SignedNumeric & Comparable
 {
+    // Dan
     fatalError()
 }
 
-public extension Tensor where TensorElement.Value: SignedNumeric & Comparable
-{
+public extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
+    
     @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func absmax(alongAxes axes: Set<Int>? = nil) -> Self {
         SwiftRTCore.absmax(self, alongAxes: axes)
@@ -410,18 +410,21 @@ public extension Tensor where TensorElement.Value: SignedNumeric & Comparable
 @inlinable public func abssum<S,E>(
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
-) -> Tensor<S,E> where S: TensorShape, E.Value: SignedNumeric & Comparable
-{
+) -> Tensor<S,E> where E.Value: SignedNumeric & Comparable {
     var result = Tensor<S,E>(zeros: x.reductionShape(alongAxes: axes))
-    Context.currentQueue.reduce("abssum", x, &result, .asum, { $0 + Swift.abs($1) }, nil)
+    Context.currentQueue.reduce("abssum", x, &result, .asum,
+                                { $0 + Swift.abs($1) }, nil)
     return result
 }
 
 @derivative(of: abssum)
-@usableFromInline func _vjpAbsSum<S,E>(_ x: Tensor<S,E>, alongAxes axes: Set<Int>? = nil)
-    -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-    where S: TensorShape, E.Value: DifferentiableNumeric & SignedNumeric & Comparable
+@usableFromInline func _vjpAbsSum<S,E>(
+    _ x: Tensor<S,E>,
+    alongAxes axes: Set<Int>? = nil
+) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
+where E.Value: DifferentiableNumeric & SignedNumeric & Comparable
 {
+    // Dan
     fatalError()
 }
 
@@ -445,8 +448,7 @@ public extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
 @inlinable public func sqrtSumSquares<S,E>(
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
-) -> Tensor<S,E> where S: TensorShape, E.Value: Real
-{
+) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor<S,E>(zeros: x.reductionShape(alongAxes: axes))
     Context.currentQueue.reduce("sqrtSumSquares", x, &result, .sqrtSumSquares,
                         { $0 + $1 * $1 }, { .sqrt($0) })
@@ -458,12 +460,14 @@ public extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
     _ x: Tensor<S,E>,
     alongAxes axes: Set<Int>? = nil
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-where S: TensorShape, E.Value: DifferentiableNumeric & Real
+where E.Value: DifferentiableNumeric & Real
 {
+    // Dan
     fatalError()
 }
 
 public extension Tensor where TensorElement.Value: Real {
+    
     @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func sqrtSumSquares(alongAxes axes: Set<Int>? = nil) -> Self {
         SwiftRTCore.sqrtSumSquares(self, alongAxes: axes)
