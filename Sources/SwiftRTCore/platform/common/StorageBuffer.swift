@@ -27,6 +27,8 @@ public protocol StorageBuffer: class, Logging {
     var alignment: Int { get }
     /// the number of storage elements
     var byteCount: Int { get }
+    /// signaled when an asynchrnous write is completed
+    var completion: PlatformType.Event { get }
     /// the id of the buffer for diagnostics
     var id: Int { get }
     /// `true` if the buffer is read only

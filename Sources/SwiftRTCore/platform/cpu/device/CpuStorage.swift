@@ -21,12 +21,12 @@ public final class CpuStorage: StorageBuffer {
     // StorageBuffer protocol properties
     public let alignment: Int
     public let byteCount: Int
+    public let completion = PlatformType.Event()
     public let id: Int
     public let isReadOnly: Bool
     public let isReference: Bool
     public var isZero: Bool
     public var name: String
-    public let event: CpuCompletionEvent = CpuCompletionEvent()
 
     // implementation properties
     public let hostBuffer: UnsafeMutableRawBufferPointer
