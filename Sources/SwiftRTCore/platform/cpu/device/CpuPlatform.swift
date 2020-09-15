@@ -21,7 +21,7 @@
 public class CpuPlatform: Platform {
     // types
     public typealias Storage = CpuStorage
-    public typealias Event = CpuQueueEvent
+    public typealias Event = CpuCompletionEvent
     
     // properties
     public static let defaultAcceleratorQueueCount: Int = 0

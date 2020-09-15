@@ -23,7 +23,7 @@ public protocol Platform: class, Logging {
     // types
     associatedtype Device: ComputeDevice
     associatedtype Storage: StorageBuffer
-    associatedtype Event: QueueEvent
+    associatedtype Event: CompletionEvent
 
     /// the number of async cpu queues to create
     static var defaultCpuQueueCount: Int { get }
@@ -254,40 +254,17 @@ extension DeviceMemory {
 }
 
 //==============================================================================
-/// QueueEvent
-/// A queue event is a barrier synchronization object that is
-/// - created by a `DeviceQueue`
-/// - recorded on a queue to create a barrier
-/// - waited on by one or more threads for group synchronization
-public protocol QueueEvent: class, Logging {
+/// CompletionEvent
+/// Conforming types block all waiters until the event is signaled,
+/// then they are all released. This is used by storage buffers to signal
+/// when a write operation has completed.
+public protocol CompletionEvent: class, Logging {
     /// the id of the event for diagnostics
     var id: Int { get }
-    /// the last time the event was recorded
-    var recordedTime: Date? { get set }
-
-    /// measure elapsed time since another event
-    func elapsedTime(since other: QueueEvent) -> TimeInterval?
-    
     /// signals that the event has occurred
     func signal()
-    
-    /// will block the caller until the timeout has elapsed if one
-    /// was specified during init, otherwise it will block forever
+    /// blocks the caller until the event has occurred
     func wait()
-}
-
-//==============================================================================
-public extension QueueEvent {
-    /// elapsedTime
-    /// computes the timeinterval between two queue event recorded times
-    /// - Parameter other: the other event used to compute the interval
-    /// - Returns: the elapsed interval. Will return `nil` if this event or
-    ///   the other have not been recorded.
-    @inlinable func elapsedTime(since other: QueueEvent) -> TimeInterval? {
-        guard let time = recordedTime,
-            let other = other.recordedTime else { return nil }
-        return time.timeIntervalSince(other)
-    }
 }
 
 //==============================================================================

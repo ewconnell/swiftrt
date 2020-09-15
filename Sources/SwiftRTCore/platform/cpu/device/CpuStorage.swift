@@ -27,10 +27,7 @@ public final class CpuStorage: StorageBuffer {
     public var isZero: Bool
     public var name: String
 
-    //--------------------------------------------------------------------------
     // implementation properties
-
-    // host storage buffer
     public let hostBuffer: UnsafeMutableRawBufferPointer
 
     //--------------------------------------------------------------------------

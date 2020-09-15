@@ -130,7 +130,7 @@ extension DeviceQueue {
     @inlinable public func createEvent(
         options: QueueEventOptions
     ) -> PlatformType.Event {
-        CpuQueueEvent(options: options)
+        CpuCompletionEvent()
     }
 
     @inlinable public func createEvent() -> PlatformType.Event {
@@ -151,18 +151,13 @@ extension DeviceQueue {
         diagnostic(.record, "event(\(event.id)) on \(name)",
                    categories: .queueSync)
         
-        // set event time
-        if defaultQueueEventOptions.contains(.timing) {
-            event.recordedTime = Date()
-        }
-        
         // record the event
-        if mode == .async {
+        if mode == .sync {
+            event.signal()
+        } else {
             queue.async(group: group) {
                 event.signal()
             }
-        } else {
-            event.signal()
         }
         return event
     }
