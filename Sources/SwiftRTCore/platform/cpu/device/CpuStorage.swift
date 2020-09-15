@@ -26,6 +26,7 @@ public final class CpuStorage: StorageBuffer {
     public let isReference: Bool
     public var isZero: Bool
     public var name: String
+    public let event: CpuCompletionEvent = CpuCompletionEvent()
 
     // implementation properties
     public let hostBuffer: UnsafeMutableRawBufferPointer
@@ -83,7 +84,7 @@ public final class CpuStorage: StorageBuffer {
         type: Element.Type,
         copying other: CpuStorage,
         using queue: DeviceQueue
-    ){
+    ) {
         alignment = other.alignment
         byteCount = other.byteCount
         id = Context.nextBufferId
