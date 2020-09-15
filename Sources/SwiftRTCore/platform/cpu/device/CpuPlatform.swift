@@ -19,6 +19,10 @@
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
 public class CpuPlatform: Platform {
+    // types
+    public typealias Storage = CpuStorage
+    public typealias Event = CpuQueueEvent
+    
     // properties
     public static let defaultAcceleratorQueueCount: Int = 0
     public var discreteMemoryDeviceId: Int { 1 }
@@ -26,12 +30,7 @@ public class CpuPlatform: Platform {
     public let name: String
     public var queueStack: [CpuQueue]
     public let appThreadQueue: CpuQueue
-
-    #if canImport(AsyncCpu)
-        public static var defaultCpuQueueCount: Int = 1
-    #else
-        public static let defaultCpuQueueCount: Int = 0
-    #endif
+    public static var defaultCpuQueueCount: Int = 0
 
     //--------------------------------------------------------------------------
     @inlinable public init() {

@@ -810,7 +810,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     public typealias Index = ElementIndex<Shape>
     public let alignment: Int
     public var hostBuffer: UnsafeMutableBufferPointer<TensorElement.Stored>
-    public weak var storage: StorageBufferType!
+    public weak var storage: PlatformType.Storage!
     public let storedBase: Int
     public let storedCount: Int
     public let strides: Shape
@@ -830,7 +830,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         _ count: Int,
         _ shape: Shape,
         _ strides: Shape,
-        _ storage: StorageBufferType,
+        _ storage: PlatformType.Storage,
         _ storageBase: Int,
         _ order: Order,
         _ spanCount: Int

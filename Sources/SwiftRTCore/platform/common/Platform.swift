@@ -22,6 +22,8 @@ import Foundation
 public protocol Platform: class, Logging {
     // types
     associatedtype Device: ComputeDevice
+    associatedtype Storage: StorageBuffer
+    associatedtype Event: QueueEvent
 
     /// the number of async cpu queues to create
     static var defaultCpuQueueCount: Int { get }

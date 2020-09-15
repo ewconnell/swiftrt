@@ -47,7 +47,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     /// the dimensions of the element space
     @noDerivative public let shape: Shape
     /// the element storage buffer.
-    public var storage: StorageBufferType
+    public var storage: PlatformType.Storage
     /// the logical storage buffer base index where this tensor's elements begin
     public let storageBase: Int
     /// The distance to the next element along each dimension
@@ -82,7 +82,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         shape: Shape,
         strides: Shape,
         count: Int,
-        storage: StorageBufferType,
+        storage: PlatformType.Storage,
         storageBase: Int,
         spanCount: Int,
         order: Order,
@@ -139,7 +139,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.spanCount = 1
         self.order = order
         let stored = TensorElement.stored(value: value)
-        self.storage = StorageBufferType(storedElement: stored, name: name)
+        self.storage = PlatformType.Storage(storedElement: stored, name: name)
         logicalStrides = shape.strides(for: order)
         logicalElements = LogicalElements(count,
                                           shape,
@@ -537,7 +537,7 @@ public extension Tensor {
             diagnostic(.mutation, "\(storage.name) \(Element.self)[\(count)]",
                        categories: [.dataCopy, .dataMutation])
             
-            storage = StorageBufferType(type: Element.self, copying: storage,
+            storage = PlatformType.Storage(type: Element.self, copying: storage,
                                         using: queue)
             logicalElements = LogicalElements(tensor: self)
         }

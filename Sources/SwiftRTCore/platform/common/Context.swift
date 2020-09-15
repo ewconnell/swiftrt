@@ -24,21 +24,9 @@ import Darwin.C
 //==============================================================================
 // Platform types
 #if canImport(SwiftRTCuda)
-// A combination of cpu and cuda devices
 public typealias PlatformType = CudaPlatform
-public typealias StorageBufferType = DiscreteStorage
-
 #else
 public typealias PlatformType = CpuPlatform
-
-#if canImport(AsyncCpu)
-    // the cpu will support asynchronous queues and synchronized discrete storage
-    public typealias StorageBufferType = DiscreteStorage
-#else
-    // the cpu only supports a single synchronous queue and
-    // non-synchronized storage 
-    public typealias StorageBufferType = CpuStorage
-#endif
 #endif
 
 //==============================================================================
@@ -60,8 +48,8 @@ public final class Context: Logging {
     /// a storage buffer with a single zero value which is shared
     /// every time Element.zero is obtained by AD.
     // used to minimize AD overhead. AD needs to fix this problem.
-    public static var zeroStorage: StorageBufferType = {
-        StorageBufferType(storedElement: Int64(0), name: "Zero")
+    public static var zeroStorage: PlatformType.Storage = {
+        PlatformType.Storage(storedElement: Int64(0), name: "Zero")
     }()
 
     //-------------------------------------
@@ -71,19 +59,11 @@ public final class Context: Logging {
     public static var queueCounter: Int = -1
     /// a platform instance unique id for queue events
     public static var queueEventCounter: Int = -1
-
-    #if canImport(AsyncCpu)
-        /// the number of async cpu queues to create
-        public static var cpuQueueCount: Int = PlatformType.defaultCpuQueueCount
-        /// the number of async cpu queues to create
-        public static var acceleratorQueueCount: Int =
-            PlatformType.defaultAcceleratorQueueCount
-    #else
-        /// the number of async cpu queues to create
-        public static let cpuQueueCount: Int = 0
-        /// the number of async cpu queues to create
-        public static let acceleratorQueueCount: Int = 0
-    #endif
+    /// the number of async cpu queues to create
+    public static var cpuQueueCount: Int = PlatformType.defaultCpuQueueCount
+    /// the number of async cpu queues to create
+    public static var acceleratorQueueCount: Int =
+        PlatformType.defaultAcceleratorQueueCount
 
     /// a static instance of the compute platform
     /// The platform type is specified in Types.swift and selected

@@ -42,15 +42,14 @@ public struct Partition<Shape: TensorShape> {
 //==============================================================================
 /// pmap
 ///
-#if canImport(AsyncCpu)
 @inlinable public func pmap<S0,E0,S1,E1>(
     _ t0: inout Tensor<S0,E0>, axis axis0: Int = 0,
     _ t1: inout Tensor<S1,E1>, axis axis1: Int = 0,
     devices: [Int]? = nil,
-    numQueues: Int? = nil,
+    partitions: Int? = nil,
     _ body: (inout Tensor<S0,E0>, inout Tensor<S1,E1>) -> Void
 ) {
-    let count = numQueues ?? Context.currentDevice.queues.count
+    let count = partitions ?? Context.currentDevice.queues.count
     var r0 = Partition(t0.shape, axis0, count)
     var r1 = Partition(t1.shape, axis1, count)
 
@@ -64,16 +63,3 @@ public struct Partition<Shape: TensorShape> {
         r1 = r1.next
     }
 }
-
-#else
-
-@inlinable public func pmap<S0,E0,S1,E1>(
-    _ t0: inout Tensor<S0,E0>, axis axis0: Int = 0,
-    _ t1: inout Tensor<S1,E1>, axis axis1: Int = 0,
-    devices: [Int]? = nil,
-    numQueues: Int? = nil,
-    _ body: (inout Tensor<S0,E0>, inout Tensor<S1,E1>) -> Void
-) {
-    body(&t0, &t1)
-}
-#endif
