@@ -66,21 +66,21 @@ public protocol DeviceQueue: Logging {
     /// - Parameters:
     ///  - options: event creation options
     /// - Returns: a new queue event
-    func createEvent(options: QueueEventOptions) -> QueueEvent
+    func createEvent(options: QueueEventOptions) -> PlatformType.Event
     
     /// record(event:
     /// adds `event` to the queue and returns immediately
     /// - Parameters:
     ///  - event: the event to record
     /// - Returns: `event` so that calls to `record` can be nested
-    func record(event: QueueEvent) -> QueueEvent
+    func record(event: PlatformType.Event) -> PlatformType.Event
     
     /// wait(event:
     /// queues an operation to wait for the specified event. This function
     /// does not block the calller if queue `mode` is `.async`
     /// - Parameters:
     ///  - event: the event to wait for
-    func wait(for event: QueueEvent)
+    func wait(for event: PlatformType.Event)
     
     /// waitForCompletion
     /// blocks the caller until all events in the queue have completed
@@ -98,7 +98,7 @@ extension DeviceQueue {
 
     //--------------------------------------------------------------------------
     /// record
-    @inlinable public func record() -> QueueEvent {
+    @inlinable public func record() -> PlatformType.Event {
         record(event: createEvent())
     }
 
@@ -129,11 +129,11 @@ extension DeviceQueue {
     /// creates an event object used for queue synchronization
     @inlinable public func createEvent(
         options: QueueEventOptions
-    ) -> QueueEvent {
+    ) -> PlatformType.Event {
         CpuQueueEvent(options: options)
     }
 
-    @inlinable public func createEvent() -> QueueEvent {
+    @inlinable public func createEvent() -> PlatformType.Event {
         createEvent(options: defaultQueueEventOptions)
     }
     
@@ -147,7 +147,7 @@ extension DeviceQueue {
     //--------------------------------------------------------------------------
     /// record(event:
     @discardableResult
-    @inlinable public func record(event: QueueEvent) -> QueueEvent {
+    @inlinable public func record(event: PlatformType.Event) -> PlatformType.Event {
         diagnostic(.record, "event(\(event.id)) on \(name)",
                    categories: .queueSync)
         
@@ -170,7 +170,7 @@ extension DeviceQueue {
     //--------------------------------------------------------------------------
     /// wait(for event:
     /// waits until the event has occurred
-    @inlinable public func wait(for event: QueueEvent) {
+    @inlinable public func wait(for event: PlatformType.Event) {
         #if DEBUG
         diagnostic(.wait, "\(name) will wait for event(\(event.id))",
                    categories: .queueSync)
