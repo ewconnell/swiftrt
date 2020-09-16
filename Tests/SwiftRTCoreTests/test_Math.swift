@@ -22,6 +22,8 @@ class test_Math: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_abs", test_abs),
+        ("test_atan2", test_atan2),
+        ("test_erf", test_erf),
         ("test_exp", test_exp),
         ("test_log", test_log),
         ("test_neg", test_neg),
@@ -54,6 +56,29 @@ class test_Math: XCTestCase {
 
         let g = pullback(at: b, in: { abs($0) })(ones(like: b))
         XCTAssert(g == [-1, 1, -1, 1, -1])
+    }
+
+    //--------------------------------------------------------------------------
+    // test_atan2
+    func test_atan2() {
+        let a = array([[1, 2], [3, 4], [5, 6]])
+        let b = array([[1, -2], [-3, 4], [5, -6]])
+        let result = atan2(y: a, x: b)
+        XCTAssert(result == [[0.7853982, 2.3561945], [2.3561945, 0.7853982], [0.7853982, 2.3561945]])
+
+        let (da, db) = pullback(at: a, b, in: { atan2(y: $0, x: $1) })(ones(like: result))
+        XCTAssert(da == [[0.5, -0.25], [-0.16666667, 0.125], [0.099999994, -0.083333336]])
+        XCTAssert(db == [[-0.5, -0.25], [-0.16666667, -0.125], [-0.099999994, -0.083333336]])
+    }
+
+    //--------------------------------------------------------------------------
+    // test_erf
+    func test_erf() {
+        let a = array([[0, -1], [2, -3], [4, 5]])
+        XCTAssert(erf(a) == [[0.0, -0.8427008], [0.9953223, -0.9999779], [1.0, 1.0]])
+
+        let da = pullback(at: a, in: { erf($0) })(ones(like: a))
+        XCTAssert(da == [[1.1283792, 0.41510752], [0.020666987, 0.00013925305], [1.2698236e-07, 1.5670867e-11]])
     }
     
     //--------------------------------------------------------------------------

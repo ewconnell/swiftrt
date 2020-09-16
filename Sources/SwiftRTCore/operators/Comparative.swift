@@ -97,8 +97,13 @@ public extension Tensor where TensorElement.Value == Bool {
     _ rhs: E.Value
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, E.Value)
 ) where S: TensorShape, E.Value: Comparable & DifferentiableNumeric {
-    // Dan
-    fatalError()
+    let value = min(lhs, rhs)
+    return (value, { v in
+        var resultTrue = Tensor(like: lhs)
+        var resultFalse = Tensor(like: lhs)
+        Context.currentQueue.vjpMin(lhs, rhs, v, &resultTrue, &resultFalse)
+        return (resultTrue, resultFalse.sum().element)
+    })
 }
 
 @derivative(of: min, wrt: lhs)
@@ -107,8 +112,13 @@ public extension Tensor where TensorElement.Value == Bool {
     _ rhs: E.Value
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
 where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableNumeric {
-    // Dan
-    fatalError()
+    let value = max(lhs, rhs)
+    return (value, { v in
+        var resultTrue = Tensor(like: lhs)
+        var resultFalse = Tensor(like: lhs)
+        Context.currentQueue.vjpMin(lhs, rhs, v, &resultTrue, &resultFalse)
+        return resultTrue
+    })
 }
 
 //--------------------------------
@@ -199,8 +209,13 @@ where S: TensorShape, E.Value: DifferentiableNumeric & Comparable {
     _ rhs: E.Value
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, E.Value))
 where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableNumeric {
-    // Dan
-    fatalError()
+    let value = max(lhs, rhs)
+    return (value, { v in
+        var resultTrue = Tensor(like: lhs)
+        var resultFalse = Tensor(like: lhs)
+        Context.currentQueue.vjpMax(lhs, rhs, v, &resultTrue, &resultFalse)
+        return (resultTrue, resultFalse.sum().element)
+    })
 }
 
 @derivative(of: max, wrt: lhs)
@@ -209,8 +224,13 @@ where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableNumeric {
     _ rhs: E.Value
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
 where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableNumeric {
-    // Dan
-    fatalError()
+    let value = max(lhs, rhs)
+    return (value, { v in
+        var resultTrue = Tensor(like: lhs)
+        var resultFalse = Tensor(like: lhs)
+        Context.currentQueue.vjpMax(lhs, rhs, v, &resultTrue, &resultFalse)
+        return resultTrue
+    })
 }
 
 //--------------------------------
