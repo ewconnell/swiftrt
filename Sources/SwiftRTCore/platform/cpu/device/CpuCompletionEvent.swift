@@ -33,15 +33,15 @@ public class CpuCompletionEvent: CompletionEvent {
         event = DispatchSemaphore(value: 0)
     }
     
+    @inlinable public func signal() {
+        event.signal()
+    }
+
     @inlinable public func wait() {
         mutex.wait()
         defer { mutex.signal() }
         guard !occurred else { return }
         event.wait()
         occurred = true
-    }
-    
-    @inlinable public func signal() {
-        event.signal()
     }
 }

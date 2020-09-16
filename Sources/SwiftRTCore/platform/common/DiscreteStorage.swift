@@ -21,7 +21,7 @@ public final class DiscreteStorage: StorageBuffer {
     // StorageBuffer protocol properties
     public let alignment: Int
     public let byteCount: Int
-    public let completion = PlatformType.Event()
+    public let completed = PlatformType.Event()
     public let id: Int
     public var isReadOnly: Bool
     public var isReference: Bool

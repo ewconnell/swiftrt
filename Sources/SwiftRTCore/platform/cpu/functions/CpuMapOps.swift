@@ -32,12 +32,15 @@ extension DeviceQueue {
         _ op: @escaping () -> E.Value
     ) {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+        let completed = out.completed
         var out = out.mutableBuffer
         if mode == .sync {
             out.indices.forEach { out[$0] = op() }
+            completed.signal()
         } else {
             queue.async(group: group) {
                 out.indices.forEach { out[$0] = op() }
+                completed.signal()
             }
         }
     }
@@ -52,6 +55,7 @@ extension DeviceQueue {
         _ opName: @autoclosure () -> String
     ) where E.Value: Numeric {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+        let completed = out.completed
         var out = out.mutableBuffer
         
         if mode == .sync {
@@ -61,6 +65,7 @@ extension DeviceQueue {
                 io = out.index(after: io)
             }
             out[io] = last
+            completed.signal()
         } else {
             queue.async(group: group) {
                 var io = out.indices.startIndex
@@ -69,6 +74,7 @@ extension DeviceQueue {
                     io = out.index(after: io)
                 }
                 out[io] = last
+                completed.signal()
             }
         }
     }
@@ -81,13 +87,16 @@ extension DeviceQueue {
         _ op: @escaping (E.Value) -> E.Value
     ) {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+        let completed = out.completed
         var out = out.mutableBuffer
         
         if mode == .sync {
             out.indices.forEach { out[$0] = op(out[$0]) }
+            completed.signal()
         } else {
             queue.async(group: group) {
                 out.indices.forEach { out[$0] = op(out[$0]) }
+                completed.signal()
             }
         }
     }
@@ -101,6 +110,9 @@ extension DeviceQueue {
         _ op: @escaping (RE.Value, E.Value) -> RE.Value
     ) {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+        let aCompleted = a.completed
+        let outCompleted = out.completed
+
         // the op
         func execute<A: Collection, O: MutableCollection>(
             _ a: A,
@@ -109,10 +121,14 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .sync {
+                aCompleted.wait()
                 zip(out.indices, a).forEach { out[$0] = op(out[$0], $1) }
+                outCompleted.signal()
             } else {
                 queue.async(group: group) {
+                    aCompleted.wait()
                     zip(out.indices, a).forEach { out[$0] = op(out[$0], $1) }
+                    outCompleted.signal()
                 }
             }
         }
@@ -146,6 +162,8 @@ extension DeviceQueue {
     ) {
         assert(out.isContiguous)
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+        let aCompleted = a.completed
+        let outCompleted = out.completed
 
         func execute<A: Collection, O: MutableCollection>(
             _ a: A,
@@ -153,11 +171,15 @@ extension DeviceQueue {
             _ op: @escaping (A.Element) -> O.Element
         ) {
             if mode == .sync {
+                aCompleted.wait()
                 zip(out.indices, a).forEach { out[$0] = op($1) }
+                outCompleted.signal()
             } else {
                 var out = out
                 queue.async(group: group) {
+                    aCompleted.wait()
                     zip(out.indices, a).forEach { out[$0] = op($1) }
+                    outCompleted.signal()
                 }
             }
         }
@@ -187,6 +209,9 @@ extension DeviceQueue {
         assert(a.order == b.order && a.order == out.order && out.isContiguous,
                _messageOrdersMustMatch)
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+        let aCompleted = a.completed
+        let bCompleted = b.completed
+        let outCompleted = out.completed
 
         func execute<A: Collection, B: Collection, O: MutableCollection>(
             _ a: A, _ b: B, _ out: O,
@@ -194,14 +219,20 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .sync {
+                aCompleted.wait()
+                bCompleted.wait()
                 zip(out.indices, zip(a, b)).forEach {
                     out[$0] = op($1.0, $1.1)
                 }
+                outCompleted.signal()
             } else {
                 queue.async(group: group) {
+                    aCompleted.wait()
+                    bCompleted.wait()
                     zip(out.indices, zip(a, b)).forEach {
                         out[$0] = op($1.0, $1.1)
                     }
+                    outCompleted.signal()
                 }
             }
         }
@@ -234,21 +265,30 @@ extension DeviceQueue {
         assert(a.order == b.order && a.order == out.order && out.isContiguous,
                _messageOrdersMustMatch)
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        
+        let aCompleted = a.completed
+        let bCompleted = b.completed
+        let outCompleted = out.completed
+
         func execute<A: Collection, B: Collection, O: MutableCollection>(
             _ a: A, _ b: B, _ c: A.Element, _ out: O,
             _ op: @escaping (A.Element, B.Element, A.Element) -> O.Element
         ) {
             var out = out
             if mode == .sync {
+                aCompleted.wait()
+                bCompleted.wait()
                 zip(out.indices, zip(a, b)).forEach {
                     out[$0] = op($1.0, $1.1, c)
                 }
+                outCompleted.signal()
             } else {
                 queue.async(group: group) {
+                    aCompleted.wait()
+                    bCompleted.wait()
                     zip(out.indices, zip(a, b)).forEach {
                         out[$0] = op($1.0, $1.1, c)
                     }
+                    outCompleted.signal()
                 }
             }
         }
@@ -278,6 +318,8 @@ extension DeviceQueue {
         _ op: @escaping (E.Value, E.Value) -> OE.Value
     ) {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+        let aCompleted = a.completed
+        let outCompleted = out.completed
 
         func execute<A: Collection, O: MutableCollection>(
             _ a: A, _ elt: A.Element, _ out: O,
@@ -285,10 +327,14 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .sync {
+                aCompleted.wait()
                 zip(out.indices, a).forEach { out[$0] = op($1, elt) }
+                outCompleted.signal()
             } else {
                 queue.async(group: group) {
+                    aCompleted.wait()
                     zip(out.indices, a).forEach { out[$0] = op($1, elt) }
+                    outCompleted.signal()
                 }
             }
         }
@@ -310,6 +356,8 @@ extension DeviceQueue {
         _ op: @escaping (E.Value, E.Value) -> OE.Value
     ) {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+        let aCompleted = a.completed
+        let outCompleted = out.completed
 
         func execute<A: Collection, O: MutableCollection>(
             _ elt: A.Element, _ a: A, _ out: O,
@@ -317,10 +365,14 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .sync {
+                aCompleted.wait()
                 zip(out.indices, a).forEach { out[$0] = op(elt, $1) }
+                outCompleted.signal()
             } else {
                 queue.async(group: group) {
+                    aCompleted.wait()
                     zip(out.indices, a).forEach { out[$0] = op(elt, $1) }
+                    outCompleted.signal()
                 }
             }
         }
@@ -345,6 +397,10 @@ extension DeviceQueue {
         assert(a.order == b.order && a.order == c.order &&
                 a.order == out.order && out.isContiguous)
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+        let aCompleted = a.completed
+        let bCompleted = b.completed
+        let cCompleted = c.completed
+        let outCompleted = out.completed
 
         func execute<A: Collection, B: Collection, C: Collection,
                      O: MutableCollection>(
@@ -353,14 +409,22 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .sync {
+                aCompleted.wait()
+                bCompleted.wait()
+                cCompleted.wait()
                 zip(out.indices, zip(a, zip(b, c))).forEach {
                     out[$0] = op($1.0, $1.1.0, $1.1.1)
                 }
+                outCompleted.signal()
             } else {
                 queue.async(group: group) {
+                    aCompleted.wait()
+                    bCompleted.wait()
+                    cCompleted.wait()
                     zip(out.indices, zip(a, zip(b, c))).forEach {
                         out[$0] = op($1.0, $1.1.0, $1.1.1)
                     }
+                    outCompleted.signal()
                 }
             }
         }
@@ -411,6 +475,11 @@ extension DeviceQueue {
         assert(a.isContiguous && b.isContiguous && c.isContiguous &&
                 out1.isContiguous && out2.isContiguous)
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+        let aCompleted = a.completed
+        let bCompleted = b.completed
+        let cCompleted = c.completed
+        let out1Completed = out1.completed
+        let out2Completed = out2.completed
 
         func execute<A: Collection, B: Collection, C: Collection,
                      O1: MutableCollection, O2: MutableCollection>(
@@ -420,18 +489,28 @@ extension DeviceQueue {
         ) {
             var o1 = o1, o2 = o2
             if mode == .sync {
+                aCompleted.wait()
+                bCompleted.wait()
+                cCompleted.wait()
                 zip(zip(o1.indices, o2.indices), zip(a, zip(b, c))).forEach {
                     let (o1v, o2v) = op($1.0, $1.1.0, $1.1.1)
                     o1[$0.0] = o1v
                     o2[$0.1] = o2v
                 }
+                out1Completed.signal()
+                out2Completed.signal()
             } else {
                 queue.async(group: group) {
+                    aCompleted.wait()
+                    bCompleted.wait()
+                    cCompleted.wait()
                     zip(zip(o1.indices, o2.indices), zip(a, zip(b, c))).forEach {
                         let (o1v, o2v) = op($1.0, $1.1.0, $1.1.1)
                         o1[$0.0] = o1v
                         o2[$0.1] = o2v
                     }
+                    out1Completed.signal()
+                    out2Completed.signal()
                 }
             }
         }

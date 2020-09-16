@@ -21,7 +21,7 @@ public final class CpuStorage: StorageBuffer {
     // StorageBuffer protocol properties
     public let alignment: Int
     public let byteCount: Int
-    public let completion = PlatformType.Event()
+    public let completed = PlatformType.Event()
     public let id: Int
     public let isReadOnly: Bool
     public let isReference: Bool
