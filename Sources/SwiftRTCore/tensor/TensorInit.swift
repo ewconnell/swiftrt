@@ -51,20 +51,6 @@ public typealias TensorR6<Element: StorageElement> = Tensor<Shape6, Element>
     return repeatedStrides
 }
 
-//------------------------------------------------------------------------------
-// TODO: THIS NEEDS TO BE REMOVED. IT'S A HACK FOR AD SUPPORT
-//@usableFromInline func match<S,E>(_ lhs: Tensor<S,E>, _ rhs: Tensor<S,E>)
-//    -> (Tensor<S,E>, Tensor<S,E>) where S: TensorShape
-//{
-//    if lhs.count == rhs.count {
-//        return (lhs, rhs)
-//    } else if lhs.count > rhs.count {
-//        return (lhs, Tensor<S,E>(repeating: rhs, to: lhs.shape))
-//    } else {
-//        return (Tensor<S,E>(repeating: lhs, to: rhs.shape), rhs)
-//    }
-//}
-
 //==============================================================================
 // Tensor initializers
 //==============================================================================
@@ -83,7 +69,7 @@ public extension Tensor {
     ) {
         let count = shape.elementCount()
         let storage = PlatformType.Storage(type: TensorElement.self,
-                                        count: count, name: name)
+                                           count: count, name: name)
         
         self.init(shape: shape,
                   strides: shape.strides(for: order),
@@ -282,8 +268,7 @@ public extension Tensor {
         _ shape: Shape,
         order: Order = .defaultOrder,
         name: String = defaultTensorName
-    ) where C: Collection, C.Element == TensorElement.Stored
-    {
+    ) where C: Collection, C.Element == TensorElement.Stored {
         self.init(shape: shape, order: order, name: name)
         let buffer = readWrite(using: Context.appThreadQueue)
         assert(buffer.count == elements.count)

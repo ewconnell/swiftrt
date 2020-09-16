@@ -33,6 +33,11 @@ public class CpuCompletionEvent: CompletionEvent {
         event = DispatchSemaphore(value: 0)
     }
     
+    @inlinable deinit {
+        // all write operations must complete before going out of scope
+        wait()
+    }
+
     @inlinable public func signal() {
         event.signal()
     }

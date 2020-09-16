@@ -27,8 +27,6 @@ public protocol StorageBuffer: class, Logging {
     var alignment: Int { get }
     /// the number of storage elements
     var byteCount: Int { get }
-    /// signaled when an asynchrnous write is completed
-    var completed: PlatformType.Event { get }
     /// the id of the buffer for diagnostics
     var id: Int { get }
     /// `true` if the buffer is read only
@@ -161,13 +159,6 @@ public protocol StorageBuffer: class, Logging {
 
 //==============================================================================
 // convenience extensions
-public extension Tensor {
-    @inlinable var completed: PlatformType.Event {
-        storage.completed
-    }
-}
-
-//
 public extension StorageBuffer {
     /// used for unit tests. `true` if a read/write operation caused
     /// memory to be copied between devices

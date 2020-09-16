@@ -32,10 +32,11 @@ public final class CpuQueue: DeviceQueue, CpuFunctions
     public let memoryType: MemoryType
     public let mode: DeviceQueueMode
     public let name: String
-    public let queue: DispatchQueue
     public let group: DispatchGroup
+    public let queue: DispatchQueue
+    public let queueLimit: DispatchSemaphore
     public let usesCpu: Bool
-    
+
     //--------------------------------------------------------------------------
     // initializers
     @inlinable public init(
@@ -44,16 +45,17 @@ public final class CpuQueue: DeviceQueue, CpuFunctions
         queueMode: DeviceQueueMode,
         memoryType: MemoryType
     ) {
-        self.id = Context.nextQueueId
-        self.name = name
         self.deviceIndex = deviceIndex
-        self.creatorThread = Thread.current
-        self.defaultQueueEventOptions = QueueEventOptions()
+        self.name = name
         self.memoryType = memoryType
-        self.mode = queueMode
-        self.queue = DispatchQueue(label: "\(name)")
-        self.group = DispatchGroup()
-        self.usesCpu = true
+        id = Context.nextQueueId
+        creatorThread = Thread.current
+        defaultQueueEventOptions = QueueEventOptions()
+        mode = queueMode
+        group = DispatchGroup()
+        queue = DispatchQueue(label: "\(name)", attributes: .concurrent)
+        queueLimit = DispatchSemaphore(value: ProcessInfo().activeProcessorCount)
+        usesCpu = true
     }
     
     deinit {

@@ -34,26 +34,28 @@ where Shape: TensorShape, TensorElement: StorageElement
     public typealias Element = TensorElement.Value
     
     /// the number of element
-    public let count: Int
+    @noDerivative public let count: Int
     /// `true` if the view will be shared by by multiple writers
-    public var isShared: Bool
+    @noDerivative public var isShared: Bool
     /// element storage order in memory
     @noDerivative public let order: Order 
     /// a collection that maps logical coordinates to storage elements
     /// via the current storage order
-    public var logicalElements: LogicalElements<Shape, TensorElement>
+    @noDerivative public var logicalElements: LogicalElements<Shape, TensorElement>
     /// the strides to traverse `shape` in logical coordinates
-    public let logicalStrides: Shape
+    @noDerivative public let logicalStrides: Shape
     /// the dimensions of the element space
     @noDerivative public let shape: Shape
     /// the element storage buffer.
-    public var storage: PlatformType.Storage
+    @noDerivative public var storage: PlatformType.Storage
     /// the logical storage buffer base index where this tensor's elements begin
-    public let storageBase: Int
+    @noDerivative public let storageBase: Int
     /// The distance to the next element along each dimension
-    public let strides: Shape
+    @noDerivative public let strides: Shape
     /// the number of storage elements spanned by this tensor
-    public let spanCount: Int
+    @noDerivative public let spanCount: Int
+    /// signaled when a write is completed
+    @noDerivative public var completed = PlatformType.Event()
 
     //--------------------------------------------------------------------------
     // functional properties
@@ -62,10 +64,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     
     /// the name of the collection
     @inlinable public var name: String {
-        get {
-            storage.name == defaultTensorName ?
-                "\(defaultTensorName)(\(id))" : storage.name
-        }
+        get { storage.name }
         set { storage.name = newValue }
     }
 
@@ -518,8 +517,10 @@ public extension Tensor {
     /// It also expands repeated tensors to a full dense storage
     /// representation for write, which most often happens via element
     /// subscripting.
-    @inlinable mutating func prepareForWrite(using queue: PlatformType.Device.Queue) {
-        // if repeated then expand to full dense tensor
+    @inlinable mutating func prepareForWrite(
+        using queue: PlatformType.Device.Queue
+    ) {
+        // if writing to repeated data, then expand to full dense tensor
         if spanCount < count {
             var expanded = Tensor(like: self)
 
@@ -541,6 +542,10 @@ public extension Tensor {
                                         using: queue)
             logicalElements = LogicalElements(tensor: self)
         }
+        
+        // create a new completion event that will be signaled when the
+        // write operation is complete
+        completed = PlatformType.Event()
     }
 
     //--------------------------------------------------------------------------

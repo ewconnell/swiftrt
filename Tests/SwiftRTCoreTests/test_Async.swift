@@ -17,32 +17,35 @@ import XCTest
 import Foundation
 import SwiftRT
 
-// only test async if the platform supports it
-#if !(canImport(AsyncCpu) || canImport(Cuda))
-class test_Async: XCTestCase {
-    static var allTests = [(String, (XCTestCase) -> () -> Void)]()
-}
-#else
-
-
 class test_Async: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_multiFill", test_multiFill),
         ("test_discreteMemoryReplication", test_discreteMemoryReplication),
         ("test_multiQueueDependency", test_multiQueueDependency),
     ]
 
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
-//        Context.log.level = .diagnostic
-        Context.cpuQueueCount = 2
+        Context.log.level = .diagnostic
+        use(device: 0)
     }
 
     override func tearDownWithError() throws {
-//        Context.log.level = .error
+        Context.log.level = .error
+        useAppThreadQueue()
     }
 
+    //--------------------------------------------------------------------------
+    func test_multiFill() {
+        let a = array(from: 0, to: 3, count: 6)
+        let b = array(0..<6)
+        
+        print("a: \(a)")
+        print("b: \(b)")
+    }
+    
     //--------------------------------------------------------------------------
     func test_discreteMemoryReplication() {
         let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
@@ -77,4 +80,3 @@ class test_Async: XCTestCase {
         XCTAssert(result == [[0.0, 3.0], [6.0, 9.0], [12.0, 15.0]])
     }
 }
-#endif

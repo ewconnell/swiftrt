@@ -21,12 +21,18 @@ public final class CpuStorage: StorageBuffer {
     // StorageBuffer protocol properties
     public let alignment: Int
     public let byteCount: Int
-    public let completed = PlatformType.Event()
     public let id: Int
     public let isReadOnly: Bool
     public let isReference: Bool
     public var isZero: Bool
-    public var name: String
+
+    @usableFromInline var _name: String = defaultTensorName
+    @inlinable public var name: String {
+        get {
+            _name != defaultTensorName ? _name : "\(defaultTensorName)(\(id))"
+        }
+        set { _name = newValue }
+    }
 
     // implementation properties
     public let hostBuffer: UnsafeMutableRawBufferPointer
@@ -40,7 +46,7 @@ public final class CpuStorage: StorageBuffer {
     ) {
         assert(MemoryLayout<Element>.size != 0,
                "type: \(Element.self) is size 0")
-        self.name = name
+        _name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * count
         id = Context.nextBufferId
@@ -91,7 +97,7 @@ public final class CpuStorage: StorageBuffer {
         isReadOnly = other.isReadOnly
         isReference = other.isReference
         isZero = other.isZero
-        self.name = other.name
+        _name = other._name
         if isReference {
             hostBuffer = other.hostBuffer
         } else {
@@ -108,7 +114,7 @@ public final class CpuStorage: StorageBuffer {
         referenceTo buffer: UnsafeBufferPointer<Element>,
         name: String
     ) {
-        self.name = name
+        _name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * buffer.count
         let buff = UnsafeMutableBufferPointer(mutating: buffer)
@@ -128,7 +134,7 @@ public final class CpuStorage: StorageBuffer {
         referenceTo buffer: UnsafeMutableBufferPointer<Element>,
         name: String
     ) {
-        self.name = name
+        _name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * buffer.count
         hostBuffer = UnsafeMutableRawBufferPointer(buffer)
