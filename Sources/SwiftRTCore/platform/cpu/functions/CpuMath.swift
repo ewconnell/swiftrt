@@ -664,6 +664,19 @@ extension DeviceQueue {
               "vjpMin(x: \(x.name), y: \(y.name), scale: \(scale.name))")
             { $0 <= $1 ? $2 : E.Value.zero }
     }
+
+    /// cpu_vjpMin
+    @inlinable func cpu_vjpMin<S,E>(
+        _ x: Tensor<S,E>,
+        _ y: E.Value,
+        _ scale: Tensor<S,E>,
+        _ out: inout Tensor<S,E>)
+    where E.Value: Comparable & Numeric {
+        mapOp(x, scale, y, &out,
+              "vjpMin(x: \(x.name), y: \(y), scale: \(scale.name))")
+            { $0 <= $2 ? $1 : E.Value.zero }
+    }
+
     /// cpu_vjpMin
     @inlinable func cpu_vjpMin<S,E>(
         _ x: Tensor<S,E>,
@@ -676,7 +689,21 @@ extension DeviceQueue {
               "vjpMin(x: \(x.name), y: \(y.name), scale: \(scale.name))")
             { $0 <= $1 ? ($2, E.Value.zero) : (E.Value.zero, $2) }
     }
-    
+
+    /// cpu_vjpMin
+    @inlinable func cpu_vjpMin<S,E>(
+        _ x: Tensor<S,E>,
+        _ y: E.Value,
+        _ scale: Tensor<S,E>,
+        _ resultTrue: inout Tensor<S,E>,
+        _ resultFalse: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        mapOp(x, scale, y, &resultTrue, &resultFalse,
+              "vjpMin(x: \(x.name), y: \(y), scale: \(scale.name))") {
+            $0 <= $2 ? ($1, E.Value.zero) : (E.Value.zero, $1)
+        }
+    }
+
     //--------------------------------------------------------------------------
     /// cpu_vjpMax
     @inlinable func cpu_vjpMax<S,E>(
@@ -689,6 +716,19 @@ extension DeviceQueue {
               "vjpMax(x: \(x.name), y: \(y.name), scale: \(scale.name))")
             { $0 >= $1 ? $2 : E.Value.zero }
     }
+
+    /// cpu_vjpMax
+    @inlinable func cpu_vjpMax<S,E>(
+        _ x: Tensor<S,E>,
+        _ y: E.Value,
+        _ scale: Tensor<S,E>,
+        _ out: inout Tensor<S,E>)
+    where E.Value: Comparable & Numeric {
+        mapOp(x, scale, y, &out,
+              "vjpMax(x: \(x.name), y: \(y), scale: \(scale.name))")
+            { $0 >= $2 ? $1 : E.Value.zero }
+    }
+
     /// cpu_vjpMax
     @inlinable func cpu_vjpMax<S,E>(
         _ x: Tensor<S,E>,
@@ -700,6 +740,20 @@ extension DeviceQueue {
         mapOp(x, y, scale, &resultTrue, &resultFalse,
               "vjpMax(x: \(x.name), y: \(y.name), scale: \(scale.name))") {
             $0 >= $1 ? ($2, E.Value.zero) : (E.Value.zero, $2)
+        }
+    }
+
+    /// cpu_vjpMax
+    @inlinable func cpu_vjpMax<S,E>(
+        _ x: Tensor<S,E>,
+        _ y: E.Value,
+        _ scale: Tensor<S,E>,
+        _ resultTrue: inout Tensor<S,E>,
+        _ resultFalse: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        mapOp(x, scale, y, &resultTrue, &resultFalse,
+              "vjpMax(x: \(x.name), y: \(y), scale: \(scale.name))") {
+            $0 >= $2 ? ($1, E.Value.zero) : (E.Value.zero, $1)
         }
     }
 }
@@ -1091,22 +1145,46 @@ extension DeviceQueue where Self: CpuFunctions
         _ out: inout Tensor<S,E>)
     where E.Value: Comparable & Numeric
     { cpu_vjpMin(x, y, scale, &out) }
-    
+
+    @inlinable func vjpMin<S,E>(
+        _ x: Tensor<S,E>, _ y: E.Value, _ scale: Tensor<S,E>,
+        _ out: inout Tensor<S,E>)
+    where E.Value: Comparable & Numeric
+    { cpu_vjpMin(x, y, scale, &out) }
+
     @inlinable func vjpMin<S,E>(
         _ x: Tensor<S,E>, _ y: Tensor<S,E>, _ scale: Tensor<S,E>,
         _ resultTrue: inout Tensor<S,E>, _ resultFalse: inout Tensor<S,E>)
     where E.Value: Comparable & Numeric
     { cpu_vjpMin(x, y, scale, &resultTrue, &resultFalse) }
-    
+
+    @inlinable func vjpMin<S,E>(
+        _ x: Tensor<S,E>, _ y: E.Value, _ scale: Tensor<S,E>,
+        _ resultTrue: inout Tensor<S,E>, _ resultFalse: inout Tensor<S,E>)
+    where E.Value: Comparable & Numeric
+    { cpu_vjpMin(x, y, scale, &resultTrue, &resultFalse) }
+
     //--------------------------------------------------------------------------
     @inlinable func vjpMax<S,E>(
         _ x: Tensor<S,E>, _ y: Tensor<S,E>, _ scale: Tensor<S,E>,
         _ out: inout Tensor<S,E>)
     where E.Value: Comparable & Numeric
     { cpu_vjpMax(x, y, scale, &out) }
-    
+
+    @inlinable func vjpMax<S,E>(
+        _ x: Tensor<S,E>, _ y: E.Value, _ scale: Tensor<S,E>,
+        _ out: inout Tensor<S,E>)
+    where E.Value: Comparable & Numeric
+    { cpu_vjpMax(x, y, scale, &out) }
+
     @inlinable func vjpMax<S,E>(
         _ x: Tensor<S,E>, _ y: Tensor<S,E>, _ scale: Tensor<S,E>,
+        _ resultTrue: inout Tensor<S,E>, _ resultFalse: inout Tensor<S,E>)
+    where E.Value: Comparable & Numeric
+    { cpu_vjpMax(x, y, scale, &resultTrue, &resultFalse) }
+
+    @inlinable func vjpMax<S,E>(
+        _ x: Tensor<S,E>, _ y: E.Value, _ scale: Tensor<S,E>,
         _ resultTrue: inout Tensor<S,E>, _ resultFalse: inout Tensor<S,E>)
     where E.Value: Comparable & Numeric
     { cpu_vjpMax(x, y, scale, &resultTrue, &resultFalse) }
