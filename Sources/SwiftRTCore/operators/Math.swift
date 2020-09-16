@@ -194,8 +194,11 @@ where E.Value: DifferentiableNumeric & Real {
     x: Tensor<S,E>
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
 where E.Value: DifferentiableNumeric & Real {
-    // Dan
-    fatalError("Not implemented")
+    let value = atan2(y: y, x: x)
+    return (value, { v in
+        let gradInv = v / ((x * x) + (y * y))
+        return (x * gradInv, -y * gradInv)
+    })
 }
 
 //==============================================================================
@@ -282,8 +285,10 @@ where E.Value: DifferentiableNumeric & Real {
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
     where E.Value: DifferentiableNumeric & Real
 {
-    // Dan
-    fatalError("Not implemented")
+    let value = erf(x)
+    return (value, { v in
+        return v * (2 / E.Value.pi.squareRoot()) * exp(-(x * x))
+    })
 }
 
 //==============================================================================
