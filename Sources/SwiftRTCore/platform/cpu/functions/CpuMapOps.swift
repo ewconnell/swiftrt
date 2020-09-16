@@ -439,4 +439,45 @@ extension DeviceQueue {
         execute(a.buffer, b.buffer, c.buffer,
                 out1.mutableBuffer, out2.mutableBuffer, op)
     }
+
+    //==========================================================================
+    // mapOp tensor tensor scalar out out
+    @inlinable func mapOp<S,E0, E1, E2, O1, O2>(
+        _ a: Tensor<S,E0>,
+        _ b: Tensor<S,E1>,
+        _ c: E2,
+        _ out1: inout Tensor<S,O1>,
+        _ out2: inout Tensor<S,O2>,
+        _ opName: @autoclosure () -> String,
+        _ op: @escaping (E0.Value, E1.Value, E2) -> (O1.Value, O2.Value)
+    ) {
+        assert(a.isContiguous && b.isContiguous && out1.isContiguous &&
+               out2.isContiguous)
+        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+
+        func execute<A: Collection, B: Collection, C,
+                     O1: MutableCollection, O2: MutableCollection>(
+            _ a: A, _ b: B, _ c: C, _ o1: O1, _ o2: O2,
+            _ op: @escaping (A.Element, B.Element, C) -> (O1.Element, O2.Element)
+        ) {
+            var o1 = o1, o2 = o2
+            if mode == .sync {
+                zip(zip(o1.indices, o2.indices), zip(a, b)).forEach {
+                    let (o1v, o2v) = op($1.0, $1.1, c)
+                    o1[$0.0] = o1v
+                    o2[$0.1] = o2v
+                }
+            } else {
+                queue.async(group: group) {
+                    zip(zip(o1.indices, o2.indices), zip(a, b)).forEach {
+                        let (o1v, o2v) = op($1.0, $1.1, c)
+                        o1[$0.0] = o1v
+                        o2[$0.1] = o2v
+                    }
+                }
+            }
+        }
+
+        execute(a.buffer, b.buffer, c, out1.mutableBuffer, out2.mutableBuffer, op)
+    }
 }
