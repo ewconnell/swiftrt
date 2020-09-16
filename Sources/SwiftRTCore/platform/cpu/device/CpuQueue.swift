@@ -54,10 +54,6 @@ public final class CpuQueue: DeviceQueue, CpuFunctions
         self.queue = DispatchQueue(label: "\(name)")
         self.group = DispatchGroup()
         self.usesCpu = true
-        
-        let modeLabel = queueMode == .async ? "asynchronous" : "synchronous"
-        diagnostic(.create, "\(modeLabel) queue: \(name)",
-                   categories: .queueAlloc)
     }
     
     deinit {

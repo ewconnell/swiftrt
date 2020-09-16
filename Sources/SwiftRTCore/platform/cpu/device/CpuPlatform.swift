@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+import Foundation
 
 //==============================================================================
 /// CpuPlatform
@@ -24,22 +25,24 @@ public class CpuPlatform: Platform {
     public typealias Event = CpuCompletionEvent
     
     // properties
-    public static let defaultAcceleratorQueueCount: Int = 0
     public var discreteMemoryDeviceId: Int { 1 }
     public var devices: [CpuDevice]
     public let name: String
     public var queueStack: [CpuQueue]
     public let appThreadQueue: CpuQueue
-    public static var defaultCpuQueueCount: Int = 0
+    public static let defaultAcceleratorQueueCount: Int = 0
+    public static var defaultCpuQueueCount = ProcessInfo().activeProcessorCount
 
     //--------------------------------------------------------------------------
     @inlinable public init() {
         name = "\(Self.self)"
         
         // create the device and default number of async queues
-        let device = CpuDevice(index: 0, memoryType: .unified)
-
-        let test = CpuDevice(index: 1, memoryType: .discrete)
+        let device = CpuDevice(index: 0, memoryType: .unified,
+                               queueCount: Context.cpuQueueCount)
+        
+        // create a discrete memory unit test device
+        let test = CpuDevice(index: 1, memoryType: .discrete, queueCount: 2)
         devices = [device, test]
 
         // create the application thread data interchange queue
@@ -50,5 +53,8 @@ public class CpuPlatform: Platform {
 
         // make the app thread queue current by default
         queueStack = [appThreadQueue]
+
+        diagnostic(.device, "create  sync queue: appThread",
+                   categories: .queueAlloc)
     }
 }
