@@ -61,6 +61,7 @@ targets.append(contentsOf: [
     .target(name: "SwiftRTCore", dependencies: coreDependencies, exclude: exclusions),
     
     // tests
+    .testTarget(name: "BenchmarkTests", dependencies: testDependencies),
     .testTarget(name: "SwiftRTCoreTests", dependencies: testDependencies),
     .testTarget(name: "SwiftRTLayerTests", dependencies: testDependencies),
 ])
