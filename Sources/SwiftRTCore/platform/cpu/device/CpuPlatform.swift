@@ -22,7 +22,7 @@ import Foundation
 public class CpuPlatform: Platform {
     // types
     public typealias Storage = CpuStorage
-    public typealias Event = CpuCompletionEvent
+    public typealias Event = CpuEvent
     
     // properties
     public var discreteMemoryDeviceId: Int { 1 }
@@ -31,7 +31,8 @@ public class CpuPlatform: Platform {
     public var queueStack: [CpuQueue]
     public let appThreadQueue: CpuQueue
     public static let defaultAcceleratorQueueCount: Int = 0
-    public static var defaultCpuQueueCount = ProcessInfo().activeProcessorCount
+    public static var defaultCpuQueueCount =
+        ProcessInfo.processInfo.activeProcessorCount
 
     //--------------------------------------------------------------------------
     @inlinable public init() {

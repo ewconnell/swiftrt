@@ -83,6 +83,14 @@ set(SWIFT_CONFIG_FLAGS
         -Xlinker -L${CUDA_TOOLKIT_ROOT_DIR}/lib64
         )
 
+# for maximum performance only after thorough testing
+#if (${CMAKE_BUILD_TYPE} MATCHES "Release")
+#    set(SWIFT_CONFIG_FLAGS ${SWIFT_CONFIG_FLAGS}
+#        -enforce-exclusivity=unchecked
+#        -Ounchecked
+#        )
+#endif()
+
 #####################
 # SwiftRT module
 set(SWIFTRT_NAME SwiftRT)

@@ -45,6 +45,7 @@ public final class CpuQueue: DeviceQueue, CpuFunctions
         queueMode: DeviceQueueMode,
         memoryType: MemoryType
     ) {
+        let processorCount = ProcessInfo.processInfo.activeProcessorCount
         self.deviceIndex = deviceIndex
         self.name = name
         self.memoryType = memoryType
@@ -53,8 +54,8 @@ public final class CpuQueue: DeviceQueue, CpuFunctions
         defaultQueueEventOptions = QueueEventOptions()
         mode = queueMode
         group = DispatchGroup()
-        queue = DispatchQueue(label: "\(name)", attributes: .concurrent)
-        queueLimit = DispatchSemaphore(value: ProcessInfo().activeProcessorCount)
+        queue = DispatchQueue(label: name)
+        queueLimit = DispatchSemaphore(value: processorCount)
         usesCpu = true
     }
     

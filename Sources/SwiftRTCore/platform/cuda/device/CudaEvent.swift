@@ -16,10 +16,10 @@
 import Foundation
 
 //==============================================================================
-// CpuCompletionEvent
+// CpuEvent
 /// An event that blocks all callers until signaled, then lets all waiters
 /// through
-public class CpuCompletionEvent: CompletionEvent {
+public class CudaEvent: CompletionEvent {
     public let id: Int
     public let tensorId: Int
     @usableFromInline let event: DispatchSemaphore

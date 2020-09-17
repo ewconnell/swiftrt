@@ -20,6 +20,10 @@ import SwiftRTCuda
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
 public class CudaPlatform: Platform {
+    // types
+    public typealias Storage = DiscreteStorage
+    public typealias Event = CudaEvent
+    
     // properties
     public static var defaultCpuQueueCount: Int = 1
     public static var defaultAcceleratorQueueCount: Int = 2

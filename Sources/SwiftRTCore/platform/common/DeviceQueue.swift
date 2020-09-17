@@ -130,7 +130,7 @@ extension DeviceQueue {
     @inlinable public func createEvent(
         options: QueueEventOptions
     ) -> PlatformType.Event {
-        CpuCompletionEvent()
+        PlatformType.Event()
     }
 
     @inlinable public func createEvent() -> PlatformType.Event {
