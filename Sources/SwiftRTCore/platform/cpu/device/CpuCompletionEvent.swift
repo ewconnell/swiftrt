@@ -17,36 +17,51 @@ import Foundation
 
 //==============================================================================
 // CpuCompletionEvent
-/// a queue event behaves like a barrier. The first caller to wait takes
-/// the wait semaphore
+/// An event that blocks all callers until signaled, then lets all waiters
+/// through
 public class CpuCompletionEvent: CompletionEvent {
-    @usableFromInline var occurred: Bool
-    @usableFromInline let mutex: DispatchSemaphore
+    public let id: Int
+    public let tensorId: Int
     @usableFromInline let event: DispatchSemaphore
 
-    /// the id of the event for diagnostics
-    @inlinable public var id: Int { 0 }
-
-    @inlinable public init() {
-        occurred = false
-        mutex = DispatchSemaphore(value: 1)
-        event = DispatchSemaphore(value: 0)
+    @inlinable public required init() {
+        tensorId = -1
+        id = -1
+        event = DispatchSemaphore(value: 1)
     }
     
+    @inlinable public required init(tensorId: Int) {
+        self.tensorId = tensorId
+        event = DispatchSemaphore(value: 0)
+
+        #if DEBUG
+        id = Context.nextEventId
+        #else
+        id = 0
+        #endif
+        diagnostic(.create, "Tensor(\(tensorId)) completion event(\(id))",
+                   categories: .queueSync)
+    }
+    
+    // all write operations must complete before going out of scope
+    // a negative id is for the placeholder event during initialization
+    // before the first readWrite replaces it.
     @inlinable deinit {
-        // all write operations must complete before going out of scope
-        wait()
+        if id > 0 {
+            event.wait()
+        }
     }
 
     @inlinable public func signal() {
+        diagnostic(.signaled, "Tensor(\(tensorId)) complete on event(\(id))",
+                   categories: .queueSync)
         event.signal()
     }
 
     @inlinable public func wait() {
-        mutex.wait()
-        defer { mutex.signal() }
-        guard !occurred else { return }
+        diagnostic(.wait, "for Tensor(\(tensorId)) to complete on event(\(id))",
+                   categories: .queueSync)
         event.wait()
-        occurred = true
+        event.signal()
     }
 }

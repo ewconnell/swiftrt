@@ -54,11 +54,11 @@ public final class Context: Logging {
 
     //-------------------------------------
     /// counter for unique buffer ids
-    public static var bufferIdCounter: Int = -1
+    public static var objectIdCounter: Int = -1
     /// a platform instance unique id for queue events
     public static var queueCounter: Int = -1
     /// a platform instance unique id for queue events
-    public static var queueEventCounter: Int = -1
+    public static var eventCounter: Int = -1
     /// the number of async cpu queues to create
     public static var cpuQueueCount: Int = PlatformType.defaultCpuQueueCount
     /// the number of async cpu queues to create
@@ -94,17 +94,17 @@ public final class Context: Logging {
         queueCounter += 1
         return queueCounter
     }
-    
-    /// a counter used to uniquely identify queue events for diagnostics
-    @inlinable public static var nextQueueEventId: Int {
-        queueEventCounter += 1
-        return queueEventCounter
+
+    /// nextEventId
+    @inlinable public static var nextEventId: Int {
+        eventCounter += 1
+        return eventCounter
     }
-    
-    /// nextBufferId
-    @inlinable public static var nextBufferId: Int {
-        bufferIdCounter += 1
-        return bufferIdCounter
+
+    /// nextObjectId
+    @inlinable public static var nextObjectId: Int {
+        objectIdCounter += 1
+        return objectIdCounter
     }
 
     //--------------------------------------------------------------------------

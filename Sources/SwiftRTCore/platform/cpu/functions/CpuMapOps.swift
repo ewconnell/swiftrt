@@ -51,12 +51,12 @@ extension DeviceQueue {
         from first: E.Value,
         to last: E.Value,
         by step: E.Value,
-        _ out: inout Tensor<S,E>,
+        _ output: inout Tensor<S,E>,
         _ opName: @autoclosure () -> String
     ) where E.Value: Numeric {
+        var out = output.mutableBuffer
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        let completed = out.completed
-        var out = out.mutableBuffer
+        let completed = output.completed
         
         if mode == .sync {
             var io = out.indices.startIndex

@@ -545,14 +545,15 @@ public extension Tensor {
         
         // create a new completion event that will be signaled when the
         // write operation is complete
-        completed = PlatformType.Event()
+        completed = PlatformType.Event(tensorId: id)
     }
 
     //--------------------------------------------------------------------------
     /// - Returns: the collection elements as a 1D Swift array
     @inlinable var flatArray: [Element] {
         usingAppThreadQueue {
-            isContiguous ? [Element](buffer) : [Element](elements)
+            completed.wait()
+            return isContiguous ? [Element](buffer) : [Element](elements)
         }
     }
 }

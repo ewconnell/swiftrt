@@ -29,21 +29,28 @@ class test_Async: XCTestCase {
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
         Context.log.level = .diagnostic
-        use(device: 0)
+//        use(device: 0)
+        useAppThreadQueue()
     }
 
     override func tearDownWithError() throws {
         Context.log.level = .error
-        useAppThreadQueue()
+//        useAppThreadQueue()
     }
 
     //--------------------------------------------------------------------------
     func test_multiFill() {
-        let a = array(from: 0, to: 3, count: 6)
-        let b = array(0..<6)
-        
-        print("a: \(a)")
-        print("b: \(b)")
+        let size = 1024 * 1024
+
+        measure {
+            var list: [Tensor1] = []
+            for _ in 0..<1000 {
+                for _ in 0..<32 {
+                    list.append(array(from: Float(1), to: Float(100000), count: 10000))
+                }
+            }
+            Context.currentQueue.waitForCompletion()
+        }
     }
     
     //--------------------------------------------------------------------------

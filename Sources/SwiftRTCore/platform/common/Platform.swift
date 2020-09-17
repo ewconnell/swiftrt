@@ -261,6 +261,13 @@ extension DeviceMemory {
 public protocol CompletionEvent: class, Logging {
     /// the id of the event for diagnostics
     var id: Int { get }
+    /// the id of the tensor for diagnostics
+    var tensorId: Int { get }
+
+    /// default already completed
+    init()
+    /// initializer
+    init(tensorId: Int)
     /// signals that the event has occurred
     func signal()
     /// blocks the caller until the event has occurred

@@ -70,7 +70,7 @@ public final class DiscreteStorage: StorageBuffer {
         self.name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * count
-        id = Context.nextBufferId
+        id = Context.nextObjectId
         isReadOnly = false
         isReference = false
         isZero = false
@@ -114,7 +114,7 @@ public final class DiscreteStorage: StorageBuffer {
         copying other: DiscreteStorage,
         using queue: DeviceQueue
     ) {
-        id = Context.nextBufferId
+        id = Context.nextObjectId
         alignment = other.alignment
         byteCount = other.byteCount
         isReadOnly = other.isReadOnly
