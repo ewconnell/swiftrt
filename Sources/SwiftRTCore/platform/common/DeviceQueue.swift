@@ -61,12 +61,12 @@ public protocol DeviceQueue: Logging {
     ///  - dst: the destination buffer
     func copyAsync(from src: DeviceMemory, to dst: DeviceMemory)
     
-    /// createEvent(options:
-    /// creates a queue event used for synchronization and timing measurements
-    /// - Parameters:
-    ///  - options: event creation options
-    /// - Returns: a new queue event
-    func createEvent(options: QueueEventOptions) -> PlatformType.Event
+    // /// createEvent(options:
+    // /// creates a queue event used for synchronization and timing measurements
+    // /// - Parameters:
+    // ///  - options: event creation options
+    // /// - Returns: a new queue event
+    // func createEvent(options: QueueEventOptions) -> PlatformType.Event
     
     /// record(event:
     /// adds `event` to the queue and returns immediately
@@ -97,12 +97,6 @@ extension DeviceQueue {
     }
 
     //--------------------------------------------------------------------------
-    /// record
-    @inlinable public func record() -> PlatformType.Event {
-        record(event: createEvent())
-    }
-
-    //--------------------------------------------------------------------------
     /// copy
     @inlinable public func copyAsync(
         from src: DeviceMemory, 
@@ -128,13 +122,14 @@ extension DeviceQueue {
     /// createEvent
     /// creates an event object used for queue synchronization
     @inlinable public func createEvent(
+        id: Int,
         options: QueueEventOptions
     ) -> PlatformType.Event {
-        PlatformType.Event()
+        PlatformType.Event(id)
     }
 
-    @inlinable public func createEvent() -> PlatformType.Event {
-        createEvent(options: defaultQueueEventOptions)
+    @inlinable public func createEvent(id: Int) -> PlatformType.Event {
+        createEvent(id: id, options: defaultQueueEventOptions)
     }
     
     //--------------------------------------------------------------------------

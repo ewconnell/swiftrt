@@ -27,13 +27,14 @@ extension DeviceQueue {
     //==========================================================================
     // caller defined generator
     @inlinable func mapOp<S,E>(
-        _ out: inout Tensor<S,E>,
+        _ output: inout Tensor<S,E>,
         _ opName: @autoclosure () -> String,
         _ op: @escaping () -> E.Value
     ) {
+        var out = output.mutableBuffer
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        let completed = out.completed
-        var out = out.mutableBuffer
+        let completed = output.completed
+
         if mode == .sync {
             out.indices.forEach { out[$0] = op() }
             completed.signal()

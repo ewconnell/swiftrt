@@ -55,7 +55,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     /// the number of storage elements spanned by this tensor
     @noDerivative public let spanCount: Int
     /// signaled when a write is completed
-    @noDerivative public var completed = PlatformType.Event()
+    @noDerivative public let completed: PlatformType.Event
 
     //--------------------------------------------------------------------------
     // functional properties
@@ -98,7 +98,6 @@ where Shape: TensorShape, TensorElement: StorageElement
         // verify storage order is valid for rank
         assert((order != .NHWC || Shape.rank == 4) &&
                (order != .NDHWC || Shape.rank == 5))
-
         self.shape = shape
         self.strides = strides
         self.count = count
@@ -107,6 +106,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.spanCount = spanCount
         self.isShared = shared
         self.order = order
+        self.completed = PlatformType.Event(storage.id)
         logicalStrides = shape.strides(for: order)
         logicalElements = LogicalElements(count,
                                           shape,
@@ -139,6 +139,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.order = order
         let stored = TensorElement.stored(value: value)
         self.storage = PlatformType.Storage(storedElement: stored, name: name)
+        self.completed = PlatformType.Event(storage.id)
         logicalStrides = shape.strides(for: order)
         logicalElements = LogicalElements(count,
                                           shape,
@@ -162,6 +163,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.spanCount = 1
         self.order = .row
         self.storage = Context.zeroStorage
+        completed = PlatformType.Event(storage.id)
         logicalStrides = Shape.one
         logicalElements = LogicalElements(count,
                                           shape,
@@ -542,10 +544,6 @@ public extension Tensor {
                                         using: queue)
             logicalElements = LogicalElements(tensor: self)
         }
-        
-        // create a new completion event that will be signaled when the
-        // write operation is complete
-        completed = PlatformType.Event(tensorId: id)
     }
 
     //--------------------------------------------------------------------------

@@ -23,7 +23,7 @@ public protocol Platform: class, Logging {
     // types
     associatedtype Device: ComputeDevice
     associatedtype Storage: StorageBuffer
-    associatedtype Event: CompletionEvent
+    associatedtype Event
 
     /// the number of async cpu queues to create
     static var defaultCpuQueueCount: Int { get }
@@ -251,27 +251,6 @@ extension DeviceMemory {
     @inlinable public func count<E>(of type: E.Type) -> Int {
         buffer.count / MemoryLayout<E>.size
     }
-}
-
-//==============================================================================
-/// CompletionEvent
-/// Conforming types block all waiters until the event is signaled,
-/// then they are all released. This is used by storage buffers to signal
-/// when a write operation has completed.
-public protocol CompletionEvent: class, Logging {
-    /// the id of the event for diagnostics
-    var id: Int { get }
-    /// the id of the tensor for diagnostics
-    var tensorId: Int { get }
-
-    /// default already completed
-    init()
-    /// initializer
-    init(tensorId: Int)
-    /// signals that the event has occurred
-    func signal()
-    /// blocks the caller until the event has occurred
-    func wait()
 }
 
 //==============================================================================

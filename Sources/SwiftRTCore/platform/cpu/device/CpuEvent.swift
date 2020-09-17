@@ -19,48 +19,29 @@ import Foundation
 // CpuEvent
 /// An event that blocks all callers until signaled, then lets all waiters
 /// through
-public class CpuEvent: CompletionEvent {
+public class CpuEvent: Logging {
     public let id: Int
-    public let tensorId: Int
     @usableFromInline let event: DispatchSemaphore
 
-    @inlinable public required init() {
-        tensorId = -1
-        id = -1
-        event = DispatchSemaphore(value: 1)
-    }
-    
-    @inlinable public required init(tensorId: Int) {
-        self.tensorId = tensorId
+    @inlinable public required init(_ tensorId: Int) {
+        id = tensorId
         event = DispatchSemaphore(value: 0)
-
-        #if DEBUG
-        id = Context.nextEventId
-        #else
-        id = 0
-        #endif
-        diagnostic(.create, "Tensor(\(tensorId)) completion event(\(id))",
-                   categories: .queueSync)
     }
     
     // all write operations must complete before going out of scope
     // a negative id is for the placeholder event during initialization
     // before the first readWrite replaces it.
     @inlinable deinit {
-        if id > 0 {
-            event.wait()
-        }
+        event.wait()
     }
 
     @inlinable public func signal() {
-        diagnostic(.signaled, "Tensor(\(tensorId)) complete on event(\(id))",
-                   categories: .queueSync)
+        diagnostic(.signaled, "Tensor(\(id)) complete", categories: .queueSync)
         event.signal()
     }
 
     @inlinable public func wait() {
-        diagnostic(.wait, "for Tensor(\(tensorId)) to complete on event(\(id))",
-                   categories: .queueSync)
+        diagnostic(.wait, "for Tensor(\(id))", categories: .queueSync)
         event.wait()
         event.signal()
     }

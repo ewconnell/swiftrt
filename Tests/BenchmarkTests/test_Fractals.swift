@@ -52,11 +52,11 @@ class test_Fractals: XCTestCase {
         var Z = array(from: first, to: last, size)
         var divergence = full(size, iterations)
 
-        measure {
+        // measure {
             for i in 0..<iterations {
                 Z = multiply(Z, Z, add: C)
                 divergence[abs(Z) .> tolerance] = min(divergence, i)
             }
-        }
+        // }
     }
 }
