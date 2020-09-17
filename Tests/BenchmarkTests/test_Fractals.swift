@@ -28,7 +28,7 @@ class test_Fractals: XCTestCase {
     override func setUpWithError() throws {
         Context.log.level = .diagnostic
 //        use(device: 0)
-        useAppThreadQueue()
+       useAppThreadQueue()
     }
 
     override func tearDownWithError() throws {
@@ -39,12 +39,14 @@ class test_Fractals: XCTestCase {
     //--------------------------------------------------------------------------
     func test_juliaSet() {
         // parameters
-        let iterations = 2048
+        let iterations = 5
         let size = (1030, 1030)
         let tolerance: Float = 4.0
         let C = Complex<Float>(-0.8, 0.156)
         let first = Complex<Float>(-1.7, -1.7)
         let last = Complex<Float>(1.7, 1.7)
+        print("size: \(size), iterations: \(iterations), " +
+              "queue: \(Context.currentQueue.name)")
 
         // test
         var Z = array(from: first, to: last, size)
