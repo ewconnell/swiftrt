@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+#include <bits/stdint-uintn.h>
 #include <cuda_fp16.h>
 #include <cuda_bf16.h>
 
@@ -109,51 +110,72 @@ cudaError_t srtFill(
 // srtFillRange
 
 // kernel
+// TODO: remove float cast. It currently is to get around missing bfloat cast
 template <typename E, typename IndexO>
-__global__ void mapRangeFill(E *out, IndexO indexO, E lower) {
+__global__ void mapFillRange(
+    E *out, IndexO indexO,
+    const E first,
+    const E last,
+    const E step
+) {
+    auto lastIndex = indexO.count - 1;
     auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
     if (indexO.isInBounds(position)) {
-        // TODO: remove the float conversation
-        // It's to compensate for missing bfloat16 constructor
-        auto logical = E(float(Flat::Logical(blockIdx, blockDim, threadIdx)[0]));
-        int i = indexO.linear(position);
-        out[i] = lower + logical;
+        auto i = indexO.linear(position);
+        auto seq = indexO.sequence(position);
+        printf("p: (%d, %d), seq: %d, i: %d\n", position[0], position[1], seq, i);
+        E value = first + (E(float(seq)) * step);
+        out[i] = i == lastIndex ? last : value; 
     }
 }
 
 template <typename E, typename IndexO>
-static cudaError_t rangeFill(
+static cudaError_t fillRange(
     void *pOut, const TensorDescriptor &oDesc,
-    const E lower, cudaStream_t stream
+    const E first,
+    const E last,
+    const E step,
+    cudaStream_t stream
 ) {
     E *out = static_cast<E *>(pOut);
     dim3 tile = tileSize<IndexO::Rank>(oDesc);
     dim3 grid = gridSize<IndexO::Rank>(oDesc, tile);
-    mapRangeFill<E,IndexO><<<grid, tile, 0, stream>>>(out, IndexO(oDesc), lower);
+    mapFillRange<E,IndexO><<<grid, tile, 0, stream>>>(out, IndexO(oDesc), first, last, step);
+    cudaStreamSynchronize(stream);
     return cudaSuccess;
 }
 
 template <typename E, int R>
-static cudaError_t selectRangeFillIndex(
+static cudaError_t selectFillRangeIndex(
     void *out, const TensorDescriptor &oDesc,
-    const E lower, cudaStream_t stream
+    const E first,
+    const E last,
+    const E step,
+    cudaStream_t stream
 ) {
     switch (oDesc.order) {
-    case CUBLASLT_ORDER_ROW: return rangeFill<E,Flat>(out, oDesc, lower, stream);
-    case CUBLASLT_ORDER_COL: return rangeFill<E,Strided<R> >(out, oDesc, lower, stream);
+    case CUBLASLT_ORDER_ROW: return fillRange<E,Flat>(out, oDesc, first, last, step, stream);
+    case CUBLASLT_ORDER_COL: return fillRange<E,LogicalStrided<R> >(out, oDesc, first, last, step, stream);
     default: return cudaErrorNotSupported;
     }
 }
 
 template <typename E>
-static cudaError_t selectRangeFillRank(
+static cudaError_t selectFillRangeRank(
     void *out, const TensorDescriptor &oDesc,
-    const E lower, cudaStream_t stream
+    const void* pfirst,
+    const void* plast,
+    const void* pstep,
+    cudaStream_t stream
 ) {
+    E first = *static_cast<const E*>(pfirst);
+    E last  = *static_cast<const E*>(plast);
+    E step  = *static_cast<const E*>(pstep);
+
     switch (oDesc.rank) {
-    case 1: return selectRangeFillIndex<E,1>(out, oDesc, lower, stream);
-    case 2: return selectRangeFillIndex<E,2>(out, oDesc, lower, stream);
-    case 3: return selectRangeFillIndex<E,3>(out, oDesc, lower, stream);
+    case 1: return selectFillRangeIndex<E,1>(out, oDesc, first, last, step, stream);
+    case 2: return selectFillRangeIndex<E,2>(out, oDesc, first, last, step, stream);
+    case 3: return selectFillRangeIndex<E,3>(out, oDesc, first, last, step, stream);
     default: return cudaErrorNotSupported;
     }
 }
@@ -170,20 +192,20 @@ cudaError_t srtFillRange(
     const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*poDesc);
     assert(oDesc.isDense());
 
-    // switch (oDesc.type) {
-    // case real32F:  return selectRangeFillRank<float>(out, oDesc, lower, stream);
-    // case real16F:  return selectRangeFillRank<__half>(out, oDesc, float(lower), stream);
-    // case real16BF: return selectRangeFillRank<__nv_bfloat16>(out, oDesc, float(lower), stream);
-    // case real64F:  return selectRangeFillRank<double>(out, oDesc, lower, stream);
-    // case real32I:  return selectRangeFillRank<int32_t>(out, oDesc, lower, stream);
-    // case real32U:  return selectRangeFillRank<uint32_t>(out, oDesc, lower, stream);
-    // case real16I:  return selectRangeFillRank<int16_t>(out, oDesc, lower, stream);
-    // case real16U:  return selectRangeFillRank<uint16_t>(out, oDesc, lower, stream);
-    // case real8I:   return selectRangeFillRank<int8_t>(out, oDesc, lower, stream);
-    // case real8U:   return selectRangeFillRank<uint8_t>(out, oDesc, lower, stream);
-    // case complex32F: return selectRangeFillRank<Complex<float> >(out, oDesc, lower, stream);
-    // default: return cudaErrorNotSupported;
-    // }
+    switch (oDesc.type) {
+    case real32F:  return selectFillRangeRank<float>(out, oDesc, first, last, step, stream);
+    case real16F:  return selectFillRangeRank<__half>(out, oDesc, first, last, step, stream);
+    case real16BF: return selectFillRangeRank<__nv_bfloat16>(out, oDesc, first, last, step, stream);
+    case real64F:  return selectFillRangeRank<double>(out, oDesc, first, last, step, stream);
+    case real32I:  return selectFillRangeRank<int32_t>(out, oDesc, first, last, step, stream);
+    case real32U:  return selectFillRangeRank<uint32_t>(out, oDesc, first, last, step, stream);
+    case real16I:  return selectFillRangeRank<int16_t>(out, oDesc, first, last, step, stream);
+    case real16U:  return selectFillRangeRank<uint16_t>(out, oDesc, first, last, step, stream);
+    case real8I:   return selectFillRangeRank<int8_t>(out, oDesc, first, last, step, stream);
+    case real8U:   return selectFillRangeRank<uint8_t>(out, oDesc, first, last, step, stream);
+    case complex32F: return selectFillRangeRank<Complex<float> >(out, oDesc, first, last, step, stream);
+    default: return cudaErrorNotSupported;
+    }
     return cudaErrorNotSupported;
 }
 

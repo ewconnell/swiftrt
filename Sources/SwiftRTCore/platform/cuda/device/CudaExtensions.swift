@@ -28,21 +28,24 @@ extension Tensor {
         let deviceDataPointer = deviceRead(using: queue)
         return shape.withUnsafePointer { shapePointer in
             strides.withUnsafePointer { stridesPointer in
-                var tensorDescriptor = srtTensorDescriptor(
-                    type: TensorElement.type,
-                    rank: UInt32(Shape.rank),
-                    order: order.cublas,
-                    count: count,
-                    spanCount: spanCount,
-                    shape: shapePointer,
-                    strides: stridesPointer
-                )
+                logicalStrides.withUnsafePointer { logicalStridesPointer in
+                    var tensorDescriptor = srtTensorDescriptor(
+                        type: TensorElement.type,
+                        rank: UInt32(Shape.rank),
+                        order: order.cublas,
+                        count: count,
+                        spanCount: spanCount,
+                        shape: shapePointer,
+                        strides: stridesPointer,
+                        logicalStrides: logicalStridesPointer
+                    )
 
-                return withUnsafePointer(to: &tensorDescriptor) {
-                    let raw = UnsafeRawPointer($0)
-                    return body(
-                        deviceDataPointer, 
-                        raw.assumingMemoryBound(to: srtTensorDescriptor.self))
+                    return withUnsafePointer(to: &tensorDescriptor) {
+                        let raw = UnsafeRawPointer($0)
+                        return body(
+                            deviceDataPointer, 
+                            raw.assumingMemoryBound(to: srtTensorDescriptor.self))
+                    }
                 }
             }
         }
@@ -55,21 +58,24 @@ extension Tensor {
         let deviceDataPointer = deviceReadWrite(using: queue)
         return shape.withUnsafePointer { shapePointer in
             strides.withUnsafePointer { stridesPointer in
-                var tensorDescriptor = srtTensorDescriptor(
-                    type: TensorElement.type,
-                    rank: UInt32(Shape.rank),
-                    order: order.cublas,
-                    count: count,
-                    spanCount: spanCount,
-                    shape: shapePointer,
-                    strides: stridesPointer
-                )
+                logicalStrides.withUnsafePointer { logicalStridesPointer in
+                    var tensorDescriptor = srtTensorDescriptor(
+                        type: TensorElement.type,
+                        rank: UInt32(Shape.rank),
+                        order: order.cublas,
+                        count: count,
+                        spanCount: spanCount,
+                        shape: shapePointer,
+                        strides: stridesPointer,
+                        logicalStrides: logicalStridesPointer
+                    )
 
-                return withUnsafePointer(to: &tensorDescriptor) {
-                    let raw = UnsafeRawPointer($0)
-                    return body(
-                        deviceDataPointer,
-                        raw.assumingMemoryBound(to: srtTensorDescriptor.self))
+                    return withUnsafePointer(to: &tensorDescriptor) {
+                        let raw = UnsafeRawPointer($0)
+                        return body(
+                            deviceDataPointer,
+                            raw.assumingMemoryBound(to: srtTensorDescriptor.self))
+                    }
                 }
             }
         }

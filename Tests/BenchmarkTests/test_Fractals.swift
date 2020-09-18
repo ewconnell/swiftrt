@@ -40,11 +40,15 @@ class test_Fractals: XCTestCase {
     func test_juliaSet() {
         // parameters
         let iterations = 2
-        let size = (1030, 1030)
+        let size = (2, 3)
         let tolerance: Float = 4.0
         let C = Complex<Float>(-0.8, 0.156)
-        let first = Complex<Float>(-1.7, -1.7)
-        let last = Complex<Float>(1.7, 1.7)
+        // let first = Complex<Float>(-1.7, -1.7)
+        // let last = Complex<Float>(1.7, 1.7)
+
+        let first = Complex<Float>(-1, -1)
+        let last = Complex<Float>(1, 1)
+
         print("size: \(size), iterations: \(iterations), " +
               "queue: \(Context.currentQueue.name)")
 

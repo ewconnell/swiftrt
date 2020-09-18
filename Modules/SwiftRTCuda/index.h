@@ -101,6 +101,11 @@ struct Single {
     /// - Returns: all positions map to the single value, so always returns 0 
     __device__ __forceinline__ 
     uint32_t linear(const Logical& position) const { return 0; }
+
+    __device__ __forceinline__ 
+    uint32_t sequence(const Logical& position) const {
+        return position[0];
+    }
 };
 
 //==============================================================================
@@ -136,6 +141,13 @@ struct Flat {
     uint32_t linear(const Logical& position) const {
         return position[0];
     }
+
+    //--------------------------------------------------------------------------
+    // the logical sequence position
+    __device__ __forceinline__ 
+    uint32_t sequence(const Logical& position) const {
+        return position[0];
+    }
 };
 
 //==============================================================================
@@ -147,12 +159,14 @@ struct Strided {
     typedef Logical<Rank> Logical;
 
     // properties
+    uint32_t count;
     uint32_t shape[Rank];
     uint32_t strides[Rank];
 
-    //----------------------------------
+    //--------------------------------------------------------------------------
     // initializer
     __host__ Strided(const TensorDescriptor& tensor) {
+        count = tensor.count;
         for (int i = 0; i < Rank; ++i) {
             assert(tensor.shape[i] <= UINT32_MAX && tensor.strides[i] <= UINT32_MAX);
             shape[i] = uint32_t(tensor.shape[i]);
@@ -160,6 +174,7 @@ struct Strided {
         }
     }
 
+    //--------------------------------------------------------------------------
     /// isInBounds
     /// `true` if the given logical position is within the bounds of
     /// the indexed space
@@ -175,13 +190,43 @@ struct Strided {
         return inBounds;
     }
 
-    //----------------------------------
+    //--------------------------------------------------------------------------
+    // the linear buffer position
     __device__ __forceinline__ 
     uint32_t linear(const Logical& position) const {
         uint32_t index = 0;
         #pragma unroll
         for (int i = 0; i < Rank; i++) {
             index += position[i] * strides[i];
+        }
+        return index;
+    }
+};
+
+//==============================================================================
+/// Strided
+template<int R>
+struct LogicalStrided: Strided<R> {
+    // properties
+    uint32_t logicalStrides[R];
+
+    //--------------------------------------------------------------------------
+    // initializer
+    __host__ LogicalStrided(const TensorDescriptor& tensor) : Strided<R>(tensor) {
+        for (int i = 0; i < R; ++i) {
+            assert(tensor.shape[i] <= UINT32_MAX && tensor.strides[i] <= UINT32_MAX);
+            logicalStrides[i] = uint32_t(tensor.logicalStrides[i]);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    // the logical sequence position
+    __device__ __forceinline__  
+    uint32_t sequence(const typename Strided<R>::Logical& position) const {
+        uint32_t index = 0;
+        #pragma unroll
+        for (int i = 0; i < R; i++) {
+            index += position[i] * logicalStrides[i];
         }
         return index;
     }

@@ -54,25 +54,35 @@ extension DeviceQueue {
         _ opName: @autoclosure () -> String
     ) where E.Value: Numeric {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        var out = output.mutableBuffer
-        
-        if mode == .sync {
-            var io = out.indices.startIndex
-            for i in 0..<(out.count - 1) {
-                out[io] = first + E.Value(exactly: i)! * step
-                io = out.index(after: io)
-            }
-            out[io] = last
-        } else {
-            queue.async(group: group) { [completed = output.completed] in
+
+        func execute<O: MutableCollection>(
+            _ out: O
+        ) where O.Element == E.Value {
+            var out = out
+            if mode == .sync {
                 var io = out.indices.startIndex
                 for i in 0..<(out.count - 1) {
-                    out[io] = first + E.Value(exactly: i)! * step
+                    out[io] = first + O.Element(exactly: i)! * step
                     io = out.index(after: io)
                 }
                 out[io] = last
-                completed.signal()
+            } else {
+                queue.async(group: group) { [completed = output.completed] in
+                    var io = out.indices.startIndex
+                    for i in 0..<(out.count - 1) {
+                        out[io] = first + O.Element(exactly: i)! * step
+                        io = out.index(after: io)
+                    }
+                    out[io] = last
+                    completed.signal()
+                }
             }
+        }
+
+        if output.order == .row {
+            execute(output.mutableBuffer)
+        } else {
+            execute(output.mutableElements)
         }
     }
 
@@ -106,7 +116,6 @@ extension DeviceQueue {
     ) {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
-        // the op
         func execute<A: Collection, O: MutableCollection>(
             _ a: A,
             _ out: O,
@@ -170,15 +179,15 @@ extension DeviceQueue {
         }
 
         // check order because they will not match for order conversion ops
-        let out = output.mutableBuffer
         if a.order == output.order {
+            let out = output.mutableBuffer
             if a.isContiguous {
                 execute(a.buffer, out, op)
             } else {
                 execute(a.elements, out, op)
             }
         } else {
-            execute(a.elements, out, op)
+            execute(a.elements, output.mutableElements, op)
         }
     }
 

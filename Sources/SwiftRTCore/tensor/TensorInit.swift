@@ -514,9 +514,9 @@ public extension Tensor {
             
             // performs an indexed copy which reorders the elements
             Context.currentQueue.diagnostic(.reorder,
-                "copying \(other.name) --> " +
-                "\(source.name) \(Element.self)[\(source.count)]" +
-                " on \(Context.currentQueue.name)",
+                "copying \(other.name) order: \(other.order) --> " +
+                "\(source.name) \(Element.self)[\(source.count)] " +
+                "order: \(source.order) on \(Context.currentQueue.name)",
                 categories: [.dataCopy, .dataReorder])
             
             copy(from: other, to: &source)

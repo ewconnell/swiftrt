@@ -84,6 +84,8 @@ typedef struct {
     const size_t* shape;
     /// the stride to the next storage element in the tensor for each dimension 
     const size_t* strides;
+    /// the stride to the next logical element position for each dimension 
+    const size_t* logicalStrides;
 } srtTensorDescriptor;
 
 //==============================================================================

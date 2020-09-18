@@ -21,38 +21,47 @@ class test_Shape: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_reshape", test_reshape),
-        ("test_reshapeOrderRowCol", test_reshapeOrderRowCol),
-        ("test_reshapeOrderRowTC32x8", test_reshapeOrderRowTC32x8),
-        ("test_reshapeOrderRowTC32x32", test_reshapeOrderRowTC32x32),
-        ("test_expanding", test_expanding),
-        ("test_expandMutate", test_expandMutate),
-        ("test_repeatExpandTranspose", test_repeatExpandTranspose),
-        ("test_stridePermutation", test_stridePermutation),
-        ("test_squeeze", test_squeeze),
-        ("test_stack", test_stack),
-        ("test_stackingGradients", test_stackingGradients),
-        ("test_stackingExpression", test_stackingExpression),
-        ("test_perfTensor1", test_perfTensor1),
-        ("test_perfTensor2", test_perfTensor2),
-        ("test_perfRepeatedTensor3", test_perfRepeatedTensor3),
-        ("test_perfTensor3", test_perfTensor3),
-        ("test_perfTensor4", test_perfTensor4),
-        ("test_perfTensor5", test_perfTensor5),
-        ("test_initEmpty", test_initEmpty),
-        ("test_initRepeating", test_initRepeating),
-        ("test_initSingle", test_initSingle),
-        ("test_contiguousViews", test_contiguousViews),
-        ("test_transposed", test_transposed),
-        ("testTransposedPullback", testTransposedPullback),
+        // ("test_reshapeOrderRowCol", test_reshapeOrderRowCol),
+        ("test_reshape", test_fillRangeColumnMajor),
+        // ("test_reshape", test_reshape),
+        // ("test_reshapeOrderRowTC32x8", test_reshapeOrderRowTC32x8),
+        // ("test_reshapeOrderRowTC32x32", test_reshapeOrderRowTC32x32),
+        // ("test_expanding", test_expanding),
+        // ("test_expandMutate", test_expandMutate),
+        // ("test_repeatExpandTranspose", test_repeatExpandTranspose),
+        // ("test_stridePermutation", test_stridePermutation),
+        // ("test_squeeze", test_squeeze),
+        // ("test_stack", test_stack),
+        // ("test_stackingGradients", test_stackingGradients),
+        // ("test_stackingExpression", test_stackingExpression),
+        // ("test_perfTensor1", test_perfTensor1),
+        // ("test_perfTensor2", test_perfTensor2),
+        // ("test_perfRepeatedTensor3", test_perfRepeatedTensor3),
+        // ("test_perfTensor3", test_perfTensor3),
+        // ("test_perfTensor4", test_perfTensor4),
+        // ("test_perfTensor5", test_perfTensor5),
+        // ("test_initEmpty", test_initEmpty),
+        // ("test_initRepeating", test_initRepeating),
+        // ("test_initSingle", test_initSingle),
+        // ("test_contiguousViews", test_contiguousViews),
+        // ("test_transposed", test_transposed),
+        // ("testTransposedPullback", testTransposedPullback),
     ]
 
     override func setUpWithError() throws {
-        // Context.log.level = .diagnostic
+        Context.log.level = .diagnostic
+        useAppThreadQueue()
     }
 
     override func tearDownWithError() throws {
-        // Context.log.level = .error
+        Context.log.level = .error
+    }
+
+    //--------------------------------------------------------------------------
+    func test_fillRangeColumnMajor() {
+        let a = array(from: Float(0), to: Float(3), (2, 3), order: .row)
+        let b = array(from: Float(0), to: Float(3), (2, 3), order: .col)
+        XCTAssert(a.array == b.array)
     }
 
     //--------------------------------------------------------------------------
@@ -172,18 +181,18 @@ class test_Shape: XCTestCase {
     //--------------------------------------------------------------------------
     func test_reshapeOrderRowCol() {
         let a = array([[0, 1, 2], [3, 4, 5]])
-        XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])
+        XCTAssert(Array(a.buffer) == [0, 1, 2, 3, 4, 5])
 
         let b = reshape(a, (2, 3), order: .col)
         XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
-        XCTAssert(b.flatArray == [0, 3, 1, 4, 2, 5])
+        XCTAssert(Array(b.buffer) == [0, 3, 1, 4, 2, 5])
         
         let c = array([[0, 3, 1], [4, 2, 5]], order: .col)
-        XCTAssert(c.flatArray == [0, 3, 1, 4, 2, 5])
+        XCTAssert(Array(c.buffer) == [0, 3, 1, 4, 2, 5])
 
         let d = reshape(c, (2, 3))
         XCTAssert(d == [[0, 1, 2], [3, 4, 5]])
-        XCTAssert(d.flatArray == [0, 1, 2, 3, 4, 5])
+        XCTAssert(Array(d.buffer) == [0, 1, 2, 3, 4, 5])
     }
     
     //--------------------------------------------------------------------------
