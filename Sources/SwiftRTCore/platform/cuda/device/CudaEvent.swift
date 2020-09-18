@@ -13,36 +13,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-import Foundation
+import SwiftRTCuda
 
 //==============================================================================
 // CudaEvent
-/// An event that blocks all callers until signaled, then lets all waiters
-/// through
+/// An event that blocks all until signaled, then lets all through
 public class CudaEvent: Logging {
-    public let id: Int
-    @usableFromInline let event: DispatchSemaphore
+	public var handle: cudaEvent_t
 
-    @inlinable public required init(_ tensorId: Int) {
-        id = tensorId
-        event = DispatchSemaphore(value: 0)
+    #if DEBUG
+    public let id = Context.nextEventId
+    #else
+    public let id = 0
+    #endif
+
+    @inlinable public required init(options: QueueEventOptions = []) {
+		// the default is a non host blocking, non timing, non inter process event
+		var flags: Int32 = cudaEventDisableTiming
+		if !options.contains(.timing)      { flags &= ~cudaEventDisableTiming }
+		if options.contains(.interprocess) { flags |= cudaEventInterprocess |
+			                                            cudaEventDisableTiming }
+		// if options.contains(.hostSync)     { flags |= cudaEventBlockingSync }
+
+		var temp: cudaEvent_t?
+		cudaCheck(cudaEventCreateWithFlags(&temp, UInt32(flags)))
+		handle = temp!
     }
     
-    // all write operations must complete before going out of scope
-    // a negative id is for the placeholder event during initialization
-    // before the first readWrite replaces it.
+    // event must be signaled before going out of scope to ensure 
     @inlinable deinit {
-        event.wait()
+		_ = cudaEventDestroy(handle)
     }
 
     @inlinable public func signal() {
-        diagnostic(.signaled, "Tensor(\(id)) complete", categories: .queueSync)
-        event.signal()
+        fatalError()
     }
 
     @inlinable public func wait() {
-        diagnostic(.wait, "for Tensor(\(id))", categories: .queueSync)
-        event.wait()
-        event.signal()
+        fatalError()
     }
 }

@@ -27,7 +27,7 @@ public class CpuEvent: Logging {
     public let id = 0
     #endif
 
-    @inlinable public required init() {
+    @inlinable public required init(options: QueueEventOptions = []) {
         event = DispatchSemaphore(value: 0)
     }
     

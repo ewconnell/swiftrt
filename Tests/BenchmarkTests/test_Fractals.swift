@@ -27,19 +27,19 @@ class test_Fractals: XCTestCase {
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
         Context.log.level = .diagnostic
-//        use(device: 0)
-       useAppThreadQueue()
+        use(device: 1)
+    //    useAppThreadQueue()
     }
 
     override func tearDownWithError() throws {
         Context.log.level = .error
-//        useAppThreadQueue()
+        useAppThreadQueue()
     }
 
     //--------------------------------------------------------------------------
     func test_juliaSet() {
         // parameters
-        let iterations = 5
+        let iterations = 2
         let size = (1030, 1030)
         let tolerance: Float = 4.0
         let C = Complex<Float>(-0.8, 0.156)
