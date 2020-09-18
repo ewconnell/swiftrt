@@ -24,23 +24,18 @@ public final class CudaDevice: ComputeDevice {
     public let memoryType: MemoryType
     public let name: String
     public var queues: [CudaQueue]
-    public var properties: [String]
 
     @inlinable public init(index: Int) {
         let isCpu = index == 0
         self.index = index
         self.name = "dev:\(index)"
         self.memoryType = isCpu ? .unified : .discrete
-        properties = []
         queues = []
 
         //----------------------------
         // report device stats
-        diagnostic(.device, "\(name)", categories: .device)
-        properties = isCpu ? getCpuProperties() : getCudaDeviceProperties()
-        properties.forEach {
-            diagnostic(.blank, $0, categories: .device)
-        }
+        let description = isCpu ? getCpuProperties() : getCudaDeviceProperties()
+        diagnostic(.device, "\(name) \(description)", categories: .device)
 
         //----------------------------
         // create queues
@@ -73,20 +68,17 @@ public final class CudaDevice: ComputeDevice {
     //--------------------------------------------------------------------------
     // note: physicalMemory is being under reported on Ubuntu by ~750MB, so
     // we add one
-    @inlinable func getCpuProperties() -> [String] {
+    @inlinable func getCpuProperties() -> String {
         let info = ProcessInfo.processInfo
         let oneGB = UInt64(1.GB)
-        return [
-            "device type       : cpu",
-            "active cores      : \(info.activeProcessorCount)",
-            "physical memory   : \(info.physicalMemory / oneGB + 1) GB",
-            "memory addressing : \(memoryType)",
-        ]
+        return "[type: cpu, cores: \(info.activeProcessorCount), memory: " +
+            "\(info.physicalMemory / oneGB + 1) GB, addressing: \(memoryType)]"
     }
 
     //--------------------------------------------------------------------------
-    @inlinable func getCudaDeviceProperties() -> [String] {
+    @inlinable func getCudaDeviceProperties() -> String {
         // get device properties
+        let oneGB = Int(1.GB)
         var props = cudaDeviceProp()
         cudaCheck(cudaGetDeviceProperties(&props, 0))
         let nameCapacity = MemoryLayout.size(ofValue: props.name)
@@ -95,13 +87,10 @@ public final class CudaDevice: ComputeDevice {
                 String(cString: $0)
             }
         }
-        return [
-            "device type       : \(deviceName)",
-            "multiprocessors   : \(props.multiProcessorCount)",
-            "compute capability: \(props.major).\(props.minor)",
-            "global memory     : \(props.totalGlobalMem / (1024 * 1024)) MB",
-            "memory addressing : \(memoryType)",
-        ]
+        return "[type: \(deviceName), multiprocessors: \(props.multiProcessorCount), " +
+            "memory: \(props.totalGlobalMem / oneGB) GB, " +
+            "addressing: \(memoryType)]"
+
     }
 }
 
