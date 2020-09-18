@@ -40,7 +40,7 @@ class test_Async: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_multiFill() {
-        let size = 1024 * 1024
+        // let size = 1024 * 1024
 
         measure {
             var list: [Tensor1] = []

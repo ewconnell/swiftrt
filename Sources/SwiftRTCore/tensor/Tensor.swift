@@ -54,13 +54,14 @@ where Shape: TensorShape, TensorElement: StorageElement
     @noDerivative public let strides: Shape
     /// the number of storage elements spanned by this tensor
     @noDerivative public let spanCount: Int
-    /// signaled when a write is completed
-    @noDerivative public let completed: PlatformType.Event
 
     //--------------------------------------------------------------------------
     // functional properties
     /// the unique storage id
     @inlinable public var id: Int { storage.id }
+
+    /// semaphore to retain storage until an async write has completed
+    @inlinable public var completed: DispatchSemaphore { storage.completed }
     
     /// the name of the collection
     @inlinable public var name: String {
@@ -106,7 +107,6 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.spanCount = spanCount
         self.isShared = shared
         self.order = order
-        self.completed = PlatformType.Event(storage.id)
         logicalStrides = shape.strides(for: order)
         logicalElements = LogicalElements(count,
                                           shape,
@@ -139,7 +139,6 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.order = order
         let stored = TensorElement.stored(value: value)
         self.storage = PlatformType.Storage(storedElement: stored, name: name)
-        self.completed = PlatformType.Event(storage.id)
         logicalStrides = shape.strides(for: order)
         logicalElements = LogicalElements(count,
                                           shape,
@@ -163,7 +162,6 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.spanCount = 1
         self.order = .row
         self.storage = Context.zeroStorage
-        completed = PlatformType.Event(storage.id)
         logicalStrides = Shape.one
         logicalElements = LogicalElements(count,
                                           shape,
@@ -550,7 +548,6 @@ public extension Tensor {
     /// - Returns: the collection elements as a 1D Swift array
     @inlinable var flatArray: [Element] {
         usingAppThreadQueue {
-            completed.wait()
             return isContiguous ? [Element](buffer) : [Element](elements)
         }
     }

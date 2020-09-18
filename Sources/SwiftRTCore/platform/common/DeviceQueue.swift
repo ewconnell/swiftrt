@@ -122,14 +122,13 @@ extension DeviceQueue {
     /// createEvent
     /// creates an event object used for queue synchronization
     @inlinable public func createEvent(
-        id: Int,
         options: QueueEventOptions
     ) -> PlatformType.Event {
-        PlatformType.Event(id)
+        PlatformType.Event()
     }
 
-    @inlinable public func createEvent(id: Int) -> PlatformType.Event {
-        createEvent(id: id, options: defaultQueueEventOptions)
+    @inlinable public func createEvent() -> PlatformType.Event {
+        createEvent(options: defaultQueueEventOptions)
     }
     
     //--------------------------------------------------------------------------
@@ -157,14 +156,17 @@ extension DeviceQueue {
         return event
     }
     
+    @discardableResult
+    @inlinable public func record() -> PlatformType.Event {
+        record(event: PlatformType.Event())
+    }
+
     //--------------------------------------------------------------------------
     /// wait(for event:
     /// waits until the event has occurred
     @inlinable public func wait(for event: PlatformType.Event) {
-        #if DEBUG
         diagnostic(.wait, "\(name) will wait for event(\(event.id))",
                    categories: .queueSync)
-        #endif
         if mode == .async {
             queue.async(group: group) {
                 event.wait()

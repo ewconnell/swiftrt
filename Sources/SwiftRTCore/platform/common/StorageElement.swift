@@ -338,7 +338,6 @@ extension Tensor where TensorElement == Bool1 {
         isShared = other.isShared
         count = other.count
         spanCount = other.spanCount
-        completed = PlatformType.Event(storage.id)
         logicalStrides = other.logicalStrides
         logicalElements = LogicalElements(count,
                                           shape,
@@ -386,7 +385,6 @@ extension Tensor where TensorElement == UInt1 {
         isShared = other.isShared
         count = other.count
         spanCount = other.spanCount
-        completed = PlatformType.Event(storage.id)
         logicalStrides = other.logicalStrides
         logicalElements = LogicalElements(count,
                                           shape,

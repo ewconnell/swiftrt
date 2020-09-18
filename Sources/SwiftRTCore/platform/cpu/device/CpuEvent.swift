@@ -17,31 +17,30 @@ import Foundation
 
 //==============================================================================
 // CpuEvent
-/// An event that blocks all callers until signaled, then lets all waiters
-/// through
+/// An event that blocks all until signaled, then lets all through
 public class CpuEvent: Logging {
-    public let id: Int
     @usableFromInline let event: DispatchSemaphore
 
-    @inlinable public required init(_ tensorId: Int) {
-        id = tensorId
+    #if DEBUG
+    public let id = Context.nextEventId
+    #else
+    public let id = 0
+    #endif
+
+    @inlinable public required init() {
         event = DispatchSemaphore(value: 0)
     }
     
-    // all write operations must complete before going out of scope
-    // a negative id is for the placeholder event during initialization
-    // before the first readWrite replaces it.
+    // event must be signaled before going out of scope to ensure 
     @inlinable deinit {
         event.wait()
     }
 
     @inlinable public func signal() {
-        diagnostic(.signaled, "Tensor(\(id)) complete", categories: .queueSync)
         event.signal()
     }
 
     @inlinable public func wait() {
-        diagnostic(.wait, "for Tensor(\(id))", categories: .queueSync)
         event.wait()
         event.signal()
     }

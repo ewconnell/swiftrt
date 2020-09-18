@@ -31,15 +31,13 @@ extension DeviceQueue {
         _ opName: @autoclosure () -> String,
         _ op: @escaping () -> E.Value
     ) {
-        var out = output.mutableBuffer
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        let completed = output.completed
+        var out = output.mutableBuffer
 
         if mode == .sync {
             out.indices.forEach { out[$0] = op() }
-            completed.signal()
         } else {
-            queue.async(group: group) {
+            queue.async(group: group) { [completed = output.completed] in
                 out.indices.forEach { out[$0] = op() }
                 completed.signal()
             }
@@ -55,9 +53,8 @@ extension DeviceQueue {
         _ output: inout Tensor<S,E>,
         _ opName: @autoclosure () -> String
     ) where E.Value: Numeric {
-        var out = output.mutableBuffer
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        let completed = output.completed
+        var out = output.mutableBuffer
         
         if mode == .sync {
             var io = out.indices.startIndex
@@ -66,9 +63,8 @@ extension DeviceQueue {
                 io = out.index(after: io)
             }
             out[io] = last
-            completed.signal()
         } else {
-            queue.async(group: group) {
+            queue.async(group: group) { [completed = output.completed] in
                 var io = out.indices.startIndex
                 for i in 0..<(out.count - 1) {
                     out[io] = first + E.Value(exactly: i)! * step
@@ -83,19 +79,17 @@ extension DeviceQueue {
     //==========================================================================
     // inplace
     @inlinable func mapOp<S,E>(
-        _ out: inout Tensor<S,E>,
+        _ output: inout Tensor<S,E>,
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value) -> E.Value
     ) {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        let completed = out.completed
-        var out = out.mutableBuffer
+        var out = output.mutableBuffer
         
         if mode == .sync {
             out.indices.forEach { out[$0] = op(out[$0]) }
-            completed.signal()
         } else {
-            queue.async(group: group) {
+            queue.async(group: group) { [completed = output.completed] in
                 out.indices.forEach { out[$0] = op(out[$0]) }
                 completed.signal()
             }
@@ -106,13 +100,11 @@ extension DeviceQueue {
     // reduction along axes
     @inlinable func mapOp<S,E,RE>(
         _ a: Tensor<S,E>,
-        _ out: inout Tensor<S,RE>,
+        _ output: inout Tensor<S,RE>,
         _ opName: @autoclosure () -> String,
         _ op: @escaping (RE.Value, E.Value) -> RE.Value
     ) {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        let aCompleted = a.completed
-        let outCompleted = out.completed
 
         // the op
         func execute<A: Collection, O: MutableCollection>(
@@ -122,14 +114,11 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .sync {
-                aCompleted.wait()
                 zip(out.indices, a).forEach { out[$0] = op(out[$0], $1) }
-                outCompleted.signal()
             } else {
-                queue.async(group: group) {
-                    aCompleted.wait()
+                queue.async(group: group) { [completed = output.completed] in
                     zip(out.indices, a).forEach { out[$0] = op(out[$0], $1) }
-                    outCompleted.signal()
+                    completed.signal()
                 }
             }
         }
@@ -138,11 +127,11 @@ extension DeviceQueue {
         let mutableElements = LogicalElements<S,RE>(
             a.count,
             a.shape,
-            repeatedStrides(matching: out, to: a.shape),
-            out.storage,
-            out.storageBase,
-            out.order,
-            out.spanCount)
+            repeatedStrides(matching: output, to: a.shape),
+            output.storage,
+            output.storageBase,
+            output.order,
+            output.spanCount)
         
         mutableElements.prepareForReadWrite()
         
@@ -157,44 +146,39 @@ extension DeviceQueue {
     // mapOp tensor
     @inlinable func mapOp<S,E,RE>(
         _ a: Tensor<S,E>,
-        _ out: inout Tensor<S,RE>,
+        _ output: inout Tensor<S,RE>,
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value) -> RE.Value
     ) {
-        assert(out.isContiguous)
+        assert(output.isContiguous)
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        let aCompleted = a.completed
-        let outCompleted = out.completed
 
         func execute<A: Collection, O: MutableCollection>(
             _ a: A,
-            _ out: inout O,
+            _ out: O,
             _ op: @escaping (A.Element) -> O.Element
         ) {
+            var out = out
             if mode == .sync {
-                aCompleted.wait()
                 zip(out.indices, a).forEach { out[$0] = op($1) }
-                outCompleted.signal()
             } else {
-                var out = out
-                queue.async(group: group) {
-                    aCompleted.wait()
+                queue.async(group: group) { [completed = output.completed] in
                     zip(out.indices, a).forEach { out[$0] = op($1) }
-                    outCompleted.signal()
+                    completed.signal()
                 }
             }
         }
 
         // check order because they will not match for order conversion ops
-        var o = out.mutableBuffer
-        if a.order == out.order {
+        let out = output.mutableBuffer
+        if a.order == output.order {
             if a.isContiguous {
-                execute(a.buffer, &o, op)
+                execute(a.buffer, out, op)
             } else {
-                execute(a.elements, &o, op)
+                execute(a.elements, out, op)
             }
         } else {
-            execute(a.elements, &o, op)
+            execute(a.elements, out, op)
         }
     }
 
@@ -203,16 +187,13 @@ extension DeviceQueue {
     @inlinable func mapOp<S,E,RE>(
         _ a: Tensor<S,E>,
         _ b: Tensor<S,E>,
-        _ out: inout Tensor<S,RE>,
+        _ output: inout Tensor<S,RE>,
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value, E.Value) -> RE.Value
     ) {
-        assert(a.order == b.order && a.order == out.order && out.isContiguous,
-               _messageOrdersMustMatch)
+        assert(a.order == b.order && a.order == output.order &&
+               output.isContiguous, _messageOrdersMustMatch)
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        let aCompleted = a.completed
-        let bCompleted = b.completed
-        let outCompleted = out.completed
 
         func execute<A: Collection, B: Collection, O: MutableCollection>(
             _ a: A, _ b: B, _ out: O,
@@ -220,35 +201,31 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .sync {
-                aCompleted.wait()
-                bCompleted.wait()
                 zip(out.indices, zip(a, b)).forEach {
                     out[$0] = op($1.0, $1.1)
                 }
-                outCompleted.signal()
             } else {
-                queue.async(group: group) {
-                    aCompleted.wait()
-                    bCompleted.wait()
+                queue.async(group: group) { [completed = output.completed] in
                     zip(out.indices, zip(a, b)).forEach {
                         out[$0] = op($1.0, $1.1)
                     }
-                    outCompleted.signal()
+                    completed.signal()
                 }
             }
         }
         
+        let out = output.mutableBuffer
         if a.isContiguous {
             if b.isContiguous {
-                execute(a.buffer, b.buffer, out.mutableBuffer, op)
+                execute(a.buffer, b.buffer, out, op)
             } else {
-                execute(a.buffer, b.elements, out.mutableBuffer, op)
+                execute(a.buffer, b.elements, out, op)
             }
         } else {
             if b.isContiguous {
-                execute(a.elements, b.buffer, out.mutableBuffer, op)
+                execute(a.elements, b.buffer, out, op)
             } else {
-                execute(a.elements, b.elements, out.mutableBuffer, op)
+                execute(a.elements, b.elements, out, op)
             }
         }
     }
@@ -259,16 +236,13 @@ extension DeviceQueue {
         _ a: Tensor<S,E>,
         _ b: Tensor<S,E>,
         _ c: E.Value,
-        _ out: inout Tensor<S,RE>,
+        _ output: inout Tensor<S,RE>,
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value, E.Value, E.Value) -> RE.Value
     ) {
-        assert(a.order == b.order && a.order == out.order && out.isContiguous,
-               _messageOrdersMustMatch)
+        assert(a.order == b.order && a.order == output.order &&
+               output.isContiguous, _messageOrdersMustMatch)
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        let aCompleted = a.completed
-        let bCompleted = b.completed
-        let outCompleted = out.completed
 
         func execute<A: Collection, B: Collection, O: MutableCollection>(
             _ a: A, _ b: B, _ c: A.Element, _ out: O,
@@ -276,35 +250,31 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .sync {
-                aCompleted.wait()
-                bCompleted.wait()
                 zip(out.indices, zip(a, b)).forEach {
                     out[$0] = op($1.0, $1.1, c)
                 }
-                outCompleted.signal()
             } else {
-                queue.async(group: group) {
-                    aCompleted.wait()
-                    bCompleted.wait()
+                queue.async(group: group) { [completed = output.completed] in
                     zip(out.indices, zip(a, b)).forEach {
                         out[$0] = op($1.0, $1.1, c)
                     }
-                    outCompleted.signal()
+                    completed.signal()
                 }
             }
         }
         
+        let out = output.mutableBuffer
         if a.isContiguous {
             if b.isContiguous {
-                execute(a.buffer, b.buffer, c, out.mutableBuffer, op)
+                execute(a.buffer, b.buffer, c, out, op)
             } else {
-                execute(a.buffer, b.elements, c, out.mutableBuffer, op)
+                execute(a.buffer, b.elements, c, out, op)
             }
         } else {
             if b.isContiguous {
-                execute(a.elements, b.buffer, c, out.mutableBuffer, op)
+                execute(a.elements, b.buffer, c, out, op)
             } else {
-                execute(a.elements, b.elements, c, out.mutableBuffer, op)
+                execute(a.elements, b.elements, c, out, op)
             }
         }
     }
@@ -314,13 +284,11 @@ extension DeviceQueue {
     @inlinable func mapOp<S,E,OE>(
         _ a: Tensor<S,E>,
         _ element: E.Value,
-        _ out: inout Tensor<S,OE>,
+        _ output: inout Tensor<S,OE>,
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value, E.Value) -> OE.Value
     ) {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        let aCompleted = a.completed
-        let outCompleted = out.completed
 
         func execute<A: Collection, O: MutableCollection>(
             _ a: A, _ elt: A.Element, _ out: O,
@@ -328,22 +296,19 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .sync {
-                aCompleted.wait()
                 zip(out.indices, a).forEach { out[$0] = op($1, elt) }
-                outCompleted.signal()
             } else {
-                queue.async(group: group) {
-                    aCompleted.wait()
+                queue.async(group: group) { [completed = output.completed] in
                     zip(out.indices, a).forEach { out[$0] = op($1, elt) }
-                    outCompleted.signal()
+                    completed.signal()
                 }
             }
         }
         
         if a.isContiguous {
-            execute(a.buffer, element, out.mutableBuffer, op)
+            execute(a.buffer, element, output.mutableBuffer, op)
         } else {
-            execute(a.elements, element, out.mutableBuffer, op)
+            execute(a.elements, element, output.mutableBuffer, op)
         }
     }
 
@@ -352,13 +317,11 @@ extension DeviceQueue {
     @inlinable func mapOp<S,E,OE>(
         _ element: E.Value,
         _ a: Tensor<S,E>,
-        _ out: inout Tensor<S,OE>,
+        _ output: inout Tensor<S,OE>,
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value, E.Value) -> OE.Value
     ) {
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        let aCompleted = a.completed
-        let outCompleted = out.completed
 
         func execute<A: Collection, O: MutableCollection>(
             _ elt: A.Element, _ a: A, _ out: O,
@@ -366,22 +329,19 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .sync {
-                aCompleted.wait()
                 zip(out.indices, a).forEach { out[$0] = op(elt, $1) }
-                outCompleted.signal()
             } else {
-                queue.async(group: group) {
-                    aCompleted.wait()
+                queue.async(group: group) { [completed = output.completed] in
                     zip(out.indices, a).forEach { out[$0] = op(elt, $1) }
-                    outCompleted.signal()
+                    completed.signal()
                 }
             }
         }
         
         if a.isContiguous {
-            execute(element, a.buffer, out.mutableBuffer, op)
+            execute(element, a.buffer, output.mutableBuffer, op)
         } else {
-            execute(element, a.elements, out.mutableBuffer, op)
+            execute(element, a.elements, output.mutableBuffer, op)
         }
     }
 
@@ -391,17 +351,13 @@ extension DeviceQueue {
         _ a: Tensor<S,E0>,
         _ b: Tensor<S,E1>,
         _ c: Tensor<S,E2>,
-        _ out: inout Tensor<S,OE>,
+        _ output: inout Tensor<S,OE>,
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E0.Value, E1.Value, E2.Value) -> OE.Value
     ) {
         assert(a.order == b.order && a.order == c.order &&
-                a.order == out.order && out.isContiguous)
+                a.order == output.order && output.isContiguous)
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        let aCompleted = a.completed
-        let bCompleted = b.completed
-        let cCompleted = c.completed
-        let outCompleted = out.completed
 
         func execute<A: Collection, B: Collection, C: Collection,
                      O: MutableCollection>(
@@ -410,27 +366,20 @@ extension DeviceQueue {
         ) {
             var out = out
             if mode == .sync {
-                aCompleted.wait()
-                bCompleted.wait()
-                cCompleted.wait()
                 zip(out.indices, zip(a, zip(b, c))).forEach {
                     out[$0] = op($1.0, $1.1.0, $1.1.1)
                 }
-                outCompleted.signal()
             } else {
-                queue.async(group: group) {
-                    aCompleted.wait()
-                    bCompleted.wait()
-                    cCompleted.wait()
+                queue.async(group: group) { [completed = output.completed] in
                     zip(out.indices, zip(a, zip(b, c))).forEach {
                         out[$0] = op($1.0, $1.1.0, $1.1.1)
                     }
-                    outCompleted.signal()
+                    completed.signal()
                 }
             }
         }
         
-        let out = out.mutableBuffer
+        let out = output.mutableBuffer
         if a.isContiguous {
             if b.isContiguous {
                 if c.isContiguous {
@@ -468,19 +417,14 @@ extension DeviceQueue {
         _ a: Tensor<S,E0>,
         _ b: Tensor<S,E1>,
         _ c: Tensor<S,E2>,
-        _ out1: inout Tensor<S,O1>,
-        _ out2: inout Tensor<S,O2>,
+        _ output1: inout Tensor<S,O1>,
+        _ output2: inout Tensor<S,O2>,
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E0.Value, E1.Value, E2.Value) -> (O1.Value, O2.Value)
     ) {
         assert(a.isContiguous && b.isContiguous && c.isContiguous &&
-                out1.isContiguous && out2.isContiguous)
+                output1.isContiguous && output2.isContiguous)
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-        let aCompleted = a.completed
-        let bCompleted = b.completed
-        let cCompleted = c.completed
-        let out1Completed = out1.completed
-        let out2Completed = out2.completed
 
         func execute<A: Collection, B: Collection, C: Collection,
                      O1: MutableCollection, O2: MutableCollection>(
@@ -490,21 +434,16 @@ extension DeviceQueue {
         ) {
             var o1 = o1, o2 = o2
             if mode == .sync {
-                aCompleted.wait()
-                bCompleted.wait()
-                cCompleted.wait()
                 zip(zip(o1.indices, o2.indices), zip(a, zip(b, c))).forEach {
                     let (o1v, o2v) = op($1.0, $1.1.0, $1.1.1)
                     o1[$0.0] = o1v
                     o2[$0.1] = o2v
                 }
-                out1Completed.signal()
-                out2Completed.signal()
             } else {
+                let out1Completed = output1.completed
+                let out2Completed = output2.completed
+
                 queue.async(group: group) {
-                    aCompleted.wait()
-                    bCompleted.wait()
-                    cCompleted.wait()
                     zip(zip(o1.indices, o2.indices), zip(a, zip(b, c))).forEach {
                         let (o1v, o2v) = op($1.0, $1.1.0, $1.1.1)
                         o1[$0.0] = o1v
@@ -517,7 +456,7 @@ extension DeviceQueue {
         }
         
         execute(a.buffer, b.buffer, c.buffer,
-                out1.mutableBuffer, out2.mutableBuffer, op)
+                output1.mutableBuffer, output2.mutableBuffer, op)
     }
 
     //==========================================================================
@@ -526,13 +465,13 @@ extension DeviceQueue {
         _ a: Tensor<S,E0>,
         _ b: Tensor<S,E1>,
         _ c: E2,
-        _ out1: inout Tensor<S,O1>,
-        _ out2: inout Tensor<S,O2>,
+        _ output1: inout Tensor<S,O1>,
+        _ output2: inout Tensor<S,O2>,
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E0.Value, E1.Value, E2) -> (O1.Value, O2.Value)
     ) {
-        assert(a.isContiguous && b.isContiguous && out1.isContiguous &&
-               out2.isContiguous)
+        assert(a.isContiguous && b.isContiguous && 
+               output1.isContiguous && output2.isContiguous)
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
         func execute<A: Collection, B: Collection, C,
@@ -548,16 +487,22 @@ extension DeviceQueue {
                     o2[$0.1] = o2v
                 }
             } else {
+                let out1Completed = output1.completed
+                let out2Completed = output2.completed
+
                 queue.async(group: group) {
                     zip(zip(o1.indices, o2.indices), zip(a, b)).forEach {
                         let (o1v, o2v) = op($1.0, $1.1, c)
                         o1[$0.0] = o1v
                         o2[$0.1] = o2v
                     }
+                    out1Completed.signal()
+                    out2Completed.signal()
                 }
             }
         }
 
-        execute(a.buffer, b.buffer, c, out1.mutableBuffer, out2.mutableBuffer, op)
+        execute(a.buffer, b.buffer, c,
+                output1.mutableBuffer, output2.mutableBuffer, op)
     }
 }

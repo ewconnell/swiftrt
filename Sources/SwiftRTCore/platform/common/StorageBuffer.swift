@@ -27,6 +27,9 @@ public protocol StorageBuffer: class, Logging {
     var alignment: Int { get }
     /// the number of storage elements
     var byteCount: Int { get }
+    /// a completion event used to retain the storage until an async
+    /// write is complete
+    var completed: DispatchSemaphore { get }
     /// the id of the buffer for diagnostics
     var id: Int { get }
     /// `true` if the buffer is read only

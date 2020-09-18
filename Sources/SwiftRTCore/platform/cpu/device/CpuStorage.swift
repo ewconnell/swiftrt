@@ -13,14 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+import Dispatch
 
 //==============================================================================
-/// SyncStorage
+/// CpuStorage
 /// A synchronous host memory element storage buffer
 public final class CpuStorage: StorageBuffer {
     // StorageBuffer protocol properties
     public let alignment: Int
     public let byteCount: Int
+    public let completed = DispatchSemaphore(value: 1)
     public let id: Int
     public let isReadOnly: Bool
     public let isReference: Bool
@@ -159,11 +161,12 @@ public final class CpuStorage: StorageBuffer {
     //--------------------------------------------------------------------------
     // deinit
     @inlinable deinit {
+        // wait for any pending writes to complete
+        completed.wait()
+        
         if !isReference {
             hostBuffer.deallocate()
-            #if DEBUG
             diagnostic(.release, self.name, categories: .dataAlloc)
-            #endif
         }
     }
     
