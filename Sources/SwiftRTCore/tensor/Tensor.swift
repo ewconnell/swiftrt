@@ -107,7 +107,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.spanCount = spanCount
         self.isShared = shared
         self.order = order
-        logicalStrides = shape.strides(for: order)
+        logicalStrides = order == .row ? strides : shape.strides(for: .row)
         logicalElements = LogicalElements(count,
                                           shape,
                                           strides,
@@ -139,7 +139,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.order = order
         let stored = TensorElement.stored(value: value)
         self.storage = PlatformType.Storage(storedElement: stored, name: name)
-        logicalStrides = shape.strides(for: order)
+        logicalStrides = order == .row ? strides : shape.strides(for: .row)
         logicalElements = LogicalElements(count,
                                           shape,
                                           strides,

@@ -13,13 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+import Foundation
 import SwiftRTCuda
 
 //==============================================================================
-// CudaEvent
-/// An event that blocks all until signaled, then lets all through
+/// CudaEvent
+/// An event that is recorded on a device queue, which will block
+/// the caller until signaled when it's position in the queue has been reached
 public class CudaEvent: Logging {
-	public var handle: cudaEvent_t
+    // used to synchronize with a cpu async queue
+    @usableFromInline let cpuEvent: DispatchSemaphore
+    // used to synchronize with a cuda stream
+    @usableFromInline let cudaHandle: cudaEvent_t?
 
     #if DEBUG
     public let id = Context.nextEventId
@@ -27,29 +32,45 @@ public class CudaEvent: Logging {
     public let id = 0
     #endif
 
+    //--------------------------------------------------------------------------
+    // initializer
     @inlinable public required init(options: QueueEventOptions = []) {
-		// the default is a non host blocking, non timing, non inter process event
-		var flags: Int32 = cudaEventDisableTiming
-		if !options.contains(.timing)      { flags &= ~cudaEventDisableTiming }
-		if options.contains(.interprocess) { flags |= cudaEventInterprocess |
-			                                            cudaEventDisableTiming }
-		// if options.contains(.hostSync)     { flags |= cudaEventBlockingSync }
+        // 
+        cpuEvent = DispatchSemaphore(value: 0)
+        // the default is a non host blocking, non timing, non inter process event
+        var flags: Int32 = cudaEventDisableTiming
+        if !options.contains(.timing)      { flags &= ~cudaEventDisableTiming }
+        if options.contains(.interprocess) { flags |= cudaEventInterprocess |
+                                                    cudaEventDisableTiming }
+        // if options.contains(.hostSync)     { flags |= cudaEventBlockingSync }
 
-		var temp: cudaEvent_t?
-		cudaCheck(cudaEventCreateWithFlags(&temp, UInt32(flags)))
-		handle = temp!
+        var temp: cudaEvent_t?
+        cudaCheck(cudaEventCreateWithFlags(&temp, UInt32(flags)))
+        cudaHandle = temp
     }
-    
-    // event must be signaled before going out of scope to ensure 
+
+    // event must be signaled before going out of scope to ensure
     @inlinable deinit {
-		_ = cudaEventDestroy(handle)
+        _ = cudaEventDestroy(cudaHandle)
     }
 
+    //--------------------------------------------------------------------------
+    @inlinable public func record() {
+        if let handle = cudaHandle {
+            cudaEventSynchronize(handle)
+        }
+    }
+
+
+    //--------------------------------------------------------------------------
+    // this is only called by the cpu async queue implementation 
     @inlinable public func signal() {
-        fatalError()
+        cpuEvent.signal()
     }
 
     @inlinable public func wait() {
-        fatalError()
+        if let handle = cudaHandle {
+            cudaEventSynchronize(handle)
+        }
     }
 }

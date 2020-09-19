@@ -143,19 +143,33 @@ public extension Platform {
     Context.local.platform.use(device: device, queue: queue)
 }
 
-/// use(device:queue:body:
+/// using(device:queue:body:
 /// specifies the device queue to use for operator execution
 /// withing the scope of the closure
 @inlinable public func using<R>(device: Int, queue: Int = 0, _ body: () -> R) -> R {
     Context.local.platform.using(device: device, queue: queue, body)
 }
 
-/// use(queue:body:
+/// using(queue:body:
 /// specifies the queue on the current device to use for operator execution
 /// withing the scope of the closure
 @inlinable public func using<R>(queue: Int, _ body: () -> R) -> R {
     Context.local.platform.using(queue: queue, body)
 }
+
+/// testEachDevice(body:
+/// executes `body` on each type of device for test coverage
+@inlinable public func testEachDevice(_ onlyId: Int, _ body: () -> Void) {
+    using(device: onlyId, body)
+}
+
+@inlinable public func testEachDevice(_ body: () -> Void) {
+    usingAppThreadQueue(body)
+    for i in 0..<Context.local.platform.devices.count {
+        using(device: i, body)
+    }
+}
+
 
 //==============================================================================
 /// the type used for memory indexing on discrete devices

@@ -123,7 +123,6 @@ __global__ void mapFillRange(
     if (indexO.isInBounds(position)) {
         auto i = indexO.linear(position);
         auto seq = indexO.sequence(position);
-        printf("p: (%d, %d), seq: %d, i: %d\n", position[0], position[1], seq, i);
         E value = first + (E(float(seq)) * step);
         out[i] = i == lastIndex ? last : value; 
     }
@@ -155,7 +154,7 @@ static cudaError_t selectFillRangeIndex(
 ) {
     switch (oDesc.order) {
     case CUBLASLT_ORDER_ROW: return fillRange<E,Flat>(out, oDesc, first, last, step, stream);
-    case CUBLASLT_ORDER_COL: return fillRange<E,LogicalStrided<R> >(out, oDesc, first, last, step, stream);
+    case CUBLASLT_ORDER_COL: return fillRange<E,StridedSeq<R> >(out, oDesc, first, last, step, stream);
     default: return cudaErrorNotSupported;
     }
 }

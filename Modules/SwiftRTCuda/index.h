@@ -204,15 +204,17 @@ struct Strided {
 };
 
 //==============================================================================
-/// Strided
+/// StridedSeq
+/// used to calculate strided indexes and sequence positions
+/// to support generators
 template<int R>
-struct LogicalStrided: Strided<R> {
+struct StridedSeq: Strided<R> {
     // properties
     uint32_t logicalStrides[R];
 
     //--------------------------------------------------------------------------
     // initializer
-    __host__ LogicalStrided(const TensorDescriptor& tensor) : Strided<R>(tensor) {
+    __host__ StridedSeq(const TensorDescriptor& tensor) : Strided<R>(tensor) {
         for (int i = 0; i < R; ++i) {
             assert(tensor.shape[i] <= UINT32_MAX && tensor.strides[i] <= UINT32_MAX);
             logicalStrides[i] = uint32_t(tensor.logicalStrides[i]);

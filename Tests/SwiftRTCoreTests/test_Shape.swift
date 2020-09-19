@@ -22,7 +22,7 @@ class test_Shape: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_reshapeOrderRowCol", test_reshapeOrderRowCol),
-        // ("test_reshape", test_fillRangeColumnMajor),
+        // ("test_fillRangeColumnMajor", test_fillRangeColumnMajor),
         // ("test_reshape", test_reshape),
         // ("test_reshapeOrderRowTC32x8", test_reshapeOrderRowTC32x8),
         // ("test_reshapeOrderRowTC32x32", test_reshapeOrderRowTC32x32),
@@ -50,8 +50,6 @@ class test_Shape: XCTestCase {
 
     override func setUpWithError() throws {
         Context.log.level = .diagnostic
-        use(device: 1)
-        // useAppThreadQueue()
     }
 
     override func tearDownWithError() throws {
@@ -59,14 +57,40 @@ class test_Shape: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    func test_fillRangeColumnMajor() {
+    func test_fillRangeColumnMajor() { testEachDevice(fillRangeColumnMajor) }
+
+    func fillRangeColumnMajor() {
         let a = array(from: Float(0), to: Float(3), (2, 3), order: .row)
         let b = array(from: Float(0), to: Float(3), (2, 3), order: .col)
-        XCTAssert(a == b)
+        XCTAssert(a.array == b.array)
 
-        let c = array(from: Complex<Float>(0), to: Complex<Float>(3), (2, 3), order: .row)
-        let d = array(from: Complex<Float>(0), to: Complex<Float>(3), (2, 3), order: .col)
-        XCTAssert(c == d)
+        typealias CF = Complex<Float>
+        let c = array(from: CF(0), to: CF(3), (2, 3), order: .row)
+        let d = array(from: CF(0), to: CF(3), (2, 3), order: .col)
+        XCTAssert(c.array == d.array)
+    }
+    
+    //--------------------------------------------------------------------------
+    func test_reshapeOrderRowCol() { testEachDevice(1, reshapeOrderRowCol) }
+
+    func reshapeOrderRowCol() {
+        let a = array([[0, 1, 2], [3, 4, 5]])
+        print(Array(a.read()))
+        XCTAssert(Array(a.read()) == [0, 1, 2, 3, 4, 5])
+
+        let b = reshape(a, (2, 3), order: .col)
+        print(Array(b.read()))
+        XCTAssert(Array(b.read()) == [0, 3, 1, 4, 2, 5])
+        XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
+
+        let c = array([[0, 3, 1], [4, 2, 5]], order: .col)
+        print(Array(c.read()))
+        XCTAssert(Array(c.buffer) == [0, 3, 1, 4, 2, 5])
+
+        let d = reshape(c, (2, 3))
+        print(Array(d.read()))
+        XCTAssert(d == [[0, 1, 2], [3, 4, 5]])
+        XCTAssert(Array(d.buffer) == [0, 1, 2, 3, 4, 5])
     }
 
     //--------------------------------------------------------------------------
@@ -181,23 +205,6 @@ class test_Shape: XCTestCase {
             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         ]])
-    }
-    
-    //--------------------------------------------------------------------------
-    func test_reshapeOrderRowCol() {
-        let a = array([[0, 1, 2], [3, 4, 5]])
-        XCTAssert(Array(a.read()) == [0, 1, 2, 3, 4, 5])
-
-        let b = reshape(a, (2, 3), order: .col)
-        XCTAssert(Array(b.read()) == [0, 3, 1, 4, 2, 5])
-        XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
-
-        // let c = array([[0, 3, 1], [4, 2, 5]], order: .col)
-        // XCTAssert(Array(c.buffer) == [0, 3, 1, 4, 2, 5])
-
-        // let d = reshape(c, (2, 3))
-        // XCTAssert(d == [[0, 1, 2], [3, 4, 5]])
-        // XCTAssert(Array(d.buffer) == [0, 1, 2, 3, 4, 5])
     }
     
     //--------------------------------------------------------------------------
