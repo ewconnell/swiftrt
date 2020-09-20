@@ -63,9 +63,7 @@ public protocol DeviceQueue: Logging {
     
     /// recordEvent
     /// adds an event to the queue and returns immediately
-    /// - Parameters:
-    ///  - event: the event to record
-    /// - Returns: `event` so that calls to `record` can be nested
+    /// - Returns: the event that was recorded on the queue
     func recordEvent() -> PlatformType.Event
     
     /// wait(event:

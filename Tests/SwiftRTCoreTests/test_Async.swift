@@ -21,21 +21,60 @@ class test_Async: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_discreteMemoryReplication", test_discreteMemoryReplication),
-        ("test_multiQueueDependency", test_multiQueueDependency),
+        ("test_perfCurrentQueue", test_perfCurrentQueue),
+        // ("test_discreteMemoryReplication", test_discreteMemoryReplication),
+        // ("test_multiQueueDependency", test_multiQueueDependency),
     ]
 
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
         // Context.log.level = .diagnostic
-        use(device: 0)
+        // use(device: 0)
     }
 
     override func tearDownWithError() throws {
         Context.log.level = .error
-        useAppThreadQueue()
+        // useAppThreadQueue()
     }
-    
+
+    //--------------------------------------------------------------------------
+    func test_queueSync() { testEachDevice(queueSync) }
+
+    func queueSync() {
+        let one = array([1, 1, 1, 1])
+        let a = array([0, 1, 2, 3])
+        let b = array([4, 5, 6, 7])
+
+        // test app thread sync
+        do {
+            let c = a + b
+            delayQueue(atLeast: 0.1)
+            XCTAssert(c == [4, 6, 8, 10])
+        }
+
+        // test cross queue sync
+        do {
+            let c = a + b
+            delayQueue(atLeast: 0.1)
+            let d: Tensor1 = using(device: 0, queue: 1) {
+                defer { delayQueue(atLeast: 0.1) }
+                return c + one
+            }
+            XCTAssert(d == [5, 7, 9, 11])
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    func test_perfCurrentQueue() {
+        #if !DEBUG
+        measure {
+            for _ in 0..<100000 {
+                _ = Context.currentQueue
+            }
+        }
+        #endif
+    }
+
     //--------------------------------------------------------------------------
     func test_discreteMemoryReplication() {
         let a = array([[0, 1], [2, 3], [4, 5]], name: "a")

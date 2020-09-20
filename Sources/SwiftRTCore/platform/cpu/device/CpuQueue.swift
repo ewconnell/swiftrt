@@ -77,4 +77,15 @@ public final class CpuQueue: DeviceQueue, CpuFunctions
                           alignment: MemoryLayout<Int>.alignment)
         return CpuDeviceMemory(deviceIndex, buffer, memoryType)
     }
+
+    //--------------------------------------------------------------------------
+    @inlinable public func recordEvent() -> PlatformType.Event {
+        if mode == .sync {
+            return PlatformType.Event(self)
+        } else {
+            queue.async(group: group) { [event = PlatformType.Event(self)] in
+                event.signal()
+            }
+        }
+    }
 }

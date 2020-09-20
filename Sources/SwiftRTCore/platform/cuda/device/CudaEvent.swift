@@ -34,9 +34,14 @@ public class CudaEvent: Logging {
 
     //--------------------------------------------------------------------------
     // initializer
-    @inlinable public required init(options: QueueEventOptions = []) {
+    @inlinable public init(
+        _ queue: PlatformType.Device.Queue,
+        options: QueueEventOptions = []
+    ) {
+        if queue.deviceIndex == 0 {
+            cpuEvent = DispatchSemaphore(value: queue.mode == .sync ? 1 : 0)
+        } else {
         // 
-        cpuEvent = DispatchSemaphore(value: 0)
         // the default is a non host blocking, non timing, non inter process event
         var flags: Int32 = cudaEventDisableTiming
         if !options.contains(.timing)      { flags &= ~cudaEventDisableTiming }
@@ -47,6 +52,8 @@ public class CudaEvent: Logging {
         var temp: cudaEvent_t?
         cudaCheck(cudaEventCreateWithFlags(&temp, UInt32(flags)))
         cudaHandle = temp
+
+        }
     }
 
     // event must be signaled before going out of scope to ensure
