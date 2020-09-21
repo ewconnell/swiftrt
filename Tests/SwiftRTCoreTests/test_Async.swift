@@ -21,8 +21,8 @@ class test_Async: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_queueSync", test_queueSync),
-        // ("test_perfCurrentQueue", test_perfCurrentQueue),
+        // ("test_queueSync", test_queueSync),
+        ("test_perfCurrentQueue", test_perfCurrentQueue),
         // ("test_discreteMemoryReplication", test_discreteMemoryReplication),
         // ("test_multiQueueDependency", test_multiQueueDependency),
     ]
