@@ -25,6 +25,11 @@ extern "C" {
 #endif
 
 //==============================================================================
+/// srtDelayStream
+/// a utility function for unit testing to simulate work
+cudaError_t srtDelayStream(double seconds, cudaStream_t stream);
+
+//==============================================================================
 /// srtCopy
 /// copies elements from x to out, optionally casting and reordering elements
 cudaError_t srtCopy(

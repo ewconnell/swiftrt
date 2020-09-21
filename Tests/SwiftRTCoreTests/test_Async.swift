@@ -21,14 +21,15 @@ class test_Async: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_perfCurrentQueue", test_perfCurrentQueue),
+        ("test_queueSync", test_queueSync),
+        // ("test_perfCurrentQueue", test_perfCurrentQueue),
         // ("test_discreteMemoryReplication", test_discreteMemoryReplication),
         // ("test_multiQueueDependency", test_multiQueueDependency),
     ]
 
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
-        // Context.log.level = .diagnostic
+        Context.log.level = .diagnostic
         // use(device: 0)
     }
 
@@ -38,7 +39,7 @@ class test_Async: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    func test_queueSync() { testEachDevice(queueSync) }
+    func test_queueSync() { testEachDevice(0, queueSync) }
 
     func queueSync() {
         let one = array([1, 1, 1, 1])

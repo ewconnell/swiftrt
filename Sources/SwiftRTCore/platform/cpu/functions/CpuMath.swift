@@ -153,12 +153,6 @@ extension DeviceQueue {
     }
     
     //--------------------------------------------------------------------------
-    @inlinable func cpu_delay(_ interval: TimeInterval) {
-        assert(Thread.current === creatorThread, _messageQueueThreadViolation)
-        Thread.sleep(forTimeInterval: interval)
-    }
-    
-    //--------------------------------------------------------------------------
     @inlinable func cpu_div<S,E>(
         _ lhs: Tensor<S,E>,
         _ rhs: Tensor<S,E>,
@@ -833,8 +827,6 @@ extension CpuQueue {
     //--------------------------------------------------------------------------
     @inlinable func cosh<S,E>(_ x: Tensor<S,E>, _ out: inout Tensor<S,E>)
     where E.Value: Real { cpu_cosh(x, &out) }
-    //--------------------------------------------------------------------------
-    @inlinable func delay(_ interval: TimeInterval) { cpu_delay(interval) }
     //--------------------------------------------------------------------------
     @inlinable func div<S,E>(
         _ lhs: Tensor<S,E>,

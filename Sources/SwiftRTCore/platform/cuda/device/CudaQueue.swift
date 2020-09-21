@@ -97,7 +97,8 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     //--------------------------------------------------------------------------
     // delay
     @inlinable public func delay(_ interval: TimeInterval) {
-        fatalError("not implemented yet")
+        guard useGpu else { cpu_delay(interval); return }
+        srtDelayStream(interval, stream)
     }
 
     //--------------------------------------------------------------------------

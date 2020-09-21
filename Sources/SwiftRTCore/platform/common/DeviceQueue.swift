@@ -90,6 +90,19 @@ extension DeviceQueue {
     }
 
     //--------------------------------------------------------------------------
+    @inlinable func delay(_ interval: TimeInterval) { cpu_delay(interval) }
+
+    @inlinable func cpu_delay(_ interval: TimeInterval) {
+        if mode == .sync {
+            Thread.sleep(forTimeInterval: interval)
+        } else {
+            queue.async(group: group) {
+                Thread.sleep(forTimeInterval: interval)
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
     /// copy
     @inlinable public func copyAsync(
         from src: DeviceMemory, 

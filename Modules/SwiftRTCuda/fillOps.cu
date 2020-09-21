@@ -26,6 +26,8 @@
 // Swift importable C interface functions
 //==============================================================================
 
+//==============================================================================
+// srtCopy
 cudaError_t srtCopy(
     const void* x, const srtTensorDescriptor* xDesc,
     void* out, const srtTensorDescriptor* oDesc,
