@@ -19,6 +19,8 @@ import Foundation
 /// DeviceQueue
 /// Used to schedule and execute computations
 public protocol DeviceQueue: Logging {
+    associatedtype Event: QueueEvent
+
     /// the thread that created this queue. Used to protect against
     /// accidental cross thread access
     var creatorThread: Thread { get }
@@ -64,14 +66,14 @@ public protocol DeviceQueue: Logging {
     /// recordEvent
     /// adds an event to the queue and returns immediately
     /// - Returns: the event that was recorded on the queue
-    func recordEvent() -> PlatformType.Event
+    func recordEvent() -> Event
     
     /// wait(event:
     /// queues an operation to wait for the specified event. This function
     /// does not block the calller if queue `mode` is `.async`
     /// - Parameters:
     ///  - event: the event to wait for
-    func wait(for event: PlatformType.Event)
+    func wait(for event: Event)
     
     /// waitForCompletion
     /// blocks the caller until all events in the queue have completed
@@ -114,53 +116,5 @@ extension DeviceQueue {
     /// returns a diagnostic name for the device assoicated with this queue
     @inlinable public var deviceName: String {
         Context.local.platform.devices[deviceIndex].name
-    }
-    
-    //--------------------------------------------------------------------------
-    /// record(event:
-    @discardableResult
-    @inlinable public func record(event: PlatformType.Event) -> PlatformType.Event {
-        diagnostic(.record, "event(\(event.id)) on \(name)",
-                   categories: .queueSync)
-        
-        // record the event
-        if mode == .sync {
-            event.signal()
-        } else {
-            queue.async(group: group) {
-                event.signal()
-            }
-        }
-        return event
-    }
-    
-    @discardableResult
-    @inlinable public func record() -> PlatformType.Event {
-        record(event: createEvent())
-    }
-
-    //--------------------------------------------------------------------------
-    /// wait(for event:
-    /// waits until the event has occurred
-    @inlinable public func wait(for event: PlatformType.Event) {
-        diagnostic(.wait, "\(name) will wait for event(\(event.id))",
-                   categories: .queueSync)
-        if mode == .async {
-            queue.async(group: group) {
-                event.wait()
-            }
-        } else {
-            event.wait()
-        }
-    }
-    
-    //--------------------------------------------------------------------------
-    // waitForCompletion
-    // the synchronous queue completes work as it is queued,
-    // so it is always complete
-    @inlinable public func waitForCompletion() {
-        if mode == .async {
-            group.wait()
-        }
     }
 }

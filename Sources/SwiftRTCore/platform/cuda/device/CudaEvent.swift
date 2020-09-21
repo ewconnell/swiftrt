@@ -20,28 +20,21 @@ import SwiftRTCuda
 /// CudaEvent
 /// An event that is recorded on a device queue, which will block
 /// the caller until signaled when it's position in the queue has been reached
-public class CudaEvent: Logging {
+public class CudaEvent: QueueEvent, Logging {
+    public let id = Context.nextEventId
     // used to synchronize with a cpu async queue
     @usableFromInline let cpuEvent: DispatchSemaphore
     // used to synchronize with a cuda stream
-    @usableFromInline let cudaHandle: cudaEvent_t?
-
-    #if DEBUG
-    public let id = Context.nextEventId
-    #else
-    public let id = 0
-    #endif
+    @usableFromInline let handle: cudaEvent_t
 
     //--------------------------------------------------------------------------
     // initializer
     @inlinable public init(
-        _ queue: PlatformType.Device.Queue,
+        recordedOn queue: CudaQueue,
         options: QueueEventOptions = []
     ) {
-        if queue.deviceIndex == 0 {
-            cpuEvent = DispatchSemaphore(value: queue.mode == .sync ? 1 : 0)
-        } else {
-        // 
+        cpuEvent = DispatchSemaphore(value: queue.mode == .sync ? 1 : 0)
+
         // the default is a non host blocking, non timing, non inter process event
         var flags: Int32 = cudaEventDisableTiming
         if !options.contains(.timing)      { flags &= ~cudaEventDisableTiming }
@@ -51,33 +44,23 @@ public class CudaEvent: Logging {
 
         var temp: cudaEvent_t?
         cudaCheck(cudaEventCreateWithFlags(&temp, UInt32(flags)))
-        cudaHandle = temp
-
-        }
+        handle = temp!
     }
 
     // event must be signaled before going out of scope to ensure
     @inlinable deinit {
-        _ = cudaEventDestroy(cudaHandle)
+        _ = cudaEventDestroy(handle)
     }
-
-    //--------------------------------------------------------------------------
-    @inlinable public func record() {
-        if let handle = cudaHandle {
-            cudaEventSynchronize(handle)
-        }
-    }
-
 
     //--------------------------------------------------------------------------
     // this is only called by the cpu async queue implementation 
     @inlinable public func signal() {
         cpuEvent.signal()
+        cudaEventRecord(handle, unsafeBitCast(0, to: cudaStream_t.self))
     }
 
     @inlinable public func wait() {
-        if let handle = cudaHandle {
-            cudaEventSynchronize(handle)
-        }
+        cpuEvent.wait()
+        cudaEventSynchronize(handle)
     }
 }

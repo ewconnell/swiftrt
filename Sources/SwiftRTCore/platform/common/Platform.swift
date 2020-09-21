@@ -23,7 +23,6 @@ public protocol Platform: class, Logging {
     // types
     associatedtype Device: ComputeDevice
     associatedtype Storage: StorageBuffer
-    associatedtype Event
 
     /// the number of async cpu queues to create
     static var defaultCpuQueueCount: Int { get }
@@ -265,6 +264,13 @@ extension DeviceMemory {
     @inlinable public func count<E>(of type: E.Type) -> Int {
         buffer.count / MemoryLayout<E>.size
     }
+}
+
+//==============================================================================
+//
+public protocol QueueEvent: class {
+    func signal()
+    func wait()
 }
 
 //==============================================================================

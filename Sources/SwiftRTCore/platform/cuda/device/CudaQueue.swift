@@ -142,17 +142,49 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
         }
     }
 
-    //==========================================================================
-    /// createActivation
-//    public override func createActivation<T>(
-//        x: T,
-//        y: inout T,
-//        mode: ActivationType,
-//        nan: NanPropagation,
-//        reluCeiling: Double = 0) throws -> ActivationInferring<T>
-//        where T: TensorView, T.Element: ScalarElement & FloatingPoint
-//    {
-//        return try CudaActivationInferring(x: x, y: &y, mode: mode,
-//                                           nan: nan, reluCeiling: reluCeiling)
-//    }
+    //--------------------------------------------------------------------------
+    @inlinable public func recordEvent() -> CudaEvent {
+        let event = CudaEvent(recordedOn: self)
+        if useGpu {
+            cudaCheck(cudaEventRecord(event.handle, stream))
+        } else {
+            if mode == .async {
+                queue.async(group: group) {
+                    event.signal()
+                }
+            }
+        }
+        return event
+    }
+    
+    //--------------------------------------------------------------------------
+    /// wait(for event:
+    /// causes this queue to wait until the event has occurred
+    @inlinable public func wait(for event: CudaEvent) {
+        diagnostic(.wait, "\(name) will wait for event(\(event.id))",
+                   categories: .queueSync)
+        if useGpu {
+            cudaCheck(cudaStreamWaitEvent(stream, event.handle, 0))
+        } else {
+            if mode == .sync {
+                event.wait()
+            } else {
+                queue.async(group: group) {
+                    event.wait()
+                }
+            }
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    // waitForCompletion
+    // the synchronous queue completes work as it is queued,
+    // so it is always complete
+    @inlinable public func waitForCompletion() {
+        if useGpu {
+            cudaCheck(cudaStreamSynchronize(stream))
+        } else if mode == .async {
+            group.wait()
+        }
+    }
 }

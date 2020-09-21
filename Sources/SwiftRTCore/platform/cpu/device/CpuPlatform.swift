@@ -22,7 +22,6 @@ import Foundation
 public class CpuPlatform: Platform {
     // types
     public typealias Storage = CpuStorage
-    public typealias Event = CpuEvent
     
     // properties
     public var discreteMemoryDeviceId: Int { 1 }

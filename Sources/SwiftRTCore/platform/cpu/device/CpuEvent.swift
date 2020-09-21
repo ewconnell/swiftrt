@@ -18,17 +18,15 @@ import Foundation
 //==============================================================================
 // CpuEvent
 /// An event that blocks all until signaled, then lets all through
-public class CpuEvent: Logging {
+public class CpuEvent: QueueEvent, Logging {
+    public let id = Context.nextEventId
     @usableFromInline let event: DispatchSemaphore
 
-    #if DEBUG
-    public let id = Context.nextEventId
-    #else
-    public let id = 0
-    #endif
-
-    @inlinable public required init(options: QueueEventOptions = []) {
-        event = DispatchSemaphore(value: 0)
+    @inlinable public init(
+        _ state: EventState,
+        options: QueueEventOptions = []
+    ) {
+        event = DispatchSemaphore(value: state == .blocking ? 0 : 1)
     }
     
     // event must be signaled before going out of scope to ensure 
@@ -44,4 +42,8 @@ public class CpuEvent: Logging {
         event.wait()
         event.signal()
     }
+}
+
+public enum EventState {
+    case blocking, signaled 
 }

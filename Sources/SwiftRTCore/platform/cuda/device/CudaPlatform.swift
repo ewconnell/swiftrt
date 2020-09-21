@@ -22,7 +22,6 @@ import SwiftRTCuda
 public class CudaPlatform: Platform {
     // types
     public typealias Storage = DiscreteStorage
-    public typealias Event = CudaEvent
     
     // properties
     public static var defaultCpuQueueCount: Int = 1

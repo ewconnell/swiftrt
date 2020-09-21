@@ -79,13 +79,38 @@ public final class CpuQueue: DeviceQueue, CpuFunctions
     }
 
     //--------------------------------------------------------------------------
-    @inlinable public func recordEvent() -> PlatformType.Event {
-        if mode == .sync {
-            return PlatformType.Event(self)
-        } else {
-            queue.async(group: group) { [event = PlatformType.Event(self)] in
+    @inlinable public func recordEvent() -> CpuEvent {
+        let event = CpuEvent(mode == .sync ? .signaled : .blocking) 
+        if mode == .async {
+            queue.async(group: group) {
                 event.signal()
             }
+        }
+        return event
+    }
+    
+    //--------------------------------------------------------------------------
+    /// wait(for event:
+    /// causes this queue to wait until the event has occurred
+    @inlinable public func wait(for event: CpuEvent) {
+        diagnostic(.wait, "\(name) will wait for event(\(event.id))",
+                   categories: .queueSync)
+        if mode == .async {
+            queue.async(group: group) {
+                event.wait()
+            }
+        } else {
+            event.wait()
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    // waitForCompletion
+    // the synchronous queue completes work as it is queued,
+    // so it is always complete
+    @inlinable public func waitForCompletion() {
+        if mode == .async {
+            group.wait()
         }
     }
 }

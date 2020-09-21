@@ -592,7 +592,7 @@ public extension Tensor {
     ///
     /// - Parameter queue: the device queue to use for synchronization
     @inlinable func read(
-        using queue: DeviceQueue
+        using queue: PlatformType.Device.Queue
     ) -> UnsafeBufferPointer<TensorElement.Stored> {
         let (i, storedCount) = TensorElement
                 .storedRange(start: storageBase, count: spanCount)
@@ -609,7 +609,9 @@ public extension Tensor {
     /// head of the queue.
     ///
     /// - Parameter queue: the device queue to use for synchronization
-    @inlinable func deviceRead(using queue: DeviceQueue) -> UnsafeRawPointer {
+    @inlinable func deviceRead(
+        using queue: PlatformType.Device.Queue
+    ) -> UnsafeRawPointer {
         UnsafeRawPointer(read(using: queue).baseAddress!)
     }
     
