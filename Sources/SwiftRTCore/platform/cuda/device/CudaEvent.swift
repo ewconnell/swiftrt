@@ -33,7 +33,10 @@ public class CudaEvent: QueueEvent, Logging {
         recordedOn queue: CudaQueue,
         options: QueueEventOptions = []
     ) {
-        cpuEvent = DispatchSemaphore(value: queue.mode == .sync ? 1 : 0)
+        // init as blocking only for the async cpu case
+        // for sync cpu and cuda stream, init as signaled so it falls through
+        let value = queue.deviceIndex == 0 && queue.mode == .async ? 0 : 1
+        cpuEvent = DispatchSemaphore(value: value)
 
         // the default is a non host blocking, non timing, non inter process event
         var flags: Int32 = cudaEventDisableTiming
@@ -60,7 +63,10 @@ public class CudaEvent: QueueEvent, Logging {
     }
 
     @inlinable public func wait() {
+        // wait for the first occurence of the event
         cpuEvent.wait()
+        // signal to allow all waiters to pass through
+        cpuEvent.signal()
         cudaEventSynchronize(handle)
     }
 }

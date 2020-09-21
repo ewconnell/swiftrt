@@ -162,8 +162,6 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
     /// wait(for event:
     /// causes this queue to wait until the event has occurred
     @inlinable public func wait(for event: CudaEvent) {
-        diagnostic(.wait, "\(name) will wait for event(\(event.id))",
-                   categories: .queueSync)
         if useGpu {
             cudaCheck(cudaStreamWaitEvent(stream, event.handle, 0))
         } else {
