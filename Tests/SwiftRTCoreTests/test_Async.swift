@@ -23,7 +23,7 @@ class test_Async: XCTestCase {
     static var allTests = [
         // ("test_queueSync", test_queueSync),
         ("test_perfCurrentQueue", test_perfCurrentQueue),
-        // ("test_discreteMemoryReplication", test_discreteMemoryReplication),
+        ("test_discreteMemoryReplication", test_discreteMemoryReplication),
         // ("test_multiQueueDependency", test_multiQueueDependency),
     ]
 
@@ -68,9 +68,11 @@ class test_Async: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_perfCurrentQueue() {
+        let _ = 0
+        
         #if !DEBUG
         measure {
-            for _ in 0..<100000 {
+            for _ in 0..<1000000 {
                 _ = Context.currentQueue
             }
         }
@@ -79,6 +81,12 @@ class test_Async: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_discreteMemoryReplication() {
+        #if canImport(SwiftRTCuda)
+        testEachDevice { discreteMemoryReplication() }
+        #endif
+    }
+    
+    func discreteMemoryReplication() {
         let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
         let b = array([[0, 1], [2, 3], [4, 5]], name: "b")
         let c: Tensor2 = using(device: Context.discreteMemoryDeviceId) {
@@ -107,7 +115,8 @@ class test_Async: XCTestCase {
         }
         d.name = "d"
         
-        let result = d.array
-        XCTAssert(result == [[0.0, 3.0], [6.0, 9.0], [12.0, 15.0]])
+        let da = d.array
+        print(da)
+        XCTAssert(da == [[0.0, 3.0], [6.0, 9.0], [12.0, 15.0]])
     }
 }
