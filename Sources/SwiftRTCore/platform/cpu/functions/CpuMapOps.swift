@@ -37,9 +37,8 @@ extension DeviceQueue {
         if mode == .sync {
             out.indices.forEach { out[$0] = op() }
         } else {
-            queue.async(group: group) { [completed = output.completed] in
+            queue.async(group: group) {
                 out.indices.forEach { out[$0] = op() }
-                completed.signal()
             }
         }
     }
@@ -67,14 +66,13 @@ extension DeviceQueue {
                 }
                 out[io] = last
             } else {
-                queue.async(group: group) { [completed = output.completed] in
+                queue.async(group: group) {
                     var io = out.indices.startIndex
                     for i in 0..<(out.count - 1) {
                         out[io] = first + O.Element(exactly: i)! * step
                         io = out.index(after: io)
                     }
                     out[io] = last
-                    completed.signal()
                 }
             }
         }
@@ -99,9 +97,8 @@ extension DeviceQueue {
         if mode == .sync {
             out.indices.forEach { out[$0] = op(out[$0]) }
         } else {
-            queue.async(group: group) { [completed = output.completed] in
+            queue.async(group: group) {
                 out.indices.forEach { out[$0] = op(out[$0]) }
-                completed.signal()
             }
         }
     }
@@ -125,9 +122,8 @@ extension DeviceQueue {
             if mode == .sync {
                 zip(out.indices, a).forEach { out[$0] = op(out[$0], $1) }
             } else {
-                queue.async(group: group) { [completed = output.completed] in
+                queue.async(group: group) {
                     zip(out.indices, a).forEach { out[$0] = op(out[$0], $1) }
-                    completed.signal()
                 }
             }
         }
@@ -159,7 +155,6 @@ extension DeviceQueue {
         _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value) -> RE.Value
     ) {
-        assert(output.isContiguous)
         diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
         func execute<A: Collection, O: MutableCollection>(
@@ -171,20 +166,26 @@ extension DeviceQueue {
             if mode == .sync {
                 zip(out.indices, a).forEach { out[$0] = op($1) }
             } else {
-                queue.async(group: group) { [completed = output.completed] in
+                queue.async(group: group) {
                     zip(out.indices, a).forEach { out[$0] = op($1) }
-                    completed.signal()
                 }
             }
         }
 
         // check order because they will not match for order conversion ops
         if a.order == output.order {
-            let out = output.mutableBuffer
             if a.isContiguous {
-                execute(a.buffer, out, op)
+                if output.isContiguous {
+                    execute(a.buffer, output.mutableBuffer, op)
+                } else {
+                    execute(a.buffer, output.mutableElements, op)
+                }
             } else {
-                execute(a.elements, out, op)
+                if output.isContiguous {
+                    execute(a.elements, output.mutableBuffer, op)
+                } else {
+                    execute(a.elements, output.mutableElements, op)
+                }
             }
         } else {
             execute(a.elements, output.mutableElements, op)
@@ -214,11 +215,10 @@ extension DeviceQueue {
                     out[$0] = op($1.0, $1.1)
                 }
             } else {
-                queue.async(group: group) { [completed = output.completed] in
+                queue.async(group: group) {
                     zip(out.indices, zip(a, b)).forEach {
                         out[$0] = op($1.0, $1.1)
                     }
-                    completed.signal()
                 }
             }
         }
@@ -263,11 +263,10 @@ extension DeviceQueue {
                     out[$0] = op($1.0, $1.1, c)
                 }
             } else {
-                queue.async(group: group) { [completed = output.completed] in
+                queue.async(group: group) {
                     zip(out.indices, zip(a, b)).forEach {
                         out[$0] = op($1.0, $1.1, c)
                     }
-                    completed.signal()
                 }
             }
         }
@@ -307,9 +306,8 @@ extension DeviceQueue {
             if mode == .sync {
                 zip(out.indices, a).forEach { out[$0] = op($1, elt) }
             } else {
-                queue.async(group: group) { [completed = output.completed] in
+                queue.async(group: group) {
                     zip(out.indices, a).forEach { out[$0] = op($1, elt) }
-                    completed.signal()
                 }
             }
         }
@@ -340,9 +338,8 @@ extension DeviceQueue {
             if mode == .sync {
                 zip(out.indices, a).forEach { out[$0] = op(elt, $1) }
             } else {
-                queue.async(group: group) { [completed = output.completed] in
+                queue.async(group: group) {
                     zip(out.indices, a).forEach { out[$0] = op(elt, $1) }
-                    completed.signal()
                 }
             }
         }
@@ -379,11 +376,10 @@ extension DeviceQueue {
                     out[$0] = op($1.0, $1.1.0, $1.1.1)
                 }
             } else {
-                queue.async(group: group) { [completed = output.completed] in
+                queue.async(group: group) {
                     zip(out.indices, zip(a, zip(b, c))).forEach {
                         out[$0] = op($1.0, $1.1.0, $1.1.1)
                     }
-                    completed.signal()
                 }
             }
         }
@@ -449,17 +445,12 @@ extension DeviceQueue {
                     o2[$0.1] = o2v
                 }
             } else {
-                let out1Completed = output1.completed
-                let out2Completed = output2.completed
-
                 queue.async(group: group) {
                     zip(zip(o1.indices, o2.indices), zip(a, zip(b, c))).forEach {
                         let (o1v, o2v) = op($1.0, $1.1.0, $1.1.1)
                         o1[$0.0] = o1v
                         o2[$0.1] = o2v
                     }
-                    out1Completed.signal()
-                    out2Completed.signal()
                 }
             }
         }
@@ -496,17 +487,12 @@ extension DeviceQueue {
                     o2[$0.1] = o2v
                 }
             } else {
-                let out1Completed = output1.completed
-                let out2Completed = output2.completed
-
                 queue.async(group: group) {
                     zip(zip(o1.indices, o2.indices), zip(a, b)).forEach {
                         let (o1v, o2v) = op($1.0, $1.1, c)
                         o1[$0.0] = o1v
                         o2[$0.1] = o2v
                     }
-                    out1Completed.signal()
-                    out2Completed.signal()
                 }
             }
         }

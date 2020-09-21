@@ -22,7 +22,6 @@ public final class CpuStorage: StorageBuffer {
     // StorageBuffer protocol properties
     public let alignment: Int
     public let byteCount: Int
-    public let completed = DispatchSemaphore(value: 1)
     public let id: Int
     public let isReadOnly: Bool
     public let isReference: Bool

@@ -39,7 +39,7 @@ class test_Async: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    func test_queueSync() { testEachDevice(queueSync) }
+    func test_queueSync() { queueSync() } //testEachDevice(0, queueSync) }
 
     func queueSync() {
         let one = array([1, 1, 1, 1])

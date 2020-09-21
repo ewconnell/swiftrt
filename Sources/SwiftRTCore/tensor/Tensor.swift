@@ -59,9 +59,6 @@ where Shape: TensorShape, TensorElement: StorageElement
     // functional properties
     /// the unique storage id
     @inlinable public var id: Int { storage.id }
-
-    /// semaphore to retain storage until an async write has completed
-    @inlinable public var completed: DispatchSemaphore { storage.completed }
     
     /// the name of the collection
     @inlinable public var name: String {
