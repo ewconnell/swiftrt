@@ -164,7 +164,7 @@ public final class CpuStorage: StorageBuffer {
     // deinit
     @inlinable deinit {
         // wait for any pending writes to complete
-        // completed.wait()
+        lastQueue?.waitForCompletion()
         
         if !isReference {
             hostBuffer.deallocate()

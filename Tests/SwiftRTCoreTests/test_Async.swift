@@ -29,13 +29,11 @@ class test_Async: XCTestCase {
 
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
-        Context.log.level = .diagnostic
-        // use(device: 0)
+//        Context.log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
-        Context.log.level = .error
-        // useAppThreadQueue()
+//        Context.log.level = .error
     }
 
     //--------------------------------------------------------------------------
@@ -116,7 +114,6 @@ class test_Async: XCTestCase {
         d.name = "d"
         
         let da = d.array
-        print(da)
         XCTAssert(da == [[0.0, 3.0], [6.0, 9.0], [12.0, 15.0]])
     }
 }
