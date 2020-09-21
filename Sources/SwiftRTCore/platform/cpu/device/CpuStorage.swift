@@ -26,6 +26,9 @@ public final class CpuStorage: StorageBuffer {
     public let isReadOnly: Bool
     public let isReference: Bool
     public var isZero: Bool
+    
+    /// the last queue used to write storage
+    public var lastQueue: CpuQueue?
 
     @usableFromInline var _name: String = defaultTensorName
     @inlinable public var name: String {
@@ -168,57 +171,67 @@ public final class CpuStorage: StorageBuffer {
             diagnostic(.release, self.name, categories: .dataAlloc)
         }
     }
+
+    //--------------------------------------------------------------------------
+    // synchronize
+    @inlinable public func synchronize(
+        _ queue: PlatformType.Device.Queue,
+        willWrite: Bool
+    ) {
+        // synchronize only if switching queues
+        if let last = lastQueue, last.id != queue.id {
+            diagnostic(.sync, "\(queue.name) will wait for" +
+                        " \(last.name) to " +
+                        "\(willWrite ? "write" : "read") \(name)",
+                       categories: .queueSync)
+            if queue.mode == .sync {
+                last.waitForCompletion()
+            } else {
+                queue.wait(for: last.recordEvent())
+            }
+        }
+        if queue.mode == .async { lastQueue = queue }
+    }
     
     //--------------------------------------------------------------------------
     // read
     @inlinable public func read<Element>(
         type: Element.Type,
         at index: Int,
-        count: Int
+        count: Int,
+        using queue: PlatformType.Device.Queue
     ) -> UnsafeBufferPointer<Element> {
+        synchronize(queue, willWrite: false)
         // advance to typed starting position
         let start = hostBuffer.baseAddress!
-                .bindMemory(to: Element.self, capacity: count)
-                .advanced(by: index)
+            .bindMemory(to: Element.self, capacity: count)
+            .advanced(by: index)
         // return read only buffer pointer
         return UnsafeBufferPointer(start: start, count: count)
     }
     
     //--------------------------------------------------------------------------
-    // read
-    @inlinable public func read<Element>(
-        type: Element.Type,
-        at index: Int,
-        count: Int,
-        using queue: PlatformType.Device.Queue
-    ) -> UnsafeBufferPointer<Element> {
-        read(type: type, at: index, count: count)
-    }
-    
-    //--------------------------------------------------------------------------
     // readWrite
     @inlinable public func readWrite<Element>(
         type: Element.Type,
         at index: Int,
-        count: Int
+        count: Int,
+        using queue: PlatformType.Device.Queue
     ) -> UnsafeMutableBufferPointer<Element> {
+        synchronize(queue, willWrite: true)
         // advance to typed starting position
         let start = hostBuffer.baseAddress!
-                .bindMemory(to: Element.self, capacity: count)
-                .advanced(by: index)
+            .bindMemory(to: Element.self, capacity: count)
+            .advanced(by: index)
         // return read/write buffer pointer
         return UnsafeMutableBufferPointer(start: start, count: count)
     }
     
     //--------------------------------------------------------------------------
-    // readWrite
-    @inlinable public func readWrite<Element>(
-        type: Element.Type,
-        at index: Int,
-        count: Int,
-        using queue: PlatformType.Device.Queue
-    ) -> UnsafeMutableBufferPointer<Element> {
-        readWrite(type: type, at: index, count: count)
+    /// waitForCompletion
+    /// blocks the caller until pending operations have completed
+    @inlinable public func waitForCompletion() {
+        lastQueue?.waitForCompletion()
     }
 }
 

@@ -191,11 +191,6 @@ public extension StorageBuffer {
                "Buffer size is not even multiple of Element type")
         return byteCount / MemoryLayout<Element>.size
     }
-    
-    //--------------------------------------------------------------------------
-    /// waitForCompletion
-    /// blocks the caller until pending write operations have completed
-    @inlinable func waitForCompletion() { }
 }
 
 //==============================================================================

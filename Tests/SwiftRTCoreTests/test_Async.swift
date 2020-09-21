@@ -39,7 +39,7 @@ class test_Async: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    func test_queueSync() { queueSync() } //testEachDevice(0, queueSync) }
+    func test_queueSync() { testEachDevice(queueSync) }
 
     func queueSync() {
         let one = array([1, 1, 1, 1])
@@ -61,7 +61,8 @@ class test_Async: XCTestCase {
                 defer { delayQueue(atLeast: 0.1) }
                 return c + one
             }
-            XCTAssert(d == [5, 7, 9, 11])
+            let da = d.array
+            XCTAssert(da == [5, 7, 9, 11])
         }
     }
 

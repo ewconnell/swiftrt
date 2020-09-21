@@ -265,7 +265,7 @@ public final class DiscreteStorage: StorageBuffer {
 
         diagnostic(.sync, "\(queue.name) will wait for" +
                     " \(dependentQueue.name) to " +
-                    "\(willMutate ? "write" : "read") \(name)(\(id))",
+                    "\(willMutate ? "write" : "read") \(name)",
                     categories: .queueSync)
 
         if queue.mode == .sync {
