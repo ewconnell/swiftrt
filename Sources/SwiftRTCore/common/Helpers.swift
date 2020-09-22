@@ -16,20 +16,29 @@
 import Foundation
 
 //==============================================================================
+/// Mutex
+public struct Mutex {
+    @usableFromInline let sem = DispatchSemaphore(value: 1)
+    @inlinable public func access<R>(_ body: () -> R) -> R {
+        sem.wait()
+        defer { sem.signal() }
+        return body()
+    }
+}
+
+//==============================================================================
 /// AtomicCounter
 public struct AtomicCounter {
-    @usableFromInline let mutex = DispatchSemaphore(value: 1)
+    @usableFromInline let state = Mutex()
     @usableFromInline var _value: Int
-    @inlinable init(value: Int = -1) {
-        _value = value
-    }
+    @inlinable init(value: Int = -1) { _value = value }
     
     @inlinable var next: Int {
         mutating get {
-            mutex.wait()
-            defer { mutex.signal() }
-            _value += 1
-            return _value
+            state.access {
+                _value += 1
+                return _value
+            }
         }
     }
 }
