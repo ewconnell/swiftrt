@@ -128,6 +128,6 @@ extension DeviceQueue {
     /// deviceName
     /// returns a diagnostic name for the device assoicated with this queue
     @inlinable public var deviceName: String {
-        Context.local.platform.devices[deviceIndex].name
+        platform.devices[deviceIndex].name
     }
 }

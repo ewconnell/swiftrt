@@ -19,7 +19,7 @@ import Foundation
 // CpuEvent
 /// An event that blocks all until signaled, then lets all through
 public class CpuEvent: QueueEvent, Logging {
-    public let id = Context.eventId.next
+    public let id = Platform.eventId.next
     @usableFromInline let event: DispatchSemaphore
 
     @inlinable public init(

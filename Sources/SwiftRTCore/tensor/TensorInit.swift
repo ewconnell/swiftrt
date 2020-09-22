@@ -224,7 +224,7 @@ public extension Tensor {
     ) where TensorElement.Value: BinaryInteger {
         self.init(shape: shape, order: order, name: name)
         let step = (last - first) / TensorElement.Value(exactly: count)!
-        Context.currentQueue.fill(&self, from: first, to: last, by: step)
+        currentQueue.fill(&self, from: first, to: last, by: step)
     }
 
     @inlinable init(
@@ -236,7 +236,7 @@ public extension Tensor {
     ) where TensorElement.Value: AlgebraicField {
         self.init(shape: shape, order: order, name: name)
         let step = (last - first) / TensorElement.Value(exactly: count)!
-        Context.currentQueue.fill(&self, from: first, to: last, by: step)
+        currentQueue.fill(&self, from: first, to: last, by: step)
     }
 }
 
@@ -270,7 +270,7 @@ public extension Tensor {
         name: String = defaultTensorName
     ) where C: Collection, C.Element == TensorElement.Stored {
         self.init(shape: shape, order: order, name: name)
-        let buffer = readWrite(using: Context.appThreadQueue)
+        let buffer = readWrite(using: Platform.syncQueue)
         assert(buffer.count == elements.count)
         _ = buffer.initialize(from: elements)
     }
@@ -299,7 +299,7 @@ public extension Tensor {
         self.init(shape: shape, order: order, name: name)
         
         // get the storage buffer and set the values
-        let buffer = readWrite(using: Context.appThreadQueue)
+        let buffer = readWrite(using: Platform.syncQueue)
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: v, in: buffer, at: i)
         }
@@ -324,7 +324,7 @@ public extension Tensor {
         self.init(shape: shape, order: order, name: name)
         
         // get the storage buffer and set the values
-        let buffer = readWrite(using: Context.appThreadQueue)
+        let buffer = readWrite(using: Platform.syncQueue)
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(exactly: v ? 1 : 0)!,
                               in: buffer, at: i)
@@ -350,7 +350,7 @@ public extension Tensor {
         self.init(shape: shape, order: order, name: name)
         
         // get the storage buffer and set the values
-        let buffer = readWrite(using: Context.appThreadQueue)
+        let buffer = readWrite(using: Platform.syncQueue)
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(v != 0), in: buffer, at: i)
         }
@@ -377,7 +377,7 @@ public extension Tensor {
         self.init(shape: shape, order: order, name: name)
         
         // get the storage buffer on the cpu and set the values
-        let buffer = readWrite(using: Context.appThreadQueue)
+        let buffer = readWrite(using: Platform.syncQueue)
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(exactly: v)!, in: buffer, at: i)
         }
@@ -405,7 +405,7 @@ public extension Tensor {
         self.init(shape: shape, order: order, name: name)
         
         // get the storage buffer and set the values
-        let buffer = readWrite(using: Context.appThreadQueue)
+        let buffer = readWrite(using: Platform.syncQueue)
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(v), in: buffer, at: i)
         }
@@ -433,7 +433,7 @@ public extension Tensor {
         self.init(shape: shape, order: order, name: name)
         
         // get the storage buffer and set the values
-        let buffer = readWrite(using: Context.appThreadQueue)
+        let buffer = readWrite(using: Platform.syncQueue)
         for (i, v) in elements.enumerated() {
             TensorElement.set(value: Element(v), in: buffer, at: i)
         }
@@ -513,10 +513,10 @@ public extension Tensor {
                 shared: other.isShared)
             
             // performs an indexed copy which reorders the elements
-            Context.currentQueue.diagnostic(.reorder,
+            currentQueue.diagnostic(.reorder,
                 "copying \(other.name) order: \(other.order) --> " +
                 "\(source.name) \(Element.self)[\(source.count)] " +
-                "order: \(source.order) on \(Context.currentQueue.name)",
+                "order: \(source.order) on \(currentQueue.name)",
                 categories: [.dataCopy, .dataReorder])
             
             copy(from: other, to: &source)
@@ -1004,7 +1004,7 @@ extension Tensor where TensorElement.Value: Numeric {
         name: String = defaultTensorName
     ) {
         self.init(shape: shape, order: order, name: name)
-        Context.currentQueue.eye(&self, offset: offset)
+        currentQueue.eye(&self, offset: offset)
     }
 }
 

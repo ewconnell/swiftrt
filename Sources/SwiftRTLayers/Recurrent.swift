@@ -130,7 +130,7 @@ where Element: StorageElement,
     @inlinable public init(
         inputSize: Int,
         hiddenSize: Int,
-        seed: RandomSeed = Context.randomSeed
+        seed: RandomSeed = Platform.randomSeed
     ) {
         let weightShape = Shape2(inputSize + hiddenSize, hiddenSize)
         self.weight = TensorR2(glorotUniform: weightShape, seed: seed)

@@ -61,7 +61,7 @@ public func constantInitializer<S,E>(value: Tensor<S,E>)
 /// `sqrt(6 / (fanIn + fanOut))`, and `fanIn`/`fanOut` represent the number of
 /// input and output features multiplied by the receptive field, if present.
 public func glorotUniform<S,E>(
-    seed: RandomSeed = Context.randomSeed
+    seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E>
 where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
@@ -75,7 +75,7 @@ where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 /// the number of input and output features multiplied by the receptive
 /// field size, if present.
 public func glorotNormal<S,E>(
-    seed: RandomSeed = Context.randomSeed
+    seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E>
 where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
@@ -89,7 +89,7 @@ where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 /// `sqrt(6 / fanIn)`, and `fanIn` represents the number of input features
 /// multiplied by the receptive field, if present.
 public func heUniform<S,E>(
-    seed: RandomSeed = Context.randomSeed
+    seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E> where
 S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
@@ -102,7 +102,7 @@ S: TensorShape, E.Value: Real & BinaryFloatingPoint
 /// deviation `sqrt(2 / fanIn)`, where `fanIn` represents the number of input
 /// features multiplied by the receptive field size, if present.
 public func heNormal<S,E>(
-    seed: RandomSeed = Context.randomSeed
+    seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E> where
     S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
@@ -116,7 +116,7 @@ public func heNormal<S,E>(
 /// `sqrt(3 / fanIn)`, and `fanIn` represents the number of input features
 /// multiplied by the receptive field, if present.
 public func leCunUniform<S,E>(
-    seed: RandomSeed = Context.randomSeed
+    seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E>
 where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
@@ -129,7 +129,7 @@ where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 /// deviation `sqrt(1 / fanIn)`, where `fanIn` represents the number of input
 /// features multiplied by the receptive field size, if present.
 public func leCunNormal<S,E>(
-    seed: RandomSeed = Context.randomSeed
+    seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E>
 where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
@@ -151,7 +151,7 @@ public func truncatedNormalInitializer<S,E>(
     mean: Tensor<S,E>? = nil,
     std: Tensor<S,E>? = nil,
     order: Order = .defaultOrder,
-    seed: RandomSeed = Context.randomSeed
+    seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E>
 where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {

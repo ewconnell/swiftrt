@@ -29,7 +29,7 @@ extension Tensor where Element: AdditiveArithmetic {
         } else {
             assert(lhs.shape == rhs.shape)
             var result = Tensor(like: lhs)
-            Context.currentQueue.add(lhs, rhs, &result)
+            currentQueue.add(lhs, rhs, &result)
             return result
         }
     }
@@ -47,7 +47,7 @@ extension Tensor where Element: AdditiveArithmetic {
     @differentiable(wrt: lhs where Element: DifferentiableNumeric)
     @inlinable public static func +(lhs: Self, rhs: Element) -> Self {
         var out = Tensor(like: lhs)
-        Context.currentQueue.add(lhs, rhs, &out)
+        currentQueue.add(lhs, rhs, &out)
         return out
     }
 
@@ -110,7 +110,7 @@ extension Tensor where Element: AdditiveArithmetic {
     @inlinable public static func -(lhs: Self, rhs: Self) -> Self {
         assert(lhs.shape == rhs.shape)
         var result = Tensor(like: lhs)
-        Context.currentQueue.subtract(lhs, rhs, &result)
+        currentQueue.subtract(lhs, rhs, &result)
         return result
     }
 
@@ -127,7 +127,7 @@ extension Tensor where Element: AdditiveArithmetic {
     @differentiable(wrt: lhs where Element: DifferentiableNumeric)
     @inlinable public static func -(lhs: Self, rhs: Element) -> Self {
         var out = Tensor(like: lhs)
-        Context.currentQueue.subtract(lhs, rhs, &out)
+        currentQueue.subtract(lhs, rhs, &out)
         return out
     }
 
@@ -156,7 +156,7 @@ extension Tensor where Element: AdditiveArithmetic {
     @differentiable(wrt: rhs where Element: DifferentiableNumeric & SignedNumeric)
     @inlinable public static func -(lhs: Element, rhs: Self) -> Self {
         var out = Tensor(like: rhs)
-        Context.currentQueue.subtract(lhs, rhs, &out)
+        currentQueue.subtract(lhs, rhs, &out)
         return out
     }
 
@@ -195,7 +195,7 @@ extension Tensor where Element: AdditiveArithmetic {
 ) -> Tensor<S,E> where E.Value: Numeric {
     assert(lhs.shape == rhs.shape)
     var out = Tensor(like: lhs)
-    Context.currentQueue.multiply(lhs, rhs, add: bias, &out)
+    currentQueue.multiply(lhs, rhs, add: bias, &out)
     return out
 }
 
@@ -206,7 +206,7 @@ extension Tensor where Element: AdditiveArithmetic {
 ) -> Tensor<S,E> where E.Value: Numeric {
     assert(lhs.shape == rhs.shape && lhs.shape == bias.shape)
     var out = Tensor(like: lhs)
-    Context.currentQueue.multiply(lhs, rhs, add: bias, &out)
+    currentQueue.multiply(lhs, rhs, add: bias, &out)
     return out
 }
 
@@ -219,7 +219,7 @@ extension Tensor where Element: Numeric {
     @inlinable public static func * (lhs: Self, rhs: Self) -> Self {
         assert(lhs.shape == rhs.shape)
         var out = Tensor(like: lhs)
-        Context.currentQueue.mul(lhs, rhs, &out)
+        currentQueue.mul(lhs, rhs, &out)
         return out
     }
 
@@ -240,7 +240,7 @@ extension Tensor where Element: Numeric {
     @differentiable(wrt: lhs where Element: DifferentiableNumeric)
     @inlinable public static func * (lhs: Self, rhs: Element) -> Self {
         var out = Tensor(like: lhs)
-        Context.currentQueue.mul(lhs, rhs, &out)
+        currentQueue.mul(lhs, rhs, &out)
         return out
     }
 
@@ -268,7 +268,7 @@ extension Tensor where Element: Numeric {
     @differentiable(wrt: rhs where Element: DifferentiableNumeric)
     @inlinable public static func * (lhs: Element, rhs: Self) -> Self {
         var out = Tensor(like: rhs)
-        Context.currentQueue.mul(rhs, lhs, &out)
+        currentQueue.mul(rhs, lhs, &out)
         return out
     }
 
@@ -309,7 +309,7 @@ extension Tensor where Element: AlgebraicField {
     @inlinable public static func / (lhs: Self, rhs: Self) -> Self {
         assert(lhs.shape == rhs.shape)
         var result = Tensor(like: lhs)
-        Context.currentQueue.div(lhs, rhs, &result)
+        currentQueue.div(lhs, rhs, &result)
         return result
     }
 
@@ -330,7 +330,7 @@ extension Tensor where Element: AlgebraicField {
     @differentiable(wrt: lhs where Element: DifferentiableNumeric)
     @inlinable public static func / (lhs: Self, rhs: Element) -> Self {
         var result = Tensor(like: lhs)
-        Context.currentQueue.div(lhs, rhs, &result)
+        currentQueue.div(lhs, rhs, &result)
         return result
     }
 
@@ -358,7 +358,7 @@ extension Tensor where Element: AlgebraicField {
     @differentiable(wrt: rhs where Element: DifferentiableNumeric)
     @inlinable public static func / (lhs: Element, rhs: Self) -> Self {
         var result = Tensor(like: rhs)
-        Context.currentQueue.div(lhs, rhs, &result)
+        currentQueue.div(lhs, rhs, &result)
         return result
     }
 

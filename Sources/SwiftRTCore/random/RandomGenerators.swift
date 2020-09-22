@@ -513,7 +513,7 @@ public struct NormalDistribution<T: BinaryFloatingPoint>: RandomDistribution
         // cost of one.
         let u1 = uniformDist.next(using: &rng)
         let u2 = uniformDist.next(using: &rng)
-        let r = (-2 * T(log(Double(u1)))).squareRoot()
+        let r = (-2 * T(.log(Double(u1)))).squareRoot()
         let theta: Double = 2 * Double.pi * Double(u2)
         let normal01 = r * T(cos(theta))
         return mean + standardDeviation * normal01

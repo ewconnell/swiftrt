@@ -37,11 +37,11 @@ class test_arraySyntax: XCTestCase {
     ]
     
     override func setUpWithError() throws {
-        // Context.log.level = .diagnostic
+        // log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
-        // Context.log.level = .error
+        // log.level = .error
     }
 
     //--------------------------------------------------------------------------

@@ -174,8 +174,8 @@ public struct LogInfo {
 public protocol Logging : _Logging {}
 
 public extension Logging {
-    @inlinable var logWriter: Log { Context.log }
-    @inlinable var logLevel: LogLevel { Context.log.level }
+    @inlinable var logWriter: Log { log }
+    @inlinable var logLevel: LogLevel { log.level }
     @inlinable var logNamePath: String { "" }
     @inlinable var logNestingLevel: Int { 0 }
 }
@@ -264,7 +264,7 @@ public extension LogWriter {
             let messageStr = message()
             // keep this on a separate line so that the start time
             // is initialized before we take the current time
-            let startTime = Context.startTime
+            let startTime = Platform.startTime
             let messageTime = Date().timeIntervalSince(startTime)
             let levelStr = String(timeInterval: messageTime)
             let indent = String(repeating: " ",

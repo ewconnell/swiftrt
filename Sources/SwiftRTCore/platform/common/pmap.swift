@@ -49,7 +49,7 @@ public struct Partition<Shape: TensorShape> {
     partitions: Int? = nil,
     _ body: (inout Tensor<S0,E0>, inout Tensor<S1,E1>) -> Void
 ) {
-    let count = partitions ?? Context.currentDevice.queues.count
+    let count = partitions ?? currentDevice.queues.count
     var r0 = Partition(t0.shape, axis0, count)
     var r1 = Partition(t1.shape, axis1, count)
 

@@ -59,11 +59,11 @@ class test_AlgebraicField: XCTestCase {
     ]
 
     override func setUpWithError() throws {
-//        Context.log.level = .diagnostic
+//        log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
-//        Context.log.level = .error
+//        log.level = .error
     }
 
     //--------------------------------------------------------------------------
@@ -89,7 +89,7 @@ class test_AlgebraicField: XCTestCase {
         //         accumulatorType: .accumulator16F,
         //         scaleType: .real16F,
         //         preferences: preferences,
-        //         using: Context.currentQueue)
+        //         using: currentQueue)
         //     print(props)
         // }
 

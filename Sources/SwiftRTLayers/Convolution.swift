@@ -93,13 +93,13 @@ where Shape: TensorShape,
                                     order: filter.order)
 
         // create the device op and save the output shape
-        self.convolutionOp = Context.currentQueue.convolution(
+        self.convolutionOp = currentQueue.convolution(
             activation: activation,
             strides: strides,
             padding: padding,
             dilations: dilations,
             properties: properties,
-            deviceId: Context.currentQueue.deviceIndex,
+            deviceId: currentQueue.deviceIndex,
             filterBiasBackpropQueueIndex: 2)
     }
     

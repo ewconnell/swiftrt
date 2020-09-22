@@ -107,7 +107,7 @@ import Numerics
 ////            offset = offset.reshaped(to: broadcastShape)
 ////            scale = scale.reshaped(to: broadcastShape)
 ////        }
-////        switch Context.local.learningPhase {
+////        switch platform.learningPhase {
 ////        case .training:
 ////          var normalizedAxes = Array(0..<input.rank)
 ////          normalizedAxes.remove(at: positiveAxis)

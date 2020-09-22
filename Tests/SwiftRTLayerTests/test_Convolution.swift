@@ -35,7 +35,7 @@ class test_Convolution: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_Tensor2() {
-//        Context.log.level = .diagnostic
+//        log.level = .diagnostic
 //        let a = array(0..<81, (9, 9))
 //        let conv = Conv2(filterShape: [3, 3])
 //        let b = conv(a)

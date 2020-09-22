@@ -48,7 +48,7 @@ extension String {
         let elapsed = Date().timeIntervalSince(start)
         let str = String(timeInterval: elapsed, precision: precision)
         let message = "Elapsed: \(logLabel)  warmup \(str)"
-        Context.log.write(level: .status, message: message)
+        log.write(level: .status, message: message)
     }
     
     // collect the timings and take the average
@@ -73,14 +73,14 @@ func logTimings(
     _ precision: Int
 ) {
     let avgStr = String(timeInterval: average, precision: precision)
-    Context.log.write(level: .status, message: "\(label) \(avgStr)")
+    log.write(level: .status, message: "\(label) \(avgStr)")
     
     for i in 0..<timings.count {
         let timeStr = String(timeInterval: timings[i], precision: precision)
-        Context.log.write(level: .status,
+        log.write(level: .status,
                           message: "run: \(i) time: \(timeStr)",
                           nestingLevel: 1)
     }
-    Context.log.write(level: .status, message: "")
+    log.write(level: .status, message: "")
 }
 

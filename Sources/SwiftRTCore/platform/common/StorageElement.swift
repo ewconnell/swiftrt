@@ -743,7 +743,7 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
         assert(tensor.isContiguous, "can only iterate contiguous buffer elements")
 
         // make the data range available for reading by the cpu
-        let buffer = tensor.read(using: Context.currentQueue)
+        let buffer = tensor.read(using: currentQueue)
         
         // Init members and note that this does not actually mutate, even
         // though we commonly hold a mutable buffer pointer
@@ -770,7 +770,7 @@ public struct BufferElements<Shape, TensorElement>: MutableCollection
         // convert logical base and strided span count to stored.
         // They will not be equal for packed element types like `Int4`
         // make the data range available for reading/writing by the cpu
-        hostBuffer = tensor.readWrite(using: Context.currentQueue)
+        hostBuffer = tensor.readWrite(using: currentQueue)
         
         // `startIndex` is the logical position of the first
         // `Value` type within the `Stored` type.
@@ -877,7 +877,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         let buff = storage.read(type: TensorElement.Stored.self,
                                 at: storedBase,
                                 count: storedCount,
-                                using: Context.currentQueue)
+                                using: currentQueue)
         // this never actually mutates
         let p = UnsafeMutablePointer(mutating: buff.baseAddress)
         hostBuffer = UnsafeMutableBufferPointer(start: p, count: buff.count)
@@ -889,7 +889,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         hostBuffer = storage.readWrite(type: TensorElement.Stored.self,
                                        at: storedBase,
                                        count: storedCount,
-                                       using: Context.currentQueue)
+                                       using: currentQueue)
     }
     
     //--------------------------------------------------------------------------

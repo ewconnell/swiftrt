@@ -136,7 +136,7 @@ public extension Tensor {
     from source: Tensor<S,E>,
     to destination: inout Tensor<S,E>
 ) {
-    Context.currentQueue.copy(from: source, to: &destination)
+    currentQueue.copy(from: source, to: &destination)
 }
 
 //==============================================================================
@@ -144,7 +144,7 @@ public extension Tensor {
 /// adds a time delay into the current queue for testing purposes``
 /// - Parameter interval: the number of seconds to delay
 @inlinable public func delayQueue(atLeast interval: TimeInterval) {
-    Context.currentQueue.delay(interval)
+    currentQueue.delay(interval)
 }
 
 //==============================================================================
@@ -155,7 +155,7 @@ public extension Tensor {
     to upper: E.Value,
     seed: RandomSeed
 ) where E.Value: BinaryFloatingPoint {
-    Context.currentQueue.fill(randomUniform: &x, lower, upper, seed)
+    currentQueue.fill(randomUniform: &x, lower, upper, seed)
 }
 
 //-------------------------------------
@@ -165,7 +165,7 @@ public extension Tensor {
     std: E.Value,
     seed: RandomSeed
 ) where E.Value: BinaryFloatingPoint {
-    Context.currentQueue.fill(randomNormal: &x, mean, std, seed)
+    currentQueue.fill(randomNormal: &x, mean, std, seed)
 }
 
 @inlinable func fill<S,E>(
@@ -174,7 +174,7 @@ public extension Tensor {
     std: Tensor<S,E>,
     seed: RandomSeed
 ) where E.Value: BinaryFloatingPoint {
-    Context.currentQueue.fill(randomNormal: &x, mean, std, seed)
+    currentQueue.fill(randomNormal: &x, mean, std, seed)
 }
 
 //-------------------------------------
@@ -184,7 +184,7 @@ public extension Tensor {
     std: E.Value,
     seed: RandomSeed
 ) where E.Value: BinaryFloatingPoint {
-    Context.currentQueue.fill(randomTruncatedNormal: &x, mean, std, seed)
+    currentQueue.fill(randomTruncatedNormal: &x, mean, std, seed)
 }
 
 @inlinable func fill<S,E>(
@@ -193,7 +193,7 @@ public extension Tensor {
     std: Tensor<S,E>,
     seed: RandomSeed
 ) where E.Value: BinaryFloatingPoint {
-    Context.currentQueue.fill(randomTruncatedNormal: &x, mean, std, seed)
+    currentQueue.fill(randomTruncatedNormal: &x, mean, std, seed)
 }
 
 //==============================================================================
@@ -203,7 +203,7 @@ public extension Tensor {
     _ out: inout Tensor<S,E>,
     with element: E.Value
 ) {
-    Context.currentQueue.fill(&out, with: element)
+    currentQueue.fill(&out, with: element)
 }
 
 @inlinable public func fill<S,E>(
@@ -212,7 +212,7 @@ public extension Tensor {
     to last: E.Value,
     by step: E.Value
 ) where E.Value: Numeric {
-    Context.currentQueue.fill(&out, from: first, to: last, by: step)
+    currentQueue.fill(&out, from: first, to: last, by: step)
 }
 
 @inlinable public func fill<S,E: StorageElement>(
@@ -245,7 +245,7 @@ public extension Tensor {
     where condition: Tensor<S,Bool>
 ) -> Tensor<S,E> {
     var result = Tensor(like: x)
-    Context.currentQueue.replace(x, y, condition, &result)
+    currentQueue.replace(x, y, condition, &result)
     return result
 }
 

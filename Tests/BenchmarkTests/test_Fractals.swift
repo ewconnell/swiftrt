@@ -26,13 +26,13 @@ class test_Fractals: XCTestCase {
 
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
-        Context.log.level = .diagnostic
+        log.level = .diagnostic
         use(device: 1)
     //    useAppThreadQueue()
     }
 
     override func tearDownWithError() throws {
-        Context.log.level = .error
+        log.level = .error
         useAppThreadQueue()
     }
 
@@ -50,7 +50,7 @@ class test_Fractals: XCTestCase {
         let last = Complex<Float>(1, 1)
 
         print("size: \(size), iterations: \(iterations), " +
-              "queue: \(Context.currentQueue.name)")
+              "queue: \(currentQueue.name)")
 
         // test
         var Z = array(from: first, to: last, size)

@@ -158,7 +158,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.count = 1
         self.spanCount = 1
         self.order = .row
-        self.storage = Context.zeroStorage
+        self.storage = Platform.zeroStorage
         logicalStrides = Shape.one
         logicalElements = LogicalElements(count,
                                           shape,
@@ -376,7 +376,7 @@ public struct ElementIndex<Shape>: Comparable, Codable
     _ tensor: inout Tensor<S,E>,
     _ body: (inout Tensor<S,E>) -> Void
 ) {
-    tensor.prepareForWrite(using: Context.currentQueue)
+    tensor.prepareForWrite(using: currentQueue)
     let sharing = tensor.isShared
     tensor.isShared = true
     body(&tensor)
@@ -449,7 +449,7 @@ public extension Tensor {
         }
         set {
             usingAppThreadQueue {
-                prepareForWrite(using: Context.currentQueue)
+                prepareForWrite(using: currentQueue)
                 logicalElements.prepareForReadWrite()
                 logicalElements[i] = newValue
             }
@@ -462,7 +462,7 @@ public extension Tensor {
     @inlinable subscript(lower: Shape, upper: Shape) -> Self {
         get { createView(lower, upper, isShared) }
         set {
-            prepareForWrite(using: Context.currentQueue)
+            prepareForWrite(using: currentQueue)
             var view = createView(lower, upper, true)
             copy(from: newValue, to: &view)
         }
@@ -479,7 +479,7 @@ public extension Tensor {
         set {
             // inplace write
             inplace(&self) {
-                Context.currentQueue.replace($0, newValue, condition, &$0)
+                currentQueue.replace($0, newValue, condition, &$0)
             }
         }
     }
@@ -577,7 +577,7 @@ public extension Tensor {
     /// `Elements` are accessed by the application using `Collection`
     /// enumeration via `indices` or integer subscripting.
     @inlinable func read() -> UnsafeBufferPointer<TensorElement.Stored> {
-        read(using: Context.appThreadQueue)
+        read(using: Platform.syncQueue)
     }
     
     //--------------------------------------------------------------------------
@@ -620,7 +620,7 @@ public extension Tensor {
     /// enumeration via `indices` or subscripting.
     @inlinable mutating func readWrite()
         -> UnsafeMutableBufferPointer<TensorElement.Stored> {
-        readWrite(using: Context.appThreadQueue)
+        readWrite(using: Platform.syncQueue)
     }
     
     //--------------------------------------------------------------------------

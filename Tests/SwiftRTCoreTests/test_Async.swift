@@ -29,11 +29,11 @@ class test_Async: XCTestCase {
 
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
-//        Context.log.level = .diagnostic
+//        log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
-//        Context.log.level = .error
+//        log.level = .error
     }
 
     //--------------------------------------------------------------------------
@@ -71,7 +71,7 @@ class test_Async: XCTestCase {
         #if !DEBUG
         measure {
             for _ in 0..<1000000 {
-                _ = Context.currentQueue
+                _ = currentQueue
             }
         }
         #endif
@@ -87,7 +87,7 @@ class test_Async: XCTestCase {
     func discreteMemoryReplication() {
         let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
         let b = array([[0, 1], [2, 3], [4, 5]], name: "b")
-        let c: Tensor2 = using(device: Context.discreteMemoryDeviceId) {
+        let c: Tensor2 = using(device: Platform.discreteMemoryDeviceId) {
             let result = a + b
             XCTAssert(a.storage.testLastAccessCopiedDeviceMemory)
             XCTAssert(b.storage.testLastAccessCopiedDeviceMemory)

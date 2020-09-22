@@ -24,7 +24,7 @@ import Numerics
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Comparable & SignedNumeric {
     var result = Tensor(like: x)
-    Context.currentQueue.abs(x, &result)
+    currentQueue.abs(x, &result)
     return result
 }
 
@@ -56,7 +56,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.acos(x, &result)
+    currentQueue.acos(x, &result)
     return result
 }
 
@@ -77,7 +77,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.acosh(x, &result)
+    currentQueue.acosh(x, &result)
     return result
 }
 
@@ -98,7 +98,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.asin(x, &result)
+    currentQueue.asin(x, &result)
     return result
 }
 
@@ -119,7 +119,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: DifferentiableNumeric & Real {
     var result = Tensor(like: x)
-    Context.currentQueue.asinh(x, &result)
+    currentQueue.asinh(x, &result)
     return result
 }
 
@@ -140,7 +140,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.atan(x, &result)
+    currentQueue.atan(x, &result)
     return result
 }
 
@@ -161,7 +161,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.atanh(x, &result)
+    currentQueue.atanh(x, &result)
     return result
 }
 
@@ -184,7 +184,7 @@ where E.Value: DifferentiableNumeric & Real {
     x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.atan2(y, x, &result)
+    currentQueue.atan2(y, x, &result)
     return result
 }
 
@@ -211,7 +211,7 @@ where E.Value: DifferentiableNumeric & Real {
 ) -> Tensor<S,E> where E.Value: BinaryFloatingPoint,
                        OE.Value: BinaryInteger {
     var result = Tensor<S,E>(shape: other.shape)
-    Context.currentQueue.cast(from: other, to: &result)
+    currentQueue.cast(from: other, to: &result)
     return result
 }
 
@@ -220,7 +220,7 @@ where E.Value: DifferentiableNumeric & Real {
 ) -> Tensor<S,E> where E.Value: BinaryInteger,
                        OE.Value: BinaryFloatingPoint {
     var result = Tensor<S,E>(shape: other.shape)
-    Context.currentQueue.cast(from: other, to: &result)
+    currentQueue.cast(from: other, to: &result)
     return result
 }
 
@@ -233,7 +233,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.cos(x, &result)
+    currentQueue.cos(x, &result)
     return result
 }
 
@@ -254,7 +254,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.cosh(x, &result)
+    currentQueue.cosh(x, &result)
     return result
 }
 
@@ -275,7 +275,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.erf(x, &result)
+    currentQueue.erf(x, &result)
     return result
 }
 
@@ -300,7 +300,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.erfc(x, &result)
+    currentQueue.erfc(x, &result)
     return result
 }
 
@@ -322,7 +322,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.exp(x, &result)
+    currentQueue.exp(x, &result)
     return result
 }
 
@@ -354,7 +354,7 @@ public extension Tensor where TensorElement.Value: Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.exp2(x, &result)
+    currentQueue.exp2(x, &result)
     return result
 }
 
@@ -368,7 +368,7 @@ public extension Tensor where TensorElement.Value: Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.exp10(x, &result)
+    currentQueue.exp10(x, &result)
     return result
 }
 
@@ -381,7 +381,7 @@ public extension Tensor where TensorElement.Value: Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.expMinusOne(x, &result)
+    currentQueue.expMinusOne(x, &result)
     return result
 }
 
@@ -403,7 +403,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.gamma(x, &result)
+    currentQueue.gamma(x, &result)
     return result
 }
 
@@ -428,7 +428,7 @@ where E.Value: DifferentiableNumeric & Real
     _ y: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.hypot(x, y, &result)
+    currentQueue.hypot(x, y, &result)
     return result
 }
 
@@ -452,7 +452,7 @@ where E.Value: DifferentiableNumeric & Real
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.log(x, &result)
+    currentQueue.log(x, &result)
     return result
 }
 
@@ -468,7 +468,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.log2(x, &result)
+    currentQueue.log2(x, &result)
     return result
 }
 
@@ -476,7 +476,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.log10(x, &result)
+    currentQueue.log10(x, &result)
     return result
 }
 
@@ -499,7 +499,7 @@ public extension Tensor where TensorElement.Value: Real {
     onePlus x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.log(onePlus: x, &result)
+    currentQueue.log(onePlus: x, &result)
     return result
 }
 
@@ -522,7 +522,7 @@ where E.Value: DifferentiableNumeric & Real
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.logGamma(x, &result)
+    currentQueue.logGamma(x, &result)
     return result
 }
 
@@ -545,7 +545,7 @@ where E.Value: DifferentiableNumeric & Real
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: SignedNumeric {
     var result = Tensor(like: x)
-    Context.currentQueue.neg(x, &result)
+    currentQueue.neg(x, &result)
     return result
 }
 
@@ -576,7 +576,7 @@ public extension Tensor where TensorElement.Value: SignedNumeric {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.sin(x, &result)
+    currentQueue.sin(x, &result)
     return result
 }
 
@@ -597,7 +597,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.sinh(x, &result)
+    currentQueue.sinh(x, &result)
     return result
 }
 
@@ -618,7 +618,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Numeric {
     var result = Tensor(like: x)
-    Context.currentQueue.squared(x, &result)
+    currentQueue.squared(x, &result)
     return result
 }
 
@@ -658,7 +658,7 @@ public extension Numeric {
 ) -> Tensor<S,E> where E.Value: Real {
     assert(x.shape == y.shape, _messageTensorShapeMismatch)
     var result = Tensor(like: x)
-    Context.currentQueue.pow(x, y, &result)
+    currentQueue.pow(x, y, &result)
     return result
 }
 
@@ -680,7 +680,7 @@ where E.Value: DifferentiableNumeric & Real
     _ n: Int
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.pow(x, n, &result)
+    currentQueue.pow(x, n, &result)
     return result
 }
 
@@ -702,7 +702,7 @@ public extension Tensor where TensorElement.Value: Real {
     _ n: Int
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.root(x, n, &result)
+    currentQueue.root(x, n, &result)
     return result
 }
 
@@ -726,7 +726,7 @@ where E.Value: DifferentiableNumeric & Real
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.sqrt(x, &result)
+    currentQueue.sqrt(x, &result)
     return result
 }
 
@@ -758,7 +758,7 @@ public extension Tensor where TensorElement.Value: Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Comparable & SignedNumeric {
     var result = Tensor(like: x)
-    Context.currentQueue.sign(x, &result)
+    currentQueue.sign(x, &result)
     return result
 }
 
@@ -791,7 +791,7 @@ public extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.sigmoid(x, &result)
+    currentQueue.sigmoid(x, &result)
     return result
 }
 
@@ -825,7 +825,7 @@ public extension Tensor where TensorElement.Value: Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.tan(x, &result)
+    currentQueue.tan(x, &result)
     return result
 }
 
@@ -847,7 +847,7 @@ where E.Value: DifferentiableNumeric & Real {
     _ x: Tensor<S,E>
 ) -> Tensor<S,E> where E.Value: Real {
     var result = Tensor(like: x)
-    Context.currentQueue.tanh(x, &result)
+    currentQueue.tanh(x, &result)
     return result
 }
 

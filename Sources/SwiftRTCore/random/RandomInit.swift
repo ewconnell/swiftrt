@@ -34,10 +34,10 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
          lower: Element = 0,
          upper: Element = 1,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed)
+         seed: RandomSeed = Platform.randomSeed)
     {
         self = Self(shape: shape, order: order)
-        Context.currentQueue.fill(randomUniform: &self, lower, upper, seed)
+        currentQueue.fill(randomUniform: &self, lower, upper, seed)
     }
     
     //--------------------------------------------------------------------------
@@ -54,10 +54,10 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
          mean: Element = 0,
          std: Element = 1,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed)
+         seed: RandomSeed = Platform.randomSeed)
     {
         self = Self(shape: shape, order: order)
-        Context.currentQueue.fill(randomNormal: &self, mean, std, seed)
+        currentQueue.fill(randomNormal: &self, mean, std, seed)
     }
     
     //------------------------------------
@@ -66,10 +66,10 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
          mean: Self,
          std: Self,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed)
+         seed: RandomSeed = Platform.randomSeed)
     {
         self = Self(shape: shape, order: order)
-        Context.currentQueue.fill(randomNormal: &self, mean, std, seed)
+        currentQueue.fill(randomNormal: &self, mean, std, seed)
     }
     
     //--------------------------------------------------------------------------
@@ -86,10 +86,10 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
          mean: Element = 0,
          std: Element = 1,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed)
+         seed: RandomSeed = Platform.randomSeed)
     {
         self = Self(shape: shape, order: order)
-        Context.currentQueue.fill(randomTruncatedNormal: &self, mean, std, seed)
+        currentQueue.fill(randomTruncatedNormal: &self, mean, std, seed)
     }
     
     //------------------------------------
@@ -98,10 +98,10 @@ public extension Tensor where TensorElement.Value: BinaryFloatingPoint {
          mean: Self,
          std: Self,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed)
+         seed: RandomSeed = Platform.randomSeed)
     {
         self = Self(shape: shape, order: order)
-        Context.currentQueue.fill(randomTruncatedNormal: &self, mean, std, seed)
+        currentQueue.fill(randomTruncatedNormal: &self, mean, std, seed)
     }
 }
 
@@ -124,7 +124,7 @@ public extension Tensor where Element == DeviceIndex {
     init<E>(randomCategorialLogits: Tensor<Shape,E>,
             sampleCount: Int,
             order: Order = .defaultOrder,
-            seed: RandomSeed = Context.randomSeed)
+            seed: RandomSeed = Platform.randomSeed)
     where E: Numeric
     {
         fatalError()
@@ -179,7 +179,7 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///   - seed: The seed value.
     init(glorotUniform shape: Shape,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         let (fanIn, fanOut) = shape.fans()
         let limit = Element.sqrt(6 / Element(fanIn + fanOut))
@@ -210,7 +210,7 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///   - seed: The seed value.
     init(glorotNormal shape: Shape,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         let (fanIn, fanOut) = shape.fans()
         var std = Element.sqrt(2 / Element(fanIn + fanOut))
@@ -243,7 +243,7 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///   - seed: The seed value.
     init(heUniform shape: Shape,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         let (fanIn, _) = shape.fans()
         let limit = Element.sqrt(6 / Element(fanIn))
@@ -270,7 +270,7 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///   - seed: The seed value.
     init(heNormal shape: Shape,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         let (fanIn, _) = shape.fans()
         var std = Element.sqrt(2 / Element(fanIn))
@@ -300,7 +300,7 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///   - seed: The seed value.
     init(leCunUniform shape: Shape,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         let (fanIn, _) = shape.fans()
         let limit = Element.sqrt(3 / Element(fanIn))
@@ -325,7 +325,7 @@ public extension Tensor where TensorElement.Value: Real & BinaryFloatingPoint {
     ///   - seed: The seed value.
     init(leCunNormal shape: Shape,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         let (fanIn, _) = shape.fans()
         var std = Element.sqrt(1 / Element(fanIn))
@@ -351,7 +351,7 @@ public extension Tensor where
         mean: Self,
         std: Self,
         order: Order = .defaultOrder,
-        seed: RandomSeed = Context.randomSeed
+        seed: RandomSeed = Platform.randomSeed
     ) {
         self.init(randomTruncatedNormal: Shape(shape),
                   mean: mean, std: std, order: order, seed: seed)
@@ -361,7 +361,7 @@ public extension Tensor where
          mean: Element = 0,
          std: Element = 1,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         self.init(randomTruncatedNormal: Shape(shape),
                   mean: mean, std: std, order: order, seed: seed)
@@ -370,7 +370,7 @@ public extension Tensor where
     init(randomNormal shape: Int, mean: Self,
          std: Self,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         self.init(randomNormal: Shape(shape),
                   mean: mean, std: std, order: order, seed: seed)
@@ -380,7 +380,7 @@ public extension Tensor where
          mean: Element = 0,
          std: Element = 1,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         self.init(randomNormal: Shape(shape),
                   mean: mean, std: std, order: order, seed: seed)
@@ -390,7 +390,7 @@ public extension Tensor where
          lower: Element = 0,
          upper: Element = 1,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         self.init(randomUniform: Shape(shape),
                   lower: lower, upper: upper, order: order, seed: seed)
@@ -398,42 +398,42 @@ public extension Tensor where
 
     init(glorotUniform shape: Int,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         self.init(glorotUniform: Shape(shape), order: order, seed: seed)
     }
         
     init(glorotNormal shape: Int,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         self.init(glorotNormal: Shape(shape), order: order, seed: seed)
     }
     
     init(heUniform shape: Int,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         self.init(heUniform: Shape(shape), order: order, seed: seed)
     }
     
     init(heNormal shape: Int,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         self.init(heNormal: Shape(shape), order: order, seed: seed)
     }
     
     init(leCunUniform shape: Int,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         self.init(leCunUniform: Shape(shape), order: order, seed: seed)
     }
     
     init(leCunNormal shape: Int,
          order: Order = .defaultOrder,
-         seed: RandomSeed = Context.randomSeed
+         seed: RandomSeed = Platform.randomSeed
     ) {
         self.init(leCunNormal: Shape(shape), order: order, seed: seed)
     }

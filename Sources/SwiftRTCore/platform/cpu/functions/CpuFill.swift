@@ -138,7 +138,7 @@ extension CpuFunctions where Self: DeviceQueue {
     ) where E.Value: BinaryFloatingPoint {
         let oname = out.name
         let scale = Double(upper - lower) / Double(UInt64.max)
-        var generator = Context.createRandomNumberGenerator(using: seed)
+        var generator = Platform.createRandomNumberGenerator(using: seed)
         mapOp(&out, "fill(randomUniform: \(oname), lower: \(lower), " +
             "upper: \(upper), seed: \(seed))")
         {
@@ -155,7 +155,7 @@ extension CpuFunctions where Self: DeviceQueue {
     ) where E.Value: BinaryFloatingPoint {
         let oname = out.name
         let scale = Double(std) / Double(UInt64.max)
-        var generator = Context.createRandomNumberGenerator(using: seed)
+        var generator = Platform.createRandomNumberGenerator(using: seed)
         mapOp(&out, "fill(randomNormal: \(oname), mean: \(mean), " +
             "std: \(std), seed: \(seed))")
         {
@@ -175,7 +175,7 @@ extension CpuFunctions where Self: DeviceQueue {
         assert(std.count == 1 && mean.count == 1)
         let oname = out.name
         let scale = Double(std.element) / Double(UInt64.max)
-        var generator = Context.createRandomNumberGenerator(using: seed)
+        var generator = Platform.createRandomNumberGenerator(using: seed)
         mapOp(&out, "fill(randomNormal: \(oname), mean: \(mean.name), " +
             "std: \(std.name), seed: \(seed))")
         {
@@ -193,7 +193,7 @@ extension CpuFunctions where Self: DeviceQueue {
         let oname = out.name
         let std2x = std * 2
         let scale = Double(std) / Double(UInt64.max)
-        var generator = Context.createRandomNumberGenerator(using: seed)
+        var generator = Platform.createRandomNumberGenerator(using: seed)
         mapOp(&out, "fill(randomTruncatedNormal: \(oname), mean: \(mean), " +
               "std: \(std), seed: \(seed))")
         {
@@ -213,7 +213,7 @@ extension CpuFunctions where Self: DeviceQueue {
         let oname = out.name
         let std2x = std.element * 2
         let scale = Double(std.element) / Double(UInt64.max)
-        var generator = Context.createRandomNumberGenerator(using: seed)
+        var generator = Platform.createRandomNumberGenerator(using: seed)
         mapOp(&out, "fill(randomTruncatedNormal: \(oname), " +
               "mean: \(mean.name), std: \(std.name), seed: \(seed))") 
         {

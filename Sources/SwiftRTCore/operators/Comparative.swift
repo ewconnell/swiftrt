@@ -22,7 +22,7 @@ extension Tensor where TensorElement.Value == Bool {
     @inlinable public static func .&&(_ lhs: Self, _ rhs: Self) -> Self {
         assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
         var result = Tensor(like: lhs)
-        Context.currentQueue.and(lhs, rhs, &result)
+        currentQueue.and(lhs, rhs, &result)
         return result
     }
 }
@@ -34,7 +34,7 @@ public extension Tensor where TensorElement.Value == Bool {
     @inlinable static func .||(_ lhs: Self, _ rhs: Self) -> Self {
         assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
         var result = Tensor(like: lhs)
-        Context.currentQueue.or(lhs, rhs, &result)
+        currentQueue.or(lhs, rhs, &result)
         return result
     }
 }
@@ -52,7 +52,7 @@ public extension Tensor where TensorElement.Value == Bool {
 ) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
     assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
     var result = Tensor(like: lhs)
-    Context.currentQueue.min(lhs, rhs, &result)
+    currentQueue.min(lhs, rhs, &result)
     return result
 }
 
@@ -66,7 +66,7 @@ public extension Tensor where TensorElement.Value == Bool {
     (value: min(lhs, rhs), {
         var resultTrue = Tensor(like: lhs)
         var resultFalse = Tensor(like: lhs)
-        Context.currentQueue.vjpMin(lhs, rhs, $0, &resultTrue, &resultFalse)
+        currentQueue.vjpMin(lhs, rhs, $0, &resultTrue, &resultFalse)
         return (resultTrue, resultFalse)
     })
 }
@@ -79,7 +79,7 @@ public extension Tensor where TensorElement.Value == Bool {
     _ rhs: E.Value
 ) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
     var result = Tensor(like: lhs)
-    Context.currentQueue.min(lhs, rhs, &result)
+    currentQueue.min(lhs, rhs, &result)
     return result
 }
 
@@ -101,7 +101,7 @@ public extension Tensor where TensorElement.Value == Bool {
     return (value, { v in
         var resultTrue = Tensor(like: lhs)
         var resultFalse = Tensor(like: lhs)
-        Context.currentQueue.vjpMin(lhs, rhs, v, &resultTrue, &resultFalse)
+        currentQueue.vjpMin(lhs, rhs, v, &resultTrue, &resultFalse)
         return (resultTrue, resultFalse.sum().element)
     })
 }
@@ -116,7 +116,7 @@ where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableNumeric {
     return (value, { v in
         var resultTrue = Tensor(like: lhs)
         var resultFalse = Tensor(like: lhs)
-        Context.currentQueue.vjpMin(lhs, rhs, v, &resultTrue, &resultFalse)
+        currentQueue.vjpMin(lhs, rhs, v, &resultTrue, &resultFalse)
         return resultTrue
     })
 }
@@ -165,7 +165,7 @@ public extension Tensor where TensorElement.Value: Comparable {
 ) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
     assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
     var result = Tensor(like: lhs)
-    Context.currentQueue.max(lhs, rhs, &result)
+    currentQueue.max(lhs, rhs, &result)
     return result
 }
 
@@ -178,7 +178,7 @@ where S: TensorShape, E.Value: DifferentiableNumeric & Comparable {
     (value: max(lhs, rhs), {
         var resultTrue = Tensor(like: lhs)
         var resultFalse = Tensor(like: lhs)
-        Context.currentQueue.vjpMax(lhs, rhs, $0, &resultTrue, &resultFalse)
+        currentQueue.vjpMax(lhs, rhs, $0, &resultTrue, &resultFalse)
         return (resultTrue, resultFalse)
     })
 }
@@ -191,7 +191,7 @@ where S: TensorShape, E.Value: DifferentiableNumeric & Comparable {
     _ rhs: E.Value
 ) -> Tensor<S,E> where S: TensorShape, E.Value: Comparable {
     var result = Tensor(like: lhs)
-    Context.currentQueue.max(lhs, rhs, &result)
+    currentQueue.max(lhs, rhs, &result)
     return result
 }
 
@@ -213,7 +213,7 @@ where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableNumeric {
     return (value, { v in
         var resultTrue = Tensor(like: lhs)
         var resultFalse = Tensor(like: lhs)
-        Context.currentQueue.vjpMax(lhs, rhs, v, &resultTrue, &resultFalse)
+        currentQueue.vjpMax(lhs, rhs, v, &resultTrue, &resultFalse)
         return (resultTrue, resultFalse.sum().element)
     })
 }
@@ -228,7 +228,7 @@ where S: TensorShape, E.Value: Comparable & Numeric & DifferentiableNumeric {
     return (value, { v in
         var resultTrue = Tensor(like: lhs)
         var resultFalse = Tensor(like: lhs)
-        Context.currentQueue.vjpMax(lhs, rhs, v, &resultTrue, &resultFalse)
+        currentQueue.vjpMax(lhs, rhs, v, &resultTrue, &resultFalse)
         return resultTrue
     })
 }
@@ -274,7 +274,7 @@ extension Tensor: Equatable where TensorElement.Value: Equatable {
     ) -> Tensor<Shape, Bool> {
         assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
         var result = Tensor<Shape, Bool>(shape: lhs.shape, order: lhs.order)
-        Context.currentQueue.equal(lhs, rhs, &result)
+        currentQueue.equal(lhs, rhs, &result)
         return result
     }
 
@@ -306,7 +306,7 @@ extension Tensor: Equatable where TensorElement.Value: Equatable {
 ) -> Tensor<S,Bool> where S: TensorShape, E.Value: SignedNumeric & Comparable {
     assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
     var result = Tensor<S,Bool>(shape: lhs.shape, order: lhs.order)
-    Context.currentQueue.elementsAlmostEqual(lhs, rhs, tolerance, &result)
+    currentQueue.elementsAlmostEqual(lhs, rhs, tolerance, &result)
     return result
 }
 
@@ -327,7 +327,7 @@ public extension Tensor where TensorElement.Value: Equatable {
     @inlinable static func .!=(_ lhs: Self, _ rhs: Self) -> Tensor<Shape, Bool> {
         assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
         var result = Tensor<Shape,Bool>(shape: lhs.shape, order: lhs.order)
-        Context.currentQueue.notEqual(lhs, rhs, &result)
+        currentQueue.notEqual(lhs, rhs, &result)
         return result
     }
 }
@@ -339,13 +339,13 @@ public extension Tensor where TensorElement.Value: Comparable {
     @inlinable static func .>(_ lhs: Self, _ rhs: Self) -> Tensor<Shape,Bool> {
         assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
         var result = Tensor<Shape,Bool>(shape: lhs.shape, order: lhs.order)
-        Context.currentQueue.greater(lhs, rhs, &result)
+        currentQueue.greater(lhs, rhs, &result)
         return result
     }
 
     @inlinable static func .>(_ lhs: Self, _ rhs: Element) -> Tensor<Shape,Bool> {
         var result = Tensor<Shape,Bool>(shape: lhs.shape, order: lhs.order)
-        Context.currentQueue.greater(lhs, rhs, &result)
+        currentQueue.greater(lhs, rhs, &result)
         return result
     }
 }
@@ -361,13 +361,13 @@ public extension Tensor where TensorElement.Value: Comparable {
     @inlinable static func .>=(_ lhs: Self, _ rhs: Self) -> Tensor<Shape,Bool> {
         assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
         var result = Tensor<Shape,Bool>(shape: lhs.shape, order: lhs.order)
-        Context.currentQueue.greaterOrEqual(lhs, rhs, &result)
+        currentQueue.greaterOrEqual(lhs, rhs, &result)
         return result
     }
     
     @inlinable static func .>=(_ lhs: Self, _ rhs: Element) -> Tensor<Shape,Bool> {
         var result = Tensor<Shape,Bool>(shape: lhs.shape, order: lhs.order)
-        Context.currentQueue.greaterOrEqual(lhs, rhs, &result)
+        currentQueue.greaterOrEqual(lhs, rhs, &result)
         return result
     }
 }
@@ -379,13 +379,13 @@ public extension Tensor where TensorElement.Value: Comparable {
     @inlinable static func .<(_ lhs: Self, _ rhs: Self) -> Tensor<Shape, Bool> {
         assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
         var result = Tensor<Shape,Bool>(shape: lhs.shape, order: lhs.order)
-        Context.currentQueue.less(lhs, rhs, &result)
+        currentQueue.less(lhs, rhs, &result)
         return result
     }
     
     @inlinable static func .<(_ lhs: Self, _ rhs: Element) -> Tensor<Shape,Bool> {
         var result = Tensor<Shape,Bool>(shape: lhs.shape, order: lhs.order)
-        Context.currentQueue.less(lhs, rhs, &result)
+        currentQueue.less(lhs, rhs, &result)
         return result
     }
 }
@@ -397,13 +397,13 @@ public extension Tensor where TensorElement.Value: Comparable {
     @inlinable static func .<=(_ lhs: Self, _ rhs: Self) -> Tensor<Shape,Bool> {
         assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)
         var result = Tensor<Shape,Bool>(shape: lhs.shape, order: lhs.order)
-        Context.currentQueue.lessOrEqual(lhs, rhs, &result)
+        currentQueue.lessOrEqual(lhs, rhs, &result)
         return result
     }
 
     @inlinable static func .<=(_ lhs: Self, _ rhs: Element) -> Tensor<Shape,Bool> {
         var result = Tensor<Shape,Bool>(shape: lhs.shape, order: lhs.order)
-        Context.currentQueue.lessOrEqual(lhs, rhs, &result)
+        currentQueue.lessOrEqual(lhs, rhs, &result)
         return result
     }
 }

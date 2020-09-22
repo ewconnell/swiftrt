@@ -22,38 +22,38 @@ class test_Shape: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_reshapeOrderRowCol", test_reshapeOrderRowCol),
-        // ("test_fillRangeColumnMajor", test_fillRangeColumnMajor),
-        // ("test_reshape", test_reshape),
-        // ("test_reshapeOrderRowTC32x8", test_reshapeOrderRowTC32x8),
-        // ("test_reshapeOrderRowTC32x32", test_reshapeOrderRowTC32x32),
-        // ("test_expanding", test_expanding),
-        // ("test_expandMutate", test_expandMutate),
-        // ("test_repeatExpandTranspose", test_repeatExpandTranspose),
-        // ("test_stridePermutation", test_stridePermutation),
-        // ("test_squeeze", test_squeeze),
-        // ("test_stack", test_stack),
-        // ("test_stackingGradients", test_stackingGradients),
-        // ("test_stackingExpression", test_stackingExpression),
-        // ("test_perfTensor1", test_perfTensor1),
-        // ("test_perfTensor2", test_perfTensor2),
-        // ("test_perfRepeatedTensor3", test_perfRepeatedTensor3),
-        // ("test_perfTensor3", test_perfTensor3),
-        // ("test_perfTensor4", test_perfTensor4),
-        // ("test_perfTensor5", test_perfTensor5),
-        // ("test_initEmpty", test_initEmpty),
-        // ("test_initRepeating", test_initRepeating),
-        // ("test_initSingle", test_initSingle),
-        // ("test_contiguousViews", test_contiguousViews),
-        // ("test_transposed", test_transposed),
-        // ("testTransposedPullback", testTransposedPullback),
+        ("test_fillRangeColumnMajor", test_fillRangeColumnMajor),
+        ("test_reshape", test_reshape),
+        ("test_reshapeOrderRowTC32x8", test_reshapeOrderRowTC32x8),
+        ("test_reshapeOrderRowTC32x32", test_reshapeOrderRowTC32x32),
+        ("test_expanding", test_expanding),
+        ("test_expandMutate", test_expandMutate),
+        ("test_repeatExpandTranspose", test_repeatExpandTranspose),
+        ("test_stridePermutation", test_stridePermutation),
+        ("test_squeeze", test_squeeze),
+        ("test_stack", test_stack),
+        ("test_stackingGradients", test_stackingGradients),
+        ("test_stackingExpression", test_stackingExpression),
+        ("test_perfTensor1", test_perfTensor1),
+        ("test_perfTensor2", test_perfTensor2),
+        ("test_perfRepeatedTensor3", test_perfRepeatedTensor3),
+        ("test_perfTensor3", test_perfTensor3),
+        ("test_perfTensor4", test_perfTensor4),
+        ("test_perfTensor5", test_perfTensor5),
+        ("test_initEmpty", test_initEmpty),
+        ("test_initRepeating", test_initRepeating),
+        ("test_initSingle", test_initSingle),
+        ("test_contiguousViews", test_contiguousViews),
+        ("test_transposed", test_transposed),
+        ("testTransposedPullback", testTransposedPullback),
     ]
 
     override func setUpWithError() throws {
-        Context.log.level = .diagnostic
+//        log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
-        Context.log.level = .error
+//        log.level = .error
     }
 
     //--------------------------------------------------------------------------
@@ -71,24 +71,20 @@ class test_Shape: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    func test_reshapeOrderRowCol() { testEachDevice(1, reshapeOrderRowCol) }
+    func test_reshapeOrderRowCol() { testEachDevice(reshapeOrderRowCol) }
 
     func reshapeOrderRowCol() {
         let a = array([[0, 1, 2], [3, 4, 5]])
-        print(Array(a.read()))
         XCTAssert(Array(a.read()) == [0, 1, 2, 3, 4, 5])
 
         let b = reshape(a, (2, 3), order: .col)
-        print(Array(b.read()))
         XCTAssert(Array(b.read()) == [0, 3, 1, 4, 2, 5])
         XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
 
         let c = array([[0, 3, 1], [4, 2, 5]], order: .col)
-        print(Array(c.read()))
         XCTAssert(Array(c.buffer) == [0, 3, 1, 4, 2, 5])
 
         let d = reshape(c, (2, 3))
-        print(Array(d.read()))
         XCTAssert(d == [[0, 1, 2], [3, 4, 5]])
         XCTAssert(Array(d.buffer) == [0, 1, 2, 3, 4, 5])
     }

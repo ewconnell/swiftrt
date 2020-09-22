@@ -67,7 +67,7 @@ public protocol StorageBuffer: class, Logging {
     
     //--------------------------------------------------------------------------
     /// `init(type:other:queue:`
-    /// creates a copy of the storage using `Context.currentQueue`
+    /// creates a copy of the storage using `currentQueue`
     /// - Parameters:
     ///  - type: the type of element to copy
     ///  - other: the storage to copy

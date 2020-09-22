@@ -49,7 +49,7 @@ public final class CpuQueue: DeviceQueue, CpuFunctions
         self.deviceIndex = deviceIndex
         self.name = name
         self.memoryType = memoryType
-        id = Context.queueId.next
+        id = Platform.queueId.next
         creatorThread = Thread.current
         defaultQueueEventOptions = QueueEventOptions()
         mode = queueMode

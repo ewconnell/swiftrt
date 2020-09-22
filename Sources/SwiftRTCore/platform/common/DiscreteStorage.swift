@@ -69,7 +69,7 @@ public final class DiscreteStorage: StorageBuffer {
         self.name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * count
-        id = Context.objectId.next
+        id = Platform.objectId.next
         isReadOnly = false
         isReference = false
         isZero = false
@@ -77,7 +77,7 @@ public final class DiscreteStorage: StorageBuffer {
         _lastAccessCopiedMemory = false
 
         // setup replica managment
-        let numDevices = Context.local.platform.devices.count
+        let numDevices = platform.devices.count
         replicas = [DeviceMemory?](repeating: nil, count: numDevices)
     }
     
@@ -87,7 +87,7 @@ public final class DiscreteStorage: StorageBuffer {
         // TODO: change this to cache single scalars
         self.init(storedType: Element.self, count: 1, name: name)
         let buffer = readWrite(type: Element.self, at: 0, count: 1,
-                               using: Context.appThreadQueue)
+                               using: Platform.syncQueue)
         buffer[0] = storedElement
     }
 
@@ -101,7 +101,7 @@ public final class DiscreteStorage: StorageBuffer {
         // takes single elements directly
         self.init(storedType: Element.self, count: 1, name: name)
         let buffer = readWrite(type: Element.self, at: 0, count: 1,
-                               using: Context.appThreadQueue)
+                               using: Platform.syncQueue)
         buffer[0] = storedElement
         isZero = storedElement == 0
     }
@@ -113,7 +113,7 @@ public final class DiscreteStorage: StorageBuffer {
         copying other: DiscreteStorage,
         using queue: Platform.Device.Queue
     ) {
-        id = Context.objectId.next
+        id = Platform.objectId.next
         alignment = other.alignment
         byteCount = other.byteCount
         isReadOnly = other.isReadOnly
@@ -127,7 +127,7 @@ public final class DiscreteStorage: StorageBuffer {
         replicas = [DeviceMemory?](repeating: nil, count: other.replicas.count)
 
         // copy other master to self using the current queue
-        let queue = Context.currentQueue
+        let queue = currentQueue
         let otherMemory = other.getDeviceMemory(Element.self, queue)
         let selfMemory = getDeviceMemory(Element.self, queue)
         diagnostic(.copy, "\(other.name)(\(other.id)) --> " +
