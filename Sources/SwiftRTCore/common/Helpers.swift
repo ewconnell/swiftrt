@@ -15,6 +15,25 @@
 //
 import Foundation
 
+//==============================================================================
+/// AtomicCounter
+public struct AtomicCounter {
+    @usableFromInline let mutex = DispatchSemaphore(value: 1)
+    @usableFromInline var _value: Int
+    @inlinable init(value: Int = -1) {
+        _value = value
+    }
+    
+    @inlinable var next: Int {
+        mutating get {
+            mutex.wait()
+            defer { mutex.signal() }
+            _value += 1
+            return _value
+        }
+    }
+}
+
 public typealias CStringPointer = UnsafePointer<CChar>
 
 //==============================================================================

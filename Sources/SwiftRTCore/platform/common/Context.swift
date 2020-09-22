@@ -15,35 +15,12 @@
 //
 import Foundation
 
-#if os(Linux)
-import Glibc
-#else
-import Darwin.C
-#endif
-
-public struct AtomicCounter {
-    @usableFromInline let mutex = DispatchSemaphore(value: 1)
-    @usableFromInline var _value: Int
-    @inlinable init(value: Int = -1) {
-        _value = value
-    }
-
-    @inlinable var next: Int {
-        mutating get {
-            mutex.wait()
-            defer { mutex.signal() }
-            _value += 1
-            return _value
-        }
-    }
-}
-
 //==============================================================================
 // Platform types
 #if canImport(SwiftRTCuda)
-public typealias PlatformType = CudaPlatform
+public typealias Platform = CudaPlatform
 #else
-public typealias PlatformType = CpuPlatform
+public typealias Platform = CpuPlatform
 #endif
 
 //==============================================================================
@@ -65,8 +42,8 @@ public final class Context: Logging {
     /// a storage buffer with a single zero value which is shared
     /// every time Element.zero is obtained by AD.
     // used to minimize AD overhead. AD needs to fix this problem.
-    public static var zeroStorage: PlatformType.Storage = {
-        PlatformType.Storage(storedElement: Int64(0), name: "Zero")
+    public static var zeroStorage: Platform.Storage = {
+        Platform.Storage(storedElement: Int64(0), name: "Zero")
     }()
 
     //-------------------------------------
@@ -77,20 +54,20 @@ public final class Context: Logging {
     /// a platform instance unique id for queue events
     public static var eventId = AtomicCounter()
     /// the number of async cpu queues to create
-    public static var cpuQueueCount: Int = PlatformType.defaultCpuQueueCount
+    public static var cpuQueueCount: Int = Platform.defaultCpuQueueCount
     /// the number of async cpu queues to create
     public static var acceleratorQueueCount: Int =
-        PlatformType.defaultAcceleratorQueueCount
+        Platform.defaultAcceleratorQueueCount
 
     /// a static instance of the compute platform
     /// The platform type is specified in Types.swift and selected
     /// via build settings
     // maybe make this thread local
-    public let platform: PlatformType
+    public let platform: Platform
 
     //--------------------------------------------------------------------------
     @inlinable public init() {
-        platform = PlatformType()
+        platform = Platform()
         evaluationModeStack = [.inferring]
     }
     
@@ -100,7 +77,7 @@ public final class Context: Logging {
     }
     
     //--------------------------------------------------------------------------
-    /// the Platform log writing object
+    /// the ComputePlatform log writing object
     @inlinable public static var log: Log {
         get { logWriter }
         set { logWriter = newValue }
@@ -109,23 +86,23 @@ public final class Context: Logging {
     //--------------------------------------------------------------------------
     /// the currently scoped device that platform functions will use
     /// - Returns: the current device queue
-    @inlinable public static var currentDevice: PlatformType.Device {
+    @inlinable public static var currentDevice: Platform.Device {
         Context.local.platform.currentDevice
     }
 
     /// - Returns: the current device queue
-    @inlinable public static var devices: [PlatformType.Device] {
+    @inlinable public static var devices: [Platform.Device] {
         Context.local.platform.devices
     }
 
     /// the currently scoped queue that platform functions will use
     /// - Returns: the current device queue
-    @inlinable public static var currentQueue: PlatformType.Device.Queue {
+    @inlinable public static var currentQueue: Platform.Device.Queue {
         Context.local.platform.currentQueue
     }
 
     /// the application thread data interchange queue
-    @inlinable public static var appThreadQueue: PlatformType.Device.Queue {
+    @inlinable public static var appThreadQueue: Platform.Device.Queue {
         Context.local.platform.appThreadQueue
     }
 
@@ -182,36 +159,5 @@ public final class Context: Logging {
         return AnyRandomNumberGenerator(
             PhiloxRandomNumberGenerator(uint64Seed: generatorSeed))
     }
-
-
-//    //--------------------------------------------------------------------------
-//    /// returns the thread local instance of the queues stack
-//    @inlinable public
-//    static var threadLocal: Platform {
-//        // try to get an existing state
-//        if let state = pthread_getspecific(key) {
-//            return Unmanaged.fromOpaque(state).takeUnretainedValue()
-//        } else {
-//            // create and return new state
-//            let state = Platform()
-//            pthread_setspecific(key, Unmanaged.passRetained(state).toOpaque())
-//            return state
-//        }
-//    }
-//
-//    //--------------------------------------------------------------------------
-//    /// thread data key
-//    @inlinable public
-//    static let key: pthread_key_t = {
-//        var key = pthread_key_t()
-//        pthread_key_create(&key) {
-//            #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
-//            let _: AnyObject = Unmanaged.fromOpaque($0).takeRetainedValue()
-//            #else
-//            let _: AnyObject = Unmanaged.fromOpaque($0!).takeRetainedValue()
-//            #endif
-//        }
-//        return key
-//    }()
 }
 

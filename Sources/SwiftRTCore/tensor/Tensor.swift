@@ -47,7 +47,7 @@ where Shape: TensorShape, TensorElement: StorageElement
     /// the dimensions of the element space
     @noDerivative public let shape: Shape
     /// the element storage buffer.
-    @noDerivative public var storage: PlatformType.Storage
+    @noDerivative public var storage: Platform.Storage
     /// the logical storage buffer base index where this tensor's elements begin
     @noDerivative public let storageBase: Int
     /// The distance to the next element along each dimension
@@ -79,7 +79,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         shape: Shape,
         strides: Shape,
         count: Int,
-        storage: PlatformType.Storage,
+        storage: Platform.Storage,
         storageBase: Int,
         spanCount: Int,
         order: Order,
@@ -135,7 +135,7 @@ where Shape: TensorShape, TensorElement: StorageElement
         self.spanCount = 1
         self.order = order
         let stored = TensorElement.stored(value: value)
-        self.storage = PlatformType.Storage(storedElement: stored, name: name)
+        self.storage = Platform.Storage(storedElement: stored, name: name)
         logicalStrides = order == .row ? strides : shape.strides(for: .row)
         logicalElements = LogicalElements(count,
                                           shape,
@@ -515,7 +515,7 @@ public extension Tensor {
     /// representation for write, which most often happens via element
     /// subscripting.
     @inlinable mutating func prepareForWrite(
-        using queue: PlatformType.Device.Queue
+        using queue: Platform.Device.Queue
     ) {
         // if writing to repeated data, then expand to full dense tensor
         if spanCount < count {
@@ -535,7 +535,7 @@ public extension Tensor {
             diagnostic(.mutation, "\(storage.name) \(Element.self)[\(count)]",
                        categories: [.dataCopy, .dataMutation])
             
-            storage = PlatformType.Storage(type: Element.self, copying: storage,
+            storage = Platform.Storage(type: Element.self, copying: storage,
                                         using: queue)
             logicalElements = LogicalElements(tensor: self)
         }
@@ -589,7 +589,7 @@ public extension Tensor {
     ///
     /// - Parameter queue: the device queue to use for synchronization
     @inlinable func read(
-        using queue: PlatformType.Device.Queue
+        using queue: Platform.Device.Queue
     ) -> UnsafeBufferPointer<TensorElement.Stored> {
         let (i, storedCount) = TensorElement
                 .storedRange(start: storageBase, count: spanCount)
@@ -607,7 +607,7 @@ public extension Tensor {
     ///
     /// - Parameter queue: the device queue to use for synchronization
     @inlinable func deviceRead(
-        using queue: PlatformType.Device.Queue
+        using queue: Platform.Device.Queue
     ) -> UnsafeRawPointer {
         UnsafeRawPointer(read(using: queue).baseAddress!)
     }
@@ -631,7 +631,7 @@ public extension Tensor {
     /// head of the queue.
     ///
     /// - Parameter queue: the device queue to use for synchronization
-    @inlinable mutating func readWrite(using queue: PlatformType.Device.Queue)
+    @inlinable mutating func readWrite(using queue: Platform.Device.Queue)
     -> UnsafeMutableBufferPointer<TensorElement.Stored>
     {
         prepareForWrite(using: queue)
@@ -652,7 +652,7 @@ public extension Tensor {
     ///
     /// - Parameter queue: the device queue to use for synchronization
     @inlinable mutating func deviceReadWrite(
-        using queue: PlatformType.Device.Queue
+        using queue: Platform.Device.Queue
     ) -> UnsafeMutableRawPointer {
         UnsafeMutableRawPointer(readWrite(using: queue).baseAddress!)
     }

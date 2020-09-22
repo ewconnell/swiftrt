@@ -19,7 +19,7 @@ import Foundation
 /// CpuPlatform
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public class CpuPlatform: Platform {
+public class CpuPlatform: ComputePlatform {
     // types
     public typealias Storage = CpuStorage
     

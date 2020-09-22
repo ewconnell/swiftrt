@@ -36,7 +36,7 @@ public final class DiscreteStorage: StorageBuffer {
     public var replicas: [DeviceMemory?]
 
     /// the last queue used to access storage
-    public var lastQueue: PlatformType.Device.Queue?
+    public var lastQueue: Platform.Device.Queue?
 
     /// whenever a buffer write pointer is taken, the associated DeviceMemory
     /// becomes the master copy for replication. Synchronization across threads
@@ -111,7 +111,7 @@ public final class DiscreteStorage: StorageBuffer {
     @inlinable public init<Element>(
         type: Element.Type,
         copying other: DiscreteStorage,
-        using queue: PlatformType.Device.Queue
+        using queue: Platform.Device.Queue
     ) {
         id = Context.objectId.next
         alignment = other.alignment
@@ -196,7 +196,7 @@ public final class DiscreteStorage: StorageBuffer {
         type: Element.Type,
         at index: Int,
         count: Int,
-        using queue: PlatformType.Device.Queue
+        using queue: Platform.Device.Queue
     ) -> UnsafeBufferPointer<Element> {
         let buffer = migrate(type, willMutate: false, using: queue)
         assert(index + count <= buffer.count, "range is out of bounds")
@@ -210,7 +210,7 @@ public final class DiscreteStorage: StorageBuffer {
         type: Element.Type,
         at index: Int,
         count: Int,
-        using queue: PlatformType.Device.Queue
+        using queue: Platform.Device.Queue
     ) -> UnsafeMutableBufferPointer<Element> {
         let buffer = migrate(type, willMutate: true, using: queue)
         assert(index + count <= buffer.count, "range is out of bounds")
@@ -224,7 +224,7 @@ public final class DiscreteStorage: StorageBuffer {
     // associated with `queue`. It will lazily create device memory if needed
     @inlinable public func getDeviceMemory<Element>(
         _ type: Element.Type,
-        _ queue: PlatformType.Device.Queue
+        _ queue: Platform.Device.Queue
     ) -> DeviceMemory {
         if let memory = replicas[queue.deviceIndex] {
             return memory
@@ -254,8 +254,8 @@ public final class DiscreteStorage: StorageBuffer {
     ///  - willMutate: `true` if the subsequent operation will mutate the
     ///    the tensor. Used only for diagnostics
     @inlinable public func synchronize(
-        _ queue: PlatformType.Device.Queue, 
-        with dependentQueue: PlatformType.Device.Queue,
+        _ queue: Platform.Device.Queue, 
+        with dependentQueue: Platform.Device.Queue,
         _ willMutate: Bool
     ) {
         // if the queue ids are equal or the dependent queue is synchronous,
@@ -294,7 +294,7 @@ public final class DiscreteStorage: StorageBuffer {
     @inlinable public func migrate<Element>(
         _ type: Element.Type,
         willMutate: Bool,
-        using queue: PlatformType.Device.Queue
+        using queue: Platform.Device.Queue
     ) -> UnsafeMutableBufferPointer<Element> {
         assert(willMutate || master != nil,
                "attempting to read uninitialized memory")
@@ -317,7 +317,7 @@ public final class DiscreteStorage: StorageBuffer {
                     categories: .dataCopy)
             }
             
-            func copyIfChanged(using q: PlatformType.Device.Queue) {
+            func copyIfChanged(using q: Platform.Device.Queue) {
                 if master.version != replica.version {
                     q.copyAsync(from: master, to: replica)
                     outputCopyMessage()

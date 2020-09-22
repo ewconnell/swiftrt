@@ -68,7 +68,7 @@ public extension Tensor {
         name: String = defaultTensorName
     ) {
         let count = shape.elementCount()
-        let storage = PlatformType.Storage(type: TensorElement.self,
+        let storage = Platform.Storage(type: TensorElement.self,
                                            count: count, name: name)
         
         self.init(shape: shape,
@@ -504,7 +504,7 @@ public extension Tensor {
                 shape: other.shape,
                 strides: strides,
                 count: other.count,
-                storage: PlatformType.Storage(type: TensorElement.self,
+                storage: Platform.Storage(type: TensorElement.self,
                                            count: source.count,
                                            name: other.name),
                 storageBase: 0,

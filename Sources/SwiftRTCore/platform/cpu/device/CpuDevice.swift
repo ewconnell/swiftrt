@@ -82,7 +82,7 @@ public final class CpuDeviceMemory: DeviceMemory {
     }
 
     /// device where memory is located
-    @inlinable public var device: PlatformType.Device {
+    @inlinable public var device: Platform.Device {
         Context.devices[deviceIndex]
     }
 

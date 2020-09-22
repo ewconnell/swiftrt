@@ -93,7 +93,7 @@ public final class CpuStorage: StorageBuffer {
     @inlinable public init<Element>(
         type: Element.Type,
         copying other: CpuStorage,
-        using queue: PlatformType.Device.Queue
+        using queue: Platform.Device.Queue
     ) {
         alignment = other.alignment
         byteCount = other.byteCount
@@ -175,7 +175,7 @@ public final class CpuStorage: StorageBuffer {
     //--------------------------------------------------------------------------
     // synchronize
     @inlinable public func synchronize(
-        _ queue: PlatformType.Device.Queue,
+        _ queue: Platform.Device.Queue,
         willWrite: Bool
     ) {
         // synchronize only if switching queues
@@ -199,7 +199,7 @@ public final class CpuStorage: StorageBuffer {
         type: Element.Type,
         at index: Int,
         count: Int,
-        using queue: PlatformType.Device.Queue
+        using queue: Platform.Device.Queue
     ) -> UnsafeBufferPointer<Element> {
         synchronize(queue, willWrite: false)
         // advance to typed starting position
@@ -216,7 +216,7 @@ public final class CpuStorage: StorageBuffer {
         type: Element.Type,
         at index: Int,
         count: Int,
-        using queue: PlatformType.Device.Queue
+        using queue: Platform.Device.Queue
     ) -> UnsafeMutableBufferPointer<Element> {
         synchronize(queue, willWrite: true)
         // advance to typed starting position

@@ -202,7 +202,7 @@ class test_Subscripting: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_Tensor1WriteRange() {
-//        Platform.log.level = .diagnostic
+//        ComputePlatform.log.level = .diagnostic
         var v1 = array(0...6)
         let sevens = repeating(7, (3))
         v1[2...4] = sevens

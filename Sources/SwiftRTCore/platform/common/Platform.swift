@@ -16,10 +16,10 @@
 import Foundation
 
 //==============================================================================
-/// Platform
+/// ComputePlatform
 /// a platform represents a collection of installed devices on a
 /// compute node, such as (cpu, cuda, tpu, ...)
-public protocol Platform: class, Logging {
+public protocol ComputePlatform: class, Logging {
     // types
     associatedtype Device: ComputeDevice
     associatedtype Storage: StorageBuffer
@@ -40,7 +40,7 @@ public protocol Platform: class, Logging {
     var appThreadQueue: Device.Queue { get }
 }
 
-public extension Platform {
+public extension ComputePlatform {
     /// the currently active queue that platform functions will use
     /// - Returns: the current device queue
     @inlinable @_transparent
