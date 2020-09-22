@@ -21,6 +21,23 @@ import Glibc
 import Darwin.C
 #endif
 
+public struct AtomicCounter {
+    @usableFromInline let mutex = DispatchSemaphore(value: 1)
+    @usableFromInline var _value: Int
+    @inlinable init(value: Int = -1) {
+        _value = value
+    }
+
+    @inlinable var next: Int {
+        mutating get {
+            mutex.wait()
+            defer { mutex.signal() }
+            _value += 1
+            return _value
+        }
+    }
+}
+
 //==============================================================================
 // Platform types
 #if canImport(SwiftRTCuda)
@@ -40,7 +57,7 @@ public final class Context: Logging {
     /// evaluated for inferring or training
     public var evaluationModeStack: [EvaluationMode]
     /// the time that the platform was first accessed
-    public static var startTime = Date()
+    public static let startTime = Date()
     /// the log output object
     public static var logWriter: Log = Log()
 
@@ -54,11 +71,11 @@ public final class Context: Logging {
 
     //-------------------------------------
     /// counter for unique buffer ids
-    public static var objectIdCounter: Int = -1
+    public static var objectId = AtomicCounter()
     /// a platform instance unique id for queue events
-    public static var queueCounter: Int = -1
+    public static var queueId = AtomicCounter()
     /// a platform instance unique id for queue events
-    public static var eventCounter: Int = -1
+    public static var eventId = AtomicCounter()
     /// the number of async cpu queues to create
     public static var cpuQueueCount: Int = PlatformType.defaultCpuQueueCount
     /// the number of async cpu queues to create
@@ -87,24 +104,6 @@ public final class Context: Logging {
     @inlinable public static var log: Log {
         get { logWriter }
         set { logWriter = newValue }
-    }
-
-    /// a counter used to uniquely identify queue events for diagnostics
-    @inlinable public static var nextQueueId: Int {
-        queueCounter += 1
-        return queueCounter
-    }
-
-    /// nextEventId
-    @inlinable public static var nextEventId: Int {
-        eventCounter += 1
-        return eventCounter
-    }
-
-    /// nextObjectId
-    @inlinable public static var nextObjectId: Int {
-        objectIdCounter += 1
-        return objectIdCounter
     }
 
     //--------------------------------------------------------------------------

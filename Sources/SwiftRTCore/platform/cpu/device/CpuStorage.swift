@@ -53,7 +53,7 @@ public final class CpuStorage: StorageBuffer {
         _name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * count
-        id = Context.nextObjectId
+        id = Context.objectId.next
         isReadOnly = false
         isReference = false
         isZero = false
@@ -97,7 +97,7 @@ public final class CpuStorage: StorageBuffer {
     ) {
         alignment = other.alignment
         byteCount = other.byteCount
-        id = Context.nextObjectId
+        id = Context.objectId.next
         isReadOnly = other.isReadOnly
         isReference = other.isReference
         isZero = other.isZero
@@ -123,7 +123,7 @@ public final class CpuStorage: StorageBuffer {
         byteCount = MemoryLayout<Element>.size * buffer.count
         let buff = UnsafeMutableBufferPointer(mutating: buffer)
         hostBuffer = UnsafeMutableRawBufferPointer(buff)
-        id = Context.nextObjectId
+        id = Context.objectId.next
         isReadOnly = true
         isReference = true
         isZero = false
@@ -142,7 +142,7 @@ public final class CpuStorage: StorageBuffer {
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * buffer.count
         hostBuffer = UnsafeMutableRawBufferPointer(buffer)
-        id = Context.nextObjectId
+        id = Context.objectId.next
         isReadOnly = false
         isReference = true
         isZero = false
