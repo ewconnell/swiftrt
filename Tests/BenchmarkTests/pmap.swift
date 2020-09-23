@@ -23,8 +23,8 @@ import SwiftRT
 @inlinable public func pmap<S0,E0,S1,E1>(
     _ t0: inout Tensor<S0,E0>, axis axis0: Int = 0,
     _ t1: inout Tensor<S1,E1>, axis axis1: Int = 0,
+    _ partitions: Int? = nil,
     devices: [Int]? = nil,
-    partitions: Int? = nil,
     synchronous: Bool = false,
     _ body: @escaping (inout Tensor<S0,E0>, inout Tensor<S1,E1>) -> Void
 ) {
@@ -33,8 +33,7 @@ import SwiftRT
     let st1 = t1.shared(using: currentQueue)
 
     // determine the number of partitions
-    let partitions = partitions ??
-        ProcessInfo.processInfo.activeProcessorCount / 2
+    let partitions = partitions ?? ProcessInfo.processInfo.activeProcessorCount
     assert(t0.shape[axis0] / partitions != 0, "too many partions")
 
     func execute(_ i: Int, _ p0: inout Tensor<S0,E0>, _ p1: inout Tensor<S1,E1>) {

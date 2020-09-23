@@ -53,6 +53,7 @@ class test_Fractals: XCTestCase {
 
         let start = Date()
         
+        // 14.820s
         for i in 0..<iterations {
             Z = multiply(Z, Z, add: C)
             divergence[abs(Z) .> tolerance] = min(divergence, i)
@@ -70,15 +71,14 @@ class test_Fractals: XCTestCase {
         let C = Complex<Float>(-0.8, 0.156)
         let first = Complex<Float>(-1.7, -1.7)
         let last = Complex<Float>(1.7, 1.7)
-        //        let first = Complex<Float>(-1, -1)
-        //        let last = Complex<Float>(1, 1)
-        
+
         
         var Z = array(from: first, to: last, size)
         var divergence = full(size, iterations)
 
+        // 0.959
         measure {
-            pmap(&Z, &divergence) { Z, divergence in
+            pmap(&Z, &divergence, 16) { Z, divergence in
                 for i in 0..<iterations {
                     Z = multiply(Z, Z, add: C)
                     divergence[abs(Z) .> tolerance] = min(divergence, i)
@@ -102,8 +102,9 @@ class test_Fractals: XCTestCase {
         var Z = array(from: first, to: last, size)
         var divergence = full(size, iterations)
         
+        // 0.310
         measure {
-            pmap(&Z, &divergence, partitions: 32) { Z, divergence in
+            pmap(&Z, &divergence) { Z, divergence in
                 julia(Z: Z, divergence: &divergence, C, tolerance, iterations)
             }
         }
