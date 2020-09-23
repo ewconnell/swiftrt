@@ -22,6 +22,8 @@ class test_Fractals: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_juliaSet", test_juliaSet),
+        ("test_juliaSetPmap", test_juliaSetPmap),
+        ("test_juliaSetPmapFused", test_juliaSetPmapFused),
     ]
 
     // append and use a discrete async cpu device for these tests
@@ -42,14 +44,36 @@ class test_Fractals: XCTestCase {
         let C = Complex<Float>(-0.8, 0.156)
         let first = Complex<Float>(-1.7, -1.7)
         let last = Complex<Float>(1.7, 1.7)
+        //        let first = Complex<Float>(-1, -1)
+        //        let last = Complex<Float>(1, 1)
+        
+        
+        var Z = array(from: first, to: last, size)
+        var divergence = full(size, iterations)
 
-//        let first = Complex<Float>(-1, -1)
-//        let last = Complex<Float>(1, 1)
+        let start = Date()
+        
+        for i in 0..<iterations {
+            Z = multiply(Z, Z, add: C)
+            divergence[abs(Z) .> tolerance] = min(divergence, i)
+        }
 
-        print("size: \(size), iterations: \(iterations), " +
-              "queue: \(currentQueue.name)")
+        print("time: \(Date().timeIntervalSince(start))")
+    }
 
-        // test
+    //--------------------------------------------------------------------------
+    func test_juliaSetPmap() {
+        // parameters
+        let iterations = 2048
+        let size = (1024, 1025)
+        let tolerance: Float = 4.0
+        let C = Complex<Float>(-0.8, 0.156)
+        let first = Complex<Float>(-1.7, -1.7)
+        let last = Complex<Float>(1.7, 1.7)
+        //        let first = Complex<Float>(-1, -1)
+        //        let last = Complex<Float>(1, 1)
+        
+        
         var Z = array(from: first, to: last, size)
         var divergence = full(size, iterations)
 
@@ -61,5 +85,50 @@ class test_Fractals: XCTestCase {
                 }
             }
         }
+    }
+
+    func test_juliaSetPmapFused() {
+        // parameters
+        let iterations = 2048
+        let size = (1024, 1025)
+        let tolerance: Float = 4.0
+        let C = Complex<Float>(-0.8, 0.156)
+        let first = Complex<Float>(-1.7, -1.7)
+        let last = Complex<Float>(1.7, 1.7)
+        
+        print("size: \(size), iterations: \(iterations), " +
+                "queue: \(currentQueue.name)")
+        
+        var Z = array(from: first, to: last, size)
+        var divergence = full(size, iterations)
+        
+        measure {
+            pmap(&Z, &divergence, partitions: 32) { Z, divergence in
+                julia(Z: Z, divergence: &divergence, C, tolerance, iterations)
+            }
+        }
+    }
+}
+
+//==============================================================================
+// user defined element wise function
+@inlinable public func julia<E>(
+    Z: TensorR2<Complex<E>>,
+    divergence: inout TensorR2<E>,
+    _ C: Complex<E>,
+    _ tolerance: E,
+    _ iterations: Int
+) {
+    let dname = divergence.name
+    currentQueue.elementwise(&divergence, Z,
+        "julia(Z: \(Z.name), divergence: \(dname), constant: \(C), " +
+            "tolerance: \(tolerance), iterations: \(iterations))"
+    ) { d, Z in
+        var d = d, Z = Z
+        for i in 0..<iterations {
+            Z = Z * Z + C
+            if abs(Z).real > tolerance { d = min(d, E.Value(exactly: i)!) }
+        }
+        return d
     }
 }

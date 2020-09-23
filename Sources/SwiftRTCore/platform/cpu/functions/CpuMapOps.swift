@@ -105,7 +105,7 @@ extension DeviceQueue {
 
     //==========================================================================
     // reduction along axes
-    @inlinable func mapOp<S,E,RE>(
+    @inlinable public func mapOp<S,E,RE>(
         _ a: Tensor<S,E>,
         _ output: inout Tensor<S,RE>,
         _ opName: @autoclosure () -> String,
@@ -146,10 +146,10 @@ extension DeviceQueue {
             execute(a.elements, mutableElements, op)
         }
     }
-    
+
     //==========================================================================
     // mapOp tensor
-    @inlinable func mapOp<S,E,RE>(
+    @inlinable public func mapOp<S,E,RE>(
         _ a: Tensor<S,E>,
         _ output: inout Tensor<S,RE>,
         _ opName: @autoclosure () -> String,
@@ -194,12 +194,12 @@ extension DeviceQueue {
 
     //==========================================================================
     // mapOp tensor tensor
-    @inlinable func mapOp<S,E,RE>(
-        _ a: Tensor<S,E>,
-        _ b: Tensor<S,E>,
+    @inlinable public func mapOp<S,AE,BE,RE>(
+        _ a: Tensor<S,AE>,
+        _ b: Tensor<S,BE>,
         _ output: inout Tensor<S,RE>,
         _ opName: @autoclosure () -> String,
-        _ op: @escaping (E.Value, E.Value) -> RE.Value
+        _ op: @escaping (AE.Value, BE.Value) -> RE.Value
     ) {
         assert(a.order == b.order && a.order == output.order &&
                output.isContiguous, _messageOrdersMustMatch)

@@ -84,3 +84,23 @@ extension Tensor {
     }
 }
 
+
+extension DeviceQueue {
+    @inlinable func elementwise<S,AE,RE>(
+        _ out: inout Tensor<S,RE>,
+        _ a: Tensor<S,AE>,
+        _ opName: @autoclosure () -> String,
+        _ op: @escaping (RE.Value, AE.Value) -> RE.Value
+    ) {
+        cpu_elementwise(&out, a, opName(), op)
+    }
+    
+    @inlinable func cpu_elementwise<S,AE,RE>(
+        _ out: inout Tensor<S,RE>,
+        _ a: Tensor<S,AE>,
+        _ opName: @autoclosure () -> String,
+        _ op: @escaping (RE.Value, AE.Value) -> RE.Value
+    ) {
+        mapOp(a, &out, opName(), op)
+    }
+}
