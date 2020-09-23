@@ -133,7 +133,8 @@ extension DeviceQueue {
         from a: Tensor<S,E>,
         to out: inout Tensor<S,E>
     ) where S: TensorShape {
-        mapOp(a, &out, "copy(\(a.name))") { $0 }
+        let oname = out.name
+        mapOp(a, &out, "copy(form: \(a.name), to: \(oname)") { $0 }
     }
     
     //--------------------------------------------------------------------------

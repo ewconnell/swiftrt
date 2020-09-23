@@ -53,16 +53,13 @@ class test_Fractals: XCTestCase {
         var Z = array(from: first, to: last, size)
         var divergence = full(size, iterations)
 
-//        measure {
-        let start = Date()
-
-        pmap(&Z, &divergence) { Z, divergence in
-            for i in 0..<1 {
-                Z = multiply(Z, Z, add: C)
-                divergence[abs(Z) .> tolerance] = min(divergence, i)
+        measure {
+            pmap(&Z, &divergence) { Z, divergence in
+                for i in 0..<iterations {
+                    Z = multiply(Z, Z, add: C)
+                    divergence[abs(Z) .> tolerance] = min(divergence, i)
+                }
             }
         }
-
-        print("elapsed: \(Date().timeIntervalSince(start))")
     }
 }

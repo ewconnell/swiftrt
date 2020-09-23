@@ -495,13 +495,14 @@ public extension Tensor {
         let count = shape.elementCount()
         let spanCount = strides.areSequential(for: shape) ? count :
                 shape.spanCount(stridedBy: strides)
+        let base = storageBase + lower.index(stridedBy: strides)
 
         return Tensor(
             shape: shape,
             strides: strides,
             count: count,
             storage: storage,
-            storageBase: storageBase + lower.index(stridedBy: strides),
+            storageBase: base,
             spanCount: spanCount,
             order: order,
             shared: share)
@@ -680,7 +681,7 @@ public extension Tensor {
     /// first
     /// - Returns: the first element in the tensor
     @inlinable var first: Element {
-        TensorElement.getValue(from: read(), at: storageBase)
+        TensorElement.getValue(from: read(), at: 0)
     }
 
     /// element
@@ -691,12 +692,12 @@ public extension Tensor {
         get {
             assert(count == 1, "the `element` property expects " +
                 "the tensor to have a single Element. Use `first` for sets")
-            return TensorElement.getValue(from: read(), at: storageBase)
+            return TensorElement.getValue(from: read(), at: 0)
         }
         set {
             assert(count == 1, "the `element` property expects " +
                 "the tensor to have a single Element")
-            TensorElement.set(value: newValue, in: readWrite(), at: storageBase)
+            TensorElement.set(value: newValue, in: readWrite(), at: 0)
         }
     }
 
