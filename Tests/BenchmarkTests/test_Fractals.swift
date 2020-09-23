@@ -27,27 +27,24 @@ class test_Fractals: XCTestCase {
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
         log.level = .diagnostic
-        use(device: 1)
-    //    useAppThreadQueue()
     }
 
     override func tearDownWithError() throws {
         log.level = .error
-        useAppThreadQueue()
     }
 
     //--------------------------------------------------------------------------
     func test_juliaSet() {
         // parameters
-        let iterations = 2
-        let size = (2, 3)
+        let iterations = 2048
+        let size = (1024, 1025)
         let tolerance: Float = 4.0
         let C = Complex<Float>(-0.8, 0.156)
-        // let first = Complex<Float>(-1.7, -1.7)
-        // let last = Complex<Float>(1.7, 1.7)
+        let first = Complex<Float>(-1.7, -1.7)
+        let last = Complex<Float>(1.7, 1.7)
 
-        let first = Complex<Float>(-1, -1)
-        let last = Complex<Float>(1, 1)
+//        let first = Complex<Float>(-1, -1)
+//        let last = Complex<Float>(1, 1)
 
         print("size: \(size), iterations: \(iterations), " +
               "queue: \(currentQueue.name)")
@@ -56,11 +53,16 @@ class test_Fractals: XCTestCase {
         var Z = array(from: first, to: last, size)
         var divergence = full(size, iterations)
 
-        // measure {
-            for i in 0..<iterations {
+//        measure {
+        let start = Date()
+
+        pmap(&Z, &divergence) { Z, divergence in
+            for i in 0..<1 {
                 Z = multiply(Z, Z, add: C)
                 divergence[abs(Z) .> tolerance] = min(divergence, i)
             }
-        // }
+        }
+
+        print("elapsed: \(Date().timeIntervalSince(start))")
     }
 }

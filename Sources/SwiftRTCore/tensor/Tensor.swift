@@ -442,13 +442,13 @@ public extension Tensor {
     // elemment subscript
     @inlinable subscript(i: Index) -> Element {
         get {
-            usingAppThreadQueue {
+            usingSyncQueue {
                 logicalElements.prepareForRead()
                 return logicalElements[i]
             }
         }
         set {
-            usingAppThreadQueue {
+            usingSyncQueue {
                 prepareForWrite(using: currentQueue)
                 logicalElements.prepareForReadWrite()
                 logicalElements[i] = newValue
@@ -508,6 +508,22 @@ public extension Tensor {
     }
 
     //--------------------------------------------------------------------------
+    /// shared
+    /// creates a shareable instance intended for multi-threaded writes
+    /// - Parameters:
+    ///  - queue: a queue to use for copying in case the storage is not unique
+    @inlinable mutating func shared(
+        using queue: Platform.Device.Queue
+    ) -> Self {
+        // this ensures that the storage is unique before
+        // disabling copy on write by setting `isShared` to `true`
+        prepareForWrite(using: queue)
+        var sharedSelf = self
+        sharedSelf.isShared = true
+        return sharedSelf
+    }
+
+    //--------------------------------------------------------------------------
     /// `prepareForWrite`
     /// called before a write operation to ensure that the storage buffer
     /// is unique for this tensor unless it `isShared`
@@ -544,7 +560,7 @@ public extension Tensor {
     //--------------------------------------------------------------------------
     /// - Returns: the collection elements as a 1D Swift array
     @inlinable var flatArray: [Element] {
-        usingAppThreadQueue {
+        usingSyncQueue {
             return isContiguous ? [Element](buffer) : [Element](elements)
         }
     }

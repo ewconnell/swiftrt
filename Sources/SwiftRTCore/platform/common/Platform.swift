@@ -23,6 +23,7 @@ public typealias Platform = CudaPlatform
 public typealias Platform = CpuPlatform
 #endif
 
+// global ambient properties used for expression evaluation
 public var log: Log = Log()
 @inlinable public var platform: Platform { Platform.local }
 @inlinable public var currentDevice: Platform.Device { platform.currentDevice }
@@ -37,32 +38,40 @@ public protocol ComputePlatform: class, Logging {
     associatedtype Device: ComputeDevice
     associatedtype Storage: StorageBuffer
 
-    // thread local instance
+    /// the instance of the platform to use for the calling thread
+    /// Currently a single instance is shared across all threads. The main
+    /// thread can perform work on the cpu synchronous queue, or schedule
+    /// work on one or more asynchronous queues. In the async case, expressions
+    /// are evaluated and added to an async queue using the main thread.
+    /// If the application creates another thread (via an async closure) and
+    /// evaluates an expression, it will use the platform's synchrnous queue.
+    /// This variable is defined to enable per thread platform instances
+    /// in the future if desired.
     static var local: Self { get }
 
     //--------------------------------------------------------------------------
     // shared state
+    /// returns an id to a discrete memory device to support unit tests
+    static var discreteMemoryDeviceId: Int { get }
+    /// identifies the main thread
+    static var mainThread: pthread_t { get }
     /// the time that the platform was first accessed
     static var startTime: Date { get }
     /// queue used to synchronize data interchange with the application thread
     static var syncQueue: Device.Queue { get }
-    /// returns an id to a discrete memory device to support unit tests
-    static var discreteMemoryDeviceId: Int { get }
 
     //--------------------------------------------------------------------------
     // instance state
     /// a collection of available compute devices
     var devices: [Device] { get }
-    /// specifies whether operators in the current scope are
-    /// evaluated for inferring or training
-    var evaluationModeStack: [EvaluationMode] { get set }
     /// name used for logging
     var name: String { get }
     /// the current device queue to direct work
     var queueStack: [Device.Queue] { get set }
 
     //--------------------------------------------------------------------------
-    static var _randomSeed: RandomSeed { get set }
+    /// used by random number generators
+    static var lastRandomSeed: RandomSeed { get set }
     /// counter for unique buffer ids
     static var objectId: AtomicCounter { get }
     /// a platform instance unique id for queue events
@@ -72,19 +81,17 @@ public protocol ComputePlatform: class, Logging {
 }
 
 public extension ComputePlatform {
-    /// the currently active queue that platform functions will use
-    /// - Returns: the current device queue
-    @inlinable @_transparent
-    var currentDevice: Device {
-        devices[queueStack.last!.deviceIndex]
+    /// `true` if the caller is the main thread
+    @inlinable var isMainThread: Bool { pthread_self() == Self.mainThread }
+    
+    /// the currently active queue for expression evaluation
+    @inlinable var currentQueue: Device.Queue {
+        isMainThread ? queueStack.last! : Self.syncQueue
     }
 
-    /// the currently active queue that platform functions will use
-    /// - Returns: the current device queue
-    @inlinable var currentQueue: Device.Queue {
-        assert(Thread.current == queueStack.last!.creatorThread,
-               "queues may not be shared across threads")
-        return queueStack.last!
+    /// the currently active device
+    @inlinable var currentDevice: Device {
+        isMainThread ? devices[queueStack.last!.deviceIndex] : devices[0]
     }
     
     /// selects the specified device queue for output
@@ -105,7 +112,7 @@ public extension ComputePlatform {
     /// the scope of the body
     /// - Parameters:
     ///  - body: a closure where the device queue will be used
-    @inlinable func usingAppThreadQueue<R>(_ body: () -> R) -> R {
+    @inlinable func usingSyncQueue<R>(_ body: () -> R) -> R {
         queueStack.append(Self.syncQueue)
         defer { _ = queueStack.popLast() }
         return body()
@@ -151,42 +158,17 @@ public extension ComputePlatform {
     }
     
     //--------------------------------------------------------------------------
-    /// a convenience property. `true` if the context is inferring
-    @inlinable static var isInferring: Bool {
-        platform.evaluationModeStack.last! == .inferring
-    }
-    
-    /// a convenience property. `true` if the context is training
-    @inlinable static var isTraining: Bool {
-        platform.evaluationModeStack.last! == .training
-    }
-    
-    @inlinable static func whileInferring<R>(_ body: () throws -> R) rethrows -> R {
-        let platform = local
-        platform.evaluationModeStack.append(.inferring)
-        defer { _ = platform.evaluationModeStack.popLast() }
-        return try body()
-    }
-    
-    @inlinable static func whileTraining<R>(_ body: () throws -> R) rethrows -> R {
-        let platform = local
-        platform.evaluationModeStack.append(.training)
-        defer { _ = platform.evaluationModeStack.popLast() }
-        return try body()
-    }
-    
-    //--------------------------------------------------------------------------
     /// randomSeed
     /// - Note: Whenever obtained, the random seed is also updated so that
     /// future stateless random TensorFlow op executions will result
     /// in non-deterministic results.
     @inlinable static var randomSeed: RandomSeed {
         get {
-            let seed = _randomSeed
-            _randomSeed = (seed.0, seed.1 + 1)
+            let seed = lastRandomSeed
+            lastRandomSeed = (seed.0, seed.1 + 1)
             return seed
         }
-        set { _randomSeed = newValue }
+        set { lastRandomSeed = newValue }
     }
     
     @inlinable static func createRandomNumberGenerator(
@@ -210,11 +192,11 @@ public extension ComputePlatform {
     platform.useAppThreadQueue()
 }
 
-/// useAppThreadQueue(body:
+/// usingSyncQueue(body:
 /// specifies the application thread queue to be used for operator execution
 /// withing the scope of the closure
-@inlinable public func usingAppThreadQueue<R>(_ body: () -> R) -> R {
-    platform.usingAppThreadQueue(body)
+@inlinable public func usingSyncQueue<R>(_ body: () -> R) -> R {
+    platform.usingSyncQueue(body)
 }
 
 /// use(device:queue:
@@ -244,7 +226,7 @@ public extension ComputePlatform {
 }
 
 @inlinable public func testEachDevice(_ body: () -> Void) {
-    usingAppThreadQueue(body)
+    usingSyncQueue(body)
     for i in 0..<platform.devices.count {
         using(device: i, body)
     }

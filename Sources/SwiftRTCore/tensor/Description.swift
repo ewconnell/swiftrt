@@ -21,7 +21,7 @@ public extension Tensor {
         let tab = 2
         var string = ""
 
-        usingAppThreadQueue {
+        usingSyncQueue {
             switch Shape.rank {
             // as a vector
             case 1:

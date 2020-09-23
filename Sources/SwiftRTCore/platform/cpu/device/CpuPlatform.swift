@@ -24,32 +24,31 @@ public final class CpuPlatform: ComputePlatform {
     public typealias Storage = CpuStorage
 
     // shared
-    public let acceleratorQueueCount: Int = 0
-    public static let startTime = Date()
-    public static var cpuQueueCount =
-        ProcessInfo.processInfo.activeProcessorCount
+    public static let acceleratorQueueCount: Int = 0
+    public static var cpuQueueCount = 0
     public static var discreteMemoryDeviceId: Int { 1 }
+    public static var eventId = AtomicCounter()
+    public static let local = CpuPlatform()
+    public static let mainThread = pthread_self()
     public static var objectId = AtomicCounter()
     public static var queueId = AtomicCounter()
-    public static var eventId = AtomicCounter()
-    public static var _randomSeed: RandomSeed = generateRandomSeed()
+    public static let startTime = Date()
+    public static var lastRandomSeed: RandomSeed = generateRandomSeed()
+
+    //-------------------------------------
+    public static let testDevice =
+        CpuDevice(index: 1, memoryType: .discrete, queueCount: 2)
+
+    //-------------------------------------
+    // for synchrnous execution and syncing with the app thread
     public static let syncQueue =
         CpuQueue(deviceIndex: 0, name: "appThread",
                  queueMode: .sync, memoryType: .unified)
 
     // properties
     public var devices: [CpuDevice]
-    public var evaluationModeStack: [EvaluationMode]
-    public let name: String
+    @inlinable public var name: String { "\(Self.self)" }
     public var queueStack: [CpuQueue]
-    @inlinable public var currentQueue: CpuQueue { queueStack.last! }
-    @inlinable public var currentDevice: CpuDevice {
-        devices[currentQueue.deviceIndex]
-    }
-
-    // thread local instance
-    @usableFromInline static let mainPlatform = CpuPlatform()
-    @inlinable public static var local: CpuPlatform { Self.mainPlatform }
 
     //-------------------------------------
     // HACK for AD
@@ -61,17 +60,10 @@ public final class CpuPlatform: ComputePlatform {
     }()
 
     //--------------------------------------------------------------------------
-    @inlinable public init() {
-        name = "\(Self.self)"
-        evaluationModeStack = [.inferring]
-        
+    @inlinable public init(queueCount: Int = Platform.cpuQueueCount) {
         // create the device and default number of async queues
-        let device = CpuDevice(index: 0, memoryType: .unified,
-                               queueCount: Platform.cpuQueueCount)
-        
-        // create a discrete memory unit test device
-        let test = CpuDevice(index: 1, memoryType: .discrete, queueCount: 2)
-        devices = [device, test]
+        devices = [CpuDevice(index: 0, memoryType: .unified,
+                             queueCount: queueCount)]
 
         // make the app thread queue current by default
         queueStack = [Self.syncQueue]

@@ -66,8 +66,7 @@ class test_Async: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_perfCurrentQueue() {
-        let _ = 0
-        
+        // 0.0425s
         #if !DEBUG
         measure {
             for _ in 0..<1000000 {
@@ -76,7 +75,7 @@ class test_Async: XCTestCase {
         }
         #endif
     }
-
+    
     //--------------------------------------------------------------------------
     func test_discreteMemoryReplication() {
         #if canImport(SwiftRTCuda)

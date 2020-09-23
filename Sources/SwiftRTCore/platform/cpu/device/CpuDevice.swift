@@ -21,7 +21,7 @@ public final class CpuDevice: ComputeDevice {
     // properties
     public let index: Int
     public let memoryType: MemoryType
-    public let name: String
+    @inlinable public var name: String { "dev:\(index)" }
     public var queues: [CpuQueue]
 
     @inlinable public init(
@@ -30,7 +30,6 @@ public final class CpuDevice: ComputeDevice {
         queueCount: Int
     ) {
         self.index = index
-        self.name = "dev:\(index)"
         self.memoryType = memoryType
         self.queues = []
         

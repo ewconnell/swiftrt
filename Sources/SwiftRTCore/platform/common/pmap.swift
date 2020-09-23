@@ -16,26 +16,14 @@
 
 import Foundation
 
-public struct Partition<Shape: TensorShape> {
-    public let axis: Int
-    public let step: Int
-    public let size: Int
-    public var lower: Shape
-    public var upper: Shape
-    @inlinable public init(_ shape: Shape, _ axis: Int, _ count: Int) {
-        self.axis = axis
-        size = shape[axis]
-        step = size / count
-        lower = Shape.zero
-        upper = shape
-        upper[axis] = step
-    }
-    
-    @inlinable public var next: Self {
-        var n = self
-        n.lower[axis] = n.upper[axis]
-        n.upper[axis] = min(size, n.upper[axis] + step)
-        return n
+extension Tensor {
+    @inlinable public func partition(index: Int, axis: Int, size: Int) -> Self {
+        var lower = Shape.zero
+        var upper = shape
+        lower[axis] = index * size
+        // clamp for tensor shapes that are not multiples of size
+        upper[axis] = Swift.min(shape[axis], lower[axis] + size)
+        return createView(lower, upper, true)
     }
 }
 
@@ -46,20 +34,35 @@ public struct Partition<Shape: TensorShape> {
     _ t0: inout Tensor<S0,E0>, axis axis0: Int = 0,
     _ t1: inout Tensor<S1,E1>, axis axis1: Int = 0,
     devices: [Int]? = nil,
-    partitions: Int? = nil,
-    _ body: (inout Tensor<S0,E0>, inout Tensor<S1,E1>) -> Void
+    partitionCount: Int? = nil,
+    _ body: @escaping (inout Tensor<S0,E0>, inout Tensor<S1,E1>) -> Void
 ) {
-    let count = partitions ?? currentDevice.queues.count
-    var r0 = Partition(t0.shape, axis0, count)
-    var r1 = Partition(t1.shape, axis1, count)
-
-    for i in 0..<count {
-        var p0 = t0.createView(r0.lower, r0.upper, true)
-        var p1 = t1.createView(r1.lower, r1.upper, true)
-        using(device: 0, queue: i) {
-            body(&p0, &p1)
-        }
-        r0 = r0.next
-        r1 = r1.next
+    let partitionCount = partitionCount ?? ProcessInfo.processInfo.activeProcessorCount
+    assert(t0.shape[axis0] / partitionCount != 0, "too many partions")
+    let st0 = t0.shared(using: currentQueue)
+    let st1 = t1.shared(using: currentQueue)
+    let p0Size = st0.shape[axis0] / partitionCount
+    let p1Size = st1.shape[axis1] / partitionCount
+    let group = DispatchGroup()
+    
+    for i in 0..<partitionCount {
+//        DispatchQueue.global().async(group: group) {
+            // execute with partitions
+            var p0 = st0.partition(index: i, axis: axis0, size: p0Size)
+            var p1 = st1.partition(index: i, axis: axis1, size: p1Size)
+            var tp0 = p0
+            var tp1 = p1
+            body(&tp0, &tp1)
+            
+            // copy back if overwritten by user function
+            // e.g. `p0 = p0 + 1`
+            if tp0.storage !== p0.storage {
+                copy(from: tp0, to: &p0)
+            }
+            if p1.storage !== st1.storage {
+                copy(from: tp1, to: &p1)
+            }
+//        }
     }
+    group.wait()
 }
