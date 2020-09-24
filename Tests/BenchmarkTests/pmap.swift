@@ -21,7 +21,7 @@ import SwiftRT
 /// pmap
 ///
 @inlinable public func pmap<S0,E0,S1,E1>(
-    _ t0: inout Tensor<S0,E0>, axis axis0: Int = 0,
+    _ t0: Tensor<S0,E0>, axis axis0: Int = 0,
     _ t1: inout Tensor<S1,E1>, axis axis1: Int = 0,
     _ partitions: Int? = nil,
     devices: [Int]? = nil,
@@ -29,7 +29,6 @@ import SwiftRT
     _ body: @escaping (inout Tensor<S0,E0>, inout Tensor<S1,E1>) -> Void
 ) {
     // create shared mutable views
-    let st0 = t0.shared(using: currentQueue)
     let st1 = t1.shared(using: currentQueue)
 
     // determine the number of partitions
@@ -53,12 +52,13 @@ import SwiftRT
     }
 
     if partitions == 0 {
+        var t0 = t0
         execute(&t0, &t1)
     } else {
         // distribute the work
         let group = DispatchGroup()
         for i in 0..<partitions {
-            var p0 = st0.partition(i, axis0, partitions)
+            var p0 = t0.partition(i, axis0, partitions)
             var p1 = st1.partition(i, axis1, partitions)
             DispatchQueue.global().async(group: group) { execute(&p0, &p1) }
         }
