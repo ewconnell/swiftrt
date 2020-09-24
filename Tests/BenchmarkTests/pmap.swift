@@ -25,7 +25,7 @@ import SwiftRT
     _ t1: inout Tensor<S1,E1>, axis axis1: Int = 0,
     _ partitions: Int? = nil,
     devices: [Int]? = nil,
-    synchronous: Bool = false,
+    boundBy: PmapBound = .bandwidth,
     _ body: @escaping (inout Tensor<S0,E0>, inout Tensor<S1,E1>) -> Void
 ) {
     // create shared mutable views
@@ -33,39 +33,41 @@ import SwiftRT
     let st1 = t1.shared(using: currentQueue)
 
     // determine the number of partitions
-    let partitions = partitions ?? ProcessInfo.processInfo.activeProcessorCount
+    // If not specified, then for bandwidth bound problems use the number
+    // of physical cores, otherwise for compute bound problems use
+    // the number of threads
+    let partitions = partitions ?? {
+        boundBy == .compute ?
+            ProcessInfo.processInfo.activeProcessorCount :
+            ProcessInfo.processInfo.activeProcessorCount / 2
+    }()
     assert(t0.shape[axis0] / partitions != 0, "too many partions")
 
-    func execute(_ i: Int, _ p0: inout Tensor<S0,E0>, _ p1: inout Tensor<S1,E1>) {
-        // execute with partitions
+    // execute partition
+    func execute(_ p0: inout Tensor<S0,E0>, _ p1: inout Tensor<S1,E1>) {
         var tp0 = p0
         var tp1 = p1
         body(&tp0, &tp1)
-        
-        // copy back if overwritten by user function
-        // e.g. `p0 = p0 + 1`
-        if tp0.storage !== p0.storage {
-            copy(from: tp0, to: &p0)
-        }
-        if p1.storage !== st1.storage {
-            copy(from: tp1, to: &p1)
-        }
+        p0.assign(tp0)
+        p1.assign(tp1)
     }
 
-    // distribute the work
-    let group = DispatchGroup()
-    
-    for i in 0..<partitions {
-        var p0 = st0.partition(i, axis0, partitions)
-        var p1 = st1.partition(i, axis1, partitions)
-
-        if synchronous {
-            execute(i, &p0, &p1)
-        } else {
-            DispatchQueue.global().async(group: group) { execute(i, &p0, &p1) }
+    if partitions == 0 {
+        execute(&t0, &t1)
+    } else {
+        // distribute the work
+        let group = DispatchGroup()
+        for i in 0..<partitions {
+            var p0 = st0.partition(i, axis0, partitions)
+            var p1 = st1.partition(i, axis1, partitions)
+            DispatchQueue.global().async(group: group) { execute(&p0, &p1) }
         }
+        group.wait()
     }
-    group.wait()
+}
+
+public enum PmapBound {
+    case compute, bandwidth
 }
 
 //==============================================================================
@@ -80,6 +82,13 @@ extension Tensor {
         // clamp for tensor shapes that are not multiples of size
         upper[axis] = Swift.min(shape[axis], lower[axis] + size)
         return createView(lower, upper, true)
+    }
+    
+    @inlinable public mutating func assign(_ other: Self) {
+        assert(shape == other.shape)
+        if !(storage === other.storage && storageBase == other.storageBase) {
+            copy(from: other, to: &self)
+        }
     }
 }
 

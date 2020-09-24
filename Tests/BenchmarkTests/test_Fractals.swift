@@ -76,10 +76,9 @@ class test_Fractals: XCTestCase {
         var Z = array(from: first, to: last, size)
         var divergence = full(size, iterations)
 
-        // 0.959
-        // bandwidth limited
+        // 0.960
         measure {
-            pmap(&Z, &divergence, 16) { Z, divergence in
+            pmap(&Z, &divergence) { Z, divergence in
                 for i in 0..<iterations {
                     Z = multiply(Z, Z, add: C)
                     divergence[abs(Z) .> tolerance] = min(divergence, i)
@@ -101,9 +100,8 @@ class test_Fractals: XCTestCase {
         var divergence = full(size, iterations)
         
         // 0.279
-        // compute limited
         measure {
-            pmap(&Z, &divergence) { Z, divergence in
+            pmap(&Z, &divergence, boundBy: .compute) { Z, divergence in
                 julia(Z: Z, divergence: &divergence, C, tolerance, iterations)
             }
         }
