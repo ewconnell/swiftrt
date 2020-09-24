@@ -53,9 +53,13 @@ class test_Math: XCTestCase {
         // Float abs
         let b = array([-1, 2, -3, 4, -5])
         XCTAssert(abs(b) == [1, 2, 3, 4, 5])
-
+        
         let g = pullback(at: b, in: { abs($0) })(ones(like: b))
         XCTAssert(g == [-1, 1, -1, 1, -1])
+
+        // Complex
+        let c = abs(Complex<Float>(3, 4))
+        XCTAssert(c == 5)
     }
 
     //--------------------------------------------------------------------------

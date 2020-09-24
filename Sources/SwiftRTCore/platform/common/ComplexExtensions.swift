@@ -34,3 +34,7 @@ extension Complex: Comparable {
     }
 }
 
+@inlinable public func abs<RealType>(_ x: Complex<RealType>) -> RealType {
+    x.imaginary == 0 ? Swift.abs(x.real) :
+        .sqrt(x.real * x.real + x.imaginary * x.imaginary)
+}
