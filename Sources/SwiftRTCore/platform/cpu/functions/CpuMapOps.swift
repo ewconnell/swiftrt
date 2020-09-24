@@ -105,7 +105,7 @@ extension DeviceQueue {
 
     //==========================================================================
     // reduction along axes
-    @inlinable public func mapOp<S,E,RE>(
+    @inlinable func reduceAlongAxes<S,E,RE>(
         _ a: Tensor<S,E>,
         _ output: inout Tensor<S,RE>,
         _ opName: @autoclosure () -> String,
@@ -147,6 +147,51 @@ extension DeviceQueue {
         }
     }
 
+    //==========================================================================
+    // mapOp tensor
+    @inlinable public func mapOp<S,E,RE>(
+        _ a: Tensor<S,E>,
+        _ output: inout Tensor<S,RE>,
+        _ opName: String,
+        _ op: @escaping (E.Value, RE.Value) -> RE.Value
+    ) {
+        diagnostic(.queueCpu, "\(opName) on \(name)", categories: .queueCpu)
+        
+        func execute<A: Collection, O: MutableCollection>(
+            _ a: A,
+            _ out: O,
+            _ op: @escaping (A.Element, O.Element) -> O.Element
+        ) {
+            var out = out
+            if mode == .sync {
+                zip(out.indices, a).forEach { out[$0] = op($1, out[$0]) }
+            } else {
+                queue.async(group: group) {
+                    zip(out.indices, a).forEach { out[$0] = op($1, out[$0]) }
+                }
+            }
+        }
+        
+        // check order because they will not match for order conversion ops
+        if a.order == output.order {
+            if a.isContiguous {
+                if output.isContiguous {
+                    execute(a.buffer, output.mutableBuffer, op)
+                } else {
+                    execute(a.buffer, output.mutableElements, op)
+                }
+            } else {
+                if output.isContiguous {
+                    execute(a.elements, output.mutableBuffer, op)
+                } else {
+                    execute(a.elements, output.mutableElements, op)
+                }
+            }
+        } else {
+            execute(a.elements, output.mutableElements, op)
+        }
+    }
+    
     //==========================================================================
     // mapOp tensor
     @inlinable public func mapOp<S,E,RE>(

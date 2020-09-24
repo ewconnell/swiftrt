@@ -119,7 +119,7 @@ extension CpuFunctions where Self: DeviceQueue {
         _ opNext: @escaping (E.Value, E.Value) -> E.Value,
         _ opFinal: ReduceOpFinal<Tensor<S,E>>?
     ) {
-        mapOp(x, &result, opName, opNext)
+        reduceAlongAxes(x, &result, opName, opNext)
         
         if let op = opFinal {
             mapOp(&result, opName, op)

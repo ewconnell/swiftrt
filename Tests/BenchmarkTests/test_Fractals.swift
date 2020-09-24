@@ -21,9 +21,9 @@ class test_Fractals: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_juliaSet", test_juliaSet),
-        ("test_juliaSetPmap", test_juliaSetPmap),
-        ("test_juliaSetPmapFused", test_juliaSetPmapFused),
+        ("test_Julia", test_Julia),
+        ("test_pmapJulia", test_pmapJulia),
+        ("test_pmapJuliaKernel", test_pmapJuliaKernel),
     ]
 
     // append and use a discrete async cpu device for these tests
@@ -36,7 +36,7 @@ class test_Fractals: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    func test_juliaSet() {
+    func test_Julia() {
         // parameters
         let iterations = 2048
         let size = (1024, 1025)
@@ -44,9 +44,6 @@ class test_Fractals: XCTestCase {
         let C = Complex<Float>(-0.8, 0.156)
         let first = Complex<Float>(-1.7, -1.7)
         let last = Complex<Float>(1.7, 1.7)
-        //        let first = Complex<Float>(-1, -1)
-        //        let last = Complex<Float>(1, 1)
-        
         
         var Z = array(from: first, to: last, size)
         var divergence = full(size, iterations)
@@ -63,7 +60,7 @@ class test_Fractals: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    func test_juliaSetPmap() {
+    func test_pmapJulia() {
         // parameters
         let iterations = 2048
         let size = (1024, 1025)
@@ -76,7 +73,7 @@ class test_Fractals: XCTestCase {
         let Z = array(from: first, to: last, size)
         var divergence = full(size, iterations)
 
-        // 0.960
+        // 0.733
         measure {
             pmap(Z, &divergence) { Z, divergence in
                 for i in 0..<iterations {
@@ -87,7 +84,7 @@ class test_Fractals: XCTestCase {
         }
     }
 
-    func test_juliaSetPmapFused() {
+    func test_pmapJuliaKernel() {
         // parameters
         let iterations = 2048
         let size = (1024, 1025)
@@ -99,10 +96,10 @@ class test_Fractals: XCTestCase {
         let Z = array(from: first, to: last, size)
         var divergence = full(size, iterations)
         
-        // 0.279
+        // 0.276s
         measure {
-            pmap(Z, &divergence, boundBy: .compute) { Z, divergence in
-                julia(Z: Z, divergence: &divergence, C, tolerance, iterations)
+            pmap(Z, &divergence, boundBy: .compute) {
+                juliaKernel(Z: $0, divergence: &$1, C, tolerance, iterations)
             }
         }
     }
@@ -110,22 +107,24 @@ class test_Fractals: XCTestCase {
 
 //==============================================================================
 // user defined element wise function
-@inlinable public func julia<E>(
+@inlinable public func juliaKernel<E>(
     Z: TensorR2<Complex<E>>,
     divergence: inout TensorR2<E>,
     _ C: Complex<E>,
     _ tolerance: E,
     _ iterations: Int
 ) {
-    let message =
+    let message = diagnosticMessage(
         "julia(Z: \(Z.name), divergence: \(divergence.name), constant: \(C), " +
-        "tolerance: \(tolerance), iterations: \(iterations))"
-    
-    currentQueue.elementwise(&divergence, Z, message) {
-        var d = $0, Z = $1
-        for i in 0..<iterations {
+            "tolerance: \(tolerance), iterations: \(iterations))")
+
+    kernel(Z, &divergence, message) {
+        var Z = $0, d = $1
+        var i = E.zero
+        for _ in 0..<iterations {
             Z = Z * Z + C
-            if abs(Z).real > tolerance { d = min(d, E.Value(exactly: i)!) }
+            if abs(Z) > tolerance { d = min(d, i) }
+            i += 1
         }
         return d
     }

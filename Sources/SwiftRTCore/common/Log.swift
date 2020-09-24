@@ -121,6 +121,13 @@ public extension _Logging {
     #endif
 }
 
+@inlinable public func diagnosticMessage(_ string: String) -> String {
+#if DEBUG
+return string
+#else
+return ""
+#endif
+}
 
 //==============================================================================
 /// LogInfo

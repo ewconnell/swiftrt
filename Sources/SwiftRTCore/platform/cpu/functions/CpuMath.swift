@@ -20,13 +20,30 @@ import Numerics
 // Cpu device queue function implementations
 extension DeviceQueue {
     //--------------------------------------------------------------------------
+    @inlinable public func cpu_kernel<S,AE,RE>(
+        _ a: Tensor<S,AE>,
+        _ out: inout Tensor<S,RE>,
+        _ opName: String,
+        _ op: @escaping (AE.Value, RE.Value) -> RE.Value
+    ) {
+        mapOp(a, &out, opName, op)
+    }
+
+    //--------------------------------------------------------------------------
     @inlinable func cpu_abs<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable & SignedNumeric {
         mapOp(x, &out, "abs(\(x.name))") { abs($0) }
     }
-    
+
+    @inlinable func cpu_abs<S,E>(
+        _ x: Tensor<S,Complex<E>>,
+        _ out: inout Tensor<S,E>
+    ) where E: StorageElement, E.Value: Comparable & SignedNumeric {
+        mapOp(x, &out, "abs(\(x.name))") { abs($0) }
+    }
+
     //--------------------------------------------------------------------------
     @inlinable func cpu_acos<S,E>(
         _ x: Tensor<S,E>,
@@ -756,6 +773,15 @@ extension DeviceQueue {
 //==============================================================================
 // DeviceQueue functions with default cpu delegation
 extension CpuQueue {
+    @inlinable public func kernel<S,AE,RE>(
+        _ a: Tensor<S,AE>,
+        _ out: inout Tensor<S,RE>,
+        _ opName: String,
+        _ op: @escaping (AE.Value, RE.Value) -> RE.Value
+    ) {
+        cpu_kernel(a, &out, opName, op)
+    }
+    
     //--------------------------------------------------------------------------
     @inlinable func abs<S,E>(
         _ x: Tensor<S,E>,
@@ -763,6 +789,14 @@ extension CpuQueue {
     ) where E.Value: Comparable & SignedNumeric {
         cpu_abs(x, &out)
     }
+    
+    @inlinable func abs<S,E>(
+        _ x: Tensor<S,Complex<E>>,
+        _ out: inout Tensor<S,E>
+    ) where E: StorageElement, E.Value: Comparable & SignedNumeric {
+        cpu_abs(x, &out)
+    }
+    
     //--------------------------------------------------------------------------
     @inlinable func acos<S,E>(
         _ x: Tensor<S,E>,
