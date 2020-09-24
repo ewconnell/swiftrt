@@ -77,6 +77,7 @@ class test_Fractals: XCTestCase {
         var divergence = full(size, iterations)
 
         // 0.959
+        // bandwidth limited
         measure {
             pmap(&Z, &divergence, 16) { Z, divergence in
                 for i in 0..<iterations {
@@ -96,13 +97,11 @@ class test_Fractals: XCTestCase {
         let first = Complex<Float>(-1.7, -1.7)
         let last = Complex<Float>(1.7, 1.7)
         
-        print("size: \(size), iterations: \(iterations), " +
-                "queue: \(currentQueue.name)")
-        
         var Z = array(from: first, to: last, size)
         var divergence = full(size, iterations)
         
-        // 0.310
+        // 0.279
+        // compute limited
         measure {
             pmap(&Z, &divergence) { Z, divergence in
                 julia(Z: Z, divergence: &divergence, C, tolerance, iterations)
@@ -120,12 +119,12 @@ class test_Fractals: XCTestCase {
     _ tolerance: E,
     _ iterations: Int
 ) {
-    let dname = divergence.name
-    currentQueue.elementwise(&divergence, Z,
-        "julia(Z: \(Z.name), divergence: \(dname), constant: \(C), " +
-            "tolerance: \(tolerance), iterations: \(iterations))"
-    ) { d, Z in
-        var d = d, Z = Z
+    let message =
+        "julia(Z: \(Z.name), divergence: \(divergence.name), constant: \(C), " +
+        "tolerance: \(tolerance), iterations: \(iterations))"
+    
+    currentQueue.elementwise(&divergence, Z, message) {
+        var d = $0, Z = $1
         for i in 0..<iterations {
             Z = Z * Z + C
             if abs(Z).real > tolerance { d = min(d, E.Value(exactly: i)!) }
