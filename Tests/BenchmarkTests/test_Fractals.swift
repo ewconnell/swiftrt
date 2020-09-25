@@ -55,15 +55,13 @@ final class test_Fractals: XCTestCase {
         var Z = Zr + Zi
         var divergence = full(size, iterations)
 
-        let start = Date()
-        
         // 12.816s
-        for i in 0..<iterations {
-            Z = multiply(Z, Z, add: C)
-            divergence[abs(Z) .> tolerance] = min(divergence, i)
+        measure {
+            for i in 0..<iterations {
+                Z = multiply(Z, Z, add: C)
+                divergence[abs(Z) .> tolerance] = min(divergence, i)
+            }
         }
-
-        print("time: \(Date().timeIntervalSince(start))")
         #endif
     }
 
