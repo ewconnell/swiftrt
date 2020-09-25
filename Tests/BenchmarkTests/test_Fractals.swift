@@ -21,9 +21,9 @@ final class test_Fractals: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_Julia", test_Julia),
         ("test_pmapJulia", test_pmapJulia),
-        ("test_pmapJuliaKernel", test_pmapJuliaKernel),
+        ("test_pmapKernelJulia", test_pmapKernelJulia),
+        ("test_Julia", test_Julia),
     ]
 
     // append and use a discrete async cpu device for these tests
@@ -50,9 +50,8 @@ final class test_Fractals: XCTestCase {
         let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
 
         // repeat rows of real range, columns of imaginary range, and combine
-        let Zr = repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-        let Zi = repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-        var Z = Zr + Zi
+        var Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
+                repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         var divergence = full(size, iterations)
 
         // 12.816s
@@ -80,9 +79,8 @@ final class test_Fractals: XCTestCase {
         let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
 
         // repeat rows of real range, columns of imaginary range, and combine
-        let Zr = repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-        let Zi = repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-        let Z = Zr + Zi
+        let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
+                repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         var divergence = full(size, iterations)
 
         // 0.733
@@ -97,7 +95,7 @@ final class test_Fractals: XCTestCase {
         #endif
     }
 
-    func test_pmapJuliaKernel() {
+    func test_pmapKernelJulia() {
         #if !DEBUG
         // parameters
         let iterations = 2048
@@ -111,9 +109,8 @@ final class test_Fractals: XCTestCase {
         let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
         
         // repeat rows of real range, columns of imaginary range, and combine
-        let Zr = repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-        let Zi = repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-        let Z = Zr + Zi
+        let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
+                repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         var divergence = full(size, iterations)
 
         // 0.259s
