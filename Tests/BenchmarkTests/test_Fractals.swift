@@ -37,6 +37,7 @@ final class test_Fractals: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_Julia() {
+        #if !DEBUG
         // parameters
         let iterations = 2048
         let size = (r: 1024, c: 1025)
@@ -63,10 +64,12 @@ final class test_Fractals: XCTestCase {
         }
 
         print("time: \(Date().timeIntervalSince(start))")
+        #endif
     }
 
     //--------------------------------------------------------------------------
     func test_pmapJulia() {
+        #if !DEBUG
         // parameters
         let iterations = 2048
         let size = (r: 1024, c: 1025)
@@ -93,9 +96,11 @@ final class test_Fractals: XCTestCase {
                 }
             }
         }
+        #endif
     }
 
     func test_pmapJuliaKernel() {
+        #if !DEBUG
         // parameters
         let iterations = 2048
         let size = (r: 1024, c: 1025)
@@ -119,6 +124,7 @@ final class test_Fractals: XCTestCase {
                 juliaKernel(Z: $0, divergence: &$1, C, tolerance, iterations)
             }
         }
+        #endif
     }
 }
 
