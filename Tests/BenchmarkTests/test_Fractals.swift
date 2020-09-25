@@ -27,13 +27,13 @@ final class test_Fractals: XCTestCase {
     ]
 
     // append and use a discrete async cpu device for these tests
-//    override func setUpWithError() throws {
+    override func setUpWithError() throws {
 //        log.level = .diagnostic
-//    }
-//
-//    override func tearDownWithError() throws {
+    }
+
+    override func tearDownWithError() throws {
 //        log.level = .error
-//    }
+    }
 
     //--------------------------------------------------------------------------
     func test_Julia() {
