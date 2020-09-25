@@ -39,13 +39,19 @@ final class test_Fractals: XCTestCase {
     func test_Julia() {
         // parameters
         let iterations = 2048
-        let size = (1024, 1025)
+        let size = (r: 1024, c: 1025)
         let tolerance: Float = 4.0
         let C = Complex<Float>(-0.8, 0.156)
-        let first = Complex<Float>(-1.7, -1.7)
-        let last = Complex<Float>(1.7, 1.7)
+        let first = Complex<Float>(-1.7, 1.7)
+        let last = Complex<Float>(1.7, -1.7)
         
-        var Z = array(from: first, to: last, size)
+        // repeat rows of real range, columns of imaginary range, and combine
+        typealias CF = Complex<Float>
+        let rFirst = CF(first.real, 0), rLast = CF(last.real, 0)
+        let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
+        let Zr = repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
+        let Zi = repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+        var Z = Zr + Zi
         var divergence = full(size, iterations)
 
         let start = Date()
@@ -63,14 +69,19 @@ final class test_Fractals: XCTestCase {
     func test_pmapJulia() {
         // parameters
         let iterations = 2048
-        let size = (1024, 1025)
+        let size = (r: 1024, c: 1025)
         let tolerance: Float = 4.0
         let C = Complex<Float>(-0.8, 0.156)
-        let first = Complex<Float>(-1.7, -1.7)
-        let last = Complex<Float>(1.7, 1.7)
-
+        let first = Complex<Float>(-1.7, 1.7)
+        let last = Complex<Float>(1.7, -1.7)
         
-        let Z = array(from: first, to: last, size)
+        // repeat rows of real range, columns of imaginary range, and combine
+        typealias CF = Complex<Float>
+        let rFirst = CF(first.real, 0), rLast = CF(last.real, 0)
+        let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
+        let Zr = repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
+        let Zi = repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+        let Z = Zr + Zi
         var divergence = full(size, iterations)
 
         // 0.733
@@ -87,15 +98,21 @@ final class test_Fractals: XCTestCase {
     func test_pmapJuliaKernel() {
         // parameters
         let iterations = 2048
-        let size = (1024, 1025)
+        let size = (r: 1024, c: 1025)
         let tolerance: Float = 4.0
         let C = Complex<Float>(-0.8, 0.156)
-        let first = Complex<Float>(-1.7, -1.7)
-        let last = Complex<Float>(1.7, 1.7)
+        let first = Complex<Float>(-1.7, 1.7)
+        let last = Complex<Float>(1.7, -1.7)
         
-        let Z = array(from: first, to: last, size)
+        // repeat rows of real range, columns of imaginary range, and combine
+        typealias CF = Complex<Float>
+        let rFirst = CF(first.real, 0), rLast = CF(last.real, 0)
+        let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
+        let Zr = repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
+        let Zi = repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+        let Z = Zr + Zi
         var divergence = full(size, iterations)
-        
+
         // 0.284s
         measure {
             pmap(Z, &divergence, boundBy: .compute) {
