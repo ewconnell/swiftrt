@@ -24,10 +24,10 @@ extension CpuFunctions where Self: DeviceQueue {
     @inlinable public func mapReduce<S,E>(
         _ a: Tensor<S,E>,
         _ out: inout Tensor<S,E>,
-        _ opName: @autoclosure () -> String,
+        _ opName: String,
         _ op: @escaping (E.Value, E.Value) -> E.Value
     ) {
-        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
+        diagnostic(.queueCpu, "\(opName) on \(name)", categories: .queueCpu)
         let a = a.buffer
         var out = out.mutableBuffer
         
@@ -119,10 +119,12 @@ extension CpuFunctions where Self: DeviceQueue {
         _ opNext: @escaping (E.Value, E.Value) -> E.Value,
         _ opFinal: ReduceOpFinal<Tensor<S,E>>?
     ) {
-        reduceAlongAxes(x, &result, opName, opNext)
+        diagnostic(.queueCpu, "\(opName)(\(x.name)) on \(name)",
+                   categories: .queueCpu)
+        reduceAlongAxes(x, &result, opNext)
         
         if let op = opFinal {
-            mapOp(&result, opName, op)
+            mapOp(&result, op)
         }
     }
 }

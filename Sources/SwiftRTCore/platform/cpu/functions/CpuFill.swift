@@ -105,8 +105,9 @@ extension CpuFunctions where Self: DeviceQueue {
         _ out: inout Tensor<S,E>,
         offset: Int
     ) where E.Value: Numeric {
-        let oname = out.name
-        mapOp(&out, "eye(\(oname))") { 0 }
+        diagnostic(.queueCpu, "eye(\(out.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(&out) { 0 }
     }
     
     //--------------------------------------------------------------------------
@@ -114,8 +115,9 @@ extension CpuFunctions where Self: DeviceQueue {
         _ out: inout Tensor<S,E>,
         with element: E.Value
     ) {
-        let oname = out.name
-        mapOp(&out, "fill(\(oname), with: \(element))") { element }
+        diagnostic(.queueCpu, "fill(\(out.name), with: \(element)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(&out) { element }
     }
     
     //--------------------------------------------------------------------------
@@ -125,9 +127,9 @@ extension CpuFunctions where Self: DeviceQueue {
         to last: E.Value,
         by step: E.Value
     ) where E.Value: Numeric {
-        let oname = out.name
-        mapOp(from: first, to: last, by: step, &out,
-              "fill(\(oname), from: \(first), to: \(last), by: \(step))")
+        diagnostic(.queueCpu, "fill(\(out.name), from: \(first), to: \(last)," +
+                    " by: \(step)) on \(name)", categories: .queueCpu)
+        mapOp(from: first, to: last, by: step, &out)
     }
     //--------------------------------------------------------------------------
     @inlinable func cpu_fill<S,E>(
@@ -136,12 +138,12 @@ extension CpuFunctions where Self: DeviceQueue {
         _ upper: E.Value,
         _ seed: RandomSeed
     ) where E.Value: BinaryFloatingPoint {
-        let oname = out.name
+        diagnostic(.queueCpu, "fill(randomUniform: \(out.name), lower: " +
+                    "\(lower), upper: \(upper), seed: \(seed)) on \(name)",
+                   categories: .queueCpu)
         let scale = Double(upper - lower) / Double(UInt64.max)
         var generator = Platform.createRandomNumberGenerator(using: seed)
-        mapOp(&out, "fill(randomUniform: \(oname), lower: \(lower), " +
-            "upper: \(upper), seed: \(seed))")
-        {
+        mapOp(&out) {
             E.Value(Double(generator.next()) * scale) + lower
         }
     }
@@ -153,12 +155,12 @@ extension CpuFunctions where Self: DeviceQueue {
         _ std: E.Value,
         _ seed: RandomSeed
     ) where E.Value: BinaryFloatingPoint {
-        let oname = out.name
+        diagnostic(.queueCpu, "fill(randomNormal: \(out.name), mean: " +
+                    "\(mean), std: \(std), seed: \(seed)) on \(name)",
+                   categories: .queueCpu)
         let scale = Double(std) / Double(UInt64.max)
         var generator = Platform.createRandomNumberGenerator(using: seed)
-        mapOp(&out, "fill(randomNormal: \(oname), mean: \(mean), " +
-            "std: \(std), seed: \(seed))")
-        {
+        mapOp(&out) {
             E.Value(Double(generator.next()) * scale) + mean
         }
     }
@@ -173,12 +175,12 @@ extension CpuFunctions where Self: DeviceQueue {
         _ seed: RandomSeed
     ) where E.Value: BinaryFloatingPoint {
         assert(std.count == 1 && mean.count == 1)
-        let oname = out.name
+        diagnostic(.queueCpu, "fill(randomNormal: \(out.name), mean: " +
+                    "\(mean.name), std: \(std.name), seed: \(seed)) on \(name)",
+                   categories: .queueCpu)
         let scale = Double(std.element) / Double(UInt64.max)
         var generator = Platform.createRandomNumberGenerator(using: seed)
-        mapOp(&out, "fill(randomNormal: \(oname), mean: \(mean.name), " +
-            "std: \(std.name), seed: \(seed))")
-        {
+        mapOp(&out) {
             E.Value(Double(generator.next()) * scale) + mean.element
         }
     }
@@ -190,13 +192,13 @@ extension CpuFunctions where Self: DeviceQueue {
         _ std: E.Value,
         _ seed: RandomSeed
     ) where E.Value: BinaryFloatingPoint {
-        let oname = out.name
+        diagnostic(.queueCpu, "fill(randomTruncatedNormal: \(out.name), mean: " +
+                    "\(mean), std: \(std), seed: \(seed)) on \(name)",
+                   categories: .queueCpu)
         let std2x = std * 2
         let scale = Double(std) / Double(UInt64.max)
         var generator = Platform.createRandomNumberGenerator(using: seed)
-        mapOp(&out, "fill(randomTruncatedNormal: \(oname), mean: \(mean), " +
-              "std: \(std), seed: \(seed))")
-        {
+        mapOp(&out) {
             let a = Double(generator.next()) * scale
             return E.Value(a).clamped(to: -std2x...std2x) + mean
         }
@@ -210,13 +212,13 @@ extension CpuFunctions where Self: DeviceQueue {
         _ seed: RandomSeed
     ) where E.Value: BinaryFloatingPoint {
         assert(std.count == 1 && mean.count == 1)
-        let oname = out.name
+        diagnostic(.queueCpu, "fill(randomTruncatedNormal: \(out.name), " +
+                    "mean: \(mean.name), std: \(std.name), seed: \(seed)) on \(name)",
+                   categories: .queueCpu)
         let std2x = std.element * 2
         let scale = Double(std.element) / Double(UInt64.max)
         var generator = Platform.createRandomNumberGenerator(using: seed)
-        mapOp(&out, "fill(randomTruncatedNormal: \(oname), " +
-              "mean: \(mean.name), std: \(std.name), seed: \(seed))") 
-        {
+        mapOp(&out) {
             let a = Double(generator.next()) * scale
             return E.Value(a).clamped(to: -std2x...std2x) + mean.element
         }

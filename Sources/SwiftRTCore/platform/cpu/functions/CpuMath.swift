@@ -26,7 +26,8 @@ extension DeviceQueue {
         _ opName: String,
         _ op: @escaping (AE.Value, RE.Value) -> RE.Value
     ) {
-        mapOp(a, &out, opName, op)
+        diagnostic(.queueCpu, "\(opName) on \(name)", categories: .queueCpu)
+        mapOp(a, &out, op)
     }
 
     //--------------------------------------------------------------------------
@@ -34,14 +35,16 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable & SignedNumeric {
-        mapOp(x, &out, "abs(\(x.name))") { abs($0) }
+        diagnostic(.queueCpu, "abs(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { abs($0) }
     }
 
     @inlinable func cpu_abs<S,E>(
         _ x: Tensor<S,Complex<E>>,
         _ out: inout Tensor<S,E>
     ) where E: StorageElement, E.Value: Comparable & SignedNumeric {
-        mapOp(x, &out, "abs(\(x.name))") { abs($0) }
+        diagnostic(.queueCpu, "abs(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { abs($0) }
     }
 
     //--------------------------------------------------------------------------
@@ -49,7 +52,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "acos(\(x.name))") { .acos($0) }
+        diagnostic(.queueCpu, "acos(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .acos($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -57,7 +61,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "acosh(\(x.name))") { .acosh($0) }
+        diagnostic(.queueCpu, "acosh(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .acosh($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -66,7 +71,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
-        mapOp(lhs, rhs, &out, "add(\(lhs.name), \(rhs.name))", +)
+        diagnostic(.queueCpu, "add(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, +)
     }
     
     @inlinable func cpu_add<S,E>(
@@ -74,7 +81,9 @@ extension DeviceQueue {
         _ rhs: E.Value,
         _ out: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
-        mapOp(lhs, rhs, &out, "add(\(lhs.name), \(rhs))", +)
+        diagnostic(.queueCpu, "add(\(lhs.name), \(rhs)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, +)
     }
     
     //--------------------------------------------------------------------------
@@ -83,7 +92,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value == Bool {
-        mapOp(lhs, rhs, &out, "and(\(lhs.name), \(rhs.name)") { $0 && $1 }
+        diagnostic(.queueCpu, "and(\(lhs.name), \(rhs.name) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out) { $0 && $1 }
     }
     
     //--------------------------------------------------------------------------
@@ -91,7 +102,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "asin(\(x.name))") { .asin($0) }
+        diagnostic(.queueCpu, "asin(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .asin($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -99,7 +111,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "asinh(\(x.name))") { .asinh($0) }
+        diagnostic(.queueCpu, "asinh(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .asinh($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -107,7 +120,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "atan(\(x.name))") { .atan($0) }
+        diagnostic(.queueCpu, "atan(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .atan($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -116,7 +130,9 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(y, x, &out, "atan2(y: \(y.name), x: \(x.name))") { .atan2(y: $0, x: $1) }
+        diagnostic(.queueCpu, "atan2(y: \(y.name), x: \(x.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(y, x, &out) { .atan2(y: $0, x: $1) }
     }
     
     //--------------------------------------------------------------------------
@@ -124,7 +140,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "atanh(\(x.name))") { .atanh($0) }
+        diagnostic(.queueCpu, "atanh(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .atanh($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -133,7 +150,8 @@ extension DeviceQueue {
         from a: Tensor<S,E>,
         to out: inout Tensor<S,RE>
     ) where E.Value: BinaryFloatingPoint, RE.Value: BinaryInteger {
-        mapOp(a, &out, "cast(\(a.name))") { RE.Value($0) }
+        diagnostic(.queueCpu, "cast(\(a.name)) on \(name)", categories: .queueCpu)
+        mapOp(a, &out) { RE.Value($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -142,7 +160,8 @@ extension DeviceQueue {
         from a: Tensor<S,E>,
         to out: inout Tensor<S,RE>
     ) where E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint {
-        mapOp(a, &out, "cast(\(a.name))") { RE.Value($0) }
+        diagnostic(.queueCpu, "cast(\(a.name)) on \(name)", categories: .queueCpu)
+        mapOp(a, &out) { RE.Value($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -150,8 +169,9 @@ extension DeviceQueue {
         from a: Tensor<S,E>,
         to out: inout Tensor<S,E>
     ) where S: TensorShape {
-        let oname = out.name
-        mapOp(a, &out, "copy(form: \(a.name), to: \(oname)") { $0 }
+        diagnostic(.queueCpu, "copy(form: \(a.name), to: \(out.name) on \(name)",
+                   categories: .queueCpu)
+        mapOp(a, &out) { $0 }
     }
     
     //--------------------------------------------------------------------------
@@ -159,7 +179,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "cos(\(x.name))") { .cos($0) }
+        diagnostic(.queueCpu, "cos(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .cos($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -167,7 +188,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "cosh(\(x.name))") { .cosh($0) }
+        diagnostic(.queueCpu, "cosh(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .cosh($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -176,7 +198,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: AlgebraicField {
-        mapOp(lhs, rhs, &out, "div(\(lhs.name), \(rhs.name))", /)
+        diagnostic(.queueCpu, "div(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, /)
     }
     
     @inlinable func cpu_div<S,E>(
@@ -184,7 +208,9 @@ extension DeviceQueue {
         _ rhs: E.Value,
         _ out: inout Tensor<S,E>
     ) where E.Value: AlgebraicField {
-        mapOp(lhs, rhs, &out, "div(\(lhs.name), \(rhs))", /)
+        diagnostic(.queueCpu, "div(\(lhs.name), \(rhs)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, /)
     }
     
     @inlinable func cpu_div<S,E>(
@@ -192,7 +218,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: AlgebraicField {
-        mapOp(lhs, rhs, &out, "div(\(lhs), \(rhs.name))", /)
+        diagnostic(.queueCpu, "div(\(lhs), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, /)
     }
     
     //--------------------------------------------------------------------------
@@ -202,8 +230,10 @@ extension DeviceQueue {
         _ tolerance: E.Value,
         _ out: inout Tensor<S,Bool>)
     where E.Value: SignedNumeric & Comparable {
-        mapOp(lhs, rhs, &out, "elementsAlmostEqual(\(lhs.name), \(rhs.name))")
-            { Swift.abs($0 - $1) <= tolerance }
+        diagnostic(.queueCpu,
+                   "elementsAlmostEqual(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out) { Swift.abs($0 - $1) <= tolerance }
     }
     
     //--------------------------------------------------------------------------
@@ -212,7 +242,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,Bool>
     ) where E.Value: Equatable {
-        mapOp(lhs, rhs, &out, "equal(\(lhs.name), \(rhs.name))", ==)
+        diagnostic(.queueCpu, "equal(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, ==)
     }
     
     //--------------------------------------------------------------------------
@@ -220,7 +252,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "erf(\(x.name))") { .erf($0) }
+        diagnostic(.queueCpu, "erf(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .erf($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -228,7 +261,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "erfc(\(x.name))") { .erfc($0) }
+        diagnostic(.queueCpu, "erfc(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .erfc($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -236,7 +270,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "exp(\(x.name))") { .exp($0) }
+        diagnostic(.queueCpu, "exp(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .exp($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -244,7 +279,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "exp2(\(x.name))") { .exp2($0) }
+        diagnostic(.queueCpu, "exp2(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .exp2($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -252,7 +288,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "exp10(\(x.name))") { .exp10($0) }
+        diagnostic(.queueCpu, "exp10(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .exp10($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -260,7 +297,9 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "expMinusOne(\(x.name))") { .expMinusOne($0) }
+        diagnostic(.queueCpu, "expMinusOne(\(x.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(x, &out) { .expMinusOne($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -268,7 +307,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "gamma(\(x.name))") { .gamma($0) }
+        diagnostic(.queueCpu, "gamma(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .gamma($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -277,7 +317,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,Bool>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "greater(\(lhs.name), \(rhs.name))", >)
+        diagnostic(.queueCpu, "greater(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, >)
     }
 
     @inlinable func cpu_greater<S,E>(
@@ -285,7 +327,9 @@ extension DeviceQueue {
         _ rhs: E.Value,
         _ out: inout Tensor<S,Bool>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "greater(\(lhs.name), \(rhs))", >)
+        diagnostic(.queueCpu, "greater(\(lhs.name), \(rhs)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, >)
     }
 
     //--------------------------------------------------------------------------
@@ -294,7 +338,10 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,Bool>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "greaterOrEqual(\(lhs.name), \(rhs.name))", >=)
+        diagnostic(.queueCpu,
+                   "greaterOrEqual(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, >=)
     }
     
     @inlinable func cpu_greaterOrEqual<S,E>(
@@ -302,7 +349,9 @@ extension DeviceQueue {
         _ rhs: E.Value,
         _ out: inout Tensor<S,Bool>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "greaterOrEqual(\(lhs.name), \(rhs))", >=)
+        diagnostic(.queueCpu, "greaterOrEqual(\(lhs.name), \(rhs)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, >=)
     }
     
     //--------------------------------------------------------------------------
@@ -311,7 +360,9 @@ extension DeviceQueue {
         _ y: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, y, &out, "hypot(\(x.name), \(y.name))") { .hypot($0, $1) }
+        diagnostic(.queueCpu, "hypot(\(x.name), \(y.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(x, y, &out) { .hypot($0, $1) }
     }
     
     //--------------------------------------------------------------------------
@@ -320,7 +371,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,Bool>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "less(\(lhs.name), \(rhs.name))", <)
+        diagnostic(.queueCpu, "less(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, <)
     }
     
     @inlinable func cpu_less<S,E>(
@@ -328,7 +381,9 @@ extension DeviceQueue {
         _ rhs: E.Value,
         _ out: inout Tensor<S,Bool>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "less(\(lhs.name), \(rhs))", <)
+        diagnostic(.queueCpu, "less(\(lhs.name), \(rhs)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, <)
     }
     //--------------------------------------------------------------------------
     @inlinable func cpu_lessOrEqual<S,E>(
@@ -336,7 +391,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,Bool>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "lessOrEqual(\(lhs.name), \(rhs.name))", <=)
+        diagnostic(.queueCpu, "lessOrEqual(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, <=)
     }
     
     @inlinable func cpu_lessOrEqual<S,E>(
@@ -344,7 +401,9 @@ extension DeviceQueue {
         _ rhs: E.Value,
         _ out: inout Tensor<S,Bool>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "lessOrEqual(\(lhs.name), \(rhs))", <=)
+        diagnostic(.queueCpu, "lessOrEqual(\(lhs.name), \(rhs)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, <=)
     }
     
     //--------------------------------------------------------------------------
@@ -352,7 +411,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "log(\(x.name))") { .log($0) }
+        diagnostic(.queueCpu, "log(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .log($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -360,7 +420,9 @@ extension DeviceQueue {
         onePlus x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "log(onePlus: \(x.name))") { .log(onePlus: $0) }
+        diagnostic(.queueCpu, "log(onePlus: \(x.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(x, &out) { .log(onePlus: $0) }
     }
     
     //--------------------------------------------------------------------------
@@ -368,7 +430,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "log2(\(x.name))") { .log2($0) }
+        diagnostic(.queueCpu, "log2(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .log2($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -376,7 +439,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "log10(\(x.name))") { .log10($0) }
+        diagnostic(.queueCpu, "log10(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .log10($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -384,7 +448,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "logGamma(\(x.name))") { .logGamma($0) }
+        diagnostic(.queueCpu, "logGamma(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .logGamma($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -393,6 +458,7 @@ extension DeviceQueue {
         _ rhs: TensorR2<E>, _ transposeRhs: Bool,
         _ out: inout TensorR2<E>
     ) where E.Value: Numeric {
+        diagnostic(.queueCpu, "matmul on \(name)", categories: .queueCpu)
         let lhs = transposeLhs ? lhs.t : lhs
         let rhs = transposeRhs ? rhs.t : rhs
         assert(out.shape[0] == lhs.shape[0] &&
@@ -415,6 +481,7 @@ extension DeviceQueue {
         _ rhs: TensorR3<E>, _ transposeRhs: Bool,
         _ out: inout TensorR3<E>
     ) where E.Value: Numeric {
+        diagnostic(.queueCpu, "matmul on \(name)", categories: .queueCpu)
         let lhs = transposeLhs ? lhs.t : lhs
         let rhs = transposeRhs ? rhs.t : rhs
         assert(out.shape[0] == lhs.shape[0] &&
@@ -440,7 +507,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "max(\(lhs.name), \(rhs.name))") { $0 >= $1 ? $0 : $1 }
+        diagnostic(.queueCpu, "max(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out) { $0 >= $1 ? $0 : $1 }
     }
 
     @inlinable func cpu_max<S,E>(
@@ -448,7 +517,9 @@ extension DeviceQueue {
         _ rhs: E.Value,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "max(\(lhs.name), \(rhs))") { $0 >= $1 ? $0 : $1 }
+        diagnostic(.queueCpu, "max(\(lhs.name), \(rhs)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out) { $0 >= $1 ? $0 : $1 }
     }
 
     //--------------------------------------------------------------------------
@@ -457,7 +528,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "min(\(lhs.name), \(rhs.name))") { $0 < $1 ? $0 : $1 }
+        diagnostic(.queueCpu, "min(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out) { $0 < $1 ? $0 : $1 }
     }
 
     @inlinable func cpu_min<S,E>(
@@ -465,7 +538,9 @@ extension DeviceQueue {
         _ rhs: E.Value,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
-        mapOp(lhs, rhs, &out, "min(\(lhs.name), \(rhs))") { $0 < $1 ? $0 : $1 }
+        diagnostic(.queueCpu, "min(\(lhs.name), \(rhs)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out) { $0 < $1 ? $0 : $1 }
     }
 
     //--------------------------------------------------------------------------
@@ -474,7 +549,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Numeric {
-        mapOp(lhs, rhs, &out, "mul(\(lhs.name), \(rhs.name))", *)
+        diagnostic(.queueCpu, "mul(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, *)
     }
 
     @inlinable func cpu_mul<S,E>(
@@ -482,7 +559,9 @@ extension DeviceQueue {
         _ rhs: E.Value,
         _ out: inout Tensor<S,E>
     ) where E.Value: Numeric {
-        mapOp(lhs, rhs, &out, "mul(\(lhs.name), \(rhs))", *)
+        diagnostic(.queueCpu, "mul(\(lhs.name), \(rhs)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, *)
     }
 
     //--------------------------------------------------------------------------
@@ -493,9 +572,10 @@ extension DeviceQueue {
         add bias: E.Value,
         _ out: inout Tensor<S,E>
     ) where E.Value: Numeric {
-        mapOp(lhs, rhs, bias, &out,
-              "multiply(\(lhs.name), \(rhs.name), add: \(bias))")
-            { $0 * $1 + $2 }
+        diagnostic(.queueCpu,
+                   "multiply(\(lhs.name), \(rhs.name), add: \(bias)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, bias, &out) { $0 * $1 + $2 }
     }
     
     @inlinable func cpu_multiply<S,E>(
@@ -504,9 +584,10 @@ extension DeviceQueue {
         add bias: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Numeric {
-        mapOp(lhs, rhs, bias, &out,
-              "multiply(\(lhs.name), \(rhs.name), add: \(bias.name))")
-            { $0 * $1 + $2 }
+        diagnostic(.queueCpu,
+                   "multiply(\(lhs.name), \(rhs.name), add: \(bias.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, bias, &out) { $0 * $1 + $2 }
     }
 
     //--------------------------------------------------------------------------
@@ -514,7 +595,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: SignedNumeric {
-        mapOp(x, &out, "neg(\(x.name))", -)
+        diagnostic(.queueCpu, "neg(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out, -)
     }
     
     //--------------------------------------------------------------------------
@@ -523,7 +605,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,Bool>
     ) where E.Value: Equatable {
-        mapOp(lhs, rhs, &out, "notEqual(\(lhs.name), \(rhs.name))", !=)
+        diagnostic(.queueCpu, "notEqual(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, !=)
     }
     
     //--------------------------------------------------------------------------
@@ -532,7 +616,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value == Bool {
-        mapOp(lhs, rhs, &out, "or(\(lhs.name), \(rhs.name))") { $0 || $1 }
+        diagnostic(.queueCpu, "or(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out) { $0 || $1 }
     }
     
     //--------------------------------------------------------------------------
@@ -541,7 +627,9 @@ extension DeviceQueue {
         _ y: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, y, &out, "pow(x: \(x.name), y: \(y.name))") { .pow($0, $1) }
+        diagnostic(.queueCpu, "pow(x: \(x.name), y: \(y.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(x, y, &out) { .pow($0, $1) }
     }
     
     //--------------------------------------------------------------------------
@@ -550,7 +638,9 @@ extension DeviceQueue {
         _ n: Int,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "pow(x: \(x.name), n: \(n))") { .pow($0, n) }
+        diagnostic(.queueCpu, "pow(x: \(x.name), n: \(n)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(x, &out) { .pow($0, n) }
     }
     
     //--------------------------------------------------------------------------
@@ -560,9 +650,10 @@ extension DeviceQueue {
         _ condition: Tensor<S,Bool>,
         _ out: inout Tensor<S,E>
     ) {
-        mapOp(condition, y, x, &out,
-              "replace(x: \(x.name), y: \(y.name), condition: \(condition.name))")
-            { $0 ? $1 : $2 }
+        diagnostic(.queueCpu, "replace(x: \(x.name), y: \(y.name), " +
+                    "condition: \(condition.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(condition, y, x, &out) { $0 ? $1 : $2 }
     }
     
     //--------------------------------------------------------------------------
@@ -571,7 +662,9 @@ extension DeviceQueue {
         _ n: Int,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "root(x: \(x.name), n: \(n))") { .root($0, n) }
+        diagnostic(.queueCpu, "root(x: \(x.name), n: \(n)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(x, &out) { .root($0, n) }
     }
     
     //--------------------------------------------------------------------------
@@ -579,7 +672,9 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "sigmoid(\(x.name))") { 1 / (1 + .exp(-$0)) }
+        diagnostic(.queueCpu, "sigmoid(\(x.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(x, &out) { 1 / (1 + .exp(-$0)) }
     }
     
     //--------------------------------------------------------------------------
@@ -587,7 +682,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable & SignedNumeric {
-        mapOp(x, &out, "sign(\(x.name))") { $0 < 0 ? -1 : 1 }
+        diagnostic(.queueCpu, "sign(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { $0 < 0 ? -1 : 1 }
     }
     
     //--------------------------------------------------------------------------
@@ -595,7 +691,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "sin(\(x.name))") { .sin($0) }
+        diagnostic(.queueCpu, "sin(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .sin($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -603,7 +700,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "sinh(\(x.name))") { .sinh($0) }
+        diagnostic(.queueCpu, "sinh(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .sinh($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -612,7 +710,9 @@ extension DeviceQueue {
         _ rhs: Tensor<S,E>,
         _ out: inout Tensor<S,E>)
     where E.Value: AdditiveArithmetic {
-        mapOp(lhs, rhs, &out, "subtract(\(lhs.name), \(rhs.name))", -)
+        diagnostic(.queueCpu, "subtract(\(lhs.name), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, -)
     }
 
     @inlinable func cpu_subtract<S,E>(
@@ -620,15 +720,19 @@ extension DeviceQueue {
         _ rhs: E.Value,
         _ out: inout Tensor<S,E>)
     where E.Value: AdditiveArithmetic {
-        mapOp(lhs, rhs, &out, "subtract(\(lhs.name), \(rhs))", -)
+        diagnostic(.queueCpu, "subtract(\(lhs.name), \(rhs)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, -)
     }
 
     @inlinable func cpu_subtract<S,E>(
         _ lhs: E.Value,
         _ rhs: Tensor<S,E>,
-        _ out: inout Tensor<S,E>)
-    where E.Value: AdditiveArithmetic {
-        mapOp(lhs, rhs, &out, "subtract(\(lhs), \(rhs.name))", -)
+        _ out: inout Tensor<S,E>
+    ) where E.Value: AdditiveArithmetic {
+        diagnostic(.queueCpu, "subtract(\(lhs), \(rhs.name)) on \(name)",
+                   categories: .queueCpu)
+        mapOp(lhs, rhs, &out, -)
     }
 
     //--------------------------------------------------------------------------
@@ -636,7 +740,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "sqrt(\(x.name))") { .sqrt($0) }
+        diagnostic(.queueCpu, "sqrt(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .sqrt($0) }
     }
     
     //--------------------------------------------------------------------------
@@ -644,7 +749,8 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Numeric {
-        mapOp(x, &out, "squared(\(x.name))") { $0 * $0 }
+        diagnostic(.queueCpu, "squared(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { $0 * $0 }
     }
     
     //--------------------------------------------------------------------------
@@ -652,14 +758,16 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "tan(\(x.name))") { .tan($0) }
+        diagnostic(.queueCpu, "tan(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .tan($0) }
     }
     
     @inlinable func cpu_tanh<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Real {
-        mapOp(x, &out, "tanh(\(x.name))") { .tanh($0) }
+        diagnostic(.queueCpu, "tanh(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { .tanh($0) }
     }
     
     //==========================================================================
@@ -672,9 +780,9 @@ extension DeviceQueue {
         _ scale: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable & Numeric {
-        mapOp(x, y, scale, &out,
-              "vjpMin(x: \(x.name), y: \(y.name), scale: \(scale.name))")
-            { $0 <= $1 ? $2 : E.Value.zero }
+        diagnostic(.queueCpu, "vjpMin(x: \(x.name), y: \(y.name), " +
+                    "scale: \(scale.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, y, scale, &out) { $0 <= $1 ? $2 : E.Value.zero }
     }
 
     /// cpu_vjpMin
@@ -682,11 +790,11 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ y: E.Value,
         _ scale: Tensor<S,E>,
-        _ out: inout Tensor<S,E>)
-    where E.Value: Comparable & Numeric {
-        mapOp(x, scale, y, &out,
-              "vjpMin(x: \(x.name), y: \(y), scale: \(scale.name))")
-            { $0 <= $2 ? $1 : E.Value.zero }
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        diagnostic(.queueCpu, "vjpMin(x: \(x.name), y: \(y), " +
+                    "scale: \(scale.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, scale, y, &out) { $0 <= $2 ? $1 : E.Value.zero }
     }
 
     /// cpu_vjpMin
@@ -695,10 +803,11 @@ extension DeviceQueue {
         _ y: Tensor<S,E>,
         _ scale: Tensor<S,E>,
         _ resultTrue: inout Tensor<S,E>,
-        _ resultFalse: inout Tensor<S,E>)
-    where E.Value: Comparable & Numeric {
-        mapOp(x, y, scale, &resultTrue, &resultFalse,
-              "vjpMin(x: \(x.name), y: \(y.name), scale: \(scale.name))")
+        _ resultFalse: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        diagnostic(.queueCpu, "vjpMin(x: \(x.name), y: \(y.name), " +
+                    "scale: \(scale.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, y, scale, &resultTrue, &resultFalse)
             { $0 <= $1 ? ($2, E.Value.zero) : (E.Value.zero, $2) }
     }
 
@@ -710,8 +819,9 @@ extension DeviceQueue {
         _ resultTrue: inout Tensor<S,E>,
         _ resultFalse: inout Tensor<S,E>
     ) where E.Value: Comparable & Numeric {
-        mapOp(x, scale, y, &resultTrue, &resultFalse,
-              "vjpMin(x: \(x.name), y: \(y), scale: \(scale.name))") {
+        diagnostic(.queueCpu, "vjpMin(x: \(x.name), y: \(y), scale: " +
+                    "\(scale.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, scale, y, &resultTrue, &resultFalse) {
             $0 <= $2 ? ($1, E.Value.zero) : (E.Value.zero, $1)
         }
     }
@@ -722,11 +832,11 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ y: Tensor<S,E>,
         _ scale: Tensor<S,E>,
-        _ out: inout Tensor<S,E>)
-    where E.Value: Comparable & Numeric {
-        mapOp(x, y, scale, &out,
-              "vjpMax(x: \(x.name), y: \(y.name), scale: \(scale.name))")
-            { $0 >= $1 ? $2 : E.Value.zero }
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        diagnostic(.queueCpu, "vjpMax(x: \(x.name), y: \(y.name), scale: " +
+                    "\(scale.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, y, scale, &out) { $0 >= $1 ? $2 : E.Value.zero }
     }
 
     /// cpu_vjpMax
@@ -734,11 +844,11 @@ extension DeviceQueue {
         _ x: Tensor<S,E>,
         _ y: E.Value,
         _ scale: Tensor<S,E>,
-        _ out: inout Tensor<S,E>)
-    where E.Value: Comparable & Numeric {
-        mapOp(x, scale, y, &out,
-              "vjpMax(x: \(x.name), y: \(y), scale: \(scale.name))")
-            { $0 >= $2 ? $1 : E.Value.zero }
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        diagnostic(.queueCpu, "vjpMax(x: \(x.name), y: \(y), scale: " +
+                    "\(scale.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, scale, y, &out) { $0 >= $2 ? $1 : E.Value.zero }
     }
 
     /// cpu_vjpMax
@@ -749,8 +859,9 @@ extension DeviceQueue {
         _ resultTrue: inout Tensor<S,E>,
         _ resultFalse: inout Tensor<S,E>
     ) where E.Value: Comparable & Numeric {
-        mapOp(x, y, scale, &resultTrue, &resultFalse,
-              "vjpMax(x: \(x.name), y: \(y.name), scale: \(scale.name))") {
+        diagnostic(.queueCpu, "vjpMax(x: \(x.name), y: \(y.name), scale: " +
+                    "\(scale.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, y, scale, &resultTrue, &resultFalse) {
             $0 >= $1 ? ($2, E.Value.zero) : (E.Value.zero, $2)
         }
     }
@@ -763,8 +874,9 @@ extension DeviceQueue {
         _ resultTrue: inout Tensor<S,E>,
         _ resultFalse: inout Tensor<S,E>
     ) where E.Value: Comparable & Numeric {
-        mapOp(x, scale, y, &resultTrue, &resultFalse,
-              "vjpMax(x: \(x.name), y: \(y), scale: \(scale.name))") {
+        diagnostic(.queueCpu, "vjpMax(x: \(x.name), y: \(y), scale: " +
+                    "\(scale.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, scale, y, &resultTrue, &resultFalse) {
             $0 >= $2 ? ($1, E.Value.zero) : (E.Value.zero, $1)
         }
     }

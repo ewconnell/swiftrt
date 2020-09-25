@@ -17,7 +17,7 @@ import XCTest
 import Foundation
 import SwiftRT
 
-class test_Fractals: XCTestCase {
+final class test_Fractals: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
@@ -27,13 +27,13 @@ class test_Fractals: XCTestCase {
     ]
 
     // append and use a discrete async cpu device for these tests
-    override func setUpWithError() throws {
-        log.level = .diagnostic
-    }
-
-    override func tearDownWithError() throws {
-        log.level = .error
-    }
+//    override func setUpWithError() throws {
+//        log.level = .diagnostic
+//    }
+//
+//    override func tearDownWithError() throws {
+//        log.level = .error
+//    }
 
     //--------------------------------------------------------------------------
     func test_Julia() {
@@ -96,7 +96,7 @@ class test_Fractals: XCTestCase {
         let Z = array(from: first, to: last, size)
         var divergence = full(size, iterations)
         
-        // 0.276s
+        // 0.284s
         measure {
             pmap(Z, &divergence, boundBy: .compute) {
                 juliaKernel(Z: $0, divergence: &$1, C, tolerance, iterations)
@@ -114,17 +114,15 @@ class test_Fractals: XCTestCase {
     _ tolerance: E,
     _ iterations: Int
 ) {
-    let message = diagnosticMessage(
+    let message =
         "julia(Z: \(Z.name), divergence: \(divergence.name), constant: \(C), " +
-            "tolerance: \(tolerance), iterations: \(iterations))")
+        "tolerance: \(tolerance), iterations: \(iterations))"
 
     kernel(Z, &divergence, message) {
         var Z = $0, d = $1
-        var i = E.zero
-        for _ in 0..<iterations {
+        for i in 0..<iterations {
             Z = Z * Z + C
-            if abs(Z) > tolerance { d = min(d, i) }
-            i += 1
+            if abs(Z) > tolerance { d = min(d, E.Value(exactly: i)!) }
         }
         return d
     }

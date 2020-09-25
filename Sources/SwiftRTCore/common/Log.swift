@@ -41,7 +41,7 @@ public protocol _Logging {
     /// - Parameter minCount: the minimum length of the message. If it exceeds
     ///   the actual message length, then trailing fill is used. This is used
     ///   mainly for creating message partitions i.e. "---------"
-    func writeLog(_ message: @autoclosure () -> String,
+    func writeLog(_ message: String,
                   level: LogLevel,
                   indent: Int,
                   trailing: String,
@@ -56,7 +56,7 @@ public protocol _Logging {
     ///   the actual message length, then trailing fill is used. This is used
     ///   mainly for creating message partitions i.e. "---------"
     func diagnostic(_ category: LogCategory,
-                    _ message: @autoclosure () -> String,
+                    _ message: String,
                     categories: LogCategories,
                     indent: Int,
                     trailing: String,
@@ -75,7 +75,7 @@ public extension _Logging {
     //--------------------------------------------------------------------------
     /// writeLog
     @inlinable func writeLog(
-        _ message: @autoclosure () -> String,
+        _ message: String,
         level: LogLevel = .error,
         indent: Int = 0,
         trailing: String = "",
@@ -83,7 +83,7 @@ public extension _Logging {
     ) {
         guard willLog(level: level) else { return }
         logWriter.write(level: level,
-                        message: message(),
+                        message: message,
                         nestingLevel: indent + logNestingLevel,
                         trailing: trailing, minCount: minCount)
     }
@@ -93,7 +93,7 @@ public extension _Logging {
     #if DEBUG
     @inlinable func diagnostic(
         _ category: LogCategory,
-        _ message: @autoclosure () -> String,
+        _ message: String,
         categories: LogCategories,
         indent: Int = 0,
         trailing: String = "",
@@ -106,27 +106,19 @@ public extension _Logging {
             categories.rawValue & mask == 0 { return }
         
         logWriter.write(level: .diagnostic,
-                        message: "\(category)\(message())",
+                        message: "\(category)\(message)",
                         nestingLevel: indent + logNestingLevel,
                         trailing: trailing, minCount: minCount)
     }
     #else
     @inlinable func diagnostic(
         _ category: LogCategory,
-        _ message: @autoclosure () -> String,
+        _ message: String,
         categories: LogCategories,
         indent: Int = 0,
         trailing: String = "",
         minCount: Int = 80) { }
     #endif
-}
-
-@inlinable public func diagnosticMessage(_ string: String) -> String {
-#if DEBUG
-return string
-#else
-return ""
-#endif
 }
 
 //==============================================================================
@@ -229,7 +221,7 @@ public protocol LogWriter: class {
     ///   the actual message length, then trailing fill is used. This is used
     ///   mainly for creating message partitions i.e. "---------"
     func write(level: LogLevel,
-               message: @autoclosure () -> String,
+               message: String,
                nestingLevel: Int,
                trailing: String,
                minCount: Int)
@@ -259,7 +251,7 @@ public extension LogWriter {
     /// write
     @inlinable
     func write(level: LogLevel,
-               message: @autoclosure () -> String,
+               message: String,
                nestingLevel: Int = 0,
                trailing: String = "",
                minCount: Int = 0) {
@@ -267,8 +259,6 @@ public extension LogWriter {
         queue.sync { [unowned self] in
             guard !self._silent else { return }
             
-            // create fixed width string for level column
-            let messageStr = message()
             // keep this on a separate line so that the start time
             // is initialized before we take the current time
             let startTime = Platform.startTime
@@ -276,12 +266,12 @@ public extension LogWriter {
             let levelStr = String(timeInterval: messageTime)
             let indent = String(repeating: " ",
                                 count: nestingLevel * self._tabSize)
-            var outputStr = levelStr + " " + indent + messageStr
+            var outputStr = levelStr + " " + indent + message
             
             // add trailing fill if desired
             if !trailing.isEmpty {
                 let fillCount = minCount - outputStr.count
-                if messageStr.isEmpty {
+                if message.isEmpty {
                     outputStr += String(repeating: trailing, count: fillCount)
                 } else {
                     if fillCount > 1 {

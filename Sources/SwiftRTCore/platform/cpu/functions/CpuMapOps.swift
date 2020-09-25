@@ -28,10 +28,8 @@ extension DeviceQueue {
     // caller defined generator
     @inlinable func mapOp<S,E>(
         _ output: inout Tensor<S,E>,
-        _ opName: @autoclosure () -> String,
         _ op: @escaping () -> E.Value
     ) {
-        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
         var out = output.mutableBuffer
 
         if mode == .sync {
@@ -49,10 +47,8 @@ extension DeviceQueue {
         from first: E.Value,
         to last: E.Value,
         by step: E.Value,
-        _ output: inout Tensor<S,E>,
-        _ opName: @autoclosure () -> String
+        _ output: inout Tensor<S,E>
     ) where E.Value: Numeric {
-        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
         func execute<O: MutableCollection>(
             _ out: O
@@ -88,10 +84,8 @@ extension DeviceQueue {
     // inplace
     @inlinable func mapOp<S,E>(
         _ output: inout Tensor<S,E>,
-        _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value) -> E.Value
     ) {
-        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
         var out = output.mutableBuffer
         
         if mode == .sync {
@@ -108,11 +102,8 @@ extension DeviceQueue {
     @inlinable func reduceAlongAxes<S,E,RE>(
         _ a: Tensor<S,E>,
         _ output: inout Tensor<S,RE>,
-        _ opName: @autoclosure () -> String,
         _ op: @escaping (RE.Value, E.Value) -> RE.Value
     ) {
-        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-
         func execute<A: Collection, O: MutableCollection>(
             _ a: A,
             _ out: O,
@@ -152,11 +143,8 @@ extension DeviceQueue {
     @inlinable public func mapOp<S,E,RE>(
         _ a: Tensor<S,E>,
         _ output: inout Tensor<S,RE>,
-        _ opName: String,
         _ op: @escaping (E.Value, RE.Value) -> RE.Value
     ) {
-        diagnostic(.queueCpu, "\(opName) on \(name)", categories: .queueCpu)
-        
         func execute<A: Collection, O: MutableCollection>(
             _ a: A,
             _ out: O,
@@ -197,11 +185,8 @@ extension DeviceQueue {
     @inlinable public func mapOp<S,E,RE>(
         _ a: Tensor<S,E>,
         _ output: inout Tensor<S,RE>,
-        _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value) -> RE.Value
     ) {
-        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-
         func execute<A: Collection, O: MutableCollection>(
             _ a: A,
             _ out: O,
@@ -243,12 +228,10 @@ extension DeviceQueue {
         _ a: Tensor<S,AE>,
         _ b: Tensor<S,BE>,
         _ output: inout Tensor<S,RE>,
-        _ opName: @autoclosure () -> String,
         _ op: @escaping (AE.Value, BE.Value) -> RE.Value
     ) {
         assert(a.order == b.order && a.order == output.order &&
                output.isContiguous, _messageOrdersMustMatch)
-        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
         func execute<A: Collection, B: Collection, O: MutableCollection>(
             _ a: A, _ b: B, _ out: O,
@@ -291,12 +274,10 @@ extension DeviceQueue {
         _ b: Tensor<S,E>,
         _ c: E.Value,
         _ output: inout Tensor<S,RE>,
-        _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value, E.Value, E.Value) -> RE.Value
     ) {
         assert(a.order == b.order && a.order == output.order &&
                output.isContiguous, _messageOrdersMustMatch)
-        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
         func execute<A: Collection, B: Collection, O: MutableCollection>(
             _ a: A, _ b: B, _ c: A.Element, _ out: O,
@@ -338,11 +319,8 @@ extension DeviceQueue {
         _ a: Tensor<S,E>,
         _ element: E.Value,
         _ output: inout Tensor<S,OE>,
-        _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value, E.Value) -> OE.Value
     ) {
-        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-
         func execute<A: Collection, O: MutableCollection>(
             _ a: A, _ elt: A.Element, _ out: O,
             _ op: @escaping (A.Element, A.Element) -> O.Element
@@ -370,11 +348,8 @@ extension DeviceQueue {
         _ element: E.Value,
         _ a: Tensor<S,E>,
         _ output: inout Tensor<S,OE>,
-        _ opName: @autoclosure () -> String,
         _ op: @escaping (E.Value, E.Value) -> OE.Value
     ) {
-        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
-
         func execute<A: Collection, O: MutableCollection>(
             _ elt: A.Element, _ a: A, _ out: O,
             _ op: @escaping (A.Element, A.Element) -> O.Element
@@ -403,12 +378,10 @@ extension DeviceQueue {
         _ b: Tensor<S,E1>,
         _ c: Tensor<S,E2>,
         _ output: inout Tensor<S,OE>,
-        _ opName: @autoclosure () -> String,
         _ op: @escaping (E0.Value, E1.Value, E2.Value) -> OE.Value
     ) {
         assert(a.order == b.order && a.order == c.order &&
                 a.order == output.order && output.isContiguous)
-        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
         func execute<A: Collection, B: Collection, C: Collection,
                      O: MutableCollection>(
@@ -469,12 +442,10 @@ extension DeviceQueue {
         _ c: Tensor<S,E2>,
         _ output1: inout Tensor<S,O1>,
         _ output2: inout Tensor<S,O2>,
-        _ opName: @autoclosure () -> String,
         _ op: @escaping (E0.Value, E1.Value, E2.Value) -> (O1.Value, O2.Value)
     ) {
         assert(a.isContiguous && b.isContiguous && c.isContiguous &&
                 output1.isContiguous && output2.isContiguous)
-        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
         func execute<A: Collection, B: Collection, C: Collection,
                      O1: MutableCollection, O2: MutableCollection>(
@@ -512,12 +483,10 @@ extension DeviceQueue {
         _ c: E2,
         _ output1: inout Tensor<S,O1>,
         _ output2: inout Tensor<S,O2>,
-        _ opName: @autoclosure () -> String,
         _ op: @escaping (E0.Value, E1.Value, E2) -> (O1.Value, O2.Value)
     ) {
         assert(a.isContiguous && b.isContiguous && 
                output1.isContiguous && output2.isContiguous)
-        diagnostic(.queueCpu, "\(opName()) on \(name)", categories: .queueCpu)
 
         func execute<A: Collection, B: Collection, C,
                      O1: MutableCollection, O2: MutableCollection>(
