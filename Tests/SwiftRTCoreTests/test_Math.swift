@@ -21,6 +21,7 @@ class test_Math: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_Complex", test_juliaMath),
         ("test_abs", test_abs),
         ("test_atan2", test_atan2),
         ("test_erf", test_erf),
@@ -32,15 +33,45 @@ class test_Math: XCTestCase {
     ]
 
     override func setUpWithError() throws {
-        // log.level = .diagnostic
+         log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
-        // log.level = .error
+         log.level = .error
     }
 
     //--------------------------------------------------------------------------
-    // test_abs
+    func test_juliaMath() {
+        typealias CF = Complex<Float>
+        let iterations = 3
+        let size = (5, 5)
+        let tolerance: Float = 4.0
+        let C = CF(-0.8, 0.156)
+        let first = CF(-1.7, 1.7)
+        let last = CF(1.7, -1.7)
+        
+        var Z = repeating(array(from: first, to: last, (1, size.1)), size)
+        print(Z)
+        XCTAssert(Z == [
+            [CF(-1.7, 1.7), CF(-0.85, 0.85), CF(0.0, 0.0), CF(0.85000014, -0.85000014), CF(1.7, -1.7)],
+            [CF(-1.7, 1.7), CF(-0.85, 0.85), CF(0.0, 0.0), CF(0.85000014, -0.85000014), CF(1.7, -1.7)],
+            [CF(-1.7, 1.7), CF(-0.85, 0.85), CF(0.0, 0.0), CF(0.85000014, -0.85000014), CF(1.7, -1.7)],
+            [CF(-1.7, 1.7), CF(-0.85, 0.85), CF(0.0, 0.0), CF(0.85000014, -0.85000014), CF(1.7, -1.7)],
+            [CF(-1.7, 1.7), CF(-0.85, 0.85), CF(0.0, 0.0), CF(0.85000014, -0.85000014), CF(1.7, -1.7)]
+        ])
+        
+        
+        var divergence = full(size, iterations)
+        XCTAssert(divergence == [
+            [3.0, 3.0, 3.0, 3.0, 3.0],
+            [3.0, 3.0, 3.0, 3.0, 3.0],
+            [3.0, 3.0, 3.0, 3.0, 3.0],
+            [3.0, 3.0, 3.0, 3.0, 3.0],
+            [3.0, 3.0, 3.0, 3.0, 3.0]
+        ])
+    }
+    
+    //--------------------------------------------------------------------------
     func test_abs() {
         // Int32 abs
         let a = array([-1, 2, -3, 4, -5], type: Int32.self)

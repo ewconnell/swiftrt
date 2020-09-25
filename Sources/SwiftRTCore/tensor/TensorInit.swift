@@ -223,7 +223,7 @@ public extension Tensor {
         name: String = defaultTensorName
     ) where TensorElement.Value: BinaryInteger {
         self.init(shape: shape, order: order, name: name)
-        let step = (last - first) / TensorElement.Value(exactly: count)!
+        let step = (last - first) / TensorElement.Value(exactly: count - 1)!
         currentQueue.fill(&self, from: first, to: last, by: step)
     }
 
@@ -235,7 +235,7 @@ public extension Tensor {
         name: String = defaultTensorName
     ) where TensorElement.Value: AlgebraicField {
         self.init(shape: shape, order: order, name: name)
-        let step = (last - first) / TensorElement.Value(exactly: count)!
+        let step = (last - first) / TensorElement.Value(exactly: count - 1)!
         currentQueue.fill(&self, from: first, to: last, by: step)
     }
 }
