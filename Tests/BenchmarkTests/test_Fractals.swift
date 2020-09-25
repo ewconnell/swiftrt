@@ -45,11 +45,11 @@ final class test_Fractals: XCTestCase {
         let C = Complex<Float>(-0.8, 0.156)
         let first = Complex<Float>(-1.7, 1.7)
         let last = Complex<Float>(1.7, -1.7)
-        
-        // repeat rows of real range, columns of imaginary range, and combine
         typealias CF = Complex<Float>
         let rFirst = CF(first.real, 0), rLast = CF(last.real, 0)
         let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
+
+        // repeat rows of real range, columns of imaginary range, and combine
         let Zr = repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
         let Zi = repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         var Z = Zr + Zi
@@ -57,7 +57,7 @@ final class test_Fractals: XCTestCase {
 
         let start = Date()
         
-        // 14.820s
+        // 12.816s
         for i in 0..<iterations {
             Z = multiply(Z, Z, add: C)
             divergence[abs(Z) .> tolerance] = min(divergence, i)
@@ -77,11 +77,11 @@ final class test_Fractals: XCTestCase {
         let C = Complex<Float>(-0.8, 0.156)
         let first = Complex<Float>(-1.7, 1.7)
         let last = Complex<Float>(1.7, -1.7)
-        
-        // repeat rows of real range, columns of imaginary range, and combine
         typealias CF = Complex<Float>
         let rFirst = CF(first.real, 0), rLast = CF(last.real, 0)
         let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
+
+        // repeat rows of real range, columns of imaginary range, and combine
         let Zr = repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
         let Zi = repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         let Z = Zr + Zi
@@ -108,17 +108,17 @@ final class test_Fractals: XCTestCase {
         let C = Complex<Float>(-0.8, 0.156)
         let first = Complex<Float>(-1.7, 1.7)
         let last = Complex<Float>(1.7, -1.7)
-        
-        // repeat rows of real range, columns of imaginary range, and combine
         typealias CF = Complex<Float>
         let rFirst = CF(first.real, 0), rLast = CF(last.real, 0)
         let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
+        
+        // repeat rows of real range, columns of imaginary range, and combine
         let Zr = repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
         let Zi = repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         let Z = Zr + Zi
         var divergence = full(size, iterations)
 
-        // 0.284s
+        // 0.259s
         measure {
             pmap(Z, &divergence, boundBy: .compute) {
                 juliaKernel(Z: $0, divergence: &$1, C, tolerance, iterations)
