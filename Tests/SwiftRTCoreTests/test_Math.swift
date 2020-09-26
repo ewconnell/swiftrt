@@ -33,11 +33,11 @@ class test_Math: XCTestCase {
     ]
 
     override func setUpWithError() throws {
-         log.level = .diagnostic
+//         log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
-         log.level = .error
+//         log.level = .error
     }
 
     //--------------------------------------------------------------------------
@@ -53,7 +53,7 @@ class test_Math: XCTestCase {
         let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
 
         // repeat rows of real range, columns of imaginary range, and combine
-        let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
+        var Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
                 repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         XCTAssert(Z == [
             [CF(-1.7, 1.7), CF(-0.85, 1.7), CF(0.0, 1.7), CF(0.85000014, 1.7), CF(1.7, 1.7)],
