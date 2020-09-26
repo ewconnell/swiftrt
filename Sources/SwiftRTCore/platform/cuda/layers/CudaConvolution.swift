@@ -144,11 +144,12 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
     @inlinable public override func forward(
         x: Data,
         filter: Filter,
-        bias: Bias
+        bias: Bias,
+        mode: EvaluationMode
     ) -> Data {
         // setup any time the input shape changes
         if x.shape != inputShape {
-            setupForward(x, filter, bias)
+            setupForward(x, filter, bias, mode)
         }
 
         cudaCheck(cudnnConvolutionBiasActivationForward(
@@ -197,7 +198,8 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
         bias: Bias,
         biasDiff: inout Bias,
         x: Data,
-        xDiff: inout Data
+        xDiff: inout Data,
+        mode: EvaluationMode
     ) {
         // data
         cudaCheck(cudnnConvolutionBackwardData(
@@ -267,7 +269,8 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
     @inlinable public func setupForward(
         _ x: Data,
         _ filter: Filter,
-        _ bias: Bias
+        _ bias: Bias,
+        _ mode: EvaluationMode
     ) {
         xTensorDescriptor = x.createTensorDescriptor()
         filterDescriptor = FilterDescriptor(filter)
@@ -305,7 +308,7 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
         yTensorDescriptor = x.createTensorDescriptor(asShape: yShape)
         selectForwardAlgorithm(x: x, properties: properties)
 
-        if Context.isTraining {
+        if mode == .training {
             selectBackwardAlgorithm(x: x, properties: properties)
         }
     }

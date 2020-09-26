@@ -196,7 +196,8 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
     @inlinable public func forward(
         x: Data,
         filter: Filter,
-        bias: Bias
+        bias: Bias,
+        mode: EvaluationMode
     ) -> Data {
         fatalError("abstract not implemented")
     }
@@ -219,7 +220,8 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
         bias: Bias,
         biasDiff: inout Bias,
         x: Data,
-        xDiff: inout Data
+        xDiff: inout Data,
+        mode: EvaluationMode
     ) {
         fatalError("abstract not implemented")
     }

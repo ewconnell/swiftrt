@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+#include "dispatchHelpers.h"
 #include "mathOps.h"
 #include "mathSupplemental.h"
 
@@ -74,7 +75,6 @@ MATHOP(Squared, squared)
 MATHOP2(Sub, subtract)
 MATHOP(Tan, tan)
 MATHOP(Tanh, tanh)
-
 
 //==============================================================================
 // Swift importable C interface functions

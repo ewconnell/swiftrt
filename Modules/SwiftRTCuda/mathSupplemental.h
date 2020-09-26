@@ -414,6 +414,11 @@ PROMOTED_BFLOAT162(sigmoid)
 // complex supplemental functions
 //==============================================================================
 
+template<typename T>
+__CUDA_HOSTDEVICE__ inline T abs(const Complex<T>& v) {
+    return sqrt(v.real() * v.real() + v.imaginary() * v.imaginary());
+} 
+
 //==============================================================================
 // add
 

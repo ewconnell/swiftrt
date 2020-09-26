@@ -45,7 +45,7 @@ public class CudaPlatform: ComputePlatform {
     // properties
     public var devices: [CudaDevice]
     public let logInfo: LogInfo
-    @inlinable public var name: String { "\(Self.self)" }
+    public let name: String
     public var queueStack: [CudaQueue]
 
     //-------------------------------------
@@ -86,12 +86,16 @@ public class CudaPlatform: ComputePlatform {
 
         //----------------------------
         // select first gpu queue 0 as default
+        name = "\(Self.self)"
+        logInfo = LogInfo(logWriter: log, logLevel: .error,
+                          namePath: name, nestingLevel: 0)
+                          
         if gpuDeviceCount > 0 {
             queueStack = [devices[1].queues[0]]
         } else {
+            queueStack = [Self.syncQueue]
             writeLog("There are no '\(self.name)' devices installed",
                      level: .warning)
-            queueStack = [Self.syncQueue]
         }
 
         diagnostic(.device, "default: \(queueStack[0].name)",

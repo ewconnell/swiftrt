@@ -106,7 +106,9 @@ where Shape: TensorShape,
     //--------------------------------------------------------------------------
     ///
     @inlinable public func callAsFunction(_ input: Data) -> Data {
-        convolutionOp.forward(x: input, filter: filter, bias: bias)
+        // TODO: just call as inferring for now
+        convolutionOp.forward(x: input, filter: filter, bias: bias,
+                              mode: .inferring)
     }
 }
 

@@ -187,3 +187,17 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
         }
     }
 }
+
+//==============================================================================
+extension CudaQueue {
+    @inlinable public func kernel<S,AE,RE>(
+        _ a: Tensor<S,AE>,
+        _ out: inout Tensor<S,RE>,
+        _ opName: String,
+        _ op: @escaping (AE.Value, RE.Value) -> RE.Value
+    ) {
+        guard useGpu else { cpu_kernel(a, &out, opName, op); return }
+        
+        cpuFallback(cudaErrorNotSupported) { $0.kernel(a, &out, opName, op) }
+    }
+}
