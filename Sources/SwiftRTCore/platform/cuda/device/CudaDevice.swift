@@ -41,7 +41,7 @@ public final class CudaDevice: ComputeDevice {
         // create queues
         if isCpu {
             // cpu device case
-            for i in 0..<Context.cpuQueueCount {
+            for i in 0..<Platform.cpuQueueCount {
                 queues.append(CudaQueue(deviceIndex: index,
                                         name: "\(name)_q\(i)",
                                         queueMode: .async,
@@ -49,7 +49,7 @@ public final class CudaDevice: ComputeDevice {
             }
         } else {
             // gpu device case
-            for i in 0..<Context.acceleratorQueueCount {
+            for i in 0..<Platform.acceleratorQueueCount {
                 queues.append(CudaQueue(deviceIndex: index,
                                         name: "\(name)_q\(i)",
                                         queueMode: .async,

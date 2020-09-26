@@ -114,7 +114,7 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
         // TODO: change this when devices have fixed collections of queues
         // initialization can create workspaces on the devices
         // associated with the queues, so we hold on to them
-        let defaultQueue = Context.currentQueue
+        let defaultQueue = currentQueue
         self.dataQueue = defaultQueue
         self.filterBiasBackQueue = defaultQueue
 

@@ -13,33 +13,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+import Foundation
 import SwiftRTCuda
 
 //==============================================================================
 /// CudaPlatform
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
-public class CudaPlatform: Platform {
+public class CudaPlatform: ComputePlatform {
     // types
     public typealias Storage = DiscreteStorage
     
+        // shared
+    public static let acceleratorQueueCount: Int = 0
+    public static var cpuQueueCount = 0
+    public static var discreteMemoryDeviceId: Int { 1 }
+    public static var eventId = AtomicCounter()
+    public static let local = CudaPlatform()
+    public static let mainThread = pthread_self()
+    public static var objectId = AtomicCounter()
+    public static var queueId = AtomicCounter()
+    public static let startTime = Date()
+    public static var lastRandomSeed: RandomSeed = generateRandomSeed()
+
+    //-------------------------------------
+    // for synchrnous execution and syncing with the app thread
+    public static let syncQueue =
+        CudaQueue(deviceIndex: 0, name: "appThread", 
+                  queueMode: .sync, useGpu: false)
+
     // properties
-    public static var defaultCpuQueueCount: Int = 1
-    public static var defaultAcceleratorQueueCount: Int = 2
-    public var discreteMemoryDeviceId: Int = 1
     public var devices: [CudaDevice]
     public let logInfo: LogInfo
-    public let name: String
+    @inlinable public var name: String { "\(Self.self)" }
     public var queueStack: [CudaQueue]
-    public let appThreadQueue: CudaQueue
+
+    //-------------------------------------
+    // HACK for AD
+    /// a storage buffer with a single zero value which is shared
+    /// every time Element.zero is obtained by AD.
+    // used to minimize AD overhead. AD needs to fix this problem.
+    public static let zeroStorage: Storage = {
+        Storage(storedElement: Int64(0), name: "Zero")
+    }()
 
     //--------------------------------------------------------------------------
     // initializer
     @inlinable public init() {
-        name = "\(Self.self)"
-        logInfo = LogInfo(logWriter: Context.log, logLevel: .error,
-                          namePath: name, nestingLevel: 0)
-                          
         //----------------------------
         // CudaDevice is overloaded to avoid using Swift existentials
         // to support both cpu and gpu operations.
@@ -47,16 +67,10 @@ public class CudaPlatform: Platform {
         let cpuDevice = CudaDevice(index: 0)
         devices = [cpuDevice]
 
-        appThreadQueue = CudaQueue(deviceIndex: 0,
-                              name: "appThread",
-                              queueMode: .sync,
-                              useGpu: false)
-
-
         // if the cpu queue count is 0 then at least add in
         // the appThreadQueue so there is something to work with
         if devices[0].queues.count == 0 {
-            devices[0].queues.append(appThreadQueue)
+            devices[0].queues.append(Self.syncQueue)
         }            
 
         //----------------------------
@@ -77,7 +91,7 @@ public class CudaPlatform: Platform {
         } else {
             writeLog("There are no '\(self.name)' devices installed",
                      level: .warning)
-            queueStack = [appThreadQueue]
+            queueStack = [Self.syncQueue]
         }
 
         diagnostic(.device, "default: \(queueStack[0].name)",
@@ -91,16 +105,16 @@ public class CudaPlatform: Platform {
 /// is logged and the fallback body is executed.
 @inlinable public func cpuFallback(
     _ status: cudaError_t,
-    _ body: (PlatformType.Device.Queue) -> Void
+    _ body: (Platform.Device.Queue) -> Void
 ) {
     if status == cudaErrorNotSupported {
-        let name = Context.currentQueue.deviceName
+        let name = currentQueue.deviceName
         using(device: 0) {
-            Context.currentQueue.diagnostic(.fallback,
+            currentQueue.diagnostic(.fallback,
                 "unsupported function on \(name) " +
-                "delegated to \(Context.currentQueue.name)",
+                "delegated to \(currentQueue.name)",
                  categories: .fallback) 
-            body(Context.currentQueue)
+            body(currentQueue)
         }
     } else {
         cudaCheck(status)
@@ -122,7 +136,7 @@ public class CudaPlatform: Platform {
         let location = "CUDA error in \(file) at \(function):\(line)"
         let message = String(utf8String: cudaGetErrorString(status))!
         cudaDeviceReset()
-        Context.currentQueue.writeLog("\(message) at \(location)")
+        currentQueue.writeLog("\(message) at \(location)")
         fatalError("unrecoverable error")
     }
 #endif
@@ -140,7 +154,7 @@ public class CudaPlatform: Platform {
         let location = "CUDA error in \(file) at \(function):\(line)"
         let message = String(utf8String: cudaGetErrorString(status))!
         cudaDeviceReset()
-        Context.currentQueue.writeLog("\(message) at \(location)")
+        currentQueue.writeLog("\(message) at \(location)")
         fatalError("unrecoverable error")
     }
 }
@@ -158,7 +172,7 @@ public class CudaPlatform: Platform {
         let message = String(utf8String: cudnnGetErrorString(status))!
         print(message)
         cudaDeviceReset()
-        Context.currentQueue.writeLog("\(message) at \(location)")
+        currentQueue.writeLog("\(message) at \(location)")
         fatalError("unrecoverable error")
     }
 }
@@ -175,7 +189,7 @@ public class CudaPlatform: Platform {
         let location = "CUBLAS error in \(file) at \(function):\(line)"
         let message = String(utf8String: cublasGetErrorString(status))!
         cudaDeviceReset()
-        Context.currentQueue.writeLog("\(message) at \(location)")
+        currentQueue.writeLog("\(message) at \(location)")
         fatalError("unrecoverable error")
     }
 }

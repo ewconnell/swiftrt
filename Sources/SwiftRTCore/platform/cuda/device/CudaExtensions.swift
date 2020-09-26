@@ -22,7 +22,7 @@ import Numerics
 /// for use during a driver call
 extension Tensor {
     @inlinable public func withTensor<Result>(
-        using queue: PlatformType.Device.Queue,
+        using queue: Platform.Device.Queue,
         _ body: (UnsafeRawPointer, UnsafePointer<srtTensorDescriptor>) -> Result
     ) -> Result {
         let deviceDataPointer = deviceRead(using: queue)
@@ -52,7 +52,7 @@ extension Tensor {
     }
 
     @inlinable public mutating func withMutableTensor<Result>(
-        using queue: PlatformType.Device.Queue,
+        using queue: Platform.Device.Queue,
         _ body: (UnsafeMutableRawPointer, UnsafePointer<srtTensorDescriptor>) -> Result
     ) -> Result {
         let deviceDataPointer = deviceReadWrite(using: queue)

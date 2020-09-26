@@ -55,7 +55,7 @@ extension MatmulAlgorithm {
         scaleType: srtDataType,
         preferences: MatmulPreferences,
         maxResultCount: Int = 20,
-        using queue: PlatformType.Device.Queue
+        using queue: Platform.Device.Queue
     )  -> MatmulProperties {
         // TODO: figure out what scaleType depends on to expose properly
         let operation = MatmulOperation(accumulatorType: accumulatorType, 
@@ -131,7 +131,7 @@ extension MatmulAlgorithm {
         maxAlgorithmsToTest: Int = 100,
         maxTestVariations: Int = 100,
         timingRepeats: Int = 10,
-        using queue: PlatformType.Device.Queue = Context.currentQueue
+        using queue: Platform.Device.Queue = currentQueue
     ) -> MatmulProperties {
         // var combinationCount = 0
         // let splitKs = [2, 3, 4, 5, 6, 8, 12, 16, 32]

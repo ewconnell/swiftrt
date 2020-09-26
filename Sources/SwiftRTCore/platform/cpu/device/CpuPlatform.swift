@@ -60,7 +60,7 @@ public final class CpuPlatform: ComputePlatform {
     }()
 
     //--------------------------------------------------------------------------
-    @inlinable public init(queueCount: Int = Platform.cpuQueueCount) {
+    @inlinable public init(queueCount: Int = CpuPlatform.cpuQueueCount) {
         // create the device and default number of async queues
         devices = [CpuDevice(index: 0, memoryType: .unified,
                              queueCount: queueCount)]

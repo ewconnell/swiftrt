@@ -49,13 +49,12 @@ class test_Math: XCTestCase {
         let C = CF(-0.8, 0.156)
         let first = CF(-1.7, 1.7)
         let last = CF(1.7, -1.7)
-
-        // repeat rows of real range, columns of imaginary range, and combine
         let rFirst = CF(first.real, 0), rLast = CF(last.real, 0)
         let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
-        let Zr = repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-        let Zi = repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-        var Z = Zr + Zi
+
+        // repeat rows of real range, columns of imaginary range, and combine
+        let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
+                repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         XCTAssert(Z == [
             [CF(-1.7, 1.7), CF(-0.85, 1.7), CF(0.0, 1.7), CF(0.85000014, 1.7), CF(1.7, 1.7)],
             [CF(-1.7, 0.85), CF(-0.85, 0.85), CF(0.0, 0.85), CF(0.85000014, 0.85), CF(1.7, 0.85)],

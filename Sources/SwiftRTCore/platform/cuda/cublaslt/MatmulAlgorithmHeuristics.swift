@@ -39,7 +39,7 @@ public struct MatmulAlgorithmHeuristicResult: CustomStringConvertible
         layoutC: MatrixLayout,
         layoutD: MatrixLayout,
         algorithm: MatmulAlgorithm,
-        using queue: PlatformType.Device.Queue = Context.currentQueue
+        using queue: Platform.Device.Queue = currentQueue
     ) {
         var temp = cublasLtMatmulHeuristicResult_t()
         cudaCheck(cublasLtMatmulAlgoCheck(

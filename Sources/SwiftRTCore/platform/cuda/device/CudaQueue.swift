@@ -45,7 +45,7 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
         queueMode: DeviceQueueMode,
         useGpu: Bool
     ) {
-        self.id = Context.nextQueueId
+        self.id = Platform.queueId.next
         self.name = name
         self.deviceIndex = deviceIndex
         self.gpuId = Swift.max(0, deviceIndex - 1)

@@ -21,7 +21,7 @@ import SwiftRTCuda
 /// An event that is recorded on a device queue, which will block
 /// the caller until signaled when it's position in the queue has been reached
 public class CudaEvent: QueueEvent, Logging {
-    public let id = Context.nextEventId
+    public let id = Platform.eventId.next
     // used to synchronize with a cpu async queue
     @usableFromInline let cpuEvent: DispatchSemaphore
     // used to synchronize with a cuda stream

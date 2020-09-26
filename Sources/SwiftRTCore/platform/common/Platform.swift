@@ -38,17 +38,6 @@ public protocol ComputePlatform: class, Logging {
     associatedtype Device: ComputeDevice
     associatedtype Storage: StorageBuffer
 
-    /// the instance of the platform to use for the calling thread
-    /// Currently a single instance is shared across all threads. The main
-    /// thread can perform work on the cpu synchronous queue, or schedule
-    /// work on one or more asynchronous queues. In the async case, expressions
-    /// are evaluated and added to an async queue using the main thread.
-    /// If the application creates another thread (via an async closure) and
-    /// evaluates an expression, it will use the platform's synchrnous queue.
-    /// This variable is defined to enable per thread platform instances
-    /// in the future if desired.
-    static var local: Self { get }
-
     //--------------------------------------------------------------------------
     // shared state
     /// returns an id to a discrete memory device to support unit tests

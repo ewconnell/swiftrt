@@ -35,7 +35,7 @@ public final class MatmulAlgorithm: CustomStringConvertible
         bType: srtDataType,
         cType: srtDataType,
         dType: srtDataType,
-        using queue: PlatformType.Device.Queue = Context.currentQueue
+        using queue: Platform.Device.Queue = currentQueue
     ) {
         assert(cType == dType, "must be equal for now")
         desc = cublasLtMatmulAlgo_t()
@@ -63,7 +63,7 @@ public final class MatmulAlgorithm: CustomStringConvertible
         bType: srtDataType,
         cType: srtDataType,
         dType: srtDataType,
-        using queue: PlatformType.Device.Queue = Context.currentQueue
+        using queue: Platform.Device.Queue = currentQueue
     ) -> [Int] {
         assert(cType == dType, "must be equal for now")
         var tempIds = [Int32](repeating: 0, count: maxIds)

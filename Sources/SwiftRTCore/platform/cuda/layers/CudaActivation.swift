@@ -42,7 +42,7 @@ where Shape: TensorShape, Element: StorageElement & FloatingPoint
         nan: NanPropagation,
         reluCeiling: Double = 0
     ) {
-        deviceQueue = Context.currentQueue
+        deviceQueue = currentQueue
         inputShape = Shape.zero
         
         activationDescriptor = ActivationDescriptor(

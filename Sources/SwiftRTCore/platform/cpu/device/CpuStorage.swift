@@ -28,7 +28,7 @@ public final class CpuStorage: StorageBuffer {
     public var isZero: Bool
     
     /// the last queue used to write storage
-    public var lastQueue: CpuQueue?
+    public var lastQueue: Platform.Device.Queue?
 
     @usableFromInline var _name: String = defaultTensorName
     @inlinable public var name: String {
