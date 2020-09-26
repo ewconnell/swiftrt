@@ -89,6 +89,15 @@ endif()
 #        )
 #endif()
 
+# thread sanitizer
+#set(SWIFT_CONFIG_FLAGS ${SWIFT_CONFIG_FLAGS} -Xcc -fsanitize=thread -Xcc -g -Xcc -fno-omit-frame-pointer -Xlinker -ltsan)
+
+# address sanitizer
+#set(SWIFT_CONFIG_FLAGS ${SWIFT_CONFIG_FLAGS} -Xcc -fsanitize=address -Xcc -fno-omit-frame-pointer -Xcc -g  -Xcc -O1 -Xlinker -lasan)
+
+# memory sanitizer
+#set(SWIFT_CONFIG_FLAGS ${SWIFT_CONFIG_FLAGS} -Xcc -fsanitize=memory -Xcc -fsanitize-memory-track-origins -Xcc -fno-omit-frame-pointer -Xcc -g  -Xcc -O1 -Xlinker -lmsan)
+
 #####################
 # SwiftRT module
 set(SWIFTRT_NAME SwiftRT)
