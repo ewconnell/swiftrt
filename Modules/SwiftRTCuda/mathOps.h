@@ -23,6 +23,12 @@
 extern "C" {
 #endif
 
+cudaError_t srtGreater(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* b, const srtTensorDescriptor* bDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
 //==============================================================================
 //
 cudaError_t srtAbs(

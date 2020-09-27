@@ -21,20 +21,7 @@
 #include <type_traits>
 #include "kernels.h"
 #include "complex.h"
-
-//==============================================================================
-// supplemental logical types
-//==============================================================================
-struct bool2 {
-    bool b0, b1;
-    bool2(bool v0, bool v1) { b0 = v0; b1 = v1; }
-};
-
-struct bool4 {
-    bool b0, b1, b2, b3;
-    bool4(bool v0, bool v1, bool v2, bool v3) { b0 = v0; b1 = v1; b2 = v2; b3 = v3; }
-    bool4(unsigned v) { *this = v; }
-};
+#include "types.h"
 
 //==============================================================================
 // OpBase operator base to express input and out types

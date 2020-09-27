@@ -44,11 +44,11 @@ cudaError_t srtEqual(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
-cudaError_t srtGreater(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream);
+// cudaError_t srtGreater(
+//     const void* a, const srtTensorDescriptor* aDesc,
+//     const void* b, const srtTensorDescriptor* bDesc,
+//     void* out, const srtTensorDescriptor* oDesc,
+//     cudaStream_t stream);
 
 cudaError_t srtGreaterTE(
     const void* a, const srtTensorDescriptor* aDesc,

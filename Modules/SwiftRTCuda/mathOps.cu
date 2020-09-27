@@ -109,15 +109,15 @@ cudaError_t srtAcosh(
     return selectFloating<Acosh>(a, aDesc, out, oDesc, stream);
 }
 
-cudaError_t srtAdd(
-    const void* a, const srtTensorDescriptor* paDesc,
-    const void* b, const srtTensorDescriptor* pbDesc,
-    void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream
-) {
-    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return selectNumeric<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
-}
+// cudaError_t srtAdd(
+//     const void* a, const srtTensorDescriptor* paDesc,
+//     const void* b, const srtTensorDescriptor* pbDesc,
+//     void* out, const srtTensorDescriptor* poDesc,
+//     cudaStream_t stream
+// ) {
+//     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+//     return selectNumeric<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
+// }
 
 cudaError_t srtAddTE(
     const void* a, const srtTensorDescriptor* aDesc,

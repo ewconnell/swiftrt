@@ -18,6 +18,13 @@
 #include "mathSupplemental.h"
 #include <type_traits>
 
+//------------------------------------------------------------------------------
+// greaterElements
+template<typename T>
+__device__ inline bool greaterElements(const T& a, const T& b) {
+    return a > b;
+}
+
 
 //==============================================================================
 // Swift importable C interface functions
@@ -31,7 +38,7 @@ cudaError_t srtAbs(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectA<Abs>(a, aDesc, out, oDesc, stream);
+    return select<Abs>(a, aDesc, out, oDesc, stream);
 }
 
 FloatOpA(Acos, acos)
@@ -43,5 +50,29 @@ cudaError_t srtAcos(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectA<Acos>(a, aDesc, out, oDesc, stream);
+    return select<Acos>(a, aDesc, out, oDesc, stream);
+}
+
+IntFloatComplexOpAB(Add, add)
+
+cudaError_t srtAdd(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    return select<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
+}
+
+IntFloatComplexOpAB(Greater, greaterElements)
+
+cudaError_t srtGreater(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    return select<Greater>(a, aDesc, b, bDesc, out, oDesc, stream);
 }

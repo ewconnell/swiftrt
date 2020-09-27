@@ -92,14 +92,14 @@ cudaError_t srtEqual(
     return cudaErrorNotSupported;
 }
 
-cudaError_t srtGreater(
-    const void* a, const srtTensorDescriptor* paDesc,
-    const void* b, const srtTensorDescriptor* pbDesc,
-    void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream
-) {
-    return cudaErrorNotSupported;
-}
+// cudaError_t srtGreater(
+//     const void* a, const srtTensorDescriptor* paDesc,
+//     const void* b, const srtTensorDescriptor* pbDesc,
+//     void* out, const srtTensorDescriptor* poDesc,
+//     cudaStream_t stream
+// ) {
+//     return cudaErrorNotSupported;
+// }
 
 cudaError_t srtGreaterTE(
     const void* a, const srtTensorDescriptor* aDesc,
