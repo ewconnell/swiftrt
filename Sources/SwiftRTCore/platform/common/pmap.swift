@@ -15,6 +15,10 @@
 //
 import Foundation
 
+public enum PmapBound {
+    case compute, bandwidth
+}
+
 //==============================================================================
 /// pmap
 ///
@@ -23,7 +27,7 @@ import Foundation
     _ t1: inout Tensor<S1,E1>, axis axis1: Int = 0,
     _ partitions: Int? = nil,
     devices: [Int]? = nil,
-    boundBy: PmapBound = .bandwidth,
+    limitedBy: PmapBound = .bandwidth,
     _ body: @escaping (inout Tensor<S0,E0>, inout Tensor<S1,E1>) -> Void
 ) {
     // create shared mutable views
@@ -33,18 +37,18 @@ import Foundation
     // If not specified, then for bandwidth bound problems use the number
     // of physical cores, otherwise for compute bound problems use
     // the number of threads
-    let partitions = partitions ?? {
-        boundBy == .compute ?
+    let partitions = min(partitions ?? {
+        limitedBy == .compute ?
             ProcessInfo.processInfo.activeProcessorCount :
             ProcessInfo.processInfo.activeProcessorCount / 2
-    }()
-    assert(t0.shape[axis0] / partitions != 0, "too many partions")
+    }(), t0.shape[axis0])
 
     // execute partition
     func execute(_ p0: inout Tensor<S0,E0>, _ p1: inout Tensor<S1,E1>) {
         var tp0 = p0
         var tp1 = p1
         body(&tp0, &tp1)
+        Thread.sleep(forTimeInterval: 0.1)
         p0.assign(tp0)
         p1.assign(tp1)
     }
@@ -62,10 +66,6 @@ import Foundation
         }
         group.wait()
     }
-}
-
-public enum PmapBound {
-    case compute, bandwidth
 }
 
 //==============================================================================
