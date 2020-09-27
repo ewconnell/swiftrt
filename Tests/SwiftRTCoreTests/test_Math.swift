@@ -21,7 +21,7 @@ class test_Math: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_Complex", test_juliaMath),
+        ("test_juliaMath", test_juliaMath),
         ("test_abs", test_abs),
         ("test_atan2", test_atan2),
         ("test_erf", test_erf),
@@ -33,7 +33,8 @@ class test_Math: XCTestCase {
     ]
 
     override func setUpWithError() throws {
-//         log.level = .diagnostic
+        log.level = .diagnostic
+        use(device: 1)
     }
 
     override func tearDownWithError() throws {

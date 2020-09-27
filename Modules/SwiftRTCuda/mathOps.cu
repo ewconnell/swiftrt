@@ -37,8 +37,8 @@ template<typename T> struct OpName: OpBase<T,T> { \
 }; \
 
 MATHOP2(Add, add)
-MATHOP(Abs, abs)
-MATHOP(Acos, acos)
+// MATHOP(Abs, abs)
+// MATHOP(Acos, acos)
 MATHOP(Acosh, acosh)
 MATHOP(Asin, asin)
 MATHOP(Asinh, asinh)
@@ -81,24 +81,24 @@ MATHOP(Tanh, tanh)
 //==============================================================================
 
 // All types
-cudaError_t srtAbs(
-    const void* a, const srtTensorDescriptor* paDesc,
-    void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream)
-{
-    Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectIntFloating<Abs>(a, aDesc, out, oDesc, stream);
-}
+// cudaError_t srtAbs(
+//     const void* a, const srtTensorDescriptor* paDesc,
+//     void* out, const srtTensorDescriptor* poDesc,
+//     cudaStream_t stream)
+// {
+//     Cast2TensorDescriptorsA(paDesc, poDesc)
+//     return selectIntFloating<Abs>(a, aDesc, out, oDesc, stream);
+// }
 
-// Must be promoted types
-cudaError_t srtAcos(
-    const void* a, const srtTensorDescriptor* paDesc,
-    void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream)
-{
-    Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectFloating<Acos>(a, aDesc, out, oDesc, stream);
-}
+// // Must be promoted types
+// cudaError_t srtAcos(
+//     const void* a, const srtTensorDescriptor* paDesc,
+//     void* out, const srtTensorDescriptor* poDesc,
+//     cudaStream_t stream)
+// {
+//     Cast2TensorDescriptorsA(paDesc, poDesc)
+//     return selectFloating<Acos>(a, aDesc, out, oDesc, stream);
+// }
 
 cudaError_t srtAcosh(
     const void* a, const srtTensorDescriptor* paDesc,

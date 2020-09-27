@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 project(swiftrt)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 #####################
 # output directories
 string(TOLOWER "${CMAKE_BUILD_TYPE}" SWIFT_BUILD_TYPE)
