@@ -1,3 +1,0 @@
-module AsyncCpu {
-    header "AsyncCpu.h"
-}

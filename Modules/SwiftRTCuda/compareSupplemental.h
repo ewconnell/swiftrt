@@ -50,13 +50,6 @@ __device__ inline bool4 orElements(const bool4& a, const bool4& b) {
 
 //------------------------------------------------------------------------------
 // equalElements
-// __device__ inline uchar2 operator==(const __half2& a, const __half2& b) {
-//     uchar2 out;
-//     out.x = a.x == b.x;
-//     out.y = a.y == b.y;
-//     return out;    
-// }
-
 __device__ inline bool2 equalElements(const __nv_bfloat162& a, const __nv_bfloat162& b) {
     return bool2(a.x == b.x, a.y == b.y);    
 }
@@ -71,5 +64,74 @@ __device__ inline bool equalElements(const T& a, const T& b) {
     return a == b;
 }
 
+//------------------------------------------------------------------------------
+// notEqualElements
+__device__ inline bool2 notEqualElements(const __nv_bfloat162& a, const __nv_bfloat162& b) {
+    return bool2(a.x != b.x, a.y != b.y);    
+}
+
+__device__ inline bool4 notEqualElements(const char4& a, const char4& b) {
+    const auto out = __vcmpeq4(UINT_CREF(a), UINT_CREF(b)) - 1;
+    return CAST(bool4, out);
+}
+
+template<typename T>
+__device__ inline bool notEqualElements(const T& a, const T& b) {
+    return a != b;
+}
+
+//------------------------------------------------------------------------------
+template<typename T>
+__device__ inline bool greaterElements(const T& a, const T& b) {
+    return a > b;
+}
+
+//------------------------------------------------------------------------------
+template<typename T>
+__device__ inline bool greaterOrEqualElements(const T& a, const T& b) {
+    return a >= b;
+}
+
+//------------------------------------------------------------------------------
+template<typename T>
+__device__ inline bool lessElements(const T& a, const T& b) {
+    return a < b;
+}
+
+//------------------------------------------------------------------------------
+__device__ inline bool2 lessOrEqualElements(const __nv_bfloat162& a, const __nv_bfloat162& b) {
+    return bool2(a.x <= b.x, a.y <= b.y);
+}
+
+template<typename T>
+__device__ inline bool lessOrEqualElements(const T& a, const T& b) {
+    return a <= b;
+}
+
+//------------------------------------------------------------------------------
+template<typename T>
+__device__ inline T minElements(const T& a, const T& b) {
+    return a <= b ? a : b;
+}
+
+__device__ inline __nv_bfloat162 minElements(const __nv_bfloat162& a, const __nv_bfloat162& b) {
+    __nv_bfloat162 v;
+    v.x = a.x <= b.x ? a.x : b.x;
+    v.y = a.y <= b.y ? a.y : b.y;
+    return v;
+}
+
+//------------------------------------------------------------------------------
+template<typename T>
+__device__ inline T maxElements(const T& a, const T& b) {
+    return a > b ? a : b;
+}
+
+__device__ inline __nv_bfloat162 maxElements(const __nv_bfloat162& a, const __nv_bfloat162& b) {
+    __nv_bfloat162 v;
+    v.x = a.x > b.x ? a.x : b.x;
+    v.y = a.y > b.y ? a.y : b.y;
+    return v;
+}
 
 #endif // compareSupplemental_h

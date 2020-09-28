@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef types_h
-#define types_h
+#ifndef srttypes_h
+#define srttypes_h
 
 //==============================================================================
 // supplemental logical types
