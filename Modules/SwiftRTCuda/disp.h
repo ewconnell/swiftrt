@@ -26,95 +26,59 @@
 #include "types.h"
 
 //==============================================================================
-// A --> Out
-#define IntOpA(OpName, name) \
-template<typename T, typename O> struct OpName { \
-    typedef T A; typedef O Out; \
-    __device__ inline static void op(const A& a, O& out) { \
-        if constexpr (std::is_same<T,O>::value && std::is_integral<T>::value) { \
-            out = name(a); \
-        } \
-    } \
-};
+// conformance helpers
+template<typename A, typename O>
+inline constexpr auto isSame() {
+    return std::is_same<A,O>::value;
+}
 
-#define FloatOpA(OpName, name) \
-template<typename T, typename O> struct OpName { \
-    typedef T A; typedef O Out; \
-    __device__ inline static void op(const A& a, O& out) { \
-        if constexpr (std::is_same<T,O>::value && std::is_floating_point<T>::value) { \
-            out = name(a); \
-        } \
-    } \
-};
+template<typename A>
+inline constexpr auto isInteger() {
+    return std::is_integral<A>::value;
+}
 
-#define IntFloatOpA(OpName, name) \
-template<typename T, typename O> struct OpName { \
-    typedef T A; typedef O Out; \
-    __device__ inline static void op(const A& a, O& out) { \
-        if constexpr (std::is_same<T,O>::value && \
-            (std::is_integral<T>::value || std::is_floating_point<T>::value) { \
-            out = name(a); \
-        } \
-    } \
-};
+template<typename A>
+inline constexpr auto isFloating() {
+    return std::is_floating_point<A>::value;
+}
 
-#define IntFloatComplexOpA(OpName, name) \
-template<typename T, typename O> struct OpName { \
-    typedef T A; typedef O Out; \
-    __device__ inline static void op(const A& a, O& out) { \
-        if constexpr (std::is_same<T,O>::value && (std::is_integral<T>::value || \
-                      std::is_floating_point<T>::value)) { \
-            out = name(a); \
-        } else if constexpr (std::is_same<T,Complex<float>>::value) { \
-            out = name(a); \
-        } \
-    } \
-};
+template<typename A>
+inline constexpr auto isComplex() {
+    return std::is_same<A, Complex<float>>::value;
+}
+
+template<typename A>
+inline constexpr auto isBool() {
+    return std::is_same<A,bool>::value;
+}
+
+template<typename A>
+inline constexpr auto isNumeric() {
+    return isInteger<A>() || isFloating<A>() || isComplex<A>();
+}
+
+template<typename A>
+inline constexpr auto isSignedNumeric() {
+    return isNumeric<A>() && std::is_signed<A>::value;
+}
 
 //==============================================================================
-// AB --> Out
-#define IntOpAB(OpName, name) \
+// operator macros
+#define OpT(OpName, name, conformance) \
 template<typename T, typename O> struct OpName { \
-    typedef T A; typedef T B; typedef O Out; \
-    __device__ inline static void op(const A& a, const B& b, O& out) { \
-        if constexpr (std::is_same<T,O>::value && std::is_integral<T>::value) { \
-            out = name(a, b); \
-        } \
+    typedef T A; typedef O Out; \
+    constexpr static bool conforms() { return (conformance); } \
+    __device__ inline static void op(const A& a, O& out) { \
+        if constexpr (conforms()) out = name(a); \
     } \
 };
 
-#define FloatOpAB(OpName, name) \
+#define OpTT(OpName, name, conformance) \
 template<typename T, typename O> struct OpName { \
     typedef T A; typedef T B; typedef O Out; \
+    constexpr static bool conforms() { return (conformance); } \
     __device__ inline static void op(const A& a, const B& b, O& out) { \
-        if constexpr (std::is_same<T,O>::value && std::is_floating_point<T>::value) { \
-            out = name(a, b); \
-        } \
-    } \
-};
-
-#define IntFloatOpAB(OpName, name) \
-template<typename T, typename O> struct OpName { \
-    typedef T A; typedef T B; typedef O Out; \
-    __device__ inline static void op(const A& a, const B& b, O& out) { \
-        if constexpr (std::is_same<T,O>::value && \
-            (std::is_integral<T>::value || std::is_floating_point<T>::value) { \
-            out = name(a, b); \
-        } \
-    } \
-};
-
-#define IntFloatComplexOpAB(OpName, name) \
-template<typename T, typename O> struct OpName { \
-    typedef T A; typedef T B; typedef O Out; \
-    __device__ inline static void op(const A& a, const B& b, O& out) { \
-        if constexpr (std::is_integral<T>::value || std::is_floating_point<T>::value) { \
-            if constexpr (std::is_same<T,O>::value || std::is_same<O,bool>::value) { \
-                out = name(a, b); \
-            } \
-        } else if constexpr (std::is_same<T,Complex<float>>::value) { \
-            out = name(a, b); \
-        } \
+        if constexpr (conforms()) out = name(a, b); \
     } \
 };
 
@@ -233,17 +197,19 @@ static cudaError_t flattenedNew(
     cudaStream_t stream,
     int shiftCount = 0
 ) {
-    const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+    if constexpr (Op::conforms()) {
+        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
+        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
 
-    // get tile and grid size for launch
-    int packedCount = shiftDownRoundingUpNew(oDesc.count, shiftCount);
-    dim3 tile = tileSizeNew(packedCount);
-    dim3 grid = gridSizeNew<1>(oDesc, tile);
+        // get tile and grid size for launch
+        int packedCount = shiftDownRoundingUpNew(oDesc.count, shiftCount);
+        dim3 tile = tileSizeNew(packedCount);
+        dim3 grid = gridSizeNew<1>(oDesc, tile);
 
-    mapANew<Op,Flat,Flat><<<grid, tile, 0, stream>>>(a, Flat(aDesc), out, Flat(oDesc));
-
-    return cudaSuccess;
+        mapANew<Op,Flat,Flat><<<grid, tile, 0, stream>>>(a, Flat(aDesc), out, Flat(oDesc));
+        return cudaSuccess;
+    }
+    return cudaErrorNotSupported;
 }
 
 //------------------------------------------------------------------------------
@@ -256,18 +222,20 @@ static cudaError_t flattenedNew(
     cudaStream_t stream,
     int shiftCount = 0
 ) {
-    const typename Op::In* a = static_cast<const typename Op::In*>(pA);
-    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+    if constexpr (Op::conforms()) {
+        const typename Op::In* a = static_cast<const typename Op::In*>(pA);
+        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
 
-    // get tile and grid size for launch
-    int packedCount = shiftDownRoundingUpNew(oDesc.count, shiftCount);
-    dim3 tile = tileSizeNew(packedCount);
-    dim3 grid = gridSizeNew<1>(oDesc, tile);
+        // get tile and grid size for launch
+        int packedCount = shiftDownRoundingUpNew(oDesc.count, shiftCount);
+        dim3 tile = tileSizeNew(packedCount);
+        dim3 grid = gridSizeNew<1>(oDesc, tile);
 
-    mapAScalarNew<Op,Scalar,Flat,Flat>
-        <<<grid, tile, 0, stream>>>(a, Flat(aDesc), value, out, Flat(oDesc));
-
-    return cudaSuccess;
+        mapAScalarNew<Op,Scalar,Flat,Flat>
+            <<<grid, tile, 0, stream>>>(a, Flat(aDesc), value, out, Flat(oDesc));
+        return cudaSuccess;
+    }
+    return cudaErrorNotSupported;
 }
 
 //------------------------------------------------------------------------------
@@ -280,19 +248,21 @@ static cudaError_t flattenedNew(
     cudaStream_t stream,
     int shiftCount = 0
 ) {
-    const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-    const typename Op::B* b = static_cast<const typename Op::B*>(pB);
-    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+    if constexpr (Op::conforms()) {
+        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
+        const typename Op::B* b = static_cast<const typename Op::B*>(pB);
+        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
 
-    // get tile and grid size for launch
-    int packedCount = shiftDownRoundingUpNew(oDesc.count, shiftCount);
-    dim3 tile = tileSizeNew(packedCount);
-    dim3 grid = gridSizeNew<1>(oDesc, tile);
+        // get tile and grid size for launch
+        int packedCount = shiftDownRoundingUpNew(oDesc.count, shiftCount);
+        dim3 tile = tileSizeNew(packedCount);
+        dim3 grid = gridSizeNew<1>(oDesc, tile);
 
-    mapABNew<Op,Flat,Flat><<<grid, tile, 0, stream>>>
-        (a, Flat(aDesc), b, Flat(bDesc), out, Flat(oDesc));
-
-    return cudaSuccess;
+        mapABNew<Op,Flat,Flat><<<grid, tile, 0, stream>>>
+            (a, Flat(aDesc), b, Flat(bDesc), out, Flat(oDesc));
+        return cudaSuccess;
+    }
+    return cudaErrorNotSupported;
 }
 
 //==============================================================================
@@ -303,17 +273,19 @@ static cudaError_t initIndexNew(
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+    if constexpr (Op::conforms()) {
+        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
+        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
 
-    // get tile and grid size for launch
-    dim3 tile = tileSizeNew<IndexO::Rank>(oDesc);
-    dim3 grid = gridSizeNew<IndexO::Rank>(oDesc, tile);
+        // get tile and grid size for launch
+        dim3 tile = tileSizeNew<IndexO::Rank>(oDesc);
+        dim3 grid = gridSizeNew<IndexO::Rank>(oDesc, tile);
 
-    mapANew<Op,IndexA,IndexO>
-        <<<grid, tile, 0, stream>>>(a, IndexA(aDesc), out, IndexO(oDesc));
-
-    return cudaSuccess;
+        mapANew<Op,IndexA,IndexO>
+            <<<grid, tile, 0, stream>>>(a, IndexA(aDesc), out, IndexO(oDesc));
+        return cudaSuccess;
+    }
+    return cudaErrorNotSupported;
 }
 
 // initIndex tensorA Element
@@ -324,18 +296,20 @@ static cudaError_t initIndexNew(
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-    const typename Op::A e = *static_cast<const typename Op::A*>(pElement);
-    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+    if constexpr (Op::conforms()) {
+        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
+        const typename Op::A e = *static_cast<const typename Op::A*>(pElement);
+        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
 
-    // get tile and grid size for launch
-    dim3 tile = tileSizeNew<IndexO::Rank>(oDesc);
-    dim3 grid = gridSizeNew<IndexO::Rank>(oDesc, tile);
+        // get tile and grid size for launch
+        dim3 tile = tileSizeNew<IndexO::Rank>(oDesc);
+        dim3 grid = gridSizeNew<IndexO::Rank>(oDesc, tile);
 
-    mapAScalarNew<Op,typename Op::A,IndexA,IndexO>
-        <<<grid, tile, 0, stream>>>(a, IndexA(aDesc), e, out, IndexO(oDesc));
-
-    return cudaSuccess;
+        mapAScalarNew<Op,typename Op::A,IndexA,IndexO>
+            <<<grid, tile, 0, stream>>>(a, IndexA(aDesc), e, out, IndexO(oDesc));
+        return cudaSuccess;
+    }
+    return cudaErrorNotSupported;
 }
 
 // initIndex tensorA tensorB
@@ -346,21 +320,23 @@ static cudaError_t initIndexNew(
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-    const typename Op::B* b = static_cast<const typename Op::B*>(pB);
-    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+    if constexpr (Op::conforms()) {
+        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
+        const typename Op::B* b = static_cast<const typename Op::B*>(pB);
+        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
 
-    // get tile and grid size for launch
-    dim3 tile = tileSizeNew<IndexO::Rank>(oDesc);
-    dim3 grid = gridSizeNew<IndexO::Rank>(oDesc, tile);
+        // get tile and grid size for launch
+        dim3 tile = tileSizeNew<IndexO::Rank>(oDesc);
+        dim3 grid = gridSizeNew<IndexO::Rank>(oDesc, tile);
 
-    IndexA indexA = IndexA(aDesc);
-    IndexB indexB = IndexB(bDesc);
-     
-    mapABNew<Op,IndexA,IndexB,IndexO><<<grid, tile, 0, stream>>>
-        (a, indexA, b, indexB, out, IndexO(oDesc));
-
-    return cudaSuccess;
+        IndexA indexA = IndexA(aDesc);
+        IndexB indexB = IndexB(bDesc);
+        
+        mapABNew<Op,IndexA,IndexB,IndexO><<<grid, tile, 0, stream>>>
+            (a, indexA, b, indexB, out, IndexO(oDesc));
+        return cudaSuccess;
+    }
+    return cudaErrorNotSupported;
 }
 
 //==============================================================================

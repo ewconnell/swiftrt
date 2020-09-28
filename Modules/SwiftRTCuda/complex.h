@@ -22,6 +22,7 @@
 #include <cmath>
 #include <optional>
 #include <limits>
+#include <type_traits>
 
 /* Set up function decorations */
 #ifndef __CUDA_HOSTDEVICE__
@@ -548,5 +549,7 @@ struct Complex {
     }
 };
 
+//==============================================================================
+// 
 
 #endif

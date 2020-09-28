@@ -30,7 +30,7 @@ __device__ inline bool greaterElements(const T& a, const T& b) {
 // Swift importable C interface functions
 //==============================================================================
 
-IntFloatComplexOpA(Abs, abs)
+OpT(Abs, abs, (isNumeric<T>() && isSame<T,Out>()) || isComplex<T>())
 
 cudaError_t srtAbs(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -41,7 +41,7 @@ cudaError_t srtAbs(
     return select<Abs>(a, aDesc, out, oDesc, stream);
 }
 
-FloatOpA(Acos, acos)
+OpT(Acos, acos, (isFloating<T>() && isSame<T,Out>()))
 
 // Must be promoted types
 cudaError_t srtAcos(
@@ -53,7 +53,7 @@ cudaError_t srtAcos(
     return select<Acos>(a, aDesc, out, oDesc, stream);
 }
 
-IntFloatComplexOpAB(Add, add)
+OpTT(Add, add, (isSame<T,Out>() && isNumeric<T>()))
 
 cudaError_t srtAdd(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -65,7 +65,7 @@ cudaError_t srtAdd(
     return select<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
-IntFloatComplexOpAB(Greater, greaterElements)
+OpTT(Greater, greaterElements, (isNumeric<T>() && isBool<Out>()))
 
 cudaError_t srtGreater(
     const void* a, const srtTensorDescriptor* paDesc,
