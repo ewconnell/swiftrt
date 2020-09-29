@@ -22,7 +22,7 @@ class test_AlgebraicField: XCTestCase {
     //--------------------------------------------------------------------------
     // support terminal test run
     static var allTests = [
-        // ("test_addSubMulDivComplex", test_addSubMulDivComplex),
+        ("test_addSubMulDivComplex", test_addSubMulDivComplex),
 
         // ("test_queryMatmulProperties", test_queryMatmulProperties),
         // ("test_minimalAdd", test_minimalAdd),

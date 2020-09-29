@@ -24,7 +24,7 @@
 //==============================================================================
 
 //------------------------------------------------------------------------------
-Op1(And, andElements, (isBool<T>() && isBool<Out>()))
+Op2(And, andElements, (isBool<T>() && isBool<Out>()))
 
 cudaError_t srtAnd(
     const void* a, const srtTensorDescriptor* paDesc,

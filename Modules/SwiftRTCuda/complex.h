@@ -134,7 +134,7 @@ struct Complex {
     /// - `.isNormal`
     /// - `.isSubnormal`
     /// - `.isZero`
-    __CUDA_HOSTDEVICE__ inline bool isFinite() {
+    __CUDA_HOSTDEVICE__ inline bool isFinite() const {
         return isfinite(x) && isfinite(y);
     }
 
@@ -383,24 +383,6 @@ struct Complex {
     }
 
     //==========================================================================
-    // Equatable
-    //==========================================================================
-
-    // The Complex type identifies all non-finite points (waving hands slightly,
-    // we identify all NaNs and infinites as the point at infinity on the Riemann
-    // sphere).
-    __CUDA_HOSTDEVICE__ inline bool operator==(Complex b) {
-        // Identify all numbers with either component non-finite as a single
-        // "point at infinity".
-        if (!(isFinite() || b.isFinite())) return true;
-        // For finite numbers, equality is defined componentwise. Cases where
-        // only one of a or b is infinite fall through to here as well, but this
-        // expression correctly returns false for them so we don't need to handle
-        // them explicitly.
-        return x == b.x && y == b.y;
-    }
-
-    //==========================================================================
     // AdditiveArithmetic
     //==========================================================================
 
@@ -549,7 +531,67 @@ struct Complex {
     }
 };
 
-//==============================================================================
-// 
+//==========================================================================
+// Equatable
+//==========================================================================
+
+// The Complex type identifies all non-finite points (waving hands slightly,
+// we identify all NaNs and infinites as the point at infinity on the Riemann
+// sphere).
+template<typename T>
+__CUDA_HOSTDEVICE__ inline bool operator==(const Complex<T>& a, const Complex<T>& b) {
+    // Identify all numbers with either component non-finite as a single
+    // "point at infinity".
+    if (!(a.isFinite() || b.isFinite())) return true;
+    // For finite numbers, equality is defined componentwise. Cases where
+    // only one of a or b is infinite fall through to here as well, but this
+    // expression correctly returns false for them so we don't need to handle
+    // them explicitly.
+    return a.x == b.x && a.y == b.y;
+}
+
+template<typename T>
+__CUDA_HOSTDEVICE__ inline bool operator!=(const Complex<T>& a, const Complex<T>& b) {
+    return !(a == b);
+}
+
+//==========================================================================
+// Comparable
+// performs lexical ordering
+//==========================================================================
+
+template<typename T>
+__CUDA_HOSTDEVICE__ inline bool operator<(const Complex<T>& a, const Complex<T>& b) {
+    return a.x == b.x ? a.y < b.y : a.x < b.x; 
+}
+
+template<typename T>
+__CUDA_HOSTDEVICE__ inline bool operator<=(const Complex<T>& a, const Complex<T>& b) {
+    return a < b || a == b;
+}
+
+template<typename T>
+__CUDA_HOSTDEVICE__ inline bool operator>(const Complex<T>& a, const Complex<T>& b) {
+    return a.x == b.x ? a.y > b.y : a.x > b.x; 
+}
+
+template<typename T>
+__CUDA_HOSTDEVICE__ inline bool operator>=(const Complex<T>& a, const Complex<T>& b) {
+    return a > b || a == b;
+}
+
+//==========================================================================
+// Math
+//==========================================================================
+
+template<typename T>
+__CUDA_HOSTDEVICE__ inline T abs(const Complex<T>& a) {
+    return sqrt(a.x * a.x + a.y * a.y);
+}
+
+template<typename T>
+__CUDA_HOSTDEVICE__ inline Complex<T> neg(const Complex<T>& a) {
+    return Complex<T>(-a.x, -a.y);
+}
 
 #endif

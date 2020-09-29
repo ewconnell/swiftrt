@@ -407,7 +407,7 @@ cudaError_t srtMultiplyAddTTE(
 }
 
 //------------------------------------------------------------------------------
-Op1(Neg, neg, (isSame<T,Out>() && isSignedNumeric<T>()))
+Op1(Neg, neg, (isSame<T,Out>() && (isSignedNumeric<T>() || isComplex<T>())))
 
 cudaError_t srtNeg(
     const void* a, const srtTensorDescriptor* paDesc,
