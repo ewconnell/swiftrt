@@ -25,7 +25,6 @@ public class CudaPlatform: ComputePlatform {
     public typealias Storage = DiscreteStorage
     
         // shared
-    public static let acceleratorQueueCount: Int = 0
     public static var cpuQueueCount = 0
     public static var discreteMemoryDeviceId: Int { 1 }
     public static var eventId = AtomicCounter()
@@ -35,6 +34,13 @@ public class CudaPlatform: ComputePlatform {
     public static var queueId = AtomicCounter()
     public static let startTime = Date()
     public static var lastRandomSeed: RandomSeed = generateRandomSeed()
+
+    public static var acceleratorQueueCount: Int = 2 {
+        didSet {
+            precondition(acceleratorQueueCount > 0, 
+                "there must be at least 1 accelerator queue")
+        }
+    }
 
     //-------------------------------------
     // for synchrnous execution and syncing with the app thread

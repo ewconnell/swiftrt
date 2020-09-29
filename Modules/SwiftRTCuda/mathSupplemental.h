@@ -284,6 +284,10 @@ template<typename T>
 __device__ inline T multiply(const T& a, const T& b) { return a * b; }
 PROMOTED2_BFLOAT162(multiply)
 
+// multiply
+template<typename T>
+__device__ inline T multiplyAdd(const T& a, const T& b, const T& c) { return a * b + c; }
+
 // subtract
 template<typename T>
 __device__ inline T subtract(const T& a, const T& b) { return a - b; }

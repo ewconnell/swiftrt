@@ -24,7 +24,7 @@
 //==============================================================================
 
 //------------------------------------------------------------------------------
-OpTT(And, andElements, (isBool<T>() && isBool<Out>()))
+Op1(And, andElements, (isBool<T>() && isBool<Out>()))
 
 cudaError_t srtAnd(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -49,7 +49,7 @@ cudaError_t srtElementsAlmostEqual(
 }
 
 //------------------------------------------------------------------------------
-OpTT(Equal, equalElements, isBool<Out>())
+Op2(Equal, equalElements, isBool<Out>())
 
 cudaError_t srtEqual(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -62,7 +62,7 @@ cudaError_t srtEqual(
 }
 
 //------------------------------------------------------------------------------
-OpTT(Greater, greaterElements, isBool<Out>())
+Op2(Greater, greaterElements, isBool<Out>())
 
 cudaError_t srtGreater(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -85,7 +85,7 @@ cudaError_t srtGreaterTE(
 }
     
 //------------------------------------------------------------------------------
-OpTT(GreaterOrEqual, greaterOrEqualElements, isBool<Out>())
+Op2(GreaterOrEqual, greaterOrEqualElements, isBool<Out>())
 
 cudaError_t srtGreaterOrEqual(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -108,7 +108,7 @@ cudaError_t srtGreaterOrEqualTE(
 }
     
 //------------------------------------------------------------------------------
-OpTT(Less, lessElements, isBool<Out>())
+Op2(Less, lessElements, isBool<Out>())
 
 cudaError_t srtLess(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -131,7 +131,7 @@ cudaError_t srtLessTE(
 }
     
 //------------------------------------------------------------------------------
-OpTT(LessOrEqual, lessOrEqualElements, isBool<Out>())
+Op2(LessOrEqual, lessOrEqualElements, isBool<Out>())
 
 cudaError_t srtLessOrEqual(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -154,7 +154,7 @@ cudaError_t srtLessOrEqualTE(
 }
     
 //------------------------------------------------------------------------------
-OpTT(MinElements, minElements, (isNumeric<T>() && isSame<T, Out>()))
+Op2(MinElements, minElements, (isNumeric<T>() && isSame<T, Out>()))
 
 cudaError_t srtMin(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -177,7 +177,7 @@ cudaError_t srtMinTE(
 }
     
 //------------------------------------------------------------------------------
-OpTT(MaxElements, maxElements, (isNumeric<T>() && isSame<T, Out>()))
+Op2(MaxElements, maxElements, (isNumeric<T>() && isSame<T, Out>()))
 
 cudaError_t srtMax(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -200,7 +200,7 @@ cudaError_t srtMaxTE(
 }
     
 //------------------------------------------------------------------------------
-OpTT(NotEqualElements, notEqualElements, isBool<Out>())
+Op2(NotEqualElements, notEqualElements, isBool<Out>())
 
 cudaError_t srtNotEqual(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -213,7 +213,7 @@ cudaError_t srtNotEqual(
 }
 
 //------------------------------------------------------------------------------
-OpTT(Or, orElements, (isBool<T>() && isBool<Out>()))
+Op2(Or, orElements, (isBool<T>() && isBool<Out>()))
 
 cudaError_t srtOr(
     const void* a, const srtTensorDescriptor* paDesc,

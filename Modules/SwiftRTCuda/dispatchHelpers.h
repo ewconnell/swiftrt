@@ -66,7 +66,7 @@ inline constexpr bool isSignedNumeric() {
 
 //==============================================================================
 // operator macros
-#define OpT(OpName, name, conformance) \
+#define Op1(OpName, name, conformance) \
 template<typename T, typename O> struct OpName { \
     typedef T A; typedef O Out; \
     constexpr static bool conforms() { return (conformance); } \
@@ -75,12 +75,21 @@ template<typename T, typename O> struct OpName { \
     } \
 };
 
-#define OpTT(OpName, name, conformance) \
+#define Op2(OpName, name, conformance) \
 template<typename T, typename O> struct OpName { \
     typedef T A; typedef T B; typedef O Out; \
     constexpr static bool conforms() { return (conformance); } \
     __device__ inline static void op(const A& a, const B& b, O& out) { \
         if constexpr (conforms()) out = name(a, b); \
+    } \
+};
+
+#define Op3(OpName, name, conformance) \
+template<typename T, typename O> struct OpName { \
+    typedef T A; typedef T B; typedef T C; typedef O Out; \
+    constexpr static bool conforms() { return (conformance); } \
+    __device__ inline static void op(const A& a, const B& b, const C& c, O& out) { \
+        if constexpr (conforms()) out = name(a, b, c); \
     } \
 };
 
@@ -175,7 +184,7 @@ __global__ void mapA(
 }
 
 //------------------------------------------------------------------------------
-// tensorA
+// tensorA Element
 template<typename Op, typename IndexA, typename IndexO>
 __global__ void mapAE(
     const typename Op::A* __restrict__ a, const IndexA indexA,
@@ -187,6 +196,23 @@ __global__ void mapAE(
         const int ia = indexA.linear(position);
         const int io = indexO.linear(position);
         Op::op(a[ia], element, out[io]);
+    }
+}
+
+//------------------------------------------------------------------------------
+// Element tensorA
+// used when op can't reverse order like divide and subtract
+template<typename Op, typename IndexA, typename IndexO>
+__global__ void mapEA(
+    const typename Op::A  element,
+    const typename Op::A* __restrict__ a, const IndexA indexA,
+    typename Op::Out* __restrict__ out, const IndexO indexO
+) {
+    const auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
+    if (indexO.isInBounds(position)) {
+        const int ia = indexA.linear(position);
+        const int io = indexO.linear(position);
+        Op::op(element, a[ia], out[io]);
     }
 }
 
@@ -223,12 +249,52 @@ __global__ void mapAB(
     }
 }
 
+//------------------------------------------------------------------------------
+// tensorA tensorB tensorC
+template<typename Op, typename IndexA, typename IndexB, typename IndexC, typename IndexO>
+__global__ void mapABC(
+    const typename Op::A* __restrict__ a, const IndexA indexA,
+    const typename Op::B* __restrict__ b, const IndexB indexB,
+    const typename Op::C* __restrict__ c, const IndexC indexC,
+    typename Op::Out* __restrict__ out, const IndexO indexO
+) {
+    auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
+    if (indexO.isInBounds(position)) {
+        int ia = indexA.linear(position);
+        int ib = indexB.linear(position);
+        int ic = indexC.linear(position);
+        int io = indexO.linear(position);
+        Op::op(a[ia], b[ib], c[ic], out[io]);
+    }
+}
+
+//------------------------------------------------------------------------------
+// tensorA tensorB Element
+template<typename Op, typename IndexA, typename IndexB, typename IndexO>
+__global__ void mapABE(
+    const typename Op::A* __restrict__ a, const IndexA indexA,
+    const typename Op::B* __restrict__ b, const IndexB indexB,
+    const typename Op::A  element,
+    typename Op::Out* __restrict__ out, const IndexO indexO
+) {
+    auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
+    if (indexO.isInBounds(position)) {
+        int ia = indexA.linear(position);
+        int ib = indexB.linear(position);
+        int io = indexO.linear(position);
+        Op::op(a[ia], b[ib], element, out[io]);
+    }
+}
+
 //==============================================================================
 // dynamic dispatch functions
 //==============================================================================
 
-//------------------------------------------------------------------------------
-/// flattened tensorA
+//==============================================================================
+/// flattened
+
+//--------------------------------------
+// tensorA
 template<typename Op>
 static cudaError_t flattened(
     const void* pA, const TensorDescriptor& aDesc,
@@ -251,8 +317,8 @@ static cudaError_t flattened(
     return cudaErrorNotSupported;
 }
 
-//------------------------------------------------------------------------------
-/// flattened tensorA
+//--------------------------------------
+// tensorA Element
 template<typename Op>
 static cudaError_t flattened(
     const void* pA, const TensorDescriptor& aDesc,
@@ -277,8 +343,34 @@ static cudaError_t flattened(
     return cudaErrorNotSupported;
 }
 
-//------------------------------------------------------------------------------
-/// flattened tensorA parameter value
+//--------------------------------------
+// tensorA Element
+template<typename Op>
+static cudaError_t flattened(
+    const void* pElement,
+    const void* pA, const TensorDescriptor& aDesc,
+    void* pOut, const TensorDescriptor& oDesc,
+    cudaStream_t stream,
+    int shiftCount = 0
+) {
+    if constexpr (Op::conforms()) {
+        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
+        const typename Op::A  e = *static_cast<const typename Op::A*>(pElement);
+        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+
+        // get tile and grid size for launch
+        int packedCount = shiftDownRoundingUp(oDesc.count, shiftCount);
+        dim3 tile = tileSize(packedCount);
+        dim3 grid = gridSize<1>(oDesc, tile);
+
+        mapEA<Op,Flat,Flat><<<grid, tile, 0, stream>>>(e, a, Flat(aDesc), out, Flat(oDesc));
+        return cudaSuccess;
+    }
+    return cudaErrorNotSupported;
+}
+
+//--------------------------------------
+// tensorA parameter value
 template<typename Op, typename Scalar>
 static cudaError_t flattened(
     const void* pA, const TensorDescriptor& aDesc, 
@@ -303,8 +395,8 @@ static cudaError_t flattened(
     return cudaErrorNotSupported;
 }
 
-//------------------------------------------------------------------------------
-/// flattened tensorA
+//--------------------------------------
+// tensorA tensorB
 template<typename Op>
 static cudaError_t flattened(
     const void* pA, const TensorDescriptor& aDesc,
@@ -325,6 +417,64 @@ static cudaError_t flattened(
 
         mapAB<Op,Flat,Flat><<<grid, tile, 0, stream>>>
             (a, Flat(aDesc), b, Flat(bDesc), out, Flat(oDesc));
+        return cudaSuccess;
+    }
+    return cudaErrorNotSupported;
+}
+
+//--------------------------------------
+// tensorA tensorB tensorC
+template<typename Op>
+static cudaError_t flattened(
+    const void* pA, const TensorDescriptor& aDesc,
+    const void* pB, const TensorDescriptor& bDesc,
+    const void* pC, const TensorDescriptor& cDesc,
+    void* pOut, const TensorDescriptor& oDesc,
+    cudaStream_t stream,
+    int shiftCount = 0
+) {
+    if constexpr (Op::conforms()) {
+        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
+        const typename Op::B* b = static_cast<const typename Op::B*>(pB);
+        const typename Op::C* c = static_cast<const typename Op::C*>(pC);
+        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+
+        // get tile and grid size for launch
+        int packedCount = shiftDownRoundingUp(oDesc.count, shiftCount);
+        dim3 tile = tileSize(packedCount);
+        dim3 grid = gridSize<1>(oDesc, tile);
+
+        mapABC<Op,Flat,Flat,Flat><<<grid, tile, 0, stream>>>
+            (a, Flat(aDesc), b, Flat(bDesc), c, Flat(cDesc), out, Flat(oDesc));
+        return cudaSuccess;
+    }
+    return cudaErrorNotSupported;
+}
+
+//--------------------------------------
+// tensorA tensorB Element
+template<typename Op>
+static cudaError_t flattened(
+    const void* pA, const TensorDescriptor& aDesc,
+    const void* pB, const TensorDescriptor& bDesc,
+    const void* pElement,
+    void* pOut, const TensorDescriptor& oDesc,
+    cudaStream_t stream,
+    int shiftCount = 0
+) {
+    if constexpr (Op::conforms()) {
+        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
+        const typename Op::B* b = static_cast<const typename Op::B*>(pB);
+        const typename Op::C  e = *static_cast<const typename Op::C*>(pElement);
+        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+
+        // get tile and grid size for launch
+        int packedCount = shiftDownRoundingUp(oDesc.count, shiftCount);
+        dim3 tile = tileSize(packedCount);
+        dim3 grid = gridSize<1>(oDesc, tile);
+
+        mapABE<Op,Flat,Flat><<<grid, tile, 0, stream>>>
+            (a, Flat(aDesc), b, Flat(bDesc), e, out, Flat(oDesc));
         return cudaSuccess;
     }
     return cudaErrorNotSupported;
@@ -353,6 +503,7 @@ static cudaError_t initIndex(
     return cudaErrorNotSupported;
 }
 
+//--------------------------------------
 // initIndex tensorA Element
 template<typename Op, typename IndexA, typename IndexO>
 static cudaError_t initIndex(
@@ -377,6 +528,32 @@ static cudaError_t initIndex(
     return cudaErrorNotSupported;
 }
 
+//--------------------------------------
+// initIndex tensorA Element
+template<typename Op, typename IndexA, typename IndexO>
+static cudaError_t initIndex(
+    const void* pElement,
+    const void* pA, const TensorDescriptor& aDesc, 
+    void* pOut, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    if constexpr (Op::conforms()) {
+        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
+        const typename Op::A  e = *static_cast<const typename Op::A*>(pElement);
+        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+
+        // get tile and grid size for launch
+        dim3 tile = tileSize<IndexO::Rank>(oDesc);
+        dim3 grid = gridSize<IndexO::Rank>(oDesc, tile);
+
+        mapEA<Op,IndexA,IndexO>
+            <<<grid, tile, 0, stream>>>(e, a, IndexA(aDesc), out, IndexO(oDesc));
+        return cudaSuccess;
+    }
+    return cudaErrorNotSupported;
+}
+
+//--------------------------------------
 // initIndex tensorA tensorB
 template<typename Op, typename IndexA, typename IndexB, typename IndexO>
 static cudaError_t initIndex(
@@ -418,11 +595,15 @@ static cudaError_t selectRank(
     case 1: return initIndex<Op,Strided<1>,Strided<1>>(a, aDesc, out, oDesc, stream);
     case 2: return initIndex<Op,Strided<2>,Strided<2>>(a, aDesc, out, oDesc, stream);
     case 3: return initIndex<Op,Strided<3>,Strided<3>>(a, aDesc, out, oDesc, stream);
+    // case 4: return initIndex<Op,Strided<4>,Strided<4>>(a, aDesc, out, oDesc, stream);
+    // case 5: return initIndex<Op,Strided<5>,Strided<5>>(a, aDesc, out, oDesc, stream);
+    // case 6: return initIndex<Op,Strided<6>,Strided<6>>(a, aDesc, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
 
-// selectRank tensorA Scalar
+//--------------------------------------
+// selectRank tensorA Element
 template<typename Op>
 static cudaError_t selectRank(
     const void* a, const TensorDescriptor& aDesc,
@@ -436,10 +617,36 @@ static cudaError_t selectRank(
     case 1: return initIndex<Op,Strided<1>,Strided<1>>(a, aDesc, element, out, oDesc, stream);
     case 2: return initIndex<Op,Strided<2>,Strided<2>>(a, aDesc, element, out, oDesc, stream);
     case 3: return initIndex<Op,Strided<3>,Strided<3>>(a, aDesc, element, out, oDesc, stream);
+    // case 4: return initIndex<Op,Strided<4>,Strided<4>>(a, aDesc, element, out, oDesc, stream);
+    // case 5: return initIndex<Op,Strided<5>,Strided<5>>(a, aDesc, element, out, oDesc, stream);
+    // case 6: return initIndex<Op,Strided<6>,Strided<6>>(a, aDesc, element, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
 
+//--------------------------------------
+// selectRank Element tensorA
+template<typename Op>
+static cudaError_t selectRank(
+    const void* element,
+    const void* a, const TensorDescriptor& aDesc,
+    void* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    assert(aDesc.rank == oDesc.rank);
+
+    switch (oDesc.rank) {
+    case 1: return initIndex<Op,Strided<1>,Strided<1>>(element, a, aDesc, out, oDesc, stream);
+    case 2: return initIndex<Op,Strided<2>,Strided<2>>(element, a, aDesc, out, oDesc, stream);
+    case 3: return initIndex<Op,Strided<3>,Strided<3>>(element, a, aDesc, out, oDesc, stream);
+    // case 4: return initIndex<Op,Strided<4>,Strided<4>>(element, a, aDesc, out, oDesc, stream);
+    // case 5: return initIndex<Op,Strided<5>,Strided<5>>(element, a, aDesc, out, oDesc, stream);
+    // case 6: return initIndex<Op,Strided<6>,Strided<6>>(element, a, aDesc, out, oDesc, stream);
+    default: return cudaErrorNotSupported;
+    }
+}
+
+//--------------------------------------
 // selectRank tensorA tensorB
 template<typename Op>
 static cudaError_t selectRank(
@@ -451,12 +658,12 @@ static cudaError_t selectRank(
     assert(aDesc.rank == bDesc.rank && aDesc.rank == oDesc.rank);
 
     switch (oDesc.rank) {
-    case 1: return initIndex<Op,Strided<1>,Strided<1>,Strided<1>>
-        (a, aDesc, b, bDesc, out, oDesc, stream);
-    case 2: return initIndex<Op,Strided<2>,Strided<2>,Strided<2>>
-        (a, aDesc, b, bDesc, out, oDesc, stream);
-    case 3: return initIndex<Op,Strided<3>,Strided<3>,Strided<3>>
-        (a, aDesc, b, bDesc, out, oDesc, stream);
+    case 1: return initIndex<Op,Strided<1>,Strided<1>,Strided<1>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case 2: return initIndex<Op,Strided<2>,Strided<2>,Strided<2>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case 3: return initIndex<Op,Strided<3>,Strided<3>,Strided<3>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    // case 4: return initIndex<Op,Strided<4>,Strided<1>,Strided<4>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    // case 5: return initIndex<Op,Strided<5>,Strided<2>,Strided<5>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    // case 6: return initIndex<Op,Strided<6>,Strided<3>,Strided<6>>(a, aDesc, b, bDesc, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
@@ -464,6 +671,8 @@ static cudaError_t selectRank(
 //==============================================================================
 // select out
 // converts from dynamic to static type and delegates for stride selection
+
+// selectOut tensorA
 template<template<typename A, typename O> class Op, typename A>
 static cudaError_t selectOut(
     const void* a, const TensorDescriptor& aDesc,
@@ -500,6 +709,7 @@ static cudaError_t selectOut(
     }
 }
 
+//--------------------------------------
 // tensorA Element
 template<template<typename A, typename O> class Op, typename A>
 static cudaError_t selectOut(
@@ -538,6 +748,46 @@ static cudaError_t selectOut(
     }
 }
 
+//--------------------------------------
+// Element tensorA
+template<template<typename A, typename O> class Op, typename A>
+static cudaError_t selectOut(
+    const void* element,
+    const void* a, const TensorDescriptor& aDesc,
+    void* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream,
+    int shiftCount = 0
+) {
+    if (oDesc.isStrided()) {
+        switch(oDesc.type) {
+        case real32F:  return selectRank<Op<A, float>>(element, a, aDesc, out, oDesc, stream);
+        case real16F:  return selectRank<Op<A, __half>>(element, a, aDesc, out, oDesc, stream);
+        case real16BF: return selectRank<Op<A, __nv_bfloat16>>(element, a, aDesc, out, oDesc, stream);
+        case real64F:  return selectRank<Op<A, double>>(element, a, aDesc, out, oDesc, stream);
+        case real32I:  return selectRank<Op<A, int32_t>>(element, a, aDesc, out, oDesc, stream);
+        case real8I:   return selectRank<Op<A, int8_t>>(element, a, aDesc, out, oDesc, stream);
+        case real8U:   return selectRank<Op<A, uint8_t>>(element, a, aDesc, out, oDesc, stream);
+        case real16I:  return selectRank<Op<A, int16_t>>(element, a, aDesc, out, oDesc, stream);
+        case real16U:  return selectRank<Op<A, uint16_t>>(element, a, aDesc, out, oDesc, stream);
+        default: return cudaErrorNotSupported;
+        }
+    } else {
+        switch(oDesc.type) {
+        case real32F:  return flattened<Op<A, float>>(element, a, aDesc, out, oDesc, stream);
+        case real16F:  return flattened<Op<A, __half2>>(element, a, aDesc, out, oDesc, stream, 1);
+        case real16BF: return flattened<Op<A, __nv_bfloat162>>(element, a, aDesc, out, oDesc, stream, 1);
+        case real64F:  return flattened<Op<A, double>>(element, a, aDesc, out, oDesc, stream);
+        case real32I:  return flattened<Op<A, int32_t>>(element, a, aDesc, out, oDesc, stream);
+        case real8U:   return flattened<Op<A, uchar4>>(element, a, aDesc, out, oDesc, stream, 2);
+        case real8I:   return flattened<Op<A, char4>>(element, a, aDesc, out, oDesc, stream, 2);
+        case real16U:  return flattened<Op<A, short2>>(element, a, aDesc, out, oDesc, stream, 1);
+        case real16I:  return flattened<Op<A, short2>>(element, a, aDesc, out, oDesc, stream, 1);
+        default: return cudaErrorNotSupported;
+        }
+    }
+}
+
+//--------------------------------------
 // tensorA tensorB
 template<template<typename A, typename O> class Op, typename A>
 static cudaError_t selectOut(
@@ -578,8 +828,11 @@ static cudaError_t selectOut(
 }
 
 //==============================================================================
-// select tensorA
+// select
 // converts from dynamic to static type and delegates for stride selection
+
+//--------------------------------------
+// tensorA
 template<template<typename A, typename O> class Op>
 static cudaError_t select(
     const void* a, const TensorDescriptor& aDesc,
@@ -600,9 +853,8 @@ static cudaError_t select(
     }
 }
 
-//==============================================================================
-// select tensorA
-// converts from dynamic to static type and delegates for stride selection
+//--------------------------------------
+// tensorA Element
 template<template<typename A, typename O> class Op>
 static cudaError_t select(
     const void* a, const TensorDescriptor& aDesc,
@@ -624,9 +876,31 @@ static cudaError_t select(
     }
 }
 
-//==============================================================================
+//--------------------------------------
+// Element tensorA
+template<template<typename A, typename O> class Op>
+static cudaError_t select(
+    const void* element,
+    const void* a, const TensorDescriptor& aDesc,
+    void* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    switch(aDesc.type) {
+    case real32F:  return selectOut<Op, float>(element, a, aDesc, out, oDesc, stream);
+    case real16F:  return selectOut<Op, __half2>(element, a, aDesc, out, oDesc, stream, 1);
+    case real16BF: return selectOut<Op, __nv_bfloat162>(element, a, aDesc, out, oDesc, stream, 1);
+    case real64F:  return selectOut<Op, double>(element, a, aDesc, out, oDesc, stream);
+    case real32I:  return selectOut<Op, int32_t>(element, a, aDesc, out, oDesc, stream);
+    case real8U:   return selectOut<Op, uchar4>(element, a, aDesc, out, oDesc, stream, 2);
+    case real8I:   return selectOut<Op, char4>(element, a, aDesc, out, oDesc, stream, 2);
+    case real16U:  return selectOut<Op, short2>(element, a, aDesc, out, oDesc, stream, 1);
+    case real16I:  return selectOut<Op, short2>(element, a, aDesc, out, oDesc, stream, 1);
+    default: return cudaErrorNotSupported;
+    }
+}
+
+//--------------------------------------
 // select tensorA
-// converts from dynamic to static type and delegates for stride selection
 template<template<typename A, typename O> class Op>
 static cudaError_t select(
     const void* a, const TensorDescriptor& aDesc,
