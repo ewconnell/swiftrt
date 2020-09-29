@@ -39,7 +39,9 @@ inline constexpr bool isInteger() {
 
 template<typename A>
 inline constexpr bool isFloating() {
-    return std::is_floating_point<A>::value;
+    return std::is_floating_point<A>::value ||
+        std::is_same<A,__half>::value || std::is_same<A,__half2>::value ||
+        std::is_same<A,__nv_bfloat16>::value || std::is_same<A,__nv_bfloat162>::value;
 }
 
 template<typename A>
