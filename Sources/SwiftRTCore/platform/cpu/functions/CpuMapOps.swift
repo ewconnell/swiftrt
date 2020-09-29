@@ -372,7 +372,10 @@ extension DeviceQueue {
     }
 
     //==========================================================================
-    // mapOp tensor tensor tensor
+    // replaceMapOp
+    // This is a specialized op because the condition decides which tensor
+    // element fetch, cutting memory bandwidth usage in half. 
+    // Normal mapOps pull in all referenced elements.
     @inlinable func replaceMapOp<S,E>(
         _ a: Tensor<S,E>,
         _ b: Tensor<S,E>,
