@@ -226,6 +226,7 @@ cudaError_t srtOr(
 }
 
 //------------------------------------------------------------------------------
+// OpTTU(Replace, replace, (isSame<T,Out>() && isBool<U>()))
 
 cudaError_t srtReplace(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -234,5 +235,7 @@ cudaError_t srtReplace(
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream)
 {
+    // Cast2TensorDescriptorsABC(paDesc, pbDesc, condition, poDesc)
+    // return select<Replace>(a, aDesc, b, bDesc, condition, cDesc, out, oDesc, stream);
     return cudaErrorNotSupported;
 }

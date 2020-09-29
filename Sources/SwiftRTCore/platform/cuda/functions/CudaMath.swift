@@ -267,7 +267,7 @@ extension CudaQueue {
                 }
             }
         }
-        cpuFallback(status) { $0.subtract(lhs, rhs, &out) }
+        cpuFallback(status) { $0.multiply(lhs, rhs, add: bias, &out) }
     }
 
     //----------------------------------
@@ -293,7 +293,7 @@ extension CudaQueue {
                 }
             }
         }
-        cpuFallback(status) { $0.subtract(lhs, rhs, &out) }
+        cpuFallback(status) { $0.multiply(lhs, rhs, add: bias, &out) }
     }
 }
 

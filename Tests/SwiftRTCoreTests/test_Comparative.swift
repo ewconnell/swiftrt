@@ -22,23 +22,51 @@ class test_Comparative: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_complexOrder", test_complexOrder),
-        ("test_elementWiseAndOr", test_elementWiseAndOr),
-        ("test_elementsAlmostEqual", test_elementsAlmostEqual),
-        ("test_boolEquality", test_boolEquality),
-        ("test_equality", test_equality),
-        ("test_max", test_max),
-        ("test_maxScalar", test_maxScalar),
-        ("test_min", test_min),
-        ("test_minScalar", test_minScalar),
+        ("test_compareFloat16", test_compareFloat16),
+        ("test_compareInt8", test_compareInt8),
+        ("test_replace", test_replace),
+        // ("test_complexOrder", test_complexOrder),
+        // ("test_elementWiseAndOr", test_elementWiseAndOr),
+        // ("test_elementsAlmostEqual", test_elementsAlmostEqual),
+        // ("test_boolEquality", test_boolEquality),
+        // ("test_equality", test_equality),
+        // ("test_max", test_max),
+        // ("test_maxScalar", test_maxScalar),
+        // ("test_min", test_min),
+        // ("test_minScalar", test_minScalar),
     ]
 
     override func setUpWithError() throws {
-        // log.level = .diagnostic
+        log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
         // log.level = .error
+    }
+
+    //--------------------------------------------------------------------------
+    func test_compareFloat16() {
+        let a = array([0, 1, 2], type: Float16.self)
+        let b = array([1, 0, 2], type: Float16.self)
+        let x = a .> b
+        XCTAssert(x == [false, true, false])
+    }
+
+    //--------------------------------------------------------------------------
+    func test_compareInt8() {
+        let a = array([0, 1, 2], type: Int8.self)
+        let b = array([1, 0, 2], type: Int8.self)
+        let x = a .> b
+        XCTAssert(x == [false, true, false])
+    }
+
+    //--------------------------------------------------------------------------
+    func test_replace() {
+        let a = array([1, 1, 2], type: Int8.self)
+        let b = array([0, 0, 2], type: Int8.self)
+        let c = array([true, false, false])
+        let x = replace(x: a, with: b, where: c)
+        XCTAssert(x == [0, 1, 2])
     }
 
     //--------------------------------------------------------------------------
