@@ -382,7 +382,7 @@ cudaError_t srtMulTE(
 }
 
 //------------------------------------------------------------------------------
-// Op3(MultiplyAdd, multiplyAdd, (isSame<T,Out>() && isNumeric<T>()))
+OpTTU(MultiplyAdd, multiplyAdd, (isSame<T,Out>() && isSame<T,U>() && isNumeric<T>()))
 
 cudaError_t srtMultiplyAdd(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -391,10 +391,11 @@ cudaError_t srtMultiplyAdd(
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
-    // Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
-    // return select<MultiplyAdd>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    return cudaErrorNotSupported;
+    Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
+    return select<MultiplyAdd>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
 }
+
+Op3(MultiplyAddE, multiplyAdd, (isSame<T,Out>() && isNumeric<T>()))
 
 cudaError_t srtMultiplyAddTTE(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -403,7 +404,8 @@ cudaError_t srtMultiplyAddTTE(
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
-    return cudaErrorNotSupported;
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    return select<MultiplyAddE>(a, aDesc, b, bDesc, element, out, oDesc, stream);
 }
 
 //------------------------------------------------------------------------------

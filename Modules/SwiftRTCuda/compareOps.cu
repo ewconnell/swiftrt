@@ -26,18 +26,6 @@
 //------------------------------------------------------------------------------
 Op2(And, andElements, (isBool<T>() && isBool<Out>()))
 
-// template<typename T, typename O> struct And {
-//     typedef T A; typedef T B; typedef O Out;
-//     constexpr static bool conforms() { return (isBool<T>() && isBool<Out>()); }
-//     __device__ inline static void op(const A& a, const B& b, O& out) {
-//         if constexpr (conforms()) out = andElements(a, b);
-//     }
-//     typedef typename packed<T>::type PT;
-//     typedef typename matching_packed<PT,O>::type PO;
-//     typedef And<PT,PO> packed;
-// };
-
-
 cudaError_t srtAnd(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,
@@ -238,14 +226,7 @@ cudaError_t srtOr(
 }
 
 //------------------------------------------------------------------------------
-// Replace specialized 3 input
-template<typename T, typename O> struct Replace {
-    typedef T A; typedef T B; typedef bool C; typedef O Out;
-    constexpr static bool conforms() { return (isSame<T,Out>()); }
-    __device__ inline static void op(const A& a, const B& b, const C& c, O& out) {
-        if constexpr (conforms()) out = conditionalAssign(c, a, b);
-    }
-};
+OpTTU(Replace, conditionalAssign, (isSame<T,Out>() && isBool<U>()))
 
 cudaError_t srtReplace(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -254,7 +235,6 @@ cudaError_t srtReplace(
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
-    // Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
-    // return select<Replace>(a, aDesc, b, bDesc, condition, cDesc, out, oDesc, stream);
-    return cudaErrorNotSupported;
+    Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
+    return select<Replace>(a, aDesc, b, bDesc, condition, cDesc, out, oDesc, stream);
 }
