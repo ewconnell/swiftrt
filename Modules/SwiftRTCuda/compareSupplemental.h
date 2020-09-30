@@ -134,4 +134,10 @@ __device__ inline __nv_bfloat162 maxElements(const __nv_bfloat162& a, const __nv
     return v;
 }
 
+//------------------------------------------------------------------------------
+template<typename T>
+__device__ inline T conditionalAssign(const bool c, const T& a, const T& b) {
+    return c ? a : b;
+}
+
 #endif // compareSupplemental_h

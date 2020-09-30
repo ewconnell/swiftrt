@@ -39,9 +39,12 @@ inline constexpr bool isInteger() {
 
 template<typename A>
 inline constexpr bool isFloating() {
-    return std::is_floating_point<A>::value ||
-        std::is_same<A,__half>::value || std::is_same<A,__half2>::value ||
-        std::is_same<A,__nv_bfloat16>::value || std::is_same<A,__nv_bfloat162>::value;
+    return 
+        std::is_floating_point<A>::value ||
+        std::is_same<A,__half>::value ||
+        std::is_same<A,__half2>::value ||
+        std::is_same<A,__nv_bfloat16>::value ||
+        std::is_same<A,__nv_bfloat162>::value;
 }
 
 template<typename A>
@@ -87,10 +90,7 @@ inline constexpr bool isPacked() {
 // given an input type A and an output type O, if the input is
 // packed, then the corresponding packed respresention of O is defined
 template<typename A, typename O>
-struct match {
-    typedef O type;
-};
-
+struct match { typedef O type; };
 template<> struct match<char4, bool> { typedef bool4 type; };
 template<> struct match<uchar4, bool> { typedef bool4 type; };
 template<> struct match<short2, bool> { typedef bool2 type; };

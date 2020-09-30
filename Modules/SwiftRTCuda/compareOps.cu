@@ -226,16 +226,23 @@ cudaError_t srtOr(
 }
 
 //------------------------------------------------------------------------------
-// OpTTU(Replace, replace, (isSame<T,Out>() && isBool<U>()))
+// Replace specialized 3 input
+template<typename T, typename O> struct Replace {
+    typedef T A; typedef T B; typedef bool C; typedef O Out;
+    constexpr static bool conforms() { return (isSame<T,Out>()); }
+    __device__ inline static void op(const A& a, const B& b, const C& c, O& out) {
+        if constexpr (conforms()) out = conditionalAssign(c, a, b);
+    }
+};
 
 cudaError_t srtReplace(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,
-    const void* condition, const srtTensorDescriptor* cDesc,
+    const void* condition, const srtTensorDescriptor* pcDesc,
     void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream)
-{
-    // Cast2TensorDescriptorsABC(paDesc, pbDesc, condition, poDesc)
+    cudaStream_t stream
+) {
+    // Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
     // return select<Replace>(a, aDesc, b, bDesc, condition, cDesc, out, oDesc, stream);
     return cudaErrorNotSupported;
 }
