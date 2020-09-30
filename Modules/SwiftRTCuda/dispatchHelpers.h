@@ -98,6 +98,21 @@ template<> struct match_packing<ushort2, bool> { typedef bool2 type; };
 template<> struct match_packing<__half2, bool> { typedef bool2 type; };
 template<> struct match_packing<__nv_bfloat162, bool> { typedef bool2 type; };
 
+//--------------------------------------
+// given an input type A and an output type O, if the input is
+// packed, then the corresponding packed respresention of O is defined
+template<typename A>
+struct packing { static const int count = 1; };
+template<> struct packing<char4> { static const int count = 4; };
+template<> struct packing<uchar4> { static const int count = 4; };
+template<> struct packing<bool4> { static const int count = 4; };
+
+template<> struct packing<short2> { static const int count = 2; };
+template<> struct packing<ushort2> { static const int count = 2; };
+template<> struct packing<__half2> { static const int count = 2; };
+template<> struct packing<__nv_bfloat162> { static const int count = 2; };
+template<> struct packing<bool2> { static const int count = 2; };
+
 //==============================================================================
 // operator macros
 #define Op1(OpName, name, conformance) \
