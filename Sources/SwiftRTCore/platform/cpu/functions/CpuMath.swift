@@ -653,7 +653,7 @@ extension DeviceQueue {
         diagnostic(.queueCpu, "replace(x: \(x.name), y: \(y.name), " +
                     "condition: \(condition.name)) on \(name)",
                    categories: .queueCpu)
-        replaceMapOp(x, y, condition, &out)
+        mapOp(condition, y, x, &out) { $0 ? $1 : $2 }
     }
     
     //--------------------------------------------------------------------------
