@@ -236,5 +236,5 @@ cudaError_t srtReplace(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
-    return select<Replace>(a, aDesc, b, bDesc, condition, cDesc, out, oDesc, stream);
+    return select<Replace>(b, bDesc, a, aDesc, condition, cDesc, out, oDesc, stream);
 }

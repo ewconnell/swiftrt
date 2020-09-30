@@ -85,7 +85,6 @@ class test_Math: XCTestCase {
         ])
         
         divergence[abs(Z) .> tolerance] = min(divergence, 0)
-        print(divergence)
         XCTAssert(divergence == [
             [0.0, 0.0, 3.0, 0.0, 0.0],
             [3.0, 3.0, 3.0, 3.0, 3.0],

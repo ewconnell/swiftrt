@@ -86,17 +86,56 @@ inline constexpr bool isPacked() {
     std::is_same<A, short2>::value || std::is_same<A, ushort2>::value;
 }
 
-//--------------------------------------
+//==============================================================================
 // given an input type A and an output type O, if the input is
 // packed, then the corresponding packed respresention of O is defined
 template<typename T>
-struct packed { typedef T type; };
-template<> struct packed<int8_t> { typedef char4 type; };
-template<> struct packed<uint8_t> { typedef uchar4 type; };
-template<> struct packed<int16_t> { typedef short2 type; };
-template<> struct packed<uint16_t> { typedef ushort2 type; };
-template<> struct packed<__half> { typedef __half2 type; };
-template<> struct packed<__nv_bfloat16> { typedef __nv_bfloat162 type; };
+struct packed {
+    typedef T type;
+    inline static T value(const T v) { return v; }
+};
+
+template<> struct packed<int8_t> {
+    typedef char4 type;
+    inline static type value(const int8_t v) {
+        type p; p.x = v; p.y = v; p.z = v; p.w = v; return p;
+    }
+};
+
+template<> struct packed<uint8_t> {
+    typedef uchar4 type;
+    inline static type value(const uint8_t v) {
+        type p; p.x = v; p.y = v; p.z = v; p.w = v; return p;
+    }
+};
+
+template<> struct packed<int16_t> {
+    typedef short2 type;
+    inline static type value(const int16_t v) {
+        type p; p.x = v; p.y = v; return p;
+    }
+};
+
+template<> struct packed<uint16_t> {
+    typedef ushort2 type;
+    inline static type value(const uint16_t v) {
+        type p; p.x = v; p.y = v; return p;
+    }
+};
+
+template<> struct packed<__half> {
+    typedef __half2 type;
+    inline static type value(const __half v) {
+        type p; p.x = v; p.y = v; return p;
+    }
+};
+
+template<> struct packed<__nv_bfloat16> {
+    typedef __nv_bfloat162 type;
+    inline static type value(const __nv_bfloat16 v) {
+        type p; p.x = v; p.y = v; return p;
+    }
+};
 
 //--------------------------------------
 // given an input type A and an output type O, if the input is
@@ -183,21 +222,21 @@ template<typename T, typename U, typename O> struct OpName { \
 #define UINT_CREF(_v) reinterpret_cast<const unsigned&>(_v)
 #define CAST(type, _v) (*reinterpret_cast<const type*>(&(_v)))
 
-//==============================================================================
-/// fillWord
-/// packs elements of size T into a 32 bit word
-template<typename T>
-inline uint32_t fillWord(const void* pValue) {
-    static_assert(sizeof(T) <= sizeof(uint32_t), "T cannot be larger than return type");
-    static_assert(std::is_integral<T>::value, "T must be an integral type");
-    uint32_t value = uint32_t(*static_cast<const T*>(pValue));
-    uint32_t out = value;
-    #pragma unroll
-    for (int i = 0; i < sizeof(uint32_t) / sizeof(T); ++i) {
-        out = (out << sizeof(T) * 8) | value;
-    }
-    return out;
-}
+// //==============================================================================
+// /// fillWord
+// /// packs elements of size T into a 32 bit word
+// template<typename T>
+// inline uint32_t fillWord(const void* pValue) {
+//     static_assert(sizeof(T) <= sizeof(uint32_t), "T cannot be larger than return type");
+//     static_assert(std::is_integral<T>::value, "T must be an integral type");
+//     uint32_t value = uint32_t(*static_cast<const T*>(pValue));
+//     uint32_t out = value;
+//     #pragma unroll
+//     for (int i = 0; i < sizeof(uint32_t) / sizeof(T); ++i) {
+//         out = (out << sizeof(T) * 8) | value;
+//     }
+//     return out;
+// }
 
 //==============================================================================
 // kernel helpers

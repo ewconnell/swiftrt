@@ -40,27 +40,31 @@ cudaError_t srtCopy(
 // srtFill
 
 // kernel
-template <typename E, typename IndexO>
-__global__ void mapElementFill(E *out, IndexO indexO, E element) {
-  auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
-  if (indexO.isInBounds(position)) {
-    int i = indexO.linear(position);
-    out[i] = element;
-  }
+template <typename O, typename IndexO>
+__global__ void mapElementFill(O *out, IndexO indexO, O element) {
+    auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
+    if (indexO.isInBounds(position)) {
+        int i = indexO.linear(position);
+        out[i] = element;
+    }
 }
 
-template <typename E>
+template <typename O>
 static cudaError_t elementFill(
     void *pOut, const TensorDescriptor &oDesc,
-    const E element, cudaStream_t stream,
-    const int shiftCount = 0
+    const void *pElement,
+    cudaStream_t stream
 ) {
-  E *out = static_cast<E *>(pOut);
-  int count = divideRoundingUp(oDesc.count, shiftCount);
-  dim3 tile = tileSize(count);
-  dim3 grid = gridSize<1>(oDesc, tile);
-  mapElementFill<E, Flat><<<grid, tile, 0, stream>>>(out, Flat(oDesc), element);
-  return cudaSuccess;
+    typedef typename packed<O>::type Out;
+    Out *out = static_cast<Out*>(pOut);
+    Out element = packed<O>::value(*static_cast<const O*>(pElement));
+    int count = divideRoundingUp(oDesc.count, packing<Out>::count);
+
+    dim3 tile = tileSize(count);
+    dim3 grid = gridSize<1>(oDesc, tile);
+
+    mapElementFill<Out, Flat><<<grid, tile, 0, stream>>>(out, Flat(oDesc), element);
+    return cudaSuccess;
 }
 
 //------------------------------------------------------------------------------
@@ -85,25 +89,15 @@ cudaError_t srtFill(
     // up to a multiple of the largest packed type so we don't have to worry
     // about writing out of bounds.
     switch(oDesc.type) {
-        case real32F:
-          return elementFill<float>(out, oDesc, *(float *)element, stream);
-        case real64F:
-          return elementFill<double>(out, oDesc, *(double *)element, stream);
-
-        case real16F: 
-        case real16BF:
-        case real16I:
-        case real16U:
-            // pack 16 bit elements
-            return elementFill<uint32_t>(out, oDesc, fillWord<uint16_t>(element), stream, 1);
-
-        case real8I: 
-        case real8U:
-            // pack 8 bit elements
-            return elementFill<uint32_t>(out, oDesc, fillWord<uint8_t>(element), stream, 2);
-
-        case complex32F:
-            return elementFill<Complex<float> >(out, oDesc, *(Complex<float> *)element, stream);
+        case real32F:  return elementFill<float>(out, oDesc, element, stream);
+        case real64F:  return elementFill<double>(out, oDesc, element, stream);
+        case real16F:  return elementFill<__half>(out, oDesc, element, stream);
+        case real16BF: return elementFill<__nv_bfloat16>(out, oDesc, element, stream);
+        case real16I:  return elementFill<int16_t>(out, oDesc, element, stream);
+        case real16U:  return elementFill<uint16_t>(out, oDesc, element, stream);
+        case real8I:   return elementFill<int8_t>(out, oDesc, element, stream);
+        case real8U:   return elementFill<uint8_t>(out, oDesc, element, stream);
+        case complex32F: return elementFill<Complex<float> >(out, oDesc, element, stream);
         default: return cudaErrorNotSupported;
     }
 }
