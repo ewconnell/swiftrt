@@ -60,6 +60,16 @@ inline constexpr bool isNumeric() {
 }
 
 template<typename A>
+inline constexpr bool isComparable() {
+    return isNumeric<A>();
+}
+
+template<typename A>
+inline constexpr bool isEquatable() {
+    return isNumeric<A>() || isBool<A>();
+}
+
+template<typename A>
 inline constexpr bool isSignedNumeric() {
     return isNumeric<A>() && std::is_signed<A>::value;
 }
@@ -72,6 +82,21 @@ inline constexpr bool isPacked() {
     std::is_same<A, bool4>::value ||
     std::is_same<A, short2>::value || std::is_same<A, ushort2>::value;
 }
+
+//--------------------------------------
+// given an input type A and an output type O, if the input is
+// packed, then the corresponding packed respresention of O is defined
+template<typename A, typename O>
+struct match_packing {
+    typedef O type;
+};
+
+template<> struct match_packing<char4, bool> { typedef bool4 type; };
+template<> struct match_packing<uchar4, bool> { typedef bool4 type; };
+template<> struct match_packing<short2, bool> { typedef bool2 type; };
+template<> struct match_packing<ushort2, bool> { typedef bool2 type; };
+template<> struct match_packing<__half2, bool> { typedef bool2 type; };
+template<> struct match_packing<__nv_bfloat162, bool> { typedef bool2 type; };
 
 //==============================================================================
 // operator macros
@@ -696,7 +721,7 @@ static cudaError_t selectOut(
         case real8I:   return flattened<Op<A, char4>>(a, aDesc, out, oDesc, stream, 2);
         case real16U:  return flattened<Op<A, ushort2>>(a, aDesc, out, oDesc, stream, 1);
         case real16I:  return flattened<Op<A, short2>>(a, aDesc, out, oDesc, stream, 1);
-        case boolean:  return flattened<Op<A, bool4>>(a, aDesc, out, oDesc, stream, 2);
+        case boolean:  return flattened<Op<A, typename match_packing<A,bool>::type>>(a, aDesc, out, oDesc, stream, 2);
         case complex32F:  return flattened<Op<A, Complex<float>>>(a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -740,7 +765,7 @@ static cudaError_t selectOut(
         case real8I:   return flattened<Op<A, char4>>(a, aDesc, element, out, oDesc, stream, 2);
         case real16U:  return flattened<Op<A, ushort2>>(a, aDesc, element, out, oDesc, stream, 1);
         case real16I:  return flattened<Op<A, short2>>(a, aDesc, element, out, oDesc, stream, 1);
-        case boolean:  return flattened<Op<A, bool4>>(a, aDesc, element, out, oDesc, stream, 2);
+        case boolean:  return flattened<Op<A, typename match_packing<A,bool>::type>>(a, aDesc, element, out, oDesc, stream, 2);
         case complex32F:  return flattened<Op<A, Complex<float>>>(a, aDesc, element, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -784,7 +809,7 @@ static cudaError_t selectOut(
         case real8I:   return flattened<Op<A, char4>>(element, a, aDesc, out, oDesc, stream, 2);
         case real16U:  return flattened<Op<A, ushort2>>(element, a, aDesc, out, oDesc, stream, 1);
         case real16I:  return flattened<Op<A, short2>>(element, a, aDesc, out, oDesc, stream, 1);
-        case boolean:  return flattened<Op<A, bool4>>(element, a, aDesc, out, oDesc, stream, 2);
+        case boolean:  return flattened<Op<A, typename match_packing<A,bool>::type>>(element, a, aDesc, out, oDesc, stream, 2);
         case complex32F:  return flattened<Op<A, Complex<float>>>(element, a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -828,7 +853,7 @@ static cudaError_t selectOut(
         case real8I:   return flattened<Op<A, char4>>(a, aDesc, b, bDesc,out, oDesc, stream, 2);
         case real16U:  return flattened<Op<A, ushort2>>(a, aDesc, b, bDesc,out, oDesc, stream, 1);
         case real16I:  return flattened<Op<A, short2>>(a, aDesc, b, bDesc,out, oDesc, stream, 1);
-        case boolean:  return flattened<Op<A, bool4>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
+        case boolean:  return flattened<Op<A, typename match_packing<A,bool>::type>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
         case complex32F:  return flattened<Op<A, Complex<float>>>(a, aDesc, b, bDesc,out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -992,6 +1017,8 @@ static cudaError_t select(
     cudaStream_t stream
 ) {
     if (aDesc.isDense() && oDesc.isDense()) {
+        // if the input and output are dense then we can recast
+        // to 32 bit packed types to improve memory bandwidth
         switch(aDesc.type) {
         case real32F:  return selectOut<Op, float>(a, aDesc, b, bDesc,out, oDesc, stream);
         case real16F:  return selectOut<Op, __half2>(a, aDesc, b, bDesc,out, oDesc, stream, 1);
