@@ -21,14 +21,14 @@ final class test_Fractals: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_pmapJulia", test_pmapJulia),
-        ("test_pmapKernelJulia", test_pmapKernelJulia),
+        // ("test_pmapJulia", test_pmapJulia),
+        // ("test_pmapKernelJulia", test_pmapKernelJulia),
         ("test_Julia", test_Julia),
     ]
 
     // append and use a discrete async cpu device for these tests
     override func setUpWithError() throws {
-    //    log.level = .diagnostic
+       log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
@@ -54,13 +54,13 @@ final class test_Fractals: XCTestCase {
                 repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         var divergence = full(size, iterations)
 
-        // 12.816s
-//        measure {
+        // cpu 12.816s, gpu 
+    //    measure {
             for i in 0..<iterations {
                 Z = multiply(Z, Z, add: C)
                 divergence[abs(Z) .> tolerance] = min(divergence, i)
             }
-//        }
+    //    }
         // #endif
     }
 

@@ -86,12 +86,9 @@ endif()
 
 # for maximum performance only after thorough testing
 #if (${CMAKE_BUILD_TYPE} MATCHES "Release")
-#    set(SWIFT_CONFIG_FLAGS ${SWIFT_CONFIG_FLAGS}
-#        -enforce-exclusivity=unchecked
-#        -Ounchecked
-#        )
+#        set(SWIFT_CONFIG_FLAGS ${SWIFT_CONFIG_FLAGS} -Xswiftc -enforce-exclusivity=unchecked -Xswiftc -Ounchecked)
 #endif()
-
+ 
 # thread sanitizer
 #set(SWIFT_CONFIG_FLAGS ${SWIFT_CONFIG_FLAGS} -Xcc -fsanitize=thread -Xcc -g -Xcc -fno-omit-frame-pointer -Xlinker -ltsan)
 

@@ -1216,16 +1216,16 @@ static cudaError_t select(
     assert(aDesc.type == bDesc.type && aDesc.type == oDesc.type);
     switch(aDesc.type) {
     case real32F:  return selectRank<Op<float,float>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-    // case real16F:  return selectOut<Op, __half>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-    // case real16BF: return selectOut<Op, __nv_bfloat16>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-    // case real64F:  return selectOut<Op, double>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-    // case real32I:  return selectOut<Op, int32_t>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-    // case real8U:   return selectOut<Op, uint8_t>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-    // case real8I:   return selectOut<Op, int8_t>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-    // case real16U:  return selectOut<Op, uint16_t>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-    // case real16I:  return selectOut<Op, int16_t>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-    // case boolean:  return selectOut<Op, bool>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-    // case complex32F:  return selectOut<Op, Complex<float>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
+    case real16F:  return selectRank<Op<__half, __half>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
+    case real16BF: return selectRank<Op<__nv_bfloat16, __nv_bfloat16>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
+    case real64F:  return selectRank<Op<double, double>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
+    case real32I:  return selectRank<Op<int32_t, int32_t>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
+    case real8U:   return selectRank<Op<uint8_t, uint8_t>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
+    case real8I:   return selectRank<Op<int8_t, int8_t>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
+    case real16U:  return selectRank<Op<uint16_t, uint16_t>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
+    case real16I:  return selectRank<Op<int16_t, int16_t>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
+    case boolean:  return selectRank<Op<bool, bool>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
+    case complex32F:  return selectRank<Op<Complex<float>, Complex<float>>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
