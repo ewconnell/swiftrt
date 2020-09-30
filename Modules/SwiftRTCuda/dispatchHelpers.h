@@ -89,14 +89,26 @@ inline constexpr bool isPacked() {
 //--------------------------------------
 // given an input type A and an output type O, if the input is
 // packed, then the corresponding packed respresention of O is defined
+template<typename T>
+struct packed { typedef T type; };
+template<> struct packed<int8_t> { typedef char4 type; };
+template<> struct packed<uint8_t> { typedef uchar4 type; };
+template<> struct packed<int16_t> { typedef short2 type; };
+template<> struct packed<uint16_t> { typedef ushort2 type; };
+template<> struct packed<__half> { typedef __half2 type; };
+template<> struct packed<__nv_bfloat16> { typedef __nv_bfloat162 type; };
+
+//--------------------------------------
+// given an input type A and an output type O, if the input is
+// packed, then the corresponding packed respresention of O is defined
 template<typename A, typename O>
-struct match { typedef O type; };
-template<> struct match<char4, bool> { typedef bool4 type; };
-template<> struct match<uchar4, bool> { typedef bool4 type; };
-template<> struct match<short2, bool> { typedef bool2 type; };
-template<> struct match<ushort2, bool> { typedef bool2 type; };
-template<> struct match<__half2, bool> { typedef bool2 type; };
-template<> struct match<__nv_bfloat162, bool> { typedef bool2 type; };
+struct matching_packed { typedef O type; };
+template<> struct matching_packed<char4, bool> { typedef bool4 type; };
+template<> struct matching_packed<uchar4, bool> { typedef bool4 type; };
+template<> struct matching_packed<short2, bool> { typedef bool2 type; };
+template<> struct matching_packed<ushort2, bool> { typedef bool2 type; };
+template<> struct matching_packed<__half2, bool> { typedef bool2 type; };
+template<> struct matching_packed<__nv_bfloat162, bool> { typedef bool2 type; };
 
 //--------------------------------------
 // given an input type A and an output type O, if the input is
@@ -115,6 +127,8 @@ template<> struct packing<bool2> { static const int count = 2; };
 
 //==============================================================================
 // operator macros
+// `packed` is a version of the operator where types smaller than 32 bit
+// are retyped into packed versions to use with gpu SIMD instructions
 #define Op1(OpName, name, conformance) \
 template<typename T, typename O> struct OpName { \
     typedef T A; typedef O Out; \
@@ -122,6 +136,9 @@ template<typename T, typename O> struct OpName { \
     __device__ inline static void op(const A& a, O& out) { \
         if constexpr (conforms()) out = name(a); \
     } \
+    typedef typename packed<T>::type PT; \
+    typedef typename matching_packed<PT,O>::type PO; \
+    typedef OpName<PT,PO> packed; \
 };
 
 #define Op2(OpName, name, conformance) \
@@ -131,6 +148,9 @@ template<typename T, typename O> struct OpName { \
     __device__ inline static void op(const A& a, const B& b, O& out) { \
         if constexpr (conforms()) out = name(a, b); \
     } \
+    typedef typename packed<T>::type PT; \
+    typedef typename matching_packed<PT,O>::type PO; \
+    typedef OpName<PT,PO> packed; \
 };
 
 #define Op3(OpName, name, conformance) \
@@ -140,6 +160,9 @@ template<typename T, typename O> struct OpName { \
     __device__ inline static void op(const A& a, const B& b, const C& c, O& out) { \
         if constexpr (conforms()) out = name(a, b, c); \
     } \
+    typedef typename packed<T>::type PT; \
+    typedef typename matching_packed<PT,O>::type PO; \
+    typedef OpName<PT,PO> packed; \
 };
 
 //==============================================================================
@@ -645,16 +668,20 @@ static cudaError_t selectRank(
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
+    assert(aDesc.rank == oDesc.rank);
     if constexpr (Op::conforms()) {
-        assert(aDesc.rank == oDesc.rank);
-        switch (oDesc.rank) {
-        case 1: return initIndex<Op,Strided<1>,Strided<1>>(a, aDesc, out, oDesc, stream);
-        case 2: return initIndex<Op,Strided<2>,Strided<2>>(a, aDesc, out, oDesc, stream);
-        case 3: return initIndex<Op,Strided<3>,Strided<3>>(a, aDesc, out, oDesc, stream);
-        // case 4: return initIndex<Op,Strided<4>,Strided<4>>(a, aDesc, out, oDesc, stream);
-        // case 5: return initIndex<Op,Strided<5>,Strided<5>>(a, aDesc, out, oDesc, stream);
-        // case 6: return initIndex<Op,Strided<6>,Strided<6>>(a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
+        if (aDesc.isDense() && oDesc.isDense()) {
+            return flattened<typename Op::packed>(a, aDesc, out, oDesc, stream);
+        } else {
+            switch (oDesc.rank) {
+            case 1: return initIndex<Op,Strided<1>,Strided<1>>(a, aDesc, out, oDesc, stream);
+            case 2: return initIndex<Op,Strided<2>,Strided<2>>(a, aDesc, out, oDesc, stream);
+            case 3: return initIndex<Op,Strided<3>,Strided<3>>(a, aDesc, out, oDesc, stream);
+            // case 4: return initIndex<Op,Strided<4>,Strided<4>>(a, aDesc, out, oDesc, stream);
+            // case 5: return initIndex<Op,Strided<5>,Strided<5>>(a, aDesc, out, oDesc, stream);
+            // case 6: return initIndex<Op,Strided<6>,Strided<6>>(a, aDesc, out, oDesc, stream);
+            default: return cudaErrorNotSupported;
+            }
         }
     }
     return cudaErrorNotSupported;
@@ -669,16 +696,20 @@ static cudaError_t selectRank(
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
+    assert(aDesc.rank == oDesc.rank);
     if constexpr (Op::conforms()) {
-        assert(aDesc.rank == oDesc.rank);
-        switch (oDesc.rank) {
-        case 1: return initIndex<Op,Strided<1>,Strided<1>>(a, aDesc, element, out, oDesc, stream);
-        case 2: return initIndex<Op,Strided<2>,Strided<2>>(a, aDesc, element, out, oDesc, stream);
-        case 3: return initIndex<Op,Strided<3>,Strided<3>>(a, aDesc, element, out, oDesc, stream);
-        // case 4: return initIndex<Op,Strided<4>,Strided<4>>(a, aDesc, element, out, oDesc, stream);
-        // case 5: return initIndex<Op,Strided<5>,Strided<5>>(a, aDesc, element, out, oDesc, stream);
-        // case 6: return initIndex<Op,Strided<6>,Strided<6>>(a, aDesc, element, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
+        if (aDesc.isDense() && oDesc.isDense()) {
+            return flattened<typename Op::packed>(a, aDesc, element, out, oDesc, stream);
+        } else {
+            switch (oDesc.rank) {
+            case 1: return initIndex<Op,Strided<1>,Strided<1>>(a, aDesc, element, out, oDesc, stream);
+            case 2: return initIndex<Op,Strided<2>,Strided<2>>(a, aDesc, element, out, oDesc, stream);
+            case 3: return initIndex<Op,Strided<3>,Strided<3>>(a, aDesc, element, out, oDesc, stream);
+            // case 4: return initIndex<Op,Strided<4>,Strided<4>>(a, aDesc, element, out, oDesc, stream);
+            // case 5: return initIndex<Op,Strided<5>,Strided<5>>(a, aDesc, element, out, oDesc, stream);
+            // case 6: return initIndex<Op,Strided<6>,Strided<6>>(a, aDesc, element, out, oDesc, stream);
+            default: return cudaErrorNotSupported;
+            }
         }
     }
     return cudaErrorNotSupported;
@@ -693,16 +724,20 @@ static cudaError_t selectRank(
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
+    assert(aDesc.rank == oDesc.rank);
     if constexpr (Op::conforms()) {
-        assert(aDesc.rank == oDesc.rank);
-        switch (oDesc.rank) {
-        case 1: return initIndex<Op,Strided<1>,Strided<1>>(element, a, aDesc, out, oDesc, stream);
-        case 2: return initIndex<Op,Strided<2>,Strided<2>>(element, a, aDesc, out, oDesc, stream);
-        case 3: return initIndex<Op,Strided<3>,Strided<3>>(element, a, aDesc, out, oDesc, stream);
-        // case 4: return initIndex<Op,Strided<4>,Strided<4>>(element, a, aDesc, out, oDesc, stream);
-        // case 5: return initIndex<Op,Strided<5>,Strided<5>>(element, a, aDesc, out, oDesc, stream);
-        // case 6: return initIndex<Op,Strided<6>,Strided<6>>(element, a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
+        if (aDesc.isDense() && oDesc.isDense()) {
+            return flattened<typename Op::packed>(element, a, aDesc, out, oDesc, stream);
+        } else {
+            switch (oDesc.rank) {
+            case 1: return initIndex<Op,Strided<1>,Strided<1>>(element, a, aDesc, out, oDesc, stream);
+            case 2: return initIndex<Op,Strided<2>,Strided<2>>(element, a, aDesc, out, oDesc, stream);
+            case 3: return initIndex<Op,Strided<3>,Strided<3>>(element, a, aDesc, out, oDesc, stream);
+            // case 4: return initIndex<Op,Strided<4>,Strided<4>>(element, a, aDesc, out, oDesc, stream);
+            // case 5: return initIndex<Op,Strided<5>,Strided<5>>(element, a, aDesc, out, oDesc, stream);
+            // case 6: return initIndex<Op,Strided<6>,Strided<6>>(element, a, aDesc, out, oDesc, stream);
+            default: return cudaErrorNotSupported;
+            }
         }
     }
     return cudaErrorNotSupported;
@@ -717,16 +752,20 @@ static cudaError_t selectRank(
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
+    assert(aDesc.rank == bDesc.rank && aDesc.rank == oDesc.rank);
     if constexpr (Op::conforms()) {
-        assert(aDesc.rank == bDesc.rank && aDesc.rank == oDesc.rank);
-        switch (oDesc.rank) {
-        case 1: return initIndex<Op,Strided<1>,Strided<1>,Strided<1>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        case 2: return initIndex<Op,Strided<2>,Strided<2>,Strided<2>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        case 3: return initIndex<Op,Strided<3>,Strided<3>,Strided<3>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        // case 4: return initIndex<Op,Strided<4>,Strided<1>,Strided<4>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        // case 5: return initIndex<Op,Strided<5>,Strided<2>,Strided<5>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        // case 6: return initIndex<Op,Strided<6>,Strided<3>,Strided<6>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
+        if (aDesc.isDense() && oDesc.isDense()) {
+            return flattened<typename Op::packed>(a, aDesc, b, bDesc, out, oDesc, stream);
+        } else {
+            switch (oDesc.rank) {
+            case 1: return initIndex<Op,Strided<1>,Strided<1>,Strided<1>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 2: return initIndex<Op,Strided<2>,Strided<2>,Strided<2>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            case 3: return initIndex<Op,Strided<3>,Strided<3>,Strided<3>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            // case 4: return initIndex<Op,Strided<4>,Strided<1>,Strided<4>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            // case 5: return initIndex<Op,Strided<5>,Strided<2>,Strided<5>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            // case 6: return initIndex<Op,Strided<6>,Strided<3>,Strided<6>>(a, aDesc, b, bDesc, out, oDesc, stream);
+            default: return cudaErrorNotSupported;
+            }
         }
     }
     return cudaErrorNotSupported;
@@ -741,24 +780,10 @@ template<template<typename A, typename O> class Op, typename A>
 static cudaError_t selectOut(
     const void* a, const TensorDescriptor& aDesc,
     void* out, const TensorDescriptor& oDesc,
-    cudaStream_t stream,
-    int shiftCount = 0
+    cudaStream_t stream
 ) {
-    if constexpr (isPacked<A>()) {
-        switch(oDesc.type) {
-        case real32F:  return flattened<Op<A, float>>(a, aDesc, out, oDesc, stream);
-        case real16F:  return flattened<Op<A, __half2>>(a, aDesc, out, oDesc, stream);
-        case real16BF: return flattened<Op<A, __nv_bfloat162>>(a, aDesc, out, oDesc, stream);
-        case real64F:  return flattened<Op<A, double>>(a, aDesc, out, oDesc, stream);
-        case real32I:  return flattened<Op<A, int32_t>>(a, aDesc, out, oDesc, stream);
-        case real8U:   return flattened<Op<A, uchar4>>(a, aDesc, out, oDesc, stream);
-        case real8I:   return flattened<Op<A, char4>>(a, aDesc, out, oDesc, stream);
-        case real16U:  return flattened<Op<A, ushort2>>(a, aDesc, out, oDesc, stream);
-        case real16I:  return flattened<Op<A, short2>>(a, aDesc, out, oDesc, stream);
-        case boolean:  return flattened<Op<A, typename match<A,bool>::type>>(a, aDesc, out, oDesc, stream);
-        case complex32F:  return flattened<Op<A, Complex<float>>>(a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
+    if (aDesc.type == oDesc.type) {
+        return selectRank<Op<A,A>>(a, aDesc, out, oDesc, stream);
     } else {
         switch(oDesc.type) {
         case real32F:  return selectRank<Op<A, float>>(a, aDesc, out, oDesc, stream);
@@ -775,7 +800,6 @@ static cudaError_t selectOut(
         default: return cudaErrorNotSupported;
         }
     }
-    return cudaErrorNotSupported;
 }
 
 //--------------------------------------
@@ -785,24 +809,10 @@ static cudaError_t selectOut(
     const void* a, const TensorDescriptor& aDesc,
     const void* element,
     void* out, const TensorDescriptor& oDesc,
-    cudaStream_t stream,
-    int shiftCount = 0
+    cudaStream_t stream
 ) {
-    if constexpr (isPacked<A>()) {
-        switch(oDesc.type) {
-        case real32F:  return flattened<Op<A, float>>(a, aDesc, element, out, oDesc, stream);
-        case real16F:  return flattened<Op<A, __half2>>(a, aDesc, element, out, oDesc, stream);
-        case real16BF: return flattened<Op<A, __nv_bfloat162>>(a, aDesc, element, out, oDesc, stream);
-        case real64F:  return flattened<Op<A, double>>(a, aDesc, element, out, oDesc, stream);
-        case real32I:  return flattened<Op<A, int32_t>>(a, aDesc, element, out, oDesc, stream);
-        case real8U:   return flattened<Op<A, uchar4>>(a, aDesc, element, out, oDesc, stream);
-        case real8I:   return flattened<Op<A, char4>>(a, aDesc, element, out, oDesc, stream);
-        case real16U:  return flattened<Op<A, ushort2>>(a, aDesc, element, out, oDesc, stream);
-        case real16I:  return flattened<Op<A, short2>>(a, aDesc, element, out, oDesc, stream);
-        case boolean:  return flattened<Op<A, typename match<A,bool>::type>>(a, aDesc, element, out, oDesc, stream);
-        case complex32F:  return flattened<Op<A, Complex<float>>>(a, aDesc, element, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
+    if (aDesc.type == oDesc.type) {
+        return selectRank<Op<A,A>>(a, aDesc, element, out, oDesc, stream);
     } else {
         switch(oDesc.type) {
         case real32F:  return selectRank<Op<A, float>>(a, aDesc, element, out, oDesc, stream);
@@ -819,7 +829,6 @@ static cudaError_t selectOut(
         default: return cudaErrorNotSupported;
         }
     }
-    return cudaErrorNotSupported;
 }
 
 //--------------------------------------
@@ -829,24 +838,10 @@ static cudaError_t selectOut(
     const void* element,
     const void* a, const TensorDescriptor& aDesc,
     void* out, const TensorDescriptor& oDesc,
-    cudaStream_t stream,
-    int shiftCount = 0
+    cudaStream_t stream
 ) {
-    if constexpr (isPacked<A>()) {
-        switch(oDesc.type) {
-        case real32F:  return flattened<Op<A, float>>(element, a, aDesc, out, oDesc, stream);
-        case real16F:  return flattened<Op<A, __half2>>(element, a, aDesc, out, oDesc, stream);
-        case real16BF: return flattened<Op<A, __nv_bfloat162>>(element, a, aDesc, out, oDesc, stream);
-        case real64F:  return flattened<Op<A, double>>(element, a, aDesc, out, oDesc, stream);
-        case real32I:  return flattened<Op<A, int32_t>>(element, a, aDesc, out, oDesc, stream);
-        case real8U:   return flattened<Op<A, uchar4>>(element, a, aDesc, out, oDesc, stream);
-        case real8I:   return flattened<Op<A, char4>>(element, a, aDesc, out, oDesc, stream);
-        case real16U:  return flattened<Op<A, ushort2>>(element, a, aDesc, out, oDesc, stream);
-        case real16I:  return flattened<Op<A, short2>>(element, a, aDesc, out, oDesc, stream);
-        case boolean:  return flattened<Op<A, typename match<A,bool>::type>>(element, a, aDesc, out, oDesc, stream);
-        case complex32F:  return flattened<Op<A, Complex<float>>>(element, a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
+    if (aDesc.type == oDesc.type) {
+        return selectRank<Op<A,A>>(element, a, aDesc, out, oDesc, stream);
     } else {
         switch(oDesc.type) {
         case real32F:  return selectRank<Op<A, float>>(element, a, aDesc, out, oDesc, stream);
@@ -863,7 +858,6 @@ static cudaError_t selectOut(
         default: return cudaErrorNotSupported;
         }
     }
-    return cudaErrorNotSupported;
 }
 
 //--------------------------------------
@@ -873,24 +867,10 @@ static cudaError_t selectOut(
     const void* a, const TensorDescriptor& aDesc,
     const void* b, const TensorDescriptor& bDesc,
     void* out, const TensorDescriptor& oDesc,
-    cudaStream_t stream,
-    int shiftCount = 0
+    cudaStream_t stream
 ) {
-    if constexpr (isPacked<A>()) {
-        switch(oDesc.type) {
-        case real32F:  return flattened<Op<A, float>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16F:  return flattened<Op<A, __half2>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16BF: return flattened<Op<A, __nv_bfloat162>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real64F:  return flattened<Op<A, double>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real32I:  return flattened<Op<A, int32_t>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real8U:   return flattened<Op<A, uchar4>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real8I:   return flattened<Op<A, char4>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16U:  return flattened<Op<A, ushort2>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16I:  return flattened<Op<A, short2>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case boolean:  return flattened<Op<A, typename match<A,bool>::type>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        case complex32F:  return flattened<Op<A, Complex<float>>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
+    if (aDesc.type == oDesc.type) {
+        return selectRank<Op<A,A>>(a, aDesc, b, bDesc,out, oDesc, stream);
     } else {
         switch(oDesc.type) {
         case real32F:  return selectRank<Op<A, float>>(a, aDesc, b, bDesc,out, oDesc, stream);
@@ -907,7 +887,6 @@ static cudaError_t selectOut(
         default: return cudaErrorNotSupported;
         }
     }
-    return cudaErrorNotSupported;
 }
 
 //==============================================================================
@@ -922,38 +901,19 @@ static cudaError_t select(
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    if (aDesc.isDense() && oDesc.isDense()) {
-        // if the input and output are dense then we can recast
-        // to 32 bit packed types to improve memory bandwidth
-        switch(aDesc.type) {
-        case real32F:  return selectOut<Op, float>(a, aDesc, out, oDesc, stream);
-        case real16F:  return selectOut<Op, __half2>(a, aDesc, out, oDesc, stream);
-        case real16BF: return selectOut<Op, __nv_bfloat162>(a, aDesc, out, oDesc, stream);
-        case real64F:  return selectOut<Op, double>(a, aDesc, out, oDesc, stream);
-        case real32I:  return selectOut<Op, int32_t>(a, aDesc, out, oDesc, stream);
-        case real8U:   return selectOut<Op, uchar4>(a, aDesc, out, oDesc, stream);
-        case real8I:   return selectOut<Op, char4>(a, aDesc, out, oDesc, stream);
-        case real16U:  return selectOut<Op, ushort2>(a, aDesc, out, oDesc, stream);
-        case real16I:  return selectOut<Op, short2>(a, aDesc, out, oDesc, stream);
-        case boolean:  return selectOut<Op, bool4>(a, aDesc, out, oDesc, stream);
-        case complex32F: return selectOut<Op, Complex<float>>(a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
-    } else {
-        switch(aDesc.type) {
-        case real32F:  return selectOut<Op, float>(a, aDesc, out, oDesc, stream);
-        case real16F:  return selectOut<Op, __half>(a, aDesc, out, oDesc, stream);
-        case real16BF: return selectOut<Op, __nv_bfloat16>(a, aDesc, out, oDesc, stream);
-        case real64F:  return selectOut<Op, double>(a, aDesc, out, oDesc, stream);
-        case real32I:  return selectOut<Op, int32_t>(a, aDesc, out, oDesc, stream);
-        case real8U:   return selectOut<Op, uint8_t>(a, aDesc, out, oDesc, stream);
-        case real8I:   return selectOut<Op, int8_t>(a, aDesc, out, oDesc, stream);
-        case real16U:  return selectOut<Op, uint16_t>(a, aDesc, out, oDesc, stream);
-        case real16I:  return selectOut<Op, int16_t>(a, aDesc, out, oDesc, stream);
-        case boolean:  return selectOut<Op, bool>(a, aDesc, out, oDesc, stream);
-        case complex32F: return selectOut<Op, Complex<float>>(a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
+    switch(aDesc.type) {
+    case real32F:  return selectOut<Op, float>(a, aDesc, out, oDesc, stream);
+    case real16F:  return selectOut<Op, __half>(a, aDesc, out, oDesc, stream);
+    case real16BF: return selectOut<Op, __nv_bfloat16>(a, aDesc, out, oDesc, stream);
+    case real64F:  return selectOut<Op, double>(a, aDesc, out, oDesc, stream);
+    case real32I:  return selectOut<Op, int32_t>(a, aDesc, out, oDesc, stream);
+    case real8U:   return selectOut<Op, uint8_t>(a, aDesc, out, oDesc, stream);
+    case real8I:   return selectOut<Op, int8_t>(a, aDesc, out, oDesc, stream);
+    case real16U:  return selectOut<Op, uint16_t>(a, aDesc, out, oDesc, stream);
+    case real16I:  return selectOut<Op, int16_t>(a, aDesc, out, oDesc, stream);
+    case boolean:  return selectOut<Op, bool>(a, aDesc, out, oDesc, stream);
+    case complex32F: return selectOut<Op, Complex<float>>(a, aDesc, out, oDesc, stream);
+    default: return cudaErrorNotSupported;
     }
 }
 
@@ -966,36 +926,18 @@ static cudaError_t select(
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    if (aDesc.isDense() && oDesc.isDense()) {
-        // if the input and output are dense then we can recast
-        // to 32 bit packed types to improve memory bandwidth
-        switch(aDesc.type) {
-        case real32F:  return selectOut<Op, float>(a, aDesc, element, out, oDesc, stream);
-        case real16F:  return selectOut<Op, __half2>(a, aDesc, element, out, oDesc, stream);
-        case real16BF: return selectOut<Op, __nv_bfloat162>(a, aDesc, element, out, oDesc, stream);
-        case real64F:  return selectOut<Op, double>(a, aDesc, element, out, oDesc, stream);
-        case real32I:  return selectOut<Op, int32_t>(a, aDesc, element, out, oDesc, stream);
-        case real8U:   return selectOut<Op, uchar4>(a, aDesc, element, out, oDesc, stream);
-        case real8I:   return selectOut<Op, char4>(a, aDesc, element, out, oDesc, stream);
-        case real16U:  return selectOut<Op, ushort2>(a, aDesc, element, out, oDesc, stream);
-        case real16I:  return selectOut<Op, short2>(a, aDesc, element, out, oDesc, stream);
-        case complex32F: return selectOut<Op, Complex<float>>(a, aDesc, element, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
-    } else {
-        switch(aDesc.type) {
-        case real32F:  return selectOut<Op, float>(a, aDesc, element, out, oDesc, stream);
-        case real16F:  return selectOut<Op, __half>(a, aDesc, element, out, oDesc, stream);
-        case real16BF: return selectOut<Op, __nv_bfloat16>(a, aDesc, element, out, oDesc, stream);
-        case real64F:  return selectOut<Op, double>(a, aDesc, element, out, oDesc, stream);
-        case real32I:  return selectOut<Op, int32_t>(a, aDesc, element, out, oDesc, stream);
-        case real8U:   return selectOut<Op, uint8_t>(a, aDesc, element, out, oDesc, stream);
-        case real8I:   return selectOut<Op, int8_t>(a, aDesc, element, out, oDesc, stream);
-        case real16U:  return selectOut<Op, uint16_t>(a, aDesc, element, out, oDesc, stream);
-        case real16I:  return selectOut<Op, int16_t>(a, aDesc, element, out, oDesc, stream);
-        case complex32F: return selectOut<Op, Complex<float>>(a, aDesc, element, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
+    switch(aDesc.type) {
+    case real32F:  return selectOut<Op, float>(a, aDesc, element, out, oDesc, stream);
+    case real16F:  return selectOut<Op, __half>(a, aDesc, element, out, oDesc, stream);
+    case real16BF: return selectOut<Op, __nv_bfloat16>(a, aDesc, element, out, oDesc, stream);
+    case real64F:  return selectOut<Op, double>(a, aDesc, element, out, oDesc, stream);
+    case real32I:  return selectOut<Op, int32_t>(a, aDesc, element, out, oDesc, stream);
+    case real8U:   return selectOut<Op, uint8_t>(a, aDesc, element, out, oDesc, stream);
+    case real8I:   return selectOut<Op, int8_t>(a, aDesc, element, out, oDesc, stream);
+    case real16U:  return selectOut<Op, uint16_t>(a, aDesc, element, out, oDesc, stream);
+    case real16I:  return selectOut<Op, int16_t>(a, aDesc, element, out, oDesc, stream);
+    case complex32F: return selectOut<Op, Complex<float>>(a, aDesc, element, out, oDesc, stream);
+    default: return cudaErrorNotSupported;
     }
 }
 
@@ -1008,41 +950,23 @@ static cudaError_t select(
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    if (aDesc.isDense() && oDesc.isDense()) {
-        // if the input and output are dense then we can recast
-        // to 32 bit packed types to improve memory bandwidth
-        switch(aDesc.type) {
-        case real32F:  return selectOut<Op, float>(element, a, aDesc, out, oDesc, stream);
-        case real16F:  return selectOut<Op, __half2>(element, a, aDesc, out, oDesc, stream);
-        case real16BF: return selectOut<Op, __nv_bfloat162>(element, a, aDesc, out, oDesc, stream);
-        case real64F:  return selectOut<Op, double>(element, a, aDesc, out, oDesc, stream);
-        case real32I:  return selectOut<Op, int32_t>(element, a, aDesc, out, oDesc, stream);
-        case real8U:   return selectOut<Op, uchar4>(element, a, aDesc, out, oDesc, stream);
-        case real8I:   return selectOut<Op, char4>(element, a, aDesc, out, oDesc, stream);
-        case real16U:  return selectOut<Op, ushort2>(element, a, aDesc, out, oDesc, stream);
-        case real16I:  return selectOut<Op, short2>(element, a, aDesc, out, oDesc, stream);
-        case complex32F:  return selectOut<Op, Complex<float>>(element, a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
-    } else {
-        switch(aDesc.type) {
-        case real32F:  return selectOut<Op, float>(element, a, aDesc, out, oDesc, stream);
-        case real16F:  return selectOut<Op, __half>(element, a, aDesc, out, oDesc, stream);
-        case real16BF: return selectOut<Op, __nv_bfloat16>(element, a, aDesc, out, oDesc, stream);
-        case real64F:  return selectOut<Op, double>(element, a, aDesc, out, oDesc, stream);
-        case real32I:  return selectOut<Op, int32_t>(element, a, aDesc, out, oDesc, stream);
-        case real8U:   return selectOut<Op, uint8_t>(element, a, aDesc, out, oDesc, stream);
-        case real8I:   return selectOut<Op, int8_t>(element, a, aDesc, out, oDesc, stream);
-        case real16U:  return selectOut<Op, uint16_t>(element, a, aDesc, out, oDesc, stream);
-        case real16I:  return selectOut<Op, int16_t>(element, a, aDesc, out, oDesc, stream);
-        case complex32F:  return selectOut<Op, Complex<float>>(element, a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
+    switch(aDesc.type) {
+    case real32F:  return selectOut<Op, float>(element, a, aDesc, out, oDesc, stream);
+    case real16F:  return selectOut<Op, __half>(element, a, aDesc, out, oDesc, stream);
+    case real16BF: return selectOut<Op, __nv_bfloat16>(element, a, aDesc, out, oDesc, stream);
+    case real64F:  return selectOut<Op, double>(element, a, aDesc, out, oDesc, stream);
+    case real32I:  return selectOut<Op, int32_t>(element, a, aDesc, out, oDesc, stream);
+    case real8U:   return selectOut<Op, uint8_t>(element, a, aDesc, out, oDesc, stream);
+    case real8I:   return selectOut<Op, int8_t>(element, a, aDesc, out, oDesc, stream);
+    case real16U:  return selectOut<Op, uint16_t>(element, a, aDesc, out, oDesc, stream);
+    case real16I:  return selectOut<Op, int16_t>(element, a, aDesc, out, oDesc, stream);
+    case complex32F:  return selectOut<Op, Complex<float>>(element, a, aDesc, out, oDesc, stream);
+    default: return cudaErrorNotSupported;
     }
 }
 
 //--------------------------------------
-// select tensorA
+// select tensorA tensorB
 template<template<typename A, typename O> class Op>
 static cudaError_t select(
     const void* a, const TensorDescriptor& aDesc,
@@ -1050,38 +974,20 @@ static cudaError_t select(
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    if (aDesc.isDense() && oDesc.isDense()) {
-        // if the input and output are dense then we can recast
-        // to 32 bit packed types to improve memory bandwidth
-        switch(aDesc.type) {
-        case real32F:  return selectOut<Op, float>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16F:  return selectOut<Op, __half2>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16BF: return selectOut<Op, __nv_bfloat162>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real64F:  return selectOut<Op, double>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real32I:  return selectOut<Op, int32_t>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real8U:   return selectOut<Op, uchar4>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real8I:   return selectOut<Op, char4>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16U:  return selectOut<Op, ushort2>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16I:  return selectOut<Op, short2>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case boolean:  return selectOut<Op, bool4>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case complex32F:  return selectOut<Op, Complex<float>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
-    } else {
-        switch(aDesc.type) {
-        case real32F:  return selectOut<Op, float>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16F:  return selectOut<Op, __half>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16BF: return selectOut<Op, __nv_bfloat16>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real64F:  return selectOut<Op, double>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real32I:  return selectOut<Op, int32_t>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real8U:   return selectOut<Op, uint8_t>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real8I:   return selectOut<Op, int8_t>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16U:  return selectOut<Op, uint16_t>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16I:  return selectOut<Op, int16_t>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case boolean:  return selectOut<Op, bool>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case complex32F:  return selectOut<Op, Complex<float>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-        }
+    assert(aDesc.type == bDesc.type);
+    switch(aDesc.type) {
+    case real32F:  return selectOut<Op, float>(a, aDesc, b, bDesc,out, oDesc, stream);
+    case real16F:  return selectOut<Op, __half>(a, aDesc, b, bDesc,out, oDesc, stream);
+    case real16BF: return selectOut<Op, __nv_bfloat16>(a, aDesc, b, bDesc,out, oDesc, stream);
+    case real64F:  return selectOut<Op, double>(a, aDesc, b, bDesc,out, oDesc, stream);
+    case real32I:  return selectOut<Op, int32_t>(a, aDesc, b, bDesc,out, oDesc, stream);
+    case real8U:   return selectOut<Op, uint8_t>(a, aDesc, b, bDesc,out, oDesc, stream);
+    case real8I:   return selectOut<Op, int8_t>(a, aDesc, b, bDesc,out, oDesc, stream);
+    case real16U:  return selectOut<Op, uint16_t>(a, aDesc, b, bDesc,out, oDesc, stream);
+    case real16I:  return selectOut<Op, int16_t>(a, aDesc, b, bDesc,out, oDesc, stream);
+    case boolean:  return selectOut<Op, bool>(a, aDesc, b, bDesc,out, oDesc, stream);
+    case complex32F:  return selectOut<Op, Complex<float>>(a, aDesc, b, bDesc,out, oDesc, stream);
+    default: return cudaErrorNotSupported;
     }
 }
 

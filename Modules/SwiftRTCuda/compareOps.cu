@@ -26,6 +26,18 @@
 //------------------------------------------------------------------------------
 Op2(And, andElements, (isBool<T>() && isBool<Out>()))
 
+// template<typename T, typename O> struct And {
+//     typedef T A; typedef T B; typedef O Out;
+//     constexpr static bool conforms() { return (isBool<T>() && isBool<Out>()); }
+//     __device__ inline static void op(const A& a, const B& b, O& out) {
+//         if constexpr (conforms()) out = andElements(a, b);
+//     }
+//     typedef typename packed<T>::type PT;
+//     typedef typename matching_packed<PT,O>::type PO;
+//     typedef And<PT,PO> packed;
+// };
+
+
 cudaError_t srtAnd(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,
