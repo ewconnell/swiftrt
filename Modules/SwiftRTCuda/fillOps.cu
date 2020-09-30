@@ -56,7 +56,7 @@ static cudaError_t elementFill(
     const int shiftCount = 0
 ) {
   E *out = static_cast<E *>(pOut);
-  int count = shiftDownRoundingUp(oDesc.count, shiftCount);
+  int count = divideRoundingUp(oDesc.count, shiftCount);
   dim3 tile = tileSize(count);
   dim3 grid = gridSize<1>(oDesc, tile);
   mapElementFill<E, Flat><<<grid, tile, 0, stream>>>(out, Flat(oDesc), element);

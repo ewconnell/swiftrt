@@ -87,16 +87,16 @@ inline constexpr bool isPacked() {
 // given an input type A and an output type O, if the input is
 // packed, then the corresponding packed respresention of O is defined
 template<typename A, typename O>
-struct match_packing {
+struct match {
     typedef O type;
 };
 
-template<> struct match_packing<char4, bool> { typedef bool4 type; };
-template<> struct match_packing<uchar4, bool> { typedef bool4 type; };
-template<> struct match_packing<short2, bool> { typedef bool2 type; };
-template<> struct match_packing<ushort2, bool> { typedef bool2 type; };
-template<> struct match_packing<__half2, bool> { typedef bool2 type; };
-template<> struct match_packing<__nv_bfloat162, bool> { typedef bool2 type; };
+template<> struct match<char4, bool> { typedef bool4 type; };
+template<> struct match<uchar4, bool> { typedef bool4 type; };
+template<> struct match<short2, bool> { typedef bool2 type; };
+template<> struct match<ushort2, bool> { typedef bool2 type; };
+template<> struct match<__half2, bool> { typedef bool2 type; };
+template<> struct match<__nv_bfloat162, bool> { typedef bool2 type; };
 
 //--------------------------------------
 // given an input type A and an output type O, if the input is
@@ -169,18 +169,9 @@ inline uint32_t fillWord(const void* pValue) {
   for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n); \
        i += blockDim.x * gridDim.x)
 
-// shiftDownRoundingUp
-inline unsigned shiftDownRoundingUp(unsigned num, unsigned shift) {
-    unsigned count = (num + (1 << shift) - 1) >> shift;
-    return count;
-}
-
-//------------------------------------------------------------------------------
-/// roundUp
-// tiles should always be shaped as a power of 2
-// TODO: there should be something faster than this
-inline unsigned roundUp(unsigned n, unsigned multiple) {
-    return (n + multiple - 1) / multiple;
+// divideRoundingUp
+inline int divideRoundingUp(int num, int divisor) {
+    return (num + divisor - 1) / divisor;
 }
 
 //==============================================================================
@@ -205,12 +196,12 @@ inline dim3 gridSize(const TensorDescriptor& oDesc, const dim3& tile) {
     static_assert(Rank <= 3, "not implemented");
     if (Rank == 1) return (oDesc.count + tile.x - 1) / tile.x;
 
-    if (Rank == 2) return dim3(roundUp(oDesc.shape[0], tile.y), 
-                               roundUp(oDesc.shape[1], tile.x));
+    if (Rank == 2) return dim3(divideRoundingUp(oDesc.shape[0], tile.y), 
+                               divideRoundingUp(oDesc.shape[1], tile.x));
     
-    if (Rank == 3) return dim3(roundUp(oDesc.shape[0], tile.z), 
-                               roundUp(oDesc.shape[1], tile.y), 
-                               roundUp(oDesc.shape[2], tile.x));
+    if (Rank == 3) return dim3(divideRoundingUp(oDesc.shape[0], tile.z), 
+                               divideRoundingUp(oDesc.shape[1], tile.y), 
+                               divideRoundingUp(oDesc.shape[2], tile.x));
 }
 
 //==============================================================================
@@ -348,19 +339,21 @@ template<typename Op>
 static cudaError_t flattened(
     const void* pA, const TensorDescriptor& aDesc,
     void* pOut, const TensorDescriptor& oDesc,
-    cudaStream_t stream,
-    int shiftCount = 0
+    cudaStream_t stream
 ) {
     if constexpr (Op::conforms()) {
-        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+        using A = const typename Op::A;
+        using Out = typename Op::Out;
+        A* a = static_cast<A*>(pA);
+        Out* out = static_cast<Out*>(pOut);
 
         // get tile and grid size for launch
-        int packedCount = shiftDownRoundingUp(oDesc.count, shiftCount);
+        int packedCount = divideRoundingUp(oDesc.count, packing<A>::count);
         dim3 tile = tileSize(packedCount);
         dim3 grid = gridSize<1>(oDesc, tile);
 
-        mapA<Op,Flat,Flat><<<grid, tile, 0, stream>>>(a, Flat(aDesc), out, Flat(oDesc));
+        mapA<Op,Flat,Flat><<<grid, tile, 0, stream>>>
+            (a, Flat(aDesc), out, Flat(oDesc));
         return cudaSuccess;
     }
     return cudaErrorNotSupported;
@@ -373,20 +366,23 @@ static cudaError_t flattened(
     const void* pA, const TensorDescriptor& aDesc,
     const void* pElement,
     void* pOut, const TensorDescriptor& oDesc,
-    cudaStream_t stream,
-    int shiftCount = 0
+    cudaStream_t stream
 ) {
     if constexpr (Op::conforms()) {
-        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-        const typename Op::B  e = *static_cast<const typename Op::B*>(pElement);
-        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+        using A = const typename Op::A;
+        using E = const typename Op::B;
+        using Out = typename Op::Out;
+        A* a = static_cast<A*>(pA);
+        E  e = *static_cast<E*>(pElement);
+        Out* out = static_cast<Out*>(pOut);
 
         // get tile and grid size for launch
-        int packedCount = shiftDownRoundingUp(oDesc.count, shiftCount);
+        int packedCount = divideRoundingUp(oDesc.count, packing<A>::count);
         dim3 tile = tileSize(packedCount);
         dim3 grid = gridSize<1>(oDesc, tile);
 
-        mapAE<Op,Flat,Flat><<<grid, tile, 0, stream>>>(a, Flat(aDesc), e, out, Flat(oDesc));
+        mapAE<Op,Flat,Flat><<<grid, tile, 0, stream>>>
+            (a, Flat(aDesc), e, out, Flat(oDesc));
         return cudaSuccess;
     }
     return cudaErrorNotSupported;
@@ -399,20 +395,23 @@ static cudaError_t flattened(
     const void* pElement,
     const void* pA, const TensorDescriptor& aDesc,
     void* pOut, const TensorDescriptor& oDesc,
-    cudaStream_t stream,
-    int shiftCount = 0
+    cudaStream_t stream
 ) {
     if constexpr (Op::conforms()) {
-        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-        const typename Op::A  e = *static_cast<const typename Op::A*>(pElement);
-        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+        using A = const typename Op::A;
+        using E = const typename Op::B;
+        using Out = typename Op::Out;
+        A* a = static_cast<A*>(pA);
+        E  e = *static_cast<E*>(pElement);
+        Out* out = static_cast<Out*>(pOut);
 
         // get tile and grid size for launch
-        int packedCount = shiftDownRoundingUp(oDesc.count, shiftCount);
+        int packedCount = divideRoundingUp(oDesc.count, packing<A>::count);
         dim3 tile = tileSize(packedCount);
         dim3 grid = gridSize<1>(oDesc, tile);
 
-        mapEA<Op,Flat,Flat><<<grid, tile, 0, stream>>>(e, a, Flat(aDesc), out, Flat(oDesc));
+        mapEA<Op,Flat,Flat><<<grid, tile, 0, stream>>>
+            (e, a, Flat(aDesc), out, Flat(oDesc));
         return cudaSuccess;
     }
     return cudaErrorNotSupported;
@@ -425,15 +424,16 @@ static cudaError_t flattened(
     const void* pA, const TensorDescriptor& aDesc, 
     Scalar value,
     void* pOut, const TensorDescriptor& oDesc,
-    cudaStream_t stream,
-    int shiftCount = 0
+    cudaStream_t stream
 ) {
     if constexpr (Op::conforms()) {
-        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+        using A = typename Op::A;
+        using Out = typename Op::Out;
+        A* a = static_cast<A*>(pA);
+        Out* out = static_cast<Out*>(pOut);
 
         // get tile and grid size for launch
-        int packedCount = shiftDownRoundingUp(oDesc.count, shiftCount);
+        int packedCount = divideRoundingUp(oDesc.count, packing<A>::count);
         dim3 tile = tileSize(packedCount);
         dim3 grid = gridSize<1>(oDesc, tile);
 
@@ -451,16 +451,18 @@ static cudaError_t flattened(
     const void* pA, const TensorDescriptor& aDesc,
     const void* pB, const TensorDescriptor& bDesc,
     void* pOut, const TensorDescriptor& oDesc,
-    cudaStream_t stream,
-    int shiftCount = 0
+    cudaStream_t stream
 ) {
     if constexpr (Op::conforms()) {
-        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-        const typename Op::B* b = static_cast<const typename Op::B*>(pB);
-        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+        using A = const typename Op::A;
+        using B = const typename Op::B;
+        using Out = typename Op::Out;
+        A* a = static_cast<A*>(pA);
+        B* b = static_cast<B*>(pB);
+        Out* out = static_cast<Out*>(pOut);
 
         // get tile and grid size for launch
-        int packedCount = shiftDownRoundingUp(oDesc.count, shiftCount);
+        int packedCount = divideRoundingUp(oDesc.count, packing<A>::count);
         dim3 tile = tileSize(packedCount);
         dim3 grid = gridSize<1>(oDesc, tile);
 
@@ -479,17 +481,20 @@ static cudaError_t flattened(
     const void* pB, const TensorDescriptor& bDesc,
     const void* pC, const TensorDescriptor& cDesc,
     void* pOut, const TensorDescriptor& oDesc,
-    cudaStream_t stream,
-    int shiftCount = 0
+    cudaStream_t stream
 ) {
     if constexpr (Op::conforms()) {
-        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-        const typename Op::B* b = static_cast<const typename Op::B*>(pB);
-        const typename Op::C* c = static_cast<const typename Op::C*>(pC);
-        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+        using A = const typename Op::A;
+        using B = const typename Op::B;
+        using C = const typename Op::C;
+        using Out = typename Op::Out;
+        A* a = static_cast<A*>(pA);
+        B* b = static_cast<B*>(pB);
+        C* c = static_cast<C*>(pC);
+        Out* out = static_cast<Out*>(pOut);
 
         // get tile and grid size for launch
-        int packedCount = shiftDownRoundingUp(oDesc.count, shiftCount);
+        int packedCount = divideRoundingUp(oDesc.count, packing<A>::count);
         dim3 tile = tileSize(packedCount);
         dim3 grid = gridSize<1>(oDesc, tile);
 
@@ -508,17 +513,20 @@ static cudaError_t flattened(
     const void* pB, const TensorDescriptor& bDesc,
     const void* pElement,
     void* pOut, const TensorDescriptor& oDesc,
-    cudaStream_t stream,
-    int shiftCount = 0
+    cudaStream_t stream
 ) {
     if constexpr (Op::conforms()) {
-        const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-        const typename Op::B* b = static_cast<const typename Op::B*>(pB);
-        const typename Op::C  e = *static_cast<const typename Op::C*>(pElement);
-        typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+        using A = const typename Op::A;
+        using B = const typename Op::B;
+        using E = const typename Op::C;
+        using Out = typename Op::Out;
+        A* a = static_cast<A*>(pA);
+        B* b = static_cast<B*>(pB);
+        E  e = *static_cast<E*>(pElement);
+        Out* out = static_cast<Out*>(pOut);
 
         // get tile and grid size for launch
-        int packedCount = shiftDownRoundingUp(oDesc.count, shiftCount);
+        int packedCount = divideRoundingUp(oDesc.count, packing<A>::count);
         dim3 tile = tileSize(packedCount);
         dim3 grid = gridSize<1>(oDesc, tile);
 
@@ -537,8 +545,10 @@ static cudaError_t initIndex(
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+    using A = const typename Op::A;
+    using Out = typename Op::Out;
+    A* a = static_cast<A*>(pA);
+    Out* out = static_cast<Out*>(pOut);
 
     // get tile and grid size for launch
     dim3 tile = tileSize<IndexO::Rank>(oDesc);
@@ -558,9 +568,12 @@ static cudaError_t initIndex(
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-    const typename Op::A e = *static_cast<const typename Op::A*>(pElement);
-    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+    using A = const typename Op::A;
+    using E = const typename Op::A;
+    using Out = typename Op::Out;
+    A* a = static_cast<A*>(pA);
+    E  e = *static_cast<E*>(pElement);
+    Out* out = static_cast<Out*>(pOut);
 
     // get tile and grid size for launch
     dim3 tile = tileSize<IndexO::Rank>(oDesc);
@@ -580,9 +593,12 @@ static cudaError_t initIndex(
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-    const typename Op::A  e = *static_cast<const typename Op::A*>(pElement);
-    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+    using A = const typename Op::A;
+    using E = const typename Op::A;
+    using Out = typename Op::Out;
+    A* a = static_cast<A*>(pA);
+    E  e = *static_cast<E*>(pElement);
+    Out* out = static_cast<Out*>(pOut);
 
     // get tile and grid size for launch
     dim3 tile = tileSize<IndexO::Rank>(oDesc);
@@ -602,9 +618,12 @@ static cudaError_t initIndex(
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    const typename Op::A* a = static_cast<const typename Op::A*>(pA);
-    const typename Op::B* b = static_cast<const typename Op::B*>(pB);
-    typename Op::Out* out = static_cast<typename Op::Out*>(pOut);
+    using A = const typename Op::A;
+    using B = const typename Op::B;
+    using Out = typename Op::Out;
+    A* a = static_cast<A*>(pA);
+    B* b = static_cast<B*>(pB);
+    Out* out = static_cast<Out*>(pOut);
 
     // get tile and grid size for launch
     dim3 tile = tileSize<IndexO::Rank>(oDesc);
@@ -728,15 +747,15 @@ static cudaError_t selectOut(
     if constexpr (isPacked<A>()) {
         switch(oDesc.type) {
         case real32F:  return flattened<Op<A, float>>(a, aDesc, out, oDesc, stream);
-        case real16F:  return flattened<Op<A, __half2>>(a, aDesc, out, oDesc, stream, 1);
-        case real16BF: return flattened<Op<A, __nv_bfloat162>>(a, aDesc, out, oDesc, stream, 1);
+        case real16F:  return flattened<Op<A, __half2>>(a, aDesc, out, oDesc, stream);
+        case real16BF: return flattened<Op<A, __nv_bfloat162>>(a, aDesc, out, oDesc, stream);
         case real64F:  return flattened<Op<A, double>>(a, aDesc, out, oDesc, stream);
         case real32I:  return flattened<Op<A, int32_t>>(a, aDesc, out, oDesc, stream);
-        case real8U:   return flattened<Op<A, uchar4>>(a, aDesc, out, oDesc, stream, 2);
-        case real8I:   return flattened<Op<A, char4>>(a, aDesc, out, oDesc, stream, 2);
-        case real16U:  return flattened<Op<A, ushort2>>(a, aDesc, out, oDesc, stream, 1);
-        case real16I:  return flattened<Op<A, short2>>(a, aDesc, out, oDesc, stream, 1);
-        case boolean:  return flattened<Op<A, typename match_packing<A,bool>::type>>(a, aDesc, out, oDesc, stream, 2);
+        case real8U:   return flattened<Op<A, uchar4>>(a, aDesc, out, oDesc, stream);
+        case real8I:   return flattened<Op<A, char4>>(a, aDesc, out, oDesc, stream);
+        case real16U:  return flattened<Op<A, ushort2>>(a, aDesc, out, oDesc, stream);
+        case real16I:  return flattened<Op<A, short2>>(a, aDesc, out, oDesc, stream);
+        case boolean:  return flattened<Op<A, typename match<A,bool>::type>>(a, aDesc, out, oDesc, stream);
         case complex32F:  return flattened<Op<A, Complex<float>>>(a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -772,15 +791,15 @@ static cudaError_t selectOut(
     if constexpr (isPacked<A>()) {
         switch(oDesc.type) {
         case real32F:  return flattened<Op<A, float>>(a, aDesc, element, out, oDesc, stream);
-        case real16F:  return flattened<Op<A, __half2>>(a, aDesc, element, out, oDesc, stream, 1);
-        case real16BF: return flattened<Op<A, __nv_bfloat162>>(a, aDesc, element, out, oDesc, stream, 1);
+        case real16F:  return flattened<Op<A, __half2>>(a, aDesc, element, out, oDesc, stream);
+        case real16BF: return flattened<Op<A, __nv_bfloat162>>(a, aDesc, element, out, oDesc, stream);
         case real64F:  return flattened<Op<A, double>>(a, aDesc, element, out, oDesc, stream);
         case real32I:  return flattened<Op<A, int32_t>>(a, aDesc, element, out, oDesc, stream);
-        case real8U:   return flattened<Op<A, uchar4>>(a, aDesc, element, out, oDesc, stream, 2);
-        case real8I:   return flattened<Op<A, char4>>(a, aDesc, element, out, oDesc, stream, 2);
-        case real16U:  return flattened<Op<A, ushort2>>(a, aDesc, element, out, oDesc, stream, 1);
-        case real16I:  return flattened<Op<A, short2>>(a, aDesc, element, out, oDesc, stream, 1);
-        case boolean:  return flattened<Op<A, typename match_packing<A,bool>::type>>(a, aDesc, element, out, oDesc, stream, 2);
+        case real8U:   return flattened<Op<A, uchar4>>(a, aDesc, element, out, oDesc, stream);
+        case real8I:   return flattened<Op<A, char4>>(a, aDesc, element, out, oDesc, stream);
+        case real16U:  return flattened<Op<A, ushort2>>(a, aDesc, element, out, oDesc, stream);
+        case real16I:  return flattened<Op<A, short2>>(a, aDesc, element, out, oDesc, stream);
+        case boolean:  return flattened<Op<A, typename match<A,bool>::type>>(a, aDesc, element, out, oDesc, stream);
         case complex32F:  return flattened<Op<A, Complex<float>>>(a, aDesc, element, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -816,15 +835,15 @@ static cudaError_t selectOut(
     if constexpr (isPacked<A>()) {
         switch(oDesc.type) {
         case real32F:  return flattened<Op<A, float>>(element, a, aDesc, out, oDesc, stream);
-        case real16F:  return flattened<Op<A, __half2>>(element, a, aDesc, out, oDesc, stream, 1);
-        case real16BF: return flattened<Op<A, __nv_bfloat162>>(element, a, aDesc, out, oDesc, stream, 1);
+        case real16F:  return flattened<Op<A, __half2>>(element, a, aDesc, out, oDesc, stream);
+        case real16BF: return flattened<Op<A, __nv_bfloat162>>(element, a, aDesc, out, oDesc, stream);
         case real64F:  return flattened<Op<A, double>>(element, a, aDesc, out, oDesc, stream);
         case real32I:  return flattened<Op<A, int32_t>>(element, a, aDesc, out, oDesc, stream);
-        case real8U:   return flattened<Op<A, uchar4>>(element, a, aDesc, out, oDesc, stream, 2);
-        case real8I:   return flattened<Op<A, char4>>(element, a, aDesc, out, oDesc, stream, 2);
-        case real16U:  return flattened<Op<A, ushort2>>(element, a, aDesc, out, oDesc, stream, 1);
-        case real16I:  return flattened<Op<A, short2>>(element, a, aDesc, out, oDesc, stream, 1);
-        case boolean:  return flattened<Op<A, typename match_packing<A,bool>::type>>(element, a, aDesc, out, oDesc, stream, 2);
+        case real8U:   return flattened<Op<A, uchar4>>(element, a, aDesc, out, oDesc, stream);
+        case real8I:   return flattened<Op<A, char4>>(element, a, aDesc, out, oDesc, stream);
+        case real16U:  return flattened<Op<A, ushort2>>(element, a, aDesc, out, oDesc, stream);
+        case real16I:  return flattened<Op<A, short2>>(element, a, aDesc, out, oDesc, stream);
+        case boolean:  return flattened<Op<A, typename match<A,bool>::type>>(element, a, aDesc, out, oDesc, stream);
         case complex32F:  return flattened<Op<A, Complex<float>>>(element, a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -860,15 +879,15 @@ static cudaError_t selectOut(
     if constexpr (isPacked<A>()) {
         switch(oDesc.type) {
         case real32F:  return flattened<Op<A, float>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16F:  return flattened<Op<A, __half2>>(a, aDesc, b, bDesc,out, oDesc, stream, 1);
-        case real16BF: return flattened<Op<A, __nv_bfloat162>>(a, aDesc, b, bDesc,out, oDesc, stream, 1);
+        case real16F:  return flattened<Op<A, __half2>>(a, aDesc, b, bDesc,out, oDesc, stream);
+        case real16BF: return flattened<Op<A, __nv_bfloat162>>(a, aDesc, b, bDesc,out, oDesc, stream);
         case real64F:  return flattened<Op<A, double>>(a, aDesc, b, bDesc,out, oDesc, stream);
         case real32I:  return flattened<Op<A, int32_t>>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real8U:   return flattened<Op<A, uchar4>>(a, aDesc, b, bDesc,out, oDesc, stream, 2);
-        case real8I:   return flattened<Op<A, char4>>(a, aDesc, b, bDesc,out, oDesc, stream, 2);
-        case real16U:  return flattened<Op<A, ushort2>>(a, aDesc, b, bDesc,out, oDesc, stream, 1);
-        case real16I:  return flattened<Op<A, short2>>(a, aDesc, b, bDesc,out, oDesc, stream, 1);
-        case boolean:  return flattened<Op<A, typename match_packing<A,bool>::type>>(a, aDesc, b, bDesc, out, oDesc, stream, 2);
+        case real8U:   return flattened<Op<A, uchar4>>(a, aDesc, b, bDesc,out, oDesc, stream);
+        case real8I:   return flattened<Op<A, char4>>(a, aDesc, b, bDesc,out, oDesc, stream);
+        case real16U:  return flattened<Op<A, ushort2>>(a, aDesc, b, bDesc,out, oDesc, stream);
+        case real16I:  return flattened<Op<A, short2>>(a, aDesc, b, bDesc,out, oDesc, stream);
+        case boolean:  return flattened<Op<A, typename match<A,bool>::type>>(a, aDesc, b, bDesc, out, oDesc, stream);
         case complex32F:  return flattened<Op<A, Complex<float>>>(a, aDesc, b, bDesc,out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -908,15 +927,15 @@ static cudaError_t select(
         // to 32 bit packed types to improve memory bandwidth
         switch(aDesc.type) {
         case real32F:  return selectOut<Op, float>(a, aDesc, out, oDesc, stream);
-        case real16F:  return selectOut<Op, __half2>(a, aDesc, out, oDesc, stream, 1);
-        case real16BF: return selectOut<Op, __nv_bfloat162>(a, aDesc, out, oDesc, stream, 1);
+        case real16F:  return selectOut<Op, __half2>(a, aDesc, out, oDesc, stream);
+        case real16BF: return selectOut<Op, __nv_bfloat162>(a, aDesc, out, oDesc, stream);
         case real64F:  return selectOut<Op, double>(a, aDesc, out, oDesc, stream);
         case real32I:  return selectOut<Op, int32_t>(a, aDesc, out, oDesc, stream);
-        case real8U:   return selectOut<Op, uchar4>(a, aDesc, out, oDesc, stream, 2);
-        case real8I:   return selectOut<Op, char4>(a, aDesc, out, oDesc, stream, 2);
-        case real16U:  return selectOut<Op, ushort2>(a, aDesc, out, oDesc, stream, 1);
-        case real16I:  return selectOut<Op, short2>(a, aDesc, out, oDesc, stream, 1);
-        case boolean:  return selectOut<Op, bool4>(a, aDesc, out, oDesc, stream, 2);
+        case real8U:   return selectOut<Op, uchar4>(a, aDesc, out, oDesc, stream);
+        case real8I:   return selectOut<Op, char4>(a, aDesc, out, oDesc, stream);
+        case real16U:  return selectOut<Op, ushort2>(a, aDesc, out, oDesc, stream);
+        case real16I:  return selectOut<Op, short2>(a, aDesc, out, oDesc, stream);
+        case boolean:  return selectOut<Op, bool4>(a, aDesc, out, oDesc, stream);
         case complex32F: return selectOut<Op, Complex<float>>(a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -952,14 +971,14 @@ static cudaError_t select(
         // to 32 bit packed types to improve memory bandwidth
         switch(aDesc.type) {
         case real32F:  return selectOut<Op, float>(a, aDesc, element, out, oDesc, stream);
-        case real16F:  return selectOut<Op, __half2>(a, aDesc, element, out, oDesc, stream, 1);
-        case real16BF: return selectOut<Op, __nv_bfloat162>(a, aDesc, element, out, oDesc, stream, 1);
+        case real16F:  return selectOut<Op, __half2>(a, aDesc, element, out, oDesc, stream);
+        case real16BF: return selectOut<Op, __nv_bfloat162>(a, aDesc, element, out, oDesc, stream);
         case real64F:  return selectOut<Op, double>(a, aDesc, element, out, oDesc, stream);
         case real32I:  return selectOut<Op, int32_t>(a, aDesc, element, out, oDesc, stream);
-        case real8U:   return selectOut<Op, uchar4>(a, aDesc, element, out, oDesc, stream, 2);
-        case real8I:   return selectOut<Op, char4>(a, aDesc, element, out, oDesc, stream, 2);
-        case real16U:  return selectOut<Op, ushort2>(a, aDesc, element, out, oDesc, stream, 1);
-        case real16I:  return selectOut<Op, short2>(a, aDesc, element, out, oDesc, stream, 1);
+        case real8U:   return selectOut<Op, uchar4>(a, aDesc, element, out, oDesc, stream);
+        case real8I:   return selectOut<Op, char4>(a, aDesc, element, out, oDesc, stream);
+        case real16U:  return selectOut<Op, ushort2>(a, aDesc, element, out, oDesc, stream);
+        case real16I:  return selectOut<Op, short2>(a, aDesc, element, out, oDesc, stream);
         case complex32F: return selectOut<Op, Complex<float>>(a, aDesc, element, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -994,14 +1013,14 @@ static cudaError_t select(
         // to 32 bit packed types to improve memory bandwidth
         switch(aDesc.type) {
         case real32F:  return selectOut<Op, float>(element, a, aDesc, out, oDesc, stream);
-        case real16F:  return selectOut<Op, __half2>(element, a, aDesc, out, oDesc, stream, 1);
-        case real16BF: return selectOut<Op, __nv_bfloat162>(element, a, aDesc, out, oDesc, stream, 1);
+        case real16F:  return selectOut<Op, __half2>(element, a, aDesc, out, oDesc, stream);
+        case real16BF: return selectOut<Op, __nv_bfloat162>(element, a, aDesc, out, oDesc, stream);
         case real64F:  return selectOut<Op, double>(element, a, aDesc, out, oDesc, stream);
         case real32I:  return selectOut<Op, int32_t>(element, a, aDesc, out, oDesc, stream);
-        case real8U:   return selectOut<Op, uchar4>(element, a, aDesc, out, oDesc, stream, 2);
-        case real8I:   return selectOut<Op, char4>(element, a, aDesc, out, oDesc, stream, 2);
-        case real16U:  return selectOut<Op, ushort2>(element, a, aDesc, out, oDesc, stream, 1);
-        case real16I:  return selectOut<Op, short2>(element, a, aDesc, out, oDesc, stream, 1);
+        case real8U:   return selectOut<Op, uchar4>(element, a, aDesc, out, oDesc, stream);
+        case real8I:   return selectOut<Op, char4>(element, a, aDesc, out, oDesc, stream);
+        case real16U:  return selectOut<Op, ushort2>(element, a, aDesc, out, oDesc, stream);
+        case real16I:  return selectOut<Op, short2>(element, a, aDesc, out, oDesc, stream);
         case complex32F:  return selectOut<Op, Complex<float>>(element, a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
@@ -1036,15 +1055,15 @@ static cudaError_t select(
         // to 32 bit packed types to improve memory bandwidth
         switch(aDesc.type) {
         case real32F:  return selectOut<Op, float>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real16F:  return selectOut<Op, __half2>(a, aDesc, b, bDesc,out, oDesc, stream, 1);
-        case real16BF: return selectOut<Op, __nv_bfloat162>(a, aDesc, b, bDesc,out, oDesc, stream, 1);
+        case real16F:  return selectOut<Op, __half2>(a, aDesc, b, bDesc,out, oDesc, stream);
+        case real16BF: return selectOut<Op, __nv_bfloat162>(a, aDesc, b, bDesc,out, oDesc, stream);
         case real64F:  return selectOut<Op, double>(a, aDesc, b, bDesc,out, oDesc, stream);
         case real32I:  return selectOut<Op, int32_t>(a, aDesc, b, bDesc,out, oDesc, stream);
-        case real8U:   return selectOut<Op, uchar4>(a, aDesc, b, bDesc,out, oDesc, stream, 2);
-        case real8I:   return selectOut<Op, char4>(a, aDesc, b, bDesc,out, oDesc, stream, 2);
-        case real16U:  return selectOut<Op, ushort2>(a, aDesc, b, bDesc,out, oDesc, stream, 1);
-        case real16I:  return selectOut<Op, short2>(a, aDesc, b, bDesc,out, oDesc, stream, 1);
-        case boolean:  return selectOut<Op, bool4>(a, aDesc, b, bDesc,out, oDesc, stream, 2);
+        case real8U:   return selectOut<Op, uchar4>(a, aDesc, b, bDesc,out, oDesc, stream);
+        case real8I:   return selectOut<Op, char4>(a, aDesc, b, bDesc,out, oDesc, stream);
+        case real16U:  return selectOut<Op, ushort2>(a, aDesc, b, bDesc,out, oDesc, stream);
+        case real16I:  return selectOut<Op, short2>(a, aDesc, b, bDesc,out, oDesc, stream);
+        case boolean:  return selectOut<Op, bool4>(a, aDesc, b, bDesc,out, oDesc, stream);
         case complex32F:  return selectOut<Op, Complex<float>>(a, aDesc, b, bDesc,out, oDesc, stream);
         default: return cudaErrorNotSupported;
         }
