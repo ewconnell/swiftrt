@@ -26,12 +26,12 @@ public class CudaPlatform: ComputePlatform {
     
         // shared
     public static var cpuQueueCount = 0
-    public static var discreteMemoryDeviceId: Int { 1 }
-    public static var eventId = AtomicCounter()
+    public static let discreteMemoryDeviceId = 1
+    public static let eventId = AtomicCounter()
     public static let local = CudaPlatform()
     public static let mainThread = pthread_self()
-    public static var objectId = AtomicCounter()
-    public static var queueId = AtomicCounter()
+    public static let objectId = AtomicCounter()
+    public static let queueId = AtomicCounter()
     public static let startTime = Date()
     public static var lastRandomSeed: RandomSeed = generateRandomSeed()
 

@@ -25,9 +25,9 @@ final class test_Fractals: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_gpuJulia", test_gpuJulia),
-        ("test_pmapJulia", test_pmapJulia),
-        ("test_pmapKernelJulia", test_pmapKernelJulia),
+        // ("test_gpuJulia", test_gpuJulia),
+        // ("test_pmapJulia", test_pmapJulia),
+        // ("test_pmapKernelJulia", test_pmapKernelJulia),
         ("test_Julia", test_Julia),
     ]
 
@@ -96,7 +96,8 @@ final class test_Fractals: XCTestCase {
                 repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         var divergence = full(size, iterations)
 
-        // cpu 12.816s, gpu 1.48s
+        // cpu platform mac and ubuntu: 12.816s
+        // cuda platform: cpu: , gpu 1.48s
         measure {
             for i in 0..<iterations {
                 Z = multiply(Z, Z, add: C)
@@ -108,7 +109,7 @@ final class test_Fractals: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_pmapJulia() {
-         #if !DEBUG
+        //  #if !DEBUG
         // parameters
         let iterations = 2048
         let size = (r: 1000, c: 1000)
@@ -120,23 +121,22 @@ final class test_Fractals: XCTestCase {
         let rFirst = CF(first.real, 0), rLast = CF(last.real, 0)
         let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
 
-        usingSyncQueue {
-            // repeat rows of real range, columns of imaginary range, and combine
-            let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
-                    repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-            var divergence = full(size, iterations)
+        // repeat rows of real range, columns of imaginary range, and combine
+        let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
+                repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+        var divergence = full(size, iterations)
 
-            // mac cpu16 0.850, ubuntu cpu6 3.790s
-            measure {
-                pmap(Z, &divergence) { Z, divergence in
-                    for i in 0..<iterations {
-                        Z = multiply(Z, Z, add: C)
-                        divergence[abs(Z) .> tolerance] = min(divergence, i)
-                    }
+        // cpu platform: mac cpu16 0.850s, ubuntu cpu6: 2.589s
+        // cuda platform: ubuntu cpu6: 3.790s, gpu: 
+        measure {
+            pmap(Z, &divergence) { Z, divergence in
+                for i in 0..<iterations {
+                    Z = multiply(Z, Z, add: C)
+                    divergence[abs(Z) .> tolerance] = min(divergence, i)
                 }
             }
         }
-         #endif
+        //  #endif
     }
 
     func test_pmapKernelJulia() {
@@ -152,18 +152,17 @@ final class test_Fractals: XCTestCase {
         let rFirst = CF(first.real, 0), rLast = CF(last.real, 0)
         let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
         
-        usingSyncQueue {
-            // repeat rows of real range, columns of imaginary range, and combine
-            let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
-                    repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-            var divergence = full(size, iterations)
-            let t2 = tolerance //* tolerance
+        // repeat rows of real range, columns of imaginary range, and combine
+        let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
+                repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+        var divergence = full(size, iterations)
+        let t2 = tolerance //* tolerance
 
-            // mac cpu32: 0.116s, ubuntu cpu12: 1.482s
-            measure {
-                pmap(Z, &divergence, limitedBy: .compute) {
-                    juliaKernel(Z: $0, divergence: &$1, C, t2, iterations)
-                }
+        // cpu platform: mac cpu32: 0.116s, ubuntu cpu12: 0.143s
+        // cuda platform: cpu12:  , gpu: no jit yet, but srtJulia is 0.003s
+        measure {
+            pmap(Z, &divergence, limitedBy: .compute) {
+                juliaKernel(Z: $0, divergence: &$1, C, t2, iterations)
             }
         }
         #endif

@@ -28,17 +28,15 @@ public struct Mutex {
 
 //==============================================================================
 /// AtomicCounter
-public struct AtomicCounter {
+public class AtomicCounter {
     @usableFromInline let state = Mutex()
     @usableFromInline var _value: Int
     @inlinable init(value: Int = -1) { _value = value }
     
     @inlinable var next: Int {
-        mutating get {
-            state.access {
-                _value += 1
-                return _value
-            }
+        state.access {
+            _value += 1
+            return _value
         }
     }
 }
