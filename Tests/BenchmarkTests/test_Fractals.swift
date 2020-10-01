@@ -60,6 +60,7 @@ final class test_Fractals: XCTestCase {
         var d = full(size, iterations)
         let queue = currentQueue
 
+        // fused kernel RTX 2080 Ti: 0.003s
         measure {
             _ = d.withMutableTensor(using: queue) { d, dDesc in
                 Z.withTensor(using: queue) {z, zDesc in
@@ -70,6 +71,7 @@ final class test_Fractals: XCTestCase {
                     }
                 }
             }
+            // read on cpu to ensure gpu kernel is complete
             _ = d.read()
         }
         #endif
@@ -77,7 +79,7 @@ final class test_Fractals: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_Julia() {
-        // #if !DEBUG
+        #if !DEBUG
         // parameters
         let iterations = 2048
         let size = (r: 1000, c: 1000)
@@ -94,14 +96,14 @@ final class test_Fractals: XCTestCase {
                 repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         var divergence = full(size, iterations)
 
-        // cpu 12.816s, gpu 
-    //    measure {
+        // cpu 12.816s, gpu 1.48s
+        measure {
             for i in 0..<iterations {
                 Z = multiply(Z, Z, add: C)
                 divergence[abs(Z) .> tolerance] = min(divergence, i)
             }
-    //    }
-        // #endif
+        }
+        #endif
     }
 
     //--------------------------------------------------------------------------
@@ -118,17 +120,19 @@ final class test_Fractals: XCTestCase {
         let rFirst = CF(first.real, 0), rLast = CF(last.real, 0)
         let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
 
-        // repeat rows of real range, columns of imaginary range, and combine
-        let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
-                repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-        var divergence = full(size, iterations)
+        usingSyncQueue {
+            // repeat rows of real range, columns of imaginary range, and combine
+            let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
+                    repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+            var divergence = full(size, iterations)
 
-        // 0.733
-        measure {
-            pmap(Z, &divergence) { Z, divergence in
-                for i in 0..<iterations {
-                    Z = multiply(Z, Z, add: C)
-                    divergence[abs(Z) .> tolerance] = min(divergence, i)
+            // mac cpu16 0.850, ubuntu cpu6 3.790s
+            measure {
+                pmap(Z, &divergence) { Z, divergence in
+                    for i in 0..<iterations {
+                        Z = multiply(Z, Z, add: C)
+                        divergence[abs(Z) .> tolerance] = min(divergence, i)
+                    }
                 }
             }
         }
@@ -148,16 +152,18 @@ final class test_Fractals: XCTestCase {
         let rFirst = CF(first.real, 0), rLast = CF(last.real, 0)
         let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
         
-        // repeat rows of real range, columns of imaginary range, and combine
-        let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
-                repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-        var divergence = full(size, iterations)
-        let t2 = tolerance //* tolerance
+        usingSyncQueue {
+            // repeat rows of real range, columns of imaginary range, and combine
+            let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
+                    repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+            var divergence = full(size, iterations)
+            let t2 = tolerance //* tolerance
 
-        // 0.116s
-        measure {
-            pmap(Z, &divergence, limitedBy: .compute) {
-                juliaKernel(Z: $0, divergence: &$1, C, t2, iterations)
+            // mac cpu32: 0.116s, ubuntu cpu12: 1.482s
+            measure {
+                pmap(Z, &divergence, limitedBy: .compute) {
+                    juliaKernel(Z: $0, divergence: &$1, C, t2, iterations)
+                }
             }
         }
         #endif
