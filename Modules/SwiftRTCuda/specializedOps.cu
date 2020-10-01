@@ -32,19 +32,21 @@ __global__ void mapJulia(
     const Complex<float> C,
     int iterations
 ) {
-    // 0.003s
+    // 0.000790s
     const auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
     if (indexO.isInBounds(position)) {
         const int ia = indexA.linear(position);
         const int io = indexO.linear(position);
 
-        auto t2 = tolerance * tolerance;
-        auto Z = a[ia];
-        auto d = out[io];
+        float t2 = tolerance * tolerance;
+        Complex<float> Z = a[ia];
+        float d = out[io];
         for (int j = 0; j < iterations; ++j) {
             Z = Z * Z + C;
-            auto m = min(d, float(j));
-            d = abs2(Z) > t2 ? m : d;
+            if (abs2(Z) > t2) {
+                d = min(d, float(j));
+                break;
+            }
         }
         out[io] = d;
     }

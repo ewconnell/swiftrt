@@ -25,10 +25,10 @@ final class test_Fractals: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        // ("test_gpuJulia", test_gpuJulia),
+        ("test_gpuJulia", test_gpuJulia),
         // ("test_pmapJulia", test_pmapJulia),
         // ("test_pmapKernelJulia", test_pmapKernelJulia),
-        ("test_Julia", test_Julia),
+        // ("test_Julia", test_Julia),
     ]
 
     // append and use a discrete async cpu device for these tests
@@ -60,7 +60,7 @@ final class test_Fractals: XCTestCase {
         var d = full(size, iterations)
         let queue = currentQueue
 
-        // fused kernel RTX 2080 Ti: 0.003s
+        // fused kernel RTX 2080 Ti: 0.000790s
         measure {
             _ = d.withMutableTensor(using: queue) { d, dDesc in
                 Z.withTensor(using: queue) {z, zDesc in

@@ -52,35 +52,49 @@ const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*po); \
 //==============================================================================
 /// Logical
 /// converts grid, block, thread indexes into a logical position
-template<size_t Rank>
-struct Logical {
-    // initializer
+template<size_t Rank> struct LogicalBase {
+    uint32_t position[Rank];
+
+    __device__ __forceinline__ uint32_t operator[](int i) const {
+        return position[i];
+    }
+};
+
+template<size_t Rank> struct Logical { };
+template<> struct Logical<1> : LogicalBase<1>
+{
     __device__ __forceinline__ Logical(
         const uint3& blockIdx,
         const dim3& blockDim,
         const uint3& threadIdx
-    ) {
-        static_assert(Rank <= 3, "only Rank 1 - 3 are implemented");
-        if (Rank == 1) {
-            position[0] = blockIdx.x * blockDim.x + threadIdx.x;
-        } else if (Rank == 2) {
-            position[0] = blockIdx.y * blockDim.y + threadIdx.y;
-            position[1] = blockIdx.x * blockDim.x + threadIdx.x;
-        } else {
-            position[0] = blockIdx.z * blockDim.z + threadIdx.z;
-            position[1] = blockIdx.y * blockDim.y + threadIdx.y;
-            position[2] = blockIdx.x * blockDim.x + threadIdx.x;
-        }
+    ) : LogicalBase() {
+        position[0] = blockIdx.x * blockDim.x + threadIdx.x;
     }
+};
 
-    // subscript
-    __device__ __forceinline__ uint32_t operator[](int i) const {
-        return position[i];
+template<> struct Logical<2> : LogicalBase<2>
+{
+    __device__ __forceinline__ Logical(
+        const uint3& blockIdx,
+        const dim3& blockDim,
+        const uint3& threadIdx
+    ) : LogicalBase() {
+        position[0] = blockIdx.y * blockDim.y + threadIdx.y;
+        position[1] = blockIdx.x * blockDim.x + threadIdx.x;
     }
+};
 
-    private:
-        // properties
-        uint32_t position[Rank];
+template<> struct Logical<3> : LogicalBase<3>
+{
+    __device__ __forceinline__ Logical(
+        const uint3& blockIdx,
+        const dim3& blockDim,
+        const uint3& threadIdx
+    ) : LogicalBase() {
+        position[0] = blockIdx.z * blockDim.z + threadIdx.z;
+        position[1] = blockIdx.y * blockDim.y + threadIdx.y;
+        position[2] = blockIdx.x * blockDim.x + threadIdx.x;
+    }
 };
 
 //==============================================================================

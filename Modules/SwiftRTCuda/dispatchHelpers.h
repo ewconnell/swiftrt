@@ -237,30 +237,53 @@ inline int divideRoundingUp(int num, int divisor) {
 // grid and tile size placeholders
 
 // *** this is a hack place holder for now. We will eventually do dynamic
+
+//--------------------------------------
 // tile selection
 template<unsigned Rank>
 inline dim3 tileSize(const TensorDescriptor& oDesc) {
     static_assert(Rank <= 3, "not implemented");
-    if (Rank == 1) return oDesc.count >= 1024 ? dim3(1024) : dim3(32);
-    if (Rank == 2) return dim3(16, 16);
-    if (Rank == 3) return dim3(16, 8, 8);
+}
+
+template<> inline dim3 tileSize<1>(const TensorDescriptor& oDesc) {
+    return oDesc.count >= 1024 ? dim3(1024) : dim3(32);
+}
+
+template<> inline dim3 tileSize<2>(const TensorDescriptor& oDesc) {
+    return dim3(16, 16);
+}
+
+template<> inline dim3 tileSize<3>(const TensorDescriptor& oDesc) {
+    return dim3(16, 8, 8);
 }
 
 inline dim3 tileSize(int count) {
     return count >= 1024 ? dim3(1024) : dim3(32);
 }
 
+//--------------------------------------
+// grid selection
 template<unsigned Rank>
 inline dim3 gridSize(const TensorDescriptor& oDesc, const dim3& tile) {
     static_assert(Rank <= 3, "not implemented");
-    if (Rank == 1) return (oDesc.count + tile.x - 1) / tile.x;
+}
 
-    if (Rank == 2) return dim3(divideRoundingUp(oDesc.shape[0], tile.y), 
-                               divideRoundingUp(oDesc.shape[1], tile.x));
-    
-    if (Rank == 3) return dim3(divideRoundingUp(oDesc.shape[0], tile.z), 
-                               divideRoundingUp(oDesc.shape[1], tile.y), 
-                               divideRoundingUp(oDesc.shape[2], tile.x));
+template<>
+inline dim3 gridSize<1>(const TensorDescriptor& oDesc, const dim3& tile) {
+    return (oDesc.count + tile.x - 1) / tile.x;
+}
+
+template<>
+inline dim3 gridSize<2>(const TensorDescriptor& oDesc, const dim3& tile) {
+    return dim3(divideRoundingUp(oDesc.shape[0], tile.y), 
+                divideRoundingUp(oDesc.shape[1], tile.x));
+}
+
+template<>
+inline dim3 gridSize<3>(const TensorDescriptor& oDesc, const dim3& tile) {
+    return dim3(divideRoundingUp(oDesc.shape[0], tile.z), 
+                divideRoundingUp(oDesc.shape[1], tile.y), 
+                divideRoundingUp(oDesc.shape[2], tile.x));
 }
 
 //==============================================================================
