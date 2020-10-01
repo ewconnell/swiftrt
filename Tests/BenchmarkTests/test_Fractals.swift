@@ -153,11 +153,12 @@ final class test_Fractals: XCTestCase {
         let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
                 repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         var divergence = full(size, iterations)
+        let t2 = tolerance //* tolerance
 
-        // 0.259s
+        // 0.116s
         measure {
             pmap(Z, &divergence, limitedBy: .compute) {
-                juliaKernel(Z: $0, divergence: &$1, C, tolerance, iterations)
+                juliaKernel(Z: $0, divergence: &$1, C, t2, iterations)
             }
         }
         #endif
@@ -181,7 +182,10 @@ final class test_Fractals: XCTestCase {
         var Z = $0, d = $1
         for i in 0..<iterations {
             Z = Z * Z + C
-            if abs(Z) > tolerance { d = min(d, E.Value(exactly: i)!) }
+            if abs(Z) > tolerance {
+                d = min(d, E.Value(exactly: i)!)
+                break
+            }
         }
         return d
     }

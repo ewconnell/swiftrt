@@ -34,6 +34,10 @@ extension Complex: Comparable {
     }
 }
 
+@inlinable public func abs2<RealType>(_ x: Complex<RealType>) -> RealType {
+    x.real * x.real + x.imaginary * x.imaginary
+}
+
 @inlinable public func abs<RealType>(_ x: Complex<RealType>) -> RealType {
-    .sqrt(x.real * x.real + x.imaginary * x.imaginary)
+    .sqrt(abs2(x))
 }
