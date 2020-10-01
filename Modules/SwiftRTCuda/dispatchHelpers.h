@@ -222,22 +222,6 @@ template<typename T, typename U, typename O> struct OpName { \
 #define UINT_CREF(_v) reinterpret_cast<const unsigned&>(_v)
 #define CAST(type, _v) (*reinterpret_cast<const type*>(&(_v)))
 
-// //==============================================================================
-// /// fillWord
-// /// packs elements of size T into a 32 bit word
-// template<typename T>
-// inline uint32_t fillWord(const void* pValue) {
-//     static_assert(sizeof(T) <= sizeof(uint32_t), "T cannot be larger than return type");
-//     static_assert(std::is_integral<T>::value, "T must be an integral type");
-//     uint32_t value = uint32_t(*static_cast<const T*>(pValue));
-//     uint32_t out = value;
-//     #pragma unroll
-//     for (int i = 0; i < sizeof(uint32_t) / sizeof(T); ++i) {
-//         out = (out << sizeof(T) * 8) | value;
-//     }
-//     return out;
-// }
-
 //==============================================================================
 // kernel helpers
 #define GRID_LOOP(i, n) \

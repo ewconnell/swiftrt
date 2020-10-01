@@ -77,13 +77,13 @@ struct Complex {
     /// The real part of this complex value.
     ///
     /// If `z` is not finite, `z.real` is `.nan`.
-    __CUDA_HOSTDEVICE__ inline RealType real() { isFinite() ? x : std::nan; }
+    __CUDA_HOSTDEVICE__ inline RealType real() { return isFinite() ? x : NAN; }
     __CUDA_HOSTDEVICE__ inline RealType real(RealType newValue) { x = newValue; }
 
     /// The imaginary part of this complex value.
     ///
     /// If `z` is not finite, `z.imaginary` is `.nan`.
-    __CUDA_HOSTDEVICE__ inline RealType imaginary() { isFinite() ? y : std::nan; }
+    __CUDA_HOSTDEVICE__ inline RealType imaginary() { return isFinite() ? y : NAN; }
     __CUDA_HOSTDEVICE__ inline RealType imaginary(RealType newValue) { y = newValue; }
 
     /// The additive identity, with real and imaginary parts both zero.
@@ -320,7 +320,7 @@ struct Complex {
         if (isFinite() && !isZero()) {
             return atan2(y, x);
         }  else {
-            return std::nan;
+            return NAN;
         }
     }
     
@@ -587,6 +587,11 @@ __CUDA_HOSTDEVICE__ inline bool operator>=(const Complex<T>& a, const Complex<T>
 template<typename T>
 __CUDA_HOSTDEVICE__ inline T abs(const Complex<T>& a) {
     return sqrt(a.x * a.x + a.y * a.y);
+}
+
+template<typename T>
+__CUDA_HOSTDEVICE__ inline T abs2(const Complex<T>& a) {
+    return a.x * a.x + a.y * a.y;
 }
 
 template<typename T>

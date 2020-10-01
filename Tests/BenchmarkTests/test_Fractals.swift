@@ -17,13 +17,18 @@ import XCTest
 import Foundation
 import SwiftRT
 
+#if canImport(SwiftRTCuda)
+import SwiftRTCuda
+#endif
+
 final class test_Fractals: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_gpuJulia", test_gpuJulia),
         // ("test_pmapJulia", test_pmapJulia),
         // ("test_pmapKernelJulia", test_pmapKernelJulia),
-        ("test_Julia", test_Julia),
+        // ("test_Julia", test_Julia),
     ]
 
     // append and use a discrete async cpu device for these tests
@@ -33,6 +38,41 @@ final class test_Fractals: XCTestCase {
 
     override func tearDownWithError() throws {
     //    log.level = .error
+    }
+
+    //--------------------------------------------------------------------------
+    func test_gpuJulia() {
+        #if canImport(SwiftRTCuda)
+        // parameters
+        let iterations = 2048
+        let size = (r: 1000, c: 1000)
+        let tolerance: Float = 4.0
+        let C = Complex<Float>(-0.8, 0.156)
+        let first = Complex<Float>(-1.7, 1.7)
+        let last = Complex<Float>(1.7, -1.7)
+        typealias CF = Complex<Float>
+        let rFirst = CF(first.real, 0), rLast = CF(last.real, 0)
+        let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
+
+        // repeat rows of real range, columns of imaginary range, and combine
+        let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
+                repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+        var d = full(size, iterations)
+        let queue = currentQueue
+
+        measure {
+            _ = d.withMutableTensor(using: queue) { d, dDesc in
+                Z.withTensor(using: queue) {z, zDesc in
+                    withUnsafePointer(to: tolerance) { t in
+                        withUnsafePointer(to: C) { c in
+                            srtJulia(z, zDesc, d, dDesc, t, c, iterations, queue.stream)
+                        }
+                    }
+                }
+            }
+            _ = d.read()
+        }
+        #endif
     }
 
     //--------------------------------------------------------------------------

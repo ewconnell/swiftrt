@@ -20,5 +20,6 @@
 #include "mathOps.h"
 #include "compareOps.h"
 #include "fillOps.h"
+#include "specializedOps.h"
 
 #endif // __SrtCudaKernels_h__
