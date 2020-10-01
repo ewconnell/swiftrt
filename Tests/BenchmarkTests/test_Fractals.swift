@@ -26,9 +26,9 @@ final class test_Fractals: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_gpuJulia", test_gpuJulia),
-        // ("test_pmapJulia", test_pmapJulia),
-        // ("test_pmapKernelJulia", test_pmapKernelJulia),
-        // ("test_Julia", test_Julia),
+        ("test_pmapJulia", test_pmapJulia),
+        ("test_pmapKernelJulia", test_pmapKernelJulia),
+        ("test_Julia", test_Julia),
     ]
 
     // append and use a discrete async cpu device for these tests
@@ -80,7 +80,7 @@ final class test_Fractals: XCTestCase {
         // #if !DEBUG
         // parameters
         let iterations = 2048
-        let size = (r: 1024, c: 1025)
+        let size = (r: 1000, c: 1000)
         let tolerance: Float = 4.0
         let C = Complex<Float>(-0.8, 0.156)
         let first = Complex<Float>(-1.7, 1.7)
@@ -106,11 +106,10 @@ final class test_Fractals: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_pmapJulia() {
-        // #if !DEBUG
+         #if !DEBUG
         // parameters
         let iterations = 2048
-        // let size = (r: 1024, c: 1025)
-        let size = (r: 3, c: 4)
+        let size = (r: 1000, c: 1000)
         let tolerance: Float = 4.0
         let C = Complex<Float>(-0.8, 0.156)
         let first = Complex<Float>(-1.7, 1.7)
@@ -125,22 +124,22 @@ final class test_Fractals: XCTestCase {
         var divergence = full(size, iterations)
 
         // 0.733
-        // measure {
+        measure {
             pmap(Z, &divergence) { Z, divergence in
-                for i in 0..<2 {
+                for i in 0..<iterations {
                     Z = multiply(Z, Z, add: C)
                     divergence[abs(Z) .> tolerance] = min(divergence, i)
                 }
             }
-        // }
-        // #endif
+        }
+         #endif
     }
 
     func test_pmapKernelJulia() {
         #if !DEBUG
         // parameters
         let iterations = 2048
-        let size = (r: 1024, c: 1025)
+        let size = (r: 1000, c: 1000)
         let tolerance: Float = 4.0
         let C = Complex<Float>(-0.8, 0.156)
         let first = Complex<Float>(-1.7, 1.7)
