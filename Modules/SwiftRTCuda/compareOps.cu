@@ -13,8 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include <assert.h>
-#include <stdio.h>
 #include "compareOps.h"
 #include "compareSupplemental.h"
 #include "dispatchHelpers.h"
@@ -30,8 +28,8 @@ cudaError_t srtAnd(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,
     void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream)
-{
+    cudaStream_t stream
+) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
     return select<And>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
@@ -43,8 +41,8 @@ cudaError_t srtElementsAlmostEqual(
     const void* b, const srtTensorDescriptor* pbDesc,
     const void* tolerance,
     void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream)
-{
+    cudaStream_t stream
+) {
     return cudaErrorNotSupported;
 }
 
@@ -183,8 +181,8 @@ cudaError_t srtMax(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,
     void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream)
-{
+    cudaStream_t stream
+) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
     return select<MaxElements>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
@@ -206,8 +204,8 @@ cudaError_t srtNotEqual(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,
     void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream)
-{
+    cudaStream_t stream
+) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
     return select<NotEqualElements>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
@@ -219,8 +217,8 @@ cudaError_t srtOr(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* b, const srtTensorDescriptor* pbDesc,
     void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream)
-{
+    cudaStream_t stream
+) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
     return select<Or>(a, aDesc, b, bDesc, out, oDesc, stream);
 }

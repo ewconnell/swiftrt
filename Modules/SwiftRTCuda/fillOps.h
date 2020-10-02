@@ -13,9 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef fillOps_h
-#define fillOps_h
-
+#pragma once
 #include "commonCDefs.h"
 
 
@@ -93,5 +91,3 @@ cudaError_t srtFillRandomTruncatedNormalTensorArgs(
 #ifdef __cplusplus
 }
 #endif
-
-#endif // fillOps_h

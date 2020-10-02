@@ -13,8 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef srttypes_h
-#define srttypes_h
+#pragma once
 
 //==============================================================================
 // supplemental logical types
@@ -29,5 +28,3 @@ struct bool4 {
     bool4(bool v0, bool v1, bool v2, bool v3) { b0 = v0; b1 = v1; b2 = v2; b3 = v3; }
     bool4(unsigned v) { *this = v; }
 };
-
-#endif

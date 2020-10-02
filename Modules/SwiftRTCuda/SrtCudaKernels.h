@@ -13,13 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#if !defined(__SrtCudaKernels_h__)
-#define __SrtCudaKernels_h__
+#pragma once
 
 // this is an umbrella header
 #include "mathOps.h"
 #include "compareOps.h"
 #include "fillOps.h"
 #include "specializedOps.h"
-
-#endif // __SrtCudaKernels_h__

@@ -13,9 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef commonCDefs_h
-#define commonCDefs_h
-
+#pragma once
 #include <stdint.h>
 #include <cuda_runtime.h>
 #include <cublasLt.h>
@@ -92,5 +90,3 @@ typedef struct {
 #ifdef __cplusplus
 }
 #endif
-
-#endif // commonCDefs_h

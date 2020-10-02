@@ -13,14 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include <bits/stdint-uintn.h>
-#include <cuda_fp16.h>
-#include <cuda_bf16.h>
-
-#include "commonCDefs.h"
 #include "fillOps.h"
 #include "dispatchHelpers.h"
-#include "index.h"
 
 //==============================================================================
 // Swift importable C interface functions

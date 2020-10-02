@@ -13,11 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#if !defined(__index_h__)
-#define __index_h__
-
+#pragma once
 #include <assert.h>
-#include <vector_types.h>
 #include "commonCDefs.h"
 
 //==============================================================================
@@ -253,5 +250,3 @@ struct StridedSeq: Strided<R> {
         return index;
     }
 };
-
-#endif // __index_h__

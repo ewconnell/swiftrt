@@ -13,9 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef specializedOps_h
-#define specializedOps_h
-
+#pragma once
 #include "commonCDefs.h"
 
 
@@ -38,5 +36,3 @@ cudaError_t srtJulia(
 #ifdef __cplusplus
 }
 #endif
-
-#endif // specializedOps_h

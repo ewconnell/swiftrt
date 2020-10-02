@@ -13,13 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef compareSupplemental_h
-#define compareSupplemental_h
-
-#include <vector_types.h>
-#include <cuda_fp16.h>
-#include <cuda_bf16.h>
-#include <stdexcept>
+#pragma once
 #include "dispatchHelpers.h"
 
 //==============================================================================
@@ -139,5 +133,3 @@ template<typename T>
 __device__ inline T conditionalAssign(const T& a, const T& b, const bool c) {
     return c ? a : b;
 }
-
-#endif // compareSupplemental_h

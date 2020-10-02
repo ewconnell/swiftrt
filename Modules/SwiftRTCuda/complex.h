@@ -13,8 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef complex_h
-#define complex_h
+#pragma once
 
 // a cuda partial version of limits on github
 // https://gist.github.com/eyalroz/858d7beae1ad09b83b691107306d0176
@@ -598,5 +597,3 @@ template<typename T>
 __CUDA_HOSTDEVICE__ inline Complex<T> neg(const Complex<T>& a) {
     return Complex<T>(-a.x, -a.y);
 }
-
-#endif

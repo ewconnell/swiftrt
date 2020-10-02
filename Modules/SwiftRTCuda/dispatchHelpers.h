@@ -13,11 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// #ifndef dispatchHelpers_h
-// #define dispatchHelpers_h
-#ifndef disp_h
-#define disp_h
-
+#pragma once
 #include <stdint.h>
 #include <cuda.h>
 #include <type_traits>
@@ -1293,5 +1289,3 @@ static cudaError_t select(
     default: return cudaErrorNotSupported;
     }
 }
-
-#endif

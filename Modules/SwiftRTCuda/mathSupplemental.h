@@ -13,14 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef mathSupplemental_h
-#define mathSupplemental_h
-
-#include <cuda.h>
-#include <cuda_fp16.h>
-#include <cuda_bf16.h>
-#include <stdexcept>
-#include <vector_functions.h>
+#pragma once
 #include "dispatchHelpers.h"
 
 
@@ -599,6 +592,3 @@ __device__ inline ushort2 operator/(const ushort2& a, const ushort2& b) {
     out.y = a.y / b.y;
     return out;
 }
-
-//==============================================================================
-#endif // mathSupplemental_h

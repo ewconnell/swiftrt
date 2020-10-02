@@ -13,9 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef compareOps_h
-#define compareOps_h
-
+#pragma once
 #include "commonCDefs.h"
 
 // make visible to Swift as C API
@@ -139,5 +137,3 @@ cudaError_t srtReplace(
 #ifdef __cplusplus
 }
 #endif
-
-#endif // compareOps_h
