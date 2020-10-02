@@ -322,8 +322,9 @@ __device__ inline bfloat162 pow(const bfloat162& a, const int n) {
 
 //==============================================================================
 // root 
-template<typename T>
-__device__ inline T root(const T& a, const int n) { return pow(a, 1.0f / float(n)); }
+template<typename T> __device__ inline T root(const T& a, const float n) {
+    return pow(a, 1.0f / float(n));
+}
 
 //==============================================================================
 // sign 

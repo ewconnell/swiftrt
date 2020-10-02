@@ -74,8 +74,7 @@ inline constexpr bool isSignedNumeric() {
 //==============================================================================
 // given an input type A and an output type O, if the input is
 // packed, then the corresponding packed respresention of O is defined
-template<typename T>
-struct packed {
+template<typename T> struct packed {
     typedef T type;
     inline static T value(const T v) { return v; }
 };
@@ -487,15 +486,15 @@ static cudaError_t flattened(
 
 //--------------------------------------
 // tensorA parameter value
-template<typename Op, typename Scalar>
+template<typename Op, typename P>
 static cudaError_t flattened(
     const void* pA, const TensorDescriptor& aDesc, 
-    Scalar value,
+    const P param,
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
     if constexpr (Op::conforms()) {
-        using A = typename Op::A;
+        using A = const typename Op::A;
         using Out = typename Op::Out;
         A* a = static_cast<A*>(pA);
         Out* out = static_cast<Out*>(pOut);
@@ -505,8 +504,8 @@ static cudaError_t flattened(
         dim3 tile = tileSize(packedCount);
         dim3 grid = gridSize<1>(oDesc, tile);
 
-        mapAScalar<Op,Scalar,Flat,Flat>
-            <<<grid, tile, 0, stream>>>(a, Flat(aDesc), value, out, Flat(oDesc));
+        mapAScalar<Op,P,Flat,Flat>
+            <<<grid, tile, 0, stream>>>(a, Flat(aDesc), param, out, Flat(oDesc));
         return cudaSuccess;
     }
     return cudaErrorNotSupported;
@@ -683,6 +682,31 @@ static cudaError_t initIndex(
 }
 
 //--------------------------------------
+// initIndex tensorA Parameter
+template<typename Op, typename IndexA, typename IndexO, typename P>
+static cudaError_t initIndex(
+    const void* pA, const TensorDescriptor& aDesc, 
+    const P param,
+    void* pOut, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    using A = const typename Op::A;
+    using Out = typename Op::Out;
+    A* a = static_cast<A*>(pA);
+    Out* out = static_cast<Out*>(pOut);
+
+    // get tile and grid size for launch
+    dim3 tile = tileSize<IndexO::Rank>(oDesc);
+    dim3 grid = gridSize<IndexO::Rank>(oDesc, tile);
+
+    mapAScalar<Op,P,IndexA,IndexO><<<grid, tile, 0, stream>>>(
+        a, IndexA(aDesc), 
+        param, 
+        out, IndexO(oDesc));
+    return cudaSuccess;
+}
+
+//--------------------------------------
 // initIndex tensorA tensorB
 template<typename Op, typename IndexA, typename IndexB, typename IndexO>
 static cudaError_t initIndex(
@@ -851,6 +875,34 @@ static cudaError_t selectRank(
             // case 4: return initIndex<Op,Strided<4>,Strided<4>>(element, a, aDesc, out, oDesc, stream);
             // case 5: return initIndex<Op,Strided<5>,Strided<5>>(element, a, aDesc, out, oDesc, stream);
             // case 6: return initIndex<Op,Strided<6>,Strided<6>>(element, a, aDesc, out, oDesc, stream);
+            default: return cudaErrorNotSupported;
+            }
+        }
+    }
+    return cudaErrorNotSupported;
+}
+
+//--------------------------------------
+// selectRank tensorA Element
+template<typename Op, typename P>
+static cudaError_t selectRank(
+    const void* a, const TensorDescriptor& aDesc,
+    const P param,
+    void* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    assert(aDesc.rank == oDesc.rank);
+    if constexpr (Op::conforms()) {
+        if (aDesc.isDense() && oDesc.isDense()) {
+            return flattened<typename Op::packed, P>(a, aDesc, param, out, oDesc, stream);
+        } else {
+            switch (oDesc.rank) {
+            case 1: return initIndex<Op,Strided<1>,Strided<1>, P>(a, aDesc, param, out, oDesc, stream);
+            case 2: return initIndex<Op,Strided<2>,Strided<2>, P>(a, aDesc, param, out, oDesc, stream);
+            case 3: return initIndex<Op,Strided<3>,Strided<3>, P>(a, aDesc, param, out, oDesc, stream);
+            // case 4: return initIndex<Op,Strided<4>,Strided<4>, P>(a, aDesc, param, out, oDesc, stream);
+            // case 5: return initIndex<Op,Strided<5>,Strided<5>, P>(a, aDesc, param, out, oDesc, stream);
+            // case 6: return initIndex<Op,Strided<6>,Strided<6>, P>(a, aDesc, param, out, oDesc, stream);
             default: return cudaErrorNotSupported;
             }
         }
@@ -1124,8 +1176,7 @@ static cudaError_t select(
 
 //--------------------------------------
 // tensorA Element
-// selectRank is called because the only current cases A and O are the same
-// type
+// selectRank is called because current cases A == O
 template<template<typename A, typename O> class Op>
 static cudaError_t select(
     const void* a, const TensorDescriptor& aDesc,
@@ -1150,6 +1201,7 @@ static cudaError_t select(
 
 //--------------------------------------
 // Element tensorA
+// selectRank is called because current cases A == O
 template<template<typename A, typename O> class Op>
 static cudaError_t select(
     const void* element,
@@ -1158,16 +1210,43 @@ static cudaError_t select(
     cudaStream_t stream
 ) {
     switch(aDesc.type) {
-    case real32F:  return selectOut<Op, float>(element, a, aDesc, out, oDesc, stream);
-    case real16F:  return selectOut<Op, float16>(element, a, aDesc, out, oDesc, stream);
-    case real16BF: return selectOut<Op, bfloat16>(element, a, aDesc, out, oDesc, stream);
-    case real64F:  return selectOut<Op, double>(element, a, aDesc, out, oDesc, stream);
-    case real32I:  return selectOut<Op, int32_t>(element, a, aDesc, out, oDesc, stream);
-    case real8U:   return selectOut<Op, uint8_t>(element, a, aDesc, out, oDesc, stream);
-    case real8I:   return selectOut<Op, int8_t>(element, a, aDesc, out, oDesc, stream);
-    case real16U:  return selectOut<Op, uint16_t>(element, a, aDesc, out, oDesc, stream);
-    case real16I:  return selectOut<Op, int16_t>(element, a, aDesc, out, oDesc, stream);
-    case complex32F:  return selectOut<Op, Complex<float>>(element, a, aDesc, out, oDesc, stream);
+    case real32F:  return selectRank<Op<float,float>>(element, a, aDesc, out, oDesc, stream);
+    case real16F:  return selectRank<Op<float16,float16>>(element, a, aDesc, out, oDesc, stream);
+    case real16BF: return selectRank<Op<bfloat16,bfloat16>>(element, a, aDesc, out, oDesc, stream);
+    case real64F:  return selectRank<Op<double,double>>(element, a, aDesc, out, oDesc, stream);
+    case real32I:  return selectRank<Op<int32_t,int32_t>>(element, a, aDesc, out, oDesc, stream);
+    case real8U:   return selectRank<Op<uint8_t,uint8_t>>(element, a, aDesc, out, oDesc, stream);
+    case real8I:   return selectRank<Op<int8_t,int8_t>>(element, a, aDesc, out, oDesc, stream);
+    case real16U:  return selectRank<Op<uint16_t,uint16_t>>(element, a, aDesc, out, oDesc, stream);
+    case real16I:  return selectRank<Op<int16_t,int16_t>>(element, a, aDesc, out, oDesc, stream);
+    case complex32F: return selectRank<Op<Complex<float>,Complex<float>>>(element, a, aDesc, out, oDesc, stream);
+    default: return cudaErrorNotSupported;
+    }
+}
+
+//--------------------------------------
+// tensorA Parameter
+// selectRank is called because current cases A == O
+template<template<typename A, typename O> class Op, typename P>
+static cudaError_t select(
+    const void* a, const TensorDescriptor& aDesc,
+    const P param,
+    void* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    typedef Complex<float> CF;
+
+    switch(aDesc.type) {
+    case real32F:  return selectRank<Op<float,float>, P>(a, aDesc, param, out, oDesc, stream);
+    case real16F:  return selectRank<Op<float16,float16>, P>(a, aDesc, param, out, oDesc, stream);
+    case real16BF: return selectRank<Op<bfloat16,bfloat16>, P>(a, aDesc, param, out, oDesc, stream);
+    case real64F:  return selectRank<Op<double,double>, P>(a, aDesc, param, out, oDesc, stream);
+    case real32I:  return selectRank<Op<int32_t, int32_t>, P>(a, aDesc, param, out, oDesc, stream);
+    case real8U:   return selectRank<Op<uint8_t,uint8_t>, P>(a, aDesc, param, out, oDesc, stream);
+    case real8I:   return selectRank<Op<int8_t,int8_t>, P>(a, aDesc, param, out, oDesc, stream);
+    case real16U:  return selectRank<Op<uint16_t,uint16_t>, P>(a, aDesc, param, out, oDesc, stream);
+    case real16I:  return selectRank<Op<int16_t,int16_t>, P>(a, aDesc, param, out, oDesc, stream);
+    case complex32F: return selectRank<Op<CF,CF>, P>(a, aDesc, param, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }
