@@ -35,10 +35,10 @@ template<typename A>
 inline constexpr bool isFloating() {
     return 
         std::is_floating_point<A>::value ||
-        std::is_same<A,__half>::value ||
-        std::is_same<A,__half2>::value ||
-        std::is_same<A,__nv_bfloat16>::value ||
-        std::is_same<A,__nv_bfloat162>::value;
+        std::is_same<A,float16>::value ||
+        std::is_same<A,float162>::value ||
+        std::is_same<A,bfloat16>::value ||
+        std::is_same<A,bfloat162>::value;
 }
 
 template<typename A>
@@ -74,7 +74,7 @@ inline constexpr bool isSignedNumeric() {
 template<typename A>
 inline constexpr bool isPacked() {
     return
-    std::is_same<A,__half2>::value || std::is_same<A,__nv_bfloat162>::value ||
+    std::is_same<A,float162>::value || std::is_same<A,bfloat162>::value ||
     std::is_same<A, char4>::value || std::is_same<A, uchar4>::value ||
     std::is_same<A, bool4>::value ||
     std::is_same<A, short2>::value || std::is_same<A, ushort2>::value;
@@ -117,16 +117,16 @@ template<> struct packed<uint16_t> {
     }
 };
 
-template<> struct packed<__half> {
-    typedef __half2 type;
-    inline static type value(const __half v) {
+template<> struct packed<float16> {
+    typedef float162 type;
+    inline static type value(const float16 v) {
         type p; p.x = v; p.y = v; return p;
     }
 };
 
-template<> struct packed<__nv_bfloat16> {
-    typedef __nv_bfloat162 type;
-    inline static type value(const __nv_bfloat16 v) {
+template<> struct packed<bfloat16> {
+    typedef bfloat162 type;
+    inline static type value(const bfloat16 v) {
         type p; p.x = v; p.y = v; return p;
     }
 };
@@ -140,8 +140,8 @@ template<> struct matching_packed<char4, bool> { typedef bool4 type; };
 template<> struct matching_packed<uchar4, bool> { typedef bool4 type; };
 template<> struct matching_packed<short2, bool> { typedef bool2 type; };
 template<> struct matching_packed<ushort2, bool> { typedef bool2 type; };
-template<> struct matching_packed<__half2, bool> { typedef bool2 type; };
-template<> struct matching_packed<__nv_bfloat162, bool> { typedef bool2 type; };
+template<> struct matching_packed<float162, bool> { typedef bool2 type; };
+template<> struct matching_packed<bfloat162, bool> { typedef bool2 type; };
 
 //--------------------------------------
 // given an input type A and an output type O, if the input is
@@ -154,8 +154,8 @@ template<> struct packing<bool4> { static const int count = 4; };
 
 template<> struct packing<short2> { static const int count = 2; };
 template<> struct packing<ushort2> { static const int count = 2; };
-template<> struct packing<__half2> { static const int count = 2; };
-template<> struct packing<__nv_bfloat162> { static const int count = 2; };
+template<> struct packing<float162> { static const int count = 2; };
+template<> struct packing<bfloat162> { static const int count = 2; };
 template<> struct packing<bool2> { static const int count = 2; };
 
 //==============================================================================
@@ -970,8 +970,8 @@ static cudaError_t selectOut(
     } else {
         switch(oDesc.type) {
         case real32F:  return selectRank<Op<A, float>>(a, aDesc, out, oDesc, stream);
-        case real16F:  return selectRank<Op<A, __half>>(a, aDesc, out, oDesc, stream);
-        case real16BF: return selectRank<Op<A, __nv_bfloat16>>(a, aDesc, out, oDesc, stream);
+        case real16F:  return selectRank<Op<A, float16>>(a, aDesc, out, oDesc, stream);
+        case real16BF: return selectRank<Op<A, bfloat16>>(a, aDesc, out, oDesc, stream);
         case real64F:  return selectRank<Op<A, double>>(a, aDesc, out, oDesc, stream);
         case real32I:  return selectRank<Op<A, int32_t>>(a, aDesc, out, oDesc, stream);
         case real8I:   return selectRank<Op<A, int8_t>>(a, aDesc, out, oDesc, stream);
@@ -999,8 +999,8 @@ static cudaError_t selectOut(
     } else {
         switch(oDesc.type) {
         case real32F:  return selectRank<Op<A, float>>(a, aDesc, element, out, oDesc, stream);
-        case real16F:  return selectRank<Op<A, __half>>(a, aDesc, element, out, oDesc, stream);
-        case real16BF: return selectRank<Op<A, __nv_bfloat16>>(a, aDesc, element, out, oDesc, stream);
+        case real16F:  return selectRank<Op<A, float16>>(a, aDesc, element, out, oDesc, stream);
+        case real16BF: return selectRank<Op<A, bfloat16>>(a, aDesc, element, out, oDesc, stream);
         case real64F:  return selectRank<Op<A, double>>(a, aDesc, element, out, oDesc, stream);
         case real32I:  return selectRank<Op<A, int32_t>>(a, aDesc, element, out, oDesc, stream);
         case real8I:   return selectRank<Op<A, int8_t>>(a, aDesc, element, out, oDesc, stream);
@@ -1028,8 +1028,8 @@ static cudaError_t selectOut(
     } else {
         switch(oDesc.type) {
         case real32F:  return selectRank<Op<A, float>>(element, a, aDesc, out, oDesc, stream);
-        case real16F:  return selectRank<Op<A, __half>>(element, a, aDesc, out, oDesc, stream);
-        case real16BF: return selectRank<Op<A, __nv_bfloat16>>(element, a, aDesc, out, oDesc, stream);
+        case real16F:  return selectRank<Op<A, float16>>(element, a, aDesc, out, oDesc, stream);
+        case real16BF: return selectRank<Op<A, bfloat16>>(element, a, aDesc, out, oDesc, stream);
         case real64F:  return selectRank<Op<A, double>>(element, a, aDesc, out, oDesc, stream);
         case real32I:  return selectRank<Op<A, int32_t>>(element, a, aDesc, out, oDesc, stream);
         case real8I:   return selectRank<Op<A, int8_t>>(element, a, aDesc, out, oDesc, stream);
@@ -1057,8 +1057,8 @@ static cudaError_t selectOut(
     } else {
         switch(oDesc.type) {
         case real32F:  return selectRank<Op<A, float>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        case real16F:  return selectRank<Op<A, __half>>(a, aDesc, b, bDesc, out, oDesc, stream);
-        case real16BF: return selectRank<Op<A, __nv_bfloat16>>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case real16F:  return selectRank<Op<A, float16>>(a, aDesc, b, bDesc, out, oDesc, stream);
+        case real16BF: return selectRank<Op<A, bfloat16>>(a, aDesc, b, bDesc, out, oDesc, stream);
         case real64F:  return selectRank<Op<A, double>>(a, aDesc, b, bDesc, out, oDesc, stream);
         case real32I:  return selectRank<Op<A, int32_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
         case real8I:   return selectRank<Op<A, int8_t>>(a, aDesc, b, bDesc, out, oDesc, stream);
@@ -1087,8 +1087,8 @@ static cudaError_t selectOut(
     } else {
         switch(oDesc.type) {
         case real32F:  return selectRank<Op<A, C, float>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-        case real16F:  return selectRank<Op<A, C, __half>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-        case real16BF: return selectRank<Op<A, C, __nv_bfloat16>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+        case real16F:  return selectRank<Op<A, C, float16>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+        case real16BF: return selectRank<Op<A, C, bfloat16>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
         case real64F:  return selectRank<Op<A, C, double>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
         case real32I:  return selectRank<Op<A, C, int32_t>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
         case real8I:   return selectRank<Op<A, C, int8_t>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
@@ -1117,8 +1117,8 @@ static cudaError_t select(
 ) {
     switch(aDesc.type) {
     case real32F:  return selectOut<Op, float>(a, aDesc, out, oDesc, stream);
-    case real16F:  return selectOut<Op, __half>(a, aDesc, out, oDesc, stream);
-    case real16BF: return selectOut<Op, __nv_bfloat16>(a, aDesc, out, oDesc, stream);
+    case real16F:  return selectOut<Op, float16>(a, aDesc, out, oDesc, stream);
+    case real16BF: return selectOut<Op, bfloat16>(a, aDesc, out, oDesc, stream);
     case real64F:  return selectOut<Op, double>(a, aDesc, out, oDesc, stream);
     case real32I:  return selectOut<Op, int32_t>(a, aDesc, out, oDesc, stream);
     case real8U:   return selectOut<Op, uint8_t>(a, aDesc, out, oDesc, stream);
@@ -1144,8 +1144,8 @@ static cudaError_t select(
 ) {
     switch(aDesc.type) {
     case real32F:  return selectRank<Op<float,float>>(a, aDesc, element, out, oDesc, stream);
-    case real16F:  return selectRank<Op<__half,__half>>(a, aDesc, element, out, oDesc, stream);
-    case real16BF: return selectRank<Op<__nv_bfloat16,__nv_bfloat16>>(a, aDesc, element, out, oDesc, stream);
+    case real16F:  return selectRank<Op<float16,float16>>(a, aDesc, element, out, oDesc, stream);
+    case real16BF: return selectRank<Op<bfloat16,bfloat16>>(a, aDesc, element, out, oDesc, stream);
     case real64F:  return selectRank<Op<double,double>>(a, aDesc, element, out, oDesc, stream);
     case real32I:  return selectRank<Op<int32_t, int32_t>>(a, aDesc, element, out, oDesc, stream);
     case real8U:   return selectRank<Op<uint8_t,uint8_t>>(a, aDesc, element, out, oDesc, stream);
@@ -1168,8 +1168,8 @@ static cudaError_t select(
 ) {
     switch(aDesc.type) {
     case real32F:  return selectOut<Op, float>(element, a, aDesc, out, oDesc, stream);
-    case real16F:  return selectOut<Op, __half>(element, a, aDesc, out, oDesc, stream);
-    case real16BF: return selectOut<Op, __nv_bfloat16>(element, a, aDesc, out, oDesc, stream);
+    case real16F:  return selectOut<Op, float16>(element, a, aDesc, out, oDesc, stream);
+    case real16BF: return selectOut<Op, bfloat16>(element, a, aDesc, out, oDesc, stream);
     case real64F:  return selectOut<Op, double>(element, a, aDesc, out, oDesc, stream);
     case real32I:  return selectOut<Op, int32_t>(element, a, aDesc, out, oDesc, stream);
     case real8U:   return selectOut<Op, uint8_t>(element, a, aDesc, out, oDesc, stream);
@@ -1193,8 +1193,8 @@ static cudaError_t select(
     assert(aDesc.type == bDesc.type);
     switch(aDesc.type) {
     case real32F:  return selectOut<Op, float>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case real16F:  return selectOut<Op, __half>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case real16BF: return selectOut<Op, __nv_bfloat16>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real16F:  return selectOut<Op, float16>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real16BF: return selectOut<Op, bfloat16>(a, aDesc, b, bDesc, out, oDesc, stream);
     case real64F:  return selectOut<Op, double>(a, aDesc, b, bDesc, out, oDesc, stream);
     case real32I:  return selectOut<Op, int32_t>(a, aDesc, b, bDesc, out, oDesc, stream);
     case real8U:   return selectOut<Op, uint8_t>(a, aDesc, b, bDesc, out, oDesc, stream);
@@ -1220,8 +1220,8 @@ static cudaError_t select(
     assert(aDesc.type == bDesc.type && aDesc.type == oDesc.type);
     switch(aDesc.type) {
     case real32F:  return selectRank<Op<float,float>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-    case real16F:  return selectRank<Op<__half, __half>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-    case real16BF: return selectRank<Op<__nv_bfloat16, __nv_bfloat16>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
+    case real16F:  return selectRank<Op<float16, float16>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
+    case real16BF: return selectRank<Op<bfloat16, bfloat16>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
     case real64F:  return selectRank<Op<double, double>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
     case real32I:  return selectRank<Op<int32_t, int32_t>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
     case real8U:   return selectRank<Op<uint8_t, uint8_t>>(a, aDesc, b, bDesc, element, out, oDesc, stream);
@@ -1250,8 +1250,8 @@ static cudaError_t selectC(
     } else {
         switch(cDesc.type) {
         case real32F:  return selectOut<Op, A, float>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-        case real16F:  return selectOut<Op, A, __half>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-        case real16BF: return selectOut<Op, A, __nv_bfloat16>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+        case real16F:  return selectOut<Op, A, float16>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+        case real16BF: return selectOut<Op, A, bfloat16>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
         case real64F:  return selectOut<Op, A, double>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
         case real32I:  return selectOut<Op, A, int32_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
         case real8U:   return selectOut<Op, A, uint8_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
@@ -1277,8 +1277,8 @@ static cudaError_t select(
     assert(aDesc.type == bDesc.type);
     switch(aDesc.type) {
     case real32F:  return selectC<Op, float>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    case real16F:  return selectC<Op, __half>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    case real16BF: return selectC<Op, __nv_bfloat16>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    case real16F:  return selectC<Op, float16>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    case real16BF: return selectC<Op, bfloat16>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
     case real64F:  return selectC<Op, double>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
     case real32I:  return selectC<Op, int32_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
     case real8U:   return selectC<Op, uint8_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);

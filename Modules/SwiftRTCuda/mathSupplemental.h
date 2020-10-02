@@ -22,63 +22,63 @@
 //==============================================================================
 
 #define NATIVE_FLOAT16(func, native) \
-__device__ inline __half func(const __half& a) { return native(a); }
+__device__ inline float16 func(const float16& a) { return native(a); }
 
 #define NATIVE_FLOAT162(func, native) \
-__device__ inline __half2 func(const __half2& a) { return native(a); }
+__device__ inline float162 func(const float162& a) { return native(a); }
 
 #if (__CUDA_ARCH__ < 800)
 #define NATIVE_BFLOAT16(func, native) \
-    __device__ inline __nv_bfloat16 func(const __nv_bfloat16& a) \
+    __device__ inline bfloat16 func(const bfloat16& a) \
     { return func(float(a)); }
 #else
 #define NATIVE_BFLOAT16(func, native) \
-    __device__ inline __nv_bfloat16 func(const __nv_bfloat16& a) { return native(a); }
+    __device__ inline bfloat16 func(const bfloat16& a) { return native(a); }
 #endif
 
 #if (__CUDA_ARCH__ < 800)
 #define NATIVE_BFLOAT162(func, native) \
-    __device__ inline __nv_bfloat162 func(const __nv_bfloat162& a) \
-    { return __nv_bfloat162(func(float(a.x)), func(float(a.y))); }
+    __device__ inline bfloat162 func(const bfloat162& a) \
+    { return bfloat162(func(float(a.x)), func(float(a.y))); }
 #else
 #define NATIVE_BFLOAT162(func, native) \
-    __device__ inline __nv_bfloat162 func(const __nv_bfloat162& a) { return native(a); }
+    __device__ inline bfloat162 func(const bfloat162& a) { return native(a); }
 #endif
 
 //------------------------------------------------------------------------------
 // Promotes the type to a float, does the op, then back to the type. This
 // is used for ops that do not natively support half or bfloat types
 #define PROMOTED_FLOAT16(func) \
-__device__ inline __half func(const __half& a) { return func(float(a)); }
+__device__ inline float16 func(const float16& a) { return func(float(a)); }
 
 #define PROMOTED_FLOAT162(func) \
-__device__ inline __half2 func(const __half2& a) { return __half2(func(a.x), func(a.y)); }
+__device__ inline float162 func(const float162& a) { return float162(func(a.x), func(a.y)); }
 
 #define PROMOTED_BFLOAT16(func) \
-__device__ inline __nv_bfloat16 func(const __nv_bfloat16& a) { return func(float(a)); }
+__device__ inline bfloat16 func(const bfloat16& a) { return func(float(a)); }
 
 #define PROMOTED_BFLOAT162(func) \
-__device__ inline __nv_bfloat162 func(const __nv_bfloat162& a) \
-    { return __nv_bfloat162(func(float(a.x)), func(float(a.y))); }
+__device__ inline bfloat162 func(const bfloat162& a) \
+    { return bfloat162(func(float(a.x)), func(float(a.y))); }
 
 //------------------------------------------------------------------------------
 // Promotes the type to a float, does the op, then back to the type. This
 // is used for ops that do not natively support half or bfloat types
 #define PROMOTED2_FLOAT16(func) \
-__device__ inline __half func(const __half& a, const __half& b) \
+__device__ inline float16 func(const float16& a, const float16& b) \
     { return func(float(a), float(b)); }
 
 #define PROMOTED2_FLOAT162(func) \
-__device__ inline __half2 func(const __half2& a, const __half2& b) \
-    { return __half2(func(a.x, b.x), func(a.y, b.y)); }
+__device__ inline float162 func(const float162& a, const float162& b) \
+    { return float162(func(a.x, b.x), func(a.y, b.y)); }
 
 #define PROMOTED2_BFLOAT16(func) \
-__device__ inline __nv_bfloat16 func(const __nv_bfloat16& a, const __nv_bfloat16& b) \
+__device__ inline bfloat16 func(const bfloat16& a, const bfloat16& b) \
     { return func(float(a), float(b)); }
 
 #define PROMOTED2_BFLOAT162(func) \
-__device__ inline __nv_bfloat162 func(const __nv_bfloat162& a, const __nv_bfloat162& b) \
-    { return __nv_bfloat162(func(float(a.x), float(b.x)), func(float(a.y), float(b.y))); }
+__device__ inline bfloat162 func(const bfloat162& a, const bfloat162& b) \
+    { return bfloat162(func(float(a.x), float(b.x)), func(float(a.y), float(b.y))); }
 
 //==============================================================================
 // supplemental functions
@@ -299,22 +299,22 @@ NATIVE_BFLOAT162(neg, __hneg2)
 
 //==============================================================================
 // pow Float16
-__device__ inline __half pow(const __half& a, const int n) {
+__device__ inline float16 pow(const float16& a, const int n) {
     return pow(float(a), n);
 }
 
-__device__ inline __half2 pow(const __half2& a, const int n) {
-    return __half2(pow(float(a.x), n), pow(float(a.y), n));
+__device__ inline float162 pow(const float162& a, const int n) {
+    return float162(pow(float(a.x), n), pow(float(a.y), n));
 }
 
 // pow BFloat16
 #if (__CUDA_ARCH__ < 800)
-__device__ inline __nv_bfloat16 pow(const __nv_bfloat16& a, const int n) {
+__device__ inline bfloat16 pow(const bfloat16& a, const int n) {
     return pow(float(a), n);
 }
 
-__device__ inline __nv_bfloat162 pow(const __nv_bfloat162& a, const int n) {
-    return __nv_bfloat162(pow(float(a.x), n), pow(float(a.y), n));
+__device__ inline bfloat162 pow(const bfloat162& a, const int n) {
+    return bfloat162(pow(float(a.x), n), pow(float(a.y), n));
 }
 #else
 
@@ -334,22 +334,22 @@ __device__ inline uint16_t sign(const uint16_t& a) { return 1; }
 __device__ inline uint8_t sign(const uint8_t& a) { return 1; }
 
 // Float16
-__device__ inline __half2 sign(const __half2& a) {
-    __half2 out; 
-    out.x = a.x < __half(0.0f) ? __half(-1.0f) : __half(1.0f); 
-    out.y = a.y < __half(0.0f) ? __half(-1.0f) : __half(1.0f); 
+__device__ inline float162 sign(const float162& a) {
+    float162 out; 
+    out.x = a.x < float16(0.0f) ? float16(-1.0f) : float16(1.0f); 
+    out.y = a.y < float16(0.0f) ? float16(-1.0f) : float16(1.0f); 
     return out;
 }
 
 // BFloat16
-__device__ inline __nv_bfloat16 sign(const __nv_bfloat16& a) {
-    return a < __nv_bfloat16(0.0f) ? __nv_bfloat16(-1.0f) : __nv_bfloat16(1.0f);
+__device__ inline bfloat16 sign(const bfloat16& a) {
+    return a < bfloat16(0.0f) ? bfloat16(-1.0f) : bfloat16(1.0f);
 }
 
-__device__ inline __nv_bfloat162 sign(const __nv_bfloat162& a) {
-    __nv_bfloat162 out;
-    out.x = a.x < __nv_bfloat16(0.0f) ? __nv_bfloat16(-1.0f) : __nv_bfloat16(1.0f);
-    out.y = a.y < __nv_bfloat16(0.0f) ? __nv_bfloat16(-1.0f) : __nv_bfloat16(1.0f);
+__device__ inline bfloat162 sign(const bfloat162& a) {
+    bfloat162 out;
+    out.x = a.x < bfloat16(0.0f) ? bfloat16(-1.0f) : bfloat16(1.0f);
+    out.y = a.y < bfloat16(0.0f) ? bfloat16(-1.0f) : bfloat16(1.0f);
     return out;
 }
 
@@ -387,8 +387,8 @@ __device__ inline short2 sign(const short2& a) {
 template<typename T>
 __device__ inline T squared(const T& a) { return a * a; }
 
-__device__ inline __nv_bfloat162 squared(const __nv_bfloat162& a) {
-    __nv_bfloat162 out;
+__device__ inline bfloat162 squared(const bfloat162& a) {
+    bfloat162 out;
     out.x = a.x * a.x;
     out.y = a.y * a.y;
     return out;
@@ -399,8 +399,8 @@ __device__ inline __nv_bfloat162 squared(const __nv_bfloat162& a) {
 template<typename T>
 __device__ inline T sigmoid(const T& a) { return T(1) / (T(1) + exp(-a)); }
 
-__device__ inline __half2 sigmoid(const __half2& a) {
-    const __half2 one = __half2(1, 1);
+__device__ inline float162 sigmoid(const float162& a) {
+    const float162 one = float162(1, 1);
     return one / (one + exp(-a));
 }
 

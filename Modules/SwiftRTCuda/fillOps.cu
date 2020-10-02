@@ -85,8 +85,8 @@ cudaError_t srtFill(
     switch(oDesc.type) {
         case real32F:  return elementFill<float>(out, oDesc, element, stream);
         case real64F:  return elementFill<double>(out, oDesc, element, stream);
-        case real16F:  return elementFill<__half>(out, oDesc, element, stream);
-        case real16BF: return elementFill<__nv_bfloat16>(out, oDesc, element, stream);
+        case real16F:  return elementFill<float16>(out, oDesc, element, stream);
+        case real16BF: return elementFill<bfloat16>(out, oDesc, element, stream);
         case real16I:  return elementFill<int16_t>(out, oDesc, element, stream);
         case real16U:  return elementFill<uint16_t>(out, oDesc, element, stream);
         case real8I:   return elementFill<int8_t>(out, oDesc, element, stream);
@@ -183,8 +183,8 @@ cudaError_t srtFillRange(
 
     switch (oDesc.type) {
     case real32F:  return selectFillRangeRank<float>(out, oDesc, first, last, step, stream);
-    case real16F:  return selectFillRangeRank<__half>(out, oDesc, first, last, step, stream);
-    case real16BF: return selectFillRangeRank<__nv_bfloat16>(out, oDesc, first, last, step, stream);
+    case real16F:  return selectFillRangeRank<float16>(out, oDesc, first, last, step, stream);
+    case real16BF: return selectFillRangeRank<bfloat16>(out, oDesc, first, last, step, stream);
     case real64F:  return selectFillRangeRank<double>(out, oDesc, first, last, step, stream);
     case real32I:  return selectFillRangeRank<int32_t>(out, oDesc, first, last, step, stream);
     case real32U:  return selectFillRangeRank<uint32_t>(out, oDesc, first, last, step, stream);

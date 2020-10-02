@@ -21,10 +21,10 @@
 
 //==============================================================================
 // half precision real types
-typedef __half float16;
+typedef __half  float16;
 typedef __half2 float162;
 
-typedef __nv_bfloat16 bfloat16;
+typedef __nv_bfloat16  bfloat16;
 typedef __nv_bfloat162 bfloat162;
 
 //==============================================================================
