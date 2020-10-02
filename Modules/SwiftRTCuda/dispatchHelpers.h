@@ -28,17 +28,17 @@ inline constexpr bool isSame() {
 
 template<typename A>
 inline constexpr bool isInteger() {
-    return std::is_integral<A>::value;
+    return std::is_integral<A>::value ||
+        std::is_same<A,char4>::value  || std::is_same<A,uchar4>::value ||
+        std::is_same<A,short2>::value || std::is_same<A,ushort2>::value;
 }
 
 template<typename A>
 inline constexpr bool isFloating() {
     return 
         std::is_floating_point<A>::value ||
-        std::is_same<A,float16>::value ||
-        std::is_same<A,float162>::value ||
-        std::is_same<A,bfloat16>::value ||
-        std::is_same<A,bfloat162>::value;
+        std::is_same<A,float16>::value  || std::is_same<A,float162>::value ||
+        std::is_same<A,bfloat16>::value || std::is_same<A,bfloat162>::value;
 }
 
 template<typename A>
@@ -48,7 +48,8 @@ inline constexpr bool isComplex() {
 
 template<typename A>
 inline constexpr bool isBool() {
-    return std::is_same<A,bool>::value;
+    return std::is_same<A,bool>::value ||
+        std::is_same<A,bool2>::value || std::is_same<A,bool4>::value;
 }
 
 template<typename A>
@@ -200,11 +201,6 @@ template<typename T, typename U, typename O> struct OpName { \
     typedef typename matching_packed<PT,O>::type PO; \
     typedef OpName<PT,PU,PO> packed; \
 };
-
-//==============================================================================
-// used for casting between gpu simd types and uint32_t
-#define UINT_CREF(_v) reinterpret_cast<const unsigned&>(_v)
-#define CAST(type, _v) (*reinterpret_cast<const type*>(&(_v)))
 
 //==============================================================================
 // kernel helpers

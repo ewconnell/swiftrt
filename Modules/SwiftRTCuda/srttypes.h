@@ -19,6 +19,20 @@
 #include <cuda_fp16.h>
 #include <cuda_bf16.h>
 
+/* Set up function decorations */
+#ifndef __CUDA_HOSTDEVICE__
+#if defined(__CUDACC__)
+#define __CUDA_HOSTDEVICE__ __host__ __device__
+#else /* !defined(__CUDACC__) */
+#define __CUDA_HOSTDEVICE__
+#endif /* defined(__CUDACC_) */
+#endif
+
+//==============================================================================
+// used for casting between gpu simd types and uint32_t
+#define UINT_CREF(_v) reinterpret_cast<const unsigned&>(_v)
+#define CAST(type, _v) (*reinterpret_cast<const type*>(&(_v)))
+
 //==============================================================================
 // half precision real types
 typedef __half  float16;
@@ -31,11 +45,22 @@ typedef __nv_bfloat162 bfloat162;
 // supplemental logical types
 struct bool2 {
     bool b0, b1;
-    bool2(bool v0, bool v1) { b0 = v0; b1 = v1; }
+    __CUDA_HOSTDEVICE__ inline bool2(bool v0, bool v1) { b0 = v0; b1 = v1; }
+    
+    __device__ inline bool2(float162 v) { b0 = v.x; b1 = v.y; }
+    __device__ inline bool2(bfloat162 v) { b0 = v.x; b1 = v.y; }
+    __device__ inline bool2(unsigned v) {
+        b0 = v & 0xFF;
+        b1 = (v >> 16) & 0xFF;
+    }
 };
 
 struct bool4 {
     bool b0, b1, b2, b3;
-    bool4(bool v0, bool v1, bool v2, bool v3) { b0 = v0; b1 = v1; b2 = v2; b3 = v3; }
-    bool4(unsigned v) { *this = v; }
+    __CUDA_HOSTDEVICE__ inline bool4(bool v0, bool v1, bool v2, bool v3) {
+        b0 = v0; b1 = v1; b2 = v2; b3 = v3;
+    }
+    __CUDA_HOSTDEVICE__ inline bool4(unsigned v) {
+        *this = *reinterpret_cast<const bool4*>(&v);
+    }
 };

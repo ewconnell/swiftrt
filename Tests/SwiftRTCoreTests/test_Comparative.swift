@@ -22,8 +22,8 @@ class test_Comparative: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_compareFloat16", test_compareFloat16),
-        ("test_compareInt8", test_compareInt8),
+        // ("test_compareFloat16", test_compareFloat16),
+        // ("test_compareInt8", test_compareInt8),
         ("test_replace", test_replace),
         ("test_complexOrder", test_complexOrder),
         ("test_elementWiseAndOr", test_elementWiseAndOr),
