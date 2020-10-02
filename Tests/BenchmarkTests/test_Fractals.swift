@@ -25,9 +25,9 @@ final class test_Fractals: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        // ("test_gpuJulia", test_gpuJulia),
+        ("test_gpuJulia", test_gpuJulia),
         // ("test_pmapJulia", test_pmapJulia),
-        ("test_pmapKernelJulia", test_pmapKernelJulia),
+        // ("test_pmapKernelJulia", test_pmapKernelJulia),
         // ("test_Julia", test_Julia),
     ]
 

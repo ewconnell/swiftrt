@@ -14,10 +14,21 @@
 // limitations under the License.
 //
 #pragma once
+#include <stdint.h>
+#include <cuda.h>
+#include <cuda_fp16.h>
+#include <cuda_bf16.h>
+
+//==============================================================================
+// half precision real types
+typedef __half float16;
+typedef __half2 float162;
+
+typedef __nv_bfloat16 bfloat16;
+typedef __nv_bfloat162 bfloat162;
 
 //==============================================================================
 // supplemental logical types
-//==============================================================================
 struct bool2 {
     bool b0, b1;
     bool2(bool v0, bool v1) { b0 = v0; b1 = v1; }

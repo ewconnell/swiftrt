@@ -14,8 +14,6 @@
 // limitations under the License.
 //
 #pragma once
-#include <stdint.h>
-#include <cuda.h>
 #include <type_traits>
 #include "complex.h"
 #include "index.h"
@@ -1110,6 +1108,7 @@ static cudaError_t selectOut(
 
 //--------------------------------------
 // tensorA
+// selectOut is called for the A to O typecast case
 template<template<typename A, typename O> class Op>
 static cudaError_t select(
     const void* a, const TensorDescriptor& aDesc,
@@ -1134,6 +1133,8 @@ static cudaError_t select(
 
 //--------------------------------------
 // tensorA Element
+// selectRank is called because the only current cases A and O are the same
+// type
 template<template<typename A, typename O> class Op>
 static cudaError_t select(
     const void* a, const TensorDescriptor& aDesc,
@@ -1142,16 +1143,16 @@ static cudaError_t select(
     cudaStream_t stream
 ) {
     switch(aDesc.type) {
-    case real32F:  return selectOut<Op, float>(a, aDesc, element, out, oDesc, stream);
-    case real16F:  return selectOut<Op, __half>(a, aDesc, element, out, oDesc, stream);
-    case real16BF: return selectOut<Op, __nv_bfloat16>(a, aDesc, element, out, oDesc, stream);
-    case real64F:  return selectOut<Op, double>(a, aDesc, element, out, oDesc, stream);
-    case real32I:  return selectOut<Op, int32_t>(a, aDesc, element, out, oDesc, stream);
-    case real8U:   return selectOut<Op, uint8_t>(a, aDesc, element, out, oDesc, stream);
-    case real8I:   return selectOut<Op, int8_t>(a, aDesc, element, out, oDesc, stream);
-    case real16U:  return selectOut<Op, uint16_t>(a, aDesc, element, out, oDesc, stream);
-    case real16I:  return selectOut<Op, int16_t>(a, aDesc, element, out, oDesc, stream);
-    case complex32F: return selectOut<Op, Complex<float>>(a, aDesc, element, out, oDesc, stream);
+    case real32F:  return selectRank<Op<float,float>>(a, aDesc, element, out, oDesc, stream);
+    case real16F:  return selectRank<Op<__half,__half>>(a, aDesc, element, out, oDesc, stream);
+    case real16BF: return selectRank<Op<__nv_bfloat16,__nv_bfloat16>>(a, aDesc, element, out, oDesc, stream);
+    case real64F:  return selectRank<Op<double,double>>(a, aDesc, element, out, oDesc, stream);
+    case real32I:  return selectRank<Op<int32_t, int32_t>>(a, aDesc, element, out, oDesc, stream);
+    case real8U:   return selectRank<Op<uint8_t,uint8_t>>(a, aDesc, element, out, oDesc, stream);
+    case real8I:   return selectRank<Op<int8_t,int8_t>>(a, aDesc, element, out, oDesc, stream);
+    case real16U:  return selectRank<Op<uint16_t,uint16_t>>(a, aDesc, element, out, oDesc, stream);
+    case real16I:  return selectRank<Op<int16_t,int16_t>>(a, aDesc, element, out, oDesc, stream);
+    case complex32F: return selectRank<Op<Complex<float>,Complex<float>>>(a, aDesc, element, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }

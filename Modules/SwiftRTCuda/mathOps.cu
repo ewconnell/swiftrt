@@ -446,7 +446,8 @@ cudaError_t srtPowN(
 
 //------------------------------------------------------------------------------
 cudaError_t srtRoot(
-    const void* a, const srtTensorDescriptor* paDesc, long n,
+    const void* a, const srtTensorDescriptor* paDesc,
+    long n,
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {

@@ -15,7 +15,6 @@
 //
 #include "compareOps.h"
 #include "compareSupplemental.h"
-#include "dispatchHelpers.h"
 
 //==============================================================================
 // Swift importable C interface functions
