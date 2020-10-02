@@ -34,6 +34,7 @@ cudaError_t srtAnd(
 }
 
 //------------------------------------------------------------------------------
+Op3(AlmostEqual, almostEqual, (isNumeric<T>() && isBool<Out>()))
 
 cudaError_t srtElementsAlmostEqual(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -42,7 +43,8 @@ cudaError_t srtElementsAlmostEqual(
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
-    return cudaErrorNotSupported;
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    return select<AlmostEqual>(a, aDesc, b, bDesc, tolerance, out, oDesc, stream);
 }
 
 //------------------------------------------------------------------------------

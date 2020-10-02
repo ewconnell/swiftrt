@@ -15,6 +15,7 @@
 //
 #pragma once
 #include "dispatchHelpers.h"
+#include "mathSupplemental.h"
 
 //==============================================================================
 // supplemental logical functions
@@ -40,6 +41,36 @@ __device__ inline bool orElements(const bool& a, const bool& b) {
 __device__ inline bool4 orElements(const bool4& a, const bool4& b) {
     const unsigned out = UINT_CREF(a) | UINT_CREF(b);
     return CAST(bool4, out);
+}
+
+//------------------------------------------------------------------------------
+// almostEqual
+// normally we would compare the absolute value of the difference,
+// however the abs of a complex type is it's RealType and not T.
+// There could be an entire special case tree where tolerance is specified
+// as the RealType only, but it's unclear if it's merited.
+template<typename T>
+__device__ inline bool almostEqual(const T& a, const T& b, const T& tolerance) {
+    T diff = a < b ? (b - a) : (a - b);
+    return diff <= tolerance;
+}
+
+__device__ inline bool2 almostEqual(
+    const float162& a, 
+    const float162& b,
+    const float162& tolerance
+) {
+    return bool2(almostEqual(a.x, b.x, tolerance.x), 
+                 almostEqual(a.y, b.y, tolerance.y));    
+}
+
+__device__ inline bool2 almostEqual(
+    const bfloat162& a, 
+    const bfloat162& b,
+    const bfloat162& tolerance
+) {
+    return bool2(almostEqual(a.x, b.x, tolerance.x), 
+                 almostEqual(a.y, b.y, tolerance.y));    
 }
 
 //------------------------------------------------------------------------------
