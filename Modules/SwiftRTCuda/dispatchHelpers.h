@@ -15,9 +15,9 @@
 //
 #pragma once
 #include <type_traits>
+#include "srttypes.h"
 #include "complex.h"
 #include "index.h"
-#include "srttypes.h"
 
 //==============================================================================
 // conformance helpers
@@ -69,15 +69,6 @@ inline constexpr bool isEquatable() {
 template<typename A>
 inline constexpr bool isSignedNumeric() {
     return isNumeric<A>() && std::is_signed<A>::value;
-}
-
-template<typename A>
-inline constexpr bool isPacked() {
-    return
-    std::is_same<A,float162>::value || std::is_same<A,bfloat162>::value ||
-    std::is_same<A, char4>::value || std::is_same<A, uchar4>::value ||
-    std::is_same<A, bool4>::value ||
-    std::is_same<A, short2>::value || std::is_same<A, ushort2>::value;
 }
 
 //==============================================================================
