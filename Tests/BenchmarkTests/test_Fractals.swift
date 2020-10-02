@@ -25,9 +25,9 @@ final class test_Fractals: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_gpuJulia", test_gpuJulia),
+        // ("test_gpuJulia", test_gpuJulia),
         // ("test_pmapJulia", test_pmapJulia),
-        // ("test_pmapKernelJulia", test_pmapKernelJulia),
+        ("test_pmapKernelJulia", test_pmapKernelJulia),
         // ("test_Julia", test_Julia),
     ]
 
@@ -156,13 +156,12 @@ final class test_Fractals: XCTestCase {
         let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
                 repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         var divergence = full(size, iterations)
-        let t2 = tolerance //* tolerance
 
-        // cpu platform: mac cpu32: 0.116s, ubuntu cpu12: 0.143s
+        // cpu platform: mac cpu32: 0.116s, ubuntu cpu12: 0.141s
         // cuda platform: cpu12:  , gpu: no jit yet, but srtJulia is 0.003s
         measure {
             pmap(Z, &divergence, limitedBy: .compute) {
-                juliaKernel(Z: $0, divergence: &$1, C, t2, iterations)
+                juliaKernel(Z: $0, divergence: &$1, C, tolerance)
             }
         }
         #endif
@@ -174,23 +173,18 @@ final class test_Fractals: XCTestCase {
 @inlinable public func juliaKernel<E>(
     Z: TensorR2<Complex<E>>,
     divergence: inout TensorR2<E>,
-    _ C: Complex<E>,
-    _ tolerance: E,
-    _ iterations: Int
+    _ c: Complex<E>,
+    _ tolerance: E
 ) {
-    let message =
-        "julia(Z: \(Z.name), divergence: \(divergence.name), constant: \(C), " +
-        "tolerance: \(tolerance), iterations: \(iterations))"
+    let message = "julia(Z: \(Z.name), divergence: \(divergence.name), " +
+        "constant: \(c), tolerance: \(tolerance)"
 
     kernel(Z, &divergence, message) {
-        var Z = $0, d = $1
-        for i in 0..<iterations {
-            Z = Z * Z + C
-            if abs(Z) > tolerance {
-                d = min(d, E.Value(exactly: i)!)
-                break
-            }
+        var z = $0, d = $1, i = E.Value.zero
+        while abs(z) <= tolerance && i < d {
+            z = z * z + c
+            i += 1
         }
-        return d
+        return i
     }
 }
