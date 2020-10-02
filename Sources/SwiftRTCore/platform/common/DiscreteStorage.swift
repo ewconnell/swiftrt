@@ -25,9 +25,16 @@ public final class DiscreteStorage: StorageBuffer {
     public var isReadOnly: Bool
     public var isReference: Bool
     public var isZero: Bool
-    
-    public var name: String {
-        didSet { replicas.forEach { $0?.name = name } }
+
+    @usableFromInline var _name: String = defaultTensorName
+    @inlinable public var name: String {
+        get {
+            _name != defaultTensorName ? _name : "\(defaultTensorName)(\(id))"
+        }
+        set {
+            _name = newValue
+            replicas.forEach { $0?.name = newValue }
+        }
     }
 
     //------------------------------------
@@ -66,7 +73,7 @@ public final class DiscreteStorage: StorageBuffer {
         count: Int,
         name: String
     ) {
-        self.name = name
+        _name = name
         alignment = MemoryLayout<Element>.alignment
         byteCount = MemoryLayout<Element>.size * count
         id = Platform.objectId.next
@@ -119,7 +126,7 @@ public final class DiscreteStorage: StorageBuffer {
         isReadOnly = other.isReadOnly
         isReference = other.isReference
         isZero = other.isZero
-        name = other.name
+        _name = other.name
         masterVersion = -1
         _lastAccessCopiedMemory = false
 
@@ -130,8 +137,7 @@ public final class DiscreteStorage: StorageBuffer {
         let queue = currentQueue
         let otherMemory = other.getDeviceMemory(Element.self, queue)
         let selfMemory = getDeviceMemory(Element.self, queue)
-        diagnostic(.copy, "\(other.name)(\(other.id)) --> " +
-                    "\(name)(\(id)) \(Element.self)" +
+        diagnostic(.copy, "\(other.name) --> \(name) \(Element.self)" +
                     "[\(byteCount / MemoryLayout<Element>.size)]",
                     categories: .dataCopy)
         queue.copyAsync(from: otherMemory, to: selfMemory)
@@ -149,7 +155,7 @@ public final class DiscreteStorage: StorageBuffer {
         let p = UnsafeMutableBufferPointer(mutating: buffer)
         let raw = UnsafeMutableRawBufferPointer(p)
         replicas[0] = CpuDeviceMemory(0, raw, .unified, isReference: true)
-        diagnostic(.reference, "\(name)(\(id)) \(Element.self)[\(buffer.count)]",
+        diagnostic(.reference, "\(name) \(Element.self)[\(buffer.count)]",
                    categories: .dataAlloc)
     }
     
@@ -163,7 +169,7 @@ public final class DiscreteStorage: StorageBuffer {
         isReference = true
         let raw = UnsafeMutableRawBufferPointer(buffer)
         replicas[0] = CpuDeviceMemory(0, raw, .unified, isReference: true)
-        diagnostic(.reference, "\(name)(\(id)) \(Element.self)[\(buffer.count)]",
+        diagnostic(.reference, "\(name) \(Element.self)[\(buffer.count)]",
                    categories: .dataAlloc)
     }
 
@@ -236,9 +242,9 @@ public final class DiscreteStorage: StorageBuffer {
             
             if willLog(level: .diagnostic) {
                 let count = byteCount / MemoryLayout<Element>.size
-                let msg = "(\(id)) on \(queue.deviceName) using \(queue.name) " +
+                let msg = "\(name) on \(queue.deviceName) using \(queue.name) " +
                           " \(Element.self)[\(count)]"
-                diagnostic(.alloc, "\(name)\(msg)", categories: .dataAlloc)
+                diagnostic(.alloc, msg, categories: .dataAlloc)
                 memory.name = name
                 memory.releaseMessage = msg
             }
@@ -310,7 +316,7 @@ public final class DiscreteStorage: StorageBuffer {
 
             func outputCopyMessage() {
                 diagnostic(.copy,
-                    "\(name)(\(id)) dev:\(master.deviceIndex)" +
+                    "\(name) dev:\(master.deviceIndex)" +
                     "\(setText(" --> ", color: .blue))" +
                     "\(queue.deviceName)_q\(queue.id)  " +
                     "\(Element.self)[\(replica.count(of: Element.self))]",
