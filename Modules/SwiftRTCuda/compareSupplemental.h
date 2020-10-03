@@ -317,6 +317,27 @@ __device__ inline bfloat162 minElements(const bfloat162& a, const bfloat162& b) 
 #endif
 }
 
+__device__ inline char4 minElements(const char4& a, const char4& b) {
+    unsigned m = __vmins4(UINT_CREF(a), UINT_CREF(b));
+    return CAST(char4, m);
+}
+
+__device__ inline uchar4 minElements(const uchar4& a, const uchar4& b) {
+    unsigned m = __vminu4(UINT_CREF(a), UINT_CREF(b));
+    return CAST(uchar4, m);
+}
+
+__device__ inline short2 minElements(const short2& a, const short2& b) {
+    unsigned m = __vmins2(UINT_CREF(a), UINT_CREF(b));
+    return CAST(short2, m);
+}
+
+__device__ inline ushort2 minElements(const ushort2& a, const ushort2& b) {
+    unsigned m = __vminu2(UINT_CREF(a), UINT_CREF(b));
+    return CAST(ushort2, m);
+}
+
+
 //------------------------------------------------------------------------------
 template<typename T>
 __device__ inline T maxElements(const T& a, const T& b) {
@@ -345,8 +366,72 @@ __device__ inline bfloat162 maxElements(const bfloat162& a, const bfloat162& b) 
 #endif
 }
 
+__device__ inline char4 maxElements(const char4& a, const char4& b) {
+    unsigned m = __vmaxs4(UINT_CREF(a), UINT_CREF(b));
+    return CAST(char4, m);
+}
+
+__device__ inline uchar4 maxElements(const uchar4& a, const uchar4& b) {
+    unsigned m = __vmaxu4(UINT_CREF(a), UINT_CREF(b));
+    return CAST(uchar4, m);
+}
+
+__device__ inline short2 maxElements(const short2& a, const short2& b) {
+    unsigned m = __vmaxs2(UINT_CREF(a), UINT_CREF(b));
+    return CAST(short2, m);
+}
+
+__device__ inline ushort2 maxElements(const ushort2& a, const ushort2& b) {
+    unsigned m = __vmaxu2(UINT_CREF(a), UINT_CREF(b));
+    return CAST(ushort2, m);
+}
+
 //------------------------------------------------------------------------------
 template<typename T>
 __device__ inline T conditionalAssign(const T& a, const T& b, const bool c) {
     return c ? a : b;
+}
+
+__device__ inline 
+float162 conditionalAssign(const float162& a, const float162& b, const bool2 c) {
+    float162 v;
+    v.x = c.b0 ? a.x : b.x;
+    v.y = c.b1 ? a.y : b.y;
+    return v;
+}
+
+__device__ inline 
+bfloat162 conditionalAssign(const bfloat162& a, const bfloat162& b, const bool2 c) {
+    bfloat162 v;
+    v.x = c.b0 ? a.x : b.x;
+    v.y = c.b1 ? a.y : b.y;
+    return v;
+}
+
+__device__ inline 
+short2 conditionalAssign(const short2& a, const short2& b, const bool2 c) {
+    return make_short2(c.b0 ? a.x : b.x, c.b1 ? a.y : b.y);
+}
+
+__device__ inline 
+ushort2 conditionalAssign(const ushort2& a, const ushort2& b, const bool2 c) {
+    return make_ushort2(c.b0 ? a.x : b.x, c.b1 ? a.y : b.y);
+}
+
+__device__ inline 
+char4 conditionalAssign(const char4& a, const char4& b, const bool4 c) {
+    return make_char4(
+        c.b0 ? a.x : b.x,
+        c.b1 ? a.y : b.y,
+        c.b2 ? a.z : b.z,
+        c.b3 ? a.w : b.w);
+}
+
+__device__ inline 
+uchar4 conditionalAssign(const uchar4& a, const uchar4& b, const bool4 c) {
+    return make_uchar4(
+        c.b0 ? a.x : b.x,
+        c.b1 ? a.y : b.y,
+        c.b2 ? a.z : b.z,
+        c.b3 ? a.w : b.w);
 }

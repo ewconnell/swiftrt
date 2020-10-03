@@ -25,15 +25,15 @@ class test_Comparative: XCTestCase {
         // ("test_compareFloat16", test_compareFloat16),
         // ("test_compareInt8", test_compareInt8),
         ("test_replace", test_replace),
-        ("test_complexOrder", test_complexOrder),
-        ("test_elementWiseAndOr", test_elementWiseAndOr),
-        ("test_elementsAlmostEqual", test_elementsAlmostEqual),
-        ("test_boolEquality", test_boolEquality),
-        ("test_equality", test_equality),
-        ("test_max", test_max),
-        ("test_maxScalar", test_maxScalar),
-        ("test_min", test_min),
-        ("test_minScalar", test_minScalar),
+        // ("test_complexOrder", test_complexOrder),
+        // ("test_elementWiseAndOr", test_elementWiseAndOr),
+        // ("test_elementsAlmostEqual", test_elementsAlmostEqual),
+        // ("test_boolEquality", test_boolEquality),
+        // ("test_equality", test_equality),
+        // ("test_max", test_max),
+        // ("test_maxScalar", test_maxScalar),
+        // ("test_min", test_min),
+        // ("test_minScalar", test_minScalar),
     ]
 
     override func setUpWithError() throws {
@@ -62,11 +62,22 @@ class test_Comparative: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_replace() {
-        let a = array([1, 1, 2], type: Int8.self)
-        let b = array([0, 0, 2], type: Int8.self)
-        let c = array([true, false, false])
-        let x = replace(x: a, with: b, where: c)
-        XCTAssert(x == [0, 1, 2])
+        // do {
+        //     let a = array([1, 1, 2, 2], type: Int8.self)
+        //     let b = array([0, 0, 2, 1], type: Int8.self)
+        //     let c = array([true, false, false, true])
+        //     let x = replace(x: a, with: b, where: c)
+        //     XCTAssert(x == [0, 1, 2, 1])
+        // }
+
+        do {
+            let a = array(1..<7, (2, 3), type: Int8.self)
+            let b = zeros((2, 3), type: Int8.self)
+            let c = array([[false, true, false], [true, false, true]])
+            let x = replace(x: a, with: b, where: c)
+            print(x)
+            XCTAssert(x == [[1, 0, 3],[0, 5, 0]])
+        }
     }
 
     //--------------------------------------------------------------------------

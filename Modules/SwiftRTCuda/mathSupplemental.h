@@ -265,7 +265,8 @@ PROMOTED_BFLOAT162(tanh)
 // add
 template<typename T>
 __device__ inline T add(const T& a, const T& b) { return a + b; }
-PROMOTED2_BFLOAT162(add)
+NATIVE_FLOAT162(add, __hadd2)
+NATIVE_BFLOAT162(add, __hadd2)
 
 // divide
 template<typename T>
@@ -275,16 +276,20 @@ PROMOTED2_BFLOAT162(divide)
 // multiply
 template<typename T>
 __device__ inline T multiply(const T& a, const T& b) { return a * b; }
-PROMOTED2_BFLOAT162(multiply)
+NATIVE_FLOAT162(multiply, __hmul2)
+NATIVE_BFLOAT162(multiply, __hmul2)
 
 // multiply
 template<typename T>
 __device__ inline T multiplyAdd(const T& a, const T& b, const T& c) { return a * b + c; }
+NATIVE_FLOAT162(multiplyAdd, __hfma2)
+NATIVE_BFLOAT162(multiplyAdd, __hfma2)
 
 // subtract
 template<typename T>
 __device__ inline T subtract(const T& a, const T& b) { return a - b; }
-PROMOTED2_BFLOAT162(subtract)
+NATIVE_FLOAT162(subtract, __hsub2)
+NATIVE_BFLOAT162(subtract, __hsub2)
 
 //==============================================================================
 // supplemental custom functions

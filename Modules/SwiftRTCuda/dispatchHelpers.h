@@ -128,11 +128,22 @@ template<> struct packed<bfloat16> {
 template<typename A, typename O>
 struct matching_packed { typedef O type; };
 template<> struct matching_packed<char4, bool> { typedef bool4 type; };
+template<> struct matching_packed<char4, int8_t> { typedef char4 type; };
+
 template<> struct matching_packed<uchar4, bool> { typedef bool4 type; };
+template<> struct matching_packed<uchar4, uint8_t> { typedef uchar4 type; };
+
 template<> struct matching_packed<short2, bool> { typedef bool2 type; };
+template<> struct matching_packed<short2, int16_t> { typedef short2 type; };
+
 template<> struct matching_packed<ushort2, bool> { typedef bool2 type; };
+template<> struct matching_packed<ushort2, uint16_t> { typedef ushort2 type; };
+
 template<> struct matching_packed<float162, bool> { typedef bool2 type; };
+template<> struct matching_packed<float162, float16> { typedef float162 type; };
+
 template<> struct matching_packed<bfloat162, bool> { typedef bool2 type; };
+template<> struct matching_packed<bfloat162, bfloat16> { typedef bfloat162 type; };
 
 //--------------------------------------
 // given an input type A and an output type O, if the input is
