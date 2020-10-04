@@ -33,9 +33,9 @@ class test_Comparative: XCTestCase {
         // ("test_equality", test_equality),
         
         ("test_max", test_max),
-        ("test_maxScalar", test_maxScalar),
-        ("test_min", test_min),
-        ("test_minScalar", test_minScalar),
+        // ("test_maxScalar", test_maxScalar),
+        // ("test_min", test_min),
+        // ("test_minScalar", test_minScalar),
     ]
 
     override func setUpWithError() throws {

@@ -432,4 +432,220 @@ extension CudaQueue {
         }
         cpuFallback(status) { $0.replace(x, y, condition, &out) }
     }
+
+    //==========================================================================
+    @inlinable func vjpMin<S,E>(
+        _ x: Tensor<S,E>, 
+        _ y: Tensor<S,E>, 
+        _ scale: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_vjpMin(x, y, scale, &out); return }
+        diagnostic(.queueGpu, "vjpMin(\(x.name), \(y.name), \(scale.name))",
+                   categories: .queueGpu)
+
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            x.withTensor(using: self) { x, xDesc in
+                y.withTensor(using: self) { y, yDesc in
+                    scale.withTensor(using: self) { s, sDesc in
+                        srtVjpMin(x, xDesc, y, yDesc, s, sDesc, o, oDesc, stream)
+                    }
+                }
+            }
+        }
+        cpuFallback(status) { $0.vjpMin(x, y, scale, &out) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable func vjpMin<S,E>(
+        _ x: Tensor<S,E>, 
+        _ y: E.Value, 
+        _ scale: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_vjpMin(x, y, scale, &out); return }
+        diagnostic(.queueGpu, "vjpMin(\(x.name), \(y), \(scale.name))",
+                   categories: .queueGpu)
+
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            x.withTensor(using: self) { x, xDesc in
+                withUnsafePointer(to: y) { y in
+                    scale.withTensor(using: self) { s, sDesc in
+                        srtVjpMinTE(x, xDesc, y, s, sDesc, o, oDesc, stream)
+                    }
+                }
+            }
+        }
+        cpuFallback(status) { $0.vjpMin(x, y, scale, &out) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable func vjpMin<S,E>(
+        _ x: Tensor<S,E>, 
+        _ y: Tensor<S,E>, 
+        _ scale: Tensor<S,E>,
+        _ outT: inout Tensor<S,E>, 
+        _ outF: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        assert(outT.isContiguous && outF.isContiguous,
+               _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_vjpMin(x, y, scale, &outT, &outF); return }
+        diagnostic(.queueGpu, "vjpMin(\(x.name), \(y.name), \(scale.name))",
+                   categories: .queueGpu)
+        var outFShared = outF.shared(using: self)
+
+        let status = outT.withMutableTensor(using: self) { oT, oTDesc in
+            outFShared.withMutableTensor(using: self) { oF, oFDesc in
+                x.withTensor(using: self) { x, xDesc in
+                    y.withTensor(using: self) { y, yDesc in
+                        scale.withTensor(using: self) { s, sDesc in
+                            srtVjpMinOO(x, xDesc, y, yDesc, s, sDesc, 
+                                        oT, oTDesc, oF, oFDesc, stream)
+                        }
+                    }
+                }
+            }
+        }
+        cpuFallback(status) { $0.vjpMin(x, y, scale, &outT, &outF) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable func vjpMin<S,E>(
+        _ x: Tensor<S,E>, 
+        _ y: E.Value, 
+        _ scale: Tensor<S,E>,
+        _ outT: inout Tensor<S,E>, 
+        _ outF: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        assert(outT.isContiguous && outF.isContiguous,
+               _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_vjpMin(x, y, scale, &outT, &outF); return }
+        diagnostic(.queueGpu, "vjpMin(\(x.name), \(y), \(scale.name))",
+                   categories: .queueGpu)
+        var outFShared = outF.shared(using: self)
+
+        let status = outT.withMutableTensor(using: self) { oT, oTDesc in
+            outFShared.withMutableTensor(using: self) { oF, oFDesc in
+                x.withTensor(using: self) { x, xDesc in
+                    withUnsafePointer(to: y) { y in
+                        scale.withTensor(using: self) { s, sDesc in
+                            srtVjpMinTEOO(x, xDesc, y, s, sDesc, 
+                                          oT, oTDesc, oF, oFDesc, stream)
+                        }
+                    }
+                }
+            }
+        }
+        cpuFallback(status) { $0.vjpMin(x, y, scale, &outT, &outF) }
+    }
+
+    //==========================================================================
+    @inlinable func vjpMax<S,E>(
+        _ x: Tensor<S,E>, 
+        _ y: Tensor<S,E>, 
+        _ scale: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_vjpMax(x, y, scale, &out); return }
+        diagnostic(.queueGpu, "vjpMax(\(x.name), \(y.name), \(scale.name))",
+                   categories: .queueGpu)
+
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            x.withTensor(using: self) { x, xDesc in
+                y.withTensor(using: self) { y, yDesc in
+                    scale.withTensor(using: self) { s, sDesc in
+                        srtVjpMax(x, xDesc, y, yDesc, s, sDesc, o, oDesc, stream)
+                    }
+                }
+            }
+        }
+        cpuFallback(status) { $0.vjpMax(x, y, scale, &out) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable func vjpMax<S,E>(
+        _ x: Tensor<S,E>, 
+        _ y: E.Value, 
+        _ scale: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_vjpMax(x, y, scale, &out); return }
+        diagnostic(.queueGpu, "vjpMax(\(x.name), \(y), \(scale.name))",
+                   categories: .queueGpu)
+
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            x.withTensor(using: self) { x, xDesc in
+                withUnsafePointer(to: y) { y in
+                    scale.withTensor(using: self) { s, sDesc in
+                        srtVjpMaxTE(x, xDesc, y, s, sDesc, o, oDesc, stream)
+                    }
+                }
+            }
+        }
+        cpuFallback(status) { $0.vjpMax(x, y, scale, &out) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable func vjpMax<S,E>(
+        _ x: Tensor<S,E>, 
+        _ y: Tensor<S,E>, 
+        _ scale: Tensor<S,E>,
+        _ outT: inout Tensor<S,E>, 
+        _ outF: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        assert(outT.isContiguous && outF.isContiguous,
+               _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_vjpMax(x, y, scale, &outT, &outF); return }
+        diagnostic(.queueGpu, "vjpMax(\(x.name), \(y.name), \(scale.name))",
+                   categories: .queueGpu)
+        var outFShared = outF.shared(using: self)
+
+        let status = outT.withMutableTensor(using: self) { oT, oTDesc in
+            outFShared.withMutableTensor(using: self) { oF, oFDesc in
+                x.withTensor(using: self) { x, xDesc in
+                    y.withTensor(using: self) { y, yDesc in
+                        scale.withTensor(using: self) { s, sDesc in
+                            srtVjpMaxOO(x, xDesc, y, yDesc, s, sDesc, 
+                                        oT, oTDesc, oF, oFDesc, stream)
+                        }
+                    }
+                }
+            }
+        }
+        cpuFallback(status) { $0.vjpMax(x, y, scale, &outT, &outF) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable func vjpMax<S,E>(
+        _ x: Tensor<S,E>, 
+        _ y: E.Value, 
+        _ scale: Tensor<S,E>,
+        _ outT: inout Tensor<S,E>, 
+        _ outF: inout Tensor<S,E>
+    ) where E.Value: Comparable & Numeric {
+        assert(outT.isContiguous && outF.isContiguous,
+               _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_vjpMax(x, y, scale, &outT, &outF); return }
+        diagnostic(.queueGpu, "vjpMax(\(x.name), \(y), \(scale.name))",
+                   categories: .queueGpu)
+        var outFShared = outF.shared(using: self)
+
+        let status = outT.withMutableTensor(using: self) { oT, oTDesc in
+            outFShared.withMutableTensor(using: self) { oF, oFDesc in
+                x.withTensor(using: self) { x, xDesc in
+                    withUnsafePointer(to: y) { y in
+                        scale.withTensor(using: self) { s, sDesc in
+                            srtVjpMaxTEOO(x, xDesc, y, s, sDesc, 
+                                          oT, oTDesc, oF, oFDesc, stream)
+                        }
+                    }
+                }
+            }
+        }
+        cpuFallback(status) { $0.vjpMax(x, y, scale, &outT, &outF) }
+    }
 }
