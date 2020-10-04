@@ -46,21 +46,21 @@ typedef __nv_bfloat162 bfloat162;
 //==============================================================================
 // supplemental logical types
 struct bool2 {
-    bool b0, b1;
-    __CUDA_HOSTDEVICE__ inline bool2(bool v0, bool v1) { b0 = v0; b1 = v1; }
+    bool x, y;
+    __CUDA_HOSTDEVICE__ inline bool2(bool _x, bool _y) { x = _x; y = _y; }
     
-    __CUDA_DEVICE__ inline bool2(float162 v) { b0 = v.x; b1 = v.y; }
-    __CUDA_DEVICE__ inline bool2(bfloat162 v) { b0 = v.x; b1 = v.y; }
+    __CUDA_DEVICE__ inline bool2(float162 v) { x = v.x; y = v.y; }
+    __CUDA_DEVICE__ inline bool2(bfloat162 v) { x = v.x; y = v.y; }
     __CUDA_DEVICE__ inline bool2(unsigned v) {
-        b0 = v & 0xFF;
-        b1 = (v >> 16) & 0xFF;
+        x = v & 0xFF;
+        y = (v >> 16) & 0xFF;
     }
 };
 
 struct bool4 {
-    bool b0, b1, b2, b3;
-    __CUDA_HOSTDEVICE__ inline bool4(bool v0, bool v1, bool v2, bool v3) {
-        b0 = v0; b1 = v1; b2 = v2; b3 = v3;
+    bool x, y, z, w;
+    __CUDA_HOSTDEVICE__ inline bool4(bool _x, bool _y, bool _z, bool _w) {
+        x = _x; y = _y; z = _z; w = _w;
     }
     __CUDA_HOSTDEVICE__ inline bool4(unsigned v) {
         *this = *reinterpret_cast<const bool4*>(&v);

@@ -21,8 +21,6 @@
 // supplemental function delegating macros
 //==============================================================================
 
-// #if defined(__CUDACC__)
-
 #define FLOAT16_NATIVE(func, native) \
 __device__ inline float16 func(const float16& a) { return native(a); }
 
@@ -75,18 +73,6 @@ __device__ inline float162 func(const float162& a, const float162& b) \
     __device__ inline bfloat162 func(const bfloat162& a, const bfloat162& b) \
     { return native(a, b); }
 #endif
-
-// #else
-// #define FLOAT16_NATIVE(func, native)
-// #define FLOAT162_NATIVE(func, native)
-// #define BFLOAT16_NATIVE(func, native)
-// #define BFLOAT162_NATIVE(func, native)
-
-// #define FLOAT16_NATIVE2(func, native)
-// #define FLOAT162_NATIVE2(func, native)
-// #define BFLOAT16_NATIVE2(func, native)
-// #define BFLOAT162_NATIVE2(func, native)
-// #endif
 
 //------------------------------------------------------------------------------
 // Promotes the type to a float, does the op, then back to the type. This
