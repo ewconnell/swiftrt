@@ -234,7 +234,6 @@ cudaError_t srtReplace(
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
-    int count = packing<char4>::count;
     Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
     return select<Replace>(b, bDesc, a, aDesc, condition, cDesc, out, oDesc, stream);
 }

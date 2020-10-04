@@ -157,17 +157,24 @@ template<> struct matching_packed<bfloat162, bfloat16> { typedef bfloat162 type;
 //--------------------------------------
 // given an input type A and an output type O, if the input is
 // packed, then the corresponding packed respresention of O is defined
-template<typename A>
-struct packing { static const int count = 1; };
+template<typename A> struct packing {static const int count = 1; };
 template<> struct packing<char4> { static const int count = 4; };
+template<> struct packing<const char4> { static const int count = 4; };
 template<> struct packing<uchar4> { static const int count = 4; };
+template<> struct packing<const uchar4> { static const int count = 4; };
 template<> struct packing<bool4> { static const int count = 4; };
+template<> struct packing<const bool4> { static const int count = 4; };
 
-template<> struct packing<short2> { static const int count = 2; };
-template<> struct packing<ushort2> { static const int count = 2; };
-template<> struct packing<float162> { static const int count = 2; };
-template<> struct packing<bfloat162> { static const int count = 2; };
 template<> struct packing<bool2> { static const int count = 2; };
+template<> struct packing<const bool2> { static const int count = 2; };
+template<> struct packing<short2> { static const int count = 2; };
+template<> struct packing<const short2> { static const int count = 2; };
+template<> struct packing<ushort2> { static const int count = 2; };
+template<> struct packing<const ushort2> { static const int count = 2; };
+template<> struct packing<float162> { static const int count = 2; };
+template<> struct packing<const float162> { static const int count = 2; };
+template<> struct packing<bfloat162> { static const int count = 2; };
+template<> struct packing<const bfloat162> { static const int count = 2; };
 
 //==============================================================================
 // operator macros
