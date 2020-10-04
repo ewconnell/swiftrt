@@ -29,9 +29,11 @@ class test_Comparative: XCTestCase {
         // ("test_elementWiseAndOr", test_elementWiseAndOr),
         // ("test_elementsAlmostEqual", test_elementsAlmostEqual),
 
+// these require reductions to work
         // ("test_boolEquality", test_boolEquality),
         // ("test_equality", test_equality),
         
+// requires vjpMax to be implemented on gpu
         ("test_max", test_max),
         // ("test_maxScalar", test_maxScalar),
         // ("test_min", test_min),
@@ -167,8 +169,6 @@ class test_Comparative: XCTestCase {
         // both
         let one = ones(like: a)
         let (ga, gb) = pullback(at: a, b, in: { max($0, $1) })(one)
-        print(ga)
-        print(gb)
         XCTAssert(ga == [[1, 1], [0, 0], [0, 1]])
         XCTAssert(gb == [[0, 0], [1, 1], [1, 0]])
 
