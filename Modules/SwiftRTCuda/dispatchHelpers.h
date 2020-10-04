@@ -72,6 +72,15 @@ inline constexpr bool isSignedNumeric() {
     return isNumeric<A>() && std::is_signed<A>::value;
 }
 
+template<typename A>
+inline constexpr bool isPacked() {
+    return 
+    std::is_same<A,bool2>::value  || std::is_same<A,bool4>::value ||
+    std::is_same<A,char4>::value  || std::is_same<A,uchar4>::value ||
+    std::is_same<A,short2>::value || std::is_same<A,ushort2>::value ||
+    std::is_same<A,float162>::value || std::is_same<A,bfloat162>::value;
+}
+
 //==============================================================================
 // given an input type A and an output type O, if the input is
 // packed, then the corresponding packed respresention of O is defined
@@ -166,6 +175,7 @@ template<> struct packing<bool2> { static const int count = 2; };
 // are retyped into packed versions to use with gpu SIMD instructions
 #define Op1(OpName, name, conformance) \
 template<typename T, typename O> struct OpName { \
+    static_assert(isPacked<T>() == isPacked<O>(), "packed type mismatch"); \
     typedef T A; typedef O Out; \
     constexpr static bool conforms() { return (conformance); } \
     __device__ inline static void op(const A& a, O& out) { \
@@ -178,6 +188,7 @@ template<typename T, typename O> struct OpName { \
 
 #define Op2(OpName, name, conformance) \
 template<typename T, typename O> struct OpName { \
+    static_assert(isPacked<T>() == isPacked<O>(), "packed type mismatch"); \
     typedef T A; typedef T B; typedef O Out; \
     constexpr static bool conforms() { return (conformance); } \
     __device__ inline static void op(const A& a, const B& b, O& out) { \
@@ -190,6 +201,7 @@ template<typename T, typename O> struct OpName { \
 
 #define Op3(OpName, name, conformance) \
 template<typename T, typename O> struct OpName { \
+    static_assert(isPacked<T>() == isPacked<O>(), "packed type mismatch"); \
     typedef T A; typedef T B; typedef T C; typedef O Out; \
     constexpr static bool conforms() { return (conformance); } \
     __device__ inline static void op(const A& a, const B& b, const C& c, O& out) { \
@@ -202,6 +214,8 @@ template<typename T, typename O> struct OpName { \
 
 #define OpTTU(OpName, name, conformance) \
 template<typename T, typename U, typename O> struct OpName { \
+    static_assert(isPacked<T>() == isPacked<U>() && \
+                  isPacked<T>() == isPacked<O>(), "packed type mismatch"); \
     typedef T A; typedef T B; typedef U C; typedef O Out; \
     constexpr static bool conforms() { return (conformance); } \
     __device__ inline static void op(const A& a, const B& b, const C& c, O& out) { \

@@ -21,62 +21,106 @@
 // supplemental function delegating macros
 //==============================================================================
 
-#define NATIVE_FLOAT16(func, native) \
+// #if defined(__CUDACC__)
+
+#define FLOAT16_NATIVE(func, native) \
 __device__ inline float16 func(const float16& a) { return native(a); }
 
-#define NATIVE_FLOAT162(func, native) \
+#define FLOAT162_NATIVE(func, native) \
 __device__ inline float162 func(const float162& a) { return native(a); }
 
 #if (__CUDA_ARCH__ < 800)
-#define NATIVE_BFLOAT16(func, native) \
+#define BFLOAT16_NATIVE(func, native) \
     __device__ inline bfloat16 func(const bfloat16& a) \
     { return func(float(a)); }
 #else
-#define NATIVE_BFLOAT16(func, native) \
+#define BFLOAT16_NATIVE(func, native) \
     __device__ inline bfloat16 func(const bfloat16& a) { return native(a); }
 #endif
 
 #if (__CUDA_ARCH__ < 800)
-#define NATIVE_BFLOAT162(func, native) \
+#define BFLOAT162_NATIVE(func, native) \
     __device__ inline bfloat162 func(const bfloat162& a) \
     { return bfloat162(func(float(a.x)), func(float(a.y))); }
 #else
-#define NATIVE_BFLOAT162(func, native) \
+#define BFLOAT162_NATIVE(func, native) \
     __device__ inline bfloat162 func(const bfloat162& a) { return native(a); }
 #endif
+
+// two input
+#define FLOAT16_NATIVE2(func, native) \
+__device__ inline float16 func(const float16& a, const float16& b) \
+    { return native(a, b); }
+
+#define FLOAT162_NATIVE2(func, native) \
+__device__ inline float162 func(const float162& a, const float162& b) \
+    { return native(a, b); }
+
+#if (__CUDA_ARCH__ < 800)
+#define BFLOAT16_NATIVE2(func, native) \
+    __device__ inline bfloat16 func(const bfloat16& a, const bfloat16& b) \
+    { return func(float(a), float(b)); }
+#else
+#define BFLOAT16_NATIVE(func, native) \
+    __device__ inline bfloat16 func(const bfloat16& a, const bfloat16& b) \
+    { return native(a, b); }
+#endif
+
+#if (__CUDA_ARCH__ < 800)
+#define BFLOAT162_NATIVE2(func, native) \
+    __device__ inline bfloat162 func(const bfloat162& a, const bfloat162& b) \
+    { return bfloat162(func(float(a.x), float(b.x)), func(float(a.y), float(b.y))); }
+#else
+#define BFLOAT162_NATIVE2(func, native) \
+    __device__ inline bfloat162 func(const bfloat162& a, const bfloat162& b) \
+    { return native(a, b); }
+#endif
+
+// #else
+// #define FLOAT16_NATIVE(func, native)
+// #define FLOAT162_NATIVE(func, native)
+// #define BFLOAT16_NATIVE(func, native)
+// #define BFLOAT162_NATIVE(func, native)
+
+// #define FLOAT16_NATIVE2(func, native)
+// #define FLOAT162_NATIVE2(func, native)
+// #define BFLOAT16_NATIVE2(func, native)
+// #define BFLOAT162_NATIVE2(func, native)
+// #endif
 
 //------------------------------------------------------------------------------
 // Promotes the type to a float, does the op, then back to the type. This
 // is used for ops that do not natively support half or bfloat types
-#define PROMOTED_FLOAT16(func) \
+#define FLOAT16_CAST(func) \
 __device__ inline float16 func(const float16& a) { return func(float(a)); }
 
-#define PROMOTED_FLOAT162(func) \
-__device__ inline float162 func(const float162& a) { return float162(func(a.x), func(a.y)); }
+#define FLOAT162_CAST(func) \
+__device__ inline float162 func(const float162& a) \
+    { return float162(func(a.x), func(a.y)); }
 
-#define PROMOTED_BFLOAT16(func) \
+#define BFLOAT16_CAST(func) \
 __device__ inline bfloat16 func(const bfloat16& a) { return func(float(a)); }
 
-#define PROMOTED_BFLOAT162(func) \
+#define BFLOAT162_CAST(func) \
 __device__ inline bfloat162 func(const bfloat162& a) \
     { return bfloat162(func(float(a.x)), func(float(a.y))); }
 
 //------------------------------------------------------------------------------
 // Promotes the type to a float, does the op, then back to the type. This
 // is used for ops that do not natively support half or bfloat types
-#define PROMOTED2_FLOAT16(func) \
+#define FLOAT16_CAST2(func) \
 __device__ inline float16 func(const float16& a, const float16& b) \
     { return func(float(a), float(b)); }
 
-#define PROMOTED2_FLOAT162(func) \
+#define FLOAT162_CAST2(func) \
 __device__ inline float162 func(const float162& a, const float162& b) \
     { return float162(func(a.x, b.x), func(a.y, b.y)); }
 
-#define PROMOTED2_BFLOAT16(func) \
+#define BLOAT16_CAST2(func) \
 __device__ inline bfloat16 func(const bfloat16& a, const bfloat16& b) \
     { return func(float(a), float(b)); }
 
-#define PROMOTED2_BFLOAT162(func) \
+#define BLOAT162_CAST2(func) \
 __device__ inline bfloat162 func(const bfloat162& a, const bfloat162& b) \
     { return bfloat162(func(float(a.x), float(b.x)), func(float(a.y), float(b.y))); }
 
@@ -85,178 +129,178 @@ __device__ inline bfloat162 func(const bfloat162& a, const bfloat162& b) \
 //==============================================================================
 
 // abs
-NATIVE_FLOAT16(abs, __habs)
-NATIVE_FLOAT162(abs, __habs2)
-NATIVE_BFLOAT16(abs, __habs)
-NATIVE_BFLOAT162(abs, __habs2)
+FLOAT16_NATIVE(abs, __habs)
+FLOAT162_NATIVE(abs, __habs2)
+BFLOAT16_NATIVE(abs, __habs)
+BFLOAT162_NATIVE(abs, __habs2)
 
 // acos
-PROMOTED_FLOAT16(acos)
-PROMOTED_FLOAT162(acos)
-PROMOTED_BFLOAT16(acos)
-PROMOTED_BFLOAT162(acos)
+FLOAT16_CAST(acos)
+FLOAT162_CAST(acos)
+BFLOAT16_CAST(acos)
+BFLOAT162_CAST(acos)
 
 // acosh
-PROMOTED_FLOAT16(acosh)
-PROMOTED_FLOAT162(acosh)
-PROMOTED_BFLOAT16(acosh)
-PROMOTED_BFLOAT162(acosh)
+FLOAT16_CAST(acosh)
+FLOAT162_CAST(acosh)
+BFLOAT16_CAST(acosh)
+BFLOAT162_CAST(acosh)
 
 // asin
-PROMOTED_FLOAT16(asin)
-PROMOTED_FLOAT162(asin)
-PROMOTED_BFLOAT16(asin)
-PROMOTED_BFLOAT162(asin)
+FLOAT16_CAST(asin)
+FLOAT162_CAST(asin)
+BFLOAT16_CAST(asin)
+BFLOAT162_CAST(asin)
 
 // asinh
-PROMOTED_FLOAT16(asinh)
-PROMOTED_FLOAT162(asinh)
-PROMOTED_BFLOAT16(asinh)
-PROMOTED_BFLOAT162(asinh)
+FLOAT16_CAST(asinh)
+FLOAT162_CAST(asinh)
+BFLOAT16_CAST(asinh)
+BFLOAT162_CAST(asinh)
 
 // atan
-PROMOTED_FLOAT16(atan)
-PROMOTED_FLOAT162(atan)
-PROMOTED_BFLOAT16(atan)
-PROMOTED_BFLOAT162(atan)
+FLOAT16_CAST(atan)
+FLOAT162_CAST(atan)
+BFLOAT16_CAST(atan)
+BFLOAT162_CAST(atan)
 
 // atan2
-PROMOTED2_FLOAT16(atan2)
-PROMOTED2_FLOAT162(atan2)
-PROMOTED2_BFLOAT16(atan2)
-PROMOTED2_BFLOAT162(atan2)
+FLOAT16_CAST2(atan2)
+FLOAT162_CAST2(atan2)
+BLOAT16_CAST2(atan2)
+BLOAT162_CAST2(atan2)
 
 // atanh
-PROMOTED_FLOAT16(atanh)
-PROMOTED_FLOAT162(atanh)
-PROMOTED_BFLOAT16(atanh)
-PROMOTED_BFLOAT162(atanh)
+FLOAT16_CAST(atanh)
+FLOAT162_CAST(atanh)
+BFLOAT16_CAST(atanh)
+BFLOAT162_CAST(atanh)
 
 // cos
-NATIVE_FLOAT16(cos, hcos)
-NATIVE_FLOAT162(cos, h2cos)
-NATIVE_BFLOAT16(cos, hcos)
-NATIVE_BFLOAT162(cos, h2cos)
+FLOAT16_NATIVE(cos, hcos)
+FLOAT162_NATIVE(cos, h2cos)
+BFLOAT16_NATIVE(cos, hcos)
+BFLOAT162_NATIVE(cos, h2cos)
 
 // cosh
-PROMOTED_FLOAT16(cosh)
-PROMOTED_FLOAT162(cosh)
-PROMOTED_BFLOAT16(cosh)
-PROMOTED_BFLOAT162(cosh)
+FLOAT16_CAST(cosh)
+FLOAT162_CAST(cosh)
+BFLOAT16_CAST(cosh)
+BFLOAT162_CAST(cosh)
 
 // erf
-PROMOTED_FLOAT16(erf)
-PROMOTED_FLOAT162(erf)
-PROMOTED_BFLOAT16(erf)
-PROMOTED_BFLOAT162(erf)
+FLOAT16_CAST(erf)
+FLOAT162_CAST(erf)
+BFLOAT16_CAST(erf)
+BFLOAT162_CAST(erf)
 
 // erfc
-PROMOTED_FLOAT16(erfc)
-PROMOTED_FLOAT162(erfc)
-PROMOTED_BFLOAT16(erfc)
-PROMOTED_BFLOAT162(erfc)
+FLOAT16_CAST(erfc)
+FLOAT162_CAST(erfc)
+BFLOAT16_CAST(erfc)
+BFLOAT162_CAST(erfc)
 
 // exp
-NATIVE_FLOAT16(exp, hexp)
-NATIVE_FLOAT162(exp, h2exp)
-NATIVE_BFLOAT16(exp, hexp)
-NATIVE_BFLOAT162(exp, h2exp)
+FLOAT16_NATIVE(exp, hexp)
+FLOAT162_NATIVE(exp, h2exp)
+BFLOAT16_NATIVE(exp, hexp)
+BFLOAT162_NATIVE(exp, h2exp)
 
 // exp2
-NATIVE_FLOAT16(exp2, hexp2)
-NATIVE_FLOAT162(exp2, h2exp2)
-NATIVE_BFLOAT16(exp2, hexp2)
-NATIVE_BFLOAT162(exp2, h2exp2)
+FLOAT16_NATIVE(exp2, hexp2)
+FLOAT162_NATIVE(exp2, h2exp2)
+BFLOAT16_NATIVE(exp2, hexp2)
+BFLOAT162_NATIVE(exp2, h2exp2)
 
 // exp10
-NATIVE_FLOAT16(exp10, hexp10)
-NATIVE_FLOAT162(exp10, h2exp10)
-NATIVE_BFLOAT16(exp10, hexp10)
-NATIVE_BFLOAT162(exp10, h2exp10)
+FLOAT16_NATIVE(exp10, hexp10)
+FLOAT162_NATIVE(exp10, h2exp10)
+BFLOAT16_NATIVE(exp10, hexp10)
+BFLOAT162_NATIVE(exp10, h2exp10)
 
 // expm1
-PROMOTED_FLOAT16(expm1)
-PROMOTED_FLOAT162(expm1)
-PROMOTED_BFLOAT16(expm1)
-PROMOTED_BFLOAT162(expm1)
+FLOAT16_CAST(expm1)
+FLOAT162_CAST(expm1)
+BFLOAT16_CAST(expm1)
+BFLOAT162_CAST(expm1)
 
 // tgamma
-PROMOTED_FLOAT16(tgamma)
-PROMOTED_FLOAT162(tgamma)
-PROMOTED_BFLOAT16(tgamma)
-PROMOTED_BFLOAT162(tgamma)
+FLOAT16_CAST(tgamma)
+FLOAT162_CAST(tgamma)
+BFLOAT16_CAST(tgamma)
+BFLOAT162_CAST(tgamma)
 
 // hypot
-PROMOTED2_FLOAT16(hypot)
-PROMOTED2_FLOAT162(hypot)
-PROMOTED2_BFLOAT16(hypot)
-PROMOTED2_BFLOAT162(hypot)
+FLOAT16_CAST2(hypot)
+FLOAT162_CAST2(hypot)
+BLOAT16_CAST2(hypot)
+BLOAT162_CAST2(hypot)
 
 // log
-NATIVE_FLOAT16(log, hlog)
-NATIVE_FLOAT162(log, h2log)
-NATIVE_BFLOAT16(log, hlog)
-NATIVE_BFLOAT162(log, h2log)
+FLOAT16_NATIVE(log, hlog)
+FLOAT162_NATIVE(log, h2log)
+BFLOAT16_NATIVE(log, hlog)
+BFLOAT162_NATIVE(log, h2log)
 
 // log1p
-PROMOTED_FLOAT16(log1p)
-PROMOTED_FLOAT162(log1p)
-PROMOTED_BFLOAT16(log1p)
-PROMOTED_BFLOAT162(log1p)
+FLOAT16_CAST(log1p)
+FLOAT162_CAST(log1p)
+BFLOAT16_CAST(log1p)
+BFLOAT162_CAST(log1p)
 
 // log2
-NATIVE_FLOAT16(log2, hlog2)
-NATIVE_FLOAT162(log2, h2log2)
-NATIVE_BFLOAT16(log2, hlog2)
-NATIVE_BFLOAT162(log2, h2log2)
+FLOAT16_NATIVE(log2, hlog2)
+FLOAT162_NATIVE(log2, h2log2)
+BFLOAT16_NATIVE(log2, hlog2)
+BFLOAT162_NATIVE(log2, h2log2)
 
 // log10
-NATIVE_FLOAT16(log10, hlog10)
-NATIVE_FLOAT162(log10, h2log10)
-NATIVE_BFLOAT16(log10, hlog10)
-NATIVE_BFLOAT162(log10, h2log10)
+FLOAT16_NATIVE(log10, hlog10)
+FLOAT162_NATIVE(log10, h2log10)
+BFLOAT16_NATIVE(log10, hlog10)
+BFLOAT162_NATIVE(log10, h2log10)
 
 // lgamma
-PROMOTED_FLOAT16(lgamma)
-PROMOTED_FLOAT162(lgamma)
-PROMOTED_BFLOAT16(lgamma)
-PROMOTED_BFLOAT162(lgamma)
+FLOAT16_CAST(lgamma)
+FLOAT162_CAST(lgamma)
+BFLOAT16_CAST(lgamma)
+BFLOAT162_CAST(lgamma)
 
 // pow
-PROMOTED2_FLOAT16(pow)
-PROMOTED2_FLOAT162(pow)
-PROMOTED2_BFLOAT16(pow)
-PROMOTED2_BFLOAT162(pow)
+FLOAT16_CAST2(pow)
+FLOAT162_CAST2(pow)
+BLOAT16_CAST2(pow)
+BLOAT162_CAST2(pow)
 
 // sin
-NATIVE_FLOAT16(sin, hsin)
-NATIVE_FLOAT162(sin, h2sin)
-NATIVE_BFLOAT16(sin, hsin)
-NATIVE_BFLOAT162(sin, h2sin)
+FLOAT16_NATIVE(sin, hsin)
+FLOAT162_NATIVE(sin, h2sin)
+BFLOAT16_NATIVE(sin, hsin)
+BFLOAT162_NATIVE(sin, h2sin)
 
 // sinh
-PROMOTED_FLOAT16(sinh)
-PROMOTED_FLOAT162(sinh)
-PROMOTED_BFLOAT16(sinh)
-PROMOTED_BFLOAT162(sinh)
+FLOAT16_CAST(sinh)
+FLOAT162_CAST(sinh)
+BFLOAT16_CAST(sinh)
+BFLOAT162_CAST(sinh)
 
 // sqrt
-NATIVE_FLOAT16(sqrt, hsqrt)
-NATIVE_FLOAT162(sqrt, h2sqrt)
-NATIVE_BFLOAT16(sqrt, hsqrt)
-NATIVE_BFLOAT162(sqrt, h2sqrt)
+FLOAT16_NATIVE(sqrt, hsqrt)
+FLOAT162_NATIVE(sqrt, h2sqrt)
+BFLOAT16_NATIVE(sqrt, hsqrt)
+BFLOAT162_NATIVE(sqrt, h2sqrt)
 
 // tan
-PROMOTED_FLOAT16(tan)
-PROMOTED_FLOAT162(tan)
-PROMOTED_BFLOAT16(tan)
-PROMOTED_BFLOAT162(tan)
+FLOAT16_CAST(tan)
+FLOAT162_CAST(tan)
+BFLOAT16_CAST(tan)
+BFLOAT162_CAST(tan)
 
 // tanh
-PROMOTED_FLOAT16(tanh)
-PROMOTED_FLOAT162(tanh)
-PROMOTED_BFLOAT16(tanh)
-PROMOTED_BFLOAT162(tanh)
+FLOAT16_CAST(tanh)
+FLOAT162_CAST(tanh)
+BFLOAT16_CAST(tanh)
+BFLOAT162_CAST(tanh)
 
 //==============================================================================
 // supplemental + - * / functions
@@ -265,31 +309,49 @@ PROMOTED_BFLOAT162(tanh)
 // add
 template<typename T>
 __device__ inline T add(const T& a, const T& b) { return a + b; }
-NATIVE_FLOAT162(add, __hadd2)
-NATIVE_BFLOAT162(add, __hadd2)
+FLOAT162_NATIVE2(add, __hadd2)
+BFLOAT162_NATIVE2(add, __hadd2)
 
 // divide
 template<typename T>
 __device__ inline T divide(const T& a, const T& b) { return a / b; }
-PROMOTED2_BFLOAT162(divide)
+BLOAT162_CAST2(divide)
 
 // multiply
 template<typename T>
 __device__ inline T multiply(const T& a, const T& b) { return a * b; }
-NATIVE_FLOAT162(multiply, __hmul2)
-NATIVE_BFLOAT162(multiply, __hmul2)
-
-// multiply
-template<typename T>
-__device__ inline T multiplyAdd(const T& a, const T& b, const T& c) { return a * b + c; }
-NATIVE_FLOAT162(multiplyAdd, __hfma2)
-NATIVE_BFLOAT162(multiplyAdd, __hfma2)
+FLOAT162_NATIVE2(multiply, __hmul2)
+BFLOAT162_NATIVE2(multiply, __hmul2)
 
 // subtract
 template<typename T>
 __device__ inline T subtract(const T& a, const T& b) { return a - b; }
-NATIVE_FLOAT162(subtract, __hsub2)
-NATIVE_BFLOAT162(subtract, __hsub2)
+FLOAT162_NATIVE2(subtract, __hsub2)
+BFLOAT162_NATIVE2(subtract, __hsub2)
+
+//------------------------------------------------------------------------------
+// multiply add
+template<typename T>
+__device__ inline T multiplyAdd(const T& a, const T& b, const T& c) {
+    return a * b + c;
+}
+
+__device__ inline 
+float162 multiplyAdd(const float162& a, const float162& b, const float162& c) {
+    return __hfma2(a, b, c);
+}
+
+__device__ inline 
+bfloat162 multiplyAdd(const bfloat162& a, const bfloat162& b, const bfloat162& c) {
+#if (__CUDA_ARCH__ < 800)
+    bfloat162 v;
+    v.x = a.x * b.x + c.x;
+    v.y = a.y * b.y + c.y;
+    return v;
+#else
+    return __hfma2(a, b, c);
+#endif
+}
 
 //==============================================================================
 // supplemental custom functions
@@ -299,37 +361,8 @@ NATIVE_BFLOAT162(subtract, __hsub2)
 template<typename T>
 __device__ inline T neg(const T& a) { return -a; }
 
-NATIVE_FLOAT162(neg, __hneg2)
-NATIVE_BFLOAT162(neg, __hneg2)
-
-//==============================================================================
-// pow Float16
-__device__ inline float16 pow(const float16& a, const int n) {
-    return pow(float(a), n);
-}
-
-__device__ inline float162 pow(const float162& a, const int n) {
-    return float162(pow(float(a.x), n), pow(float(a.y), n));
-}
-
-// pow BFloat16
-#if (__CUDA_ARCH__ < 800)
-__device__ inline bfloat16 pow(const bfloat16& a, const int n) {
-    return pow(float(a), n);
-}
-
-__device__ inline bfloat162 pow(const bfloat162& a, const int n) {
-    return bfloat162(pow(float(a.x), n), pow(float(a.y), n));
-}
-#else
-
-#endif
-
-//==============================================================================
-// root 
-template<typename T> __device__ inline T root(const T& a, const float n) {
-    return pow(a, 1.0f / float(n));
-}
+FLOAT162_NATIVE(neg, __hneg2)
+BFLOAT162_NATIVE(neg, __hneg2)
 
 //==============================================================================
 // sign 
@@ -410,8 +443,8 @@ __device__ inline float162 sigmoid(const float162& a) {
     return one / (one + exp(-a));
 }
 
-PROMOTED_BFLOAT16(sigmoid)
-PROMOTED_BFLOAT162(sigmoid)
+BFLOAT16_CAST(sigmoid)
+BFLOAT162_CAST(sigmoid)
 
 //==============================================================================
 // complex supplemental functions

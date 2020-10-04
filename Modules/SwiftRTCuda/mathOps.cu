@@ -432,30 +432,14 @@ cudaError_t srtPow(
     return select<Pow>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
-//------------------------------------------------------------------------------
-Op2(PowN, pow, (isSame<T,Out>() && isFloating<T>()))
-
-cudaError_t srtPowN(
+cudaError_t srtPowTE(
     const void* a, const srtTensorDescriptor* paDesc,
-    long n,
+    const void* exponent,
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return select<PowN, int>(a, aDesc, n, out, oDesc, stream);
-}
-
-//------------------------------------------------------------------------------
-Op2(Root, root, (isSame<T,Out>() && isFloating<T>()))
-
-cudaError_t srtRoot(
-    const void* a, const srtTensorDescriptor* paDesc,
-    long n,
-    void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream
-) {
-    Cast2TensorDescriptorsA(paDesc, poDesc)
-    return select<Root, int>(a, aDesc, n, out, oDesc, stream);
+    return select<Pow>(a, aDesc, exponent, out, oDesc, stream);
 }
 
 //------------------------------------------------------------------------------

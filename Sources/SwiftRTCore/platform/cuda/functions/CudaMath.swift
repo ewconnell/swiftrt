@@ -420,8 +420,10 @@ extension CudaQueue {
         diagnostic(.queueGpu, "pow(x: \(x.name), n: \(n))", categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
-            x.withTensor(using: self) { xData, x in
-                srtPowN(xData, x, n, o, oDesc, stream)
+            x.withTensor(using: self) { x, xDesc in
+                withUnsafePointer(to: E.Value(exactly: n)!) { exponent in
+                    srtPowTE(x, xDesc, exponent, o, oDesc, stream)
+                }
             }
         }
         cpuFallback(status) { $0.pow(x, n, &out) }
@@ -436,10 +438,13 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_root(x, n, &out); return }
         diagnostic(.queueGpu, "root(x: \(x.name), n: \(n))", categories: .queueGpu)
+        let e = 1 / E.Value(exactly: n)!
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
-            x.withTensor(using: self) { xData, x in
-                srtRoot(xData, x, n, o, oDesc, stream)
+            x.withTensor(using: self) { x, xDesc in
+                withUnsafePointer(to: e) { exponent in
+                    srtPowTE(x, xDesc, exponent, o, oDesc, stream)
+                }
             }
         }
         cpuFallback(status) { $0.root(x, n, &out) }

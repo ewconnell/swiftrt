@@ -209,13 +209,9 @@ cudaError_t srtPow(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
-cudaError_t srtPowN(
-    const void* x, const srtTensorDescriptor* xDesc, long n,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream);
-
-cudaError_t srtRoot(
-    const void* x, const srtTensorDescriptor* xDesc, long n,
+cudaError_t srtPowTE(
+    const void* x, const srtTensorDescriptor* xDesc,
+    const void* exponent,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 

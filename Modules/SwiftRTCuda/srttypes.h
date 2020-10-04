@@ -22,9 +22,11 @@
 /* Set up function decorations */
 #ifndef __CUDA_HOSTDEVICE__
 #if defined(__CUDACC__)
+#define __CUDA_DEVICE__ __device__
 #define __CUDA_HOSTDEVICE__ __host__ __device__
 #else /* !defined(__CUDACC__) */
 #define __CUDA_HOSTDEVICE__
+#define __CUDA_DEVICE__
 #endif /* defined(__CUDACC_) */
 #endif
 
@@ -47,9 +49,9 @@ struct bool2 {
     bool b0, b1;
     __CUDA_HOSTDEVICE__ inline bool2(bool v0, bool v1) { b0 = v0; b1 = v1; }
     
-    __device__ inline bool2(float162 v) { b0 = v.x; b1 = v.y; }
-    __device__ inline bool2(bfloat162 v) { b0 = v.x; b1 = v.y; }
-    __device__ inline bool2(unsigned v) {
+    __CUDA_DEVICE__ inline bool2(float162 v) { b0 = v.x; b1 = v.y; }
+    __CUDA_DEVICE__ inline bool2(bfloat162 v) { b0 = v.x; b1 = v.y; }
+    __CUDA_DEVICE__ inline bool2(unsigned v) {
         b0 = v & 0xFF;
         b1 = (v >> 16) & 0xFF;
     }
