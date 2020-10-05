@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 #pragma once
-#include "commonCDefs.h"
+#include "tensor_descriptor.h"
 
 // make visible to Swift as C API
 #ifdef __cplusplus

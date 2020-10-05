@@ -18,4 +18,4 @@
 #include <cuda_runtime.h>
 #include <cudnn.h>
 #include <curand.h>
-#include "SrtCudaKernels.h"
+#include "srt_cuda_api.h"

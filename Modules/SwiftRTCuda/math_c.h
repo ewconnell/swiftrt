@@ -13,10 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#ifndef mathOps_h
-#define mathOps_h
-
-#include "commonCDefs.h"
+#pragma once
+#include "tensor_descriptor.h"
 
 // make visible to Swift as C API
 #ifdef __cplusplus
@@ -277,5 +275,3 @@ cudaError_t srtTanh(
 #ifdef __cplusplus
 }
 #endif
-
-#endif // mathOps_h

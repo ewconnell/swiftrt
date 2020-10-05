@@ -14,7 +14,8 @@
 // limitations under the License.
 //
 #pragma once
-#include "dispatchHelpers.h"
+#include "math_c.h"
+#include "srt_dispatch.h"
 
 
 //==============================================================================

@@ -15,7 +15,7 @@
 //
 #pragma once
 #include <assert.h>
-#include "commonCDefs.h"
+#include "tensor_descriptor.h"
 
 //==============================================================================
 // TensorDescriptor

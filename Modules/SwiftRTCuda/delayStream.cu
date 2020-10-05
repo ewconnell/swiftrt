@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include "fillOps.h"
+#include "fill_c.h"
 
 //------------------------------------------------------------------------------
 // device kernel

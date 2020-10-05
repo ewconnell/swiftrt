@@ -40,8 +40,16 @@
 typedef __half  float16;
 typedef __half2 float162;
 
+__CUDA_DEVICE__ inline float162 init_float162(const float16& x, const float16& y) {
+    float162 v; v.x = x; v.y = y; return v;
+}
+
 typedef __nv_bfloat16  bfloat16;
 typedef __nv_bfloat162 bfloat162;
+
+__CUDA_DEVICE__ inline bfloat162 init_bfloat162(const bfloat16& x, const bfloat16& y) {
+    bfloat162 v; v.x = x; v.y = y; return v;
+}
 
 //==============================================================================
 // supplemental logical types

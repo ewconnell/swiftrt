@@ -13,8 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include "mathOps.h"
-#include "mathSupplemental.h"
+#include "math_fn.h"
 
 //==============================================================================
 // Swift importable C interface functions

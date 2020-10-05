@@ -16,7 +16,7 @@
 #pragma once
 
 // this is an umbrella header
-#include "mathOps.h"
-#include "compareOps.h"
-#include "fillOps.h"
-#include "specializedOps.h"
+#include "math_c.h"
+#include "compare_c.h"
+#include "fill_c.h"
+#include "specialized_c.h"

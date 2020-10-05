@@ -14,14 +14,14 @@
 // limitations under the License.
 //
 #pragma once
-#include "dispatchHelpers.h"
-#include "mathSupplemental.h"
+#include "compare_c.h"
+#include "math_fn.h"
 
 //==============================================================================
 // supplemental logical functions
 //==============================================================================
 
-//------------------------------------------------------------------------------
+//==============================================================================
 // andElements 
 __device__ inline bool andElements(const bool& a, const bool& b) {
     return a & b;
@@ -31,7 +31,7 @@ __device__ inline bool4 andElements(const bool4& a, const bool4& b) {
     return bool4(UINT_CREF(a) & UINT_CREF(b));
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
 // orElements 
 __device__ inline bool orElements(const bool& a, const bool& b) {
     return a | b;
@@ -41,7 +41,7 @@ __device__ inline bool4 orElements(const bool4& a, const bool4& b) {
     return bool4(UINT_CREF(a) | UINT_CREF(b));
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
 // almostEqual
 // normally we would compare the absolute value of the difference,
 // however the abs of a complex type is it's RealType and not T.
@@ -71,7 +71,7 @@ __device__ inline bool2 almostEqual(
                  almostEqual(a.y, b.y, tolerance.y));    
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
 // equal
 template<typename T>
 __device__ inline bool equal(const T& a, const T& b) {
@@ -108,7 +108,7 @@ __device__ inline bool2 equal(const ushort2& a, const ushort2& b) {
     return bool2(__vcmpeq2(UINT_CREF(a), UINT_CREF(b)));
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
 // notEqual
 template<typename T>
 __device__ inline bool notEqual(const T& a, const T& b) {
@@ -145,7 +145,7 @@ __device__ inline bool2 notEqual(const ushort2& a, const ushort2& b) {
     return bool2(__vcmpne2(UINT_CREF(a), UINT_CREF(b)));
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
 template<typename T>
 __device__ inline bool greater(const T& a, const T& b) {
     return a > b;
@@ -181,7 +181,7 @@ __device__ inline bool2 greater(const ushort2& a, const ushort2& b) {
     return bool2(__vcmpgtu2(UINT_CREF(a), UINT_CREF(b)));
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
 template<typename T>
 __device__ inline bool greaterOrEqual(const T& a, const T& b) {
     return a >= b;
@@ -217,7 +217,7 @@ __device__ inline bool2 greaterOrEqual(const ushort2& a, const ushort2& b) {
     return bool2(__vcmpgeu2(UINT_CREF(a), UINT_CREF(b)));
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
 template<typename T>
 __device__ inline bool less(const T& a, const T& b) {
     return a < b;
@@ -253,7 +253,7 @@ __device__ inline bool2 less(const ushort2& a, const ushort2& b) {
     return bool2(__vcmpltu2(UINT_CREF(a), UINT_CREF(b)));
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
 template<typename T>
 __device__ inline bool lessOrEqual(const T& a, const T& b) {
     return a <= b;
@@ -289,7 +289,7 @@ __device__ inline bool2 lessOrEqual(const ushort2& a, const ushort2& b) {
     return bool2(__vcmpleu2(UINT_CREF(a), UINT_CREF(b)));
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
 template<typename T>
 __device__ inline T minElements(const T& a, const T& b) {
     return a <= b ? a : b;
@@ -337,8 +337,7 @@ __device__ inline ushort2 minElements(const ushort2& a, const ushort2& b) {
     return CAST(ushort2, m);
 }
 
-
-//------------------------------------------------------------------------------
+//==============================================================================
 template<typename T>
 __device__ inline T maxElements(const T& a, const T& b) {
     return a > b ? a : b;
@@ -386,7 +385,7 @@ __device__ inline ushort2 maxElements(const ushort2& a, const ushort2& b) {
     return CAST(ushort2, m);
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
 template<typename T>
 __device__ inline T conditionalAssign(const T& a, const T& b, const bool c) {
     return c ? a : b;

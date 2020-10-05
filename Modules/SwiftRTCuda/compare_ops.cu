@@ -13,8 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include "compareOps.h"
-#include "compareSupplemental.h"
+#include "srt_dispatch.h"
+#include "compare_fn.h"
+#include "compare_vjp.h"
 
 //==============================================================================
 // Swift importable C interface functions
@@ -239,31 +240,33 @@ cudaError_t srtReplace(
 }
 
 //==============================================================================
+OpTTU(VjpMin, vjpMin, (isSame<T,U>() && isSame<T,Out>() && isComparable<T>()))
 
 cudaError_t srtVjpMin(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    const void* c, const srtTensorDescriptor* cDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    const void* c, const srtTensorDescriptor* pcDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
-    return cudaErrorNotSupported;
+    Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
+    return select<VjpMin>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
 }
 
 cudaError_t srtVjpMinTE(
-    const void* a, const srtTensorDescriptor* aDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
     const void* b,
-    const void* c, const srtTensorDescriptor* cDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* c, const srtTensorDescriptor* pcDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
     return cudaErrorNotSupported;
 }
 
 cudaError_t srtVjpMinOO(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    const void* c, const srtTensorDescriptor* cDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    const void* c, const srtTensorDescriptor* pcDesc,
     void* outT, const srtTensorDescriptor* oTDesc,
     void* outF, const srtTensorDescriptor* oFDesc,
     cudaStream_t stream
@@ -272,9 +275,9 @@ cudaError_t srtVjpMinOO(
 }
 
 cudaError_t srtVjpMinTEOO(
-    const void* a, const srtTensorDescriptor* aDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
     const void* b,
-    const void* c, const srtTensorDescriptor* cDesc,
+    const void* c, const srtTensorDescriptor* pcDesc,
     void* outT, const srtTensorDescriptor* oTDesc,
     void* outF, const srtTensorDescriptor* oFDesc,
     cudaStream_t stream
@@ -282,30 +285,34 @@ cudaError_t srtVjpMinTEOO(
     return cudaErrorNotSupported;
 }
 
+//==============================================================================
+OpTTU(VjpMax, vjpMax, (isSame<T,U>() && isSame<T,Out>() && isComparable<T>()))
+
 cudaError_t srtVjpMax(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    const void* c, const srtTensorDescriptor* cDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    const void* c, const srtTensorDescriptor* pcDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
-    return cudaErrorNotSupported;
+    Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
+    return select<VjpMax>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
 }
 
 cudaError_t srtVjpMaxTE(
-    const void* a, const srtTensorDescriptor* aDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
     const void* b,
-    const void* c, const srtTensorDescriptor* cDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* c, const srtTensorDescriptor* pcDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
     return cudaErrorNotSupported;
 }
 
 cudaError_t srtVjpMaxOO(
-    const void* a, const srtTensorDescriptor* aDesc,
-    const void* b, const srtTensorDescriptor* bDesc,
-    const void* c, const srtTensorDescriptor* cDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    const void* c, const srtTensorDescriptor* pcDesc,
     void* outT, const srtTensorDescriptor* oTDesc,
     void* outF, const srtTensorDescriptor* oFDesc,
     cudaStream_t stream
@@ -314,9 +321,9 @@ cudaError_t srtVjpMaxOO(
 }
 
 cudaError_t srtVjpMaxTEOO(
-    const void* a, const srtTensorDescriptor* aDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
     const void* b,
-    const void* c, const srtTensorDescriptor* cDesc,
+    const void* c, const srtTensorDescriptor* pcDesc,
     void* outT, const srtTensorDescriptor* oTDesc,
     void* outF, const srtTensorDescriptor* oFDesc,
     cudaStream_t stream

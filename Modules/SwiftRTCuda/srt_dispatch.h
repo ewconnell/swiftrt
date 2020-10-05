@@ -15,7 +15,7 @@
 //
 #pragma once
 #include <type_traits>
-#include "srttypes.h"
+#include "srt_types.h"
 #include "complex.h"
 #include "index.h"
 
