@@ -22,7 +22,6 @@
 #include <optional>
 #include <limits>
 #include <type_traits>
-#include "srt_types.h"
 
 /* Set up function decorations */
 #ifndef __CUDA_HOSTDEVICE__
@@ -530,14 +529,6 @@ struct Complex {
         return std::nullopt;
     }
 };
-
-//==========================================================================
-// Convenience types
-//==========================================================================
-
-typedef Complex<float> complexf;
-typedef Complex<float16> complexf16;
-typedef Complex<bfloat16> complexbf16;
 
 //==========================================================================
 // Equatable

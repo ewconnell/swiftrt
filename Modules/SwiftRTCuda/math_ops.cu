@@ -14,13 +14,15 @@
 // limitations under the License.
 //
 #include "math_fn.h"
+#include "op1.h"
+#include "op2.h"
 
 //==============================================================================
 // Swift importable C interface functions
 //==============================================================================
 
 //------------------------------------------------------------------------------
-Op1(Abs, abs, (isSame<T,Out>() && isNumeric<T>()) || isComplex<T>())
+Op1(Abs, abs, isNumeric<A>())
 
 cudaError_t srtAbs(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -32,7 +34,7 @@ cudaError_t srtAbs(
 }
 
 //------------------------------------------------------------------------------
-Op1(Acos, acos, (isSame<T,Out>() && isFloating<T>()))
+Op1(Acos, acos, isFloating<A>())
 
 // Must be promoted types
 cudaError_t srtAcos(
@@ -45,7 +47,7 @@ cudaError_t srtAcos(
 }
 
 //------------------------------------------------------------------------------
-Op1(Acosh, acosh, (isSame<T,Out>() && isFloating<T>()))
+Op1(Acosh, acosh, isFloating<A>())
 
 cudaError_t srtAcosh(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -57,7 +59,7 @@ cudaError_t srtAcosh(
 }
 
 //------------------------------------------------------------------------------
-Op2(Add, add, (isSame<T,Out>() && isNumeric<T>()))
+Op2(Add, add, false, isNumeric<A>())
 
 cudaError_t srtAdd(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -81,7 +83,7 @@ cudaError_t srtAddTE(
 }
 
 //------------------------------------------------------------------------------
-Op1(Asin, asin, (isSame<T,Out>() && isFloating<T>()))
+Op1(Asin, asin, isFloating<A>())
 
 cudaError_t srtAsin(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -93,7 +95,7 @@ cudaError_t srtAsin(
 }
 
 //------------------------------------------------------------------------------
-Op1(Asinh, asinh, (isSame<T,Out>() && isFloating<T>()))
+Op1(Asinh, asinh, isFloating<A>())
 
 cudaError_t srtAsinh(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -105,7 +107,7 @@ cudaError_t srtAsinh(
 }
 
 //------------------------------------------------------------------------------
-Op1(Atan, atan, (isSame<T,Out>() && isFloating<T>()))
+Op1(Atan, atan, isFloating<A>())
 
 cudaError_t srtAtan(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -117,7 +119,7 @@ cudaError_t srtAtan(
 }
 
 //------------------------------------------------------------------------------
-Op2(Atan2, atan2, (isSame<T,Out>() && isFloating<T>()))
+Op2(Atan2, atan2, false, isFloating<A>())
 
 cudaError_t srtAtan2(
     const void* b, const srtTensorDescriptor* pbDesc,
@@ -131,7 +133,7 @@ cudaError_t srtAtan2(
 }
 
 //------------------------------------------------------------------------------
-Op1(Atanh, atanh, (isSame<T,Out>() && isFloating<T>()))
+Op1(Atanh, atanh, isFloating<A>())
 
 cudaError_t srtAtanh(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -143,7 +145,7 @@ cudaError_t srtAtanh(
 }
 
 //------------------------------------------------------------------------------
-Op1(Cos, cos, (isSame<T,Out>() && isFloating<T>()))
+Op1(Cos, cos, isFloating<A>())
 
 cudaError_t srtCos(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -155,7 +157,7 @@ cudaError_t srtCos(
 }
 
 //------------------------------------------------------------------------------
-Op1(Cosh, cosh, (isSame<T,Out>() && isFloating<T>()))
+Op1(Cosh, cosh, isFloating<A>())
 
 cudaError_t srtCosh(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -167,7 +169,7 @@ cudaError_t srtCosh(
 }
 
 //------------------------------------------------------------------------------
-Op2(Div, divide, (isSame<T,Out>() && isNumeric<T>()))
+Op2(Div, divide, false, isNumeric<A>())
 
 cudaError_t srtDiv(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -189,6 +191,9 @@ cudaError_t srtDivTE(
     return select<Div>(a, aDesc, element, out, oDesc, stream);
 }
 
+// `true` swaps `a` and `element` when calling `divide`
+Op2(DivET, divide, true, isNumeric<A>())
+
 cudaError_t srtDivET(
     const void* element,
     const void* a, const srtTensorDescriptor* paDesc,
@@ -196,11 +201,11 @@ cudaError_t srtDivET(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return select<Div>(element, a, aDesc, out, oDesc, stream);
+    return select<DivET>(a, aDesc, element, out, oDesc, stream);
 }
 
 //------------------------------------------------------------------------------
-Op1(Erf, erf, (isSame<T,Out>() && isFloating<T>()))
+Op1(Erf, erf, isFloating<A>())
 
 cudaError_t srtErf(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -212,7 +217,7 @@ cudaError_t srtErf(
 }
 
 //------------------------------------------------------------------------------
-Op1(Erfc, erfc, (isSame<T,Out>() && isFloating<T>()))
+Op1(Erfc, erfc, isFloating<A>())
 
 cudaError_t srtErfc(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -224,7 +229,7 @@ cudaError_t srtErfc(
 }
 
 //------------------------------------------------------------------------------
-Op1(Exp, exp, (isSame<T,Out>() && isFloating<T>()))
+Op1(Exp, exp, isFloating<A>())
 
 cudaError_t srtExp(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -236,7 +241,7 @@ cudaError_t srtExp(
 }
 
 //------------------------------------------------------------------------------
-Op1(Exp2, exp2, (isSame<T,Out>() && isFloating<T>()))
+Op1(Exp2, exp2, isFloating<A>())
 
 cudaError_t srtExp2(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -248,7 +253,7 @@ cudaError_t srtExp2(
 }
 
 //------------------------------------------------------------------------------
-Op1(Exp10, exp10, (isSame<T,Out>() && isFloating<T>()))
+Op1(Exp10, exp10, isFloating<A>())
 
 cudaError_t srtExp10(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -260,7 +265,7 @@ cudaError_t srtExp10(
 }
 
 //------------------------------------------------------------------------------
-Op1(ExpMinusOne, expm1, (isSame<T,Out>() && isFloating<T>()))
+Op1(ExpMinusOne, expm1, isFloating<A>())
 
 cudaError_t srtExpMinusOne(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -272,7 +277,7 @@ cudaError_t srtExpMinusOne(
 }
 
 //------------------------------------------------------------------------------
-Op1(Gamma, tgamma, (isSame<T,Out>() && isFloating<T>()))
+Op1(Gamma, tgamma, isFloating<A>())
 
 cudaError_t srtGamma(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -284,7 +289,7 @@ cudaError_t srtGamma(
 }
 
 //------------------------------------------------------------------------------
-Op2(Hypot, hypot, (isSame<T,Out>() && isFloating<T>()))
+Op2(Hypot, hypot, false, isFloating<A>())
 
 cudaError_t srtHypot(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -297,7 +302,7 @@ cudaError_t srtHypot(
 }
 
 //------------------------------------------------------------------------------
-Op1(Log, log, (isSame<T,Out>() && isFloating<T>()))
+Op1(Log, log, isFloating<A>())
 
 cudaError_t srtLog(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -309,7 +314,7 @@ cudaError_t srtLog(
 }
 
 //------------------------------------------------------------------------------
-Op1(LogOnePlus, log1p, (isSame<T,Out>() && isFloating<T>()))
+Op1(LogOnePlus, log1p, isFloating<A>())
 
 cudaError_t srtLogOnePlus(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -321,7 +326,7 @@ cudaError_t srtLogOnePlus(
 }
 
 //------------------------------------------------------------------------------
-Op1(Log2, log2, (isSame<T,Out>() && isFloating<T>()))
+Op1(Log2, log2, isFloating<A>())
 
 cudaError_t srtLog2(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -333,7 +338,7 @@ cudaError_t srtLog2(
 }
 
 //------------------------------------------------------------------------------
-Op1(Log10, log10, (isSame<T,Out>() && isFloating<T>()))
+Op1(Log10, log10, isFloating<A>())
 
 cudaError_t srtLog10(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -345,7 +350,7 @@ cudaError_t srtLog10(
 }
 
 //------------------------------------------------------------------------------
-Op1(LogGamma, lgamma, (isSame<T,Out>() && isFloating<T>()))
+Op1(LogGamma, lgamma, isFloating<A>())
 
 cudaError_t srtLogGamma(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -357,7 +362,7 @@ cudaError_t srtLogGamma(
 }
 
 //------------------------------------------------------------------------------
-Op2(Mul, multiply, (isSame<T,Out>() && isNumeric<T>()))
+Op2(Mul, multiply, false, isNumeric<A>())
 
 cudaError_t srtMul(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -379,35 +384,33 @@ cudaError_t srtMulTE(
     return select<Mul>(a, aDesc, element, out, oDesc, stream);
 }
 
-//------------------------------------------------------------------------------
-OpTTU(MultiplyAdd, multiplyAdd, (isSame<T,Out>() && isSame<T,U>() && isNumeric<T>()))
+// //------------------------------------------------------------------------------
+// Op3(MultiplyAdd, multiplyAdd, (isSame<T,Out>() && isSame<T,U>() && isNumeric<T>()))
 
-cudaError_t srtMultiplyAdd(
-    const void* a, const srtTensorDescriptor* paDesc,
-    const void* b, const srtTensorDescriptor* pbDesc,
-    const void* c, const srtTensorDescriptor* pcDesc,
-    void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream
-) {
-    Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
-    return select<MultiplyAdd>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-}
+// cudaError_t srtMultiplyAdd(
+//     const void* a, const srtTensorDescriptor* paDesc,
+//     const void* b, const srtTensorDescriptor* pbDesc,
+//     const void* c, const srtTensorDescriptor* pcDesc,
+//     void* out, const srtTensorDescriptor* poDesc,
+//     cudaStream_t stream
+// ) {
+//     Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
+//     return select<MultiplyAdd>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+// }
 
-Op3(MultiplyAddE, multiplyAdd, (isSame<T,Out>() && isNumeric<T>()))
-
-cudaError_t srtMultiplyAddTTE(
-    const void* a, const srtTensorDescriptor* paDesc,
-    const void* b, const srtTensorDescriptor* pbDesc,
-    const void* element,
-    void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream
-) {
-    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return select<MultiplyAddE>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-}
+// cudaError_t srtMultiplyAddTTE(
+//     const void* a, const srtTensorDescriptor* paDesc,
+//     const void* b, const srtTensorDescriptor* pbDesc,
+//     const void* element,
+//     void* out, const srtTensorDescriptor* poDesc,
+//     cudaStream_t stream
+// ) {
+//     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+//     return select<MultiplyAddE>(a, aDesc, b, bDesc, element, out, oDesc, stream);
+// }
 
 //------------------------------------------------------------------------------
-Op1(Neg, neg, (isSame<T,Out>() && (isSignedNumeric<T>() || isComplex<T>())))
+Op1(Neg, neg, (isSignedNumeric<A>() || isComplex<A>()))
 
 cudaError_t srtNeg(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -419,7 +422,7 @@ cudaError_t srtNeg(
 }
 
 //------------------------------------------------------------------------------
-Op2(Pow, pow, (isSame<T,Out>() && isFloating<T>()))
+Op2(Pow, pow, false, isFloating<A>())
 
 cudaError_t srtPow(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -442,7 +445,7 @@ cudaError_t srtPowTE(
 }
 
 //------------------------------------------------------------------------------
-Op1(Sigmoid, sigmoid, (isSame<T,Out>() && isFloating<T>()))
+Op1(Sigmoid, sigmoid, isFloating<A>())
 
 cudaError_t srtSigmoid(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -454,7 +457,7 @@ cudaError_t srtSigmoid(
 }
 
 //------------------------------------------------------------------------------
-Op1(Sign, sign, (isSame<T,Out>() && isSignedNumeric<T>()))
+Op1(Sign, sign, isSignedNumeric<A>())
 
 cudaError_t srtSign(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -466,7 +469,7 @@ cudaError_t srtSign(
 }
 
 //------------------------------------------------------------------------------
-Op1(Sin, sin, (isSame<T,Out>() && isFloating<T>()))
+Op1(Sin, sin, isFloating<A>())
 
 cudaError_t srtSin(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -478,7 +481,7 @@ cudaError_t srtSin(
 }
 
 //------------------------------------------------------------------------------
-Op1(Sinh, sinh, (isSame<T,Out>() && isFloating<T>()))
+Op1(Sinh, sinh, isFloating<A>())
 
 cudaError_t srtSinh(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -490,7 +493,7 @@ cudaError_t srtSinh(
 }
 
 //------------------------------------------------------------------------------
-Op1(Sqrt, sqrt, (isSame<T,Out>() && isFloating<T>()))
+Op1(Sqrt, sqrt, isFloating<A>())
 
 cudaError_t srtSqrt(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -502,7 +505,7 @@ cudaError_t srtSqrt(
 }
 
 //------------------------------------------------------------------------------
-Op1(Squared, squared, (isSame<T,Out>() && isNumeric<T>()))
+Op1(Squared, squared, isNumeric<A>())
 
 cudaError_t srtSquared(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -514,7 +517,7 @@ cudaError_t srtSquared(
 }
 
 //------------------------------------------------------------------------------
-Op2(Sub, subtract, (isSame<T,Out>() && isNumeric<T>()))
+Op2(Sub, subtract, false, isNumeric<A>())
 
 cudaError_t srtSub(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -536,6 +539,9 @@ cudaError_t srtSubTE(
     return select<Sub>(a, aDesc, element, out, oDesc, stream);
 }
 
+// `true` swaps `a` and `element` when calling `divide`
+Op2(SubET, subtract, true, isNumeric<A>())
+
 cudaError_t srtSubET(
     const void* element,
     const void* a, const srtTensorDescriptor* paDesc,
@@ -543,11 +549,11 @@ cudaError_t srtSubET(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return select<Sub>(element, a, aDesc, out, oDesc, stream);
+    return select<SubET>(a, aDesc, element, out, oDesc, stream);
 }
 
 //------------------------------------------------------------------------------
-Op1(Tan, tan, (isSame<T,Out>() && isFloating<T>()))
+Op1(Tan, tan, isFloating<A>())
 
 cudaError_t srtTan(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -559,7 +565,7 @@ cudaError_t srtTan(
 }
 
 //------------------------------------------------------------------------------
-Op1(Tanh, tanh, (isSame<T,Out>() && isFloating<T>()))
+Op1(Tanh, tanh, isFloating<A>())
 
 cudaError_t srtTanh(
     const void* a, const srtTensorDescriptor* paDesc,

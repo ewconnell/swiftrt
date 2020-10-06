@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 #include "fill_c.h"
-#include "srt_dispatch.h"
+#include "srt_types.h"
 
 //==============================================================================
 cudaError_t srtFillRandomUniform(

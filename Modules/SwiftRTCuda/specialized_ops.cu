@@ -14,7 +14,8 @@
 // limitations under the License.
 //
 #include "specialized_c.h"
-#include "srt_dispatch.h"
+#include "srt_types.h"
+#include "index.h"
 
 //==============================================================================
 // Swift importable C interface functions

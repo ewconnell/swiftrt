@@ -15,7 +15,7 @@
 //
 #pragma once
 #include "math_c.h"
-#include "srt_dispatch.h"
+#include "srt_types.h"
 
 
 //==============================================================================
