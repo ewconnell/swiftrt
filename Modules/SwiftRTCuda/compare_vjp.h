@@ -114,3 +114,55 @@ __device__ inline uchar4 vjpMax(const uchar4& a, const uchar4& b, const uchar4& 
     auto m = greaterOrEqual(a, b);
     return make_uchar4(m.x ? c.x : 0, m.y ? c.y : 0, m.z ? c.z : 0, m.w ? c.w : 0);
 }
+
+//==============================================================================
+
+
+//------------------------------------------------------------------------------
+// tensorA tensorB tensorC Out Out
+template<typename Op, typename IndexA, typename IndexB,
+         typename IndexC, typename IndexO>
+__global__ void mapABC(
+    const typename Op::A* __restrict__ a, const IndexA indexA,
+    const typename Op::B* __restrict__ b, const IndexB indexB,
+    const typename Op::C* __restrict__ c, const IndexC indexC,
+    typename Op::Out* __restrict__ out0, const IndexO indexO0,
+    typename Op::Out* __restrict__ out1, const IndexO indexO1
+) {
+    auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
+    if (indexO0.isInBounds(position)) {
+        int ia = indexA.linear(position);
+        int ib = indexB.linear(position);
+        int ic = indexC.linear(position);
+        int io0 = indexO0.linear(position);
+        int io1 = indexO1.linear(position);
+        Op::op(a[ia], b[ib], c[ic], out0[io0], out1[io1]);
+    }
+}
+
+//==============================================================================
+// select tensorA tensorB tensorC
+template<template<typename A> class Op>
+static cudaError_t select(
+    const void* a, const TensorDescriptor& aDesc,
+    const void* b, const TensorDescriptor& bDesc,
+    const void* c, const TensorDescriptor& cDesc,
+    void* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    assert(aDesc.type == bDesc.type);
+    switch(aDesc.type) {
+    // case real32F:  return selectC<Op, float>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real16F:  return selectC<Op, float16>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real16BF: return selectC<Op, bfloat16>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real64F:  return selectC<Op, double>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real32I:  return selectC<Op, int32_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real8U:   return selectC<Op, uint8_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real8I:   return selectC<Op, int8_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real16U:  return selectC<Op, uint16_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real16I:  return selectC<Op, int16_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case boolean:  return selectC<Op, bool>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case complex32F: return selectC<Op, Complex<float>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    default: return cudaErrorNotSupported;
+    }
+}

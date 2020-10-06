@@ -206,6 +206,16 @@ template<typename T, typename O> struct OpName { \
     typedef OpName<PT,PO> packed; \
 };
 
+#define OpSame3(OpName, name, conformance) \
+template<typename T> struct OpName { \
+    typedef T A; typedef T B; typedef T C; typedef T Out; \
+    constexpr static bool conforms() { return (conformance); } \
+    __device__ inline static void op(const A& a, const B& b, const C& c, Out& out) { \
+        if constexpr (conforms()) out = name(a, b, c); \
+    } \
+    typedef OpName<typename packed<T>::type> packed; \
+};
+
 #define Op3(OpName, name, conformance) \
 template<typename T, typename O> struct OpName { \
     static_assert(isPacked<T>() == isPacked<O>(), "packed type mismatch"); \
@@ -217,6 +227,17 @@ template<typename T, typename O> struct OpName { \
     typedef typename packed<T>::type PT; \
     typedef typename matching_packed<PT,O>::type PO; \
     typedef OpName<PT,PO> packed; \
+};
+
+#define OpSame32(OpName, name, conformance) \
+template<typename T> struct OpName { \
+    typedef T A; typedef T B; typedef T C; typedef T Out; \
+    constexpr static bool conforms() { return (conformance); } \
+    __device__ inline static void op(const A& a, const B& b, const C& c, \
+                                     Out& out0, Out& out1) { \
+        if constexpr (conforms()) name(a, b, c, out0, out1); \
+    } \
+    typedef OpName<typename packed<T>::type> packed; \
 };
 
 #define OpTTU(OpName, name, conformance) \
@@ -234,73 +255,43 @@ template<typename T, typename U, typename O> struct OpName { \
     typedef OpName<PT,PU,PO> packed; \
 };
 
-//==============================================================================
-// kernel helpers
-#define GRID_LOOP(i, n) \
-  for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n); \
-       i += blockDim.x * gridDim.x)
-
-// divideRoundingUp
-inline int divideRoundingUp(int num, int divisor) {
-    return (num + divisor - 1) / divisor;
-}
-
-//==============================================================================
-// grid and tile size placeholders
-
-// *** this is a hack place holder for now. We will eventually do dynamic
-
-//--------------------------------------
-// tile selection
-template<unsigned Rank>
-inline dim3 tileSize(const TensorDescriptor& oDesc) {
-    static_assert(Rank <= 3, "not implemented");
-}
-
-template<> inline dim3 tileSize<1>(const TensorDescriptor& oDesc) {
-    return oDesc.count >= 1024 ? dim3(1024) : dim3(32);
-}
-
-template<> inline dim3 tileSize<2>(const TensorDescriptor& oDesc) {
-    return dim3(16, 16);
-}
-
-template<> inline dim3 tileSize<3>(const TensorDescriptor& oDesc) {
-    return dim3(16, 8, 8);
-}
-
-inline dim3 tileSize(int count) {
-    return count >= 1024 ? dim3(1024) : dim3(32);
-}
-
-//--------------------------------------
-// grid selection
-template<unsigned Rank>
-inline dim3 gridSize(const TensorDescriptor& oDesc, const dim3& tile) {
-    static_assert(Rank <= 3, "not implemented");
-}
-
-template<>
-inline dim3 gridSize<1>(const TensorDescriptor& oDesc, const dim3& tile) {
-    return (oDesc.count + tile.x - 1) / tile.x;
-}
-
-template<>
-inline dim3 gridSize<2>(const TensorDescriptor& oDesc, const dim3& tile) {
-    return dim3(divideRoundingUp(oDesc.shape[0], tile.y), 
-                divideRoundingUp(oDesc.shape[1], tile.x));
-}
-
-template<>
-inline dim3 gridSize<3>(const TensorDescriptor& oDesc, const dim3& tile) {
-    return dim3(divideRoundingUp(oDesc.shape[0], tile.z), 
-                divideRoundingUp(oDesc.shape[1], tile.y), 
-                divideRoundingUp(oDesc.shape[2], tile.x));
-}
 
 //==============================================================================
 // kernels
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// tensorA Element
+template<typename Op, typename IndexA, typename IndexO>
+__global__ void map(
+    const typename Op::A* __restrict__ a, const IndexA indexA,
+    const typename Op::A element,
+    typename Op::Out* __restrict__ out, const IndexO indexO
+) {
+    const auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
+    if (indexO.isInBounds(position)) {
+        const int ia = indexA.linear(position);
+        const int io = indexO.linear(position);
+        Op::op(a[ia], element, out[io]);
+    }
+}
+
+//------------------------------------------------------------------------------
+// Element tensorA
+// used when op can't reverse order like divide and subtract
+template<typename Op, typename IndexA, typename IndexO>
+__global__ void map(
+    const typename Op::A  element,
+    const typename Op::A* __restrict__ a, const IndexA indexA,
+    typename Op::Out* __restrict__ out, const IndexO indexO
+) {
+    const auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
+    if (indexO.isInBounds(position)) {
+        const int ia = indexA.linear(position);
+        const int io = indexO.linear(position);
+        Op::op(element, a[ia], out[io]);
+    }
+}
 
 //------------------------------------------------------------------------------
 // tensorA
@@ -1384,7 +1375,7 @@ static cudaError_t selectC(
 
 // select tensorA tensorB tensorC
 template<template<typename A, typename C, typename O> class Op>
-static cudaError_t select(
+static cudaError_t selectTTU(
     const void* a, const TensorDescriptor& aDesc,
     const void* b, const TensorDescriptor& bDesc,
     const void* c, const TensorDescriptor& cDesc,
