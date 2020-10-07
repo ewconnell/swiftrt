@@ -24,28 +24,34 @@
 ///  - OpName: the operator instance name
 ///  - name: the name of the function this operator maps to,
 ///    for example: sin, cos, etc...
-///  - swapAB: if `true` A and B will be swapped before passing them
-///    to function `name`
 ///  - conformance: a constant expression used to define which
 ///    type combinations are valid with the operator
 
 // `packed` is a version of the operator where types smaller than 32 bit
 // are retyped into packed versions to use with gpu SIMD instructions
-#define Op2(OpName, name, swapAB, conformance) \
+#define Op2(OpName, name, conformance) \
 template<typename _A, typename _B, typename _O> struct OpName { \
     typedef _A A; typedef _B B; typedef _O Out; \
     static_assert(isPacked<A>() == isPacked<B>() && \
                   isPacked<A>() == isPacked<Out>(), "packed type mismatch"); \
     constexpr static bool conforms() { return (conformance); } \
-    constexpr static bool swap() { return (swapAB); } \
     __CUDA_DEVICE__ inline static void op(const A& a, const B& b, Out& out) { \
-        if constexpr (conforms()) { \
-            if constexpr (swap()) { \
-                out = name(b, a); \
-            } else { \
-                out = name(a, b); \
-            } \
-        } \
+        if constexpr (conforms()) out = name(a, b); \
+    } \
+    typedef typename packed<A>::type PA; \
+    typedef typename matching_packed<PA,B>::type PB; \
+    typedef typename matching_packed<PA,Out>::type POut; \
+    typedef OpName<PA,PB,POut> packed; \
+};
+
+#define Op2SwapAB(OpName, name, conformance) \
+template<typename _A, typename _B, typename _O> struct OpName { \
+    typedef _A A; typedef _B B; typedef _O Out; \
+    static_assert(isPacked<A>() == isPacked<B>() && \
+                  isPacked<A>() == isPacked<Out>(), "packed type mismatch"); \
+    constexpr static bool conforms() { return (conformance); } \
+    __CUDA_DEVICE__ inline static void op(const A& a, const B& b, Out& out) { \
+        if constexpr (conforms()) out = name(b, a); \
     } \
     typedef typename packed<A>::type PA; \
     typedef typename matching_packed<PA,B>::type PB; \
@@ -65,9 +71,9 @@ __global__ void mapAB(
 ) {
     auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
     if (indexO.isInBounds(position)) {
-        int ia = indexA.linear(position);
-        int ib = indexB.linear(position);
-        int io = indexO.linear(position);
+        const int ia = indexA.linear(position);
+        const int ib = indexB.linear(position);
+        const int io = indexO.linear(position);
         Op::op(a[ia], b[ib], out[io]);
     }
 }
@@ -171,12 +177,9 @@ static cudaError_t initIndex(
     dim3 tile = tileSize<IndexO::Rank>(oDesc);
     dim3 grid = gridSize<IndexO::Rank>(oDesc, tile);
 
-    IndexA indexA = IndexA(aDesc);
-    IndexB indexB = IndexB(bDesc);
-    
     mapAB<Op,IndexA,IndexB,IndexO><<<grid, tile, 0, stream>>>(
-        a, indexA, 
-        b, indexB,
+        a, IndexA(aDesc), 
+        b, IndexB(bDesc),
         out, IndexO(oDesc));
     return cudaSuccess;
 }
@@ -327,7 +330,7 @@ static inline cudaError_t selectOut(
     }
 }
 
-// tensorA tensorB
+// tensorA Element
 template<template<typename A, typename B, typename O> class Op, typename A>
 static inline cudaError_t selectOut(
     const void* a, const TensorDescriptor& aDesc,
@@ -408,7 +411,7 @@ static inline cudaError_t select(
 }
 
 // input and output are the different type
-template<template<typename A, typename O> class Op>
+template<template<typename A, typename B, typename O> class Op>
 static inline cudaError_t selectTT_O(
     const void* a, const TensorDescriptor& aDesc,
     const void* b, const TensorDescriptor& bDesc,

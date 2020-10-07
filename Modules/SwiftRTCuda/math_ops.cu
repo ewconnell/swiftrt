@@ -16,6 +16,7 @@
 #include "math_fn.h"
 #include "op1.h"
 #include "op2.h"
+#include "op3.h"
 
 //==============================================================================
 // Swift importable C interface functions
@@ -59,7 +60,7 @@ cudaError_t srtAcosh(
 }
 
 //------------------------------------------------------------------------------
-Op2(Add, add, false, isNumeric<A>())
+Op2(Add, add, isNumeric<A>())
 
 cudaError_t srtAdd(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -119,7 +120,7 @@ cudaError_t srtAtan(
 }
 
 //------------------------------------------------------------------------------
-Op2(Atan2, atan2, false, isFloating<A>())
+Op2(Atan2, atan2, isFloating<A>())
 
 cudaError_t srtAtan2(
     const void* b, const srtTensorDescriptor* pbDesc,
@@ -169,7 +170,7 @@ cudaError_t srtCosh(
 }
 
 //------------------------------------------------------------------------------
-Op2(Div, divide, false, isNumeric<A>())
+Op2(Div, divide, isNumeric<A>())
 
 cudaError_t srtDiv(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -192,7 +193,7 @@ cudaError_t srtDivTE(
 }
 
 // `true` swaps `a` and `element` when calling `divide`
-Op2(DivET, divide, true, isNumeric<A>())
+Op2SwapAB(DivET, divide, isNumeric<A>())
 
 cudaError_t srtDivET(
     const void* element,
@@ -289,7 +290,7 @@ cudaError_t srtGamma(
 }
 
 //------------------------------------------------------------------------------
-Op2(Hypot, hypot, false, isFloating<A>())
+Op2(Hypot, hypot, isFloating<A>())
 
 cudaError_t srtHypot(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -362,7 +363,7 @@ cudaError_t srtLogGamma(
 }
 
 //------------------------------------------------------------------------------
-Op2(Mul, multiply, false, isNumeric<A>())
+Op2(Mul, multiply, isNumeric<A>())
 
 cudaError_t srtMul(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -384,30 +385,32 @@ cudaError_t srtMulTE(
     return select<Mul>(a, aDesc, element, out, oDesc, stream);
 }
 
-// //------------------------------------------------------------------------------
-// Op3(MultiplyAdd, multiplyAdd, (isSame<T,Out>() && isSame<T,U>() && isNumeric<T>()))
+//------------------------------------------------------------------------------
+Op3(MultiplyAdd, multiplyAdd, isNumeric<A>())
 
-// cudaError_t srtMultiplyAdd(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     const void* b, const srtTensorDescriptor* pbDesc,
-//     const void* c, const srtTensorDescriptor* pcDesc,
-//     void* out, const srtTensorDescriptor* poDesc,
-//     cudaStream_t stream
-// ) {
-//     Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
-//     return select<MultiplyAdd>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-// }
+cudaError_t srtMultiplyAdd(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    const void* c, const srtTensorDescriptor* pcDesc,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
+    return select<MultiplyAdd>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+}
 
-// cudaError_t srtMultiplyAddTTE(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     const void* b, const srtTensorDescriptor* pbDesc,
-//     const void* element,
-//     void* out, const srtTensorDescriptor* poDesc,
-//     cudaStream_t stream
-// ) {
-//     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-//     return select<MultiplyAddE>(a, aDesc, b, bDesc, element, out, oDesc, stream);
-// }
+Op3SwapBC(MultiplyAddE, multiplyAdd, isNumeric<A>())
+
+cudaError_t srtMultiplyAddTTE(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    return select<MultiplyAdd>(a, aDesc, element, b, bDesc, out, oDesc, stream);
+}
 
 //------------------------------------------------------------------------------
 Op1(Neg, neg, (isSignedNumeric<A>() || isComplex<A>()))
@@ -422,7 +425,7 @@ cudaError_t srtNeg(
 }
 
 //------------------------------------------------------------------------------
-Op2(Pow, pow, false, isFloating<A>())
+Op2(Pow, pow, isFloating<A>())
 
 cudaError_t srtPow(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -517,7 +520,7 @@ cudaError_t srtSquared(
 }
 
 //------------------------------------------------------------------------------
-Op2(Sub, subtract, false, isNumeric<A>())
+Op2(Sub, subtract, isNumeric<A>())
 
 cudaError_t srtSub(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -540,7 +543,7 @@ cudaError_t srtSubTE(
 }
 
 // `true` swaps `a` and `element` when calling `divide`
-Op2(SubET, subtract, true, isNumeric<A>())
+Op2SwapAB(SubET, subtract, isNumeric<A>())
 
 cudaError_t srtSubET(
     const void* element,

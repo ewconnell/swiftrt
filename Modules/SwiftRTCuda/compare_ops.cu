@@ -16,13 +16,14 @@
 #include "compare_fn.h"
 #include "compare_vjp.h"
 #include "op2.h"
+#include "op3.h"
 
 //==============================================================================
 // Swift importable C interface functions
 //==============================================================================
 
 //------------------------------------------------------------------------------
-Op2(And, andElements, false, (isBool<A>() && isBool<Out>()))
+Op2(And, andElements, (isBool<A>() && isBool<Out>()))
 
 cudaError_t srtAnd(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -35,22 +36,21 @@ cudaError_t srtAnd(
 }
 
 //------------------------------------------------------------------------------
-// Op3(AlmostEqual, almostEqual, (isFloating<T>() && isBool<Out>()))
+Op3SwapBC(AlmostEqual, almostEqual, (isFloating<A>() && isBool<Out>()))
 
-// cudaError_t srtElementsAlmostEqual(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     const void* b, const srtTensorDescriptor* pbDesc,
-//     const void* tolerance,
-//     void* out, const srtTensorDescriptor* poDesc,
-//     cudaStream_t stream
-// ) {
-//     // Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-//     // return select<AlmostEqual>(a, aDesc, b, bDesc, tolerance, out, oDesc, stream);
-//     return cudaErrorNotSupported;
-// }
+cudaError_t srtElementsAlmostEqual(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    const void* tolerance,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    return select<AlmostEqual>(a, aDesc, tolerance, b, bDesc, out, oDesc, stream);
+}
 
 //------------------------------------------------------------------------------
-Op2(Equal, equal, false, (isEquatable<A>() && isBool<Out>()))
+Op2(Equal, equal, (isEquatable<A>() && isBool<Out>()))
 
 cudaError_t srtEqual(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -63,7 +63,7 @@ cudaError_t srtEqual(
 }
 
 //------------------------------------------------------------------------------
-Op2(Greater, greater, false, (isComparable<A>() && isBool<Out>()))
+Op2(Greater, greater, (isComparable<A>() && isBool<Out>()))
 
 cudaError_t srtGreater(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -86,7 +86,7 @@ cudaError_t srtGreaterTE(
 }
     
 //------------------------------------------------------------------------------
-Op2(GreaterOrEqual, greaterOrEqual, false, (isComparable<A>() && isBool<Out>()))
+Op2(GreaterOrEqual, greaterOrEqual, (isComparable<A>() && isBool<Out>()))
 
 cudaError_t srtGreaterOrEqual(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -109,7 +109,7 @@ cudaError_t srtGreaterOrEqualTE(
 }
     
 //------------------------------------------------------------------------------
-Op2(Less, less, false, (isComparable<A>() && isBool<Out>()))
+Op2(Less, less, (isComparable<A>() && isBool<Out>()))
 
 cudaError_t srtLess(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -132,7 +132,7 @@ cudaError_t srtLessTE(
 }
     
 //------------------------------------------------------------------------------
-Op2(LessOrEqual, lessOrEqual, false, (isComparable<A>() && isBool<Out>()))
+Op2(LessOrEqual, lessOrEqual, (isComparable<A>() && isBool<Out>()))
 
 cudaError_t srtLessOrEqual(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -155,7 +155,7 @@ cudaError_t srtLessOrEqualTE(
 }
     
 //------------------------------------------------------------------------------
-Op2(MinElements, minElements, false, (isComparable<A>() && isSame<A, Out>()))
+Op2(MinElements, minElements, (isComparable<A>() && isSame<A, Out>()))
 
 cudaError_t srtMin(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -178,7 +178,7 @@ cudaError_t srtMinTE(
 }
     
 //------------------------------------------------------------------------------
-Op2(MaxElements, maxElements, false, (isComparable<A>() && isSame<A, Out>()))
+Op2(MaxElements, maxElements, (isComparable<A>() && isSame<A, Out>()))
 
 cudaError_t srtMax(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -201,7 +201,7 @@ cudaError_t srtMaxTE(
 }
     
 //------------------------------------------------------------------------------
-Op2(NotEqual, notEqual, false, (isEquatable<A>() && isBool<Out>()))
+Op2(NotEqual, notEqual, (isEquatable<A>() && isBool<Out>()))
 
 cudaError_t srtNotEqual(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -214,7 +214,7 @@ cudaError_t srtNotEqual(
 }
 
 //------------------------------------------------------------------------------
-Op2(Or, orElements, false, (isBool<A>() && isBool<Out>()))
+Op2(Or, orElements, (isBool<A>() && isBool<Out>()))
 
 cudaError_t srtOr(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -226,45 +226,44 @@ cudaError_t srtOr(
     return select<Or>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
-// //------------------------------------------------------------------------------
-// // Op3(Replace, conditionalAssign, false, (isSame<T,Out>() && isBool<U>()))
+//------------------------------------------------------------------------------
+Op3(Replace, conditionalAssign, isBool<C>())
 
-// cudaError_t srtReplace(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     const void* b, const srtTensorDescriptor* pbDesc,
-//     const void* condition, const srtTensorDescriptor* pcDesc,
-//     void* out, const srtTensorDescriptor* poDesc,
-//     cudaStream_t stream
-// ) {
-//     // Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
-//     // return selectTTU<Replace>(b, bDesc, a, aDesc, condition, cDesc, out, oDesc, stream);
-//     return cudaErrorNotSupported;
-// }
+cudaError_t srtReplace(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    const void* condition, const srtTensorDescriptor* pcDesc,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
+    return selectTTC_T<Replace>(b, bDesc, a, aDesc, condition, cDesc, out, oDesc, stream);
+}
 
-// //==============================================================================
-// // Op3(VjpMin, vjpMin, false, (isComparable<A>() && isSame<A,Out>))
+//==============================================================================
+Op3(VjpMin, vjpMin, isComparable<A>())
 
-// cudaError_t srtVjpMin(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     const void* b, const srtTensorDescriptor* pbDesc,
-//     const void* c, const srtTensorDescriptor* pcDesc,
-//     void* out, const srtTensorDescriptor* poDesc,
-//     cudaStream_t stream
-// ) {
-//     // Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
-//     // return select<VjpMin>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-//     return cudaErrorNotSupported;
-// }
+cudaError_t srtVjpMin(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    const void* c, const srtTensorDescriptor* pcDesc,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
+    return select<VjpMin>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+}
 
-// cudaError_t srtVjpMinTE(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     const void* b,
-//     const void* c, const srtTensorDescriptor* pcDesc,
-//     void* out, const srtTensorDescriptor* poDesc,
-//     cudaStream_t stream
-// ) {
-//     return cudaErrorNotSupported;
-// }
+cudaError_t srtVjpMinTE(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* e,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    return select<VjpMin>(a, aDesc, e, b, bDesc, out, oDesc, stream);
+}
 
 // // OpSame32(VjpMin32, vjpMax, (isComparable<T>()))
 
@@ -290,30 +289,30 @@ cudaError_t srtOr(
 //     return cudaErrorNotSupported;
 // }
 
-// //==============================================================================
-// // OpSame3(VjpMax, vjpMax, (isComparable<T>()))
+//==============================================================================
+Op3(VjpMax, vjpMax, isComparable<A>())
 
-// cudaError_t srtVjpMax(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     const void* b, const srtTensorDescriptor* pbDesc,
-//     const void* c, const srtTensorDescriptor* pcDesc,
-//     void* out, const srtTensorDescriptor* poDesc,
-//     cudaStream_t stream
-// ) {
-//     // Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
-//     // return select<VjpMax>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-//     return cudaErrorNotSupported;
-// }
+cudaError_t srtVjpMax(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    const void* c, const srtTensorDescriptor* pcDesc,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
+    return select<VjpMax>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+}
 
-// cudaError_t srtVjpMaxTE(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     const void* b,
-//     const void* c, const srtTensorDescriptor* pcDesc,
-//     void* out, const srtTensorDescriptor* poDesc,
-//     cudaStream_t stream
-// ) {
-//     return cudaErrorNotSupported;
-// }
+cudaError_t srtVjpMaxTE(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* e,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
+    return select<VjpMax>(a, aDesc, e, b, bDesc, out, oDesc, stream);
+}
 
 // // OpSame32(VjpMax32, vjpMax, (isComparable<T>()))
 
