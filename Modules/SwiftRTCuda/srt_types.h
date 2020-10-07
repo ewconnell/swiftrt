@@ -55,6 +55,7 @@ __CUDA_DEVICE__ inline bfloat162 init_bfloat162(const bfloat16& x, const bfloat1
 // supplemental logical types
 struct bool2 {
     bool x, y;
+    __CUDA_HOSTDEVICE__ inline bool2() { x = false; y = false; }
     __CUDA_HOSTDEVICE__ inline bool2(bool _x, bool _y) { x = _x; y = _y; }
     
     __CUDA_DEVICE__ inline bool2(float162 v) { x = v.x; y = v.y; }
@@ -67,6 +68,9 @@ struct bool2 {
 
 struct bool4 {
     bool x, y, z, w;
+    __CUDA_HOSTDEVICE__ inline bool4() {
+        x = false; y = false; z = false; w = false;
+    }
     __CUDA_HOSTDEVICE__ inline bool4(bool _x, bool _y, bool _z, bool _w) {
         x = _x; y = _y; z = _z; w = _w;
     }
@@ -214,7 +218,8 @@ template<> struct matching_packed<bfloat162, bfloat16> { typedef bfloat162 type;
 //--------------------------------------
 // given an input type A and an output type O, if the input is
 // packed, then the corresponding packed respresention of O is defined
-template<typename A> struct packing {static const int count = 1; };
+template<typename A> struct packing { static const int count = 1; };
+
 template<> struct packing<char4> { static const int count = 4; };
 template<> struct packing<const char4> { static const int count = 4; };
 template<> struct packing<uchar4> { static const int count = 4; };

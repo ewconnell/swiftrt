@@ -21,208 +21,78 @@
 // vjpMin
 template<typename T>
 __device__ inline T vjpMin(const T& a, const T& b, const T& c) {
-    return a <= b ? c : 0;
-}
-
-__device__ inline float16 vjpMin(const float16& a, const float16& b, const float16& c) {
-    return a <= b ? c : float16();
-}
-
-__device__ inline bfloat16 vjpMin(const bfloat16& a, const bfloat16& b, const bfloat16& c) {
-    return a <= b ? c : bfloat16();
-}
-
-__device__ inline 
-float162 vjpMin(const float162& a, const float162& b, const float162& c) {
     auto m = lessOrEqual(a, b);
-    return init_float162(m.x ? c.x : float16(), m.y ? c.y : float16());
+    auto v = T();
+    if constexpr (packing<T>::count == 1) {
+        if (m) v = c;
+    } else if constexpr (packing<T>::count == 2) {
+        if (m.x) v.x = c.x;
+        if (m.y) v.y = c.y;
+    } else if constexpr (packing<T>::count == 4) {
+        if (m.x) v.x = c.x;
+        if (m.y) v.y = c.y;
+        if (m.z) v.z = c.z;
+        if (m.w) v.w = c.w;
+    }
+    return v;
 }
 
-__device__ inline 
-bfloat162 vjpMin(const bfloat162& a, const bfloat162& b, const bfloat162& c) {
-    auto m = lessOrEqual(a, b);
-    return init_bfloat162(m.x ? c.x : bfloat16(), m.y ? c.y : bfloat16());
-}
-
-__device__ inline short2 vjpMin(const short2& a, const short2& b, const short2& c) {
-    auto m = lessOrEqual(a, b);
-    return make_short2(m.x ? c.x : 0, m.y ? c.y : 0);
-}
-
-__device__ inline ushort2 vjpMin(const ushort2& a, const ushort2& b, const ushort2& c) {
-    auto m = lessOrEqual(a, b);
-    return make_ushort2(m.x ? c.x : 0, m.y ? c.y : 0);
-}
-
-__device__ inline char4 vjpMin(const char4& a, const char4& b, const char4& c) {
-    auto m = lessOrEqual(a, b);
-    return make_char4(m.x ? c.x : 0, m.y ? c.y : 0, m.z ? c.z : 0, m.w ? c.w : 0);
-}
-
-__device__ inline uchar4 vjpMin(const uchar4& a, const uchar4& b, const uchar4& c) {
-    auto m = lessOrEqual(a, b);
-    return make_uchar4(m.x ? c.x : 0, m.y ? c.y : 0, m.z ? c.z : 0, m.w ? c.w : 0);
-}
-
-//==============================================================================
 // vjpMin with two outputs
 template<typename T>
 __device__ inline void vjpMin(const T& a, const T& b, const T& c, T& outT, T& outF) {
-    if (a <= b) {
-        outT = c; outF = 0;
-    } else {
-        outT = 0; outF = c;
+    if constexpr (packing<T>::count == 1) {
+        if (a <= b) {
+            outT = c; outF = T();
+        } else {
+            outT = T(); outF = c;
+        }
+    } else if constexpr (packing<T>::count == 2) {
+        vjpMin(a.x, b.x, c.x, outT.x, outF.x);
+        vjpMin(a.y, b.y, c.y, outT.y, outF.y);
+    } else if constexpr (packing<T>::count == 4) {
+        vjpMin(a.x, b.x, c.x, outT.x, outF.x);
+        vjpMin(a.y, b.y, c.y, outT.y, outF.y);
+        vjpMin(a.z, b.z, c.z, outT.z, outF.z);
+        vjpMin(a.w, b.w, c.w, outT.w, outF.w);
     }
-}
-
-__device__ inline void 
-vjpMin(const float16& a, const float16& b, const float16& c, float16& outT, float16& outF) {
-    if (a <= b) {
-        outT = c; outF = float16();
-    } else {
-        outT = float16(); outF = c;
-    }
-}
-
-__device__ inline void 
-vjpMin(const bfloat16& a, const bfloat16& b, const bfloat16& c, bfloat16& outT, bfloat16& outF) {
-    if (a <= b) {
-        outT = c; outF = bfloat16();
-    } else {
-        outT = bfloat16(); outF = c;
-    }
-}
-
-__device__ inline 
-float162 vjpMin(const float162& a, const float162& b, const float162& c) {
-    auto m = lessOrEqual(a, b);
-    return init_float162(m.x ? c.x : float16(),
-                         m.y ? c.y : float16());
-}
-
-__device__ inline 
-bfloat162 vjpMin(const bfloat162& a, const bfloat162& b, const bfloat162& c) {
-    auto m = lessOrEqual(a, b);
-    return init_bfloat162(m.x ? c.x : bfloat16(), m.y ? c.y : bfloat16());
-}
-
-__device__ inline short2 vjpMin(const short2& a, const short2& b, const short2& c) {
-    auto m = lessOrEqual(a, b);
-    return make_short2(m.x ? c.x : 0, m.y ? c.y : 0);
-}
-
-__device__ inline ushort2 vjpMin(const ushort2& a, const ushort2& b, const ushort2& c) {
-    auto m = lessOrEqual(a, b);
-    return make_ushort2(m.x ? c.x : 0, m.y ? c.y : 0);
-}
-
-__device__ inline char4 vjpMin(const char4& a, const char4& b, const char4& c) {
-    auto m = lessOrEqual(a, b);
-    return make_char4(m.x ? c.x : 0, m.y ? c.y : 0, m.z ? c.z : 0, m.w ? c.w : 0);
-}
-
-__device__ inline uchar4 vjpMin(const uchar4& a, const uchar4& b, const uchar4& c) {
-    auto m = lessOrEqual(a, b);
-    return make_uchar4(m.x ? c.x : 0, m.y ? c.y : 0, m.z ? c.z : 0, m.w ? c.w : 0);
 }
 
 //==============================================================================
 // vjpMax
 template<typename T>
 __device__ inline T vjpMax(const T& a, const T& b, const T& c) {
-    return a >= b ? c : 0;
-}
-
-__device__ inline float16 vjpMax(const float16& a, const float16& b, const float16& c) {
-    return a >= b ? c : float16();
-}
-
-__device__ inline bfloat16 vjpMax(const bfloat16& a, const bfloat16& b, const bfloat16& c) {
-    return a >= b ? c : bfloat16();
-}
-
-__device__ inline 
-float162 vjpMax(const float162& a, const float162& b, const float162& c) {
     auto m = greaterOrEqual(a, b);
-    return init_float162(m.x ? c.x : float16(),
-                         m.y ? c.y : float16());
-}
-
-__device__ inline 
-bfloat162 vjpMax(const bfloat162& a, const bfloat162& b, const bfloat162& c) {
-    auto m = greaterOrEqual(a, b);
-    return init_bfloat162(m.x ? c.x : bfloat16(),
-                          m.y ? c.y : bfloat16());
-}
-
-__device__ inline short2 vjpMax(const short2& a, const short2& b, const short2& c) {
-    auto m = greaterOrEqual(a, b);
-    return make_short2(m.x ? c.x : 0, m.y ? c.y : 0);
-}
-
-__device__ inline ushort2 vjpMax(const ushort2& a, const ushort2& b, const ushort2& c) {
-    auto m = greaterOrEqual(a, b);
-    return make_ushort2(m.x ? c.x : 0, m.y ? c.y : 0);
-}
-
-__device__ inline char4 vjpMax(const char4& a, const char4& b, const char4& c) {
-    auto m = greaterOrEqual(a, b);
-    return make_char4(m.x ? c.x : 0, m.y ? c.y : 0, m.z ? c.z : 0, m.w ? c.w : 0);
-}
-
-__device__ inline uchar4 vjpMax(const uchar4& a, const uchar4& b, const uchar4& c) {
-    auto m = greaterOrEqual(a, b);
-    return make_uchar4(m.x ? c.x : 0, m.y ? c.y : 0, m.z ? c.z : 0, m.w ? c.w : 0);
-}
-
-//==============================================================================
-
-
-//------------------------------------------------------------------------------
-// tensorA tensorB tensorC Out Out
-template<typename Op, typename IndexA, typename IndexB,
-         typename IndexC, typename IndexO>
-__global__ void mapABC(
-    const typename Op::A* __restrict__ a, const IndexA indexA,
-    const typename Op::B* __restrict__ b, const IndexB indexB,
-    const typename Op::C* __restrict__ c, const IndexC indexC,
-    typename Op::Out* __restrict__ out0, const IndexO indexO0,
-    typename Op::Out* __restrict__ out1, const IndexO indexO1
-) {
-    auto position = IndexO::Logical(blockIdx, blockDim, threadIdx);
-    if (indexO0.isInBounds(position)) {
-        int ia = indexA.linear(position);
-        int ib = indexB.linear(position);
-        int ic = indexC.linear(position);
-        int io0 = indexO0.linear(position);
-        int io1 = indexO1.linear(position);
-        Op::op(a[ia], b[ib], c[ic], out0[io0], out1[io1]);
+    auto v = T();
+    if constexpr (packing<T>::count == 1) {
+        if (m) v = c;
+    } else if constexpr (packing<T>::count == 2) {
+        if (m.x) v.x = c.x;
+        if (m.y) v.y = c.y;
+    } else if constexpr (packing<T>::count == 4) {
+        if (m.x) v.x = c.x;
+        if (m.y) v.y = c.y;
+        if (m.z) v.z = c.z;
+        if (m.w) v.w = c.w;
     }
+    return v;
 }
 
-//==============================================================================
-// select tensorA tensorB tensorC
-template<template<typename A> class Op>
-static cudaError_t select(
-    const void* a, const TensorDescriptor& aDesc,
-    const void* b, const TensorDescriptor& bDesc,
-    const void* c, const TensorDescriptor& cDesc,
-    void* out, const TensorDescriptor& oDesc,
-    cudaStream_t stream
-) {
-    assert(aDesc.type == bDesc.type);
-    switch(aDesc.type) {
-    // case real32F:  return selectC<Op, float>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real16F:  return selectC<Op, float16>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real16BF: return selectC<Op, bfloat16>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real64F:  return selectC<Op, double>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real32I:  return selectC<Op, int32_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real8U:   return selectC<Op, uint8_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real8I:   return selectC<Op, int8_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real16U:  return selectC<Op, uint16_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real16I:  return selectC<Op, int16_t>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case boolean:  return selectC<Op, bool>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case complex32F: return selectC<Op, Complex<float>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    default: return cudaErrorNotSupported;
+// vjpMin with two outputs
+template<typename T>
+__device__ inline void vjpMax(const T& a, const T& b, const T& c, T& outT, T& outF) {
+    if constexpr (packing<T>::count == 1) {
+        if (a >= b) {
+            outT = c; outF = T();
+        } else {
+            outT = T(); outF = c;
+        }
+    } else if constexpr (packing<T>::count == 2) {
+        vjpMax(a.x, b.x, c.x, outT.x, outF.x);
+        vjpMax(a.y, b.y, c.y, outT.y, outF.y);
+    } else if constexpr (packing<T>::count == 4) {
+        vjpMax(a.x, b.x, c.x, outT.x, outF.x);
+        vjpMax(a.y, b.y, c.y, outT.y, outF.y);
+        vjpMax(a.z, b.z, c.z, outT.z, outF.z);
+        vjpMax(a.w, b.w, c.w, outT.w, outF.w);
     }
 }

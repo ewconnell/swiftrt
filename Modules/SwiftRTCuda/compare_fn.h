@@ -16,6 +16,7 @@
 #pragma once
 #include "compare_c.h"
 #include "math_fn.h"
+#include "srt_types.h"
 
 //==============================================================================
 // supplemental logical functions
@@ -297,10 +298,7 @@ __device__ inline T minElements(const T& a, const T& b) {
 
 __device__ inline float162 minElements(const float162& a, const float162& b) {
 #if (__CUDA_ARCH__ < 800)
-    float162 v;
-    v.x = a.x <= b.x ? a.x : b.x;
-    v.y = a.y <= b.y ? a.y : b.y;
-    return v;
+    return init_float162(a.x <= b.x ? a.x : b.x, a.y <= b.y ? a.y : b.y);
 #else
     return __hmin2(a, b);
 #endif
@@ -308,10 +306,7 @@ __device__ inline float162 minElements(const float162& a, const float162& b) {
 
 __device__ inline bfloat162 minElements(const bfloat162& a, const bfloat162& b) {
 #if (__CUDA_ARCH__ < 800)
-    bfloat162 v;
-    v.x = a.x <= b.x ? a.x : b.x;
-    v.y = a.y <= b.y ? a.y : b.y;
-    return v;
+    return init_bfloat162(a.x <= b.x ? a.x : b.x, a.y <= b.y ? a.y : b.y);
 #else
     return __hmin2(a, b);
 #endif
@@ -345,10 +340,7 @@ __device__ inline T maxElements(const T& a, const T& b) {
 
 __device__ inline float162 maxElements(const float162& a, const float162& b) {
 #if (__CUDA_ARCH__ < 800)
-    float162 v;
-    v.x = a.x > b.x ? a.x : b.x;
-    v.y = a.y > b.y ? a.y : b.y;
-    return v;
+    return init_float162(a.x > b.x ? a.x : b.x, a.y > b.y ? a.y : b.y);
 #else
     return __hmax2(a, b);
 #endif
@@ -356,10 +348,7 @@ __device__ inline float162 maxElements(const float162& a, const float162& b) {
 
 __device__ inline bfloat162 maxElements(const bfloat162& a, const bfloat162& b) {
 #if (__CUDA_ARCH__ < 800)
-    bfloat162 v;
-    v.x = a.x > b.x ? a.x : b.x;
-    v.y = a.y > b.y ? a.y : b.y;
-    return v;
+    return init_bfloat162(a.x > b.x ? a.x : b.x, a.y > b.y ? a.y : b.y);
 #else
     return __hmax2(a, b);
 #endif
@@ -393,18 +382,12 @@ __device__ inline T conditionalAssign(const T& a, const T& b, const bool c) {
 
 __device__ inline 
 float162 conditionalAssign(const float162& a, const float162& b, const bool2 c) {
-    float162 v;
-    v.x = c.x ? a.x : b.x;
-    v.y = c.y ? a.y : b.y;
-    return v;
+    return init_float162(c.x ? a.x : b.x, c.y ? a.y : b.y);
 }
 
 __device__ inline 
 bfloat162 conditionalAssign(const bfloat162& a, const bfloat162& b, const bool2 c) {
-    bfloat162 v;
-    v.x = c.x ? a.x : b.x;
-    v.y = c.y ? a.y : b.y;
-    return v;
+    return init_bfloat162(c.x ? a.x : b.x, c.y ? a.y : b.y);
 }
 
 __device__ inline 

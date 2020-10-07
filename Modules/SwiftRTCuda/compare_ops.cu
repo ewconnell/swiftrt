@@ -279,16 +279,17 @@ cudaError_t srtVjpMinOO(
     return select<VjpMin2>(a, aDesc, b, bDesc, c, cDesc, outT, o0Desc, outF, o1Desc, stream);
 }
 
-// cudaError_t srtVjpMinTEOO(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     const void* b,
-//     const void* c, const srtTensorDescriptor* pcDesc,
-//     void* outT, const srtTensorDescriptor* oTDesc,
-//     void* outF, const srtTensorDescriptor* oFDesc,
-//     cudaStream_t stream
-// ) {
-//     return cudaErrorNotSupported;
-// }
+cudaError_t srtVjpMinTEOO(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b,
+    const void* c, const srtTensorDescriptor* pcDesc,
+    void* outT, const srtTensorDescriptor* po0Desc,
+    void* outF, const srtTensorDescriptor* po1Desc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsAECOO(paDesc, pcDesc, po0Desc, po1Desc)
+    return select<VjpMin2>(a, aDesc, b, c, cDesc, outT, o0Desc, outF, o1Desc, stream);
+}
 
 //==============================================================================
 Op3(VjpMax, vjpMax, isComparable<A>())
@@ -315,26 +316,28 @@ cudaError_t srtVjpMaxTE(
     return select<VjpMax>(a, aDesc, e, b, bDesc, out, oDesc, stream);
 }
 
-// // OpSame32(VjpMax32, vjpMax, (isComparable<T>()))
+Op32(VjpMax2, vjpMax, (isComparable<T>()))
 
-// cudaError_t srtVjpMaxOO(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     const void* b, const srtTensorDescriptor* pbDesc,
-//     const void* c, const srtTensorDescriptor* pcDesc,
-//     void* outT, const srtTensorDescriptor* oTDesc,
-//     void* outF, const srtTensorDescriptor* oFDesc,
-//     cudaStream_t stream
-// ) {
-//     return cudaErrorNotSupported;
-// }
+cudaError_t srtVjpMaxOO(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    const void* c, const srtTensorDescriptor* pcDesc,
+    void* outT, const srtTensorDescriptor* po0Desc,
+    void* outF, const srtTensorDescriptor* po1Desc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsABCOO(paDesc, pbDesc, pcDesc, po0Desc, po1Desc)
+    return select<VjpMax2>(a, aDesc, b, bDesc, c, cDesc, outT, o0Desc, outF, o1Desc, stream);
+}
 
-// cudaError_t srtVjpMaxTEOO(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     const void* b,
-//     const void* c, const srtTensorDescriptor* pcDesc,
-//     void* outT, const srtTensorDescriptor* oTDesc,
-//     void* outF, const srtTensorDescriptor* oFDesc,
-//     cudaStream_t stream
-// ) {
-//     return cudaErrorNotSupported;
-// }
+cudaError_t srtVjpMaxTEOO(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b,
+    const void* c, const srtTensorDescriptor* pcDesc,
+    void* outT, const srtTensorDescriptor* po0Desc,
+    void* outF, const srtTensorDescriptor* po1Desc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsAECOO(paDesc, pcDesc, po0Desc, po1Desc)
+    return select<VjpMax2>(a, aDesc, b, c, cDesc, outT, o0Desc, outF, o1Desc, stream);
+}
