@@ -46,6 +46,13 @@ const TensorDescriptor& bDesc = static_cast<const TensorDescriptor&>(*pb); \
 const TensorDescriptor& cDesc = static_cast<const TensorDescriptor&>(*pc); \
 const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*po); \
 
+#define Cast2TensorDescriptorsABCOO(pa, pb, pc, po0, po1) \
+const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*pa); \
+const TensorDescriptor& bDesc = static_cast<const TensorDescriptor&>(*pb); \
+const TensorDescriptor& cDesc = static_cast<const TensorDescriptor&>(*pc); \
+const TensorDescriptor& o0Desc = static_cast<const TensorDescriptor&>(*po0); \
+const TensorDescriptor& o1Desc = static_cast<const TensorDescriptor&>(*po1); \
+
 //==============================================================================
 /// Logical
 /// converts grid, block, thread indexes into a logical position

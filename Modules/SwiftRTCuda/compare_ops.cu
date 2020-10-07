@@ -265,18 +265,19 @@ cudaError_t srtVjpMinTE(
     return select<VjpMin>(a, aDesc, e, b, bDesc, out, oDesc, stream);
 }
 
-// // OpSame32(VjpMin32, vjpMax, (isComparable<T>()))
+Op32(VjpMin2, vjpMin, isComparable<A>())
 
-// cudaError_t srtVjpMinOO(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     const void* b, const srtTensorDescriptor* pbDesc,
-//     const void* c, const srtTensorDescriptor* pcDesc,
-//     void* outT, const srtTensorDescriptor* oTDesc,
-//     void* outF, const srtTensorDescriptor* oFDesc,
-//     cudaStream_t stream
-// ) {
-//     return cudaErrorNotSupported;
-// }
+cudaError_t srtVjpMinOO(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* b, const srtTensorDescriptor* pbDesc,
+    const void* c, const srtTensorDescriptor* pcDesc,
+    void* outT, const srtTensorDescriptor* po0Desc,
+    void* outF, const srtTensorDescriptor* po1Desc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsABCOO(paDesc, pbDesc, pcDesc, po0Desc, po1Desc)
+    return select<VjpMin2>(a, aDesc, b, bDesc, c, cDesc, outT, o0Desc, outF, o1Desc, stream);
+}
 
 // cudaError_t srtVjpMinTEOO(
 //     const void* a, const srtTensorDescriptor* paDesc,

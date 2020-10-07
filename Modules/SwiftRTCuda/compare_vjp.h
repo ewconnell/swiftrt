@@ -25,25 +25,85 @@ __device__ inline T vjpMin(const T& a, const T& b, const T& c) {
 }
 
 __device__ inline float16 vjpMin(const float16& a, const float16& b, const float16& c) {
-    return a <= b ? c : __float2half(0);
+    return a <= b ? c : float16();
 }
 
 __device__ inline bfloat16 vjpMin(const bfloat16& a, const bfloat16& b, const bfloat16& c) {
-    return a <= b ? c : __float2bfloat16(0);
+    return a <= b ? c : bfloat16();
 }
 
 __device__ inline 
 float162 vjpMin(const float162& a, const float162& b, const float162& c) {
     auto m = lessOrEqual(a, b);
-    return init_float162(m.x ? c.x : __float2half(0),
-                         m.y ? c.y : __float2half(0));
+    return init_float162(m.x ? c.x : float16(), m.y ? c.y : float16());
 }
 
 __device__ inline 
 bfloat162 vjpMin(const bfloat162& a, const bfloat162& b, const bfloat162& c) {
     auto m = lessOrEqual(a, b);
-    return init_bfloat162(m.x ? c.x : __float2bfloat16(0),
-                          m.y ? c.y : __float2bfloat16(0));
+    return init_bfloat162(m.x ? c.x : bfloat16(), m.y ? c.y : bfloat16());
+}
+
+__device__ inline short2 vjpMin(const short2& a, const short2& b, const short2& c) {
+    auto m = lessOrEqual(a, b);
+    return make_short2(m.x ? c.x : 0, m.y ? c.y : 0);
+}
+
+__device__ inline ushort2 vjpMin(const ushort2& a, const ushort2& b, const ushort2& c) {
+    auto m = lessOrEqual(a, b);
+    return make_ushort2(m.x ? c.x : 0, m.y ? c.y : 0);
+}
+
+__device__ inline char4 vjpMin(const char4& a, const char4& b, const char4& c) {
+    auto m = lessOrEqual(a, b);
+    return make_char4(m.x ? c.x : 0, m.y ? c.y : 0, m.z ? c.z : 0, m.w ? c.w : 0);
+}
+
+__device__ inline uchar4 vjpMin(const uchar4& a, const uchar4& b, const uchar4& c) {
+    auto m = lessOrEqual(a, b);
+    return make_uchar4(m.x ? c.x : 0, m.y ? c.y : 0, m.z ? c.z : 0, m.w ? c.w : 0);
+}
+
+//==============================================================================
+// vjpMin with two outputs
+template<typename T>
+__device__ inline void vjpMin(const T& a, const T& b, const T& c, T& outT, T& outF) {
+    if (a <= b) {
+        outT = c; outF = 0;
+    } else {
+        outT = 0; outF = c;
+    }
+}
+
+__device__ inline void 
+vjpMin(const float16& a, const float16& b, const float16& c, float16& outT, float16& outF) {
+    if (a <= b) {
+        outT = c; outF = float16();
+    } else {
+        outT = float16(); outF = c;
+    }
+}
+
+__device__ inline void 
+vjpMin(const bfloat16& a, const bfloat16& b, const bfloat16& c, bfloat16& outT, bfloat16& outF) {
+    if (a <= b) {
+        outT = c; outF = bfloat16();
+    } else {
+        outT = bfloat16(); outF = c;
+    }
+}
+
+__device__ inline 
+float162 vjpMin(const float162& a, const float162& b, const float162& c) {
+    auto m = lessOrEqual(a, b);
+    return init_float162(m.x ? c.x : float16(),
+                         m.y ? c.y : float16());
+}
+
+__device__ inline 
+bfloat162 vjpMin(const bfloat162& a, const bfloat162& b, const bfloat162& c) {
+    auto m = lessOrEqual(a, b);
+    return init_bfloat162(m.x ? c.x : bfloat16(), m.y ? c.y : bfloat16());
 }
 
 __device__ inline short2 vjpMin(const short2& a, const short2& b, const short2& c) {
@@ -74,25 +134,25 @@ __device__ inline T vjpMax(const T& a, const T& b, const T& c) {
 }
 
 __device__ inline float16 vjpMax(const float16& a, const float16& b, const float16& c) {
-    return a >= b ? c : __float2half(0);
+    return a >= b ? c : float16();
 }
 
 __device__ inline bfloat16 vjpMax(const bfloat16& a, const bfloat16& b, const bfloat16& c) {
-    return a >= b ? c : __float2bfloat16(0);
+    return a >= b ? c : bfloat16();
 }
 
 __device__ inline 
 float162 vjpMax(const float162& a, const float162& b, const float162& c) {
     auto m = greaterOrEqual(a, b);
-    return init_float162(m.x ? c.x : __float2half(0),
-                         m.y ? c.y : __float2half(0));
+    return init_float162(m.x ? c.x : float16(),
+                         m.y ? c.y : float16());
 }
 
 __device__ inline 
 bfloat162 vjpMax(const bfloat162& a, const bfloat162& b, const bfloat162& c) {
     auto m = greaterOrEqual(a, b);
-    return init_bfloat162(m.x ? c.x : __float2bfloat16(0),
-                          m.y ? c.y : __float2bfloat16(0));
+    return init_bfloat162(m.x ? c.x : bfloat16(),
+                          m.y ? c.y : bfloat16());
 }
 
 __device__ inline short2 vjpMax(const short2& a, const short2& b, const short2& c) {
