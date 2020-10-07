@@ -72,7 +72,7 @@ cudaError_t srtGreater(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return select<Greater>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectTT_Bool<Greater>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtGreaterTE(
@@ -82,7 +82,7 @@ cudaError_t srtGreaterTE(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return select<Greater>(a, aDesc, element, out, oDesc, stream);
+    return selectTT_Bool<Greater>(a, aDesc, element, out, oDesc, stream);
 }
     
 //------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ cudaError_t srtGreaterOrEqual(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return select<GreaterOrEqual>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectTT_Bool<GreaterOrEqual>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtGreaterOrEqualTE(
@@ -105,7 +105,7 @@ cudaError_t srtGreaterOrEqualTE(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return select<GreaterOrEqual>(a, aDesc, element, out, oDesc, stream);
+    return selectTT_Bool<GreaterOrEqual>(a, aDesc, element, out, oDesc, stream);
 }
     
 //------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ cudaError_t srtLess(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return select<Less>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectTT_Bool<Less>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLessTE(
@@ -128,7 +128,7 @@ cudaError_t srtLessTE(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return select<Less>(a, aDesc, element, out, oDesc, stream);
+    return selectTT_Bool<Less>(a, aDesc, element, out, oDesc, stream);
 }
     
 //------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ cudaError_t srtLessOrEqual(
     cudaStream_t stream)
 {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return select<LessOrEqual>(a, aDesc, b, bDesc, out, oDesc, stream);
+    return selectTT_Bool<LessOrEqual>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
 cudaError_t srtLessOrEqualTE(
@@ -151,7 +151,7 @@ cudaError_t srtLessOrEqualTE(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return select<LessOrEqual>(a, aDesc, element, out, oDesc, stream);
+    return selectTT_Bool<LessOrEqual>(a, aDesc, element, out, oDesc, stream);
 }
     
 //------------------------------------------------------------------------------
@@ -237,7 +237,7 @@ cudaError_t srtReplace(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
-    return selectTTC_T<Replace>(b, bDesc, a, aDesc, condition, cDesc, out, oDesc, stream);
+    return selectTTBool_T<Replace>(b, bDesc, a, aDesc, condition, cDesc, out, oDesc, stream);
 }
 
 //==============================================================================

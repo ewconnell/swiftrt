@@ -868,7 +868,7 @@ static inline cudaError_t selectTTT_O(
 // tensorA tensorB tensorC
 // input and output are same type, but C is Bool
 template<template<typename A, typename B, typename C, typename O> class Op>
-static inline cudaError_t selectTTC_T(
+static inline cudaError_t selectTTBool_T(
     const void* a, const TensorDescriptor& aDesc,
     const void* b, const TensorDescriptor& bDesc,
     const void* c, const TensorDescriptor& cDesc,
@@ -876,7 +876,8 @@ static inline cudaError_t selectTTC_T(
     cudaStream_t stream
 ) {
     // only call this function when the output doesn't match
-    assert(aDesc.type == bDesc.type && aDesc.type != oDesc.type);
+    assert(aDesc.type == bDesc.type && cDesc.type == boolean &&
+           aDesc.type == oDesc.type);
 
     switch(aDesc.type) {
     case real32F:  return selectIndex<Op<float,float,bool,float>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);

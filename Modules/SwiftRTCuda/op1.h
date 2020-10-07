@@ -201,16 +201,14 @@ static inline cudaError_t select(
     }
 }
 
-// input and output are the different type
+// input and output can be different type
+// like for casting or Complex Abs
 template<template<typename A, typename O> class Op>
 static inline cudaError_t selectT_O(
     const void* a, const TensorDescriptor& aDesc,
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    // only call this function when they don't match
-    assert(aDesc.type != oDesc.type);
-
     switch(aDesc.type) {
     case real32F:  return selectOut<Op, float>(a, aDesc, out, oDesc, stream);
     case real16F:  return selectOut<Op, float16>(a, aDesc, out, oDesc, stream);

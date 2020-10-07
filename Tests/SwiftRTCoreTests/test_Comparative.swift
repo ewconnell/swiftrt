@@ -30,11 +30,10 @@ class test_Comparative: XCTestCase {
         // ("test_elementsAlmostEqual", test_elementsAlmostEqual),
 
 // these require reductions to work
-        // ("test_boolEquality", test_boolEquality),
-        // ("test_equality", test_equality),
+        ("test_boolEquality", test_boolEquality),
+        ("test_equality", test_equality),
         
-// requires vjpMax to be implemented on gpu
-        ("test_max", test_max),
+        // ("test_max", test_max),
         // ("test_maxScalar", test_maxScalar),
         // ("test_min", test_min),
         // ("test_minScalar", test_minScalar),

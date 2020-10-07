@@ -412,27 +412,52 @@ static inline cudaError_t select(
 
 // input and output are the different type
 template<template<typename A, typename B, typename O> class Op>
-static inline cudaError_t selectTT_O(
+static inline cudaError_t selectTT_Bool(
     const void* a, const TensorDescriptor& aDesc,
     const void* b, const TensorDescriptor& bDesc,
     void* out, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
-    // only call this function when the output doesn't match
-    assert(aDesc.type == bDesc.type && aDesc.type != oDesc.type);
+    assert(aDesc.type == bDesc.type && oDesc.type == boolean);
 
     switch(aDesc.type) {
-    case real32F:  return selectOut<Op, float,float>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case real16F:  return selectOut<Op, float16,float16>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case real16BF: return selectOut<Op, bfloat16,bfloat16>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case real64F:  return selectOut<Op, double,double>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case real32I:  return selectOut<Op, int32_t,int32_t>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case real8U:   return selectOut<Op, uint8_t,uint8_t>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case real8I:   return selectOut<Op, int8_t,int8_t>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case real16U:  return selectOut<Op, uint16_t,uint16_t>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case real16I:  return selectOut<Op, int16_t,int16_t>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case boolean:  return selectOut<Op, bool,bool>(a, aDesc, b, bDesc, out, oDesc, stream);
-    case complex32F: return selectOut<Op, complexf,complexf>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real32F:  return selectIndex<Op<float,float,bool>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real16F:  return selectIndex<Op<float16,float16,bool>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real16BF: return selectIndex<Op<bfloat16,bfloat16,bool>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real64F:  return selectIndex<Op<double,double,bool>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real32I:  return selectIndex<Op<int32_t,int32_t,bool>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real8U:   return selectIndex<Op<uint8_t,uint8_t,bool>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real8I:   return selectIndex<Op<int8_t,int8_t,bool>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real16U:  return selectIndex<Op<uint16_t,uint16_t,bool>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case real16I:  return selectIndex<Op<int16_t,int16_t,bool>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case boolean:  return selectIndex<Op<bool,bool,bool>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    case complex32F: return selectIndex<Op<complexf,complexf,bool>>(a, aDesc, b, bDesc, out, oDesc, stream);
+    default: return cudaErrorNotSupported;
+    }
+}
+
+// input and output are the different type
+template<template<typename A, typename B, typename O> class Op>
+static inline cudaError_t selectTT_Bool(
+    const void* a, const TensorDescriptor& aDesc,
+    const void* e,
+    void* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    assert(oDesc.type == boolean);
+
+    switch(aDesc.type) {
+    case real32F:  return selectIndex<Op<float,float,bool>>(a, aDesc, e, out, oDesc, stream);
+    case real16F:  return selectIndex<Op<float16,float16,bool>>(a, aDesc, e, out, oDesc, stream);
+    case real16BF: return selectIndex<Op<bfloat16,bfloat16,bool>>(a, aDesc, e, out, oDesc, stream);
+    case real64F:  return selectIndex<Op<double,double,bool>>(a, aDesc, e, out, oDesc, stream);
+    case real32I:  return selectIndex<Op<int32_t,int32_t,bool>>(a, aDesc, e, out, oDesc, stream);
+    case real8U:   return selectIndex<Op<uint8_t,uint8_t,bool>>(a, aDesc, e, out, oDesc, stream);
+    case real8I:   return selectIndex<Op<int8_t,int8_t,bool>>(a, aDesc, e, out, oDesc, stream);
+    case real16U:  return selectIndex<Op<uint16_t,uint16_t,bool>>(a, aDesc, e, out, oDesc, stream);
+    case real16I:  return selectIndex<Op<int16_t,int16_t,bool>>(a, aDesc, e, out, oDesc, stream);
+    case boolean:  return selectIndex<Op<bool,bool,bool>>(a, aDesc, e, out, oDesc, stream);
+    case complex32F: return selectIndex<Op<complexf,complexf,bool>>(a, aDesc, e, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }

@@ -17,13 +17,14 @@
 #include "op1.h"
 #include "op2.h"
 #include "op3.h"
+#include "srt_types.h"
 
 //==============================================================================
 // Swift importable C interface functions
 //==============================================================================
 
 //------------------------------------------------------------------------------
-Op1(Abs, abs, isNumeric<A>())
+Op1(Abs, abs, (isNumeric<A>() && (isSame<A,Out>() || isComplex<A>())))
 
 cudaError_t srtAbs(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -31,7 +32,7 @@ cudaError_t srtAbs(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return select<Abs>(a, aDesc, out, oDesc, stream);
+    return selectT_O<Abs>(a, aDesc, out, oDesc, stream);
 }
 
 //------------------------------------------------------------------------------
@@ -409,7 +410,7 @@ cudaError_t srtMultiplyAddTTE(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
-    return select<MultiplyAdd>(a, aDesc, element, b, bDesc, out, oDesc, stream);
+    return select<MultiplyAddE>(a, aDesc, element, b, bDesc, out, oDesc, stream);
 }
 
 //------------------------------------------------------------------------------
