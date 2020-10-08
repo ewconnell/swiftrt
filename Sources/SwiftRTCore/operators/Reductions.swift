@@ -47,8 +47,9 @@ public extension Tensor where TensorElement == Bool {
         SwiftRTCore.all(self, alongAxes: axes)
     }
     
-    @inlinable
-    func all(alongAxes axes: Int...) -> Self { all(alongAxes: Set(axes)) }
+    @inlinable func all(alongAxes axes: Int...) -> Self {
+        all(alongAxes: Set(axes))
+    }
 }
 
 //==============================================================================

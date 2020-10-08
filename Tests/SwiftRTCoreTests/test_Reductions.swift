@@ -21,71 +21,29 @@ class test_Reductions: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_gather", test_gather),
-        ("test_sumTensor3AlongAxes", test_sumTensor3AlongAxes),
-        ("test_minTensor3AlongAxes", test_minTensor3AlongAxes),
-        ("test_maxTensor3AlongAxes", test_maxTensor3AlongAxes),
-        ("test_sumTensor1", test_sumTensor1),
-        ("test_sumTensor2", test_sumTensor2),
-        ("test_abssumTensor2", test_abssumTensor2),
-        ("test_allTensor1", test_allTensor1),
-        ("test_anyTensor1", test_anyTensor1),
+        // ("test_sumTensor3AlongAxes", test_sumTensor3AlongAxes),
+        // ("test_minTensor3AlongAxes", test_minTensor3AlongAxes),
+        // ("test_maxTensor3AlongAxes", test_maxTensor3AlongAxes),
+        // ("test_sumTensor1", test_sumTensor1),
+        // ("test_sumTensor2", test_sumTensor2),
+        // ("test_abssumTensor2", test_abssumTensor2),
+        // ("test_allTensor1", test_allTensor1),
+        // ("test_anyTensor1", test_anyTensor1),
         ("test_meanTensor2", test_meanTensor2),
-        ("test_maxTensor2", test_maxTensor2),
-        ("test_minTensor2", test_minTensor2),
-        ("test_absmaxTensor2", test_absmaxTensor2),
-        ("test_sqrtSumSquaresTensor2", test_sqrtSumSquaresTensor2),
-        ("test_sqrtSumSquaresTensor3", test_sqrtSumSquaresTensor3),
+        // ("test_maxTensor2", test_maxTensor2),
+        // ("test_minTensor2", test_minTensor2),
+        // ("test_absmaxTensor2", test_absmaxTensor2),
+        // ("test_sqrtSumSquaresTensor2", test_sqrtSumSquaresTensor2),
+        // ("test_sqrtSumSquaresTensor3", test_sqrtSumSquaresTensor3),
+        // ("test_gather", test_gather),
     ]
 
     override func setUpWithError() throws {
-        // log.level = .diagnostic
+        log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
         // log.level = .error
-    }
-
-    //--------------------------------------------------------------------------
-    // test_gather
-    // TODO: get this verified
-    func test_gather() {
-        let a = array([
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8]
-        ])
-        let ai = array([0, 2], type: DeviceIndex.self)
-        let b = gather(from: a, indices: ai)
-        XCTAssert(b == [
-            [0, 1, 2],
-            [6, 7, 8]
-        ])
-        
-        let c = gather(from: a, indices: ai, axis: 1)
-        XCTAssert(c == [
-            [0, 2],
-            [3, 5],
-            [6, 8]
-        ])
-
-        let g0 = gradient(at: ones(like: a)) {
-            gather(from: $0 * a, indices: ai).sum().element
-        }
-        XCTAssert(g0 == [
-            [0, 1, 2],
-            [0, 0, 0],
-            [6, 7, 8]
-        ])
-
-        let g1 = gradient(at: ones(like: a)) {
-            gather(from: $0 * a, indices: ai, axis: -1).sum().element
-        }
-        XCTAssert(g1 == [
-            [0, 0, 2],
-            [3, 0, 5],
-            [6, 0, 8]
-        ])
     }
     
     //--------------------------------------------------------------------------
@@ -504,5 +462,48 @@ class test_Reductions: XCTestCase {
             XCTAssert(result == chained)
         }
     }
+
+    //--------------------------------------------------------------------------
+    // test_gather
+    // TODO: get this verified
+    func test_gather() {
+        let a = array([
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8]
+        ])
+        let ai = array([0, 2], type: DeviceIndex.self)
+        let b = gather(from: a, indices: ai)
+        XCTAssert(b == [
+            [0, 1, 2],
+            [6, 7, 8]
+        ])
+        
+        let c = gather(from: a, indices: ai, axis: 1)
+        XCTAssert(c == [
+            [0, 2],
+            [3, 5],
+            [6, 8]
+        ])
+
+        let g0 = gradient(at: ones(like: a)) {
+            gather(from: $0 * a, indices: ai).sum().element
+        }
+        XCTAssert(g0 == [
+            [0, 1, 2],
+            [0, 0, 0],
+            [6, 7, 8]
+        ])
+
+        let g1 = gradient(at: ones(like: a)) {
+            gather(from: $0 * a, indices: ai, axis: -1).sum().element
+        }
+        XCTAssert(g1 == [
+            [0, 0, 2],
+            [3, 0, 5],
+            [6, 0, 8]
+        ])
+    }
+
 }
 

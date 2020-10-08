@@ -59,6 +59,7 @@ IF(DEFINED ENV{SWIFT_HOME})
 ELSE()
     set(SWIFT_HOME /usr/local/swift)
 ENDIF()
+message("Swift toolchain location: " ${SWIFT_HOME})
 
 set(SWIFT ${SWIFT_HOME}/usr/bin/swift)
 set(SWIFTC ${SWIFT_HOME}/usr/bin/swiftc)
@@ -86,7 +87,8 @@ endif()
 
 # for maximum performance only after thorough testing
 #if (${CMAKE_BUILD_TYPE} MATCHES "Release")
-        set(SWIFT_CONFIG_FLAGS ${SWIFT_CONFIG_FLAGS} -Xswiftc -enforce-exclusivity=unchecked -Xswiftc -Ounchecked)
+#        message("Release configuration: -enforce-exclusivity=unchecked -Ounchecked")
+#        set(SWIFT_CONFIG_FLAGS ${SWIFT_CONFIG_FLAGS} -Xswiftc -enforce-exclusivity=unchecked -Xswiftc -Ounchecked)
 #endif()
  
 # thread sanitizer
@@ -127,7 +129,7 @@ add_custom_target(${SWIFTRT_TESTS_NAME}
 
 add_dependencies(${SWIFTRT_TESTS_NAME} ${SWIFTRT_NAME} ${SWIFTRT_CUDA_LIB_NAME})
 
-# whenever the custom cuda kernel libraries are build, delete the exe
+# whenever the custom cuda kernel libraries are built, delete the exe
 # to force swift build to relink
 if ($ENV{SWIFTRT_PLATFORM} MATCHES "cuda")
         add_custom_command(TARGET ${SWIFTRT_CUDA_LIB_NAME} POST_BUILD

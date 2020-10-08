@@ -21,13 +21,13 @@ class test_Math: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        // ("test_multiplyAdd", test_multiplyAdd),
+        ("test_multiplyAdd", test_multiplyAdd),
         // ("test_juliaMath", test_juliaMath),
         // ("test_abs", test_abs),
         // ("test_atan2", test_atan2),
-        ("test_erf", test_erf),
-        ("test_exp", test_exp),
-        ("test_log", test_log),
+        // ("test_erf", test_erf),
+        // ("test_exp", test_exp),
+        // ("test_log", test_log),
         // ("test_neg", test_neg),
         // ("test_sign", test_sign),
         // ("test_squared", test_squared),
@@ -154,7 +154,8 @@ class test_Math: XCTestCase {
         XCTAssert(erf(a) == [[0.0, -0.8427008], [0.9953223, -0.9999779], [1.0, 1.0]])
 
         let g = pullback(at: a, in: { erf($0) })(ones(like: a))
-        let e = array([[1.1283792, 0.41510752], [0.020666987, 0.00013925305], [1.2698236e-07, 1.5670867e-11]])
+        let e = array([[1.1283792, 0.41510752], [0.020666987, 0.00013925305],
+                       [1.2698236e-07, 1.5670867e-11]])
         XCTAssert(elementsAlmostEqual(g, e, tolerance: 0.0001).all().element)
     }
     

@@ -318,6 +318,9 @@ extension DeviceMemory {
     @inlinable public func count<E>(of type: E.Type) -> Int {
         buffer.count / MemoryLayout<E>.size
     }
+
+    /// the number of bytes in the buffer
+    @inlinable public var byteCount: Int { buffer.count }
 }
 
 //==============================================================================

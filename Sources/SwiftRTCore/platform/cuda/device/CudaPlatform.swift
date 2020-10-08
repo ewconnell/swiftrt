@@ -113,19 +113,36 @@ public class CudaPlatform: ComputePlatform {
 /// cpuFallback
 /// if `status` is equal to `cudaErrorNotSupported` then a diagnostic message
 /// is logged and the fallback body is executed.
+@usableFromInline func _cpuFallback(
+    _ body: (Platform.Device.Queue) -> Void
+) {
+    let name = currentQueue.deviceName
+    using(device: 0) {
+        currentQueue.diagnostic(.fallback,
+            "unsupported function on \(name) " +
+            "delegated to \(currentQueue.name)",
+                categories: .fallback) 
+        body(currentQueue)
+    }
+}
+
 @inlinable public func cpuFallback(
     _ status: cudaError_t,
     _ body: (Platform.Device.Queue) -> Void
 ) {
     if status == cudaErrorNotSupported {
-        let name = currentQueue.deviceName
-        using(device: 0) {
-            currentQueue.diagnostic(.fallback,
-                "unsupported function on \(name) " +
-                "delegated to \(currentQueue.name)",
-                 categories: .fallback) 
-            body(currentQueue)
-        }
+        _cpuFallback(body)
+    } else {
+        cudaCheck(status)
+    }
+}
+
+@inlinable public func cpuFallback(
+    _ status: cudnnStatus_t,
+    _ body: (Platform.Device.Queue) -> Void
+) {
+    if status == CUDNN_STATUS_NOT_SUPPORTED {
+        _cpuFallback(body)
     } else {
         cudaCheck(status)
     }
@@ -563,11 +580,8 @@ public final class TensorDescriptor {
 /// createTensorDescriptor
 /// creates a cudnn tensor descriptor for the associated Tensor
 extension Tensor {
-    @inlinable public func createTensorDescriptor(
-        asShape newShape: Shape? = nil
-    ) -> TensorDescriptor {
-        assert(newShape == nil || newShape!.count == shape.count)
-        return TensorDescriptor(shape: newShape ?? shape,
+    @inlinable public func createTensorDescriptor() -> TensorDescriptor {
+        return TensorDescriptor(shape: shape,
                                 strides: strides,
                                 scalarType: TensorElement.cudnn)
     }
@@ -584,7 +598,7 @@ public final class ReductionTensorDescriptor {
     @inlinable public init(
         op: ReductionOp,
         nan: NanPropagation,
-        scalarType: srtDataType
+        dataType: srtDataType
     ) {
         // create the descriptor
         var temp: cudnnReduceTensorDescriptor_t?
@@ -599,7 +613,7 @@ public final class ReductionTensorDescriptor {
         cudaCheck(cudnnSetReduceTensorDescriptor(
             desc,
             op.cudnn,
-            scalarType == real64F ? CUDNN_DATA_DOUBLE : CUDNN_DATA_FLOAT,
+            dataType == real64F ? CUDNN_DATA_DOUBLE : CUDNN_DATA_FLOAT,
             nan.cudnn,
             indicesAction,
             CUDNN_32BIT_INDICES

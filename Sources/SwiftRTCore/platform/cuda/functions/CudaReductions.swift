@@ -63,8 +63,25 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_reduceMean(x, &out); return }
         diagnostic(.queueGpu, "reduceMean() on \(name)", categories: .queueGpu)
-        
-        cpuFallback(cudaErrorNotSupported) { $0.reduceMean(x, &out) }
+
+        let settings = ReductionSettings(op: .mean, x, &out, using: self)
+        let workspace = settings.getWorkspace(using: self)
+
+        let status = cudnnReduceTensor(
+            self.cudnn.handle,
+            settings.reduction.desc,
+            nil, 0,
+            workspace.mutablePointer,
+            workspace.byteCount,
+            E.storedOnePointer,
+            settings.xDesc.desc,
+            x.deviceRead(using: self),
+            E.storedZeroPointer,
+            settings.oDesc.desc,
+            out.deviceReadWrite(using: self)
+        )
+
+        cpuFallback(status) { $0.reduceMean(x, &out) }
     }
 
     //--------------------------------------------------------------------------
