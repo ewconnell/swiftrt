@@ -243,8 +243,8 @@ public enum NanPropagation: Int, Codable {
 }
 
 //==============================================================================
-/// ReductionOp
-public enum ReductionOp: Int, Codable {
+/// ReductionType
+public enum ReductionType: Int, Codable {
     case add
     case mean
     case mul

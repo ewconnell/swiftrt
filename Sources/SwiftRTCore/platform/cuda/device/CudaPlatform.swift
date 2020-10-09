@@ -304,25 +304,20 @@ public extension Tensor {
 }
 
 //==============================================================================
-/// ReductionContext
-public protocol ReductionContext {
-}
-
-//------------------------------------------------------------------------------
-// ReductionOp extension
+// ReductionType extension
 extension cudnnReduceTensorOp_t : Hashable {}
 
-extension ReductionOp {
+extension ReductionType {
     @inlinable public var cudnn: cudnnReduceTensorOp_t {
         let ops = [
-            ReductionOp.add: CUDNN_REDUCE_TENSOR_ADD,
-            ReductionOp.mul: CUDNN_REDUCE_TENSOR_MUL,
-            ReductionOp.min: CUDNN_REDUCE_TENSOR_MIN,
-            ReductionOp.max: CUDNN_REDUCE_TENSOR_MAX,
-            ReductionOp.amax: CUDNN_REDUCE_TENSOR_AMAX,
-            ReductionOp.mean: CUDNN_REDUCE_TENSOR_AVG,
-            ReductionOp.asum: CUDNN_REDUCE_TENSOR_NORM1,
-            ReductionOp.sqrtSumSquares: CUDNN_REDUCE_TENSOR_NORM2,
+            ReductionType.add: CUDNN_REDUCE_TENSOR_ADD,
+            ReductionType.mul: CUDNN_REDUCE_TENSOR_MUL,
+            ReductionType.min: CUDNN_REDUCE_TENSOR_MIN,
+            ReductionType.max: CUDNN_REDUCE_TENSOR_MAX,
+            ReductionType.amax: CUDNN_REDUCE_TENSOR_AMAX,
+            ReductionType.mean: CUDNN_REDUCE_TENSOR_AVG,
+            ReductionType.asum: CUDNN_REDUCE_TENSOR_NORM1,
+            ReductionType.sqrtSumSquares: CUDNN_REDUCE_TENSOR_NORM2,
         ]
         return ops[self]!
     }
@@ -596,7 +591,7 @@ public final class ReductionTensorDescriptor {
 
     //--------------------------------------------------------------------------
     @inlinable public init(
-        op: ReductionOp,
+        type: ReductionType,
         nan: NanPropagation,
         dataType: srtDataType
     ) {
@@ -605,14 +600,14 @@ public final class ReductionTensorDescriptor {
         cudaCheck(cudnnCreateReduceTensorDescriptor(&temp))
         desc = temp!
 
-        let indicesAction = (op == .min || op == .max) ?
+        let indicesAction = (type == .min || type == .max) ?
             CUDNN_REDUCE_TENSOR_FLATTENED_INDICES :
                 CUDNN_REDUCE_TENSOR_NO_INDICES
 
         // initialize
         cudaCheck(cudnnSetReduceTensorDescriptor(
             desc,
-            op.cudnn,
+            type.cudnn,
             dataType == real64F ? CUDNN_DATA_DOUBLE : CUDNN_DATA_FLOAT,
             nan.cudnn,
             indicesAction,

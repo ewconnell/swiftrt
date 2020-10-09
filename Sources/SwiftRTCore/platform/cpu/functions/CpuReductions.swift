@@ -115,7 +115,7 @@ extension CpuFunctions where Self: DeviceQueue {
         _ opName: String,
         _ x: Tensor<S,E>,
         _ result: inout Tensor<S,E>,
-        _ opId: ReductionOp,
+        _ type: ReductionType,
         _ opNext: @escaping (E.Value, E.Value) -> E.Value,
         _ opFinal: ReduceOpFinal<Tensor<S,E>>?
     ) {
@@ -131,8 +131,7 @@ extension CpuFunctions where Self: DeviceQueue {
 
 //==============================================================================
 // CpuQueue functions with default cpu delegation
-extension CpuQueue
-{
+extension CpuQueue {
     //--------------------------------------------------------------------------
     @inlinable public func reduceAll<S>(
         _ x: Tensor<S,Bool>,
@@ -168,9 +167,9 @@ extension CpuQueue
         _ opName: String,
         _ x: Tensor<S,E>,
         _ result: inout Tensor<S,E>,
-        _ opId: ReductionOp,
+        _ type: ReductionType,
         _ opNext: @escaping (E.Value, E.Value) -> E.Value,
         _ opFinal: ReduceOpFinal<Tensor<S,E>>?
-    ) { cpu_reduce(opName, x, &result, opId, opNext, opFinal) }
+    ) { cpu_reduce(opName, x, &result, type, opNext, opFinal) }
 }
 

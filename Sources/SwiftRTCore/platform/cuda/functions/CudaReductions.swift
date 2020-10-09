@@ -51,7 +51,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_reduceSum(x, &out); return }
         diagnostic(.queueGpu, "reduceSum() on \(name)", categories: .queueGpu)
-        
+
         cpuFallback(cudaErrorNotSupported) { $0.reduceSum(x, &out) }
     }
 
@@ -64,24 +64,7 @@ extension CudaQueue {
         guard useGpu else { cpu_reduceMean(x, &out); return }
         diagnostic(.queueGpu, "reduceMean() on \(name)", categories: .queueGpu)
 
-        let settings = ReductionSettings(op: .mean, x, &out, using: self)
-        let workspace = settings.getWorkspace(using: self)
-
-        let status = cudnnReduceTensor(
-            self.cudnn.handle,
-            settings.reduction.desc,
-            nil, 0,
-            workspace.mutablePointer,
-            workspace.byteCount,
-            E.storedOnePointer,
-            settings.xDesc.desc,
-            x.deviceRead(using: self),
-            E.storedZeroPointer,
-            settings.oDesc.desc,
-            out.deviceReadWrite(using: self)
-        )
-
-        cpuFallback(status) { $0.reduceMean(x, &out) }
+        cpuFallback(cudaErrorNotSupported) { $0.reduceMean(x, &out) }
     }
 
     //--------------------------------------------------------------------------
@@ -92,7 +75,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_reduceMin(x, &out); return }
         diagnostic(.queueGpu, "reduceMin() on \(name)", categories: .queueGpu)
-        
+
         cpuFallback(cudaErrorNotSupported) { $0.reduceMin(x, &out) }
     }
 
@@ -104,7 +87,7 @@ extension CudaQueue {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_reduceMax(x, &out); return }
         diagnostic(.queueGpu, "reduceMax() on \(name)", categories: .queueGpu)
-        
+
         cpuFallback(cudaErrorNotSupported) { $0.reduceMax(x, &out) }
     }
 
@@ -113,17 +96,17 @@ extension CudaQueue {
         _ opName: String,
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>,
-        _ opId: ReductionOp,
+        _ type: ReductionType,
         _ opNext: @escaping (E.Value, E.Value) -> E.Value,
         _ opFinal: ReduceOpFinal<Tensor<S,E>>?
     ) {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else {
-            cpu_reduce(opName, x, &out, opId, opNext, opFinal); return
+            cpu_reduce(opName, x, &out, type, opNext, opFinal); return
         }
 
         cpuFallback(cudaErrorNotSupported) {
-            $0.reduce(opName, x, &out, opId, opNext, opFinal)
+            $0.reduce(opName, x, &out, type, opNext, opFinal)
         }
     }
 }
