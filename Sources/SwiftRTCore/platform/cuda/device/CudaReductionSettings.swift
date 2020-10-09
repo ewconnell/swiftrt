@@ -15,6 +15,12 @@
 //
 import SwiftRTCuda
 
+public struct ReductionSettingsKey<S: TensorShape> : Hashable {
+    public let op: ReductionOp
+    public let xShape: S
+    public let outShape: S
+}
+
 public final class ReductionSettings<S: TensorShape, E: StorageElement> {
     // properties
     public let reduction: ReductionTensorDescriptor
@@ -26,8 +32,7 @@ public final class ReductionSettings<S: TensorShape, E: StorageElement> {
         op: ReductionOp,
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>,
-        using queue: Platform.Device.Queue,
-        nan: NanPropagation = .propagate
+        using queue: CudaQueue
     ) {
         if S.rank >= 4 {
             xDesc = x.createTensorDescriptor()
@@ -36,8 +41,10 @@ public final class ReductionSettings<S: TensorShape, E: StorageElement> {
             xDesc = Tensor<Shape4,E>(indenting: x).createTensorDescriptor()
             oDesc = Tensor<Shape4,E>(indenting: out).createTensorDescriptor()
         }
-        
-        reduction = ReductionTensorDescriptor(op: op, nan: nan, dataType: E.type)
+
+        // TODO: decide what our nan propagation policy is??        
+        reduction = ReductionTensorDescriptor(
+            op: op, nan: .noPropagate, dataType: E.type)
 
         var size = 0
         cudaCheck(cudnnGetReductionWorkspaceSize(
@@ -51,7 +58,7 @@ public final class ReductionSettings<S: TensorShape, E: StorageElement> {
     }
 
     @inlinable public func getWorkspace(
-        using queue: Platform.Device.Queue
+        using queue: CudaQueue
     ) -> DeviceMemory {
         guard _workspace == nil else { return _workspace }
         _workspace = queue.allocate(byteCount: workspaceSize)
