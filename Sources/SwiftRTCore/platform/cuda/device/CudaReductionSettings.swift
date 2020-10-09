@@ -17,8 +17,10 @@ import SwiftRTCuda
 
 public struct ReductionSettingsKey<S: TensorShape> : Hashable {
     public let op: ReductionOp
-    public let xShape: S
-    public let outShape: S
+    public let shapeX: S
+    public let stridesX: S
+    public let shapeOut: S
+    public let stridesOut: S
 }
 
 public final class ReductionSettings<S: TensorShape, E: StorageElement> {
@@ -34,6 +36,7 @@ public final class ReductionSettings<S: TensorShape, E: StorageElement> {
         _ out: inout Tensor<S,E>,
         using queue: CudaQueue
     ) {
+        assert(x.order == out.order, "x and out must have the same order")
         if S.rank >= 4 {
             xDesc = x.createTensorDescriptor()
             oDesc = out.createTensorDescriptor()
