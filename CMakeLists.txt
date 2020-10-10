@@ -45,7 +45,8 @@ if ($ENV{SWIFTRT_PLATFORM} MATCHES "cuda")
                 ${SWIFTRT_CUDA_DIR}/*.cu
                 ${SWIFTRT_CUDA_DIR}/*.c
                 ${SWIFTRT_CUDA_DIR}/*.cpp
-                ${SWIFTRT_CUDA_DIR}/*.h)
+                ${SWIFTRT_CUDA_DIR}/*.h
+                ${SWIFTRT_CUDA_DIR}/*.cuh)
 
         cuda_add_library(${SWIFTRT_CUDA_LIB_NAME} ${SWIFTRT_CUDA_SOURCES})
 endif()

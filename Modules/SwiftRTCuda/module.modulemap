@@ -1,6 +1,7 @@
 module SwiftRTCuda {
     header "SwiftRTCuda.h"
     export *
+    link "stdc++"
     link "cublasLt"
     link "cudart"
     link "cudnn"

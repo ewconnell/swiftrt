@@ -1,5 +1,5 @@
 //******************************************************************************
-// Copyright 2020 Google LLC
+// Copyright 2019 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
 // limitations under the License.
 //
 #pragma once
-
-// this is an umbrella header
-#include "math_c.h"
-#include "compare_c.h"
-#include "fill_c.h"
 #include "reduce_c.h"
-#include "specialized_c.h"
+#include "srt_types.h"
+
+
+//==============================================================================
+// supplemental function delegating macros
+//==============================================================================

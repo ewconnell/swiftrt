@@ -52,7 +52,13 @@ extension CudaQueue {
         guard useGpu else { cpu_reduceSum(x, &out); return }
         diagnostic(.queueGpu, "reduceSum() on \(name)", categories: .queueGpu)
 
-        cpuFallback(cudaErrorNotSupported) { $0.reduceSum(x, &out) }
+        let status = out.withMutableTensor(using: self) { o, oDesc in
+            x.withTensor(using: self) { x, xDesc in
+                srtReduceSum(x, xDesc, o, oDesc, nil, 0, stream)
+            }
+        }
+
+        cpuFallback(status) { $0.reduceSum(x, &out) }
     }
 
     //--------------------------------------------------------------------------
