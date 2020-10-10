@@ -72,13 +72,13 @@ extension CudaQueue {
     }
 
     //--------------------------------------------------------------------------
-    @inlinable public func reduceSum<S,E>(
+    @inlinable public func sum<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
-        guard useGpu else { cpu_reduceSum(x, &out); return }
-        diagnostic(.queueGpu, "reduceSum(\(x.name)) on \(name)",
+        guard useGpu else { cpu_sum(x, &out); return }
+        diagnostic(.queueGpu, "sum(\(x.name)) on \(name)",
             categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
@@ -87,20 +87,20 @@ extension CudaQueue {
             }
         }
 
-        cpuFallback(status) { $0.reduceSum(x, &out) }
+        cpuFallback(status) { $0.sum(x, &out) }
     }
 
     //--------------------------------------------------------------------------
-    @inlinable public func reduceMean<S,E>(
+    @inlinable public func mean<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: AlgebraicField {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
-        guard useGpu else { cpu_reduceMean(x, &out); return }
-        diagnostic(.queueGpu, "reduceMean(\(x.name)) on \(name)",
+        guard useGpu else { cpu_mean(x, &out); return }
+        diagnostic(.queueGpu, "mean(\(x.name)) on \(name)",
             categories: .queueGpu)
 
-        cpuFallback(cudaErrorNotSupported) { $0.reduceMean(x, &out) }
+        cpuFallback(cudaErrorNotSupported) { $0.mean(x, &out) }
     }
 
     //--------------------------------------------------------------------------
@@ -130,27 +130,27 @@ extension CudaQueue {
     }
 
     //--------------------------------------------------------------------------
-    @inlinable public func reduceProd<S,E>(
+    @inlinable public func prod<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Numeric {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
-        guard useGpu else { cpu_reduceProd(x, &out); return }
-        diagnostic(.queueGpu, "reduceProd(\(x.name)) on \(name)",
+        guard useGpu else { cpu_prod(x, &out); return }
+        diagnostic(.queueGpu, "prod(\(x.name)) on \(name)",
             categories: .queueGpu)
 
-        cpuFallback(cudaErrorNotSupported) { $0.reduceProd(x, &out) }
+        cpuFallback(cudaErrorNotSupported) { $0.prod(x, &out) }
     }
     //--------------------------------------------------------------------------
-    @inlinable public func reduceProdNonZeros<S,E>(
+    @inlinable public func prodNonZeros<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Numeric {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
-        guard useGpu else { cpu_reduceProdNonZeros(x, &out); return }
-        diagnostic(.queueGpu, "reduceProdNonZeros(\(x.name)) on \(name)",
+        guard useGpu else { cpu_prodNonZeros(x, &out); return }
+        diagnostic(.queueGpu, "prodNonZeros(\(x.name)) on \(name)",
             categories: .queueGpu)
 
-        cpuFallback(cudaErrorNotSupported) { $0.reduceProdNonZeros(x, &out) }
+        cpuFallback(cudaErrorNotSupported) { $0.prodNonZeros(x, &out) }
     }
 }

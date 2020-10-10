@@ -84,7 +84,7 @@ public extension Tensor where TensorElement == Bool {
 ) -> Tensor<S,E> where E.Value: Numeric {
     let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
     var out = Tensor<S,E>(shape: shape)
-    currentQueue.reduceSum(x, &out)
+    currentQueue.sum(x, &out)
     return out
 }
 
@@ -122,7 +122,7 @@ public extension Tensor where TensorElement.Value: Numeric {
 ) -> Tensor<S,E> where E.Value: AlgebraicField {
     let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
     var out = Tensor<S,E>(shape: shape)
-    currentQueue.reduceMean(x, &out)
+    currentQueue.mean(x, &out)
     return out
 }
 
@@ -159,7 +159,7 @@ public extension Tensor where TensorElement.Value: AlgebraicField {
 ) -> Tensor<S,E> where E.Value: Numeric {
     let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
     var out = Tensor<S,E>(shape: shape)
-    currentQueue.reduceProd(x, &out)
+    currentQueue.prod(x, &out)
     return out
 }
 
@@ -195,7 +195,7 @@ public extension Tensor where TensorElement.Value: Numeric {
 ) -> Tensor<S,E> where E.Value: Numeric {
     let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
     var out = Tensor<S,E>(shape: shape)
-    currentQueue.reduceProdNonZeros(x, &out)
+    currentQueue.prodNonZeros(x, &out)
     return out
 }
 

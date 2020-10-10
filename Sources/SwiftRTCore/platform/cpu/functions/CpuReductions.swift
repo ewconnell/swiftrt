@@ -78,7 +78,7 @@ extension CpuFunctions where Self: DeviceQueue {
     }
     
     //--------------------------------------------------------------------------
-    @inlinable public func cpu_reduceSum<S,E>(
+    @inlinable public func cpu_sum<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
@@ -94,7 +94,7 @@ extension CpuFunctions where Self: DeviceQueue {
     // this doesn't use `mapReduce` because it has to do a final op on
     // the reduction out inside the async closure
     //
-    @inlinable public func cpu_reduceMean<S,E>(
+    @inlinable public func cpu_mean<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: AlgebraicField {
@@ -146,7 +146,7 @@ extension CpuFunctions where Self: DeviceQueue {
     }
     
     //--------------------------------------------------------------------------
-    @inlinable public func cpu_reduceProd<S,E>(
+    @inlinable public func cpu_prod<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Numeric {
@@ -159,7 +159,7 @@ extension CpuFunctions where Self: DeviceQueue {
     }
     
     //--------------------------------------------------------------------------
-    @inlinable public func cpu_reduceProdNonZeros<S,E>(
+    @inlinable public func cpu_prodNonZeros<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Numeric {
@@ -201,15 +201,15 @@ extension CpuQueue {
         _ out: inout Tensor<S,Bool>
     ) { cpu_any(x, &out) }
     //--------------------------------------------------------------------------
-    @inlinable public func reduceSum<S,E>(
+    @inlinable public func sum<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
-    ) where E.Value: AdditiveArithmetic { cpu_reduceSum(x, &out) }
+    ) where E.Value: AdditiveArithmetic { cpu_sum(x, &out) }
     //--------------------------------------------------------------------------
-    @inlinable public func reduceMean<S,E>(
+    @inlinable public func mean<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
-    ) where E.Value: AlgebraicField { cpu_reduceMean(x, &out) }
+    ) where E.Value: AlgebraicField { cpu_mean(x, &out) }
     //--------------------------------------------------------------------------
     @inlinable public func reduceMin<S,E>(
         _ x: Tensor<S,E>,
@@ -221,18 +221,18 @@ extension CpuQueue {
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable { cpu_reduceMax(x, &out) }
     //--------------------------------------------------------------------------
-    @inlinable public func reduceProd<S,E>(
+    @inlinable public func prod<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Numeric {
-        cpu_reduceProd(x, &out)
+        cpu_prod(x, &out)
     }
     //--------------------------------------------------------------------------
-    @inlinable public func reduceProdNonZeros<S,E>(
+    @inlinable public func prodNonZeros<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Numeric {
-        cpu_reduceProdNonZeros(x, &out)
+        cpu_prodNonZeros(x, &out)
     }
 }
 

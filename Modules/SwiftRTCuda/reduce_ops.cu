@@ -51,7 +51,7 @@ cudaError_t srtReduceAll(
 //==============================================================================
 
 template<typename T>
-inline cudaError_t reduceSum(
+inline cudaError_t sum(
     const void* pA, const TensorDescriptor& aDesc,
     void* pOut, const TensorDescriptor& oDesc,
     const size_t* axes,
@@ -84,7 +84,7 @@ cudaError_t srtReduceSum(
     Cast2TensorDescriptorsA(paDesc, poDesc)
     if (!(aDesc.isDense() && oDesc.isDense())) return cudaErrorNotSupported;
     switch(aDesc.type) {
-        case real32F:  return reduceSum<float>(a, aDesc, out, oDesc, axes, axesCount, stream);
+        case real32F:  return sum<float>(a, aDesc, out, oDesc, axes, axesCount, stream);
         // case real16F:  return selectOut<Op, float16>(a, aDesc, out, oDesc, stream);
         // case real16BF: return selectOut<Op, bfloat16>(a, aDesc, out, oDesc, stream);
         // case real64F:  return selectOut<Op, double>(a, aDesc, out, oDesc, stream);
