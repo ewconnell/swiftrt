@@ -84,10 +84,10 @@ inline cudaError_t sum(
 
     void   *d_temp_storage = NULL;
     size_t temp_storage_bytes = 0;
-    CubDebugExit(DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, a, out, count));
-    CubDebugExit(g_allocator.DeviceAllocate(&d_temp_storage, temp_storage_bytes));
+    CubDebugExit(DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, a, out, count, stream));
+    CubDebugExit(g_allocator.DeviceAllocate(&d_temp_storage, temp_storage_bytes, stream));
     // Run
-    CubDebugExit(DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, a, out, count));
+    CubDebugExit(DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, a, out, count, stream));
     if (d_temp_storage) CubDebugExit(g_allocator.DeviceFree(d_temp_storage));
     return cudaSuccess;
 }
