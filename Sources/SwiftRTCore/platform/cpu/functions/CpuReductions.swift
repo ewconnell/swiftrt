@@ -54,33 +54,41 @@ extension CpuFunctions where Self: DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
-        mapReduce(x, &out) { $0 + $1 }
+        diagnostic(.queueCpu, "sum(\(x.name)) on \(name)", categories: .queueCpu)
+        if out.count == 1 {
+            mapReduce(x, &out, +)
+        } else {
+            reduceAlongAxes(x, &out, +)
+        }
     }
     
     //--------------------------------------------------------------------------
     // this doesn't use `mapReduce` because it has to do a final op on
-    // the reduction result inside the async closure
+    // the reduction out inside the async closure
     //
     @inlinable public func cpu_reduceMean<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: AlgebraicField {
-        let a = x.buffer
-        var out = out.mutableBuffer
-        let count = E.Value(exactly: x.count)!
-        let start = out.startIndex
-        
-        if mode == .sync {
-            let sum = a.reduce(into: a[a.startIndex]) { $0 += $1 }
-            out[start] = sum / count
-        } else {
-            diagnostic(.queueCpu, "mean(\(x.name)) on \(name)",
-                       categories: .queueCpu)
-            queue.async(group: group) {
-                let sum = a.reduce(into: a[a.startIndex]) { $0 += $1 }
-                out[start] = sum / count
-            }
+        diagnostic(.queueCpu, "mean(\(x.name)) on \(name)", categories: .queueCpu)
+
+        // the reduction count is the product of the reduced dimensions
+        var prod = x.count
+        if out.count > 1 {
+            prod = 1
+            for i in 0..<S.rank where out.shape[i] == 1 { prod *= x.shape[i] }
         }
+        let scale = 1 / E.Value(exactly: prod)!
+
+        // sum
+        if out.count == 1 {
+            mapReduce(x, &out, +)
+        } else {
+            reduceAlongAxes(x, &out, +)
+        }
+        
+        // inplace divide by count
+        mapOp(&out) { $0 * scale }
     }
     
     //--------------------------------------------------------------------------
@@ -88,7 +96,12 @@ extension CpuFunctions where Self: DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
-        mapReduce(x, &out) { Swift.min($0, $1) }
+        diagnostic(.queueCpu, "min(\(x.name)) on \(name)", categories: .queueCpu)
+        if out.count == 1 {
+            mapReduce(x, &out) { Swift.min($0, $1) }
+        } else {
+            reduceAlongAxes(x, &out) { Swift.min($0, $1) }
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -96,26 +109,58 @@ extension CpuFunctions where Self: DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
-        mapReduce(x, &out) { $0 > $1 ? $0 : $1 }
+        diagnostic(.queueCpu, "max(\(x.name)) on \(name)", categories: .queueCpu)
+        if out.count == 1 {
+            mapReduce(x, &out) { $0 > $1 ? $0 : $1 }
+        } else {
+            reduceAlongAxes(x, &out) { $0 > $1 ? $0 : $1 }
+        }
     }
     
     //--------------------------------------------------------------------------
-    @inlinable func cpu_reduce<S,E>(
-        _ opName: String,
+    @inlinable public func cpu_reduceProd<S,E>(
         _ x: Tensor<S,E>,
-        _ result: inout Tensor<S,E>,
-        _ type: ReductionType,
-        _ opNext: @escaping (E.Value, E.Value) -> E.Value,
-        _ opFinal: ReduceOpFinal<Tensor<S,E>>?
-    ) {
-        diagnostic(.queueCpu, "\(opName)(\(x.name)) on \(name)",
-                   categories: .queueCpu)
-        reduceAlongAxes(x, &result, opNext)
-        
-        if let op = opFinal {
-            mapOp(&result, op)
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Numeric {
+        diagnostic(.queueCpu, "prod(\(x.name)) on \(name)", categories: .queueCpu)
+        if out.count == 1 {
+            mapReduce(x, &out, *)
+        } else {
+            reduceAlongAxes(x, &out, *)
         }
     }
+    
+    //--------------------------------------------------------------------------
+    @inlinable public func cpu_reduceProdNonZeros<S,E>(
+        _ x: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Numeric {
+        diagnostic(.queueCpu, "prodNonZeros(\(x.name)) on \(name)",
+            categories: .queueCpu)
+        if out.count == 1 {
+            mapReduce(x, &out) { $1 == 0 ? $0 : $0 * $1 }
+        } else {
+            reduceAlongAxes(x, &out) { $1 == 0 ? $0 : $0 * $1 }
+        }
+    }
+
+    // //--------------------------------------------------------------------------
+    // @inlinable func cpu_reduce<S,E>(
+    //     _ opName: String,
+    //     _ x: Tensor<S,E>,
+    //     _ out: inout Tensor<S,E>,
+    //     _ type: ReductionType,
+    //     _ opNext: @escaping (E.Value, E.Value) -> E.Value,
+    //     _ opFinal: ReduceOpFinal<Tensor<S,E>>?
+    // ) {
+    //     diagnostic(.queueCpu, "\(opName)(\(x.name)) on \(name)",
+    //                categories: .queueCpu)
+    //     reduceAlongAxes(x, &out, opNext)
+        
+    //     if let op = opFinal {
+    //         mapOp(&out, op)
+    //     }
+    // }
 }
 
 //==============================================================================
@@ -124,41 +169,46 @@ extension CpuQueue {
     //--------------------------------------------------------------------------
     @inlinable public func reduceAll<S>(
         _ x: Tensor<S,Bool>,
-        _ result: inout Tensor<S,Bool>
-    ) { cpu_reduceAll(x, &result) }
+        _ out: inout Tensor<S,Bool>
+    ) { cpu_reduceAll(x, &out) }
     //--------------------------------------------------------------------------
     @inlinable public func reduceAny<S>(
         _ x: Tensor<S,Bool>,
-        _ result: inout Tensor<S,Bool>
-    ) { cpu_reduceAny(x, &result) }
+        _ out: inout Tensor<S,Bool>
+    ) { cpu_reduceAny(x, &out) }
     //--------------------------------------------------------------------------
     @inlinable public func reduceSum<S,E>(
         _ x: Tensor<S,E>,
-        _ result: inout Tensor<S,E>
-    ) where E.Value: AdditiveArithmetic { cpu_reduceSum(x, &result) }
+        _ out: inout Tensor<S,E>
+    ) where E.Value: AdditiveArithmetic { cpu_reduceSum(x, &out) }
     //--------------------------------------------------------------------------
     @inlinable public func reduceMean<S,E>(
         _ x: Tensor<S,E>,
-        _ result: inout Tensor<S,E>
-    ) where E.Value: AlgebraicField { cpu_reduceMean(x, &result) }
+        _ out: inout Tensor<S,E>
+    ) where E.Value: AlgebraicField { cpu_reduceMean(x, &out) }
     //--------------------------------------------------------------------------
     @inlinable public func reduceMin<S,E>(
         _ x: Tensor<S,E>,
-        _ result: inout Tensor<S,E>
-    ) where E.Value: Comparable { cpu_reduceMin(x, &result) }
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable { cpu_reduceMin(x, &out) }
     //--------------------------------------------------------------------------
     @inlinable public func reduceMax<S,E>(
         _ x: Tensor<S,E>,
-        _ result: inout Tensor<S,E>
-    ) where E.Value: Comparable { cpu_reduceMax(x, &result) }
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable { cpu_reduceMax(x, &out) }
     //--------------------------------------------------------------------------
-    @inlinable func reduce<S,E>(
-        _ opName: String,
+    @inlinable public func reduceProd<S,E>(
         _ x: Tensor<S,E>,
-        _ result: inout Tensor<S,E>,
-        _ type: ReductionType,
-        _ opNext: @escaping (E.Value, E.Value) -> E.Value,
-        _ opFinal: ReduceOpFinal<Tensor<S,E>>?
-    ) { cpu_reduce(opName, x, &result, type, opNext, opFinal) }
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Numeric {
+        cpu_reduceProd(x, &out)
+    }
+    //--------------------------------------------------------------------------
+    @inlinable public func reduceProdNonZeros<S,E>(
+        _ x: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Numeric {
+        cpu_reduceProdNonZeros(x, &out)
+    }
 }
 

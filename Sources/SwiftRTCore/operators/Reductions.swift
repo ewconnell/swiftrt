@@ -82,16 +82,10 @@ public extension Tensor where TensorElement == Bool {
     _ x: Tensor<S,E>,
     axes: [Int]? = nil
 ) -> Tensor<S,E> where E.Value: Numeric {
-    if let axes = axes {
-        let outShape = x.reductionShape(along: axes)
-        var out = Tensor<S,E>(zeros: outShape)
-        currentQueue.reduce("sum", x, &out, .add, +, nil)
-        return out
-    } else {
-        var out = Tensor<S,E>(shape: S.one)
-        currentQueue.reduceSum(x, &out)
-        return out
-    }
+    let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
+    var out = Tensor<S,E>(shape: shape)
+    currentQueue.reduceSum(x, &out)
+    return out
 }
 
 @derivative(of: sum)
@@ -101,15 +95,9 @@ public extension Tensor where TensorElement == Bool {
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
 where E.Value: DifferentiableNumeric {
     let xshape = x.shape
-    if let axes = axes {
-        return (sum(x, axes: axes), {
-            Tensor<S,E>(repeating: $0, to: xshape)
-        })
-    } else {
-        return (sum(x), {
-            Tensor<S,E>(repeating: $0, to: xshape)
-        })
-    }
+    return (sum(x, axes: axes), {
+        Tensor<S,E>(repeating: $0, to: xshape)
+    })
 }
 
 public extension Tensor where TensorElement.Value: Numeric {
@@ -132,20 +120,10 @@ public extension Tensor where TensorElement.Value: Numeric {
     _ x: Tensor<S,E>,
     axes: [Int]? = nil
 ) -> Tensor<S,E> where E.Value: AlgebraicField {
-    if let axes = axes {
-        // the divisor is the product of the `axes` that are summed
-        let divisor = (axes.reduce(E.Value.one) {
-            $0 * E.Value(exactly: x.shape[$1])!
-        })
-        
-        var out = Tensor<S,E>(zeros: x.reductionShape(along: axes))
-        currentQueue.reduce("mean", x, &out, .add, +, { $0 / divisor })
-        return out
-    } else {
-        var out = Tensor<S,E>(shape: S.one)
-        currentQueue.reduceMean(x, &out)
-        return out
-    }
+    let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
+    var out = Tensor<S,E>(shape: shape)
+    currentQueue.reduceMean(x, &out)
+    return out
 }
 
 @derivative(of: mean)
@@ -179,8 +157,9 @@ public extension Tensor where TensorElement.Value: AlgebraicField {
     _ x: Tensor<S,E>,
     axes: [Int]? = nil
 ) -> Tensor<S,E> where E.Value: Numeric {
-    var out = Tensor<S,E>(zeros: x.reductionShape(along: axes))
-    currentQueue.reduce("prod", x, &out, .mul, { $0 * $1 }, nil)
+    let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
+    var out = Tensor<S,E>(shape: shape)
+    currentQueue.reduceProd(x, &out)
     return out
 }
 
@@ -214,9 +193,9 @@ public extension Tensor where TensorElement.Value: Numeric {
     _ x: Tensor<S,E>,
     axes: [Int]? = nil
 ) -> Tensor<S,E> where E.Value: Numeric {
-    var out = Tensor<S,E>(zeros: x.reductionShape(along: axes))
-    currentQueue.reduce("prodNonZeros", x, &out, .mulNonZeros,
-                                { $1 == 0 ? $0 : $0 * $1 }, nil)
+    let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
+    var out = Tensor<S,E>(shape: shape)
+    currentQueue.reduceProdNonZeros(x, &out)
     return out
 }
 
@@ -256,17 +235,10 @@ public extension Tensor where TensorElement.Value: Numeric {
     _ x: Tensor<S,E>,
     axes: [Int]? = nil
 ) -> Tensor<S,E> where E.Value: Comparable {
-    if let axes = axes {
-        var out = Tensor<S,E>(shape: x.reductionShape(along: axes))
-        copy(from: x[S.zero, out.shape], to: &out)
-        currentQueue.reduce("min", x, &out, .min,
-                                    { Swift.min($0,$1) }, nil)
-        return out
-    } else {
-        var out = Tensor<S,E>(shape: S.one)
-        currentQueue.reduceMin(x, &out)
-        return out
-    }
+    let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
+    var out = Tensor<S,E>(shape: shape)
+    currentQueue.reduceMin(x, &out)
+    return out
 }
 
 @derivative(of: min)
@@ -301,17 +273,10 @@ public extension Tensor where TensorElement.Value: Comparable {
     _ x: Tensor<S,E>,
     axes: [Int]? = nil
 ) -> Tensor<S,E> where E.Value: Comparable {
-    if let axes = axes {
-        var out = Tensor<S,E>(shape: x.reductionShape(along: axes))
-        copy(from: x[S.zero, out.shape], to: &out)
-        currentQueue.reduce("max", x, &out, .max,
-                                    { Swift.max($0,$1) }, nil)
-        return out
-    } else {
-        var out = Tensor<S,E>(shape: S.one)
-        currentQueue.reduceMax(x, &out)
-        return out
-    }
+    let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
+    var out = Tensor<S,E>(shape: shape)
+    currentQueue.reduceMax(x, &out)
+    return out
 }
 
 
