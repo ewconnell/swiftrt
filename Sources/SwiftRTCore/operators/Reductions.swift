@@ -237,7 +237,7 @@ public extension Tensor where TensorElement.Value: Numeric {
 ) -> Tensor<S,E> where E.Value: Comparable {
     let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
     var out = Tensor<S,E>(shape: shape)
-    currentQueue.reduceMin(x, &out)
+    currentQueue.min(x, &out)
     return out
 }
 
@@ -275,7 +275,7 @@ public extension Tensor where TensorElement.Value: Comparable {
 ) -> Tensor<S,E> where E.Value: Comparable {
     let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
     var out = Tensor<S,E>(shape: shape)
-    currentQueue.reduceMax(x, &out)
+    currentQueue.max(x, &out)
     return out
 }
 

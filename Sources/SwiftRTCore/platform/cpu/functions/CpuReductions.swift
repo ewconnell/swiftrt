@@ -120,7 +120,7 @@ extension CpuFunctions where Self: DeviceQueue {
     }
     
     //--------------------------------------------------------------------------
-    @inlinable public func cpu_reduceMin<S,E>(
+    @inlinable public func cpu_min<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
@@ -133,7 +133,7 @@ extension CpuFunctions where Self: DeviceQueue {
     }
     
     //--------------------------------------------------------------------------
-    @inlinable public func cpu_reduceMax<S,E>(
+    @inlinable public func cpu_max<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
@@ -211,15 +211,15 @@ extension CpuQueue {
         _ out: inout Tensor<S,E>
     ) where E.Value: AlgebraicField { cpu_mean(x, &out) }
     //--------------------------------------------------------------------------
-    @inlinable public func reduceMin<S,E>(
+    @inlinable public func min<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
-    ) where E.Value: Comparable { cpu_reduceMin(x, &out) }
+    ) where E.Value: Comparable { cpu_min(x, &out) }
     //--------------------------------------------------------------------------
-    @inlinable public func reduceMax<S,E>(
+    @inlinable public func max<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
-    ) where E.Value: Comparable { cpu_reduceMax(x, &out) }
+    ) where E.Value: Comparable { cpu_max(x, &out) }
     //--------------------------------------------------------------------------
     @inlinable public func prod<S,E>(
         _ x: Tensor<S,E>,

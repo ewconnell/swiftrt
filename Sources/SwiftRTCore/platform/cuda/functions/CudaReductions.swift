@@ -83,7 +83,7 @@ extension CudaQueue {
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
             x.withTensor(using: self) { x, xDesc in
-                srtReduceSum(x, xDesc, o, oDesc, nil, 0, stream)
+                srtSum(x, xDesc, o, oDesc, stream)
             }
         }
 
@@ -104,29 +104,29 @@ extension CudaQueue {
     }
 
     //--------------------------------------------------------------------------
-    @inlinable public func reduceMin<S,E>(
+    @inlinable public func min<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
-        guard useGpu else { cpu_reduceMin(x, &out); return }
-        diagnostic(.queueGpu, "reduceMin(\(x.name)) on \(name)",
+        guard useGpu else { cpu_min(x, &out); return }
+        diagnostic(.queueGpu, "min(\(x.name)) on \(name)",
             categories: .queueGpu)
 
-        cpuFallback(cudaErrorNotSupported) { $0.reduceMin(x, &out) }
+        cpuFallback(cudaErrorNotSupported) { $0.min(x, &out) }
     }
 
     //--------------------------------------------------------------------------
-    @inlinable public func reduceMax<S,E>(
+    @inlinable public func max<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
-        guard useGpu else { cpu_reduceMax(x, &out); return }
-        diagnostic(.queueGpu, "reduceMax(\(x.name)) on \(name)",
+        guard useGpu else { cpu_max(x, &out); return }
+        diagnostic(.queueGpu, "max(\(x.name)) on \(name)",
             categories: .queueGpu)
 
-        cpuFallback(cudaErrorNotSupported) { $0.reduceMax(x, &out) }
+        cpuFallback(cudaErrorNotSupported) { $0.max(x, &out) }
     }
 
     //--------------------------------------------------------------------------
