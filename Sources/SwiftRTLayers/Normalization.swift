@@ -111,7 +111,7 @@ import Numerics
 ////        case .training:
 ////          var normalizedAxes = Array(0..<input.rank)
 ////          normalizedAxes.remove(at: positiveAxis)
-////          let moments = input.moments(alongAxes: normalizedAxes)
+////          let moments = input.moments(axes: normalizedAxes)
 ////          let decayMomentum = Tensor(1 - momentum, on: input.device)
 ////          runningMean.value += (moments.mean - runningMean.value) * decayMomentum
 ////          runningVariance.value += (moments.variance - runningVariance.value) * decayMomentum

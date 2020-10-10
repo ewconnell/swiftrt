@@ -98,6 +98,29 @@ extension DeviceQueue {
     }
 
     //==========================================================================
+    // reduce entire input
+    @inlinable public func mapReduce<S,E>(
+        _ a: Tensor<S,E>,
+        _ out: inout Tensor<S,E>,
+        _ op: @escaping (E.Value, E.Value) -> E.Value
+    ) {
+        let a = a.buffer
+        var out = out.mutableBuffer
+        
+        if mode == .sync {
+            out[out.startIndex] = a.reduce(into: a[a.startIndex]) {
+                $0 = op($0, $1)
+            }
+        } else {
+            queue.async(group: group) {
+                out[out.startIndex] = a.reduce(into: a[a.startIndex]) {
+                    $0 = op($0, $1)
+                }
+            }
+        }
+    }
+    
+    //==========================================================================
     // reduction along axes
     @inlinable func reduceAlongAxes<S,E,RE>(
         _ a: Tensor<S,E>,

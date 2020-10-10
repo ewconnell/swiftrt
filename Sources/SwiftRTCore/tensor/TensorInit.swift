@@ -145,13 +145,16 @@ public extension Tensor {
     
     //--------------------------------------------------------------------------
     /// reductionShape
-    /// returns the upper bounds for a reduction result along the specified axes
-    @inlinable func reductionShape(alongAxes axes: Set<Int>?) -> Shape {
+    /// computes the shape for a reduction result along the specified axes
+    @inlinable func reductionShape(along axes: [Int]?) -> Shape {
         guard let axes = axes else { return Shape.one }
-        assert(axes.isSubset(of: 0..<Shape.rank), "axis is out of bounds")
+        assert(Set(axes).isSubset(of: (-Shape.rank)..<Shape.rank),
+            "axis must be within -rank..<rank")
         var result = shape
         // set 1 for each dimension specified in the axes list
-        axes.forEach { result[$0] = 1 }
+        axes.forEach {
+            result[$0 >= 0 ? $0 : $0 + Shape.rank] = 1
+        }
         return result
     }
 }

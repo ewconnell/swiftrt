@@ -19,37 +19,19 @@ import Numerics
 //==============================================================================
 // Cpu device queue function implementations
 extension CpuFunctions where Self: DeviceQueue {
-    
-    //--------------------------------------------------------------------------
-    @inlinable public func mapReduce<S,E>(
-        _ a: Tensor<S,E>,
-        _ out: inout Tensor<S,E>,
-        _ opName: String,
-        _ op: @escaping (E.Value, E.Value) -> E.Value
-    ) {
-        diagnostic(.queueCpu, "\(opName) on \(name)", categories: .queueCpu)
-        let a = a.buffer
-        var out = out.mutableBuffer
-        
-        if mode == .sync {
-            out[out.startIndex] = a.reduce(into: a[a.startIndex]) {
-                $0 = op($0, $1)
-            }
-        } else {
-            queue.async(group: group) {
-                out[out.startIndex] = a.reduce(into: a[a.startIndex]) {
-                    $0 = op($0, $1)
-                }
-            }
-        }
-    }
-    
     //--------------------------------------------------------------------------
     @inlinable public func cpu_reduceAll<S>(
         _ x: Tensor<S,Bool>,
         _ out: inout Tensor<S,Bool>
     ) {
-        mapReduce(x, &out, "all(\(x.name))") { $0 && $1 }
+        diagnostic(.queueCpu, "all(\(x.name)) on \(name)", categories: .queueCpu)
+        if out.count == 1 {
+            mapReduce(x, &out) { $0 && $1 }
+        } else {
+            // set initial value for blending
+            copy(from: x[S.zero, out.shape], to: &out)
+            reduceAlongAxes(x, &out) { $0 && $1 }
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -57,7 +39,14 @@ extension CpuFunctions where Self: DeviceQueue {
         _ x: Tensor<S,Bool>,
         _ out: inout Tensor<S,Bool>
     ) {
-        mapReduce(x, &out, "any(\(x.name))") { $0 || $1 }
+        diagnostic(.queueCpu, "any(\(x.name)) on \(name)", categories: .queueCpu)
+        if out.count == 1 {
+            mapReduce(x, &out) { $0 || $1 }
+        } else {
+            // set initial value for blending
+            copy(from: x[S.zero, out.shape], to: &out)
+            reduceAlongAxes(x, &out) { $0 || $1 }
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -65,7 +54,7 @@ extension CpuFunctions where Self: DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: AdditiveArithmetic {
-        mapReduce(x, &out, "sum(\(x.name))") { $0 + $1 }
+        mapReduce(x, &out) { $0 + $1 }
     }
     
     //--------------------------------------------------------------------------
@@ -99,7 +88,7 @@ extension CpuFunctions where Self: DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
-        mapReduce(x, &out, "min(\(x.name))") { Swift.min($0, $1) }
+        mapReduce(x, &out) { Swift.min($0, $1) }
     }
     
     //--------------------------------------------------------------------------
@@ -107,7 +96,7 @@ extension CpuFunctions where Self: DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
-        mapReduce(x, &out, "max(\(x.name))") { $0 > $1 ? $0 : $1 }
+        mapReduce(x, &out) { $0 > $1 ? $0 : $1 }
     }
     
     //--------------------------------------------------------------------------
