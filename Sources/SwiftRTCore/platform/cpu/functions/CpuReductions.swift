@@ -20,7 +20,35 @@ import Numerics
 // Cpu device queue function implementations
 extension CpuFunctions where Self: DeviceQueue {
     //--------------------------------------------------------------------------
-    @inlinable public func cpu_reduceAll<S>(
+    @inlinable public func cpu_absmax<S,E>(
+        _ x: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: SignedNumeric & Comparable {
+        diagnostic(.queueCpu, "absmax(\(x.name)) on \(name)",
+            categories: .queueCpu)
+        if out.count == 1 {
+            mapReduce(x, &out) { Swift.max(Swift.abs($0), Swift.abs($1)) }
+        } else {
+            reduceAlongAxes(x, &out) { Swift.max(Swift.abs($0), Swift.abs($1)) }
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    @inlinable public func cpu_abssum<S,E>(
+        _ x: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: SignedNumeric & Comparable {
+        diagnostic(.queueCpu, "abssum(\(x.name)) on \(name)",
+            categories: .queueCpu)
+        if out.count == 1 {
+            mapReduce(x, &out) { $0 + Swift.abs($1) }
+        } else {
+            reduceAlongAxes(x, &out) { $0 + Swift.abs($1) }
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    @inlinable public func cpu_all<S>(
         _ x: Tensor<S,Bool>,
         _ out: inout Tensor<S,Bool>
     ) {
@@ -35,7 +63,7 @@ extension CpuFunctions where Self: DeviceQueue {
     }
     
     //--------------------------------------------------------------------------
-    @inlinable public func cpu_reduceAny<S>(
+    @inlinable public func cpu_any<S>(
         _ x: Tensor<S,Bool>,
         _ out: inout Tensor<S,Bool>
     ) {
@@ -143,39 +171,35 @@ extension CpuFunctions where Self: DeviceQueue {
             reduceAlongAxes(x, &out) { $1 == 0 ? $0 : $0 * $1 }
         }
     }
-
-    // //--------------------------------------------------------------------------
-    // @inlinable func cpu_reduce<S,E>(
-    //     _ opName: String,
-    //     _ x: Tensor<S,E>,
-    //     _ out: inout Tensor<S,E>,
-    //     _ type: ReductionType,
-    //     _ opNext: @escaping (E.Value, E.Value) -> E.Value,
-    //     _ opFinal: ReduceOpFinal<Tensor<S,E>>?
-    // ) {
-    //     diagnostic(.queueCpu, "\(opName)(\(x.name)) on \(name)",
-    //                categories: .queueCpu)
-    //     reduceAlongAxes(x, &out, opNext)
-        
-    //     if let op = opFinal {
-    //         mapOp(&out, op)
-    //     }
-    // }
 }
 
 //==============================================================================
 // CpuQueue functions with default cpu delegation
 extension CpuQueue {
     //--------------------------------------------------------------------------
-    @inlinable public func reduceAll<S>(
-        _ x: Tensor<S,Bool>,
-        _ out: inout Tensor<S,Bool>
-    ) { cpu_reduceAll(x, &out) }
+    @inlinable public func absmax<S,E>(
+        _ x: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: SignedNumeric & Comparable {
+        cpu_absmax(x, &out)
+    }
     //--------------------------------------------------------------------------
-    @inlinable public func reduceAny<S>(
+    @inlinable public func abssum<S,E>(
+        _ x: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: SignedNumeric & Comparable {
+        cpu_abssum(x, &out)
+    }
+    //--------------------------------------------------------------------------
+    @inlinable public func all<S>(
         _ x: Tensor<S,Bool>,
         _ out: inout Tensor<S,Bool>
-    ) { cpu_reduceAny(x, &out) }
+    ) { cpu_all(x, &out) }
+    //--------------------------------------------------------------------------
+    @inlinable public func any<S>(
+        _ x: Tensor<S,Bool>,
+        _ out: inout Tensor<S,Bool>
+    ) { cpu_any(x, &out) }
     //--------------------------------------------------------------------------
     @inlinable public func reduceSum<S,E>(
         _ x: Tensor<S,E>,

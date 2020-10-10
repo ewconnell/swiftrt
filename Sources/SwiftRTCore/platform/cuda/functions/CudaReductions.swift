@@ -20,29 +20,55 @@ import Numerics
 // CudaQueue functions
 extension CudaQueue {
     //--------------------------------------------------------------------------
-    @inlinable public func reduceAll<S>(
-        _ x: Tensor<S,Bool>,
-        _ out: inout Tensor<S,Bool>
-    ) {
+    @inlinable public func absmax<S,E>(
+        _ x: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: SignedNumeric & Comparable {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
-        guard useGpu else { cpu_reduceAll(x, &out); return }
-        diagnostic(.queueGpu, "reduceAll(\(x.name)) on \(name)",
+        guard useGpu else { cpu_absmax(x, &out); return }
+        diagnostic(.queueGpu, "absmax(\(x.name)) on \(name)",
             categories: .queueGpu)
         
-        cpuFallback(cudaErrorNotSupported) { $0.reduceAll(x, &out) }
+        cpuFallback(cudaErrorNotSupported) { $0.absmax(x, &out) }
     }
 
     //--------------------------------------------------------------------------
-    @inlinable public func reduceAny<S>(
+    @inlinable public func abssum<S,E>(
+        _ x: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: SignedNumeric & Comparable {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_abssum(x, &out); return }
+        diagnostic(.queueGpu, "abssum(\(x.name)) on \(name)",
+            categories: .queueGpu)
+        
+        cpuFallback(cudaErrorNotSupported) { $0.abssum(x, &out) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable public func all<S>(
         _ x: Tensor<S,Bool>,
         _ out: inout Tensor<S,Bool>
     ) {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
-        guard useGpu else { cpu_reduceAny(x, &out); return }
-        diagnostic(.queueGpu, "reduceAny(\(x.name)) on \(name)",
+        guard useGpu else { cpu_all(x, &out); return }
+        diagnostic(.queueGpu, "all(\(x.name)) on \(name)",
             categories: .queueGpu)
         
-        cpuFallback(cudaErrorNotSupported) { $0.reduceAny(x, &out) }
+        cpuFallback(cudaErrorNotSupported) { $0.all(x, &out) }
+    }
+
+    //--------------------------------------------------------------------------
+    @inlinable public func any<S>(
+        _ x: Tensor<S,Bool>,
+        _ out: inout Tensor<S,Bool>
+    ) {
+        assert(out.isContiguous, _messageElementsMustBeContiguous)
+        guard useGpu else { cpu_any(x, &out); return }
+        diagnostic(.queueGpu, "any(\(x.name)) on \(name)",
+            categories: .queueGpu)
+        
+        cpuFallback(cudaErrorNotSupported) { $0.any(x, &out) }
     }
 
     //--------------------------------------------------------------------------

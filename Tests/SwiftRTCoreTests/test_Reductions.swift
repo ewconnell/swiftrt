@@ -33,8 +33,6 @@ class test_Reductions: XCTestCase {
         // ("test_maxTensor2", test_maxTensor2),
         // ("test_minTensor2", test_minTensor2),
         // ("test_absmaxTensor2", test_absmaxTensor2),
-        // ("test_sqrtSumSquaresTensor2", test_sqrtSumSquaresTensor2),
-        // ("test_sqrtSumSquaresTensor3", test_sqrtSumSquaresTensor3),
         // ("test_gather", test_gather),
     ]
 
@@ -366,103 +364,6 @@ class test_Reductions: XCTestCase {
         XCTAssert(m.absmax().element == 6)
     }
         
-    //--------------------------------------------------------------------------
-    // test_sqrtSumSquaresTensor2
-    func test_sqrtSumSquaresTensor2() {
-        let m = array([
-            [0, 1],
-            [2, 3],
-            [4, 5]
-        ])
-
-        // sum all
-        do {
-            let chained = m.squared().sum().sqrt()
-            let result = m.sqrtSumSquares()
-            XCTAssert(result.shape == [1, 1])
-            XCTAssert(result.element == chained.element)
-        }
-
-        do {
-            let chained = m.squared().sum(axes: 0, 1).sqrt()
-            let result = m.sqrtSumSquares()
-            XCTAssert(result.shape == [1, 1])
-            XCTAssert(result.element == chained.element)
-        }
-        
-        // sum cols
-        do {
-            let chained = m.squared().sum(axes: 1).sqrt()
-            let result = m.sqrtSumSquares(axes: 1)
-            XCTAssert(result.shape == [3, 1])
-            XCTAssert(result == chained)
-        }
-
-        // sum rows
-        do {
-            let chained = m.squared().sum(axes: 0).sqrt()
-            let result = m.sqrtSumSquares(axes: 0)
-            XCTAssert(result.shape == [1, 2])
-            XCTAssert(result == chained)
-        }
-    }
-    
-    //--------------------------------------------------------------------------
-    // test_sqrtSumSquaresTensor3
-    func test_sqrtSumSquaresTensor3() {
-        let m = array([
-            [
-                [ 0,  1],
-                [ 2,  3],
-                [ 4,  5]
-            ],
-            [
-                [ 6,  7],
-                [ 8,  9],
-                [10, 11]
-            ]
-        ])
-        
-        // all
-        do {
-            let chained = m.squared().sum().sqrt()
-            let result = m.sqrtSumSquares()
-            XCTAssert(result.shape == [1, 1, 1])
-            XCTAssert(result == chained)
-        }
-
-        do {
-            let chained = m.squared().sum(axes: 0, 1, 2).sqrt()
-            let result = m.sqrtSumSquares()
-            XCTAssert(result.shape == [1, 1, 1])
-            XCTAssert(result == chained)
-        }
-        
-        // deps
-        do {
-            let chained = m.squared().sum(axes: 0).sqrt()
-            let result = m.sqrtSumSquares(axes: 0)
-            XCTAssert(result.shape == [1, 3, 2])
-            XCTAssert(result == chained)
-        }
-
-        // rows
-        do {
-            let chained = m.squared().sum(axes: 1).sqrt()
-            let result = m.sqrtSumSquares(axes: 1)
-            XCTAssert(result.shape == [2, 1, 2])
-            XCTAssert(result == chained)
-        }
-
-        // cols
-        do {
-            let chained = m.squared().sum(axes: 2).sqrt()
-            let result = m.sqrtSumSquares(axes: 2)
-            XCTAssert(result.shape == [2, 3, 1])
-            XCTAssert(result == chained)
-        }
-    }
-
     //--------------------------------------------------------------------------
     // test_gather
     // TODO: get this verified

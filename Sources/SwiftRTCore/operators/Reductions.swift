@@ -30,7 +30,7 @@ import Numerics
 ) -> Tensor<S,Bool> {
     let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
     var out = Tensor<S,Bool>(shape: shape)
-    currentQueue.reduceAll(x, &out)
+    currentQueue.all(x, &out)
     return out
 }
 
@@ -59,7 +59,7 @@ public extension Tensor where TensorElement == Bool {
 ) -> Tensor<S,Bool> {
     let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
     var out = Tensor<S,Bool>(shape: shape)
-    currentQueue.reduceAny(x, &out)
+    currentQueue.any(x, &out)
     return out
 }
 
@@ -313,14 +313,11 @@ public extension Tensor where TensorElement.Value: Comparable {
     _ x: Tensor<S,E>,
     axes: [Int]? = nil
 ) -> Tensor<S,E> where E.Value: SignedNumeric & Comparable {
-    var out = Tensor<S,E>(shape: x.reductionShape(along: axes))
-    copy(from: x[S.zero, out.shape], to: &out)
-    currentQueue.reduce("absmax", x, &out, .amax, {
-        Swift.max(Swift.abs($0), Swift.abs($1))
-    }, nil)
+    let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
+    var out = Tensor<S,E>(shape: shape)
+    currentQueue.absmax(x, &out)
     return out
 }
-
 
 @derivative(of: absmax)
 @usableFromInline func _vjpAbsmax<S,E>(
@@ -355,9 +352,9 @@ public extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
     _ x: Tensor<S,E>,
     axes: [Int]? = nil
 ) -> Tensor<S,E> where E.Value: SignedNumeric & Comparable {
-    var out = Tensor<S,E>(zeros: x.reductionShape(along: axes))
-    currentQueue.reduce("abssum", x, &out, .asum,
-                                { $0 + Swift.abs($1) }, nil)
+    let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
+    var out = Tensor<S,E>(shape: shape)
+    currentQueue.abssum(x, &out)
     return out
 }
 
@@ -381,44 +378,5 @@ public extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
     @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func abssum(axes: Int...) -> Self {
         abssum(axes: axes)
-    }
-}
-
-//==============================================================================
-/// sqrtSumSquares(x:along:
-/// Square root of the sum `x` along the specified axes
-/// - Parameter x: value tensor
-/// - Parameter along: the axes to operate on
-@inlinable public func sqrtSumSquares<S,E>(
-    _ x: Tensor<S,E>,
-    axes: [Int]? = nil
-) -> Tensor<S,E> where E.Value: Real {
-    var out = Tensor<S,E>(zeros: x.reductionShape(along: axes))
-    currentQueue.reduce("sqrtSumSquares", x, &out, .sqrtSumSquares,
-                        { $0 + $1 * $1 }, { .sqrt($0) })
-    return out
-}
-
-@derivative(of: sqrtSumSquares)
-@usableFromInline func _vjpSqrtSumSquares<S,E>(
-    _ x: Tensor<S,E>,
-    axes: [Int]? = nil
-) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-where E.Value: DifferentiableNumeric & Real
-{
-    // Dan
-    fatalError()
-}
-
-public extension Tensor where TensorElement.Value: Real {
-    
-    @differentiable(where TensorElement.Value: DifferentiableNumeric)
-    @inlinable func sqrtSumSquares(axes: [Int]? = nil) -> Self {
-        SwiftRTCore.sqrtSumSquares(self, axes: axes)
-    }
-
-    @differentiable(where TensorElement.Value: DifferentiableNumeric)
-    @inlinable func sqrtSumSquares(axes: Int...) -> Self {
-        sqrtSumSquares(axes: axes)
     }
 }
