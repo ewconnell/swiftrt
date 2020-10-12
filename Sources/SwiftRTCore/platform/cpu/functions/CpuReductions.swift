@@ -27,9 +27,15 @@ extension CpuFunctions where Self: DeviceQueue {
         diagnostic(.queueCpu, "absmax(\(x.name)) on \(name)",
             categories: .queueCpu)
         if out.count == 1 {
-            mapReduce(x, &out) { Swift.max(Swift.abs($0), Swift.abs($1)) }
+            mapReduce(x, &out, Swift.abs(x.first)) { o, x in
+                Swift.max(o, Swift.abs(x))
+            }
         } else {
-            reduceAlongAxes(x, &out) { Swift.max(Swift.abs($0), Swift.abs($1)) }
+            // set initial output value for blending
+            cpu_abs(x[S.zero, out.shape], &out)
+            reduceAlongAxes(x, &out) { o, x in
+                Swift.max(o, Swift.abs(x))
+            }
         }
     }
     
@@ -41,8 +47,9 @@ extension CpuFunctions where Self: DeviceQueue {
         diagnostic(.queueCpu, "abssum(\(x.name)) on \(name)",
             categories: .queueCpu)
         if out.count == 1 {
-            mapReduce(x, &out) { $0 + Swift.abs($1) }
+            mapReduce(x, &out, E.Value.zero) { $0 + Swift.abs($1) }
         } else {
+            cpu_fill(&out, with: E.Value.zero)
             reduceAlongAxes(x, &out) { $0 + Swift.abs($1) }
         }
     }
@@ -54,10 +61,10 @@ extension CpuFunctions where Self: DeviceQueue {
     ) {
         diagnostic(.queueCpu, "all(\(x.name)) on \(name)", categories: .queueCpu)
         if out.count == 1 {
-            mapReduce(x, &out) { $0 && $1 }
+            mapReduce(x, &out, x.first) { $0 && $1 }
         } else {
-            // set initial value for blending
-            copy(from: x[S.zero, out.shape], to: &out)
+            // set initial output value for blending
+            cpu_copy(from: x[S.zero, out.shape], to: &out)
             reduceAlongAxes(x, &out) { $0 && $1 }
         }
     }
@@ -69,10 +76,10 @@ extension CpuFunctions where Self: DeviceQueue {
     ) {
         diagnostic(.queueCpu, "any(\(x.name)) on \(name)", categories: .queueCpu)
         if out.count == 1 {
-            mapReduce(x, &out) { $0 || $1 }
+            mapReduce(x, &out, x.first) { $0 || $1 }
         } else {
-            // set initial value for blending
-            copy(from: x[S.zero, out.shape], to: &out)
+            // set initial output value for blending
+            cpu_copy(from: x[S.zero, out.shape], to: &out)
             reduceAlongAxes(x, &out) { $0 || $1 }
         }
     }
@@ -84,8 +91,9 @@ extension CpuFunctions where Self: DeviceQueue {
     ) where E.Value: AdditiveArithmetic {
         diagnostic(.queueCpu, "sum(\(x.name)) on \(name)", categories: .queueCpu)
         if out.count == 1 {
-            mapReduce(x, &out, +)
+            mapReduce(x, &out, E.Value.zero, +)
         } else {
+            cpu_fill(&out, with: E.Value.zero)
             reduceAlongAxes(x, &out, +)
         }
     }
@@ -110,8 +118,9 @@ extension CpuFunctions where Self: DeviceQueue {
 
         // sum
         if out.count == 1 {
-            mapReduce(x, &out, +)
+            mapReduce(x, &out, E.Value.zero, +)
         } else {
+            cpu_fill(&out, with: E.Value.zero)
             reduceAlongAxes(x, &out, +)
         }
         
@@ -126,8 +135,10 @@ extension CpuFunctions where Self: DeviceQueue {
     ) where E.Value: Comparable {
         diagnostic(.queueCpu, "min(\(x.name)) on \(name)", categories: .queueCpu)
         if out.count == 1 {
-            mapReduce(x, &out) { Swift.min($0, $1) }
+            mapReduce(x, &out, x.first) { Swift.min($0, $1) }
         } else {
+            // set initial output value for blending
+            cpu_copy(from: x[S.zero, out.shape], to: &out)
             reduceAlongAxes(x, &out) { Swift.min($0, $1) }
         }
     }
@@ -139,8 +150,10 @@ extension CpuFunctions where Self: DeviceQueue {
     ) where E.Value: Comparable {
         diagnostic(.queueCpu, "max(\(x.name)) on \(name)", categories: .queueCpu)
         if out.count == 1 {
-            mapReduce(x, &out) { $0 > $1 ? $0 : $1 }
+            mapReduce(x, &out, x.first) { $0 > $1 ? $0 : $1 }
         } else {
+            // set initial output value for blending
+            cpu_copy(from: x[S.zero, out.shape], to: &out)
             reduceAlongAxes(x, &out) { $0 > $1 ? $0 : $1 }
         }
     }
@@ -152,8 +165,9 @@ extension CpuFunctions where Self: DeviceQueue {
     ) where E.Value: Numeric {
         diagnostic(.queueCpu, "prod(\(x.name)) on \(name)", categories: .queueCpu)
         if out.count == 1 {
-            mapReduce(x, &out, *)
+            mapReduce(x, &out, E.Value.one, *)
         } else {
+            cpu_fill(&out, with: E.Value.one)
             reduceAlongAxes(x, &out, *)
         }
     }
@@ -166,8 +180,9 @@ extension CpuFunctions where Self: DeviceQueue {
         diagnostic(.queueCpu, "prodNonZeros(\(x.name)) on \(name)",
             categories: .queueCpu)
         if out.count == 1 {
-            mapReduce(x, &out) { $1 == 0 ? $0 : $0 * $1 }
+            mapReduce(x, &out, E.Value.one) { $1 == 0 ? $0 : $0 * $1 }
         } else {
+            cpu_fill(&out, with: E.Value.one)
             reduceAlongAxes(x, &out) { $1 == 0 ? $0 : $0 * $1 }
         }
     }

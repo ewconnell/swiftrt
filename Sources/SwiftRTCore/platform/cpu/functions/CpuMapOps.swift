@@ -102,20 +102,18 @@ extension DeviceQueue {
     @inlinable public func mapReduce<S,E>(
         _ a: Tensor<S,E>,
         _ out: inout Tensor<S,E>,
+        _ initialValue: E.Value,
         _ op: @escaping (E.Value, E.Value) -> E.Value
     ) {
         let a = a.buffer
         var out = out.mutableBuffer
+        let io = out.startIndex 
         
         if mode == .sync {
-            out[out.startIndex] = a.reduce(into: a[a.startIndex]) {
-                $0 = op($0, $1)
-            }
+            out[io] = a.reduce(into: initialValue) { $0 = op($0, $1) }
         } else {
             queue.async(group: group) {
-                out[out.startIndex] = a.reduce(into: a[a.startIndex]) {
-                    $0 = op($0, $1)
-                }
+                out[io] = a.reduce(into: initialValue) { $0 = op($0, $1) }
             }
         }
     }

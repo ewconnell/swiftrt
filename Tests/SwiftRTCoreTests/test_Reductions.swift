@@ -32,7 +32,7 @@ class test_Reductions: XCTestCase {
         ("test_meanTensor2", test_meanTensor2),
         ("test_maxTensor2", test_maxTensor2),
         ("test_minTensor2", test_minTensor2),
-        ("test_absmaxTensor2", test_absmaxTensor2),
+        ("test_absmax", test_absmax),
         ("test_gather", test_gather),
     ]
 
@@ -191,10 +191,10 @@ class test_Reductions: XCTestCase {
     //--------------------------------------------------------------------------
     // test_sumTensor1
     func test_sumTensor1() {
-        let m = array([0, 1, 2, 3])
+        let m = array([1, 2, 3, 4])
         let result = m.sum()
         XCTAssert(result.shape == [1])
-        XCTAssert(result.element == 6)
+        XCTAssert(result.element == 10)
     }
 
     //--------------------------------------------------------------------------
@@ -341,7 +341,6 @@ class test_Reductions: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_minTensor2
     func test_minTensor2() {
         let m = array([
             [-1,  3, -6],
@@ -353,15 +352,14 @@ class test_Reductions: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_absmaxTensor2
-    func test_absmaxTensor2() {
+    func test_absmax() {
         let m = array([
             [-1,  3, -6],
             [ 1, -3,  6],
         ])
+        XCTAssert(m.absmax().element == 6)
         XCTAssert(m.absmax(axes: 0) == [[1, 3, 6]])
         XCTAssert(m.absmax(axes: 1) == [[6], [6]])
-        XCTAssert(m.absmax().element == 6)
     }
         
     //--------------------------------------------------------------------------
