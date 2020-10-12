@@ -53,12 +53,22 @@ cudaError_t srtMean(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
-cudaError_t srtMinElement(
+cudaError_t srtMinValue(
     const void* x, const srtTensorDescriptor* xDesc,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
-cudaError_t srtMaxElement(
+cudaError_t srtArgMin(
+    const void* x, const srtTensorDescriptor* xDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtMaxValue(
+    const void* x, const srtTensorDescriptor* xDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtArgMax(
     const void* x, const srtTensorDescriptor* xDesc,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);

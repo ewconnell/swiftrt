@@ -133,7 +133,24 @@ extension CpuFunctions where Self: DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
-        diagnostic(.queueCpu, "min(\(x.name)) on \(name)", categories: .queueCpu)
+        diagnostic(.queueCpu, "min(\(x.name)) on \(name)",
+            categories: .queueCpu)
+        if out.count == 1 {
+            mapReduce(x, &out, x.first) { Swift.min($0, $1) }
+        } else {
+            // set initial output value for blending
+            cpu_copy(from: x[S.zero, out.shape], to: &out)
+            reduceAlongAxes(x, &out) { Swift.min($0, $1) }
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    @inlinable public func cpu_argmin<S,E>(
+        _ x: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable {
+        diagnostic(.queueCpu, "argmin(\(x.name)) on \(name)",
+            categories: .queueCpu)
         if out.count == 1 {
             mapReduce(x, &out, x.first) { Swift.min($0, $1) }
         } else {
@@ -148,7 +165,24 @@ extension CpuFunctions where Self: DeviceQueue {
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable {
-        diagnostic(.queueCpu, "max(\(x.name)) on \(name)", categories: .queueCpu)
+        diagnostic(.queueCpu, "max(\(x.name)) on \(name)",
+            categories: .queueCpu)
+        if out.count == 1 {
+            mapReduce(x, &out, x.first) { $0 > $1 ? $0 : $1 }
+        } else {
+            // set initial output value for blending
+            cpu_copy(from: x[S.zero, out.shape], to: &out)
+            reduceAlongAxes(x, &out) { $0 > $1 ? $0 : $1 }
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    @inlinable public func cpu_argmax<S,E>(
+        _ x: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable {
+        diagnostic(.queueCpu, "argmax(\(x.name)) on \(name)",
+            categories: .queueCpu)
         if out.count == 1 {
             mapReduce(x, &out, x.first) { $0 > $1 ? $0 : $1 }
         } else {
@@ -231,10 +265,20 @@ extension CpuQueue {
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable { cpu_min(x, &out) }
     //--------------------------------------------------------------------------
+    @inlinable public func argmin<S,E>(
+        _ x: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable { cpu_argmin(x, &out) }
+    //--------------------------------------------------------------------------
     @inlinable public func max<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
     ) where E.Value: Comparable { cpu_max(x, &out) }
+    //--------------------------------------------------------------------------
+    @inlinable public func argmax<S,E>(
+        _ x: Tensor<S,E>,
+        _ out: inout Tensor<S,E>
+    ) where E.Value: Comparable { cpu_argmax(x, &out) }
     //--------------------------------------------------------------------------
     @inlinable public func prod<S,E>(
         _ x: Tensor<S,E>,
