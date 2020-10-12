@@ -22,25 +22,25 @@ class test_Comparative: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        // ("test_compareFloat16", test_compareFloat16),
-        // ("test_compareInt8", test_compareInt8),
-        // ("test_replace", test_replace),
-        // ("test_complexOrder", test_complexOrder),
-        // ("test_elementWiseAndOr", test_elementWiseAndOr),
-        // ("test_elementsAlmostEqual", test_elementsAlmostEqual),
+        ("test_compareFloat16", test_compareFloat16),
+        ("test_compareInt8", test_compareInt8),
+        ("test_replace", test_replace),
+        ("test_complexOrder", test_complexOrder),
+        ("test_elementWiseAndOr", test_elementWiseAndOr),
+        ("test_elementsAlmostEqual", test_elementsAlmostEqual),
 
 // these require reductions to work
         ("test_boolEquality", test_boolEquality),
         ("test_equality", test_equality),
         
-        // ("test_max", test_max),
-        // ("test_maxScalar", test_maxScalar),
-        // ("test_min", test_min),
-        // ("test_minScalar", test_minScalar),
+        ("test_max", test_max),
+        ("test_maxScalar", test_maxScalar),
+        ("test_min", test_min),
+        ("test_minScalar", test_minScalar),
     ]
 
     override func setUpWithError() throws {
-        log.level = .diagnostic
+        // log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {

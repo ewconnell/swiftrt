@@ -22,20 +22,19 @@ class test_Math: XCTestCase {
     // support terminal test run
     static var allTests = [
         ("test_multiplyAdd", test_multiplyAdd),
-        // ("test_juliaMath", test_juliaMath),
-        // ("test_abs", test_abs),
-        // ("test_atan2", test_atan2),
-        // ("test_erf", test_erf),
-        // ("test_exp", test_exp),
-        // ("test_log", test_log),
-        // ("test_neg", test_neg),
-        // ("test_sign", test_sign),
-        // ("test_squared", test_squared),
+        ("test_juliaMath", test_juliaMath),
+        ("test_abs", test_abs),
+        ("test_atan2", test_atan2),
+        ("test_erf", test_erf),
+        ("test_exp", test_exp),
+        ("test_log", test_log),
+        ("test_neg", test_neg),
+        ("test_sign", test_sign),
+        ("test_squared", test_squared),
     ]
 
     override func setUpWithError() throws {
-        log.level = .diagnostic
-        use(device: 1)
+        // log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {

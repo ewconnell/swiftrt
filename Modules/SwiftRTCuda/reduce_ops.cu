@@ -72,24 +72,62 @@ cudaError_t srtAny(
 
 //==============================================================================
 
-template<typename T>
-inline cudaError_t sum(
+template<typename InputIteratorT, typename OutputIteratorT>
+struct sumOp {
+    inline cudaError_t operator() (
+        void           *d_temp_storage,
+        size_t          temp_storage_bytes,
+        InputIteratorT  d_in,
+        OutputIteratorT d_out,
+        int             count,
+        cudaStream_t    stream
+    ) {
+        return DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, 
+                                 d_in, d_out, count, stream);
+    }
+};
+
+template<template<typename I, typename O> class Op, typename T>
+inline cudaError_t reduce(
     const void* pA, const TensorDescriptor& aDesc,
     void* pOut, const TensorDescriptor& oDesc,
     cudaStream_t stream
 ) {
     const T* a = static_cast<const T*>(pA);
     T* out = static_cast<T*>(pOut);
-    int count = aDesc.count;
-
-    void   *d_temp_storage = NULL;
+    void *d_temp_storage = NULL;
     size_t temp_storage_bytes = 0;
-    CubDebugExit(DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, a, out, count, stream));
+    int count = aDesc.count;
+    Op<const T*, T*> op = Op<const T*, T*>();
+
+    CubDebugExit(op(d_temp_storage, temp_storage_bytes, a, out, count, stream));
     CubDebugExit(g_allocator.DeviceAllocate(&d_temp_storage, temp_storage_bytes, stream));
-    // Run
-    CubDebugExit(DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, a, out, count, stream));
-    if (d_temp_storage) CubDebugExit(g_allocator.DeviceFree(d_temp_storage));
+    CubDebugExit(op(d_temp_storage, temp_storage_bytes, a, out, count, stream));
+    CubDebugExit(g_allocator.DeviceFree(d_temp_storage));
     return cudaSuccess;
+}
+
+template<template<typename I, typename O> class Op>
+cudaError_t selectType(
+    const void* a, const TensorDescriptor& aDesc,
+    void* out, const TensorDescriptor& oDesc,
+    cudaStream_t stream
+) {
+    if (!(aDesc.isDense() && oDesc.isDense())) return cudaErrorNotSupported;
+    switch(aDesc.type) {
+        case real32F:  return reduce<Op, float>(a, aDesc, out, oDesc, stream);
+        case real16F:  return reduce<Op, float16>(a, aDesc, out, oDesc, stream);
+        case real16BF: return reduce<Op, bfloat16>(a, aDesc, out, oDesc, stream);
+        case real64F:  return reduce<Op, double>(a, aDesc, out, oDesc, stream);
+        case real32I:  return reduce<Op, int32_t>(a, aDesc, out, oDesc, stream);
+        case real8U:   return reduce<Op, uint8_t>(a, aDesc, out, oDesc, stream);
+        case real8I:   return reduce<Op, int8_t>(a, aDesc, out, oDesc, stream);
+        case real16U:  return reduce<Op, uint16_t>(a, aDesc, out, oDesc, stream);
+        case real16I:  return reduce<Op, int16_t>(a, aDesc, out, oDesc, stream);
+        case boolean:  return reduce<Op, bool>(a, aDesc, out, oDesc, stream);
+        case complex32F: return reduce<Op, complexf>(a, aDesc, out, oDesc, stream);
+        default: return cudaErrorNotSupported;
+    }
 }
 
 cudaError_t srtSum(
@@ -98,21 +136,7 @@ cudaError_t srtSum(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    if (!(aDesc.isDense() && oDesc.isDense())) return cudaErrorNotSupported;
-    switch(aDesc.type) {
-        case real32F:  return sum<float>(a, aDesc, out, oDesc, stream);
-        // case real16F:  return selectOut<Op, float16>(a, aDesc, out, oDesc, stream);
-        // case real16BF: return selectOut<Op, bfloat16>(a, aDesc, out, oDesc, stream);
-        // case real64F:  return selectOut<Op, double>(a, aDesc, out, oDesc, stream);
-        // case real32I:  return selectOut<Op, int32_t>(a, aDesc, out, oDesc, stream);
-        // case real8U:   return selectOut<Op, uint8_t>(a, aDesc, out, oDesc, stream);
-        // case real8I:   return selectOut<Op, int8_t>(a, aDesc, out, oDesc, stream);
-        // case real16U:  return selectOut<Op, uint16_t>(a, aDesc, out, oDesc, stream);
-        // case real16I:  return selectOut<Op, int16_t>(a, aDesc, out, oDesc, stream);
-        // case boolean:  return selectOut<Op, bool>(a, aDesc, out, oDesc, stream);
-        // case complex32F: return selectOut<Op, complexf>(a, aDesc, out, oDesc, stream);
-        default: return cudaErrorNotSupported;
-    }
+    return selectType<sumOp>(a, aDesc, out, oDesc, stream);
 }
 
 //==============================================================================

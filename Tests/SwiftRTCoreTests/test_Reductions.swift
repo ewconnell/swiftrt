@@ -21,23 +21,23 @@ class test_Reductions: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        // ("test_sumTensor3AlongAxes", test_sumTensor3AlongAxes),
-        // ("test_minTensor3AlongAxes", test_minTensor3AlongAxes),
-        // ("test_maxTensor3AlongAxes", test_maxTensor3AlongAxes),
-        // ("test_sumTensor1", test_sumTensor1),
+        ("test_sumTensor3AlongAxes", test_sumTensor3AlongAxes),
+        ("test_minTensor3AlongAxes", test_minTensor3AlongAxes),
+        ("test_maxTensor3AlongAxes", test_maxTensor3AlongAxes),
+        ("test_sumTensor1", test_sumTensor1),
         ("test_sumTensor2", test_sumTensor2),
-        // ("test_abssumTensor2", test_abssumTensor2),
-        // ("test_allTensor1", test_allTensor1),
-        // ("test_anyTensor1", test_anyTensor1),
-        // ("test_meanTensor2", test_meanTensor2),
-        // ("test_maxTensor2", test_maxTensor2),
-        // ("test_minTensor2", test_minTensor2),
-        // ("test_absmaxTensor2", test_absmaxTensor2),
-        // ("test_gather", test_gather),
+        ("test_abssumTensor2", test_abssumTensor2),
+        ("test_allTensor1", test_allTensor1),
+        ("test_anyTensor1", test_anyTensor1),
+        ("test_meanTensor2", test_meanTensor2),
+        ("test_maxTensor2", test_maxTensor2),
+        ("test_minTensor2", test_minTensor2),
+        ("test_absmaxTensor2", test_absmaxTensor2),
+        ("test_gather", test_gather),
     ]
 
     override func setUpWithError() throws {
-        log.level = .diagnostic
+        // log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {

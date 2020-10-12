@@ -59,11 +59,11 @@ class test_AlgebraicField: XCTestCase {
     ]
 
     override func setUpWithError() throws {
-       log.level = .diagnostic
+    //    log.level = .diagnostic
     }
 
     override func tearDownWithError() throws {
-       log.level = .error
+    //    log.level = .error
     }
 
     //--------------------------------------------------------------------------
@@ -373,18 +373,17 @@ class test_AlgebraicField: XCTestCase {
             XCTAssert(g1 == [[1, 2], [3, 4]])
             XCTAssert(g2 == [[1, 2], [3, 4]])
         }
-        // do {
-        //     print("start")
-        //     let (g1, g2) = pullback(at: a, b, in: { $0 / $1 })(v)
-        //     let data = [1, 0.5, 0.333333343, 0.25].map { CF($0) }
-        //     let g1Expected = array(data, (2, 2))
-        //     let g1sumdiff = sum(g1 - g1Expected).element
-        //     XCTAssert(abs(g1sumdiff.real) <= 1e-6 && g1sumdiff.imaginary == 0)
+        do {
+            let (g1, g2) = pullback(at: a, b, in: { $0 / $1 })(v)
+            let data = [1, 0.5, 0.333333343, 0.25].map { CF($0) }
+            let g1Expected = array(data, (2, 2))
+            let g1sumdiff = sum(g1 - g1Expected).element
+            XCTAssert(abs(g1sumdiff.real) <= 1e-6 && g1sumdiff.imaginary == 0)
 
-        //     let g2Expected = -array(data, (2, 2))
-        //     let g2sumdiff = sum(g2 - g2Expected).element
-        //     XCTAssert(abs(g2sumdiff.real) <= 1e-6 && g2sumdiff.imaginary == 0)
-        // }
+            let g2Expected = -array(data, (2, 2))
+            let g2sumdiff = sum(g2 - g2Expected).element
+            XCTAssert(abs(g2sumdiff.real) <= 1e-6 && g2sumdiff.imaginary == 0)
+        }
     }
 
     //--------------------------------------------------------------------------
