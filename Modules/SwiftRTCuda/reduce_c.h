@@ -23,12 +23,7 @@ extern "C" {
 
 //==============================================================================
 
-cudaError_t srtAbsmax(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
-    cudaStream_t stream);
-
-cudaError_t srtAbssum(
+cudaError_t srtAbsSum(
     const void* x, const srtTensorDescriptor* xDesc,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);

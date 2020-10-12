@@ -20,19 +20,6 @@ import Numerics
 // CudaQueue functions
 extension CudaQueue {
     //--------------------------------------------------------------------------
-    @inlinable public func absmax<S,E>(
-        _ x: Tensor<S,E>,
-        _ out: inout Tensor<S,E>
-    ) where E.Value: SignedNumeric & Comparable {
-        assert(out.isContiguous, _messageElementsMustBeContiguous)
-        guard useGpu else { cpu_absmax(x, &out); return }
-        diagnostic(.queueGpu, "absmax(\(x.name)) on \(name)",
-            categories: .queueGpu)
-        
-        cpuFallback(cudaErrorNotSupported) { $0.absmax(x, &out) }
-    }
-
-    //--------------------------------------------------------------------------
     @inlinable public func abssum<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
@@ -41,8 +28,18 @@ extension CudaQueue {
         guard useGpu else { cpu_abssum(x, &out); return }
         diagnostic(.queueGpu, "abssum(\(x.name)) on \(name)",
             categories: .queueGpu)
-        
-        cpuFallback(cudaErrorNotSupported) { $0.abssum(x, &out) }
+        var status = cudaErrorNotSupported;
+
+        if out.count == 1 {
+            status = out.withMutableTensor(using: self) { o, oDesc in
+                x.withTensor(using: self) { x, xDesc in
+                    srtAbsSum(x, xDesc, o, oDesc, stream)
+                }
+            }
+        } else {
+
+        }        
+        cpuFallback(status) { $0.abssum(x, &out) }
     }
 
     //--------------------------------------------------------------------------
@@ -54,8 +51,18 @@ extension CudaQueue {
         guard useGpu else { cpu_all(x, &out); return }
         diagnostic(.queueGpu, "all(\(x.name)) on \(name)",
             categories: .queueGpu)
-        
-        cpuFallback(cudaErrorNotSupported) { $0.all(x, &out) }
+        var status = cudaErrorNotSupported;
+
+        if out.count == 1 {
+            status = out.withMutableTensor(using: self) { o, oDesc in
+                x.withTensor(using: self) { x, xDesc in
+                    srtAll(x, xDesc, o, oDesc, stream)
+                }
+            }
+        } else {
+
+        }        
+        cpuFallback(status) { $0.all(x, &out) }
     }
 
     //--------------------------------------------------------------------------
@@ -67,8 +74,18 @@ extension CudaQueue {
         guard useGpu else { cpu_any(x, &out); return }
         diagnostic(.queueGpu, "any(\(x.name)) on \(name)",
             categories: .queueGpu)
-        
-        cpuFallback(cudaErrorNotSupported) { $0.any(x, &out) }
+        var status = cudaErrorNotSupported;
+
+        if out.count == 1 {
+            status = out.withMutableTensor(using: self) { o, oDesc in
+                x.withTensor(using: self) { x, xDesc in
+                    srtAny(x, xDesc, o, oDesc, stream)
+                }
+            }
+        } else {
+
+        }        
+        cpuFallback(status) { $0.any(x, &out) }
     }
 
     //--------------------------------------------------------------------------

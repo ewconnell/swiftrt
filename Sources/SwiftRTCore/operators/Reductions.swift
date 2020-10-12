@@ -305,45 +305,6 @@ public extension Tensor where TensorElement.Value: Comparable {
 }
 
 //==============================================================================
-/// absmax(x:along:
-/// absolute max of `x` along the specified axes
-/// - Parameter x: value tensor
-/// - Parameter along: the axes to operate on
-@inlinable public func absmax<S,E>(
-    _ x: Tensor<S,E>,
-    axes: [Int]? = nil
-) -> Tensor<S,E> where E.Value: SignedNumeric & Comparable {
-    let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
-    var out = Tensor<S,E>(shape: shape)
-    currentQueue.absmax(x, &out)
-    return out
-}
-
-@derivative(of: absmax)
-@usableFromInline func _vjpAbsmax<S,E>(
-    _ x: Tensor<S,E>,
-    axes: [Int]? = nil
-) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-where E.Value: DifferentiableNumeric & SignedNumeric & Comparable
-{
-    // Dan
-    fatalError()
-}
-
-public extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
-    
-    @differentiable(where TensorElement.Value: DifferentiableNumeric)
-    @inlinable func absmax(axes: [Int]? = nil) -> Self {
-        SwiftRTCore.absmax(self, axes: axes)
-    }
-
-    @differentiable(where TensorElement.Value: DifferentiableNumeric)
-    @inlinable func absmax(axes: Int...) -> Self {
-        absmax(axes: axes)
-    }
-}
-
-//==============================================================================
 /// abssum(x:along:
 /// Sums the absolute values of `x` along the specified axes
 /// - Parameter x: value tensor

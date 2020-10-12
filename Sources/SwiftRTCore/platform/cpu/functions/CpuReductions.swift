@@ -18,27 +18,7 @@ import Numerics
 
 //==============================================================================
 // Cpu device queue function implementations
-extension CpuFunctions where Self: DeviceQueue {
-    //--------------------------------------------------------------------------
-    @inlinable public func cpu_absmax<S,E>(
-        _ x: Tensor<S,E>,
-        _ out: inout Tensor<S,E>
-    ) where E.Value: SignedNumeric & Comparable {
-        diagnostic(.queueCpu, "absmax(\(x.name)) on \(name)",
-            categories: .queueCpu)
-        if out.count == 1 {
-            mapReduce(x, &out, Swift.abs(x.first)) { o, x in
-                Swift.max(o, Swift.abs(x))
-            }
-        } else {
-            // set initial output value for blending
-            cpu_abs(x[S.zero, out.shape], &out)
-            reduceAlongAxes(x, &out) { o, x in
-                Swift.max(o, Swift.abs(x))
-            }
-        }
-    }
-    
+extension CpuFunctions where Self: DeviceQueue {    
     //--------------------------------------------------------------------------
     @inlinable public func cpu_abssum<S,E>(
         _ x: Tensor<S,E>,
@@ -53,7 +33,7 @@ extension CpuFunctions where Self: DeviceQueue {
             reduceAlongAxes(x, &out) { $0 + Swift.abs($1) }
         }
     }
-    
+
     //--------------------------------------------------------------------------
     @inlinable public func cpu_all<S>(
         _ x: Tensor<S,Bool>,
@@ -226,12 +206,6 @@ extension CpuFunctions where Self: DeviceQueue {
 // CpuQueue functions with default cpu delegation
 extension CpuQueue {
     //--------------------------------------------------------------------------
-    @inlinable public func absmax<S,E>(
-        _ x: Tensor<S,E>,
-        _ out: inout Tensor<S,E>
-    ) where E.Value: SignedNumeric & Comparable {
-        cpu_absmax(x, &out)
-    }
     //--------------------------------------------------------------------------
     @inlinable public func abssum<S,E>(
         _ x: Tensor<S,E>,

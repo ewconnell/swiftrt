@@ -21,18 +21,17 @@ class test_Reductions: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
+        ("test_abssum", test_abssum),
         // ("test_sumTensor1", test_sumTensor1),
         // ("test_sumTensor2", test_sumTensor2),
         // ("test_sumTensor3AlongAxes", test_sumTensor3AlongAxes),
         // ("test_minTensor3AlongAxes", test_minTensor3AlongAxes),
         // ("test_maxTensor3AlongAxes", test_maxTensor3AlongAxes),
-        // ("test_abssumTensor2", test_abssumTensor2),
-        // ("test_allTensor1", test_allTensor1),
-        // ("test_anyTensor1", test_anyTensor1),
+        ("test_all", test_all),
+        ("test_any", test_any),
         // ("test_meanTensor2", test_meanTensor2),
-        ("test_min", test_min),
-        ("test_max", test_max),
-        // ("test_absmax", test_absmax),
+        // ("test_min", test_min),
+        // ("test_max", test_max),
         // ("test_gather", test_gather),
     ]
 
@@ -231,10 +230,9 @@ class test_Reductions: XCTestCase {
             ]
         ])
     }
-    
-    //--------------------------------------------------------------------------
-    // test_abssumTensor2
-    func test_abssumTensor2() {
+
+ //--------------------------------------------------------------------------
+    func test_abssum() {
         let m = array([
             [ 0, -1],
             [-2,  3],
@@ -268,8 +266,7 @@ class test_Reductions: XCTestCase {
     }
 
     //--------------------------------------------------------------------------
-    // test_allTensor1
-    func test_allTensor1() {
+    func test_all() {
         let a = array([true, true, true])
         XCTAssert(a.all().element == true)
         
@@ -281,8 +278,7 @@ class test_Reductions: XCTestCase {
     }
     
     //--------------------------------------------------------------------------
-    // test_anyTensor1
-    func test_anyTensor1() {
+    func test_any() {
         let a = array([true, true, true])
         XCTAssert(a.any().element == true)
         
@@ -350,17 +346,6 @@ class test_Reductions: XCTestCase {
         // XCTAssert(m.max(axes: 1) == [[3], [6]])
     }
 
-    //--------------------------------------------------------------------------
-    func test_absmax() {
-        let m = array([
-            [-1,  3, -6],
-            [ 1, -3,  6],
-        ])
-        XCTAssert(m.absmax().element == 6)
-        XCTAssert(m.absmax(axes: 0) == [[1, 3, 6]])
-        XCTAssert(m.absmax(axes: 1) == [[6], [6]])
-    }
-        
     //--------------------------------------------------------------------------
     // test_gather
     // TODO: get this verified

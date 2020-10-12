@@ -16,6 +16,7 @@
 #include "index.h"
 #include "reduce_fn.h"
 #include "op1.h"
+#include "srt_cdefs.h"
 #include <cstddef>
 
 using namespace cub;
@@ -31,20 +32,13 @@ CachingDeviceAllocator  g_allocator(true);  // Caching allocator for device memo
 // Swift importable C interface functions
 //==============================================================================
 
-cudaError_t srtAbsmax(
+cudaError_t srtAbsSum(
     const void* a, const srtTensorDescriptor* paDesc,
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
-    return cudaErrorNotSupported;
-}
-
-cudaError_t srtAbssum(
-    const void* a, const srtTensorDescriptor* paDesc,
-    void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream
-) {
-    return cudaErrorNotSupported;
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return selectType<AbsSumOp>(a, aDesc, out, oDesc, g_allocator, stream);
 }
 
 cudaError_t srtAll(
@@ -52,7 +46,9 @@ cudaError_t srtAll(
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
-    return cudaErrorNotSupported;
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    assert(aDesc.type == boolean && oDesc.type == boolean);
+    return reduce<AllOp, bool>(a, aDesc, out, oDesc, g_allocator, stream);
 }
 
 cudaError_t srtAny(
@@ -60,7 +56,9 @@ cudaError_t srtAny(
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
-    return cudaErrorNotSupported;
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    assert(aDesc.type == boolean && oDesc.type == boolean);
+    return reduce<AnyOp, bool>(a, aDesc, out, oDesc, g_allocator, stream);
 }
 
 cudaError_t srtSum(

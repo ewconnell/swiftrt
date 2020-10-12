@@ -15,8 +15,7 @@
 //
 #pragma once
 #include "reduce_c.h"
-#include "srt_types.h"
-#include "index.h"
+#include "math_fn.h"
 
 // Ensure printing of CUDA runtime errors to console
 #define CUB_STDERR
@@ -70,6 +69,82 @@ template <> struct NumericTraits<Complex<float>> :
 // supplemental function delegating macros
 //==============================================================================
 
+//------------------------------------------------------------------------------
+template<typename InputIteratorT, typename OutputIteratorT>
+struct AbsSumOp {
+    struct AbsSum {
+        template <typename T>
+        __device__ __forceinline__
+        T operator()(const T &a, const T &b) const {
+            return abs(a) + abs(b);
+        }
+    };
+
+    __forceinline__ static cudaError_t op(
+        void*&          d_temp_storage,
+        size_t&         temp_storage_bytes,
+        InputIteratorT  d_in,
+        OutputIteratorT d_out,
+        int             count,
+        cudaStream_t    stream
+    ) {
+        AbsSum abs_sum;
+        return cub::DeviceReduce::
+        Reduce(d_temp_storage, temp_storage_bytes, d_in, d_out, count, abs_sum, 0.0f, stream);
+    }
+};
+
+//------------------------------------------------------------------------------
+template<typename InputIteratorT, typename OutputIteratorT>
+struct AnyOp {
+    struct LogicalOr {
+        template <typename T>
+        __device__ __forceinline__
+        T operator()(const T &a, const T &b) const {
+            return b || a;
+        }
+    };
+
+    __forceinline__ static cudaError_t op(
+        void*&          d_temp_storage,
+        size_t&         temp_storage_bytes,
+        InputIteratorT  d_in,
+        OutputIteratorT d_out,
+        int             count,
+        cudaStream_t    stream
+    ) {
+        LogicalOr logical_or;
+        return cub::DeviceReduce::
+        Reduce(d_temp_storage, temp_storage_bytes, d_in, d_out, count, logical_or, false, stream);
+    }
+};
+
+//------------------------------------------------------------------------------
+template<typename InputIteratorT, typename OutputIteratorT>
+struct AllOp {
+    struct LogicalAnd {
+        template <typename T>
+        __device__ __forceinline__
+        T operator()(const T &a, const T &b) const {
+            return b && a;
+        }
+    };
+
+    __forceinline__ static cudaError_t op(
+        void*&          d_temp_storage,
+        size_t&         temp_storage_bytes,
+        InputIteratorT  d_in,
+        OutputIteratorT d_out,
+        int             count,
+        cudaStream_t    stream
+    ) {
+        LogicalAnd logical_and;
+        return cub::DeviceReduce::
+        Reduce(d_temp_storage, temp_storage_bytes, d_in, d_out, count, logical_and, true, stream);
+    }
+};
+
+//------------------------------------------------------------------------------
 template<typename InputIteratorT, typename OutputIteratorT>
 struct MinOp {
     __forceinline__ static cudaError_t op(
