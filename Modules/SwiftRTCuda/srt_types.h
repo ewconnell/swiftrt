@@ -31,6 +31,24 @@
 #endif
 
 //==============================================================================
+// launch error detection
+inline void CudaKernelPreCheck(cudaStream_t stream) {
+#ifdef DEBUG
+	// reset error variable to cudaSuccess
+	cudaGetLastError();
+#endif
+}
+
+inline cudaError_t CudaKernelPostCheck(cudaStream_t stream) {
+#ifdef DEBUG
+	cudaStreamSynchronize(stream);
+	return cudaGetLastError();
+#else
+	return cudaSuccess;
+#endif
+}
+
+//==============================================================================
 // used for casting between gpu simd types and uint32_t
 #define UINT_CREF(_v) reinterpret_cast<const unsigned&>(_v)
 #define CAST(type, _v) (*reinterpret_cast<const type*>(&(_v)))

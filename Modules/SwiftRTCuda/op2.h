@@ -107,6 +107,7 @@ static cudaError_t flattened(
     cudaStream_t stream
 ) {
     if constexpr (Op::conforms()) {
+        CudaKernelPreCheck(stream);
         using A = const typename Op::A;
         using B = const typename Op::B;
         using Out = typename Op::Out;
@@ -121,7 +122,7 @@ static cudaError_t flattened(
 
         mapAB<Op,Flat,Flat><<<grid, tile, 0, stream>>>
             (a, Flat(aDesc), b, Flat(bDesc), out, Flat(oDesc));
-        return cudaSuccess;
+        return CudaKernelPostCheck(stream);
     }
     return cudaErrorNotSupported;
 }
@@ -136,6 +137,7 @@ static cudaError_t flattened(
     cudaStream_t stream
 ) {
     if constexpr (Op::conforms()) {
+        CudaKernelPreCheck(stream);
         using A = const typename Op::A;
         using E = const typename Op::B;
         using Out = typename Op::Out;
@@ -150,7 +152,7 @@ static cudaError_t flattened(
 
         mapAE<Op,Flat,Flat><<<grid, tile, 0, stream>>>
             (a, Flat(aDesc), e, out, Flat(oDesc));
-        return cudaSuccess;
+        return CudaKernelPostCheck(stream);
     }
     return cudaErrorNotSupported;
 }

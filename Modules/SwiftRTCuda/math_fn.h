@@ -60,7 +60,7 @@ __device__ inline float162 func(const float162& a, const float162& b) \
     __device__ inline bfloat16 func(const bfloat16& a, const bfloat16& b) \
     { return func(float(a), float(b)); }
 #else
-#define BFLOAT16_NATIVE(func, native) \
+#define BFLOAT16_NATIVE2(func, native) \
     __device__ inline bfloat16 func(const bfloat16& a, const bfloat16& b) \
     { return native(a, b); }
 #endif
