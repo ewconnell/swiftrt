@@ -248,21 +248,3 @@ public extension Tensor {
     currentQueue.replace(x, y, condition, &result)
     return result
 }
-
-public extension Tensor where TensorElement.Value: Comparable {
-    @inlinable mutating func replacing(
-        with y: Self,
-        where condition: Tensor<Shape,Bool>
-    ) {
-        inplace(&self) {
-            currentQueue.replace($0, y, condition, &$0)
-        }
-    }
-    
-    @inlinable mutating func replacing(
-        with value: TensorElement.Value,
-        where condition: Tensor<Shape,Bool>
-    ) {
-        replacing(with: repeating(value, like: self), where: condition)
-    }
-}
