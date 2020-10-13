@@ -22,25 +22,23 @@ class test_Comparative: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        ("test_compareFloat16", test_compareFloat16),
-        ("test_compareInt8", test_compareInt8),
-        ("test_replace", test_replace),
-        ("test_complexOrder", test_complexOrder),
-        ("test_elementWiseAndOr", test_elementWiseAndOr),
-        ("test_elementsAlmostEqual", test_elementsAlmostEqual),
-
-// these require reductions to work
-        ("test_boolEquality", test_boolEquality),
-        ("test_equality", test_equality),
-        
-        ("test_max", test_max),
-        ("test_maxScalar", test_maxScalar),
-        ("test_min", test_min),
-        ("test_minScalar", test_minScalar),
+        // ("test_compareFloat16", test_compareFloat16),
+        // ("test_compareInt8", test_compareInt8),
+        // ("test_replace", test_replace),
+        ("test_replace2", test_replace2),
+        // ("test_complexOrder", test_complexOrder),
+        // ("test_elementWiseAndOr", test_elementWiseAndOr),
+        // ("test_elementsAlmostEqual", test_elementsAlmostEqual),
+        // ("test_boolEquality", test_boolEquality),
+        // ("test_equality", test_equality),
+        // ("test_max", test_max),
+        // ("test_maxScalar", test_maxScalar),
+        // ("test_min", test_min),
+        // ("test_minScalar", test_minScalar),
     ]
 
     override func setUpWithError() throws {
-        // log.level = .diagnostic
+        log.level = .diagnostic
     }
 
     override func tearDownWithError() throws { log.level = .error }
@@ -78,6 +76,26 @@ class test_Comparative: XCTestCase {
             let x = replace(x: a, with: b, where: c)
             XCTAssert(x == [[1, 0, 3],[0, 5, 0]])
         }
+    }
+
+    //--------------------------------------------------------------------------
+    // https://github.com/ewconnell/swiftrt/issues/18
+    func test_replace2() {
+        let maxj = 4
+        let maxi = 4
+
+        let rh = ones((2, maxj, maxi), name: "rh")
+        let h = repeating(2.0, (2, maxj, maxi))
+        let mask = array([false, true, true, false], (1, maxj-2, maxi-2))
+        let replacement = h[0, 1..<(maxj-1), 1..<(maxi-1)] - 2.0
+        var range = rh[0, 1..<(maxj-1), 1..<(maxi-1)]
+
+        range[mask] = replacement
+
+        XCTAssert(range == [[
+            [1.0, 0.0],
+            [0.0, 1.0]
+        ]])
     }
 
     //--------------------------------------------------------------------------
