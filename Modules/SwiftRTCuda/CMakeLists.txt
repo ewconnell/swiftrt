@@ -1,8 +1,11 @@
 add_library(SwiftRTCuda STATIC
+  compare_ops.cu
   delayStream.cu
-  fillOps.cu
-  mathOps.cu
-  randomOps.cu)
+  fill_ops.cu
+  math_ops.cu
+  random_ops.cu
+  reduce_ops.cu
+  specialized_ops.cu)
 target_compile_options(SwiftRTCuda PRIVATE
   -allow-unsupported-compiler
   --std c++17
