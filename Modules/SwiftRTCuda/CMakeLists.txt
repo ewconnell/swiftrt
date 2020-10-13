@@ -11,7 +11,11 @@ target_compile_options(SwiftRTCuda PRIVATE
   --std c++17
   --expt-relaxed-constexpr
   -Wno-deprecated-gpu-targets
-  -gencode arch=compute_75,code=sm_75
+  -gencode=arch=compute_60,code=sm_60
+  -gencode=arch=compute_70,code=sm_70
+  -gencode=arch=compute_75,code=sm_75
   --compiler-options -fPIC)
 target_include_directories(SwiftRTCuda PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR})
+
+set_property(TARGET SwiftRTCuda PROPERTY CUDA_ARCHITECTURES 60 70 75)
