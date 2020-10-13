@@ -250,17 +250,19 @@ public extension Tensor {
 }
 
 public extension Tensor where TensorElement.Value: Comparable {
-    @inlinable func replacing(
+    @inlinable mutating func replacing(
         with y: Self,
         where condition: Tensor<Shape,Bool>
-    ) -> Self {
-        replace(x: self, with: y, where: condition)
+    ) {
+        inplace(&self) {
+            currentQueue.replace($0, y, condition, &$0)
+        }
     }
     
-    @inlinable func replacing(
+    @inlinable mutating func replacing(
         with value: TensorElement.Value,
         where condition: Tensor<Shape,Bool>
-    ) -> Self {
+    ) {
         replacing(with: repeating(value, like: self), where: condition)
     }
 }
