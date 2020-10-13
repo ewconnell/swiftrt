@@ -40,9 +40,7 @@ class test_arraySyntax: XCTestCase {
         // log.level = .diagnostic
     }
 
-    override func tearDownWithError() throws {
-        // log.level = .error
-    }
+    override func tearDownWithError() throws { log.level = .error }
 
     //--------------------------------------------------------------------------
     func test_initSyntax() {

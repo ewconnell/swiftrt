@@ -62,6 +62,10 @@ public struct Float16 :
 	@inlinable public var exponent: Int { (Int)(x & Float16.exponentMask) }
 	@inlinable public var sign: Int { (Int)(x & Float16.signMask) }
 
+	@inlinable public static var greatestFiniteMagnitude: Float16 {
+		Float16(integerLiteral: 65504)
+	}
+
     @inlinable public static func <(lhs: Float16, rhs: Float16) -> Bool {
 		Float(lhs) < Float(rhs)
 	}
@@ -77,6 +81,10 @@ public struct Float16 :
 	
 	@inlinable public static func -(lhs: Float16, rhs: Float16) -> Float16 {
         Float16(Float(lhs) - Float(rhs))
+	}
+
+	@inlinable public static prefix func -(v: Float16) -> Float16 {
+        Float16(-Float(v))
 	}
 
 	@inlinable public static func *(lhs: Float16, rhs: Float16) -> Float16 {

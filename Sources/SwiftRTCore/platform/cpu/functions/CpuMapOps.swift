@@ -105,16 +105,30 @@ extension DeviceQueue {
         _ initialValue: E.Value,
         _ op: @escaping (E.Value, E.Value) -> E.Value
     ) {
-        let a = a.buffer
-        var out = out.mutableBuffer
-        let io = out.startIndex 
+        assert(a.order == out.order && out.isContiguous)
         
-        if mode == .sync {
-            out[io] = a.reduce(into: initialValue) { $0 = op($0, $1) }
-        } else {
-            queue.async(group: group) {
+        func execute<A: Collection, O: MutableCollection>(
+            _ a: A,
+            _ out: O,
+            _ initialValue: O.Element,
+            _ op: @escaping (O.Element, A.Element) -> O.Element
+        ) {
+            var out = out
+            let io = out.startIndex 
+    
+            if mode == .sync {
                 out[io] = a.reduce(into: initialValue) { $0 = op($0, $1) }
+            } else {
+                queue.async(group: group) {
+                    out[io] = a.reduce(into: initialValue) { $0 = op($0, $1) }
+                }
             }
+        }
+
+        if a.isContiguous {
+            execute(a.buffer, out.mutableBuffer, initialValue, op)
+        } else {
+            execute(a.elements, out.mutableBuffer, initialValue, op)
         }
     }
     
@@ -123,24 +137,33 @@ extension DeviceQueue {
     @inlinable func reduceAlongAxes<S,E,RE>(
         _ a: Tensor<S,E>,
         _ output: inout Tensor<S,RE>,
+        _ initialValue: RE.Value,
         _ op: @escaping (RE.Value, E.Value) -> RE.Value
     ) {
-        func execute<A: Collection, O: MutableCollection>(
+        func execute<A: Collection,O: MutableCollection,OS: MutableCollection>(
             _ a: A,
             _ out: O,
+            _ outStorage: OS,
+            _ initialValue: OS.Element,
             _ op: @escaping (O.Element, A.Element) -> O.Element
         ) {
             var out = out
+            var outStorage = outStorage
             if mode == .sync {
+                outStorage.indices.forEach { outStorage[$0] = initialValue }
                 zip(out.indices, a).forEach { out[$0] = op(out[$0], $1) }
             } else {
                 queue.async(group: group) {
+                    outStorage.indices.forEach { outStorage[$0] = initialValue }
                     zip(out.indices, a).forEach { out[$0] = op(out[$0], $1) }
                 }
             }
         }
+
+        // pass a flat output iterator to the function to set initial values 
+        let outStorage = output.mutableBuffer
         
-        // repeat `r`s to match `a`'s shape to enable operations along axes
+        // project `out` to match `a`'s shape to enable operations along axes
         let mutableElements = LogicalElements<S,RE>(
             a.count,
             a.shape,
@@ -153,9 +176,9 @@ extension DeviceQueue {
         mutableElements.prepareForReadWrite()
         
         if a.isContiguous {
-            execute(a.buffer, mutableElements, op)
+            execute(a.buffer, mutableElements, outStorage, initialValue, op)
         } else {
-            execute(a.elements, mutableElements, op)
+            execute(a.elements, mutableElements, outStorage, initialValue, op)
         }
     }
 

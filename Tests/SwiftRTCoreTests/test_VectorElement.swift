@@ -28,9 +28,7 @@ class test_VectorElement: XCTestCase {
         // log.level = .diagnostic
     }
 
-    override func tearDownWithError() throws {
-        // log.level = .error
-    }
+    override func tearDownWithError() throws { log.level = .error }
 
     //--------------------------------------------------------------------------
     // adds a value to each image pixel

@@ -31,9 +31,7 @@ class test_Codable: XCTestCase {
         // log.level = .diagnostic
     }
 
-    override func tearDownWithError() throws {
-        // log.level = .error
-    }
+    override func tearDownWithError() throws { log.level = .error }
 
     //==========================================================================
     // test_Tensor1

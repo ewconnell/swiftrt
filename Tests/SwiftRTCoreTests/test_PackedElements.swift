@@ -31,9 +31,7 @@ class test_PackedElements: XCTestCase {
         // log.level = .diagnostic
     }
 
-    override func tearDownWithError() throws {
-        // log.level = .error
-    }
+    override func tearDownWithError() throws { log.level = .error }
 
     //--------------------------------------------------------------------------
     func test_castingBool1_UInt1() {

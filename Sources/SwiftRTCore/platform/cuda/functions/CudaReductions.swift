@@ -127,7 +127,7 @@ extension CudaQueue {
     @inlinable public func min<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
-    ) where E.Value: Comparable {
+    ) where E.Value: Comparable & ComparableLimits {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_min(x, &out); return }
         diagnostic(.queueGpu, "min(\(x.name)) on \(name)",
@@ -150,7 +150,7 @@ extension CudaQueue {
     @inlinable public func argmin<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
-    ) where E.Value: Comparable {
+    ) where E.Value: Comparable & ComparableLimits {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_argmin(x, &out); return }
         diagnostic(.queueGpu, "argmin(\(x.name)) on \(name)",
@@ -163,7 +163,7 @@ extension CudaQueue {
     @inlinable public func max<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
-    ) where E.Value: Comparable {
+    ) where E.Value: Comparable & ComparableLimits {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_max(x, &out); return }
         diagnostic(.queueGpu, "max(\(x.name)) on \(name)",
@@ -186,7 +186,7 @@ extension CudaQueue {
     @inlinable public func argmax<S,E>(
         _ x: Tensor<S,E>,
         _ out: inout Tensor<S,E>
-    ) where E.Value: Comparable {
+    ) where E.Value: Comparable & ComparableLimits {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_argmax(x, &out); return }
         diagnostic(.queueGpu, "argmax(\(x.name)) on \(name)",

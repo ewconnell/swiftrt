@@ -234,7 +234,7 @@ public extension Tensor where TensorElement.Value: Numeric {
 @inlinable public func min<S,E>(
     _ x: Tensor<S,E>,
     axes: [Int]? = nil
-) -> Tensor<S,E> where E.Value: Comparable {
+) -> Tensor<S,E> where E.Value: Comparable & ComparableLimits {
     let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
     var out = Tensor<S,E>(shape: shape)
     currentQueue.min(x, &out)
@@ -246,12 +246,12 @@ public extension Tensor where TensorElement.Value: Numeric {
     _ x: Tensor<S,E>,
     axes: [Int]? = nil
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-where E.Value: DifferentiableNumeric & Comparable {
+where E.Value: DifferentiableNumeric & Comparable & ComparableLimits {
     // Dan
     fatalError()
 }
 
-public extension Tensor where TensorElement.Value: Comparable {
+public extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
     
     @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func min(axes: [Int]? = nil) -> Self {
@@ -272,7 +272,7 @@ public extension Tensor where TensorElement.Value: Comparable {
 @inlinable public func max<S,E>(
     _ x: Tensor<S,E>,
     axes: [Int]? = nil
-) -> Tensor<S,E> where E.Value: Comparable {
+) -> Tensor<S,E> where E.Value: Comparable & ComparableLimits {
     let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
     var out = Tensor<S,E>(shape: shape)
     currentQueue.max(x, &out)
@@ -285,13 +285,12 @@ public extension Tensor where TensorElement.Value: Comparable {
     _ x: Tensor<S,E>,
     axes: [Int]? = nil
 ) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> Tensor<S,E>)
-where E.Value: DifferentiableNumeric & Comparable
-{
+where E.Value: DifferentiableNumeric & Comparable & ComparableLimits  {
     // Dan
     fatalError()
 }
 
-public extension Tensor where TensorElement.Value: Comparable {
+public extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
     
     @differentiable(where TensorElement.Value: DifferentiableNumeric)
     @inlinable func max(axes: [Int]? = nil) -> Self {

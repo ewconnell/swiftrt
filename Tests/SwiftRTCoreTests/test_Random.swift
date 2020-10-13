@@ -30,9 +30,7 @@ class test_Random: XCTestCase {
         // log.level = .diagnostic
     }
 
-    override func tearDownWithError() throws {
-        // log.level = .error
-    }
+    override func tearDownWithError() throws { log.level = .error }
 
     //--------------------------------------------------------------------------
     // test_randomUniform

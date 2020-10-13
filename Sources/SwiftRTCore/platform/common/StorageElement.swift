@@ -146,6 +146,71 @@ extension StorageElement {
 }
 
 //==============================================================================
+// Numeric extension for scalar types
+public extension Numeric {
+    @inlinable static var one: Self { 1 }
+}
+
+//==============================================================================
+/// ComparableLimits
+/// Used to initialize reductions
+public protocol ComparableLimits {
+    // the lowest comparable value
+    static var lowest: Self { get }
+    // the highest comparable value
+    static var highest: Self { get }
+}
+
+extension Int8: ComparableLimits {
+    public static var lowest: Self { .min }
+    public static var highest: Self { .max }
+}
+
+extension UInt8: ComparableLimits {
+    public static var lowest: Self { .min }
+    public static var highest: Self { .max }
+}
+
+extension Int16: ComparableLimits {
+    public static var lowest: Self { .min }
+    public static var highest: Self { .max }
+}
+
+extension UInt16: ComparableLimits {
+    public static var lowest: Self { .min }
+    public static var highest: Self { .max }
+}
+
+extension Int32: ComparableLimits {
+    public static var lowest: Self { .min }
+    public static var highest: Self { .max }
+}
+
+extension UInt32: ComparableLimits {
+    public static var lowest: Self { .min }
+    public static var highest: Self { .max }
+}
+
+extension Float: ComparableLimits {
+    public static var lowest: Self { -.greatestFiniteMagnitude }
+    public static var highest: Self { .greatestFiniteMagnitude }
+}
+
+extension Double: ComparableLimits {
+    public static var lowest: Self { -.greatestFiniteMagnitude }
+    public static var highest: Self { .greatestFiniteMagnitude }
+}
+
+extension Complex: ComparableLimits where RealType: ComparableLimits {
+    public static var lowest: Self {
+        Self(RealType.lowest, RealType.lowest)
+    }
+    public static var highest: Self {
+        Self(RealType.highest, RealType.highest)
+    }
+}
+
+//==============================================================================
 // Note: The default behavior for whole native elements is simply pass through
 // which should be discarded by the compiler and impose no performance
 // penalty
