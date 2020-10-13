@@ -425,7 +425,7 @@ extension DeviceQueue {
         _ op: @escaping (E0.Value, E1.Value, E2.Value) -> OE.Value
     ) {
         assert(a.order == b.order && a.order == c.order &&
-                a.order == output.order && output.isContiguous)
+               a.order == output.order)
 
         func execute<A: Collection, B: Collection, C: Collection,
                      O: MutableCollection>(
@@ -446,33 +446,64 @@ extension DeviceQueue {
             }
         }
         
-        let out = output.mutableBuffer
         if a.isContiguous {
             if b.isContiguous {
                 if c.isContiguous {
-                    execute(a.buffer, b.buffer, c.buffer, out, op)
+                    if output.isContiguous {
+                        execute(a.buffer, b.buffer, c.buffer, output.mutableBuffer, op)
+                    } else {
+                        execute(a.buffer, b.buffer, c.buffer, output.mutableElements, op)
+                    }
                 } else {
-                    execute(a.buffer, b.buffer, c.elements, out, op)
+                    if output.isContiguous {
+                        execute(a.buffer, b.buffer, c.elements, output.mutableBuffer, op)
+                    } else {
+                        execute(a.buffer, b.buffer, c.elements, output.mutableElements, op)
+                    }
                 }
             } else {
                 if c.isContiguous {
-                    execute(a.buffer, b.elements, c.buffer, out, op)
+                    if output.isContiguous {
+                        execute(a.buffer, b.elements, c.buffer, output.mutableBuffer, op)
+                    } else {
+                        execute(a.buffer, b.elements, c.buffer, output.mutableElements, op)
+                    }
                 } else {
-                    execute(a.buffer, b.elements, c.elements, out, op)
+                    if output.isContiguous {
+                        execute(a.buffer, b.elements, c.elements, output.mutableBuffer, op)
+                    } else {
+                        execute(a.buffer, b.elements, c.elements, output.mutableElements, op)
+                    }
                 }
             }
         } else {
             if b.isContiguous {
                 if c.isContiguous {
-                    execute(a.elements, b.buffer, c.buffer, out, op)
+                    if output.isContiguous {
+                        execute(a.elements, b.buffer, c.buffer, output.mutableBuffer, op)
+                    } else {
+                        execute(a.elements, b.buffer, c.buffer, output.mutableElements, op)
+                    }
                 } else {
-                    execute(a.elements, b.buffer, c.elements, out, op)
+                    if output.isContiguous {
+                        execute(a.elements, b.buffer, c.elements, output.mutableBuffer, op)
+                    } else {
+                        execute(a.elements, b.buffer, c.elements, output.mutableElements, op)
+                    }
                 }
             } else {
                 if c.isContiguous {
-                    execute(a.elements, b.elements, c.buffer, out, op)
+                    if output.isContiguous {
+                        execute(a.elements, b.elements, c.buffer, output.mutableBuffer, op)
+                    } else {
+                        execute(a.elements, b.elements, c.buffer, output.mutableElements, op)
+                    }
                 } else {
-                    execute(a.elements, b.elements, c.elements, out, op)
+                    if output.isContiguous {
+                        execute(a.elements, b.elements, c.elements, output.mutableBuffer, op)
+                    } else {
+                        execute(a.elements, b.elements, c.elements, output.mutableElements, op)
+                    }
                 }
             }
         }

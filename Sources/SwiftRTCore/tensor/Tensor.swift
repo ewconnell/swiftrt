@@ -514,11 +514,11 @@ public extension Tensor {
     /// - Parameters:
     ///  - queue: a queue to use for copying in case the storage is not unique
     @inlinable mutating func shared(
-        using queue: Platform.Device.Queue
+        using queue: Platform.Device.Queue? = nil
     ) -> Self {
         // this ensures that the storage is unique before
         // disabling copy on write by setting `isShared` to `true`
-        prepareForWrite(using: queue)
+        prepareForWrite(using: queue ?? currentQueue)
         var sharedSelf = self
         sharedSelf.isShared = true
         return sharedSelf
