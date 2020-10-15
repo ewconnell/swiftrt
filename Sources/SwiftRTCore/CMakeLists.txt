@@ -83,7 +83,7 @@ if(SWIFTRT_ENABLE_CUDA)
 
     platform/cuda/layers/CudaActivation.swift
     platform/cuda/layers/CudaConvolution.swift)
-  target_link_libraries(SwiftRTCore PUBLIC
+  target_link_libraries(SwiftRTCore PRIVATE
     SwiftRTCuda)
 endif()
 set_target_properties(SwiftRTCore PROPERTIES
