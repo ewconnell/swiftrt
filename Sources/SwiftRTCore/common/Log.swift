@@ -305,7 +305,11 @@ public final class Log: LogWriter {
     @inlinable
     public init(url: URL? = nil, isStatic: Bool = true) {
         assert(url == nil || url!.isFileURL, "Log url must be a file URL")
+        #if LOGLEVEL_DIAGNOSTIC
+        level = .diagnostic
+        #else
         level = .error
+        #endif
         _silent = false
         _tabSize = 2
         var file: FileHandle?

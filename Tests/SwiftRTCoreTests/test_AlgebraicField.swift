@@ -58,12 +58,6 @@ class test_AlgebraicField: XCTestCase {
         ("test_divAndAssign", test_divAndAssign),
     ]
 
-    override func setUpWithError() throws {
-    //    log.level = .diagnostic
-    }
-
-    override func tearDownWithError() throws { log.level = .error }
-
     //--------------------------------------------------------------------------
     func test_addStrided() {
         let a = array(0..<9, (3, 3), type: Float.self)

@@ -40,12 +40,6 @@ class test_Initialize: XCTestCase {
         ("test_concatenateGradients", test_concatenateGradients),
     ]
     
-    override func setUpWithError() throws {
-        // log.level = .diagnostic
-    }
-
-    override func tearDownWithError() throws { log.level = .error }
-
     //--------------------------------------------------------------------------
     func test_FloatRange() {
         let a = Tensor2(from: 0.5, to: 1.49, [2, 2])

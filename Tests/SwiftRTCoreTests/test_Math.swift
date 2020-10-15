@@ -33,12 +33,6 @@ class test_Math: XCTestCase {
         ("test_squared", test_squared),
     ]
 
-    override func setUpWithError() throws {
-        // log.level = .diagnostic
-    }
-
-    override func tearDownWithError() throws { log.level = .error }
-
     //--------------------------------------------------------------------------
     func test_multiplyAdd() {
         do {

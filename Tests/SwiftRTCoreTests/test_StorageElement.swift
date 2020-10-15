@@ -26,12 +26,6 @@ class test_StorageElement: XCTestCase {
         ("test_Int1Bool", test_Int1Bool),
         ("test_Int1Reshape", test_Int1Reshape),
     ]
-    
-    override func setUpWithError() throws {
-        // log.level = .diagnostic
-    }
-
-    override func tearDownWithError() throws { log.level = .error }
 
     //--------------------------------------------------------------------------
     func test_Int1StorageSize() {

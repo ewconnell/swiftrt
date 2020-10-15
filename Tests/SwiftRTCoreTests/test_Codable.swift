@@ -27,12 +27,6 @@ class test_Codable: XCTestCase {
         ("test_RGBAImage", test_RGBAImage),
     ]
     
-    override func setUpWithError() throws {
-        // log.level = .diagnostic
-    }
-
-    override func tearDownWithError() throws { log.level = .error }
-
     //==========================================================================
     // test_Tensor1
     // encodes and decodes

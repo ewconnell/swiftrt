@@ -25,12 +25,6 @@ class test_Random: XCTestCase {
         ("test_randomNormal", test_randomNormal),
         ("test_randomTruncatedNormal", test_randomTruncatedNormal),
     ]
-    
-    override func setUpWithError() throws {
-        // log.level = .diagnostic
-    }
-
-    override func tearDownWithError() throws { log.level = .error }
 
     //--------------------------------------------------------------------------
     // test_randomUniform

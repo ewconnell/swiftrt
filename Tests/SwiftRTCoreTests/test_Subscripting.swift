@@ -32,12 +32,6 @@ class test_Subscripting: XCTestCase {
         ("test_Tensor2Range", test_Tensor2Range),
         ("test_Tensor1WriteRange", test_Tensor1WriteRange),
     ]
-    
-    override func setUpWithError() throws {
-        // log.level = .diagnostic
-    }
-
-    override func tearDownWithError() throws { log.level = .error }
 
     //--------------------------------------------------------------------------
     func test_perfTensorSubview() {

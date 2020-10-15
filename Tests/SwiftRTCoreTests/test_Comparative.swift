@@ -37,12 +37,6 @@ class test_Comparative: XCTestCase {
         ("test_minScalar", test_minScalar),
     ]
 
-    override func setUpWithError() throws {
-        // log.level = .diagnostic
-    }
-
-    override func tearDownWithError() throws { log.level = .error }
-
     //--------------------------------------------------------------------------
     func test_compareFloat16() {
         let a = array([0, 1, 2], type: Float16.self)

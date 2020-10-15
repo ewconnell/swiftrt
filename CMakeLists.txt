@@ -4,64 +4,22 @@ project(swiftrt
 include(CTest)
 
 option(SWIFTRT_ENABLE_CUDA "Enable CUDA Support" NO)
+option(SWIFTRT_LOGLEVEL_DIAGNOSTIC "Set the default Log level to diagnostic" NO)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_Swift_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/swift)
 
-<<<<<<< HEAD
-#####################
-# C module map directory for Swift import
-set(MODULES_DIR ${PROJECT_SOURCE_DIR}/Modules)
-
-file(GLOB_RECURSE MODULES_HEADERS
-        ${MODULES_DIR}/*.h
-        ${MODULES_DIR}/*.modulemap)
-
-#####################
-# Cuda
-if ($ENV{SWIFTRT_PLATFORM} MATCHES "cuda")
-        cmake_policy(SET CMP0074 NEW)
-        find_package(CUDA REQUIRED)
-
-        #####################
-        # SwiftRTCuda static library
-        set(SWIFTRT_CUDA_LIB_NAME SwiftRTCuda)
-        set(SWIFTRT_CUDA_DIR ${MODULES_DIR}/${SWIFTRT_CUDA_LIB_NAME})
-        set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}
-                -allow-unsupported-compiler
-                --std c++17
-                --expt-relaxed-constexpr
-                -Wno-deprecated-gpu-targets
-                --compiler-options -fPIC
-                #-gencode arch=compute_80,code=sm_80
-                -gencode arch=compute_75,code=sm_75
-                #-gencode arch=compute_70,code=sm_70
-                #-gencode arch=compute_60,code=sm_60
-                #-gencode arch=compute_53,code=sm_53
-                )
-
-        if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
-        set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -DDEBUG -g -G)
-        else()
-        set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -O3 -Xptxas -O3)
-        endif()
-
-        file(GLOB_RECURSE SWIFTRT_CUDA_SOURCES
-                ${SWIFTRT_CUDA_DIR}/*.cu
-                ${SWIFTRT_CUDA_DIR}/*.c
-                ${SWIFTRT_CUDA_DIR}/*.cpp
-                ${SWIFTRT_CUDA_DIR}/*.h
-                ${SWIFTRT_CUDA_DIR}/*.cuh)
-
-        cuda_add_library(${SWIFTRT_CUDA_LIB_NAME} ${SWIFTRT_CUDA_SOURCES})
-=======
 if(SWIFTRT_ENABLE_CUDA)
   enable_language(CUDA)
   add_subdirectory(Modules/SwiftRTCuda)
->>>>>>> origin/master
 endif()
+
+if(SWIFTRT_LOGLEVEL_DIAGNOSTIC)
+  add_compile_definitions(LOGLEVEL_DIAGNOSTIC)
+endif()
+
 
 # External Projects
 include(ExternalProject)

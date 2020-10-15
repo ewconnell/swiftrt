@@ -34,12 +34,6 @@ class test_Reductions: XCTestCase {
         ("test_max", test_max),
         ("test_gather", test_gather),
     ]
-
-    override func setUpWithError() throws {
-        // log.level = .diagnostic
-    }
-
-    override func tearDownWithError() throws { log.level = .error }
     
     //--------------------------------------------------------------------------
     // test_sumTensor1

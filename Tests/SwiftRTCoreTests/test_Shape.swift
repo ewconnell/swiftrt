@@ -48,12 +48,6 @@ class test_Shape: XCTestCase {
         ("testTransposedPullback", testTransposedPullback),
     ]
 
-    override func setUpWithError() throws {
-//        log.level = .diagnostic
-    }
-
-    override func tearDownWithError() throws { log.level = .error }
-
     //--------------------------------------------------------------------------
     func test_fillRangeColumnMajor() { testEachDevice(fillRangeColumnMajor) }
 

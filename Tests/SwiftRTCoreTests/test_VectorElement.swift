@@ -24,12 +24,6 @@ class test_VectorElement: XCTestCase {
         ("test_addPixel", test_addPixel),
     ]
 
-    override func setUpWithError() throws {
-        // log.level = .diagnostic
-    }
-
-    override func tearDownWithError() throws { log.level = .error }
-
     //--------------------------------------------------------------------------
     // adds a value to each image pixel
     // TODO: VectorElement types need additional conformance support
