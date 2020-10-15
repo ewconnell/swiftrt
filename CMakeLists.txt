@@ -76,6 +76,10 @@ set_target_properties(Numerics PROPERTIES
 find_package(dispatch CONFIG QUIET)
 find_package(Foundation CONFIG QUIET)
 
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+  add_compile_definitions(DEBUG)
+endif()
+
 add_subdirectory(Sources)
 if(BUILD_TESTING)
   add_subdirectory(Tests)
