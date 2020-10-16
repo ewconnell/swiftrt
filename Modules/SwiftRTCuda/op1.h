@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 #pragma once
-#include "srt_types.h"
+#include "srt_types.cuh"
 #include "complex.h"
 #include "index.h"
 

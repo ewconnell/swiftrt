@@ -15,7 +15,7 @@
 //
 #pragma once
 #include <cuda_bf16.h>
-#include "srttypes.cuh"
+#include "srt_types.cuh"
 
 struct bfloat16 : public __nv_bfloat16 {
     __HOSTDEVICE_INLINE__ bfloat16() : __nv_bfloat16(float(0)) {}
@@ -60,9 +60,14 @@ __DEVICE_INLINE__ bfloat16 log(const __nv_bfloat16 a) { return logf(a); }
 
 __DEVICE_INLINE__ bfloat16 log2(const __nv_bfloat16 a) { return log2f(a); }
 __DEVICE_INLINE__ bfloat16 log10(const __nv_bfloat16 a) { return log10f(a); }
+__DEVICE_INLINE__ bfloat16 neg(const __nv_bfloat16 a) { return -a; }
+__DEVICE_INLINE__ bfloat16 sign(const __nv_bfloat16& a) { return float(a) < 0 ? -1 : 1; }
 __DEVICE_INLINE__ bfloat16 sin(const __nv_bfloat16 a) { return sinf(a); }
 __DEVICE_INLINE__ bfloat16 sqrt(const __nv_bfloat16 a) { return sqrtf(a); }
 __DEVICE_INLINE__ bfloat16 tan(const __nv_bfloat16 a) { return tanf(a); }
+__DEVICE_INLINE__ bfloat16 multiplyAdd(const __nv_bfloat16& a, const __nv_bfloat16& b, const __nv_bfloat16& c) {
+    return a * b + c;
+}
 
 // packed
 __DEVICE_INLINE__ bfloat162 cos(const __nv_bfloat162 a) { return bfloat162(cos(a.x), cos(a.y)); }
@@ -72,9 +77,13 @@ __DEVICE_INLINE__ bfloat162 exp10(const __nv_bfloat162 a) { return bfloat162(exp
 __DEVICE_INLINE__ bfloat162 log(const __nv_bfloat162 a) { return bfloat162(log(a.x), log(a.y)); }
 __DEVICE_INLINE__ bfloat162 log2(const __nv_bfloat162 a) { return bfloat162(log2(a.x), log2(a.y)); }
 __DEVICE_INLINE__ bfloat162 log10(const __nv_bfloat162 a) { return bfloat162(log10(a.x), log10(a.y)); }
+__DEVICE_INLINE__ bfloat162 neg(const __nv_bfloat162 a) { return bfloat162(-a.x, -a.y); }
 __DEVICE_INLINE__ bfloat162 sin(const __nv_bfloat162 a) { return bfloat162(sin(a.x), sin(a.y)); }
 __DEVICE_INLINE__ bfloat162 sqrt(const __nv_bfloat162 a) { return bfloat162(sqrt(a.x), sqrt(a.y)); }
 __DEVICE_INLINE__ bfloat162 abs(const __nv_bfloat162 a) { return bfloat162(abs(a.x), abs(a.y)); }
+__DEVICE_INLINE__ bfloat162 multiplyAdd(const __nv_bfloat162& a, const __nv_bfloat162& b, const __nv_bfloat162& c) {
+    return bfloat162(a.x * b.x + c.x, a.y * b.y + c.y);
+}
 
 #else
 
@@ -88,9 +97,14 @@ __DEVICE_INLINE__ bfloat16 exp10(const __nv_bfloat16 a) { return hexp10(a); }
 __DEVICE_INLINE__ bfloat16 log(const __nv_bfloat16 a) { return hlog(a); }
 __DEVICE_INLINE__ bfloat16 log2(const __nv_bfloat16 a) { return hlog2(a); }
 __DEVICE_INLINE__ bfloat16 log10(const __nv_bfloat16 a) { return hlog10(a); }
+__DEVICE_INLINE__ bfloat16 neg(const __nv_bfloat16 a) { return __hneg(a); }
+__DEVICE_INLINE__ bfloat16 sign(const __nv_bfloat16& a) { return __hlt(a, 0) ? -1 : 1; }
 __DEVICE_INLINE__ bfloat16 sin(const __nv_bfloat16 a) { return hsin(a); }
 __DEVICE_INLINE__ bfloat16 sqrt(const __nv_bfloat16 a) { return hsqrt(a); }
 __DEVICE_INLINE__ bfloat16 tan(const __nv_bfloat16 a) { return hsin(a) / hcos(a); }
+__DEVICE_INLINE__ bfloat16 multiplyAdd(const __nv_bfloat16& a, const __nv_bfloat16& b, const __nv_bfloat16& c) {
+    return __hfma(a, b, c);
+}
 
 // packed
 __DEVICE_INLINE__ bfloat162 cos(const __nv_bfloat162 a) { return h2cos(a); }
@@ -100,9 +114,13 @@ __DEVICE_INLINE__ bfloat162 exp10(const __nv_bfloat162 a) { return h2exp10(a); }
 __DEVICE_INLINE__ bfloat162 log(const __nv_bfloat162 a) { return h2log(a); }
 __DEVICE_INLINE__ bfloat162 log2(const __nv_bfloat162 a) { return h2log2(a); }
 __DEVICE_INLINE__ bfloat162 log10(const __nv_bfloat162 a) { return h2log10(a); }
+__DEVICE_INLINE__ bfloat162 neg(const __nv_bfloat162 a) { return __hneg2(a); }
 __DEVICE_INLINE__ bfloat162 sin(const __nv_bfloat162 a) { return h2sin(a); }
 __DEVICE_INLINE__ bfloat162 sqrt(const __nv_bfloat162 a) { return h2sqrt(a); }
 __DEVICE_INLINE__ bfloat162 abs(const __nv_bfloat162 a) { return __habs2(a); }
+__DEVICE_INLINE__ bfloat162 multiplyAdd(const __nv_bfloat162& a, const __nv_bfloat162& b, const __nv_bfloat162& c) {
+    return __hfma2(a, b, c);
+}
 
 #endif
 
@@ -147,6 +165,10 @@ __DEVICE_INLINE__ bfloat162 hypot(const __nv_bfloat162 a, const __nv_bfloat162 b
 __DEVICE_INLINE__ bfloat162 log1p(const __nv_bfloat162 a) { return bfloat162(log1p(a.x), log1p(a.y)); }
 __DEVICE_INLINE__ bfloat162 lgamma(const __nv_bfloat162 a) { return bfloat162(lgamma(a.x), lgamma(a.y)); }
 __DEVICE_INLINE__ bfloat162 pow(const __nv_bfloat162 a, const __nv_bfloat162 b) { return bfloat162(pow(a.x, b.x), pow(a.y, b.y)); }
+__DEVICE_INLINE__ bfloat162 sign(const __nv_bfloat162& a) { return bfloat162(sign(a.x), sign(a.y)); }
 __DEVICE_INLINE__ bfloat162 sinh(const __nv_bfloat162 a) { return bfloat162(sinh(a.x), sinh(a.y)); }
 __DEVICE_INLINE__ bfloat162 tan(const __nv_bfloat162 a) { return bfloat162(tan(a.x), tan(a.y)); }
 __DEVICE_INLINE__ bfloat162 tanh(const __nv_bfloat162 a) { return bfloat162(tanh(a.x), tanh(a.y)); }
+__DEVICE_INLINE__ bfloat162 squared(const __nv_bfloat162& a) {
+    return bfloat162(a.x * a.x, a.y * a.y);
+}

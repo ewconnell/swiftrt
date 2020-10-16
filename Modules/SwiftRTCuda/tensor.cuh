@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 #pragma once
-#include "srttypes.cuh"
+#include "srt_types.cuh"
 
 
 #ifdef __cplusplus

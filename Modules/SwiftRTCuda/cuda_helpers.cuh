@@ -14,25 +14,33 @@
 // limitations under the License.
 //
 #pragma once
-#include "srt_cdefs.h"
+#include <cuda_runtime.h>
 
-
-// make visible to Swift as C API
-#ifdef __cplusplus
-extern "C" {
+/* Set up function decorations */
+#ifndef __DEVICE_INLINE__
+#if defined(__CUDACC__)
+#define __DEVICE_INLINE__ __device__ __forceinline__
+#define __HOSTDEVICE_INLINE__ __host__ __device__ __forceinline__
+#else /* !defined(__CUDACC__) */
+#define __DEVICE_INLINE__
+#define __HOSTDEVICE_INLINE__
+#endif /* defined(__CUDACC_) */
 #endif
 
 //==============================================================================
-
-cudaError_t srtJulia(
-    const void* z, const srtTensorDescriptor* pzDesc,
-    void* divergence, const srtTensorDescriptor* pdDesc,
-    const void* tolerance,
-    const void* C,
-    size_t iterations,
-    cudaStream_t stream);
-
-//==============================================================================
-#ifdef __cplusplus
+// launch error detection
+inline void CudaKernelPreCheck(cudaStream_t stream) {
+#ifdef DEBUG
+	// reset error variable to cudaSuccess
+	cudaGetLastError();
+#endif
 }
+
+inline cudaError_t CudaKernelPostCheck(cudaStream_t stream) {
+#ifdef DEBUG
+	cudaStreamSynchronize(stream);
+	return cudaGetLastError();
+#else
+	return cudaSuccess;
 #endif
+}
