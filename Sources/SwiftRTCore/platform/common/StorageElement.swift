@@ -17,6 +17,7 @@ import Foundation
 import Numerics
 
 #if canImport(SwiftRTCuda)
+import CCUDA
 import SwiftRTCuda
 #endif
 
