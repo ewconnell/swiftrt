@@ -15,11 +15,11 @@
 //
 #pragma once
 #include <stdint.h>
-#include "cuda_helpers.cuh"
-
+#include <cuda_fp16.h>
+#include <cuda_bf16.h>
 #include <vector_types.h>
-#include "float16.cuh"
-#include "bfloat16.cuh"
+
+#include "cuda_helpers.cuh"
 #include "complex.h"
 
 //==============================================================================
@@ -34,8 +34,8 @@ struct bool2 {
     __HOSTDEVICE_INLINE__ bool2() { x = false; y = false; }
     __HOSTDEVICE_INLINE__ bool2(bool _x, bool _y) { x = _x; y = _y; }
     
-    __DEVICE_INLINE__ bool2(float162 v) { x = v.x; y = v.y; }
-    __DEVICE_INLINE__ bool2(bfloat162 v) { x = v.x; y = v.y; }
+    __DEVICE_INLINE__ bool2(__half2 v) { x = v.x; y = v.y; }
+    __DEVICE_INLINE__ bool2(__nv_bfloat162 v) { x = v.x; y = v.y; }
     __DEVICE_INLINE__ bool2(unsigned v) {
         x = v & 0xFF;
         y = (v >> 16) & 0xFF;
@@ -74,8 +74,8 @@ template<typename A>
 inline constexpr bool isFloating() {
     return 
         std::is_floating_point<A>::value ||
-        std::is_same<A,float16>::value  || std::is_same<A,float162>::value ||
-        std::is_same<A,bfloat16>::value || std::is_same<A,bfloat162>::value;
+        std::is_same<A,__half>::value  || std::is_same<A,__half2>::value ||
+        std::is_same<A,__nv_bfloat16>::value || std::is_same<A,__nv_bfloat162>::value;
 }
 
 template<typename A>
@@ -115,7 +115,7 @@ inline constexpr bool isPacked() {
     std::is_same<A,bool2>::value  || std::is_same<A,bool4>::value ||
     std::is_same<A,char4>::value  || std::is_same<A,uchar4>::value ||
     std::is_same<A,short2>::value || std::is_same<A,ushort2>::value ||
-    std::is_same<A,float162>::value || std::is_same<A,bfloat162>::value;
+    std::is_same<A,__half2>::value || std::is_same<A,__nv_bfloat162>::value;
 }
 
 //==============================================================================
@@ -154,16 +154,16 @@ template<> struct packed<uint16_t> {
     }
 };
 
-template<> struct packed<float16> {
-    typedef float162 type;
-    inline static type value(const float16 v) {
+template<> struct packed<__half> {
+    typedef __half2 type;
+    inline static type value(const __half v) {
         type p; p.x = v; p.y = v; return p;
     }
 };
 
-template<> struct packed<bfloat16> {
-    typedef bfloat162 type;
-    inline static type value(const bfloat16 v) {
+template<> struct packed<__nv_bfloat16> {
+    typedef __nv_bfloat162 type;
+    inline static type value(const __nv_bfloat16 v) {
         type p; p.x = v; p.y = v; return p;
     }
 };
@@ -185,11 +185,11 @@ template<> struct matching_packed<short2, int16_t> { typedef short2 type; };
 template<> struct matching_packed<ushort2, bool> { typedef bool2 type; };
 template<> struct matching_packed<ushort2, uint16_t> { typedef ushort2 type; };
 
-template<> struct matching_packed<float162, bool> { typedef bool2 type; };
-template<> struct matching_packed<float162, float16> { typedef float162 type; };
+template<> struct matching_packed<__half2, bool> { typedef bool2 type; };
+template<> struct matching_packed<__half2, __half> { typedef __half2 type; };
 
-template<> struct matching_packed<bfloat162, bool> { typedef bool2 type; };
-template<> struct matching_packed<bfloat162, bfloat16> { typedef bfloat162 type; };
+template<> struct matching_packed<__nv_bfloat162, bool> { typedef bool2 type; };
+template<> struct matching_packed<__nv_bfloat162, __nv_bfloat16> { typedef __nv_bfloat162 type; };
 
 //--------------------------------------
 // given an input type A and an output type O, if the input is
@@ -209,15 +209,8 @@ template<> struct packing<short2> { static const int count = 2; };
 template<> struct packing<const short2> { static const int count = 2; };
 template<> struct packing<ushort2> { static const int count = 2; };
 template<> struct packing<const ushort2> { static const int count = 2; };
-template<> struct packing<float162> { static const int count = 2; };
-template<> struct packing<const float162> { static const int count = 2; };
-template<> struct packing<bfloat162> { static const int count = 2; };
-template<> struct packing<const bfloat162> { static const int count = 2; };
+template<> struct packing<__half2> { static const int count = 2; };
+template<> struct packing<const __half2> { static const int count = 2; };
+template<> struct packing<__nv_bfloat162> { static const int count = 2; };
+template<> struct packing<const __nv_bfloat162> { static const int count = 2; };
 
-//==========================================================================
-// Convenience types
-//==========================================================================
-
-typedef Complex<float> complexf;
-typedef Complex<float16> complexf16;
-typedef Complex<bfloat16> complexbf16;

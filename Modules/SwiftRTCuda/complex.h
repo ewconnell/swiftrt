@@ -22,7 +22,10 @@
 #include <optional>
 #include <limits>
 #include <type_traits>
-#include "srt_types.cuh"
+#include <cuda_fp16.h>
+#include <cuda_bf16.h>
+
+#include "cuda_helpers.cuh"
 
 //******************************************************************************
 // This is the Complex module from Swift Numerics ported to C++
@@ -526,6 +529,14 @@ struct Complex {
         return std::nullopt;
     }
 };
+
+//==========================================================================
+// Convenience types
+//==========================================================================
+
+typedef Complex<float> complexf;
+typedef Complex<__half> complexf16;
+typedef Complex<__nv_bfloat16> complexbf16;
 
 //==========================================================================
 // Equatable

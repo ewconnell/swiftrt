@@ -15,8 +15,10 @@
 //
 #pragma once
 #include "math_c.h"
-#include "srt_types.cuh"
+#include "float16.cuh"
+#include "bfloat16.cuh"
 
+// #include <__clang_cuda_device_functions.h>
 
 //==============================================================================
 // supplemental + - * / functions
@@ -47,16 +49,17 @@ __DEVICE_INLINE__ T multiplyAdd(const T& a, const T& b, const T& c) {
 
 __DEVICE_INLINE__ 
 float162 multiplyAdd(const float162& a, const float162& b, const float162& c) {
+#if (__CUDA_ARCH__ < 800)
+    return float162(a.x * b.x + c.x, a.y * b.y + c.y);
+#else
     return __hfma2(a, b, c);
+#endif
 }
 
 __DEVICE_INLINE__ 
 bfloat162 multiplyAdd(const bfloat162& a, const bfloat162& b, const bfloat162& c) {
 #if (__CUDA_ARCH__ < 800)
-    bfloat162 v;
-    v.x = a.x * b.x + c.x;
-    v.y = a.y * b.y + c.y;
-    return v;
+    return bfloat162(a.x * b.x + c.x, a.y * b.y + c.y);
 #else
     return __hfma2(a, b, c);
 #endif

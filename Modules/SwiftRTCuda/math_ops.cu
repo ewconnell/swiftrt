@@ -14,9 +14,9 @@
 // limitations under the License.
 //
 #include "math_fn.cuh"
-#include "op1.h"
-#include "op2.h"
-#include "op3.h"
+#include "op1.cuh"
+#include "op2.cuh"
+#include "op3.cuh"
 
 //==============================================================================
 // Swift importable C interface functions
@@ -34,18 +34,18 @@ cudaError_t srtAbs(
     return selectT_O<Abs>(a, aDesc, out, oDesc, stream);
 }
 
-// //------------------------------------------------------------------------------
-// Op1(Acos, acos, isFloating<A>())
+//------------------------------------------------------------------------------
+Op1(Acos, acos, isFloating<A>())
 
-// // Must be promoted types
-// cudaError_t srtAcos(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     void* out, const srtTensorDescriptor* poDesc,
-//     cudaStream_t stream
-// ) {
-//     Cast2TensorDescriptorsA(paDesc, poDesc)
-//     return select<Acos>(a, aDesc, out, oDesc, stream);
-// }
+// Must be promoted types
+cudaError_t srtAcos(
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return select<Acos>(a, aDesc, out, oDesc, stream);
+}
 
 // //------------------------------------------------------------------------------
 // Op1(Acosh, acosh, isFloating<A>())
