@@ -14,4 +14,4 @@ target_compile_options(SwiftRTCuda PRIVATE
   --compiler-options -fPIC)
 target_include_directories(SwiftRTCuda PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR})
-target_precompile_headers(SwiftRTCuda PRIVATE precomp.hpp)
+target_precompile_headers(SwiftRTCuda PRIVATE precomp.cuh)

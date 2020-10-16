@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include "precomp.hpp"
+#include "precomp.cuh"
 
 #include "index.h"
 #include "reduce_fn.h"
