@@ -1,4 +1,4 @@
-add_library(SwiftRTCuda STATIC
+add_library(SwiftRTCuda
   compare_ops.cu
   delayStream.cu
   fill_ops.cu
