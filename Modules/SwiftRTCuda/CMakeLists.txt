@@ -1,4 +1,4 @@
-add_library(SwiftRTCuda STATIC
+add_library(SwiftRTCuda
   compare_ops.cu
   delayStream.cu
   fill_ops.cu
@@ -15,4 +15,6 @@ target_compile_options(SwiftRTCuda PRIVATE
   -Wno-deprecated-gpu-targets)
 target_include_directories(SwiftRTCuda PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(SwiftRTCuda PUBLIC
+  CCUDA)
 target_precompile_headers(SwiftRTCuda PRIVATE precomp.hpp)

@@ -13,11 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#pragma once
 
-// this is an umbrella header
-#include "math_c.h"
-#include "compare_c.h"
-#include "fill_c.h"
-#include "reduce_c.h"
-#include "specialized_c.h"
+// Add an "anchor" - C standards require at least one declaration or definition
+// in a translation unit, so provide an unresolved symbol that will be
+// discarded.
+extern unsigned int CCUDA;

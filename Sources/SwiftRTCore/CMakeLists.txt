@@ -83,8 +83,10 @@ if(SWIFTRT_ENABLE_CUDA)
 
     platform/cuda/layers/CudaActivation.swift
     platform/cuda/layers/CudaConvolution.swift)
-  target_link_libraries(SwiftRTCore PRIVATE
+  target_link_libraries(SwiftRTCore PUBLIC
     SwiftRTCuda)
+  target_link_libraries(SwiftRTCore PUBLIC
+    CCUDA)
 endif()
 set_target_properties(SwiftRTCore PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})

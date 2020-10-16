@@ -11,11 +11,17 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_Swift_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/swift)
 
 if(SWIFTRT_ENABLE_CUDA)
+  enable_language(CXX)
   enable_language(CUDA)
+  find_package(CUDAToolkit REQUIRED)
+  if(CUDAToolkit_FOUND)
+    _CUDAToolkit_find_and_add_import_lib(cudnn)
+  endif()
 
   set(CMAKE_CUDA_STANDARD 17)
   set(CMAKE_CUDA_STANDARD_REQUIRED YES)
 
+  add_subdirectory(Sources/CCUDA)
   add_subdirectory(Modules/SwiftRTCuda)
 endif()
 
