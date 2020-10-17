@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 #pragma once
+#include "srt_traits.cuh"
 #include "float16.cuh"
 #include "bfloat16.cuh"
 #include "complex.cuh"
@@ -37,7 +38,7 @@ template<typename _A, typename _O> struct OpName { \
     typedef _A A; typedef _O Out; \
     static_assert(isPacked<A>() == isPacked<Out>(), "packed type mismatch"); \
     constexpr static bool conforms() { return (conformance); } \
-    __device__ static inline void op(const A& a, Out& out) { \
+    __DEVICE_INLINE__ static void op(const A& a, Out& out) { \
         if constexpr (conforms()) out = name(a); \
     } \
     typedef typename packed<A>::type PA; \

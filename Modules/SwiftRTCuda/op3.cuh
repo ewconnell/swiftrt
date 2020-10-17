@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 #pragma once
+#include "srt_traits.cuh"
 #include "float16.cuh"
 #include "bfloat16.cuh"
 #include "complex.cuh"
@@ -41,7 +42,7 @@ template<typename _A, typename _B, typename _C, typename _O> struct OpName { \
                   isPacked<A>() == isPacked<C>() && \
                   isPacked<A>() == isPacked<Out>(), "packed type mismatch"); \
     constexpr static bool conforms() { return (conformance); } \
-    __CUDA_DEVICE__ inline static void op(const A& a, const B& b, const C& c, Out& out) { \
+    __DEVICE_INLINE__ static void op(const A& a, const B& b, const C& c, Out& out) { \
         if constexpr (conforms()) out = name(a, b, c); \
     } \
     typedef typename packed<A>::type PA; \
@@ -59,7 +60,7 @@ template<typename _A, typename _B, typename _C, typename _O> struct OpName { \
                   isPacked<A>() == isPacked<C>() && \
                   isPacked<A>() == isPacked<Out>(), "packed type mismatch"); \
     constexpr static bool conforms() { return (conformance); } \
-    __CUDA_DEVICE__ inline static void op(const A& a, const B& b, const C& c, Out& out) { \
+    __DEVICE_INLINE__ static void op(const A& a, const B& b, const C& c, Out& out) { \
         if constexpr (conforms()) out = name(a, c, b); \
     } \
     typedef typename packed<A>::type PA; \
@@ -75,7 +76,7 @@ template<typename _A, typename _B, typename _C, typename _O> struct OpName { \
 template<typename T> struct OpName { \
     typedef T A; typedef T B; typedef T C; typedef T Out; \
     constexpr static bool conforms() { return (conformance); } \
-    __CUDA_DEVICE__ inline static void op(const A& a, const B& b, const C& c, Out& out0, Out& out1) { \
+    __DEVICE_INLINE__ static void op(const A& a, const B& b, const C& c, Out& out0, Out& out1) { \
         if constexpr (conforms()) name(a, b, c, out0, out1); \
     } \
     typedef typename packed<T>::type PT; \
