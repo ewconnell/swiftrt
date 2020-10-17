@@ -25,7 +25,7 @@
 #include <cuda_fp16.h>
 #include <cuda_bf16.h>
 
-#include "cuda_helpers.cuh"
+#include "cuda_macros.cuh"
 
 //******************************************************************************
 // This is the Complex module from Swift Numerics ported to C++

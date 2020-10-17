@@ -1,0 +1,20 @@
+
+module CCUDA [system] {
+  header "@CUDAToolkit_INCLUDE_DIRS@/cuda_runtime.h"
+  export *
+
+  module BLAS {
+    header "@CUDAToolkit_INCLUDE_DIRS@/cublasLt.h"
+    export *
+  }
+
+  module DNN {
+    header "@CUDAToolkit_INCLUDE_DIRS@/cudnn.h"
+    export *
+  }
+
+  module RAND {
+    header "@CUDAToolkit_INCLUDE_DIRS@/curand.h"
+    export *
+  }
+}

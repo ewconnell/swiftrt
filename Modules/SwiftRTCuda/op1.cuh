@@ -16,7 +16,7 @@
 #pragma once
 #include "float16.cuh"
 #include "bfloat16.cuh"
-#include "complex.h"
+#include "complex.cuh"
 #include "index.cuh"
 
 //==============================================================================

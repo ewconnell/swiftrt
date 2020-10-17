@@ -15,49 +15,8 @@
 //
 #pragma once
 #include <assert.h>
-#include "srt_cdefs.cuh"
-
-//==============================================================================
-// TensorDescriptor
-// C++ enhanced wrapper
-struct TensorDescriptor: srtTensorDescriptor {
-    inline bool isDense() const { return count == spanCount; }
-    inline bool isStrided() const { return !isDense(); }
-    inline bool isSingle() const { return spanCount == 1; }
-};
-
-static_assert(sizeof(TensorDescriptor) == sizeof(srtTensorDescriptor),
-    "TensorDescriptor is a c++ wrapper and cannot contain additional members");
-
-
-// statically cast types from C interface to c++ type
-#define Cast2TensorDescriptorsA(pa, po) \
-const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*pa); \
-const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*po); \
-
-#define Cast2TensorDescriptorsAB(pa, pb, po) \
-const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*pa); \
-const TensorDescriptor& bDesc = static_cast<const TensorDescriptor&>(*pb); \
-const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*po); \
-
-#define Cast2TensorDescriptorsABC(pa, pb, pc, po) \
-const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*pa); \
-const TensorDescriptor& bDesc = static_cast<const TensorDescriptor&>(*pb); \
-const TensorDescriptor& cDesc = static_cast<const TensorDescriptor&>(*pc); \
-const TensorDescriptor& oDesc = static_cast<const TensorDescriptor&>(*po); \
-
-#define Cast2TensorDescriptorsABCOO(pa, pb, pc, po0, po1) \
-const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*pa); \
-const TensorDescriptor& bDesc = static_cast<const TensorDescriptor&>(*pb); \
-const TensorDescriptor& cDesc = static_cast<const TensorDescriptor&>(*pc); \
-const TensorDescriptor& o0Desc = static_cast<const TensorDescriptor&>(*po0); \
-const TensorDescriptor& o1Desc = static_cast<const TensorDescriptor&>(*po1); \
-
-#define Cast2TensorDescriptorsAECOO(pa, pc, po0, po1) \
-const TensorDescriptor& aDesc = static_cast<const TensorDescriptor&>(*pa); \
-const TensorDescriptor& cDesc = static_cast<const TensorDescriptor&>(*pc); \
-const TensorDescriptor& o0Desc = static_cast<const TensorDescriptor&>(*po0); \
-const TensorDescriptor& o1Desc = static_cast<const TensorDescriptor&>(*po1); \
+#include "cuda_macros.cuh"
+#include "tensor.cuh"
 
 //==============================================================================
 /// Logical
@@ -65,7 +24,7 @@ const TensorDescriptor& o1Desc = static_cast<const TensorDescriptor&>(*po1); \
 template<size_t Rank> struct LogicalBase {
     uint32_t position[Rank];
 
-    __device__ __forceinline__ uint32_t operator[](int i) const {
+    __DEVICE_INLINE__ uint32_t operator[](int i) const {
         return position[i];
     }
 };
@@ -73,7 +32,7 @@ template<size_t Rank> struct LogicalBase {
 template<size_t Rank> struct Logical { };
 template<> struct Logical<1> : LogicalBase<1>
 {
-    __device__ __forceinline__ Logical(
+    __DEVICE_INLINE__ Logical(
         const uint3& blockIdx,
         const dim3& blockDim,
         const uint3& threadIdx
@@ -84,7 +43,7 @@ template<> struct Logical<1> : LogicalBase<1>
 
 template<> struct Logical<2> : LogicalBase<2>
 {
-    __device__ __forceinline__ Logical(
+    __DEVICE_INLINE__ Logical(
         const uint3& blockIdx,
         const dim3& blockDim,
         const uint3& threadIdx
@@ -96,7 +55,7 @@ template<> struct Logical<2> : LogicalBase<2>
 
 template<> struct Logical<3> : LogicalBase<3>
 {
-    __device__ __forceinline__ Logical(
+    __DEVICE_INLINE__ Logical(
         const uint3& blockIdx,
         const dim3& blockDim,
         const uint3& threadIdx
@@ -123,16 +82,16 @@ struct Single {
     /// - Parameters:
     ///  - position: the logical position to test
     /// - Returns: `true` if the position is within the shape
-    __device__ __forceinline__ bool isInBounds(const Logical& position) const {
+    __DEVICE_INLINE__ bool isInBounds(const Logical& position) const {
         return position[0] == 0;
     }
 
     /// linear
     /// - Returns: all positions map to the single value, so always returns 0 
-    __device__ __forceinline__ 
+    __DEVICE_INLINE__ 
     uint32_t linear(const Logical& position) const { return 0; }
 
-    __device__ __forceinline__ 
+    __DEVICE_INLINE__ 
     uint32_t sequence(const Logical& position) const {
         return position[0];
     }
@@ -162,19 +121,19 @@ struct Flat {
     /// - Parameters:
     ///  - position: the logical position to test
     /// - Returns: `true` if the position is within the shape
-    __device__ __forceinline__ bool isInBounds(const Logical& position) const {
+    __DEVICE_INLINE__ bool isInBounds(const Logical& position) const {
         return position[0] < count;
     }
 
     //----------------------------------
-    __device__ __forceinline__ 
+    __DEVICE_INLINE__ 
     uint32_t linear(const Logical& position) const {
         return position[0];
     }
 
     //--------------------------------------------------------------------------
     // the logical sequence position
-    __device__ __forceinline__ 
+    __DEVICE_INLINE__ 
     uint32_t sequence(const Logical& position) const {
         return position[0];
     }
@@ -211,7 +170,7 @@ struct Strided {
     /// - Parameters:
     ///  - position: the logical position to test
     /// - Returns: `true` if the position is within the shape
-    __device__ __forceinline__ bool isInBounds(const Logical& position) const {
+    __DEVICE_INLINE__ bool isInBounds(const Logical& position) const {
         bool inBounds = position[0] < shape[0];
         #pragma unroll
         for (int i = 1; i < Rank; i++) {
@@ -222,7 +181,7 @@ struct Strided {
 
     //--------------------------------------------------------------------------
     // the linear buffer position
-    __device__ __forceinline__ 
+    __DEVICE_INLINE__ 
     uint32_t linear(const Logical& position) const {
         uint32_t index = 0;
         #pragma unroll
@@ -253,7 +212,7 @@ struct StridedSeq: Strided<R> {
 
     //--------------------------------------------------------------------------
     // the logical sequence position
-    __device__ __forceinline__  
+    __DEVICE_INLINE__  
     uint32_t sequence(const typename Strided<R>::Logical& position) const {
         uint32_t index = 0;
         #pragma unroll

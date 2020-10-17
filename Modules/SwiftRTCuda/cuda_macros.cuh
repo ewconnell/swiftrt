@@ -44,3 +44,9 @@ inline cudaError_t CudaKernelPostCheck(cudaStream_t stream) {
 	return cudaSuccess;
 #endif
 }
+
+//==============================================================================
+// used for casting between gpu simd types and uint32_t
+#define UINT_CREF(_v) reinterpret_cast<const unsigned&>(_v)
+#define CAST(type, _v) (*reinterpret_cast<const type*>(&(_v)))
+

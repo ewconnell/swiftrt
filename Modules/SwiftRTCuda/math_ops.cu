@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+#include "srt_traits.cuh"
 #include "math_fn.cuh"
 #include "op1.cuh"
 #include "op2.cuh"
@@ -23,7 +24,7 @@
 //==============================================================================
 
 //------------------------------------------------------------------------------
-Op1(Abs, abs, (isNumeric<A>() && (isSame<A,Out>() || isComplex<A>())))
+Op1(Abs, abs, (isSignedNumeric<A>() && (isSame<A,Out>() || isComplex<A>())))
 
 cudaError_t srtAbs(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -459,17 +460,17 @@ cudaError_t srtAcos(
 //     return select<Sigmoid>(a, aDesc, out, oDesc, stream);
 // }
 
-// //------------------------------------------------------------------------------
-// Op1(Sign, sign, isSignedNumeric<A>())
+//------------------------------------------------------------------------------
+Op1(Sign, sign, isSignedNumeric<A>())
 
-// cudaError_t srtSign(
-//     const void* a, const srtTensorDescriptor* paDesc,
-//     void* out, const srtTensorDescriptor* poDesc,
-//     cudaStream_t stream
-// ) {
-//     Cast2TensorDescriptorsA(paDesc, poDesc)
-//     return select<Sign>(a, aDesc, out, oDesc, stream);
-// }
+cudaError_t srtSign(
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    return select<Sign>(a, aDesc, out, oDesc, stream);
+}
 
 // //------------------------------------------------------------------------------
 // Op1(Sin, sin, isFloating<A>())

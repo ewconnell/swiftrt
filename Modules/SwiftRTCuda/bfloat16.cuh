@@ -15,7 +15,7 @@
 //
 #pragma once
 #include <cuda_bf16.h>
-#include "srt_types.cuh"
+#include "cuda_macros.cuh"
 
 struct bfloat16 : public __nv_bfloat16 {
     __HOSTDEVICE_INLINE__ bfloat16() : __nv_bfloat16(float(0)) {}

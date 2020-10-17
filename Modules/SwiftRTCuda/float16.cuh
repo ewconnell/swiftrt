@@ -15,7 +15,7 @@
 //
 #pragma once
 #include <cuda_fp16.h>
-#include "srt_types.cuh"
+#include "cuda_macros.cuh"
 
 //==============================================================================
 /// float16

@@ -19,42 +19,9 @@
 #include <cuda_bf16.h>
 #include <vector_types.h>
 
-#include "cuda_helpers.cuh"
-#include "complex.h"
-
-//==============================================================================
-// used for casting between gpu simd types and uint32_t
-#define UINT_CREF(_v) reinterpret_cast<const unsigned&>(_v)
-#define CAST(type, _v) (*reinterpret_cast<const type*>(&(_v)))
-
-//==============================================================================
-// supplemental logical types
-struct bool2 {
-    bool x, y;
-    __HOSTDEVICE_INLINE__ bool2() { x = false; y = false; }
-    __HOSTDEVICE_INLINE__ bool2(bool _x, bool _y) { x = _x; y = _y; }
-    
-    __DEVICE_INLINE__ bool2(__half2 v) { x = v.x; y = v.y; }
-    __DEVICE_INLINE__ bool2(__nv_bfloat162 v) { x = v.x; y = v.y; }
-    __DEVICE_INLINE__ bool2(unsigned v) {
-        x = v & 0xFF;
-        y = (v >> 16) & 0xFF;
-    }
-};
-
-struct bool4 {
-    bool x, y, z, w;
-    __HOSTDEVICE_INLINE__ bool4() {
-        x = false; y = false; z = false; w = false;
-    }
-    __HOSTDEVICE_INLINE__ bool4(bool _x, bool _y, bool _z, bool _w) {
-        x = _x; y = _y; z = _z; w = _w;
-    }
-    __HOSTDEVICE_INLINE__ bool4(unsigned v) {
-        *this = *reinterpret_cast<const bool4*>(&v);
-    }
-};
-
+#include "cuda_macros.cuh"
+#include "complex.cuh"
+#include "simd_types.cuh"
 
 //==============================================================================
 // conformance helpers

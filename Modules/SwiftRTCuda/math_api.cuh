@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 #pragma once
-#include "srt_cdefs.cuh"
+#include "tensor.cuh"
 
 // make visible to Swift as C API
 #ifdef __cplusplus
