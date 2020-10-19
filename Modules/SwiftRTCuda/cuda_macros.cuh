@@ -19,9 +19,11 @@
 /* Set up function decorations */
 #ifndef __DEVICE_INLINE__
 #if defined(__CUDACC__)
+#define __HOST_INLINE__ __host__ inline
 #define __DEVICE_INLINE__ __device__ __forceinline__
 #define __HOSTDEVICE_INLINE__ __host__ __device__ __forceinline__
 #else /* !defined(__CUDACC__) */
+#define __HOST_INLINE__ inline
 #define __DEVICE_INLINE__ inline
 #define __HOSTDEVICE_INLINE__ inline
 #endif /* defined(__CUDACC_) */

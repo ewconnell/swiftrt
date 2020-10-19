@@ -15,9 +15,8 @@
 //
 #pragma once
 #include <stdint.h>
-#include <cuda_fp16.h>
-#include <cuda_bf16.h>
-#include "cuda_macros.cuh"
+#include "float16.cuh"
+#include "bfloat16.cuh"
 
 //==============================================================================
 /// bool2
@@ -26,8 +25,8 @@ struct bool2 {
     __HOSTDEVICE_INLINE__ bool2() { x = false; y = false; }
     __HOSTDEVICE_INLINE__ bool2(bool _x, bool _y) { x = _x; y = _y; }
     
-    __DEVICE_INLINE__ bool2(__half2 v) { x = v.x; y = v.y; }
-    __DEVICE_INLINE__ bool2(__nv_bfloat162 v) { x = v.x; y = v.y; }
+    __DEVICE_INLINE__ bool2(half2 v) { x = v.x; y = v.y; }
+    __DEVICE_INLINE__ bool2(bfloat162 v) { x = v.x; y = v.y; }
     __DEVICE_INLINE__ bool2(unsigned v) {
         x = v & 0xFF;
         y = (v >> 16) & 0xFF;

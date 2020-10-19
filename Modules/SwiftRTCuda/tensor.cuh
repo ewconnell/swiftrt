@@ -69,7 +69,7 @@ typedef struct {
     /// the TensorElement cuda data type
     srtDataType type;
     /// the number of dimensions
-    uint32_t rank;
+    int32_t rank;
     /// the storage layout order
     cublasLtOrder_t order;
     /// the number of logical elements in the tensor

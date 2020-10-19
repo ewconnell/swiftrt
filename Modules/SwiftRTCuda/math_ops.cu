@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include "srt_traits.cuh"
 #include "math_fn.cuh"
 #include "op1.cuh"
 #include "op2.cuh"
@@ -26,19 +25,34 @@
 //------------------------------------------------------------------------------
 Op1(Abs, abs, (isSignedNumeric<A>() && (isSame<A,Out>() || isComplex<A>())))
 
+cudaError_t srtAbsFlat(
+    const void* a, srtDataType atype,
+    void* out, srtDataType otype,
+    size_t count, cudaStream_t stream
+) {
+    return select<Abs>(a, atype, out, otype, count, stream);
+}
+
 cudaError_t srtAbs(
     const void* a, const srtTensorDescriptor* paDesc,
     void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectT_O<Abs>(a, aDesc, out, oDesc, stream);
+    return select<Abs>(a, aDesc, out, oDesc, stream);
 }
 
 //------------------------------------------------------------------------------
 Op1(Acos, acos, isFloating<A>())
 
-// Must be promoted types
+cudaError_t srtAcosFlat(
+    const void* a, srtDataType atype,
+    void* out,
+    size_t count, cudaStream_t stream
+) {
+    return select<Acos>(a, atype, out, count, stream);
+}
+
 cudaError_t srtAcos(
     const void* a, const srtTensorDescriptor* paDesc,
     void* out, const srtTensorDescriptor* poDesc,
@@ -50,6 +64,14 @@ cudaError_t srtAcos(
 
 //------------------------------------------------------------------------------
 Op1(Acosh, acosh, isFloating<A>())
+
+cudaError_t srtAcoshFlat(
+    const void* a, srtDataType atype,
+    void* out,
+    size_t count, cudaStream_t stream
+) {
+    return select<Acosh>(a, atype, out, count, stream);
+}
 
 cudaError_t srtAcosh(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -73,6 +95,15 @@ cudaError_t srtAdd(
     return select<Add>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
+cudaError_t srtAddFlat(
+    const void* a, srtDataType atype,
+    const void* b,
+    void* out,
+    size_t count, cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
+}
+
 //------------------------------------------------------------------------------
 cudaError_t srtAddTE(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -82,6 +113,15 @@ cudaError_t srtAddTE(
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
     return select<Add>(a, aDesc, element, out, oDesc, stream);
+}
+
+cudaError_t srtAddTEFlat(
+    const void* a, srtDataType atype,
+    const void* b,
+    void* out,
+    size_t count, cudaStream_t stream
+) {
+    return cudaErrorNotSupported;
 }
 
 //------------------------------------------------------------------------------

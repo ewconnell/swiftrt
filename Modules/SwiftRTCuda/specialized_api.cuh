@@ -1,5 +1,5 @@
 //******************************************************************************
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,25 @@
 // limitations under the License.
 //
 #pragma once
+#include "tensor.cuh"
 
-// this is an umbrella header
-#include "compare_api.cuh"
-#include "fill_api.cuh"
-#include "math_api.cuh"
-#include "reduce_api.cuh"
-#include "specialized_api.cuh"
-#include "utilities_api.cuh"
+
+// make visible to Swift as C API
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//==============================================================================
+
+cudaError_t srtJulia(
+    const void* z, const srtTensorDescriptor* pzDesc,
+    void* divergence, const srtTensorDescriptor* pdDesc,
+    const void* tolerance,
+    const void* C,
+    size_t iterations,
+    cudaStream_t stream);
+
+//==============================================================================
+#ifdef __cplusplus
+}
+#endif

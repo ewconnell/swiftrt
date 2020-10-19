@@ -22,8 +22,6 @@
 #include <optional>
 #include <limits>
 #include <type_traits>
-#include <cuda_fp16.h>
-#include <cuda_bf16.h>
 
 #include "cuda_macros.cuh"
 
@@ -56,19 +54,19 @@ struct Complex {
 
     __HOSTDEVICE_INLINE__ Complex(RealType real) {
         x = real;
-        y = 0;
+        y = RealType(0.0f);
     }
 
     __HOSTDEVICE_INLINE__ Complex() {
-        x = 0;
-        y = 0;
+        x = RealType(0.0f);
+        y = RealType(0.0f);
     }
 
     //==========================================================================
     // basic properties
     //==========================================================================
     __HOSTDEVICE_INLINE__ static bool isNormal(RealType x) {
-        return x != 0 && 
+        return x != RealType(0.0f) && 
             x >= std::numeric_limits<RealType>::min() &&
             x <= std::numeric_limits<RealType>::max();
     }
@@ -529,14 +527,6 @@ struct Complex {
         return std::nullopt;
     }
 };
-
-//==========================================================================
-// Convenience types
-//==========================================================================
-
-typedef Complex<float> complexf;
-typedef Complex<__half> complexf16;
-typedef Complex<__nv_bfloat16> complexbf16;
 
 //==========================================================================
 // Equatable

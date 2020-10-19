@@ -15,13 +15,26 @@
 //
 #pragma once
 #include <assert.h>
-#include "cuda_macros.cuh"
+#include <type_traits>
+
+#include "srt_traits.cuh"
 #include "tensor.cuh"
+
+//==============================================================================
+// kernel helpers
+#define GRID_LOOP(i, n) \
+  for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n); \
+       i += blockDim.x * gridDim.x)
+
+// divideRoundingUp
+inline int divideRoundingUp(int num, int divisor) {
+    return (num + divisor - 1) / divisor;
+}
 
 //==============================================================================
 /// Logical
 /// converts grid, block, thread indexes into a logical position
-template<size_t Rank> struct LogicalBase {
+template<int Rank> struct LogicalBase {
     uint32_t position[Rank];
 
     __DEVICE_INLINE__ uint32_t operator[](int i) const {
@@ -29,9 +42,9 @@ template<size_t Rank> struct LogicalBase {
     }
 };
 
-template<size_t Rank> struct Logical { };
-template<> struct Logical<1> : LogicalBase<1>
-{
+template<int Rank> struct Logical { };
+template<> struct Logical<1> : LogicalBase<1> {
+
     __DEVICE_INLINE__ Logical(
         const uint3& blockIdx,
         const dim3& blockDim,
@@ -41,8 +54,8 @@ template<> struct Logical<1> : LogicalBase<1>
     }
 };
 
-template<> struct Logical<2> : LogicalBase<2>
-{
+template<> struct Logical<2> : LogicalBase<2> {
+
     __DEVICE_INLINE__ Logical(
         const uint3& blockIdx,
         const dim3& blockDim,
@@ -53,8 +66,8 @@ template<> struct Logical<2> : LogicalBase<2>
     }
 };
 
-template<> struct Logical<3> : LogicalBase<3>
-{
+template<> struct Logical<3> : LogicalBase<3> {
+
     __DEVICE_INLINE__ Logical(
         const uint3& blockIdx,
         const dim3& blockDim,
@@ -67,52 +80,49 @@ template<> struct Logical<3> : LogicalBase<3>
 };
 
 //==============================================================================
-/// Single
-/// index used for single element value parameters 
-struct Single {
-    static const int Rank = 1;
-    typedef Logical<1> Logical;
+/// Constant
+/// index used to generate a constant value
+template<typename T, int Rank>
+struct Constant {
+    typedef Logical<Rank> Logical;
+    const T value;
 
     // initializer
-    __host__ Single(const TensorDescriptor& tensor) { }
+    __HOST_INLINE__ Constant(const T& v) : value(v) { }
 
-    /// isInBounds
-    /// `true` if the given logical position is within the bounds of
-    /// the indexed space
-    /// - Parameters:
-    ///  - position: the logical position to test
-    /// - Returns: `true` if the position is within the shape
-    __DEVICE_INLINE__ bool isInBounds(const Logical& position) const {
-        return position[0] == 0;
+    //----------------------------------
+    // get
+    __DEVICE_INLINE__ T operator[](const Logical& pos) const {
+        return value;
     }
 
-    /// linear
-    /// - Returns: all positions map to the single value, so always returns 0 
-    __DEVICE_INLINE__ 
-    uint32_t linear(const Logical& position) const { return 0; }
-
-    __DEVICE_INLINE__ 
-    uint32_t sequence(const Logical& position) const {
+    __DEVICE_INLINE__ uint32_t sequence(const Logical& position) const {
         return position[0];
     }
 };
 
 //==============================================================================
 /// Flat
-/// a flat dense 1D index
+/// a random access iterator for a dense 1D buffer
+template<typename PointerT>
 struct Flat {
-    // types
+    // type of buffer element
+    typedef typename std::remove_pointer<PointerT>::type T;
+
+    // type of logical position
     static const int Rank = 1;
     typedef Logical<Rank> Logical;
 
-    // properties
+    // pointer to element buffer
+    PointerT buffer;
+    // shape of buffer
     uint32_t count;
 
     //----------------------------------
     // initializer
-    __host__ Flat(const TensorDescriptor& tensor) {
-        assert(tensor.count == tensor.spanCount);
-        count = tensor.count;
+    __HOST_INLINE__ Flat(PointerT p, uint32_t _count) {
+        buffer = p;
+        count = divideRoundingUp(_count, packing<T>::count);
     }
 
     /// isInBounds
@@ -126,8 +136,28 @@ struct Flat {
     }
 
     //----------------------------------
-    __DEVICE_INLINE__ 
-    uint32_t linear(const Logical& position) const {
+    // get
+    __DEVICE_INLINE__ T operator[](const Logical& pos) const {
+        return buffer[pos[0]];
+    }
+
+    __DEVICE_INLINE__ T operator[](uint32_t index) const {
+        return buffer[index];
+    }
+
+    //----------------------------------
+    // set
+    __DEVICE_INLINE__ T& operator[](const Logical& pos) {
+        return buffer[pos[0]];
+    }
+
+    __DEVICE_INLINE__ T& operator[](uint32_t index) {
+        return buffer[index];
+    }
+
+        //--------------------------------------------------------------------------
+    // the linear buffer position
+    __DEVICE_INLINE__ uint32_t linear(const Logical& position) const {
         return position[0];
     }
 
@@ -141,21 +171,26 @@ struct Flat {
 
 //==============================================================================
 /// Strided
-template<int _Rank>
+template<typename PointerT, int R>
 struct Strided {
+    // type of buffer element
+    typedef typename std::remove_pointer<PointerT>::type T;
+
     // types
-    static const int Rank = _Rank;
+    static const int Rank = R;
     typedef Logical<Rank> Logical;
 
-    // properties
-    uint32_t count;
+    // pointer to element buffer
+    PointerT buffer;
+    // shape of buffer
     uint32_t shape[Rank];
+    // element strides
     uint32_t strides[Rank];
 
     //--------------------------------------------------------------------------
     // initializer
-    __host__ Strided(const TensorDescriptor& tensor) {
-        count = tensor.count;
+    __HOST_INLINE__ Strided(PointerT p, const TensorDescriptor& tensor) {
+        buffer = p;
         for (int i = 0; i < Rank; ++i) {
             assert(tensor.shape[i] <= UINT32_MAX && tensor.strides[i] <= UINT32_MAX);
             shape[i] = uint32_t(tensor.shape[i]);
@@ -181,8 +216,7 @@ struct Strided {
 
     //--------------------------------------------------------------------------
     // the linear buffer position
-    __DEVICE_INLINE__ 
-    uint32_t linear(const Logical& position) const {
+    __DEVICE_INLINE__ uint32_t linear(const Logical& position) const {
         uint32_t index = 0;
         #pragma unroll
         for (int i = 0; i < Rank; i++) {
@@ -190,20 +224,45 @@ struct Strided {
         }
         return index;
     }
+
+    //----------------------------------
+    // get
+    __DEVICE_INLINE__ T operator[](const Logical& pos) const {
+        return buffer[linear(pos)];
+    }
+
+    __DEVICE_INLINE__ T operator[](uint32_t index) const {
+        return buffer[index];
+    }
+
+    //----------------------------------
+    // set
+    __DEVICE_INLINE__ T& operator[](const Logical& pos) {
+        return buffer[linear(pos)];
+    }
+
+    __DEVICE_INLINE__ T& operator[](uint32_t index) {
+        return buffer[index];
+    }
 };
 
 //==============================================================================
 /// StridedSeq
 /// used to calculate strided indexes and sequence positions
 /// to support generators
-template<int R>
-struct StridedSeq: Strided<R> {
+template<typename PointerT, int R>
+struct StridedSeq: Strided<PointerT, R> {
     // properties
+    typedef typename Strided<PointerT, R>::Logical Logical;
     uint32_t logicalStrides[R];
+    uint32_t count;
 
     //--------------------------------------------------------------------------
     // initializer
-    __host__ StridedSeq(const TensorDescriptor& tensor) : Strided<R>(tensor) {
+    __HOST_INLINE__ StridedSeq(PointerT p, const TensorDescriptor& tensor) :
+        Strided<PointerT, R>(p, tensor)
+    {
+        count = tensor.count;
         for (int i = 0; i < R; ++i) {
             assert(tensor.shape[i] <= UINT32_MAX && tensor.strides[i] <= UINT32_MAX);
             logicalStrides[i] = uint32_t(tensor.logicalStrides[i]);
@@ -212,8 +271,7 @@ struct StridedSeq: Strided<R> {
 
     //--------------------------------------------------------------------------
     // the logical sequence position
-    __DEVICE_INLINE__  
-    uint32_t sequence(const typename Strided<R>::Logical& position) const {
+    __DEVICE_INLINE__ uint32_t sequence(const Logical& position) const {
         uint32_t index = 0;
         #pragma unroll
         for (int i = 0; i < R; i++) {
@@ -224,65 +282,58 @@ struct StridedSeq: Strided<R> {
 };
 
 //==============================================================================
-// kernel helpers
-#define GRID_LOOP(i, n) \
-  for (unsigned i = (blockIdx.x * blockDim.x + threadIdx.x); i < (n); \
-       i += blockDim.x * gridDim.x)
-
-// divideRoundingUp
-inline int divideRoundingUp(int num, int divisor) {
-    return (num + divisor - 1) / divisor;
-}
-
-//==============================================================================
 // grid and tile size placeholders
 
 // *** this is a hack place holder for now. We will eventually do dynamic
 
 //--------------------------------------
 // tile selection
-template<unsigned Rank>
-inline dim3 tileSize(const TensorDescriptor& oDesc) {
+template<int Rank>
+inline dim3 tileSize(const uint32_t* shape) {
     static_assert(Rank <= 3, "not implemented");
 }
 
-template<> inline dim3 tileSize<1>(const TensorDescriptor& oDesc) {
-    return oDesc.count >= 1024 ? dim3(1024) : dim3(32);
+template<> inline dim3 tileSize<1>(const uint32_t* shape) {
+    return shape[0] >= 1024 ? dim3(1024) : dim3(32);
 }
 
-template<> inline dim3 tileSize<2>(const TensorDescriptor& oDesc) {
+inline dim3 tileSize(uint32_t count) {
+    return count >= 1024 ? dim3(1024) : dim3(32);
+}
+
+template<> inline dim3 tileSize<2>(const uint32_t* shape) {
     return dim3(16, 16);
 }
 
-template<> inline dim3 tileSize<3>(const TensorDescriptor& oDesc) {
+template<> inline dim3 tileSize<3>(const uint32_t* shape) {
     return dim3(16, 8, 8);
-}
-
-inline dim3 tileSize(int count) {
-    return count >= 1024 ? dim3(1024) : dim3(32);
 }
 
 //--------------------------------------
 // grid selection
-template<unsigned Rank>
-inline dim3 gridSize(const TensorDescriptor& oDesc, const dim3& tile) {
+template<int Rank>
+inline dim3 gridSize(const uint32_t* shape, const dim3& tile) {
     static_assert(Rank <= 3, "not implemented");
 }
 
 template<>
-inline dim3 gridSize<1>(const TensorDescriptor& oDesc, const dim3& tile) {
-    return (oDesc.count + tile.x - 1) / tile.x;
+inline dim3 gridSize<1>(const uint32_t* shape, const dim3& tile) {
+    return (shape[0] + tile.x - 1) / tile.x;
+}
+
+inline dim3 gridSize(uint32_t count, const dim3& tile) {
+    return (count + tile.x - 1) / tile.x;
 }
 
 template<>
-inline dim3 gridSize<2>(const TensorDescriptor& oDesc, const dim3& tile) {
-    return dim3(divideRoundingUp(oDesc.shape[0], tile.y), 
-                divideRoundingUp(oDesc.shape[1], tile.x));
+inline dim3 gridSize<2>(const uint32_t* shape, const dim3& tile) {
+    return dim3(divideRoundingUp(shape[0], tile.y), 
+                divideRoundingUp(shape[1], tile.x));
 }
 
 template<>
-inline dim3 gridSize<3>(const TensorDescriptor& oDesc, const dim3& tile) {
-    return dim3(divideRoundingUp(oDesc.shape[0], tile.z), 
-                divideRoundingUp(oDesc.shape[1], tile.y), 
-                divideRoundingUp(oDesc.shape[2], tile.x));
+inline dim3 gridSize<3>(const uint32_t* shape, const dim3& tile) {
+    return dim3(divideRoundingUp(shape[0], tile.z), 
+                divideRoundingUp(shape[1], tile.y), 
+                divideRoundingUp(shape[2], tile.x));
 }
