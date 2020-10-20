@@ -13,12 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include "fill_api.cuh"
-// #include "srt_traits.cuh"
+#include <cublasLt.h>
+
+#include "fill_api.h"
 #include "float16.cuh"
 #include "bfloat16.cuh"
 #include "complex.cuh"
 #include "iterators.cuh"
+#include "tensor.cuh"
 
 //==============================================================================
 // Swift importable C interface functions

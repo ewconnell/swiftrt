@@ -16,9 +16,9 @@
 #pragma once
 
 // this is an umbrella header
-#include "compare_api.cuh"
-#include "fill_api.cuh"
-#include "math_api.cuh"
-#include "reduce_api.cuh"
-#include "specialized_api.cuh"
-#include "utilities_api.cuh"
+#include "compare_api.h"
+#include "fill_api.h"
+#include "math_api.h"
+#include "reduce_api.h"
+#include "specialized_api.h"
+#include "utilities_api.h"

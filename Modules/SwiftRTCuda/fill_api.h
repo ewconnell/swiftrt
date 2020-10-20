@@ -14,8 +14,7 @@
 // limitations under the License.
 //
 #pragma once
-#include <cuda_runtime.h>
-#include "tensor.cuh"
+#include "tensor_api.h"
 
 
 // make visible to Swift as C API

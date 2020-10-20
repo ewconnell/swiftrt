@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 #pragma once
-#include "tensor.cuh"
+#include "tensor_api.h"
 
 
 // make visible to Swift as C API
@@ -23,14 +23,9 @@ extern "C" {
 #endif
 
 //==============================================================================
-
-cudaError_t srtJulia(
-    const void* z, const srtTensorDescriptor* pzDesc,
-    void* divergence, const srtTensorDescriptor* pdDesc,
-    const void* tolerance,
-    const void* C,
-    size_t iterations,
-    cudaStream_t stream);
+/// srtDelayStream
+/// a utility function for unit testing to simulate work
+cudaError_t srtDelayStream(double seconds, cudaStream_t stream);
 
 //==============================================================================
 #ifdef __cplusplus

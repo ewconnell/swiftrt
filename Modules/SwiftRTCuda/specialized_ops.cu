@@ -13,9 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include "specialized_api.cuh"
+#include "specialized_api.h"
 #include "complex.cuh"
 #include "iterators.cuh"
+#include "tensor.cuh"
 
 //==============================================================================
 // Swift importable C interface functions

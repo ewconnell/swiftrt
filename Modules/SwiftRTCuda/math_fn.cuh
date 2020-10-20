@@ -15,9 +15,10 @@
 //
 #pragma once
 #include "srt_traits.cuh"
-#include "math_api.cuh"
+#include "math_api.h"
 #include "float16.cuh"
 #include "bfloat16.cuh"
+#include "tensor.cuh"
 
 //==============================================================================
 // supplemental functions to give names to operator types

@@ -14,7 +14,8 @@
 // limitations under the License.
 //
 #pragma once
-#include "reduce_api.cuh"
+#include "reduce_api.h"
+#include "tensor.cuh"
 #include "math_fn.cuh"
 
 // Ensure printing of CUDA runtime errors to console

@@ -14,8 +14,7 @@
 // limitations under the License.
 //
 #pragma once
-#include "tensor.cuh"
-#include <cstddef>
+#include "tensor_api.h"
 
 // make visible to Swift as C API
 #ifdef __cplusplus

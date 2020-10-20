@@ -14,7 +14,8 @@
 // limitations under the License.
 //
 #pragma once
-#include "compare_api.cuh"
+#include "tensor.cuh"
+#include "compare_api.h"
 #include "simd_types.cuh"
 
 //==============================================================================
