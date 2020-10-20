@@ -1,4 +1,4 @@
-module SwiftRTCuda [extern_c] {
+module SwiftRTCuda {
     header "SwiftRTCuda.h"
     export *
     link "SwiftRTCuda"
