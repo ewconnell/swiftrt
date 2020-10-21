@@ -32,6 +32,7 @@ class test_AlgebraicField: XCTestCase {
         ("test_addBFloat16", test_addBFloat16),
         
         ("test_addInt32", test_addInt32),
+        ("test_addInt8", test_addInt8),
         ("test_addUInt8", test_addUInt8),
         ("test_addScalar", test_addScalar),
         ("test_addAndAssign", test_addAndAssign),
@@ -145,6 +146,14 @@ class test_AlgebraicField: XCTestCase {
     func test_addInt32() {
         let a = array(0..<6, (3, 2), type: Int32.self)
         let b = array(0..<6, (3, 2), type: Int32.self)
+        let result = a + b
+        XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
+    }
+
+    //--------------------------------------------------------------------------
+    func test_addInt8() {
+        let a = array(0..<6, (3, 2), type: Int8.self)
+        let b = array(0..<6, (3, 2), type: Int8.self)
         let result = a + b
         XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
     }

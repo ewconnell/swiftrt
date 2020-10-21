@@ -32,11 +32,24 @@ extension CudaQueue {
         guard useGpu else { cpu_add(lhs, rhs, &out); return }
         diagnostic(.queueGpu, "add(\(lhs.name), \(rhs.name))", 
                     categories: .queueGpu)
+        var status = cudaErrorNotSupported
 
-        let status = out.withMutableTensor(using: self) { o, oDesc in
-            lhs.withTensor(using: self) { l, lDesc in
-                rhs.withTensor(using: self) { r, rDesc in
-                    srtAdd(l, lDesc, r, rDesc, o, oDesc, stream)
+        if lhs.order == rhs.order && lhs.isContiguous && rhs.isContiguous {
+            status = srtAddFlat(
+                E.type,
+                lhs.deviceRead(using: self),
+                rhs.deviceRead(using: self),
+                out.deviceReadWrite(using: self),
+                out.count,
+                stream
+            )
+
+        } else {
+            status = out.withMutableTensor(using: self) { o, oDesc in
+                lhs.withTensor(using: self) { l, lDesc in
+                    rhs.withTensor(using: self) { r, rDesc in
+                        srtAdd(l, lDesc, r, rDesc, o, oDesc, stream)
+                    }
                 }
             }
         }

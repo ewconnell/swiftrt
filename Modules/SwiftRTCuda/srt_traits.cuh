@@ -57,29 +57,21 @@ namespace std {
 
     //--------------------------------------------------------------------------
     // is_signed
-    template<>
-    struct __is_integer<char4> {
-        enum { __value = 1 };
-        typedef __true_type __type;
-    };
+  template<>
+    struct __is_integral_helper<char4>
+    : public true_type { };
 
-    template<>
-    struct __is_integer<uchar4> {
-        enum { __value = 1 };
-        typedef __true_type __type;
-    };
+  template<>
+    struct __is_integral_helper<uchar4>
+    : public true_type { };
 
-    template<>
-    struct __is_integer<short2> {
-        enum { __value = 1 };
-        typedef __true_type __type;
-    };
+  template<>
+    struct __is_integral_helper<short2>
+    : public true_type { };
 
-    template<>
-    struct __is_integer<ushort2> {
-        enum { __value = 1 };
-        typedef __true_type __type;
-    };
+  template<>
+    struct __is_integral_helper<ushort2>
+    : public true_type { };
 }
 
 

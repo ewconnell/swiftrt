@@ -47,7 +47,7 @@ extension CudaQueue
                     categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
-            withUnsafePointer(to: element) {
+            withUnsafePointer(to: E.stored(value: element)) {
                 srtFill(o, oDesc, $0, stream)
             }
         }
@@ -68,9 +68,9 @@ extension CudaQueue
             categories: .queueGpu)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
-            withUnsafePointer(to: first) { f in
-                withUnsafePointer(to: last) { l in
-                    withUnsafePointer(to: step) { s in
+            withUnsafePointer(to: E.stored(value: first)) { f in
+                withUnsafePointer(to: E.stored(value: last)) { l in
+                    withUnsafePointer(to: E.stored(value: step)) { s in
                         srtFillRange(o, oDesc, f, l, s, stream)
                     }
                 }
@@ -113,8 +113,8 @@ extension CudaQueue
         let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
-            withUnsafePointer(to: lower) { l in
-                withUnsafePointer(to: upper) { u in
+            withUnsafePointer(to: E.stored(value: lower)) { l in
+                withUnsafePointer(to: E.stored(value: upper)) { u in
                     srtFillRandomUniform(o, oDesc, l, u, seed64, stream)
                 }
             }
@@ -140,8 +140,8 @@ extension CudaQueue
         let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
-            withUnsafePointer(to: mean) { m in
-                withUnsafePointer(to: std) { s in
+            withUnsafePointer(to: E.stored(value: mean)) { m in
+                withUnsafePointer(to: E.stored(value: std)) { s in
                     srtFillRandomNormal(o, oDesc, m, s, seed64, stream)
                 }
             }
@@ -196,8 +196,8 @@ extension CudaQueue
         let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
 
         let status = out.withMutableTensor(using: self) { o, oDesc in
-            withUnsafePointer(to: mean) { m in
-                withUnsafePointer(to: std) { s in
+            withUnsafePointer(to: E.stored(value: mean)) { m in
+                withUnsafePointer(to: E.stored(value: std)) { s in
                     srtFillRandomTruncatedNormal(o, oDesc, m, s, seed64, stream)
                 }
             }
