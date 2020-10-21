@@ -83,7 +83,7 @@ cudaError_t srtAcosh(
 }
 
 //------------------------------------------------------------------------------
-Op2(Add, add, isNumeric<A>())
+Op2(Add, add, (isNumeric<A>() && isSame<A,Out>()))
 
 cudaError_t srtAdd(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -96,12 +96,14 @@ cudaError_t srtAdd(
 }
 
 cudaError_t srtAddFlat(
-    const void* a, srtDataType atype,
+    srtDataType type,
+    const void* a,
     const void* b,
     void* out,
-    size_t count, cudaStream_t stream
+    size_t count, 
+    cudaStream_t stream
 ) {
-    return cudaErrorNotSupported;
+    return select<Add>(type, a, b, type, out, count, stream);
 }
 
 //------------------------------------------------------------------------------

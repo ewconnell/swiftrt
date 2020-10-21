@@ -60,10 +60,12 @@ cudaError_t srtAdd(
     cudaStream_t stream);
 
 cudaError_t srtAddFlat(
-    const void* a, srtDataType atype,
+    srtDataType type,
+    const void* a,
     const void* b,
     void* out,
-    size_t count, cudaStream_t stream);
+    size_t count, 
+    cudaStream_t stream);
     
 cudaError_t srtAddTE(
     const void* a, const srtTensorDescriptor* aDesc,

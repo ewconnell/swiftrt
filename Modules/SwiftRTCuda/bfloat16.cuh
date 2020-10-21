@@ -21,7 +21,7 @@ typedef __nv_bfloat16 bfloat16;
 typedef __nv_bfloat162 bfloat162;
 
 //==============================================================================
-// supplemental functions
+// supplemental math functions
 //==============================================================================
 
 #if (__CUDA_ARCH__ < 800)
@@ -157,6 +157,10 @@ __DEVICE_INLINE__ bfloat16 lgamma(const bfloat16 a) { return lgammaf(a); }
 __DEVICE_INLINE__ bfloat16 pow(const bfloat16 a, const bfloat16 b) { return powf(a, b); }
 __DEVICE_INLINE__ bfloat16 sinh(const bfloat16 a) { return sinhf(a); }
 __DEVICE_INLINE__ bfloat16 tanh(const bfloat16 a) { return tanhf(a); }
+
+__DEVICE_INLINE__ bool isfinite(const bfloat16 a) { return ::__finitef(a); }
+__DEVICE_INLINE__ bfloat16 max(const bfloat16 a, const bfloat16 b) { return a >= b ? a : b; }
+__DEVICE_INLINE__ bfloat16 min(const bfloat16 a, const bfloat16 b) { return a <= b ? a : b; }
 
 //------------------------------------------------------------------------------
 // packed variants

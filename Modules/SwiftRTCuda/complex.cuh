@@ -20,18 +20,20 @@
 
 #include <cmath>
 #include <optional>
-#include <limits>
 #include <type_traits>
 
 #include "cuda_macros.cuh"
+#include "srt_limits.cuh"
 
 //******************************************************************************
 // This is the Complex module from Swift Numerics ported to C++
 //
 //******************************************************************************
 
-template<typename RealType>
+template<typename _RealType>
 struct Complex {
+    typedef _RealType RealType;
+    
     //  A note on the `x` and `y` properties
     //
     //  `x` and `y` are the names we use for the raw storage of the real and
@@ -90,7 +92,7 @@ struct Complex {
     /// - .one
     /// - .i
     /// - .infinity
-    __HOSTDEVICE_INLINE__ static Complex zero() { return Complex(0, 0); }
+    __HOSTDEVICE_INLINE__ static Complex zero() { return Complex(0.0f, 0.0f); }
 
     /// The multiplicative identity, with real part one and imaginary part zero.
     ///
@@ -99,7 +101,7 @@ struct Complex {
     /// - .zero
     /// - .i
     /// - .infinity
-    __HOSTDEVICE_INLINE__ static Complex one() { return Complex(1, 0); }
+    __HOSTDEVICE_INLINE__ static Complex one() { return Complex(1.0f, 0.0f); }
 
     /// The imaginary unit.
     ///
@@ -108,7 +110,7 @@ struct Complex {
     /// - .zero
     /// - .one
     /// - .infinity
-    __HOSTDEVICE_INLINE__ static Complex i() { return Complex(0, 1); }
+    __HOSTDEVICE_INLINE__ static Complex i() { return Complex(0.0f, 1.0f); }
 
     /// The point at infinity.
     ///
@@ -117,7 +119,9 @@ struct Complex {
     /// - .zero
     /// - .one
     /// - .i
-    __HOSTDEVICE_INLINE__ static Complex infinity() { return Complex(INFINITY, 0); }
+    __HOSTDEVICE_INLINE__ static Complex infinity() {
+        return Complex(std::numeric_limits<RealType>::infinity(), RealType(0.0f));
+    }
 
     /// The complex conjugate of this value.
     __HOSTDEVICE_INLINE__ Complex conjugate() { return Complex(x, -y); }
@@ -171,7 +175,7 @@ struct Complex {
     /// - `.isFinite`
     /// - `.isNormal`
     /// - `.isSubnormal`
-    __HOSTDEVICE_INLINE__ bool isZero() { return x == 0 && y == 0; }
+    __HOSTDEVICE_INLINE__ bool isZero() { return x == RealType(0.0f) && y == RealType(0.0f); }
 
     /// The ∞-norm of the value (`max(abs(real), abs(imaginary))`).
     ///

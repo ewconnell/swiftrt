@@ -16,12 +16,72 @@
 #pragma once
 #include <stdint.h>
 #include <vector_types.h>
+#include <type_traits>
 
 #include "cuda_macros.cuh"
 #include "float16.cuh"
 #include "bfloat16.cuh"
 #include "complex.cuh"
 #include "simd_types.cuh"
+
+//==============================================================================
+// extend standard traits
+namespace std {
+    //--------------------------------------------------------------------------
+    // is_floating_point
+    template<>
+    struct __is_floating_point_helper<float16>: public true_type { };
+
+    template<>
+    struct __is_floating_point_helper<float162>: public true_type { };
+
+    template<>
+    struct __is_floating_point_helper<bfloat16>: public true_type { };
+
+    template<>
+    struct __is_floating_point_helper<bfloat162>: public true_type { };
+
+    //--------------------------------------------------------------------------
+    // is_signed
+    template<>
+    struct __is_signed_helper<float16>: public true_type { };
+
+    template<>
+    struct __is_signed_helper<float162>: public true_type { };
+
+    template<>
+    struct __is_signed_helper<bfloat16>: public true_type { };
+
+    template<>
+    struct __is_signed_helper<bfloat162>: public true_type { };
+
+    //--------------------------------------------------------------------------
+    // is_signed
+    template<>
+    struct __is_integer<char4> {
+        enum { __value = 1 };
+        typedef __true_type __type;
+    };
+
+    template<>
+    struct __is_integer<uchar4> {
+        enum { __value = 1 };
+        typedef __true_type __type;
+    };
+
+    template<>
+    struct __is_integer<short2> {
+        enum { __value = 1 };
+        typedef __true_type __type;
+    };
+
+    template<>
+    struct __is_integer<ushort2> {
+        enum { __value = 1 };
+        typedef __true_type __type;
+    };
+}
+
 
 //==============================================================================
 // conformance helpers
@@ -32,17 +92,12 @@ inline constexpr bool isSame() {
 
 template<typename A>
 inline constexpr bool isInteger() {
-    return std::is_integral<A>::value ||
-        std::is_same<A,char4>::value  || std::is_same<A,uchar4>::value ||
-        std::is_same<A,short2>::value || std::is_same<A,ushort2>::value;
+    return std::is_integral<A>::value;
 }
 
 template<typename A>
 inline constexpr bool isFloating() {
-    return 
-        std::is_floating_point<A>::value ||
-        std::is_same<A,half>::value  || std::is_same<A,half2>::value ||
-        std::is_same<A,bfloat16>::value || std::is_same<A,bfloat162>::value;
+    return std::is_floating_point<A>::value;
 }
 
 template<typename A>
@@ -187,6 +242,12 @@ template<> struct packing<half2> { static const int count = 2; };
 template<> struct packing<const half2> { static const int count = 2; };
 template<> struct packing<bfloat162> { static const int count = 2; };
 template<> struct packing<const bfloat162> { static const int count = 2; };
+
+// template<typename A, typename O>
+// inline constexpr bool canPack() {
+//     return packing<A>::count == packing<O>::count;
+// }
+
 
 //==============================================================================
 /// init

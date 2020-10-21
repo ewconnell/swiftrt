@@ -58,6 +58,10 @@ __DEVICE_INLINE__ half multiplyAdd(const half& a, const half& b, const half& c) 
     return __hfma(a, b, c);
 }
 
+__DEVICE_INLINE__ bool isfinite(const half a) { return ::__finitef(a); }
+__DEVICE_INLINE__ half max(const half a, const half b) { return a >= b ? a : b; }
+__DEVICE_INLINE__ half min(const half a, const half b) { return a <= b ? a : b; }
+
 //------------------------------------------------------------------------------
 // packed variants
 __DEVICE_INLINE__ half2 abs(const half2 a) { return __habs2(a); }
@@ -94,4 +98,5 @@ __DEVICE_INLINE__ half2 multiplyAdd(const half2& a, const half2& b, const half2&
     return __hfma2(a, b, c);
 }
 __DEVICE_INLINE__ half2 sign(const half2& a) { return half2(sign(a.x), sign(a.y)); }
+
 

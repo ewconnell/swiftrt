@@ -8,7 +8,7 @@ add_library(SwiftRTCuda
   specialized_ops.cu
 )
 set_target_properties(SwiftRTCuda PROPERTIES
-  CUDA_SEPARABLE_COMPILATION YES
+  #CUDA_SEPARABLE_COMPILATION YES
   POSITION_INDEPENDENT_CODE YES)
 target_compile_options(SwiftRTCuda PRIVATE
   -allow-unsupported-compiler
