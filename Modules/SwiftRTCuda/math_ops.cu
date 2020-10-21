@@ -39,7 +39,11 @@ cudaError_t srtAbs(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return select<Abs>(a, aDesc, out, oDesc, stream);
+    if (aDesc.type == oDesc.type) {
+        return select<Abs>(a, aDesc, out, oDesc, stream);
+    } else {
+        return selectT_O<Abs>(a, aDesc, out, oDesc, stream);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -429,7 +433,7 @@ cudaError_t srtMulTE(
 }
 
 //------------------------------------------------------------------------------
-Op3(MultiplyAdd, multiplyAdd, isNumeric<A>())
+Op3(MultiplyAdd, multiplyAdd, (isNumeric<A>() && isSame<A,Out>()))
 
 cudaError_t srtMultiplyAdd(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -442,7 +446,7 @@ cudaError_t srtMultiplyAdd(
     return select<MultiplyAdd>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
 }
 
-Op3SwapBC(MultiplyAddE, multiplyAdd, isNumeric<A>())
+Op3SwapBC(MultiplyAddE, multiplyAdd, (isNumeric<A>() && isSame<A,Out>()))
 
 cudaError_t srtMultiplyAddTTE(
     const void* a, const srtTensorDescriptor* paDesc,

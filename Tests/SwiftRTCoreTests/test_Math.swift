@@ -65,6 +65,7 @@ class test_Math: XCTestCase {
         // repeat rows of real range, columns of imaginary range, and combine
         var Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
                 repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+        
         XCTAssert(Z == [
             [CF(-1.7, 1.7), CF(-0.85, 1.7), CF(0.0, 1.7), CF(0.85000014, 1.7), CF(1.7, 1.7)],
             [CF(-1.7, 0.85), CF(-0.85, 0.85), CF(0.0, 0.85), CF(0.85000014, 0.85), CF(1.7, 0.85)],
@@ -85,13 +86,14 @@ class test_Math: XCTestCase {
         
         // Z = Z * Z + C
         Z = multiply(Z, Z, add: C)
-        XCTAssert(Z == [
+        let expected = array([
             [CF(-0.8, -5.624), CF(-2.9675, -2.7340002), CF(-3.69, 0.156), CF(-2.9674997, 3.0460005), CF(-0.8, 5.9360003)],
             [CF(1.3675001, -2.7340002), CF(-0.8, -1.289), CF(-1.5225, 0.156), CF(-0.7999998, 1.6010003), CF(1.3675001, 3.046)],
             [CF(2.0900002, 0.156), CF(-0.077499986, 0.156), CF(-0.8, 0.156), CF(-0.07749975, 0.156), CF(2.0900002, 0.156)],
             [CF(1.3674998, 3.0460005), CF(-0.80000025, 1.6010003), CF(-1.5225003, 0.156), CF(-0.8, -1.2890005), CF(1.3674998, -2.7340007)],
             [CF(-0.8, 5.9360003), CF(-2.9675, 3.046), CF(-3.69, 0.156), CF(-2.9674997, -2.7340007), CF(-0.8, -5.624)]
         ])
+        XCTAssert(elementsAlmostEqual(Z, expected, tolerance: CF(0.00001, 0.00001)).all().element)
         
         divergence[abs(Z) .> tolerance] = min(divergence, 0)
         XCTAssert(divergence == [

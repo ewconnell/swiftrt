@@ -42,7 +42,7 @@ cudaError_t srtCopy(
 // kernel
 template <typename IterOut, typename E>
 __global__ void mapFillWithElement(IterOut iterOut, E element) {
-    auto p = IterOut::Logical(blockIdx, blockDim, threadIdx);
+    auto p = typename IterOut::Logical(blockIdx, blockDim, threadIdx);
     if (iterOut.isInBounds(p)) iterOut[p] = element;
 }
 
@@ -114,7 +114,7 @@ __global__ void mapFillRange(
     const E step
 ) {
     auto lastPos = iterOut.count - 1;
-    auto p = IterOut::Logical(blockIdx, blockDim, threadIdx);
+    auto p = typename IterOut::Logical(blockIdx, blockDim, threadIdx);
     if (iterOut.isInBounds(p)) {
         auto seqPos = iterOut.sequence(p);
         E value = first + (E(float(seqPos)) * step);
@@ -139,7 +139,6 @@ static cudaError_t fillRange(
     dim3 grid = gridSize(count, tile);
 
     mapFillRange<<<grid, tile, 0, stream>>>(iterO, first, last, step);
-    cudaStreamSynchronize(stream);
     return cudaSuccess;
 }
 
@@ -159,7 +158,6 @@ static cudaError_t fillRange(
     dim3 grid = gridSize<Rank>(iterO.shape, tile);
 
     mapFillRange<<<grid, tile, 0, stream>>>(iterO, first, last, step);
-    cudaStreamSynchronize(stream);
     return cudaSuccess;
 }
 

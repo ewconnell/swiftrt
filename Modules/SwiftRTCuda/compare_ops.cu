@@ -17,6 +17,7 @@
 #include "compare_vjp.cuh"
 #include "op2.cuh"
 #include "op3.cuh"
+#include "srt_traits.cuh"
 
 //==============================================================================
 // Swift importable C interface functions
@@ -36,7 +37,7 @@ cudaError_t srtAnd(
 }
 
 //------------------------------------------------------------------------------
-Op3SwapBC(AlmostEqual, almostEqual, (isFloating<A>() && isBool<Out>()))
+Op3SwapBC(AlmostEqual, almostEqual, (isBool<Out>() && (isFloating<A>() || isComplex<A>())))
 
 cudaError_t srtElementsAlmostEqual(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -241,7 +242,7 @@ cudaError_t srtReplace(
 }
 
 //==============================================================================
-Op3(VjpMin, vjpMin, isComparable<A>())
+Op3(VjpMin, vjpMin, (isComparable<A>() && isSame<A,Out>()))
 
 cudaError_t srtVjpMin(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -265,7 +266,7 @@ cudaError_t srtVjpMinTE(
     return select<VjpMin>(a, aDesc, e, b, bDesc, out, oDesc, stream);
 }
 
-Op32(VjpMin2, vjpMin, isComparable<A>())
+Op32(VjpMin2, vjpMin, (isComparable<A>() && isSame<A,Out>()))
 
 cudaError_t srtVjpMinOO(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -292,7 +293,7 @@ cudaError_t srtVjpMinTEOO(
 }
 
 //==============================================================================
-Op3(VjpMax, vjpMax, isComparable<A>())
+Op3(VjpMax, vjpMax, (isComparable<A>() && isSame<A,Out>()))
 
 cudaError_t srtVjpMax(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -316,7 +317,7 @@ cudaError_t srtVjpMaxTE(
     return select<VjpMax>(a, aDesc, e, b, bDesc, out, oDesc, stream);
 }
 
-Op32(VjpMax2, vjpMax, (isComparable<T>()))
+Op32(VjpMax2, vjpMax, (isComparable<A>() && isSame<A,Out>()))
 
 cudaError_t srtVjpMaxOO(
     const void* a, const srtTensorDescriptor* paDesc,
