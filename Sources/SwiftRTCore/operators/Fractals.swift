@@ -37,7 +37,8 @@ import Numerics
     var d = full(size, iterations, type: E.self)
 
     currentQueue.juliaSet(Z: Z, constant: C, divergence: d,
-                          iterations: iterations, )
+                          tolerance: tolerance, 
+                          iterations: iterations)
 }
 
 //==============================================================================
@@ -59,11 +60,11 @@ extension CpuQueue {
 extension DeviceQueue {
     @inlinable public func cpu_juliaSet<E>(
         _ Z: TensorR2<Complex<E>>,
-        _ constant C: Complex<E>,
+        _ C: Complex<E>,
         _ divergence: inout TensorR2<E>,
-        tolerance: E.Value,
-        iterations: Int
-    )
+        _ tolerance: E.Value,
+        _ iterations: Int
+    ) {
         for i in 0..<iterations {
             Z = multiply(Z, Z, add: C)
             divergence[abs(Z) .> tolerance] = min(divergence, i)
@@ -85,7 +86,7 @@ extension CudaQueue {
             _messageElementsMustBeContiguous)
         assert(Z.order == d.order, _messageTensorOrderMismatch)
 
-        guard useGpu else { cpu_juliaSet(Z, C, &divergence); return }
+        guard useGpu else { cpu_juliaSet(Z, C, &d, tolerance, iterations); return }
         diagnostic(.queueGpu, "juliaSet(\(Z.name), \(d.name))", 
                     categories: .queueGpu)
 
@@ -99,6 +100,6 @@ extension CudaQueue {
             iterations,
             stream)
 
-        cpuFallback(status) { $0.juliaSet(Z, C, &d) }
+        cpuFallback(status) { $0.juliaSet(Z, C, &d, tolerance, iterations) }
     }
 }

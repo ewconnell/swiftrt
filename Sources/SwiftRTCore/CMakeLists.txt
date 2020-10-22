@@ -20,6 +20,7 @@ add_library(SwiftRTCore
   operators/Math.swift
   operators/Matmul.swift
   operators/Reductions.swift
+  operators/Fractals.swift
 
   platform/common/BFloat16.swift
   platform/common/ComplexExtensions.swift
