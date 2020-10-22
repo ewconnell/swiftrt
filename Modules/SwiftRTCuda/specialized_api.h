@@ -24,11 +24,13 @@ extern "C" {
 
 //==============================================================================
 
-cudaError_t srtJulia(
-    const void* z, const srtTensorDescriptor* pzDesc,
-    void* divergence, const srtTensorDescriptor* pdDesc,
-    const void* tolerance,
+cudaError_t srtJuliaFlat(
+    srtDataType type,
+    const void* z,
     const void* C,
+    void* divergence,
+    size_t count,
+    const void* tolerance,
     size_t iterations,
     cudaStream_t stream);
 

@@ -51,28 +51,30 @@ __global__ void mapJulia(
 }
 
 
-cudaError_t srtJulia(
-    const void* pz, const srtTensorDescriptor* pzDesc,
-    void* pdivergence, const srtTensorDescriptor* pdDesc,
-    const void* ptolerance,
-    const void* pC,
+cudaError_t srtJuliaFlat(
+    srtDataType type,
+    const void* z,
+    const void* C,
+    void* divergence,
+    size_t count,
+    const void* tolerance,
     size_t iterations,
     cudaStream_t stream
 ) {
-    const TensorDescriptor& zDesc = static_cast<const TensorDescriptor&>(*pzDesc);
-    const TensorDescriptor& dDesc = static_cast<const TensorDescriptor&>(*pdDesc);
+    // const TensorDescriptor& zDesc = static_cast<const TensorDescriptor&>(*pzDesc);
+    // const TensorDescriptor& dDesc = static_cast<const TensorDescriptor&>(*pdDesc);
 
-    const Complex<float>* z = static_cast<const Complex<float>*>(pz);
-    float* d = static_cast<float*>(pdivergence);
-    const float tolerance = *static_cast<const float*>(ptolerance);
-    const Complex<float> C = *static_cast<const Complex<float>*>(pC);
+    // const Complex<float>* z = static_cast<const Complex<float>*>(pz);
+    // float* d = static_cast<float*>(pdivergence);
+    // const float tolerance = *static_cast<const float*>(ptolerance);
+    // const Complex<float> C = *static_cast<const Complex<float>*>(pC);
 
-    auto iterZ = Flat(z, zDesc.count);
-    auto iterD = Flat(d, dDesc.count);
+    // auto iterZ = Flat(z, zDesc.count);
+    // auto iterD = Flat(d, dDesc.count);
 
-    dim3 tile = tileSize(iterD.count);
-    dim3 grid = gridSize(iterD.count, tile);
+    // dim3 tile = tileSize(iterD.count);
+    // dim3 grid = gridSize(iterD.count, tile);
 
-    mapJulia<<<grid, tile, 0, stream>>>(iterZ, iterD, tolerance, C, iterations);
+    // mapJulia<<<grid, tile, 0, stream>>>(iterZ, iterD, tolerance, C, iterations);
     return cudaSuccess;
 }
