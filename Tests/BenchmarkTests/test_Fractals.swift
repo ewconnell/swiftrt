@@ -36,7 +36,7 @@ final class test_Fractals: XCTestCase {
         // cpu platform mac and ubuntu: 12.816s
         // cuda platform: cpu: , gpu 1.48s
         // measure {
-            juliaSet(
+            _ = juliaSet(
                 iterations: 2048,
                 constant: Complex<Float>(-0.8, 0.156),
                 tolerance: 4,

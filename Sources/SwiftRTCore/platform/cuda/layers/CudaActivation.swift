@@ -24,6 +24,10 @@ where Shape: TensorShape, Element: StorageElement & FloatingPoint
     public typealias Input = Tensor<Shape,Element>
     public typealias Output = Tensor<Shape,Element>
 
+    // constants
+    public var zero = Element.zero
+    public var one = Element.one
+
     // properties
     public let activationDescriptor: ActivationDescriptor
     public var xyTensorDescriptor: TensorDescriptor!
@@ -64,12 +68,12 @@ where Shape: TensorShape, Element: StorageElement & FloatingPoint
             deviceQueue.cudnn.handle,
             activationDescriptor.desc,
             // alpha
-            Element.storedOnePointer,
+            &one,
             // x
             xyTensorDescriptor.desc,
             x.deviceRead(using: deviceQueue),
             // beta
-            Element.storedZeroPointer,
+            &zero,
             // y
             xyTensorDescriptor.desc,
             y.deviceReadWrite(using: deviceQueue)))
@@ -102,7 +106,7 @@ where Shape: TensorShape, Element: StorageElement & FloatingPoint
             deviceQueue.cudnn.handle,
             activationDescriptor.desc,
             // alpha
-            Element.storedOnePointer,
+            &one,
             // y
             xyTensorDescriptor.desc,
             y.deviceRead(using: deviceQueue),
@@ -113,7 +117,7 @@ where Shape: TensorShape, Element: StorageElement & FloatingPoint
             xyTensorDescriptor.desc,
             x.deviceRead(using: deviceQueue),
             // beta
-            Element.storedZeroPointer,
+            &zero,
             // dx
             xyTensorDescriptor.desc,
             xDiff.deviceReadWrite(using: deviceQueue)))

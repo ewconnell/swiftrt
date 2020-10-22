@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 import Numerics
+import SwiftRTCuda
 
 //==============================================================================
 /// juliaSet
@@ -24,32 +25,36 @@ import Numerics
     tolerance: E.Value,
     range: (first: Complex<E>, last: Complex<E>),
     size: (r: Int, c: Int)
-) -> TensorR2<E> where E: Real {
+) -> TensorR2<E> where E: Real, E.Value: Real {
     // generate distributed values over the range
     let iFirst = Complex<E>(0, range.first.imaginary)
     let rFirst = Complex<E>(range.first.real, 0)
     let rLast  = Complex<E>(range.last.real, 0)
     let iLast  = Complex<E>(0, range.last.imaginary)
 
-    // repeat rows of real range, columns of imaginary range, and combine
-    let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
-            repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-    var d = full(size, iterations, type: E.self)
+    // let za = array(from: rFirst, to: rLast, (1, size.c))
+    // let zb = array(from: iFirst, to: iLast, (size.r, 1))
 
-    currentQueue.juliaSet(Z: Z, constant: C, divergence: d,
-                          tolerance: tolerance, 
-                          iterations: iterations)
+    // // repeat rows of real range, columns of imaginary range, and combine
+    // let Z = repeating(za, size) +
+    //         repeating(zb, size)
+    var d = full(size, E.Value(exactly: iterations)!, type: E.self)
+
+    // currentQueue.juliaSet(Z: Z, constant: C, divergence: d,
+    //                       tolerance: tolerance, 
+    //                       iterations: iterations)
+    return d
 }
 
 //==============================================================================
 // CpuQueue delegation
 extension CpuQueue {
     @inlinable public func juliaSet<E>(
-        Z: TensorR2<Complex<E>>,
-        constant C: Complex<E>,
-        divergence: inout TensorR2<E>,
-        tolerance: E.Value,
-        iterations: Int
+        _ Z: TensorR2<Complex<E>>,
+        _ C: Complex<E>,
+        _ divergence: inout TensorR2<E>,
+        _ tolerance: E.Value,
+        _ iterations: Int
     ) {
         cpu_juliaSet(Z, C, &divergence, tolerance, iterations)
     }
@@ -65,6 +70,7 @@ extension DeviceQueue {
         _ tolerance: E.Value,
         _ iterations: Int
     ) {
+        var Z = Z
         for i in 0..<iterations {
             Z = multiply(Z, Z, add: C)
             divergence[abs(Z) .> tolerance] = min(divergence, i)
@@ -76,11 +82,11 @@ extension DeviceQueue {
 // CudaQueue gpu implementation
 extension CudaQueue {
     @inlinable public func juliaSet<E>(
-        Z: TensorR2<Complex<E>>,
-        constant C: Complex<E>,
-        divergence d: inout TensorR2<E>,
-        tolerance: E.Value,
-        iterations: Int
+        _ Z: TensorR2<Complex<E>>,
+        _ C: Complex<E>,
+        _ d: inout TensorR2<E>,
+        _ tolerance: E.Value,
+        _ iterations: Int
     ) {
         assert(Z.isContiguous && d.isContiguous, 
             _messageElementsMustBeContiguous)

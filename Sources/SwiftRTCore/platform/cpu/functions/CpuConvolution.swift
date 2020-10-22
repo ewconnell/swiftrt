@@ -111,8 +111,8 @@ extension DeviceQueue where Self: CpuFunctions
         filterBiasBackpropQueueIndex: Int
     ) -> DeviceConvolution<Shape, Element, FilterElement>
     where Shape: TensorShape,
-          Element: StorageElement,
-          FilterElement: StorageElement
+          Element: StorageElement & Numeric,
+          FilterElement: StorageElement & Numeric
     {
         CpuConvolution<Shape, Element, FilterElement>(
             activation: activation,
@@ -130,8 +130,8 @@ extension DeviceQueue where Self: CpuFunctions
 public final class CpuConvolution<Shape, Element, FilterElement>:
     DeviceConvolution<Shape, Element, FilterElement>
 where Shape: TensorShape,
-      Element: StorageElement,
-      FilterElement: StorageElement {}
+      Element: StorageElement & Numeric,
+      FilterElement: StorageElement & Numeric {}
 
 //==============================================================================
 /// DeviceConvolution
@@ -143,7 +143,9 @@ where Shape: TensorShape,
 /// [filter width, filter width, input channels, output channels]
 /// [filter depth, filter width, filter width, input channels, output channels]
 public class DeviceConvolution<Shape, Element, FilterElement>: Logging
-where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
+where Shape: TensorShape, 
+      Element: StorageElement & Numeric,
+      FilterElement: StorageElement & Numeric
 {
     // types
     public typealias Data = Tensor<Shape, Element>

@@ -29,8 +29,8 @@ extension CudaQueue
         filterBiasBackpropQueueIndex: Int
     ) -> DeviceConvolution<Shape, Element, FilterElement>
     where Shape: TensorShape,
-          Element: StorageElement,
-          FilterElement: StorageElement
+          Element: StorageElement & Numeric,
+          FilterElement: StorageElement & Numeric
     {
         if useGpu {
             return CudaConvolution<Shape,Element,FilterElement>(
@@ -57,9 +57,16 @@ extension CudaQueue
 //==============================================================================
 // CudaConvolution
 public final class CudaConvolution<Shape, Element, FilterElement>:
-    DeviceConvolution<Shape, Element, FilterElement>
-where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
+    DeviceConvolution<Shape, Element, FilterElement> where 
+    
+    Shape: TensorShape, 
+    Element: StorageElement & Numeric, 
+    FilterElement: StorageElement & Numeric
 {
+    // constants
+    public var zero = Element.zero
+    public var one = Element.one
+
     // descriptors
     public let activationDescriptor: ActivationDescriptor
 
@@ -155,7 +162,7 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
         cudaCheck(cudnnConvolutionBiasActivationForward(
             dataQueue.cudnn.handle,
             // alpha1
-            Element.storedOnePointer,
+            &one,
             // x
             xTensorDescriptor.desc,
             x.deviceRead(using: dataQueue),
@@ -171,7 +178,7 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
             // workspace size in bytes
             fwdWorkspaceSize,
             // alpha2
-            Element.storedZeroPointer,
+            &zero,
             // z used for activation (TODO: inplace on y?? find out what's right)
             yTensorDescriptor.desc,
             y.deviceRead(using: dataQueue),
@@ -201,11 +208,12 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
         xDiff: inout Data,
         mode: EvaluationMode
     ) {
+        // let pone = UnsafeRawPointer(&one) { $0 }
         // data
         cudaCheck(cudnnConvolutionBackwardData(
             dataQueue.cudnn.handle,
             // alpha
-            Element.storedOnePointer,
+            &one,
             // filter
             filterDescriptor.desc,
             filter.deviceRead(using: dataQueue),
@@ -220,7 +228,7 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
             bwdDataWorkspace?.mutablePointer,
             bwdDataWorkspaceSize,
             // beta
-            Element.storedZeroPointer,
+            &zero,
             // xDiff
             xTensorDescriptor.desc,
             xDiff.deviceReadWrite(using: dataQueue)))
@@ -229,7 +237,7 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
         cudaCheck(cudnnConvolutionBackwardFilter(
             filterBiasBackQueue.cudnn.handle,
             // alpha
-            Element.storedOnePointer,
+            &one,
             // x
             xTensorDescriptor.desc,
             x.deviceRead(using: dataQueue),
@@ -244,7 +252,7 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
             bwdFilterWorkspace?.mutablePointer,
             bwdFilterWorkspaceSize,
             // beta
-            Element.storedZeroPointer,
+            &zero,
             // filterDiff
             filterDescriptor.desc,
             filterDiff.deviceReadWrite(using: dataQueue)))
@@ -253,12 +261,12 @@ where Shape: TensorShape, Element: StorageElement, FilterElement: StorageElement
         cudaCheck(cudnnConvolutionBackwardBias(
             filterBiasBackQueue.cudnn.handle,
             // alpha
-            Element.storedOnePointer,
+            &one,
             // yDiff
             yTensorDescriptor.desc,
             yDiff.deviceRead(using: dataQueue),
             // beta
-            Element.storedZeroPointer,
+            &zero,
             //
             biasTensorDescriptor.desc,
             biasDiff.deviceReadWrite(using: dataQueue)))
