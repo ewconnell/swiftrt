@@ -120,30 +120,12 @@ public protocol StorageElement {
     )
 
 #if canImport(SwiftRTCuda)
-    /// a pointer to a `Stored` zero used for driver support 
-    static var storedZeroPointer: UnsafeRawPointer { get }
-
-    /// a pointer to a `Stored` one used for driver support 
-    static var storedOnePointer: UnsafeRawPointer { get }
-
     //--------------------------------------------------------------------------
     /// element data type identifier used for driver library dispatch
     static var type: srtDataType { get }
     static var cudnn: cudnnDataType_t { get }
     static var cublas: cublasDataType_t { get }
 #endif
-}
-
-//==============================================================================
-// to support aggregate types where the Scalar case isn't implemented yet
-extension StorageElement {
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        fatalError("not supported")
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        fatalError("not supported")
-    }
 }
 
 //==============================================================================
@@ -351,19 +333,6 @@ public struct Bool1: PackedStorageElement {
     @inlinable public static var valueMask: Stored { 0x1 }
     @inlinable public static var valueMin: Value { false }
     @inlinable public static var valueMax: Value { true }
-
-    //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = 0
-    public static var _storedOne: Stored = 1
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
     
     //-------------------------------------
     // value accessors
@@ -425,19 +394,6 @@ public struct UInt1: PackedStorageElement {
     @inlinable public static var valueMask: Stored { 0x1 }
     @inlinable public static var valueMin: Value { 0 }
     @inlinable public static var valueMax: Value { 1 }
-
-    //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = 0
-    public static var _storedOne: Stored = 1
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
 }
 
 extension Tensor where TensorElement == UInt1 {
@@ -472,19 +428,6 @@ public struct UInt4: PackedStorageElement {
     @inlinable public static var valueMask: Stored { 0x0F }
     @inlinable public static var valueMin: Value { 0 }
     @inlinable public static var valueMax: Value { 15 }
-
-    //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = 0
-    public static var _storedOne: Stored = 1
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
 }
 
 //==============================================================================
@@ -497,19 +440,6 @@ extension Float16: StorageElement {
     @inlinable public static func storedIndex(_ index: Int) -> Int { index }
     @inlinable public static func storedCount(_ count: Int) -> Int { count }
     @inlinable public static func alignment(_ index: Int) -> Int { 0 }
-
-    //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = 0
-    public static var _storedOne: Stored = 1
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
 
     //-------------------------------------
     // accessors
@@ -550,19 +480,6 @@ extension BFloat16: StorageElement {
     @inlinable public static func alignment(_ index: Int) -> Int { 0 }
 
     //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = 0
-    public static var _storedOne: Stored = 1
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
-
-    //-------------------------------------
     // accessors
     @inlinable public static func value(
         at index: Int, from stored: Self
@@ -598,182 +515,51 @@ extension BFloat16: StorageElement {
 extension Bool: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-
-    //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = false
-    public static var _storedOne: Stored = true
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
 }
 
 extension Int8: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-
-    //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = 0
-    public static var _storedOne: Stored = 1
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
 }
 
 extension UInt8: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-
-    //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = 0
-    public static var _storedOne: Stored = 1
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
 }
 
 extension Int16: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-
-    //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = 0
-    public static var _storedOne: Stored = 1
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
 }
 
 extension UInt16: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-
-    //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = 0
-    public static var _storedOne: Stored = 1
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
 }
 
 extension Int32: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-
-    //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = 0
-    public static var _storedOne: Stored = 1
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
 }
 
 extension UInt32: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-
-    //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = 0
-    public static var _storedOne: Stored = 1
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
 }
 
 extension Float: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-
-    //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = 0
-    public static var _storedOne: Stored = 1
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
 }
 
 extension Double: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-
-    //-------------------------------------
-    // pointers
-    public static var _storedZero: Stored = 0
-    public static var _storedOne: Stored = 1
-
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZero) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOne)
-    }
 }
 
-//------------------------------------------------------------------------------
-extension Complex {
+extension Complex: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
-}
-
-@usableFromInline var _storedZeroComplexFloat = Complex<Float>(0)
-@usableFromInline var _storedOneComplexFloat = Complex<Float>(1)
-
-extension Complex: StorageElement where RealType == Float {
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZeroComplexFloat) 
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOneComplexFloat)
-    }
 }
 
 //==============================================================================

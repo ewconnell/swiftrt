@@ -25,25 +25,20 @@ import SwiftRTCuda
     tolerance: E.Value,
     range: (first: Complex<E>, last: Complex<E>),
     size: (r: Int, c: Int)
-) -> TensorR2<E> where E: Real, E.Value: Real {
+) -> TensorR2<E> where E: Real, E == E.Value {
     // generate distributed values over the range
     let iFirst = Complex<E>(0, range.first.imaginary)
     let rFirst = Complex<E>(range.first.real, 0)
     let rLast  = Complex<E>(range.last.real, 0)
     let iLast  = Complex<E>(0, range.last.imaginary)
 
-    // let za = array(from: rFirst, to: rLast, (1, size.c))
-    // let zb = array(from: iFirst, to: iLast, (size.r, 1))
+    // repeat rows of real range, columns of imaginary range, and combine
+    let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
+            repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+    var divergence = full(size, E.Value(exactly: iterations)!, type: E.self)
 
-    // // repeat rows of real range, columns of imaginary range, and combine
-    // let Z = repeating(za, size) +
-    //         repeating(zb, size)
-    var d = full(size, E.Value(exactly: iterations)!, type: E.self)
-
-    // currentQueue.juliaSet(Z: Z, constant: C, divergence: d,
-    //                       tolerance: tolerance, 
-    //                       iterations: iterations)
-    return d
+    currentQueue.juliaSet(Z, C, &divergence, tolerance, iterations)
+    return divergence
 }
 
 //==============================================================================
@@ -55,7 +50,7 @@ extension CpuQueue {
         _ divergence: inout TensorR2<E>,
         _ tolerance: E.Value,
         _ iterations: Int
-    ) {
+    ) where E == E.Value {
         cpu_juliaSet(Z, C, &divergence, tolerance, iterations)
     }
 }
@@ -69,7 +64,7 @@ extension DeviceQueue {
         _ divergence: inout TensorR2<E>,
         _ tolerance: E.Value,
         _ iterations: Int
-    ) {
+    ) where E == E.Value {
         var Z = Z
         for i in 0..<iterations {
             Z = multiply(Z, Z, add: C)
@@ -87,7 +82,7 @@ extension CudaQueue {
         _ d: inout TensorR2<E>,
         _ tolerance: E.Value,
         _ iterations: Int
-    ) {
+    ) where E == E.Value {
         assert(Z.isContiguous && d.isContiguous, 
             _messageElementsMustBeContiguous)
         assert(Z.order == d.order, _messageTensorOrderMismatch)

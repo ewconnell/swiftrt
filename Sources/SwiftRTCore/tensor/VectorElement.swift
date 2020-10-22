@@ -39,16 +39,6 @@ public protocol VectorElement: StorageElement {
     static var scalarCount: Int { get }
 }
 
-extension VectorElement {
-    @inlinable public static var storedZeroPointer: UnsafeRawPointer {
-        fatalError("not implemented")
-    }
-    
-    @inlinable public static var storedOnePointer: UnsafeRawPointer {
-        fatalError("not implemented")
-    }
-}
-
 //==============================================================================
 // RGBA
 @frozen public struct RGBA<Scalar>: VectorElement, SIMD
@@ -119,34 +109,6 @@ extension RGBA where Scalar: BinaryFloatingPoint {
 }
 
 extension RGBA: AdditiveArithmetic where Scalar: FloatingPoint { }
-
-//------------------------------------------------------------------------------
-@usableFromInline var _storedZeroRGBAFloat32 = RGBA<Float>()
-@usableFromInline var _storedOneRGBAFloat32 = RGBA<Float>(1, 1, 1, 1)
-
-public extension VectorElement where Scalar == Float {
-    @inlinable static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZeroRGBAFloat32) 
-    }
-    
-    @inlinable static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOneRGBAFloat32)
-    }
-}
-
-//------------------------------------------------------------------------------
-@usableFromInline var _storedZeroRGBAUInt8 = RGBA<UInt8>()
-@usableFromInline var _storedOneRGBAUInt8 = RGBA<UInt8>(1, 1, 1, 1)
-
-public extension VectorElement where Scalar == UInt8 {
-    @inlinable static var storedZeroPointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedZeroRGBAUInt8) 
-    }
-    
-    @inlinable static var storedOnePointer: UnsafeRawPointer {
-        UnsafeRawPointer(&_storedOneRGBAUInt8)
-    }
-}
 
 //==============================================================================
 // Stereo

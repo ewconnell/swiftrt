@@ -32,11 +32,12 @@ final class test_Fractals: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_Julia() {
+        print("Julia!")
         // #if !DEBUG
         // cpu platform mac and ubuntu: 12.816s
         // cuda platform: cpu: , gpu 1.48s
         // measure {
-            _ = juliaSet(
+            let j = juliaSet(
                 iterations: 2048,
                 constant: Complex<Float>(-0.8, 0.156),
                 tolerance: 4,
@@ -45,6 +46,7 @@ final class test_Fractals: XCTestCase {
             )
         // }
         // #endif
+        XCTAssert(j.count > 0)
     }
 
     //--------------------------------------------------------------------------
@@ -115,7 +117,7 @@ final class test_Fractals: XCTestCase {
     divergence: inout TensorR2<E>,
     _ c: Complex<E>,
     _ tolerance: E
-) {
+) where E: StorageElement, E == E.Value, E.Value: Numeric {
     let message = "julia(Z: \(Z.name), divergence: \(divergence.name), " +
         "constant: \(c), tolerance: \(tolerance)"
 

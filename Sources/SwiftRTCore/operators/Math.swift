@@ -30,7 +30,7 @@ import Numerics
 
 @inlinable public func abs<S,E>(
     _ x: Tensor<S,Complex<E>>
-) -> Tensor<S,E> where E: StorageElement, E.Value: Comparable & SignedNumeric {
+) -> Tensor<S,E> where E == E.Value, E.Value: Comparable & SignedNumeric {
     var result = Tensor<S,E>(shape: x.shape, order: x.order)
     currentQueue.abs(x, &result)
     return result
