@@ -91,16 +91,19 @@ extension CudaQueue {
         diagnostic(.queueGpu, "juliaSet(\(Z.name), \(d.name))", 
                     categories: .queueGpu)
 
-        let status = srtJuliaFlat(
-            E.type,
-            Z.deviceRead(using: self),
-            withUnsafePointer(to: C) { $0 },
-            d.deviceReadWrite(using: self),
-            d.count,
-            withUnsafePointer(to: tolerance) { $0 },
-            iterations,
-            stream)
-
+        let status = withUnsafePointer(to: C) { pC in
+            withUnsafePointer(to: tolerance) { pt in
+                srtJuliaFlat(
+                    Complex<E>.type,
+                    Z.deviceRead(using: self),
+                    pC,
+                    d.deviceReadWrite(using: self),
+                    d.count,
+                    pt,
+                    iterations,
+                    stream)
+            }
+        }
         cpuFallback(status) { $0.juliaSet(Z, C, &d, tolerance, iterations) }
     }
 }

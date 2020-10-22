@@ -51,11 +51,27 @@ final class test_Fractals: XCTestCase {
         let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
                 repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
         var divergence = full(size, RT(iterations), type: RT.self)
+        let queue = currentQueue
 
         // cpu platform mac and ubuntu: 12.816s
         // cuda platform: cpu: , gpu 1.48s
         measure {
-            currentQueue.juliaSet(Z, C, &divergence, tolerance, iterations)
+            for _ in 0..<100 {
+                _ = withUnsafePointer(to: C) { pC in
+                    withUnsafePointer(to: tolerance) { pt in
+                        srtJuliaFlat(
+                            Complex<RT>.type,
+                            Z.deviceRead(using: queue),
+                            pC,
+                            divergence.deviceReadWrite(using: queue),
+                            divergence.count,
+                            pt,
+                            iterations,
+                            queue.stream)
+                    }
+                }
+            }
+            currentQueue.waitForCompletion()
         }
         // #endif
     }

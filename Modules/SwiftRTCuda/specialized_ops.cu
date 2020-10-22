@@ -43,7 +43,7 @@ __global__ void mapJulia(
             Z = Z * Z + C;
             if (abs2(Z) > t2) {
                 d = min(d, float(j));
-                break;
+                // break;
             }
         }
         iterO[index] = d;
