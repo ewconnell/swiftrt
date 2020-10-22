@@ -26,12 +26,12 @@ extern "C" {
 
 cudaError_t srtJuliaFlat(
     srtDataType type,
-    const void* z,
-    const void* C,
-    void* divergence,
-    size_t count,
-    const void* tolerance,
+    const void* pA,
+    const void* pConstant,
+    const void* pTolerance,
     size_t iterations,
+    size_t count,
+    void* pOut,
     cudaStream_t stream);
 
 //==============================================================================

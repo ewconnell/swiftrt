@@ -37,7 +37,7 @@ import SwiftRTCuda
             repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
     var divergence = full(size, E.Value(exactly: iterations)!, type: E.self)
 
-    currentQueue.juliaSet(Z, C, &divergence, tolerance, iterations)
+    currentQueue.juliaSet(Z, C, tolerance, iterations, &divergence)
     return divergence
 }
 
@@ -45,13 +45,13 @@ import SwiftRTCuda
 // CpuQueue delegation
 extension CpuQueue {
     @inlinable public func juliaSet<E>(
-        _ Z: TensorR2<Complex<E>>,
+        _ a: TensorR2<Complex<E>>,
         _ C: Complex<E>,
-        _ divergence: inout TensorR2<E>,
         _ tolerance: E.Value,
-        _ iterations: Int
+        _ iterations: Int,
+        _ out: inout TensorR2<E>
     ) where E == E.Value {
-        cpu_juliaSet(Z, C, &divergence, tolerance, iterations)
+        cpu_juliaSet(a, C, tolerance, iterations, &out)
     }
 }
 
@@ -59,16 +59,16 @@ extension CpuQueue {
 // DeviceQueue cpu implementation
 extension DeviceQueue {
     @inlinable public func cpu_juliaSet<E>(
-        _ Z: TensorR2<Complex<E>>,
+        _ a: TensorR2<Complex<E>>,
         _ C: Complex<E>,
-        _ divergence: inout TensorR2<E>,
         _ tolerance: E.Value,
-        _ iterations: Int
+        _ iterations: Int,
+        _ out: inout TensorR2<E>
     ) where E == E.Value {
-        var Z = Z
+        var Z = a
         for i in 0..<iterations {
             Z = multiply(Z, Z, add: C)
-            divergence[abs(Z) .> tolerance] = min(divergence, i)
+            out[abs(Z) .> tolerance] = min(out, i)
         }
     }
 }
@@ -77,33 +77,32 @@ extension DeviceQueue {
 // CudaQueue gpu implementation
 extension CudaQueue {
     @inlinable public func juliaSet<E>(
-        _ Z: TensorR2<Complex<E>>,
+        _ a: TensorR2<Complex<E>>,
         _ C: Complex<E>,
-        _ d: inout TensorR2<E>,
         _ tolerance: E.Value,
-        _ iterations: Int
+        _ iterations: Int,
+        _ out: inout TensorR2<E>
     ) where E == E.Value {
-        assert(Z.isContiguous && d.isContiguous, 
+        assert(a.isContiguous && out.isContiguous, 
             _messageElementsMustBeContiguous)
-        assert(Z.order == d.order, _messageTensorOrderMismatch)
+        assert(a.order == out.order, _messageTensorOrderMismatch)
 
-        guard useGpu else { cpu_juliaSet(Z, C, &d, tolerance, iterations); return }
-        diagnostic(.queueGpu, "juliaSet(\(Z.name), \(d.name))", 
-                    categories: .queueGpu)
+        guard useGpu else { cpu_juliaSet(a, C, tolerance, iterations, &out); return }
+        diagnostic(.queueGpu, "juliaSet(\(a.name))", categories: .queueGpu)
 
         let status = withUnsafePointer(to: C) { pC in
             withUnsafePointer(to: tolerance) { pt in
                 srtJuliaFlat(
                     Complex<E>.type,
-                    Z.deviceRead(using: self),
+                    a.deviceRead(using: self),
                     pC,
-                    d.deviceReadWrite(using: self),
-                    d.count,
                     pt,
                     iterations,
+                    out.count,
+                    out.deviceReadWrite(using: self),
                     stream)
             }
         }
-        cpuFallback(status) { $0.juliaSet(Z, C, &d, tolerance, iterations) }
+        cpuFallback(status) { $0.juliaSet(a, C, tolerance, iterations, &out) }
     }
 }

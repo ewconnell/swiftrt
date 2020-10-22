@@ -32,46 +32,45 @@ __global__ void mapJulia(
     const Complex<float> C,
     int iterations
 ) {
-    // 0.000790s
+    // 0.000416s
     const auto p = typename IterO::Logical(blockIdx, blockDim, threadIdx);
     if (iterO.isInBounds(p)) {
         float t2 = tolerance * tolerance;
         Complex<float> Z = iterA[p];
-        auto index = iterO.linear(p);
-        float d = iterO[index];
+        float d = iterations;
         for (int j = 0; j < iterations; ++j) {
             Z = Z * Z + C;
             if (abs2(Z) > t2) {
                 d = min(d, float(j));
-                // break;
+                break;
             }
         }
-        iterO[index] = d;
+        iterO[p] = d;
     }
 }
 
-
 cudaError_t srtJuliaFlat(
     srtDataType type,
-    const void* pz,
-    const void* pC,
-    void* pdivergence,
-    size_t count,
-    const void* ptolerance,
+    const void* pA,
+    const void* pConstant,
+    const void* pTolerance,
     size_t iterations,
+    size_t count,
+    void* pOut,
     cudaStream_t stream
 ) {
-    const Complex<float>* z = static_cast<const Complex<float>*>(pz);
-    float* d = static_cast<float*>(pdivergence);
-    const float tolerance = *static_cast<const float*>(ptolerance);
-    const Complex<float> C = *static_cast<const Complex<float>*>(pC);
+    assert(type == complex32F);
+    const Complex<float>* a = static_cast<const Complex<float>*>(pA);
+    float* out = static_cast<float*>(pOut);
+    const float tolerance = *static_cast<const float*>(pTolerance);
+    const Complex<float> C = *static_cast<const Complex<float>*>(pConstant);
 
-    auto iterZ = Flat(z, count);
-    auto iterD = Flat(d, count);
+    auto iterA = Flat(a, count);
+    auto iterO = Flat(out, count);
 
-    dim3 tile = tileSize(iterD.count);
-    dim3 grid = gridSize(iterD.count, tile);
+    dim3 tile = tileSize(iterO.count);
+    dim3 grid = gridSize(iterO.count, tile);
 
-    mapJulia<<<grid, tile, 0, stream>>>(iterZ, iterD, tolerance, C, iterations);
+    mapJulia<<<grid, tile, 0, stream>>>(iterA, iterO, tolerance, C, iterations);
     return cudaSuccess;
 }

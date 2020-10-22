@@ -50,25 +50,23 @@ final class test_Fractals: XCTestCase {
         // repeat rows of real range, columns of imaginary range, and combine
         let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
                 repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-        var divergence = full(size, RT(iterations), type: RT.self)
+        var divergence = empty(size, type: RT.self)
         let queue = currentQueue
 
         // cpu platform mac and ubuntu: 12.816s
-        // cuda platform: cpu: , gpu 1.48s
+        // cuda platform cpu: , gpu 0.000416s
         measure {
-            for _ in 0..<100 {
-                _ = withUnsafePointer(to: C) { pC in
-                    withUnsafePointer(to: tolerance) { pt in
-                        srtJuliaFlat(
-                            Complex<RT>.type,
-                            Z.deviceRead(using: queue),
-                            pC,
-                            divergence.deviceReadWrite(using: queue),
-                            divergence.count,
-                            pt,
-                            iterations,
-                            queue.stream)
-                    }
+            _ = withUnsafePointer(to: C) { pC in
+                withUnsafePointer(to: tolerance) { pt in
+                    srtJuliaFlat(
+                        Complex<RT>.type,
+                        Z.deviceRead(using: queue),
+                        pC,
+                        pt,
+                        iterations,
+                        divergence.count,
+                        divergence.deviceReadWrite(using: queue),
+                        queue.stream)
                 }
             }
             currentQueue.waitForCompletion()
