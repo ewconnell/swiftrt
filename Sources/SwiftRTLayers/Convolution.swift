@@ -24,20 +24,20 @@ public typealias Conv2 = Convolution<Shape2,Float,Float>
 public typealias Conv3 = Convolution<Shape3,Float,Float>
 
 public typealias ConvR1<E,FE> = Convolution<Shape1,E,FE>
-    where E: StorageElement, FE: StorageElement, FE.Value: BinaryFloatingPoint
+    where E: StorageElement & Numeric, FE: StorageElement & Numeric, FE.Value: BinaryFloatingPoint
 
 public typealias ConvR2<E,FE> = Convolution<Shape2,E,FE>
-    where E: StorageElement, FE: StorageElement, FE.Value: BinaryFloatingPoint
+    where E: StorageElement & Numeric, FE: StorageElement & Numeric, FE.Value: BinaryFloatingPoint
     
 public typealias ConvR3<E,FE> = Convolution<Shape3,E,FE>
-    where E: StorageElement, FE: StorageElement, FE.Value: BinaryFloatingPoint
+    where E: StorageElement & Numeric, FE: StorageElement & Numeric, FE.Value: BinaryFloatingPoint
 
 //==============================================================================
 /// Convolution
 public struct Convolution<Shape, Element, FilterElement>: Logging
 where Shape: TensorShape,
-      Element: StorageElement,
-      FilterElement: StorageElement,
+      Element: StorageElement & Numeric,
+      FilterElement: StorageElement & Numeric,
       FilterElement.Value: BinaryFloatingPoint
 {
     // types

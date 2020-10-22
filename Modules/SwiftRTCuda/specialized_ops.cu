@@ -33,7 +33,7 @@ __global__ void mapJulia(
     int iterations
 ) {
     // 0.000790s
-    const auto p = IterO::Logical(blockIdx, blockDim, threadIdx);
+    const auto p = typename IterO::Logical(blockIdx, blockDim, threadIdx);
     if (iterO.isInBounds(p)) {
         float t2 = tolerance * tolerance;
         Complex<float> Z = iterA[p];

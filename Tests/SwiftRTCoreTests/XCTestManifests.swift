@@ -23,6 +23,7 @@ public func allTests() -> [XCTestCaseEntry] {
         testCase(test_Async.allTests),
         testCase(test_Codable.allTests),
         testCase(test_Comparative.allTests),
+        testCase(test_Fractals.allTests),
         testCase(test_Initialize.allTests),
         testCase(test_Math.allTests),
         testCase(test_PackedElements.allTests),

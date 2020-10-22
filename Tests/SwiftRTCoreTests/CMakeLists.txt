@@ -5,6 +5,7 @@ add_library(SwiftRTCoreTests
   test_Async.swift
   test_Codable.swift
   test_Comparative.swift
+  test_Fractals.swift
   test_Initialize.swift
   test_Math.swift
   test_PackedElements.swift
