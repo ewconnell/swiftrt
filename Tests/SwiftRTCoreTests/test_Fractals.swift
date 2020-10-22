@@ -28,6 +28,7 @@ final class test_Fractals: XCTestCase {
         // ("test_pmapJulia", test_pmapJulia),
         // ("test_pmapKernelJulia", test_pmapKernelJulia),
         ("test_Julia", test_Julia),
+        ("test_Mandelbrot", test_Mandelbrot),
     ]
 
     //--------------------------------------------------------------------------
@@ -68,6 +69,46 @@ final class test_Fractals: XCTestCase {
                         divergence.deviceReadWrite(using: queue),
                         queue.stream)
                 }
+            }
+            currentQueue.waitForCompletion()
+        }
+        // #endif
+    }
+
+    //--------------------------------------------------------------------------
+    func test_Mandelbrot() {
+        // #if !DEBUG
+        typealias RT = Float
+        let iterations = 2048
+        let size = (r: 1000, c: 1000)
+        let tolerance: RT = 4.0
+        let first = Complex<RT>(-1.7, 1.7)
+        let last = Complex<RT>(1.7, -1.7)
+
+        // generate distributed values over the range
+        let iFirst = Complex<RT>(0, first.imaginary)
+        let rFirst = Complex<RT>(first.real, 0)
+        let rLast  = Complex<RT>(last.real, 0)
+        let iLast  = Complex<RT>(0, last.imaginary)
+
+        // repeat rows of real range, columns of imaginary range, and combine
+        let X = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
+                repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+        var divergence = empty(size, type: RT.self)
+        let queue = currentQueue
+
+        // cpu platform mac and ubuntu: 12.816s
+        // cuda platform cpu: , gpu 0.000416s
+        measure {
+            _ = withUnsafePointer(to: tolerance) { pt in
+                srtMandelbrotFlat(
+                    Complex<RT>.type,
+                    X.deviceRead(using: queue),
+                    pt,
+                    iterations,
+                    divergence.count,
+                    divergence.deviceReadWrite(using: queue),
+                    queue.stream)
             }
             currentQueue.waitForCompletion()
         }

@@ -22,7 +22,9 @@
 // Swift importable C interface functions
 //==============================================================================
 
-//------------------------------------------------------------------------------
+//==============================================================================
+// Julia Set
+
 // tensorA Element
 template<typename IterA, typename IterO>
 __global__ void mapJulia(
@@ -74,3 +76,57 @@ cudaError_t srtJuliaFlat(
     mapJulia<<<grid, tile, 0, stream>>>(iterA, iterO, tolerance, C, iterations);
     return cudaSuccess;
 }
+
+//==============================================================================
+// Julia Set
+
+// tensorA Element
+template<typename IterA, typename IterO>
+__global__ void mapMandelbrot(
+    IterA iterA,
+    IterO iterO,
+    const float tolerance,
+    int iterations
+) {
+    // 0.000416s
+    const auto p = typename IterO::Logical(blockIdx, blockDim, threadIdx);
+    if (iterO.isInBounds(p)) {
+        float t2 = tolerance * tolerance;
+        auto X = iterA[p];
+        auto Z = X;
+        float d = iterations;
+        for (int j = 1; j < iterations; ++j) {
+            Z = Z * Z + X;
+            if (abs2(Z) > t2) {
+                d = min(d, float(j));
+                break;
+            }
+        }
+        iterO[p] = d;
+    }
+}
+
+cudaError_t srtMandelbrotFlat(
+    srtDataType type,
+    const void* pA,
+    const void* pTolerance,
+    size_t iterations,
+    size_t count,
+    void* pOut,
+    cudaStream_t stream
+) {
+    assert(type == complex32F);
+    const Complex<float>* a = static_cast<const Complex<float>*>(pA);
+    float* out = static_cast<float*>(pOut);
+    const float tolerance = *static_cast<const float*>(pTolerance);
+
+    auto iterA = Flat(a, count);
+    auto iterO = Flat(out, count);
+
+    dim3 tile = tileSize(iterO.count);
+    dim3 grid = gridSize(iterO.count, tile);
+
+    mapMandelbrot<<<grid, tile, 0, stream>>>(iterA, iterO, tolerance, iterations);
+    return cudaSuccess;
+}
+

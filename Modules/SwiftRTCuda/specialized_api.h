@@ -34,6 +34,15 @@ cudaError_t srtJuliaFlat(
     void* pOut,
     cudaStream_t stream);
 
+cudaError_t srtMandelbrotFlat(
+    srtDataType type,
+    const void* pA,
+    const void* pTolerance,
+    size_t iterations,
+    size_t count,
+    void* pOut,
+    cudaStream_t stream);
+    
 //==============================================================================
 #ifdef __cplusplus
 }
