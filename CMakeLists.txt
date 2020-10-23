@@ -50,10 +50,8 @@ endfunction()
 
 ## swift-numerics
 ExternalProject_Add(swift-numerics
-  GIT_REPOSITORY
-    git://github.com/apple/swift-numerics
-  GIT_TAG
-    master
+  GIT_REPOSITORY git://github.com/apple/swift-numerics
+  GIT_TAG origin/master
   CMAKE_ARGS
     -D BUILD_SHARED_LIBS=YES
     -D BUILD_TESTING=NO

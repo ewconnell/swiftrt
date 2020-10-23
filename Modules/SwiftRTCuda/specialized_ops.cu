@@ -30,19 +30,18 @@ template<typename IterA, typename IterO>
 __global__ void mapJulia(
     IterA iterA,
     IterO iterO,
-    const float tolerance,
+    const float tolerance2,
     const Complex<float> C,
     int iterations
 ) {
     // 0.000416s
     const auto p = typename IterO::Logical(blockIdx, blockDim, threadIdx);
     if (iterO.isInBounds(p)) {
-        float t2 = tolerance * tolerance;
         Complex<float> Z = iterA[p];
         float d = iterations;
         for (int j = 0; j < iterations; ++j) {
             Z = Z * Z + C;
-            if (abs2(Z) > t2) {
+            if (abs2(Z) > tolerance2) {
                 d = min(d, float(j));
                 break;
             }
@@ -69,11 +68,12 @@ cudaError_t srtJuliaFlat(
 
     auto iterA = Flat(a, count);
     auto iterO = Flat(out, count);
+    float tolerance2 = tolerance * tolerance;
 
     dim3 tile = tileSize(iterO.count);
     dim3 grid = gridSize(iterO.count, tile);
 
-    mapJulia<<<grid, tile, 0, stream>>>(iterA, iterO, tolerance, C, iterations);
+    mapJulia<<<grid, tile, 0, stream>>>(iterA, iterO, tolerance2, C, iterations);
     return cudaSuccess;
 }
 
@@ -85,19 +85,18 @@ template<typename IterA, typename IterO>
 __global__ void mapMandelbrot(
     IterA iterA,
     IterO iterO,
-    const float tolerance,
+    const float tolerance2,
     int iterations
 ) {
     // 0.000416s
     const auto p = typename IterO::Logical(blockIdx, blockDim, threadIdx);
     if (iterO.isInBounds(p)) {
-        float t2 = tolerance * tolerance;
         auto X = iterA[p];
         auto Z = X;
         float d = iterations;
         for (int j = 1; j < iterations; ++j) {
             Z = Z * Z + X;
-            if (abs2(Z) > t2) {
+            if (abs2(Z) > tolerance2) {
                 d = min(d, float(j));
                 break;
             }
@@ -122,11 +121,12 @@ cudaError_t srtMandelbrotFlat(
 
     auto iterA = Flat(a, count);
     auto iterO = Flat(out, count);
+    float tolerance2 = tolerance * tolerance;
 
     dim3 tile = tileSize(iterO.count);
     dim3 grid = gridSize(iterO.count, tile);
 
-    mapMandelbrot<<<grid, tile, 0, stream>>>(iterA, iterO, tolerance, iterations);
+    mapMandelbrot<<<grid, tile, 0, stream>>>(iterA, iterO, tolerance2, iterations);
     return cudaSuccess;
 }
 
