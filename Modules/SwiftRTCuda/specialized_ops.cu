@@ -31,17 +31,17 @@ __global__ void mapJulia(
     IterA iterA,
     IterO iterO,
     const float tolerance2,
-    const Complex<float> C,
+    const Complex<float> c,
     int iterations
 ) {
     // 0.000416s
     const auto p = typename IterO::Logical(blockIdx, blockDim, threadIdx);
     if (iterO.isInBounds(p)) {
-        Complex<float> Z = iterA[p];
+        Complex<float> z = iterA[p];
         float d = iterations;
         for (int j = 0; j < iterations; ++j) {
-            Z = Z * Z + C;
-            if (abs2(Z) > tolerance2) {
+            z = z * z + c;
+            if (abs2(z) > tolerance2) {
                 d = min(d, float(j));
                 break;
             }
@@ -78,7 +78,7 @@ cudaError_t srtJuliaFlat(
 }
 
 //==============================================================================
-// Julia Set
+// Mandelbrot Set
 
 // tensorA Element
 template<typename IterA, typename IterO>
@@ -88,15 +88,15 @@ __global__ void mapMandelbrot(
     const float tolerance2,
     int iterations
 ) {
-    // 0.000416s
+    // 0.00111s
     const auto p = typename IterO::Logical(blockIdx, blockDim, threadIdx);
     if (iterO.isInBounds(p)) {
-        auto X = iterA[p];
-        auto Z = X;
+        const Complex<float> x = iterA[p];
+        Complex<float> z = x;
         float d = iterations;
         for (int j = 1; j < iterations; ++j) {
-            Z = Z * Z + X;
-            if (abs2(Z) > tolerance2) {
+            z = z * z + x;
+            if (abs2(z) > tolerance2) {
                 d = min(d, float(j));
                 break;
             }

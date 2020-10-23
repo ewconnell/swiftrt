@@ -55,7 +55,7 @@ final class test_Fractals: XCTestCase {
         let queue = currentQueue
 
         // cpu platform mac and ubuntu: 12.816s
-        // cuda platform cpu: , gpu 0.000416s
+        // cuda platform cpu: , gpu 0.000412s
         measure {
             _ = withUnsafePointer(to: C) { pC in
                 withUnsafePointer(to: tolerance) { pt in
@@ -98,7 +98,7 @@ final class test_Fractals: XCTestCase {
         let queue = currentQueue
 
         // cpu platform mac and ubuntu: 12.816s
-        // cuda platform cpu: , gpu 0.000416s
+        // cuda platform cpu: , gpu 0.001119s
         measure {
             _ = withUnsafePointer(to: tolerance) { pt in
                 srtMandelbrotFlat(
