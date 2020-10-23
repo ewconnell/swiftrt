@@ -121,6 +121,19 @@ public extension _Logging {
     #endif
 }
 
+// convenience helper for top level output
+@inlinable public func diagnostic(
+    _ category: LogCategory,
+    _ message: String,
+    categories: LogCategories,
+    indent: Int = 0,
+    trailing: String = "",
+    minCount: Int = 80
+) {
+    currentQueue.diagnostic(category, message, categories: categories, 
+        indent: indent, trailing: trailing, minCount: minCount)
+}
+
 //==============================================================================
 /// LogInfo
 /// this is used to manage which logWriter to use and message parameters
