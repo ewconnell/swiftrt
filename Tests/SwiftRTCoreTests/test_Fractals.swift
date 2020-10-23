@@ -33,7 +33,7 @@ final class test_Fractals: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_Julia() {
-        // #if !DEBUG
+        #if canImport(SwiftRTCuda)
         typealias RT = Float
         let iterations = 2048
         let size = (r: 1000, c: 1000)
@@ -72,12 +72,12 @@ final class test_Fractals: XCTestCase {
             }
             currentQueue.waitForCompletion()
         }
-        // #endif
+        #endif
     }
 
     //--------------------------------------------------------------------------
     func test_Mandelbrot() {
-        // #if !DEBUG
+        #if canImport(SwiftRTCuda)
         typealias RT = Float
         let iterations = 2048
         let size = (r: 1000, c: 1000)
@@ -112,7 +112,7 @@ final class test_Fractals: XCTestCase {
             }
             currentQueue.waitForCompletion()
         }
-        // #endif
+        #endif
     }
 
     //--------------------------------------------------------------------------
