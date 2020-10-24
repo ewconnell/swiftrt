@@ -15,6 +15,7 @@
 //
 #include "specialized_api.h"
 #include "complex.cuh"
+#include "math_fn.cuh"
 #include "iterators.cuh"
 #include "tensor.cuh"
 
@@ -30,14 +31,14 @@ template<typename IterA, typename IterO>
 __global__ void mapJulia(
     IterA iterA,
     IterO iterO,
-    const float tolerance2,
-    const Complex<float> c,
+    const typename IterO::T::RealType tolerance2,
+    const typename IterO::T c,
     int iterations
 ) {
     // 0.000416s
     const auto p = typename IterO::Logical(blockIdx, blockDim, threadIdx);
     if (iterO.isInBounds(p)) {
-        Complex<float> z = iterA[p];
+        auto z = iterA[p];
         float d = iterations;
         for (int j = 0; j < iterations; ++j) {
             z = z * z + c;
@@ -50,8 +51,8 @@ __global__ void mapJulia(
     }
 }
 
-cudaError_t srtJuliaFlat(
-    srtDataType type,
+template<typename A>
+cudaError_t juliaFlat(
     const void* pA,
     const void* pConstant,
     const void* pTolerance,
@@ -60,21 +61,39 @@ cudaError_t srtJuliaFlat(
     void* pOut,
     cudaStream_t stream
 ) {
-    assert(type == complex32F);
-    const Complex<float>* a = static_cast<const Complex<float>*>(pA);
-    float* out = static_cast<float*>(pOut);
-    const float tolerance = *static_cast<const float*>(pTolerance);
-    const Complex<float> C = *static_cast<const Complex<float>*>(pConstant);
+    typedef typename A::RealType RT;
+
+    const A* a = static_cast<const A*>(pA);
+    A* out = static_cast<A*>(pOut);
+    const RT tolerance = *static_cast<const RT*>(pTolerance);
+    const A c = *static_cast<const A*>(pConstant);
 
     auto iterA = Flat(a, count);
     auto iterO = Flat(out, count);
-    float tolerance2 = tolerance * tolerance;
+    auto tolerance2 = RT(float(tolerance) * float(tolerance));
 
     dim3 tile = tileSize(iterO.count);
     dim3 grid = gridSize(iterO.count, tile);
 
-    mapJulia<<<grid, tile, 0, stream>>>(iterA, iterO, tolerance2, C, iterations);
+    mapJulia<<<grid, tile, 0, stream>>>(iterA, iterO, tolerance2, c, iterations);
     return cudaSuccess;
+}
+
+cudaError_t srtJuliaFlat(
+    srtDataType type,
+    const void* a,
+    const void* constant,
+    const void* tolerance,
+    size_t iterations,
+    size_t count,
+    void* out,
+    cudaStream_t stream
+) {
+    switch (type) {
+    case complex16F: return juliaFlat<Complex<float16>>(a, constant, tolerance, iterations, count, out, stream);
+    case complex32F: return juliaFlat<Complex<float>>(a, constant, tolerance, iterations, count, out, stream);
+    default: return cudaErrorNotSupported;
+    }
 }
 
 //==============================================================================
