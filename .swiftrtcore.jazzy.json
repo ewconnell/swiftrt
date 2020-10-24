@@ -114,7 +114,7 @@
                 "useAppThreadQueue()",
                 "using(device:queue:_:)",
                 "using(queue:_:)",
-                "usingAppThreadQueue(_:)"
+                "usingSyncQueue(_:)"
             ]
         },
         {

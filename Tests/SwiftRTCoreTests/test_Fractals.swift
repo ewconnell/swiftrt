@@ -183,7 +183,7 @@ final class test_Fractals: XCTestCase {
     divergence: inout TensorR2<E>,
     _ c: Complex<E>,
     _ tolerance: E
-) where E: StorageElement, E == E.Value, E.Value: Numeric {
+) where E: StorageElement & BinaryFloatingPoint, E.Value: BinaryFloatingPoint {
     let message = "julia(Z: \(Z.name), divergence: \(divergence.name), " +
         "constant: \(c), tolerance: \(tolerance)"
 

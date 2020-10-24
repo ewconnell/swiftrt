@@ -28,14 +28,6 @@ import Numerics
     return result
 }
 
-@inlinable public func abs<S,E>(
-    _ x: Tensor<S,Complex<E>>
-) -> Tensor<S,E> where E == E.Value, E.Value: Comparable & SignedNumeric {
-    var result = Tensor<S,E>(shape: x.shape, order: x.order)
-    currentQueue.abs(x, &result)
-    return result
-}
-
 @derivative(of: abs)
 @usableFromInline func _vjpAbs<S,E>(
     _ x: Tensor<S,E>

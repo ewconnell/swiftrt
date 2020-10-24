@@ -706,7 +706,7 @@ numShapes = 6
 // Rank1 to Swift Array
 public extension Tensor where Shape == Shape1 {
     @inlinable var array: [Element] {
-        usingAppThreadQueue {
+        usingSyncQueue {
             isContiguous ? [Element](buffer) : [Element](elements)
         }
     }
@@ -717,7 +717,7 @@ public extension Tensor where Shape == Shape1 {
 // Rank${n} to Swift Array
 public extension Tensor where Shape == Shape${n} {
     @inlinable var array: ${'[' * n}Element${']' * n} {
-        usingAppThreadQueue {
+        usingSyncQueue {
 % for i in range(n - 1):
 %  indent = '    ' * (i + 1)
         ${indent}var array${n - i} = ${'[' * (n - i)}Element${']' * (n - i)}()

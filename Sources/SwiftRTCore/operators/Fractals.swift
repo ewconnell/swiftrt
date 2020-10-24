@@ -25,7 +25,9 @@ import SwiftRTCuda
     tolerance: E.Value,
     range: (first: Complex<E>, last: Complex<E>),
     size: (r: Int, c: Int)
-) -> TensorR2<E> where E: Real, E == E.Value {
+) -> TensorR2<E> where 
+    E: StorageElement & BinaryFloatingPoint, E.Value: BinaryFloatingPoint
+{
     // generate distributed values over the range
     let iFirst = Complex<E>(0, range.first.imaginary)
     let rFirst = Complex<E>(range.first.real, 0)
@@ -50,7 +52,7 @@ extension CpuQueue {
         _ tolerance: E.Value,
         _ iterations: Int,
         _ out: inout TensorR2<E>
-    ) where E == E.Value {
+    ) where E: BinaryFloatingPoint, E.Value: BinaryFloatingPoint {
         cpu_juliaSet(a, C, tolerance, iterations, &out)
     }
 }
@@ -64,11 +66,13 @@ extension DeviceQueue {
         _ tolerance: E.Value,
         _ iterations: Int,
         _ out: inout TensorR2<E>
-    ) where E == E.Value {
+    ) where E: BinaryFloatingPoint, E.Value: BinaryFloatingPoint {
         var Z = a
+        let ct = Complex<E>(E(tolerance))
+
         for i in 0..<iterations {
             Z = multiply(Z, Z, add: C)
-            out[abs(Z) .> tolerance] = min(out, i)
+            out[abs(Z) .> ct] = min(out, i)
         }
     }
 }
@@ -82,7 +86,7 @@ extension CudaQueue {
         _ tolerance: E.Value,
         _ iterations: Int,
         _ out: inout TensorR2<E>
-    ) where E == E.Value {
+    ) where E: BinaryFloatingPoint, E.Value: BinaryFloatingPoint {
         assert(a.isContiguous && out.isContiguous, 
             _messageElementsMustBeContiguous)
         assert(a.order == out.order, _messageTensorOrderMismatch)
