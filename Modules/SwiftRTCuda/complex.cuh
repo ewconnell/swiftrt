@@ -56,19 +56,24 @@ struct Complex {
 
     __HOSTDEVICE_INLINE__ Complex(RealType real) {
         x = real;
-        y = RealType(0.0f);
+        y = RealType();
+    }
+
+    __HOSTDEVICE_INLINE__ Complex(int v) {
+        x = RealType(float(v));
+        y = RealType();
     }
 
     __HOSTDEVICE_INLINE__ Complex() {
-        x = RealType(0.0f);
-        y = RealType(0.0f);
+        x = RealType();
+        y = RealType();
     }
 
     //==========================================================================
     // basic properties
     //==========================================================================
     __HOSTDEVICE_INLINE__ static bool isNormal(RealType x) {
-        return x != RealType(0.0f) && 
+        return x != RealType() && 
             x >= std::numeric_limits<RealType>::min() &&
             x <= std::numeric_limits<RealType>::max();
     }
@@ -92,7 +97,7 @@ struct Complex {
     /// - .one
     /// - .i
     /// - .infinity
-    __HOSTDEVICE_INLINE__ static Complex zero() { return Complex(0.0f, 0.0f); }
+    __HOSTDEVICE_INLINE__ static Complex zero() { return Complex(); }
 
     /// The multiplicative identity, with real part one and imaginary part zero.
     ///
@@ -101,7 +106,7 @@ struct Complex {
     /// - .zero
     /// - .i
     /// - .infinity
-    __HOSTDEVICE_INLINE__ static Complex one() { return Complex(1.0f, 0.0f); }
+    __HOSTDEVICE_INLINE__ static Complex one() { return Complex(1); }
 
     /// The imaginary unit.
     ///
@@ -110,7 +115,7 @@ struct Complex {
     /// - .zero
     /// - .one
     /// - .infinity
-    __HOSTDEVICE_INLINE__ static Complex i() { return Complex(0.0f, 1.0f); }
+    __HOSTDEVICE_INLINE__ static Complex i() { return Complex(RealType(), RealType(1.0f)); }
 
     /// The point at infinity.
     ///
@@ -120,7 +125,7 @@ struct Complex {
     /// - .one
     /// - .i
     __HOSTDEVICE_INLINE__ static Complex infinity() {
-        return Complex(std::numeric_limits<RealType>::infinity(), RealType(0.0f));
+        return Complex(std::numeric_limits<RealType>::infinity(), RealType());
     }
 
     /// The complex conjugate of this value.

@@ -66,6 +66,24 @@ struct FpLimits<Complex<float>>
 template <> struct NumericTraits<Complex<float>> : 
     BaseTraits<FLOATING_POINT, true, false, uint64_t, Complex<float>> {};
 
+//------------------------------------------------------------------------------
+// Complex<float16>
+template <>
+struct FpLimits<Complex<float16>>
+{
+    static __host__ __device__ __forceinline__ Complex<float16> Max() {
+        return Complex<float16>(FLT_MAX, FLT_MAX);
+    }
+
+    static __host__ __device__ __forceinline__ Complex<float16> Lowest() {
+        return Complex<float16>(FLT_MIN, FLT_MIN);
+    }
+};
+
+template <> struct NumericTraits<Complex<float16>> : 
+    BaseTraits<FLOATING_POINT, true, false, uint32_t, Complex<float16>> {};
+
+
 //==============================================================================
 // supplemental function delegating macros
 //==============================================================================
@@ -89,9 +107,10 @@ struct AbsSumOp {
         int             count,
         cudaStream_t    stream
     ) {
+        typedef typename std::remove_const_t<std::remove_pointer_t<InputIteratorT>> T;
         AbsSum abs_sum;
         return cub::DeviceReduce::
-        Reduce(d_temp_storage, temp_storage_bytes, d_in, d_out, count, abs_sum, 0.0f, stream);
+        Reduce(d_temp_storage, temp_storage_bytes, d_in, d_out, count, abs_sum, T(), stream);
     }
 };
 
@@ -235,6 +254,7 @@ cudaError_t selectType(
         case real16U:  return reduce<Op, uint16_t>(a, aDesc, out, oDesc, allocator, stream);
         case real16I:  return reduce<Op, int16_t>(a, aDesc, out, oDesc, allocator, stream);
         case boolean:  return reduce<Op, bool>(a, aDesc, out, oDesc, allocator, stream);
+        case complex16F: return reduce<Op, Complex<half>>(a, aDesc, out, oDesc, allocator, stream);
         case complex32F: return reduce<Op, Complex<float>>(a, aDesc, out, oDesc, allocator, stream);
         default: return cudaErrorNotSupported;
     }

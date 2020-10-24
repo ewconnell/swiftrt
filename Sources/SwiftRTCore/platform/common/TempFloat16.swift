@@ -17,6 +17,11 @@
 //
 import Foundation
 
+// 10/24/20
+// Swift now supports Float16 on Linux but not on MacOS yet.
+// Eventually just delete this file
+#if os(macOS)
+
 public struct Float16 :
     Equatable,
     Comparable,
@@ -243,7 +248,7 @@ extension Double {
 	return Float(bitPattern: UInt32((sign << 31) | (exponent << 23) | mantissa))
 }
 
-
+#endif
 
 
 

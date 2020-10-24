@@ -96,6 +96,7 @@ cudaError_t srtFill(
         case real16U:  return fillWithElement<uint16_t>(out, oDesc, element, stream);
         case real8I:   return fillWithElement<int8_t>(out, oDesc, element, stream);
         case real8U:   return fillWithElement<uint8_t>(out, oDesc, element, stream);
+        case complex16F: return fillWithElement<Complex<float16> >(out, oDesc, element, stream);
         case complex32F: return fillWithElement<Complex<float> >(out, oDesc, element, stream);
         default: return cudaErrorNotSupported;
     }

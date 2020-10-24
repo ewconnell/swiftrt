@@ -295,8 +295,8 @@ static inline cudaError_t select(
     case real16I:  return selectIndex<Op<int16_t,int16_t>>(a, aDesc, out, oDesc, stream);
     case boolean:  return selectIndex<Op<bool,bool>>(a, aDesc, out, oDesc, stream);
 
+    case complex16F:  return selectIndex<Op<Complex<float16>,Complex<float16>>>(a, aDesc, out, oDesc, stream);
     case complex32F:  return selectIndex<Op<Complex<float>,Complex<float>>>(a, aDesc, out, oDesc, stream);
-    // case complex16F:  return selectIndex<Op<Complex<float16>,Complex<float16>>>(a, aDesc, out, oDesc, stream);
     // case complex16BF: return selectIndex<Op<Complex<bfloat16>,Complex<bfloat16>>>(a, aDesc, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }

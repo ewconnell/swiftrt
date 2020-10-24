@@ -22,12 +22,12 @@ add_library(SwiftRTCore
   operators/Reductions.swift
   operators/Fractals.swift
 
+  platform/common/TempFloat16.swift
   platform/common/BFloat16.swift
   platform/common/ComplexExtensions.swift
   platform/common/DeviceQueue.swift
   platform/common/DiscreteStorage.swift
   platform/common/ExecutionPlanner.swift
-  platform/common/Float16.swift
   platform/common/FunctionProperties.swift
   platform/common/Platform.swift
   platform/common/StorageBuffer.swift
