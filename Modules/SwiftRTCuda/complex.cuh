@@ -591,16 +591,20 @@ __HOSTDEVICE_INLINE__ bool operator>=(const Complex<T>& a, const Complex<T>& b) 
 //==========================================================================
 
 template<typename T>
-__HOSTDEVICE_INLINE__ T abs(const Complex<T>& a) {
-    return sqrt(a.x * a.x + a.y * a.y);
-}
-
-template<typename T>
 __HOSTDEVICE_INLINE__ T abs2(const Complex<T>& a) {
     return a.x * a.x + a.y * a.y;
 }
 
 template<typename T>
+__HOSTDEVICE_INLINE__ T abs(const Complex<T>& a) {
+    return sqrt(abs2(a));
+}
+
+template<typename T>
 __HOSTDEVICE_INLINE__ Complex<T> neg(const Complex<T>& a) {
+    if constexpr (std::is_same_v<T,half>) {
+        auto negt2 = -reinterpret_cast<const float162&>(a);
+        return Complex<T>(negt2.x, negt2.y);
+    }
     return Complex<T>(-a.x, -a.y);
 }

@@ -28,7 +28,7 @@ cudaError_t srtJuliaFlat(
     srtDataType type,
     const void* pA,
     const void* pConstant,
-    const void* pTolerance,
+    float tolerance,
     size_t iterations,
     size_t count,
     void* pOut,
@@ -37,7 +37,7 @@ cudaError_t srtJuliaFlat(
 cudaError_t srtMandelbrotFlat(
     srtDataType type,
     const void* pA,
-    const void* pTolerance,
+    float tolerance,
     size_t iterations,
     size_t count,
     void* pOut,

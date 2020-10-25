@@ -22,7 +22,7 @@ import SwiftRTCuda
 @inlinable public func juliaSet<E>(
     iterations: Int,
     constant C: Complex<E>,
-    tolerance: E.Value,
+    tolerance: Float,
     range: (first: Complex<E>, last: Complex<E>),
     size: (r: Int, c: Int)
 ) -> TensorR2<E> where 
@@ -49,7 +49,7 @@ extension CpuQueue {
     @inlinable public func juliaSet<E>(
         _ a: TensorR2<Complex<E>>,
         _ C: Complex<E>,
-        _ tolerance: E.Value,
+        _ tolerance: Float,
         _ iterations: Int,
         _ out: inout TensorR2<E>
     ) where E: BinaryFloatingPoint, E.Value: BinaryFloatingPoint {
@@ -63,7 +63,7 @@ extension DeviceQueue {
     @inlinable public func cpu_juliaSet<E>(
         _ a: TensorR2<Complex<E>>,
         _ C: Complex<E>,
-        _ tolerance: E.Value,
+        _ tolerance: Float,
         _ iterations: Int,
         _ out: inout TensorR2<E>
     ) where E: BinaryFloatingPoint, E.Value: BinaryFloatingPoint {
@@ -83,7 +83,7 @@ extension CudaQueue {
     @inlinable public func juliaSet<E>(
         _ a: TensorR2<Complex<E>>,
         _ C: Complex<E>,
-        _ tolerance: E.Value,
+        _ tolerance: Float,
         _ iterations: Int,
         _ out: inout TensorR2<E>
     ) where E: BinaryFloatingPoint, E.Value: BinaryFloatingPoint {
@@ -95,17 +95,15 @@ extension CudaQueue {
         diagnostic(.queueGpu, "juliaSet(\(a.name))", categories: .queueGpu)
 
         let status = withUnsafePointer(to: C) { pC in
-            withUnsafePointer(to: tolerance) { pt in
-                srtJuliaFlat(
-                    Complex<E>.type,
-                    a.deviceRead(using: self),
-                    pC,
-                    pt,
-                    iterations,
-                    out.count,
-                    out.deviceReadWrite(using: self),
-                    stream)
-            }
+            srtJuliaFlat(
+                Complex<E>.type,
+                a.deviceRead(using: self),
+                pC,
+                tolerance,
+                iterations,
+                out.count,
+                out.deviceReadWrite(using: self),
+                stream)
         }
         cpuFallback(status) { $0.juliaSet(a, C, tolerance, iterations, &out) }
     }

@@ -220,6 +220,7 @@ cudaError_t srtFillRange(
     case real16U:  return selectFillRangeRank<uint16_t>(out, oDesc, first, last, step, stream);
     case real8I:   return selectFillRangeRank<int8_t>(out, oDesc, first, last, step, stream);
     case real8U:   return selectFillRangeRank<uint8_t>(out, oDesc, first, last, step, stream);
+    case complex16F: return selectFillRangeRank<Complex<float16> >(out, oDesc, first, last, step, stream);
     case complex32F: return selectFillRangeRank<Complex<float> >(out, oDesc, first, last, step, stream);
     default: return cudaErrorNotSupported;
     }
