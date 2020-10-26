@@ -99,6 +99,7 @@ class test_AlgebraicField: XCTestCase {
             }
             currentQueue.waitForCompletion()
         }
+        XCTAssert(result.count > 0)
         // #endif
     }
 
