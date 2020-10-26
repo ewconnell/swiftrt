@@ -18,13 +18,6 @@
 
 using namespace cub;
 
-
-//---------------------------------------------------------------------
-// Globals, constants and typedefs
-//---------------------------------------------------------------------
-bool                    g_verbose = false;  // Whether to display input/output to console
-CachingDeviceAllocator  g_allocator(true);  // Caching allocator for device memory
-
 //==============================================================================
 // Swift importable C interface functions
 //==============================================================================
@@ -35,7 +28,7 @@ cudaError_t srtAbsSum(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectType<AbsSumOp>(a, aDesc, out, oDesc, g_allocator, stream);
+    return selectType<AbsSumOp>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAll(
@@ -45,7 +38,7 @@ cudaError_t srtAll(
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
     assert(aDesc.type == boolean && oDesc.type == boolean);
-    return reduce<AllOp, bool>(a, aDesc, out, oDesc, g_allocator, stream);
+    return reduce<AllOp, bool>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtAny(
@@ -55,7 +48,7 @@ cudaError_t srtAny(
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
     assert(aDesc.type == boolean && oDesc.type == boolean);
-    return reduce<AnyOp, bool>(a, aDesc, out, oDesc, g_allocator, stream);
+    return reduce<AnyOp, bool>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtSum(
@@ -64,7 +57,7 @@ cudaError_t srtSum(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectType<SumOp>(a, aDesc, out, oDesc, g_allocator, stream);
+    return selectType<SumOp>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtMean(
@@ -81,7 +74,7 @@ cudaError_t srtMinValue(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectType<MinOp>(a, aDesc, out, oDesc, g_allocator, stream);
+    return selectType<MinOp>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtArgMin(
@@ -90,7 +83,7 @@ cudaError_t srtArgMin(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectType<SumOp>(a, aDesc, out, oDesc, g_allocator, stream);
+    return selectType<SumOp>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtMaxValue(
@@ -99,7 +92,7 @@ cudaError_t srtMaxValue(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectType<MaxOp>(a, aDesc, out, oDesc, g_allocator, stream);
+    return selectType<MaxOp>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtArgMax(

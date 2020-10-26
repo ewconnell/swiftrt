@@ -3,6 +3,7 @@ add_library(SwiftRTCuda
   utilities.cu
   fill_ops.cu
   math_ops.cu
+  memory.cu
   random_ops.cu
   reduce_ops.cu
   specialized_ops.cu

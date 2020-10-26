@@ -1,5 +1,5 @@
 //******************************************************************************
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,19 @@
 // limitations under the License.
 //
 #pragma once
+#include <cuda_runtime.h>
 
-// this is an umbrella header
-#include "compare_api.h"
-#include "fill_api.h"
-#include "math_api.h"
-#include "memory_api.h"
-#include "reduce_api.h"
-#include "specialized_api.h"
-#include "utilities_api.h"
+// make visible to Swift as C API
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//==============================================================================
+
+cudaError_t srtDeviceAllocate(void **devPtr, size_t size, cudaStream_t stream);	
+cudaError_t srtDeviceFree(void *devPtr);
+
+//==============================================================================
+#ifdef __cplusplus
+}
+#endif

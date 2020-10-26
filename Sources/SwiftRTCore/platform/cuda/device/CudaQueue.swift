@@ -90,7 +90,7 @@ public final class CudaQueue: DeviceQueue, CpuFunctions {
                               alignment: MemoryLayout<Int>.alignment)
             return CpuDeviceMemory(deviceIndex, buffer, memoryType)
         } else {
-            return CudaDeviceMemory(deviceIndex, byteCount)
+            return CudaDeviceMemory(deviceIndex, byteCount, stream)
         }
     }
 

@@ -125,22 +125,23 @@ public final class CudaDeviceMemory: DeviceMemory {
 
     //--------------------------------------------------------------------------
     // init
-    @inlinable public init(_ deviceIndex: Int, _ byteCount: Int) {
+    @inlinable public init(
+        _ deviceIndex: Int, 
+        _ byteCount: Int, 
+        _ stream: cudaStream_t
+    ) {
         self.deviceIndex = deviceIndex
-
-        // select the device
-        cudaCheck(cudaSetDevice(Int32(deviceIndex - 1)))
-
+        
         // pad end of memory buffer so that it is rounded up to the
         // largest vector element size. This provides safe padding to
         // avoid vector instructions from accessing out of bounds
-        let paddedByteCount = roundUp(byteCount, 
-                                      multiple: MemoryLayout<double4>.size) 
+        let paddedByteCount = 
+            roundUp(byteCount, multiple: MemoryLayout<double4>.size) 
 
         // TODO: for now we will fail if memory is exhausted
         // later catch and do shuffling
 		var devicePointer: UnsafeMutableRawPointer?
-	    cudaCheck(cudaMalloc(&devicePointer, paddedByteCount))
+	    cudaCheck(srtDeviceAllocate(&devicePointer, paddedByteCount, stream))
 
         self.buffer = UnsafeMutableRawBufferPointer(start: devicePointer!, 
                                                     count: byteCount)
@@ -151,9 +152,7 @@ public final class CudaDeviceMemory: DeviceMemory {
     }
     
     @inlinable deinit {
-        // select the device
-        cudaCheck(cudaSetDevice(Int32(deviceIndex - 1)))
-		cudaCheck(cudaFree(buffer.baseAddress!))
+		cudaCheck(srtDeviceFree(buffer.baseAddress!))
 
         #if DEBUG
         if let name = name, let msg = releaseMessage {

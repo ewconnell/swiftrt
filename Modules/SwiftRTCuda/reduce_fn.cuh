@@ -17,12 +17,11 @@
 #include "reduce_api.h"
 #include "tensor.cuh"
 #include "math_fn.cuh"
+#include "memory_api.h"
 
 // Ensure printing of CUDA runtime errors to console
 #define CUB_STDERR
 
-#include <stdio.h>
-#include <cub/util_allocator.cuh>
 #include <cub/device/device_reduce.cuh>
 using namespace cub;
 
@@ -218,7 +217,6 @@ template<template<typename A, typename Out> class Operator, typename T>
 cudaError_t reduce(
     const void* pA, const TensorDescriptor& aDesc,
     void* pOut, const TensorDescriptor& oDesc,
-    cub::CachingDeviceAllocator& allocator,
     cudaStream_t stream
 ) {
     const T* a = static_cast<const T*>(pA);
@@ -229,9 +227,9 @@ cudaError_t reduce(
     typedef Operator<const T*, T*> Op;
 
     CubDebugExit(Op::op(d_temp_storage, temp_storage_bytes, a, out, count, stream));
-    CubDebugExit(allocator.DeviceAllocate(&d_temp_storage, temp_storage_bytes, stream));
+    CubDebugExit(srtDeviceAllocate(&d_temp_storage, temp_storage_bytes, stream));
     CubDebugExit(Op::op(d_temp_storage, temp_storage_bytes, a, out, count, stream));
-    CubDebugExit(allocator.DeviceFree(d_temp_storage));
+    CubDebugExit(srtDeviceFree(d_temp_storage));
     return cudaSuccess;
 }
 
@@ -239,23 +237,22 @@ template<template<typename I, typename O> class Op>
 cudaError_t selectType(
     const void* a, const TensorDescriptor& aDesc,
     void* out, const TensorDescriptor& oDesc,
-    cub::CachingDeviceAllocator& allocator,
     cudaStream_t stream
 ) {
     if (!(aDesc.isDense() && oDesc.isDense())) return cudaErrorNotSupported;
     switch(aDesc.type) {
-        case real32F:  return reduce<Op, float>(a, aDesc, out, oDesc, allocator, stream);
-        case real16F:  return reduce<Op, float16>(a, aDesc, out, oDesc, allocator, stream);
-        case real16BF: return reduce<Op, bfloat16>(a, aDesc, out, oDesc, allocator, stream);
-        case real64F:  return reduce<Op, double>(a, aDesc, out, oDesc, allocator, stream);
-        case real32I:  return reduce<Op, int32_t>(a, aDesc, out, oDesc, allocator, stream);
-        case real8U:   return reduce<Op, uint8_t>(a, aDesc, out, oDesc, allocator, stream);
-        case real8I:   return reduce<Op, int8_t>(a, aDesc, out, oDesc, allocator, stream);
-        case real16U:  return reduce<Op, uint16_t>(a, aDesc, out, oDesc, allocator, stream);
-        case real16I:  return reduce<Op, int16_t>(a, aDesc, out, oDesc, allocator, stream);
-        case boolean:  return reduce<Op, bool>(a, aDesc, out, oDesc, allocator, stream);
-        case complex16F: return reduce<Op, Complex<half>>(a, aDesc, out, oDesc, allocator, stream);
-        case complex32F: return reduce<Op, Complex<float>>(a, aDesc, out, oDesc, allocator, stream);
+        case real32F:  return reduce<Op, float>(a, aDesc, out, oDesc, stream);
+        case real16F:  return reduce<Op, float16>(a, aDesc, out, oDesc, stream);
+        case real16BF: return reduce<Op, bfloat16>(a, aDesc, out, oDesc, stream);
+        case real64F:  return reduce<Op, double>(a, aDesc, out, oDesc, stream);
+        case real32I:  return reduce<Op, int32_t>(a, aDesc, out, oDesc, stream);
+        case real8U:   return reduce<Op, uint8_t>(a, aDesc, out, oDesc, stream);
+        case real8I:   return reduce<Op, int8_t>(a, aDesc, out, oDesc, stream);
+        case real16U:  return reduce<Op, uint16_t>(a, aDesc, out, oDesc, stream);
+        case real16I:  return reduce<Op, int16_t>(a, aDesc, out, oDesc, stream);
+        case boolean:  return reduce<Op, bool>(a, aDesc, out, oDesc, stream);
+        case complex16F: return reduce<Op, Complex<half>>(a, aDesc, out, oDesc, stream);
+        case complex32F: return reduce<Op, Complex<float>>(a, aDesc, out, oDesc, stream);
         default: return cudaErrorNotSupported;
     }
 }
