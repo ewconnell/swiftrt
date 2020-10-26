@@ -52,10 +52,11 @@ class test_Math: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_juliaMath() {
-        typealias CF = Complex<Float>
+        typealias RT = Float
+        typealias CF = Complex<RT>
         let iterations = 3
         let size = (r: 5, c: 5)
-        let tolerance: Float = 4.0
+        let tolerance: RT = 4.0
         let C = CF(-0.8, 0.156)
         let first = CF(-1.7, 1.7)
         let last = CF(1.7, -1.7)
@@ -65,17 +66,18 @@ class test_Math: XCTestCase {
         // repeat rows of real range, columns of imaginary range, and combine
         var Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
                 repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-        
-        XCTAssert(Z == [
-            [CF(-1.7, 1.7), CF(-0.85, 1.7), CF(0.0, 1.7), CF(0.85000014, 1.7), CF(1.7, 1.7)],
-            [CF(-1.7, 0.85), CF(-0.85, 0.85), CF(0.0, 0.85), CF(0.85000014, 0.85), CF(1.7, 0.85)],
-            [CF(-1.7, 0.0), CF(-0.85, 0.0), CF(0.0, 0.0), CF(0.85000014, 0.0), CF(1.7, 0.0)],
-            [CF(-1.7, -0.85000014), CF(-0.85, -0.85000014), CF(0.0, -0.85000014), CF(0.85000014, -0.85000014), CF(1.7, -0.85000014)],
-            [CF(-1.7, -1.7), CF(-0.85, -1.7), CF(0.0, -1.7), CF(0.85000014, -1.7), CF(1.7, -1.7)]
+
+        let expected = array([
+            [CF(-1.7, 1.7), CF(-0.85, 1.7), CF(0.0, 1.7), CF(0.8506, 1.7), CF(1.7, 1.7)],
+            [CF(-1.7, 0.85), CF(-0.85, 0.85), CF(0.0, 0.85), CF(0.8506, 0.85), CF(1.7, 0.85)],
+            [CF(-1.7, 0.0), CF(-0.85, 0.0), CF(0.0, 0.0), CF(0.8506, 0.0), CF(1.7, 0.0)],
+            [CF(-1.7, -0.8506), CF(-0.85, -0.8506), CF(0.0, -0.8506), CF(0.8506, -0.8506), CF(1.7, -0.8506)],
+            [CF(-1.7, -1.7), CF(-0.85, -1.7), CF(0.0, -1.7), CF(0.8506, -1.7), CF(1.7, -1.7)]
         ])
+        XCTAssert(elementsAlmostEqual(Z, expected, tolerance: CF(0.01, 0.01)).all().element)
         
         
-        var divergence = full(size, iterations)
+        var divergence = full(size, RT(iterations), type: RT.self)
         XCTAssert(divergence == [
             [3.0, 3.0, 3.0, 3.0, 3.0],
             [3.0, 3.0, 3.0, 3.0, 3.0],
@@ -86,15 +88,15 @@ class test_Math: XCTestCase {
         
         // Z = Z * Z + C
         Z = multiply(Z, Z, add: C)
-        let expected = array([
-            [CF(-0.8, -5.624), CF(-2.9675, -2.7340002), CF(-3.69, 0.156), CF(-2.9674997, 3.0460005), CF(-0.8, 5.9360003)],
-            [CF(1.3675001, -2.7340002), CF(-0.8, -1.289), CF(-1.5225, 0.156), CF(-0.7999998, 1.6010003), CF(1.3675001, 3.046)],
-            [CF(2.0900002, 0.156), CF(-0.077499986, 0.156), CF(-0.8, 0.156), CF(-0.07749975, 0.156), CF(2.0900002, 0.156)],
-            [CF(1.3674998, 3.0460005), CF(-0.80000025, 1.6010003), CF(-1.5225003, 0.156), CF(-0.8, -1.2890005), CF(1.3674998, -2.7340007)],
-            [CF(-0.8, 5.9360003), CF(-2.9675, 3.046), CF(-3.69, 0.156), CF(-2.9674997, -2.7340007), CF(-0.8, -5.624)]
+        let expectedMulAdd = array([
+            [CF(-0.8, -5.625), CF(-2.969, -2.734), CF(-3.691, 0.156), CF(-2.969, 3.049), CF(-0.8, 5.938)],
+            [CF(1.368, -2.734), CF(-0.8, -1.289), CF(-1.522, 0.156), CF(-0.799, 1.603), CF(1.368, 3.047)],
+            [CF(2.09, 0.156), CF(-0.07715, 0.156), CF(-0.8, 0.156), CF(-0.0762, 0.156), CF(2.09, 0.156)],
+            [CF(1.368, 3.049), CF(-0.801, 1.603), CF(-1.523, 0.156), CF(-0.8, -1.291), CF(1.368, -2.736)],
+            [CF(-0.8, 5.938), CF(-2.969, 3.047), CF(-3.691, 0.156), CF(-2.969, -2.736), CF(-0.8, -5.625)]
         ])
-        XCTAssert(elementsAlmostEqual(Z, expected, tolerance: CF(0.00001, 0.00001)).all().element)
-        
+        XCTAssert(elementsAlmostEqual(Z, expectedMulAdd, tolerance: CF(0.01, 0.01)).all().element)
+
         divergence[abs(Z) .> tolerance] = min(divergence, 0)
         XCTAssert(divergence == [
             [0.0, 0.0, 3.0, 0.0, 0.0],

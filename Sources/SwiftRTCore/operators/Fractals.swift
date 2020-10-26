@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 import Numerics
-import SwiftRTCuda
 
 //==============================================================================
 /// juliaSet
@@ -79,6 +78,10 @@ extension DeviceQueue {
 
 //==============================================================================
 // CudaQueue gpu implementation
+
+#if canImport(SwiftRTCuda)
+import SwiftRTCuda
+
 extension CudaQueue {
     @inlinable public func juliaSet<E>(
         _ a: TensorR2<Complex<E>>,
@@ -108,3 +111,4 @@ extension CudaQueue {
         cpuFallback(status) { $0.juliaSet(a, C, tolerance, iterations, &out) }
     }
 }
+#endif

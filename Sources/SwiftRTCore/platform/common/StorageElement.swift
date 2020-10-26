@@ -435,44 +435,6 @@ public struct UInt4: PackedStorageElement {
 //==============================================================================
 
 //==============================================================================
-// Float16
-extension Float16: StorageElement {
-    @inlinable public static func storedIndex(_ index: Int) -> Int { index }
-    @inlinable public static func storedCount(_ count: Int) -> Int { count }
-    @inlinable public static func alignment(_ index: Int) -> Int { 0 }
-
-    //-------------------------------------
-    // accessors
-    @inlinable public static func value(
-        at index: Int, from stored: Self
-    ) -> Float { Float(stored) }
-    
-    @inlinable public static func store(
-        value: Float, at index: Int, to stored: inout Self
-    ) { stored = Self(value) }
-
-    @inlinable public static func stored(value: Float) -> Self { Self(value) }
-
-    @inlinable public static func storedRange(start: Int, count: Int)
-    -> (storedStart: Int, storedCount: Int) { (start, count) }
-    
-    @inlinable public static func getValue(
-        from buffer: UnsafeBufferPointer<Float16>,
-        at index: Int
-    ) -> Float {
-        Float(buffer[index])
-    }
-    
-    @inlinable public static func set(
-        value: Float,
-        in buffer: UnsafeMutableBufferPointer<Float16>,
-        at index: Int
-    ) {
-        buffer[index] = Float16(value)
-    }
-}
-
-//==============================================================================
 // BFloat16
 extension BFloat16: StorageElement {
     @inlinable public static func storedIndex(_ index: Int) -> Int { index }
@@ -548,6 +510,11 @@ extension UInt32: StorageElement {
 }
 
 extension Float: StorageElement {
+    public typealias Stored = Self
+    public typealias Value = Self
+}
+
+extension Float16: StorageElement {
     public typealias Stored = Self
     public typealias Value = Self
 }

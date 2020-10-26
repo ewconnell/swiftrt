@@ -25,15 +25,14 @@ final class test_perfFractals: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        // ("test_pmapJulia", test_pmapJulia),
-        // ("test_pmapKernelJulia", test_pmapKernelJulia),
+        ("test_pmapJulia", test_pmapJulia),
+        ("test_pmapKernelJulia", test_pmapKernelJulia),
         ("test_Julia", test_Julia),
     ]
 
     //--------------------------------------------------------------------------
     func test_Julia() {
-        print("Julia!")
-        // #if !DEBUG
+        #if !DEBUG
         // cpu platform mac and ubuntu: 12.816s
         // cuda platform: cpu: , gpu 1.48s
         // measure {
@@ -45,13 +44,13 @@ final class test_perfFractals: XCTestCase {
                 size: (r: 1000, c: 1000)
             )
         // }
-        // #endif
         XCTAssert(j.count > 0)
+        #endif
     }
 
     //--------------------------------------------------------------------------
     func test_pmapJulia() {
-        //  #if !DEBUG
+         #if !DEBUG
         // parameters
         let iterations = 2048
         let size = (r: 1000, c: 1000)
@@ -78,7 +77,7 @@ final class test_perfFractals: XCTestCase {
                 }
             }
         }
-        //  #endif
+         #endif
     }
 
     func test_pmapKernelJulia() {

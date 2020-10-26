@@ -39,6 +39,14 @@ extension DeviceQueue {
         mapOp(x, &out) { abs($0) }
     }
 
+    @inlinable func cpu_abs<S,E>(
+        _ x: Tensor<S,Complex<E>>,
+        _ out: inout Tensor<S,E>
+    ) where E == E.Value, E.Value: Comparable & SignedNumeric {
+        diagnostic(.queueCpu, "abs(\(x.name)) on \(name)", categories: .queueCpu)
+        mapOp(x, &out) { abs($0) }
+    }
+
     //--------------------------------------------------------------------------
     @inlinable func cpu_acos<S,E>(
         _ x: Tensor<S,E>,
@@ -893,7 +901,14 @@ extension CpuQueue {
     ) where E.Value: Comparable & SignedNumeric {
         cpu_abs(x, &out)
     }
-    
+        
+    @inlinable func abs<S,E>(
+        _ x: Tensor<S,Complex<E>>,
+        _ out: inout Tensor<S,E>
+    ) where E == E.Value, E.Value: Comparable & SignedNumeric {
+        cpu_abs(x, &out)
+    }
+
     //--------------------------------------------------------------------------
     @inlinable func acos<S,E>(
         _ x: Tensor<S,E>,
