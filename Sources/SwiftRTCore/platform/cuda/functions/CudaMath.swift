@@ -23,7 +23,7 @@ extension CudaQueue {
     @inlinable func abs<S,E>(
         _ x: Tensor<S,Complex<E>>, 
         _ out: inout Tensor<S,E>
-    ) where E.Value: Comparable & SignedNumeric {
+    ) where E == E.Value, E.Value: Comparable & SignedNumeric {
         assert(out.isContiguous, _messageElementsMustBeContiguous)
         guard useGpu else { cpu_abs(x, &out); return }
         diagnostic(.queueGpu, "abs(\(x.name)) on \(name)", categories: .queueGpu)
