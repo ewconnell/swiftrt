@@ -99,6 +99,14 @@ inline constexpr bool isComplex() {
         std::is_same<A, Complex<bfloat16>>::value;
 }
 
+template<typename ComplexType, typename RealType>
+inline constexpr bool isComplexRealType() {
+    if constexpr (isComplex<ComplexType>()) {
+        return std::is_same<typename ComplexType::RealType, RealType>::value;
+    }
+    return false;
+}
+
 template<typename A>
 inline constexpr bool isBool() {
     return std::is_same<A,bool>::value ||

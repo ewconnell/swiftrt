@@ -23,7 +23,7 @@
 //==============================================================================
 
 //------------------------------------------------------------------------------
-Op1(Abs, abs, (isSignedNumeric<A>() && (isSame<A,Out>() || isComplex<A>())))
+Op1(Abs, abs, ((isSignedNumeric<A>() && isSame<A,Out>()) || isComplexRealType<A,Out>()))
 
 cudaError_t srtAbsFlat(
     const void* a, srtDataType atype,
