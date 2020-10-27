@@ -14,8 +14,7 @@
 // limitations under the License.
 //
 #pragma once
-#include <cuda_bf16.h>
-#include "cuda_macros.cuh"
+#include "srt_limits.cuh"
 
 typedef __nv_bfloat16 bfloat16;
 typedef __nv_bfloat162 bfloat162;

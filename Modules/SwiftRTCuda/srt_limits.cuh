@@ -17,24 +17,24 @@
 #include <limits>
 #include <cuda_fp16.h>
 #include <cuda_bf16.h>
-
-#include "float16.cuh"
-#include "bfloat16.cuh"
+#include "cuda_macros.cuh"
 
 //==============================================================================
 // float16 limits
 //==============================================================================
+typedef __half float16;
+typedef __half2 float162;
 
 namespace std {
 
-template <> struct numeric_limits<half> {
+template <> struct numeric_limits<float16> {
   static constexpr bool is_specialized = true;
 
-    __HOSTDEVICE_INLINE__ static half min() noexcept {
+    __HOSTDEVICE_INLINE__ static float16 min() noexcept {
         return __FLT_MIN__;
     }
 
-    __HOSTDEVICE_INLINE__ static half max() noexcept {
+    __HOSTDEVICE_INLINE__ static float16 max() noexcept {
         return __FLT_MAX__;
     }
 
@@ -107,6 +107,7 @@ template <> struct numeric_limits<half> {
 //==============================================================================
 
 typedef __nv_bfloat16 bfloat16;
+typedef __nv_bfloat162 bfloat162;
 
 namespace std {
 

@@ -14,8 +14,7 @@
 // limitations under the License.
 //
 #pragma once
-#include <cuda_fp16.h>
-#include "cuda_macros.cuh"
+#include "srt_limits.cuh"
 
 typedef __half float16;
 typedef __half2 float162;
