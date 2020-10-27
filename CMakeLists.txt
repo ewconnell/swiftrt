@@ -12,6 +12,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_Swift_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/swift)
 
 if(SWIFTRT_ENABLE_CUDA)
+  message(STATUS "SwiftRT cuda support is enabled.")
   enable_language(CXX)
   enable_language(CUDA)
   find_package(CUDAToolkit REQUIRED)
@@ -24,6 +25,8 @@ if(SWIFTRT_ENABLE_CUDA)
 
   add_subdirectory(Sources/CCUDA)
   add_subdirectory(Modules/SwiftRTCuda)
+else()
+  message(STATUS "SwiftRT cuda support is disabled.")
 endif()
 
 if(SWIFTRT_LOGLEVEL_DIAGNOSTIC)
