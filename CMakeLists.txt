@@ -12,19 +12,25 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_Swift_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/swift)
 
 if(SWIFTRT_ENABLE_CUDA)
-  message(STATUS "SwiftRT cuda support is enabled.")
-  enable_language(CXX)
-  enable_language(CUDA)
-  find_package(CUDAToolkit REQUIRED)
-  if(CUDAToolkit_FOUND)
-    _CUDAToolkit_find_and_add_import_lib(cudnn)
+  if(CMAKE_CUDA_ARCHITECTURES)
+    message(STATUS "SwiftRT cuda support is enabled for SM architectures: ${CMAKE_CUDA_ARCHITECTURES}")
+    enable_language(CXX)
+    enable_language(CUDA)
+    find_package(CUDAToolkit REQUIRED)
+    if(CUDAToolkit_FOUND)
+      _CUDAToolkit_find_and_add_import_lib(cudnn)
+    endif()
+
+    set(CMAKE_CUDA_STANDARD 17)
+    set(CMAKE_CUDA_STANDARD_REQUIRED YES)
+
+    add_subdirectory(Sources/CCUDA)
+    add_subdirectory(Modules/SwiftRTCuda)
+  else()
+    message(FATAL_ERROR
+      "When CUDA is enabled, CMAKE_CUDA_ARCHITECTURES must be specified.\n"
+      "Example: -DCMAKE_CUDA_ARCHITECTURES=\"60;75\"\n")
   endif()
-
-  set(CMAKE_CUDA_STANDARD 17)
-  set(CMAKE_CUDA_STANDARD_REQUIRED YES)
-
-  add_subdirectory(Sources/CCUDA)
-  add_subdirectory(Modules/SwiftRTCuda)
 else()
   message(STATUS "SwiftRT cuda support is disabled.")
 endif()
