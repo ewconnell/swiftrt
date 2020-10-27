@@ -4,13 +4,13 @@ SwiftRT is an experimental computational framework written in the Swift language
 
 ***
 # Installation
-This project requires the use of the Google Swift4 TensorFlow custom toolchain (in place of the standard toolchain), because it leverages the toolchain's integrated auto differentiation functionality.
+This project requires the use of the Google Swift for TensorFlow custom toolchain (in place of the standard toolchain), because it leverages the toolchain's integrated auto differentiation functionality.
 
 ## MacOS and Ubuntu CPU Only Installation
 Currently a cpu build is available on MacOS.
 
 1) Install Xcode 12
-2) Install the Google [Swift4 TensorFlow Xcode 12 Toolchain](https://github.com/tensorflow/swift/blob/master/Installation.md), and in Xcode select the toolchain in the `Preferences` pane.
+2) Install the Google [Swift for TensorFlow Xcode 12 Toolchain](https://github.com/tensorflow/swift/blob/master/Installation.md), and in Xcode select the toolchain in the `Preferences` pane.
 
 3) Install and run the SwiftRT unit tests to verify the installation:
 ```sh
@@ -28,7 +28,11 @@ Currently the Swift Package Manager does not support building `.cpp` or cuda `.c
 
 **NOTE:** all unit tests should pass with the CPU only build. The Cuda version is currently under development and there is no claim that the unit tests currently pass. This notice will be removed after they successfully pass.
 
-1) Install the Google [Swift4 TensorFlow Xcode 12 Toolchain](https://github.com/tensorflow/swift/blob/master/Installation.md).
+0) Install [CUDA 11.0](https://developer.nvidia.com/cuda-11.0-download-archive) and [cuDNN with CUDA 11.0 support](https://developer.nvidia.com/cudnn).
+
+   *Note*: SwiftRT expects `cuddn.h` to be available from within `/usr/local/cuda/include` directory. If you install cudnn via the deb package, you might have to symlink it manually.
+
+1) Install the latest development snapshot of the Google [Swift for TensorFlow Toolchain with CUDA 11.0](https://github.com/tensorflow/swift/blob/master/Installation.md).
 
 2) Add the following exports to your `~/.bashrc` file, assuming SwiftRT installation is in the `$HOME` directory. 
 ```bash
@@ -54,18 +58,18 @@ export C_INCLUDE_PATH=$CUDA_ROOT/include
 export CPLUS_INCLUDE_PATH=$CUDA_ROOT/include
 
 ```
-3) CMake 3.5 or higher is required to build. If your current version is less than 3.5, [download and install](https://cmake.org/download/) the latest version.
+3) CMake 3.18 or higher is required to build. If your current version is less than 3.18, [download and install](https://cmake.org/download/) the latest version.
 
 4) To configure cmake for a Debug version
 ```sh
 $ cd $SWIFTRT_HOME
 $ mkdir build
-$ cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_C_COMPILER:FILEPATH=$SWIFT_HOME/usr/bin/clang-10 -H$SWIFTRT_HOME -B$SWIFTRT_HOME/build -G Ninja
+$ cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_C_COMPILER:FILEPATH=$SWIFT_HOME/usr/bin/clang-10 -H$SWIFTRT_HOME -B$SWIFTRT_HOME/build -DSWIFTRT_ENABLE_CUDA:BOOL=YES -G Ninja
 ```
 5) To build
 ```sh
 $ cd $SWIFTRT_HOME
-$ cmake --build ./build --target SwiftRTTests
+$ cmake --build ./build --target SwiftRTTestRunner
 ```
 6) To clean
 ```sh
@@ -73,7 +77,6 @@ $ cd $SWIFTRT_HOME
 $ cmake --build ./build --target clean
 $ rm -rf .build
 ```
-The Swift Package Manager puts all output files into the hidden directory `$SWIFTRT_HOME/.build`
 
 ***
 ## Setting up VScode
