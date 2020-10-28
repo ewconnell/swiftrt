@@ -11,6 +11,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_Swift_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/swift)
 
+add_compile_definitions($<$<COMPILE_LANGUAGE:Swift>:"SHELL:-Xcc -fmodules-cache-path=${BINARY_DIR}/ModuleCache">)
+
 if(SWIFTRT_ENABLE_CUDA)
   if(CMAKE_CUDA_ARCHITECTURES)
     message(STATUS "SwiftRT cuda support is enabled for SM architectures: ${CMAKE_CUDA_ARCHITECTURES}")
@@ -67,7 +69,7 @@ ExternalProject_Add(swift-numerics
     -D CMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}
     -D CMAKE_Swift_COMPILER=${CMAKE_Swift_COMPILER}
     -D CMAKE_Swift_COMPILER_TARGET=${CMAKE_Swift_COMPILER_TARGET}
-    -D CMAKE_Swift_FLAGS=${CMAKE_Swift_FLAGS}
+    -D CMAKE_Swift_FLAGS="${CMAKE_Swift_FLAGS} -Xcc -fmodules-cache-path=<BINARY_DIR>/ModuleCache"
   INSTALL_COMMAND
     ""
   BUILD_BYPRODUCTS
