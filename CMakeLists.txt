@@ -99,6 +99,8 @@ set_target_properties(Numerics PROPERTIES
 find_package(dispatch CONFIG QUIET)
 find_package(Foundation CONFIG QUIET)
 
+message(STATUS "SwiftRT build type is: ${CMAKE_BUILD_TYPE}")
+
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
   add_compile_definitions(DEBUG)
 endif()

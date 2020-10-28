@@ -86,7 +86,7 @@ class test_AlgebraicField: XCTestCase {
     
     //--------------------------------------------------------------------------
     func test_perfAdd() {
-        // #if !DEBUG
+        #if !DEBUG
         let r = 300
         let c = 200
         let a = array(0..<(r * c), (r, c), name: "A")
@@ -100,7 +100,7 @@ class test_AlgebraicField: XCTestCase {
             currentQueue.waitForCompletion()
         }
         XCTAssert(result.count > 0)
-        // #endif
+        #endif
     }
 
     //--------------------------------------------------------------------------

@@ -137,14 +137,12 @@ public extension ComputePlatform {
         _ deviceId: Int,
         _ queueId: Int
     ) -> Device.Queue {
-        let deviceId = devices.count == 1 ? 0 : deviceId % (devices.count - 1)
-        let device = devices[deviceId]
+        let device = devices[deviceId % devices.count]
         let qcount = device.queues.count
         if qcount == 0 {
             return Self.syncQueue
         } else {
-            let queueId = qcount == 1 ? 0 : queueId % (qcount - 1)
-            return device.queues[queueId]
+            return device.queues[queueId % qcount]
         }
     }
     
