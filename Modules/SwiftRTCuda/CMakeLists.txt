@@ -20,4 +20,3 @@ target_include_directories(SwiftRTCuda PUBLIC
 target_link_libraries(SwiftRTCuda PUBLIC
   CCUDA)
 #target_precompile_headers(SwiftRTCuda PRIVATE precomp.hpp)
-set_target_properties(SwiftRTCuda PROPERTIES CUDA_ARCHITECTURES "75")
