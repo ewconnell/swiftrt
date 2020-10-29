@@ -13,75 +13,75 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-import SwiftRTCuda
 
+import SwiftRTCuda
 
 //==============================================================================
 /// MatmulAlgorithmHeuristicResult
 /// This can throw if the parameter combination is not supported
-public struct MatmulAlgorithmHeuristicResult: CustomStringConvertible
-{
-    public let heuristicResult: cublasLtMatmulHeuristicResult_t
+public struct MatmulAlgorithmHeuristicResult: CustomStringConvertible {
+  public let heuristicResult: cublasLtMatmulHeuristicResult_t
 
-    /// init
-    /// this initializer is used to clear storage to receive values
-    /// from heuristic algorithm query
-    @inlinable public init() {
-        heuristicResult = cublasLtMatmulHeuristicResult_t()
-    }
+  /// init
+  /// this initializer is used to clear storage to receive values
+  /// from heuristic algorithm query
+  @inlinable public init() {
+    heuristicResult = cublasLtMatmulHeuristicResult_t()
+  }
 
-    /// init
-    /// used to set result values during algorithm search
-    @inlinable public init(
-        operation: MatmulOperation,
-        layoutA: MatrixLayout,
-        layoutB: MatrixLayout,
-        layoutC: MatrixLayout,
-        layoutD: MatrixLayout,
-        algorithm: MatmulAlgorithm,
-        using queue: Platform.Device.Queue = currentQueue
-    ) {
-        var temp = cublasLtMatmulHeuristicResult_t()
-        cudaCheck(cublasLtMatmulAlgoCheck(
-            queue.cublas.handle,
-            operation.desc,
-            layoutA.desc,
-            layoutB.desc,
-            layoutC.desc,
-            layoutD.desc,
-            &algorithm.desc, 
-            &temp))
-        heuristicResult = temp
-    }
+  /// init
+  /// used to set result values during algorithm search
+  @inlinable public init(
+    operation: MatmulOperation,
+    layoutA: MatrixLayout,
+    layoutB: MatrixLayout,
+    layoutC: MatrixLayout,
+    layoutD: MatrixLayout,
+    algorithm: MatmulAlgorithm,
+    using queue: Platform.Device.Queue = currentQueue
+  ) {
+    var temp = cublasLtMatmulHeuristicResult_t()
+    cudaCheck(
+      cublasLtMatmulAlgoCheck(
+        queue.cublas.handle,
+        operation.desc,
+        layoutA.desc,
+        layoutB.desc,
+        layoutC.desc,
+        layoutD.desc,
+        &algorithm.desc,
+        &temp))
+    heuristicResult = temp
+  }
 
-    @inlinable public var description: String {
-        """
-        MatmulAlgorithmHeuristicResult
-        algorithm    : \(algorithm)
-        workspaceSize: \(workspaceSize)
-        isValid      : \(isValid)
-        waves        : \(waves)
-        """
-    }
+  @inlinable public var description: String {
+    """
+    MatmulAlgorithmHeuristicResult
+    algorithm    : \(algorithm)
+    workspaceSize: \(workspaceSize)
+    isValid      : \(isValid)
+    waves        : \(waves)
+    """
+  }
 
-    @inlinable public var algorithm: MatmulAlgorithm {
-        MatmulAlgorithm(heuristicResult.algo)
-    }
+  @inlinable public var algorithm: MatmulAlgorithm {
+    MatmulAlgorithm(heuristicResult.algo)
+  }
 
-    @inlinable public var workspaceSize: Int {
-        heuristicResult.workspaceSize
-    }
+  @inlinable public var workspaceSize: Int {
+    heuristicResult.workspaceSize
+  }
 
-    /// `true` if the result is valid, `false` if there are no available
-    /// algorithms that match the input requirements
-    @inlinable public var isValid: Bool {
-        heuristicResult.state == CUBLAS_STATUS_SUCCESS
-    }
+  /// `true` if the result is valid, `false` if there are no available
+  /// algorithms that match the input requirements
+  @inlinable public var isValid: Bool {
+    heuristicResult.state == CUBLAS_STATUS_SUCCESS
+  }
 
-    /// Waves count is a device utilization metric. A value of 1.0 suggests
-    /// that when the kernel is launched it will fully occupy the GPU. The
-    /// closer to 1.0 the better
-    @inlinable public var waves: Float {
-        heuristicResult.wavesCount
-    }
+  /// Waves count is a device utilization metric. A value of 1.0 suggests
+  /// that when the kernel is launched it will fully occupy the GPU. The
+  /// closer to 1.0 the better
+  @inlinable public var waves: Float {
+    heuristicResult.wavesCount
+  }
 }

@@ -25,19 +25,19 @@ import Numerics
 // 2) if the real components are equal, then the imaginaries are compared
 //
 extension Complex: Comparable {
-    @inlinable public static func < (lhs: Complex<RealType>, rhs: Complex<RealType>) -> Bool {
-        if lhs.real == rhs.real {
-            return lhs.imaginary < rhs.imaginary
-        } else {
-            return lhs.real < rhs.real
-        }
+  @inlinable public static func < (lhs: Complex<RealType>, rhs: Complex<RealType>) -> Bool {
+    if lhs.real == rhs.real {
+      return lhs.imaginary < rhs.imaginary
+    } else {
+      return lhs.real < rhs.real
     }
+  }
 }
 
 @inlinable public func abs2<RealType>(_ x: Complex<RealType>) -> RealType {
-    x.real * x.real + x.imaginary * x.imaginary
+  x.real * x.real + x.imaginary * x.imaginary
 }
 
 @inlinable public func abs<RealType>(_ x: Complex<RealType>) -> RealType {
-    .sqrt(abs2(x))
+  .sqrt(abs2(x))
 }

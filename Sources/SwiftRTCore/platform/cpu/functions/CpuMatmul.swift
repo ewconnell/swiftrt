@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 import Foundation
 
 //==============================================================================
@@ -23,37 +24,35 @@ where E: StorageElement, E.Value: StorageElement & Numeric {}
 //==============================================================================
 /// DeviceMatmul2
 public class DeviceMatmul2<E>: Logging
-where E: StorageElement, E.Value: StorageElement & Numeric
-{
-    @inlinable public init() {}
+where E: StorageElement, E.Value: StorageElement & Numeric {
+  @inlinable public init() {}
 
-    //--------------------------------------------------------------------------
-    /// forward
-    @inlinable public func forward(
-        _ lhs: TensorR2<E>, _ transposeLhs: Bool,
-        _ rhs: TensorR2<E>, _ transposeRhs: Bool,
-        _ result: inout TensorR2<E>
-    ) {
-        let lhs = transposeLhs ? lhs.t : lhs
-        let rhs = transposeRhs ? rhs.t : rhs
-        assert(result.shape[0] == lhs.shape[0] &&
-                result.shape[1] == rhs.shape[1],
-               "matmul inner dimensions must be equal")
-        //-------------------------------
-        // simple place holder
-        for r in 0..<result.shape[0] {
-            let row = lhs[r, ...]
-            for c in 0..<result.shape[1] {
-                let col = rhs[..., c]
-                result[r, c] = zip(row, col).reduce(into: 0) { $0 += $1.0 * $1.1 }
-            }
-        }
+  //--------------------------------------------------------------------------
+  /// forward
+  @inlinable public func forward(
+    _ lhs: TensorR2<E>, _ transposeLhs: Bool,
+    _ rhs: TensorR2<E>, _ transposeRhs: Bool,
+    _ result: inout TensorR2<E>
+  ) {
+    let lhs = transposeLhs ? lhs.t : lhs
+    let rhs = transposeRhs ? rhs.t : rhs
+    assert(
+      result.shape[0] == lhs.shape[0] && result.shape[1] == rhs.shape[1],
+      "matmul inner dimensions must be equal")
+    //-------------------------------
+    // simple place holder
+    for r in 0..<result.shape[0] {
+      let row = lhs[r, ...]
+      for c in 0..<result.shape[1] {
+        let col = rhs[..., c]
+        result[r, c] = zip(row, col).reduce(into: 0) { $0 += $1.0 * $1.1 }
+      }
     }
-    
-    //--------------------------------------------------------------------------
-    /// backward
-    @inlinable public func backward(
-    ) {
-        fatalError("abstract not implemented")
-    }
+  }
+
+  //--------------------------------------------------------------------------
+  /// backward
+  @inlinable public func backward() {
+    fatalError("abstract not implemented")
+  }
 }

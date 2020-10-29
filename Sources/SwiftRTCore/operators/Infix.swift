@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 import Foundation
 
 // These are kept in a separate file together so that they can be
@@ -20,14 +21,14 @@ import Foundation
 // get around the compiler bug of infix dropping when using @_exported
 
 // Comparative
-infix operator .&& : LogicalConjunctionPrecedence
-infix operator .|| : LogicalConjunctionPrecedence
-infix operator .== : ComparisonPrecedence
-infix operator .!= : ComparisonPrecedence
-infix operator .> : ComparisonPrecedence
-infix operator .>= : ComparisonPrecedence
-infix operator .< : ComparisonPrecedence
-infix operator .<= : ComparisonPrecedence
+infix operator .&&: LogicalConjunctionPrecedence
+infix operator .||: LogicalConjunctionPrecedence
+infix operator .==: ComparisonPrecedence
+infix operator .!=: ComparisonPrecedence
+infix operator .>: ComparisonPrecedence
+infix operator .>=: ComparisonPrecedence
+infix operator .<: ComparisonPrecedence
+infix operator .<=: ComparisonPrecedence
 
 // advanced ranges
 infix operator ..+: RangeFormationPrecedence
@@ -37,11 +38,9 @@ prefix operator ..<-
 prefix operator ...-
 
 precedencegroup StridedRangeFormationPrecedence {
-    associativity: left
-    higherThan: CastingPrecedence
-    lowerThan: RangeFormationPrecedence
+  associativity: left
+  higherThan: CastingPrecedence
+  lowerThan: RangeFormationPrecedence
 }
 
 infix operator ..: StridedRangeFormationPrecedence
-
-

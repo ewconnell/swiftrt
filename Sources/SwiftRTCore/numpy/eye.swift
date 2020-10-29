@@ -31,20 +31,19 @@ import Foundation
 ///    or column-major (Fortran-style) order in memory.
 /// - Returns: the identity tensor
 @inlinable public func identity(
-    _ n: Int,
-    order: Order = .defaultOrder
+  _ n: Int,
+  order: Order = .defaultOrder
 ) -> Tensor<Shape2, DType> {
-    eye(n, n, order: order)
+  eye(n, n, order: order)
 }
 
 @inlinable public func identity<Element>(
-    _ n: Int,
-    type: Element.Type,
-    order: Order = .defaultOrder
+  _ n: Int,
+  type: Element.Type,
+  order: Order = .defaultOrder
 ) -> Tensor<Shape2, Element>
-where Element: StorageElement, Element.Value: Numeric
-{
-    eye(n, n, type: type, order: order)
+where Element: StorageElement, Element.Value: Numeric {
+  eye(n, n, type: type, order: order)
 }
 
 //==============================================================================
@@ -65,19 +64,17 @@ where Element: StorageElement, Element.Value: Numeric
 ///    or column-major (Fortran-style) order in memory.
 /// - Returns: the identity tensor
 @inlinable public func eye(
-    _ N: Int, _ M: Int? = nil, k: Int = 0,
-    order: Order = .defaultOrder
-) -> Tensor<Shape2,DType>
-{
-    Tensor<Shape2,DType>(eye: Shape2(N, M ?? N), offset: k, order: order)
+  _ N: Int, _ M: Int? = nil, k: Int = 0,
+  order: Order = .defaultOrder
+) -> Tensor<Shape2, DType> {
+  Tensor<Shape2, DType>(eye: Shape2(N, M ?? N), offset: k, order: order)
 }
 
 @inlinable public func eye<Element>(
-    _ N: Int, _ M: Int? = nil, k: Int = 0,
-    type: Element.Type,
-    order: Order = .defaultOrder
+  _ N: Int, _ M: Int? = nil, k: Int = 0,
+  type: Element.Type,
+  order: Order = .defaultOrder
 ) -> Tensor<Shape2, Element>
-where Element: StorageElement, Element.Value: Numeric
-{
-    Tensor<Shape2, Element>(eye: Shape2(N, M ?? N), offset: k, order: order)
+where Element: StorageElement, Element.Value: Numeric {
+  Tensor<Shape2, Element>(eye: Shape2(N, M ?? N), offset: k, order: order)
 }

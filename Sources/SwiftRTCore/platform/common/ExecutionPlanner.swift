@@ -18,13 +18,12 @@ import Foundation
 
 //==============================================================================
 public protocol ExecutionPlanCache {
-    func query<Plan>(_ type: Plan.Type, key: Int) -> Plan?
-    func add<Plan>(plan: Plan, _ type: Plan.Type, key: Int)
+  func query<Plan>(_ type: Plan.Type, key: Int) -> Plan?
+  func add<Plan>(plan: Plan, _ type: Plan.Type, key: Int)
 }
 
 //==============================================================================
 public protocol ExecutionPlanner {
-    associatedtype Plan
-    func getPlan<S,E>(for tensor: Tensor<S,E>, workspaceLimit: Int?) -> Plan
+  associatedtype Plan
+  func getPlan<S, E>(for tensor: Tensor<S, E>, workspaceLimit: Int?) -> Plan
 }
-

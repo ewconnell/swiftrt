@@ -13,43 +13,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-import XCTest
+
 import Foundation
 import SwiftRT
+import XCTest
 
 class test_Random: XCTestCase {
-    //==========================================================================
-    // support terminal test run
-    static var allTests = [
-        ("test_randomUniform", test_randomUniform),
-        ("test_randomNormal", test_randomNormal),
-        ("test_randomTruncatedNormal", test_randomTruncatedNormal),
-    ]
+  //==========================================================================
+  // support terminal test run
+  static var allTests = [
+    ("test_randomUniform", test_randomUniform),
+    ("test_randomNormal", test_randomNormal),
+    ("test_randomTruncatedNormal", test_randomTruncatedNormal),
+  ]
 
-    //--------------------------------------------------------------------------
-    // test_randomUniform
-    func test_randomUniform() {
-        let v = Tensor1(randomUniform: 10)
-        XCTAssert(v.count > 0)
-    }
+  //--------------------------------------------------------------------------
+  // test_randomUniform
+  func test_randomUniform() {
+    let v = Tensor1(randomUniform: 10)
+    XCTAssert(v.count > 0)
+  }
 
-    //--------------------------------------------------------------------------
-    // test_randomNormal
-    func test_randomNormal() {
-        let _ = Tensor1(randomNormal: 100)
-//        print(v.array)
+  //--------------------------------------------------------------------------
+  // test_randomNormal
+  func test_randomNormal() {
+    let _ = Tensor1(randomNormal: 100)
+    //        print(v.array)
 
-        let someData = array(0..<100)
-        let dataMean = mean(someData)
-        let dataStd = dataMean //standardDeviation(someData)
-        let _ = Tensor1(randomNormal: 100, mean: dataMean, std: dataStd)
-//        print(weights)
-    }
+    let someData = array(0..<100)
+    let dataMean = mean(someData)
+    let dataStd = dataMean  //standardDeviation(someData)
+    let _ = Tensor1(randomNormal: 100, mean: dataMean, std: dataStd)
+    //        print(weights)
+  }
 
-    //--------------------------------------------------------------------------
-    // test_randomTruncatedNormal
-    func test_randomTruncatedNormal() {
-        let _ = Tensor1(randomTruncatedNormal: 100)
-//        print(v.array)
-    }
+  //--------------------------------------------------------------------------
+  // test_randomTruncatedNormal
+  func test_randomTruncatedNormal() {
+    let _ = Tensor1(randomTruncatedNormal: 100)
+    //        print(v.array)
+  }
 }

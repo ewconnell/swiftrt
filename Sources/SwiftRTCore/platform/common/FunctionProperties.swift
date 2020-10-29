@@ -13,84 +13,84 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 import Foundation
 
 //==============================================================================
 /// RetainedFunction
 public protocol RetainedFunction {
-    associatedtype Input
-    associatedtype Output
+  associatedtype Input
+  associatedtype Output
 }
 
 //==============================================================================
 // BatchNormalizeMode
 public enum BatchNormalizeMode: Int, Codable {
-    case perActivation
-    case spatial
+  case perActivation
+  case spatial
 }
 
 //==============================================================================
 public enum PoolingMode: Int, Codable {
-    case averageExcludePadding
-    case averageIncludePadding
-    case max
-    case maxDeterministic
+  case averageExcludePadding
+  case averageIncludePadding
+  case max
+  case maxDeterministic
 }
 
 //==============================================================================
-open class Activation<S,E>
-where S: TensorShape, E: StorageElement & BinaryFloatingPoint
-{
-    public func infer(y: inout Tensor<S,E>, from x: Tensor<S,E>) throws
-    { fatalError("Abstract") }
+open class Activation<S, E>
+where S: TensorShape, E: StorageElement & BinaryFloatingPoint {
+  public func infer(y: inout Tensor<S, E>, from x: Tensor<S, E>) throws { fatalError("Abstract") }
 
-    public func gradient(y: Tensor<S,E>, yDiff: Tensor<S,E>,
-                         x: Tensor<S,E>, xDiff: inout Tensor<S,E>) throws
-    { fatalError("Abstract") }
+  public func gradient(
+    y: Tensor<S, E>, yDiff: Tensor<S, E>,
+    x: Tensor<S, E>, xDiff: inout Tensor<S, E>
+  ) throws { fatalError("Abstract") }
 }
 
 public enum ActivationType: Int, Codable {
-    case sigmoid
-    case relu
-    case tanh
-    case clippedRelu
-    case elu
-    case identity
+  case sigmoid
+  case relu
+  case tanh
+  case clippedRelu
+  case elu
+  case identity
 }
 
 //==============================================================================
 ///
 public enum TransposeOp: Int, Codable {
-    case transpose
-    case noTranspose
-    case hermitian
-    case conjugateTranspose
+  case transpose
+  case noTranspose
+  case hermitian
+  case conjugateTranspose
 }
 
 //==============================================================================
 ///
 public enum Padding: Int, Codable {
-    case valid
-    case same
+  case valid
+  case same
 }
 
 //==============================================================================
 /// DeviceLimits
 /// parameters defining maximum device capabilties
 public struct DeviceLimits {
-    let maxComputeSharedMemorySize: Int
-    let maxComputeWorkGroupCount: (Int, Int, Int)
-    let maxComputeWorkGroupInvocations: Int
-    let maxComputeWorkGroupSize: (Int, Int, Int)
-    let maxMemoryAllocationCount: Int
+  let maxComputeSharedMemorySize: Int
+  let maxComputeWorkGroupCount: (Int, Int, Int)
+  let maxComputeWorkGroupInvocations: Int
+  let maxComputeWorkGroupSize: (Int, Int, Int)
+  let maxMemoryAllocationCount: Int
 }
 
 //==============================================================================
 public enum SoftmaxAlgorithm: Int, Codable {
-    case accurate, fast, log
+  case accurate, fast, log
 }
 
 //==============================================================================
 public enum SoftmaxMode: Int, Codable {
-    case channel, instance
+  case channel, instance
 }

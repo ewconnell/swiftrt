@@ -16,11 +16,11 @@
 
 import Foundation
 
-@inlinable public func kernel<S,AE,RE>(
-    _ a: Tensor<S,AE>,
-    _ out: inout Tensor<S,RE>,
-    _ opName: String,
-    _ op: @escaping (AE.Value, RE.Value) -> RE.Value
+@inlinable public func kernel<S, AE, RE>(
+  _ a: Tensor<S, AE>,
+  _ out: inout Tensor<S, RE>,
+  _ opName: String,
+  _ op: @escaping (AE.Value, RE.Value) -> RE.Value
 ) {
-    currentQueue.kernel(a, &out, opName, op)
+  currentQueue.kernel(a, &out, opName, op)
 }

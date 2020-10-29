@@ -13,34 +13,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 import Foundation
 
 //==============================================================================
 // matmulGradients
 // _vjpMatmul helper function
 @usableFromInline func matmulGradients<E>(
-    _ out: TensorR2<E>,
-    _ lhs: TensorR2<E>, _ transposeLhs: Bool,
-    _ rhs: TensorR2<E>, _ transposeRhs: Bool
+  _ out: TensorR2<E>,
+  _ lhs: TensorR2<E>, _ transposeLhs: Bool,
+  _ rhs: TensorR2<E>, _ transposeRhs: Bool
 ) -> (TensorR2<E>, TensorR2<E>)
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
-{
-    let (lhsGrad, rhsGrad): (TensorR2<E>, TensorR2<E>)
-    switch (transposeLhs, transposeRhs) {
-    case (false, false):
-        lhsGrad = matmul(out, transposed: false, rhs, transposed: true)
-        rhsGrad = matmul(lhs, transposed: true, out, transposed: false)
-    case (false, true):
-        lhsGrad = matmul(out, rhs)
-        rhsGrad = matmul(lhs, transposed: true, out, transposed: false)
-    case (true, false):
-        lhsGrad = matmul(out, transposed: false, rhs, transposed: true)
-        rhsGrad = matmul(lhs, out)
-    case (true, true):
-        lhsGrad = matmul(out, transposed: true, rhs, transposed: true)
-        rhsGrad = matmul(lhs, transposed: true, out, transposed: true)
-    }
-    return (lhsGrad, rhsGrad)
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
+  let (lhsGrad, rhsGrad): (TensorR2<E>, TensorR2<E>)
+  switch (transposeLhs, transposeRhs) {
+  case (false, false):
+    lhsGrad = matmul(out, transposed: false, rhs, transposed: true)
+    rhsGrad = matmul(lhs, transposed: true, out, transposed: false)
+  case (false, true):
+    lhsGrad = matmul(out, rhs)
+    rhsGrad = matmul(lhs, transposed: true, out, transposed: false)
+  case (true, false):
+    lhsGrad = matmul(out, transposed: false, rhs, transposed: true)
+    rhsGrad = matmul(lhs, out)
+  case (true, true):
+    lhsGrad = matmul(out, transposed: true, rhs, transposed: true)
+    rhsGrad = matmul(lhs, transposed: true, out, transposed: true)
+  }
+  return (lhsGrad, rhsGrad)
 }
 
 //==============================================================================
@@ -57,54 +57,57 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
 @differentiable(wrt: lhs where E.Value: DifferentiableNumeric)
 @differentiable(wrt: rhs where E.Value: DifferentiableNumeric)
 @inlinable public func matmul<E>(
-    _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
-) -> TensorR2<E> where E: StorageElement, E.Value: StorageElement & Numeric
-{
-    let lhsShape = transposeLhs ? lhs.shape.t : lhs.shape
-    let rhsShape = transposeRhs ? rhs.shape.t : rhs.shape
-    assert(lhsShape[1] == rhsShape[0], "matmul inner dimensions must be equal")
-    var result = TensorR2<E>(shape: Shape2(lhsShape[0], rhsShape[1]),
-                             order: lhs.order)
+  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
+  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
+) -> TensorR2<E> where E: StorageElement, E.Value: StorageElement & Numeric {
+  let lhsShape = transposeLhs ? lhs.shape.t : lhs.shape
+  let rhsShape = transposeRhs ? rhs.shape.t : rhs.shape
+  assert(lhsShape[1] == rhsShape[0], "matmul inner dimensions must be equal")
+  var result = TensorR2<E>(
+    shape: Shape2(lhsShape[0], rhsShape[1]),
+    order: lhs.order)
 
-    currentQueue.matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
+  currentQueue.matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
 
-    // let op = currentQueue.matmul2(type: E.self)
-    // op.forward(lhs, transposeLhs, rhs, transposeRhs, &result)
-    return result
+  // let op = currentQueue.matmul2(type: E.self)
+  // op.forward(lhs, transposeLhs, rhs, transposeRhs, &result)
+  return result
 }
 
-@derivative(of: matmul)
+@derivative(of:matmul)
 @usableFromInline func _vjpMatmul<E>(
-    _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
+  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
+  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR2<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
-{
-    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
-     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
+  (
+    matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
+    { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) }
+  )
 }
 
-@derivative(of: matmul, wrt: lhs)
+@derivative(of:matmul,wrt: lhs)
 @usableFromInline func _vjpMatmulWrtLhs<E>(
-    _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
+  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
+  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
-{
-    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
-     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).0 })
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
+  (
+    matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
+    { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).0 }
+  )
 }
 
-@derivative(of: matmul, wrt: rhs)
+@derivative(of:matmul,wrt: rhs)
 @usableFromInline func _vjpMatmulWrtRhs<E>(
-    _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
+  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
+  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
-{
-    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
-     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).1 })
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
+  (
+    matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
+    { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).1 }
+  )
 }
 
 //==============================================================================
@@ -121,58 +124,56 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
 @differentiable(wrt: (lhs, bias) where E.Value: DifferentiableNumeric)
 @differentiable(wrt: (rhs, bias) where E.Value: DifferentiableNumeric)
 @inlinable public func matmul<E>(
-    _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
-    bias: TensorR1<E>
+  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
+  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
+  bias: TensorR1<E>
 ) -> TensorR2<E> where E: StorageElement, E.Value: StorageElement & Numeric {
-    let lhsShape = transposeLhs ? lhs.shape.t : lhs.shape
-    let rhsShape = transposeRhs ? rhs.shape.t : rhs.shape
-    assert(lhsShape[1] == rhsShape[0], "matmul inner dimensions must be equal")
-    var result = TensorR2<E>(shape: Shape2(lhsShape[0], rhsShape[1]),
-                             order: lhs.order)
-//    let op = currentQueue.matmul2(type: E.self)
-//    op.forward(lhs, transposeLhs, rhs, transposeRhs, &result)
-    currentQueue.matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
-    return result
+  let lhsShape = transposeLhs ? lhs.shape.t : lhs.shape
+  let rhsShape = transposeRhs ? rhs.shape.t : rhs.shape
+  assert(lhsShape[1] == rhsShape[0], "matmul inner dimensions must be equal")
+  var result = TensorR2<E>(
+    shape: Shape2(lhsShape[0], rhsShape[1]),
+    order: lhs.order)
+  //    let op = currentQueue.matmul2(type: E.self)
+  //    op.forward(lhs, transposeLhs, rhs, transposeRhs, &result)
+  currentQueue.matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
+  return result
 }
 
-@derivative(of: matmul)
+@derivative(of:matmul)
 @usableFromInline func _vjpMatmul<E>(
-    _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
-    bias: TensorR1<E>
+  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
+  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
+  bias: TensorR1<E>
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR2<E>, TensorR1<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
-{
-    fatalError()
-//    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
-//     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
+  fatalError()
+  //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
+  //     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
 }
 
-@derivative(of: matmul, wrt: (lhs, bias))
+@derivative(of:matmul,wrt: (lhs, bias))
 @usableFromInline func _vjpMatmulWrtLhsBias<E>(
-    _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
-    bias: TensorR1<E>
+  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
+  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
+  bias: TensorR1<E>
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR1<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
-{
-    fatalError()
-//    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
-//     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
+  fatalError()
+  //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
+  //     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
 }
 
-@derivative(of: matmul, wrt: (rhs, bias))
+@derivative(of:matmul,wrt: (rhs, bias))
 @usableFromInline func _vjpMatmulWrtRhsBias<E>(
-    _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
-    bias: TensorR1<E>
+  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
+  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
+  bias: TensorR1<E>
 ) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR1<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric
-{
-    fatalError()
-//    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
-//     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
+where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
+  fatalError()
+  //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
+  //     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
 }
 
 ////==============================================================================

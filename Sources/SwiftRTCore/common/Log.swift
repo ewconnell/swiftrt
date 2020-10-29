@@ -13,462 +13,483 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-import Foundation
+
 import Dispatch
+import Foundation
 
 //==============================================================================
 // Logging
 public protocol _Logging {
-    /// the logWriter to write to
-    var logWriter: Log { get }
-    /// the level of reporting for this node
-    var logLevel: LogLevel { get }
-    /// the name path of this node for hierarchical structures
-    var logNamePath: String { get }
-    /// the nesting level within a hierarchical model to aid in
-    /// message formatting.
-    var logNestingLevel: Int { get }
-    
-    /// tests if a message will be written to the logWriter
-    /// - Parameter level: the level of the message (error, warning, ...)
-    func willLog(level: LogLevel) -> Bool
-    
-    /// writes a message to the logWriter
-    /// - Parameter message: the message to write
-    /// - Parameter level: the level of the message (error, warning, ...)
-    /// - Parameter indent: optional indent level for formatting
-    /// - Parameter trailing: a trailing fill character to add to the message
-    /// - Parameter minCount: the minimum length of the message. If it exceeds
-    ///   the actual message length, then trailing fill is used. This is used
-    ///   mainly for creating message partitions i.e. "---------"
-    func writeLog(_ message: String,
-                  level: LogLevel,
-                  indent: Int,
-                  trailing: String,
-                  minCount: Int)
-    
-    /// writes a diagnostic message to the logWriter
-    /// - Parameter message: the message to write
-    /// - Parameter categories: the categories this message applies to
-    /// - Parameter indent: optional indent level for formatting
-    /// - Parameter trailing: a trailing fill character to add to the message
-    /// - Parameter minCount: the minimum length of the message. If it exceeds
-    ///   the actual message length, then trailing fill is used. This is used
-    ///   mainly for creating message partitions i.e. "---------"
-    func diagnostic(_ category: LogCategory,
-                    _ message: String,
-                    categories: LogCategories,
-                    indent: Int,
-                    trailing: String,
-                    minCount: Int)
+  /// the logWriter to write to
+  var logWriter: Log { get }
+  /// the level of reporting for this node
+  var logLevel: LogLevel { get }
+  /// the name path of this node for hierarchical structures
+  var logNamePath: String { get }
+  /// the nesting level within a hierarchical model to aid in
+  /// message formatting.
+  var logNestingLevel: Int { get }
+
+  /// tests if a message will be written to the logWriter
+  /// - Parameter level: the level of the message (error, warning, ...)
+  func willLog(level: LogLevel) -> Bool
+
+  /// writes a message to the logWriter
+  /// - Parameter message: the message to write
+  /// - Parameter level: the level of the message (error, warning, ...)
+  /// - Parameter indent: optional indent level for formatting
+  /// - Parameter trailing: a trailing fill character to add to the message
+  /// - Parameter minCount: the minimum length of the message. If it exceeds
+  ///   the actual message length, then trailing fill is used. This is used
+  ///   mainly for creating message partitions i.e. "---------"
+  func writeLog(
+    _ message: String,
+    level: LogLevel,
+    indent: Int,
+    trailing: String,
+    minCount: Int)
+
+  /// writes a diagnostic message to the logWriter
+  /// - Parameter message: the message to write
+  /// - Parameter categories: the categories this message applies to
+  /// - Parameter indent: optional indent level for formatting
+  /// - Parameter trailing: a trailing fill character to add to the message
+  /// - Parameter minCount: the minimum length of the message. If it exceeds
+  ///   the actual message length, then trailing fill is used. This is used
+  ///   mainly for creating message partitions i.e. "---------"
+  func diagnostic(
+    _ category: LogCategory,
+    _ message: String,
+    categories: LogCategories,
+    indent: Int,
+    trailing: String,
+    minCount: Int)
 }
 
 //==============================================================================
 // Logging
-public extension _Logging {
-    //--------------------------------------------------------------------------
-    /// writeLog
-    @inlinable func willLog(level: LogLevel) -> Bool {
-        level <= logWriter.level || level <= logLevel
-    }
-    
-    //--------------------------------------------------------------------------
-    /// writeLog
-    @inlinable func writeLog(
-        _ message: String,
-        level: LogLevel = .error,
-        indent: Int = 0,
-        trailing: String = "",
-        minCount: Int = 80
+extension _Logging {
+  //--------------------------------------------------------------------------
+  /// writeLog
+  @inlinable public func willLog(level: LogLevel) -> Bool {
+    level <= logWriter.level || level <= logLevel
+  }
+
+  //--------------------------------------------------------------------------
+  /// writeLog
+  @inlinable public func writeLog(
+    _ message: String,
+    level: LogLevel = .error,
+    indent: Int = 0,
+    trailing: String = "",
+    minCount: Int = 80
+  ) {
+    guard willLog(level: level) else { return }
+    logWriter.write(
+      level: level,
+      message: message,
+      nestingLevel: indent + logNestingLevel,
+      trailing: trailing, minCount: minCount)
+  }
+
+  //--------------------------------------------------------------------------
+  // diagnostic
+  #if DEBUG
+    @inlinable public func diagnostic(
+      _ category: LogCategory,
+      _ message: String,
+      categories: LogCategories,
+      indent: Int = 0,
+      trailing: String = "",
+      minCount: Int = 80
     ) {
-        guard willLog(level: level) else { return }
-        logWriter.write(level: level,
-                        message: message,
-                        nestingLevel: indent + logNestingLevel,
-                        trailing: trailing, minCount: minCount)
+      guard willLog(level: .diagnostic) else { return }
+      // if subcategories have been selected on the logWriter object
+      // then make sure the caller's category is desired
+      if let mask = logWriter.categories?.rawValue,
+        categories.rawValue & mask == 0
+      {
+        return
+      }
+
+      logWriter.write(
+        level: .diagnostic,
+        message: "\(category)\(message)",
+        nestingLevel: indent + logNestingLevel,
+        trailing: trailing, minCount: minCount)
     }
-    
-    //--------------------------------------------------------------------------
-    // diagnostic
-    #if DEBUG
-    @inlinable func diagnostic(
-        _ category: LogCategory,
-        _ message: String,
-        categories: LogCategories,
-        indent: Int = 0,
-        trailing: String = "",
-        minCount: Int = 80
-    ) {
-        guard willLog(level: .diagnostic) else { return}
-        // if subcategories have been selected on the logWriter object
-        // then make sure the caller's category is desired
-        if let mask = logWriter.categories?.rawValue,
-            categories.rawValue & mask == 0 { return }
-        
-        logWriter.write(level: .diagnostic,
-                        message: "\(category)\(message)",
-                        nestingLevel: indent + logNestingLevel,
-                        trailing: trailing, minCount: minCount)
-    }
-    #else
-    @inlinable func diagnostic(
-        _ category: LogCategory,
-        _ message: String,
-        categories: LogCategories,
-        indent: Int = 0,
-        trailing: String = "",
-        minCount: Int = 80) { }
-    #endif
+  #else
+    @inlinable public func diagnostic(
+      _ category: LogCategory,
+      _ message: String,
+      categories: LogCategories,
+      indent: Int = 0,
+      trailing: String = "",
+      minCount: Int = 80
+    ) {}
+  #endif
 }
 
 // convenience helper for top level output
 @inlinable public func diagnostic(
-    _ category: LogCategory,
-    _ message: String,
-    categories: LogCategories,
-    indent: Int = 0,
-    trailing: String = "",
-    minCount: Int = 80
+  _ category: LogCategory,
+  _ message: String,
+  categories: LogCategories,
+  indent: Int = 0,
+  trailing: String = "",
+  minCount: Int = 80
 ) {
-    currentQueue.diagnostic(category, message, categories: categories, 
-        indent: indent, trailing: trailing, minCount: minCount)
+  currentQueue.diagnostic(
+    category, message, categories: categories,
+    indent: indent, trailing: trailing, minCount: minCount)
 }
 
 //==============================================================================
 /// LogInfo
 /// this is used to manage which logWriter to use and message parameters
 public struct LogInfo {
-    /// the log writing object to use
-    public var logWriter: Log
-    /// the reporting level of the object, which allows different objects
-    /// to have different reporting levels to fine tune output
-    public var logLevel: LogLevel
-    /// `namePath` is used when reporting from hierarchical structures
-    /// such as a model, so that duplicate names such as `weights` are
-    /// put into context
-    public var namePath: String
-    /// the nesting level within a hierarchical model to aid in
-    /// message formatting.
-    public var nestingLevel: Int
-    
-    //--------------------------------------------------------------------------
-    @inlinable
-    public init(logWriter: Log, logLevel: LogLevel,
-                namePath: String, nestingLevel: Int) {
-        self.logWriter = logWriter
-        self.logLevel = logLevel
-        self.namePath = namePath
-        self.nestingLevel = nestingLevel
-    }
-    
-    //--------------------------------------------------------------------------
-    /// a helper to create logging info for a child object in a hierarchy
-    @inlinable
-    public func child(_ name: String) -> LogInfo {
-        LogInfo(logWriter: logWriter, logLevel: .error,
-                namePath: "\(namePath)/\(name)", nestingLevel: nestingLevel + 1)
-    }
+  /// the log writing object to use
+  public var logWriter: Log
+  /// the reporting level of the object, which allows different objects
+  /// to have different reporting levels to fine tune output
+  public var logLevel: LogLevel
+  /// `namePath` is used when reporting from hierarchical structures
+  /// such as a model, so that duplicate names such as `weights` are
+  /// put into context
+  public var namePath: String
+  /// the nesting level within a hierarchical model to aid in
+  /// message formatting.
+  public var nestingLevel: Int
 
-    //--------------------------------------------------------------------------
-    /// a helper to create logging info for an object in a flat
-    /// reporting structure
-    @inlinable
-    public func flat(_ name: String) -> LogInfo {
-        LogInfo(logWriter: logWriter, logLevel: .error,
-                namePath: "\(namePath)/\(name)", nestingLevel: nestingLevel)
-    }
+  //--------------------------------------------------------------------------
+  @inlinable
+  public init(
+    logWriter: Log, logLevel: LogLevel,
+    namePath: String, nestingLevel: Int
+  ) {
+    self.logWriter = logWriter
+    self.logLevel = logLevel
+    self.namePath = namePath
+    self.nestingLevel = nestingLevel
+  }
+
+  //--------------------------------------------------------------------------
+  /// a helper to create logging info for a child object in a hierarchy
+  @inlinable
+  public func child(_ name: String) -> LogInfo {
+    LogInfo(
+      logWriter: logWriter, logLevel: .error,
+      namePath: "\(namePath)/\(name)", nestingLevel: nestingLevel + 1)
+  }
+
+  //--------------------------------------------------------------------------
+  /// a helper to create logging info for an object in a flat
+  /// reporting structure
+  @inlinable
+  public func flat(_ name: String) -> LogInfo {
+    LogInfo(
+      logWriter: logWriter, logLevel: .error,
+      namePath: "\(namePath)/\(name)", nestingLevel: nestingLevel)
+  }
 }
 
 //==============================================================================
 /// Logging
 /// this is conformed to by lightweight objects such as tensors that want
 /// to make log entries without carrying any logging state information
-public protocol Logging : _Logging {}
+public protocol Logging: _Logging {}
 
-public extension Logging {
-    @inlinable var logWriter: Log { log }
-    @inlinable var logLevel: LogLevel { log.level }
-    @inlinable var logNamePath: String { "" }
-    @inlinable var logNestingLevel: Int { 0 }
+extension Logging {
+  @inlinable public var logWriter: Log { log }
+  @inlinable public var logLevel: LogLevel { log.level }
+  @inlinable public var logNamePath: String { "" }
+  @inlinable public var logNestingLevel: Int { 0 }
 }
 
 //==============================================================================
 /// Logger
 /// this is conformed to by objects that have structured state such as an
 /// operator graph or device hierarchy
-public protocol Logger : Logging {
-    var logInfo: LogInfo { get }
+public protocol Logger: Logging {
+  var logInfo: LogInfo { get }
 }
 
 extension Logger {
-    @inlinable public var logWriter: Log { logInfo.logWriter }
-    @inlinable public var logLevel: LogLevel { logInfo.logLevel }
-    @inlinable public var logNamePath: String { logInfo.namePath }
-    @inlinable public var logNestingLevel: Int { logInfo.nestingLevel }
+  @inlinable public var logWriter: Log { logInfo.logWriter }
+  @inlinable public var logLevel: LogLevel { logInfo.logLevel }
+  @inlinable public var logNamePath: String { logInfo.namePath }
+  @inlinable public var logNestingLevel: Int { logInfo.nestingLevel }
 }
 
 //==============================================================================
 /// LogWriter
 /// implemented by objects that write to a logWriter.
 public protocol LogWriter: class {
-    /// the diagnostic categories that will be logged. If `nil`,
-    /// all diagnostic categories will be logged
-    var categories: LogCategories? { get set }
-    /// message levels greater than or equal to this will be logged
-    var level: LogLevel { get set }
-    /// if `true`, messages are silently discarded
-    var _silent: Bool { get set }
-    /// the tabsize to use for message formatting
-    var _tabSize: Int { get set }
-    /// A logWriter can be written to freely by any thread, so create write queue
-    var queue: DispatchQueue { get }
-    
-    //--------------------------------------------------------------------------
-    /// write
-    /// writes an entry into the logWriter
-    /// - Parameter level: the level of the message
-    /// - Parameter message: the message string to write
-    /// - Parameter nestingLevel: formatting nesting level
-    /// - Parameter trailing: a trailing fill character to add to the message
-    /// - Parameter minCount: the minimum length of the message. If it exceeds
-    ///   the actual message length, then trailing fill is used. This is used
-    ///   mainly for creating message partitions i.e. "---------"
-    func write(level: LogLevel,
-               message: String,
-               nestingLevel: Int,
-               trailing: String,
-               minCount: Int)
+  /// the diagnostic categories that will be logged. If `nil`,
+  /// all diagnostic categories will be logged
+  var categories: LogCategories? { get set }
+  /// message levels greater than or equal to this will be logged
+  var level: LogLevel { get set }
+  /// if `true`, messages are silently discarded
+  var _silent: Bool { get set }
+  /// the tabsize to use for message formatting
+  var _tabSize: Int { get set }
+  /// A logWriter can be written to freely by any thread, so create write queue
+  var queue: DispatchQueue { get }
 
-    //--------------------------------------------------------------------------
-    /// output(message:
-    /// writes the formatted message to the logWriter
-    func output(message: String)
+  //--------------------------------------------------------------------------
+  /// write
+  /// writes an entry into the logWriter
+  /// - Parameter level: the level of the message
+  /// - Parameter message: the message string to write
+  /// - Parameter nestingLevel: formatting nesting level
+  /// - Parameter trailing: a trailing fill character to add to the message
+  /// - Parameter minCount: the minimum length of the message. If it exceeds
+  ///   the actual message length, then trailing fill is used. This is used
+  ///   mainly for creating message partitions i.e. "---------"
+  func write(
+    level: LogLevel,
+    message: String,
+    nestingLevel: Int,
+    trailing: String,
+    minCount: Int)
+
+  //--------------------------------------------------------------------------
+  /// output(message:
+  /// writes the formatted message to the logWriter
+  func output(message: String)
 }
 
 //==============================================================================
 // LogWriter
-public extension LogWriter {
-    @inlinable
-    var silent: Bool {
-        get { return queue.sync { return _silent } }
-        set { queue.sync { _silent = newValue } }
-    }
+extension LogWriter {
+  @inlinable
+  public var silent: Bool {
+    get { return queue.sync { return _silent } }
+    set { queue.sync { _silent = newValue } }
+  }
 
-    @inlinable
-    var tabSize: Int {
-        get { return queue.sync { return _tabSize } }
-        set { queue.sync { _tabSize = newValue } }
-    }
-    
-    //--------------------------------------------------------------------------
-    /// write
-    @inlinable
-    func write(level: LogLevel,
-               message: String,
-               nestingLevel: Int = 0,
-               trailing: String = "",
-               minCount: Int = 0) {
-        // protect against mt writes
-        queue.sync { [unowned self] in
-            guard !self._silent else { return }
-            
-            // keep this on a separate line so that the start time
-            // is initialized before we take the current time
-            let startTime = Platform.startTime
-            let messageTime = Date().timeIntervalSince(startTime)
-            let levelStr = String(timeInterval: messageTime)
-            let indent = String(repeating: " ",
-                                count: nestingLevel * self._tabSize)
-            var outputStr = levelStr + " " + indent + message
-            
-            // add trailing fill if desired
-            if !trailing.isEmpty {
-                let fillCount = minCount - outputStr.count
-                if message.isEmpty {
-                    outputStr += String(repeating: trailing, count: fillCount)
-                } else {
-                    if fillCount > 1 {
-                        outputStr += " " + String(repeating: trailing,
-                                                  count: fillCount - 1)
-                    }
-                }
-            }
-            output(message: outputStr)
+  @inlinable
+  public var tabSize: Int {
+    get { return queue.sync { return _tabSize } }
+    set { queue.sync { _tabSize = newValue } }
+  }
+
+  //--------------------------------------------------------------------------
+  /// write
+  @inlinable
+  public func write(
+    level: LogLevel,
+    message: String,
+    nestingLevel: Int = 0,
+    trailing: String = "",
+    minCount: Int = 0
+  ) {
+    // protect against mt writes
+    queue.sync { [unowned self] in
+      guard !self._silent else { return }
+
+      // keep this on a separate line so that the start time
+      // is initialized before we take the current time
+      let startTime = Platform.startTime
+      let messageTime = Date().timeIntervalSince(startTime)
+      let levelStr = String(timeInterval: messageTime)
+      let indent = String(
+        repeating: " ",
+        count: nestingLevel * self._tabSize)
+      var outputStr = levelStr + " " + indent + message
+
+      // add trailing fill if desired
+      if !trailing.isEmpty {
+        let fillCount = minCount - outputStr.count
+        if message.isEmpty {
+          outputStr += String(repeating: trailing, count: fillCount)
+        } else {
+          if fillCount > 1 {
+            outputStr +=
+              " "
+              + String(
+                repeating: trailing,
+                count: fillCount - 1)
+          }
         }
+      }
+      output(message: outputStr)
     }
+  }
 }
 
 //==============================================================================
 // Log
 public final class Log: LogWriter {
-    // properties
-    public var categories: LogCategories?
-    public var level: LogLevel
-    public var _silent: Bool
-    public var _tabSize: Int
-    public let queue = DispatchQueue(label: "Log.queueCpu")
-    public let logFile: FileHandle
+  // properties
+  public var categories: LogCategories?
+  public var level: LogLevel
+  public var _silent: Bool
+  public var _tabSize: Int
+  public let queue = DispatchQueue(label: "Log.queueCpu")
+  public let logFile: FileHandle
 
-    //--------------------------------------------------------------------------
-    /// init(url:isStatic:
-    /// - Parameter url: the file to write to. If `nil`,
-    ///   output will be written to stdout
-    /// - Parameter isStatic: if `true`, indicates that the object
-    /// will be held statically so it won't be reported as a memory leak
-    @inlinable
-    public init(url: URL? = nil, isStatic: Bool = true) {
-        assert(url == nil || url!.isFileURL, "Log url must be a file URL")
-        #if LOGLEVEL_DIAGNOSTIC
-        level = .diagnostic
-        #else
-        level = .error
-        #endif
-        _silent = false
-        _tabSize = 2
-        var file: FileHandle?
-        if let fileURL = url?.standardizedFileURL {
-            let mgr = FileManager()
-            if !mgr.fileExists(atPath: fileURL.path) {
-                if !mgr.createFile(atPath: fileURL.path, contents: nil) {
-                    print("failed to create logWriter file at: \(fileURL.path)")
-                }
-            }
-
-            do {
-                file = try FileHandle(forWritingTo: fileURL)
-                file!.truncateFile(atOffset: 0)
-            } catch {
-                print(String(describing: error))
-            }
+  //--------------------------------------------------------------------------
+  /// init(url:isStatic:
+  /// - Parameter url: the file to write to. If `nil`,
+  ///   output will be written to stdout
+  /// - Parameter isStatic: if `true`, indicates that the object
+  /// will be held statically so it won't be reported as a memory leak
+  @inlinable
+  public init(url: URL? = nil, isStatic: Bool = true) {
+    assert(url == nil || url!.isFileURL, "Log url must be a file URL")
+    #if LOGLEVEL_DIAGNOSTIC
+      level = .diagnostic
+    #else
+      level = .error
+    #endif
+    _silent = false
+    _tabSize = 2
+    var file: FileHandle?
+    if let fileURL = url?.standardizedFileURL {
+      let mgr = FileManager()
+      if !mgr.fileExists(atPath: fileURL.path) {
+        if !mgr.createFile(atPath: fileURL.path, contents: nil) {
+          print("failed to create logWriter file at: \(fileURL.path)")
         }
-        logFile = file ?? FileHandle.standardOutput
+      }
+
+      do {
+        file = try FileHandle(forWritingTo: fileURL)
+        file!.truncateFile(atOffset: 0)
+      } catch {
+        print(String(describing: error))
+      }
     }
-    
-    @inlinable
-    deinit {
-        logFile.closeFile()
-    }
-    
-    @inlinable
-    public func output(message: String) {
-        let message = message + "\n"
-        logFile.write(message.data(using: .utf8)!)
-    }
+    logFile = file ?? FileHandle.standardOutput
+  }
+
+  @inlinable
+  deinit {
+    logFile.closeFile()
+  }
+
+  @inlinable
+  public func output(message: String) {
+    let message = message + "\n"
+    logFile.write(message.data(using: .utf8)!)
+  }
 }
 
 //==============================================================================
 // LogEvent
 public struct LogEvent {
-    var level: LogLevel
-    var nestingLevel: Int
-    var message: String
+  var level: LogLevel
+  var nestingLevel: Int
+  var message: String
 }
 
 //------------------------------------------------------------------------------
 // LogColors
 //  http://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
 public enum LogColor: String {
-    case reset       = "\u{1b}[m"
-    case red         = "\u{1b}[31m"
-    case green       = "\u{1b}[32m"
-    case yellow      = "\u{1b}[33m"
-    case blue        = "\u{1b}[34m"
-    case magenta     = "\u{1b}[35m"
-    case cyan        = "\u{1b}[36m"
-    case white       = "\u{1b}[37m"
-    case bold        = "\u{1b}[1m"
-    case boldRed     = "\u{1b}[1;31m"
-    case boldGreen   = "\u{1b}[1;32m"
-    case boldYellow  = "\u{1b}[1;33m"
-    case boldBlue    = "\u{1b}[1;34m"
-    case boldMagenta = "\u{1b}[1;35m"
-    case boldCyan    = "\u{1b}[1;36m"
-    case boldWhite   = "\u{1b}[1;37m"
+  case reset = "\u{1b}[m"
+  case red = "\u{1b}[31m"
+  case green = "\u{1b}[32m"
+  case yellow = "\u{1b}[33m"
+  case blue = "\u{1b}[34m"
+  case magenta = "\u{1b}[35m"
+  case cyan = "\u{1b}[36m"
+  case white = "\u{1b}[37m"
+  case bold = "\u{1b}[1m"
+  case boldRed = "\u{1b}[1;31m"
+  case boldGreen = "\u{1b}[1;32m"
+  case boldYellow = "\u{1b}[1;33m"
+  case boldBlue = "\u{1b}[1;34m"
+  case boldMagenta = "\u{1b}[1;35m"
+  case boldCyan = "\u{1b}[1;36m"
+  case boldWhite = "\u{1b}[1;37m"
 }
 
 @inlinable
 public func setText(_ text: String, color: LogColor) -> String {
-    #if os(Linux)
+  #if os(Linux)
     return color.rawValue + text + LogColor.reset.rawValue
-    #else
+  #else
     return text
-    #endif
+  #endif
 }
 
 //------------------------------------------------------------------------------
 // LogCategories
 public struct LogCategories: OptionSet {
-    public init(rawValue: Int) { self.rawValue = rawValue }
-    public let rawValue: Int
-    public static let dataAlloc     = LogCategories(rawValue: 1 << 0)
-    public static let dataCopy      = LogCategories(rawValue: 1 << 1)
-    public static let dataExpanding = LogCategories(rawValue: 1 << 2)
-    public static let dataLayout    = LogCategories(rawValue: 1 << 3)
-    public static let dataMutation  = LogCategories(rawValue: 1 << 4)
-    public static let dataReorder   = LogCategories(rawValue: 1 << 5)
-    public static let device        = LogCategories(rawValue: 1 << 6)
-    public static let fallback      = LogCategories(rawValue: 1 << 7)
-    public static let setup         = LogCategories(rawValue: 1 << 8)
-    public static let properties    = LogCategories(rawValue: 1 << 9)
-    public static let queueAlloc    = LogCategories(rawValue: 1 << 10)
-    public static let queueGpu      = LogCategories(rawValue: 1 << 11)
-    public static let queueCpu      = LogCategories(rawValue: 1 << 12)
-    public static let queueSync     = LogCategories(rawValue: 1 << 13)
+  public init(rawValue: Int) { self.rawValue = rawValue }
+  public let rawValue: Int
+  public static let dataAlloc = LogCategories(rawValue: 1 << 0)
+  public static let dataCopy = LogCategories(rawValue: 1 << 1)
+  public static let dataExpanding = LogCategories(rawValue: 1 << 2)
+  public static let dataLayout = LogCategories(rawValue: 1 << 3)
+  public static let dataMutation = LogCategories(rawValue: 1 << 4)
+  public static let dataReorder = LogCategories(rawValue: 1 << 5)
+  public static let device = LogCategories(rawValue: 1 << 6)
+  public static let fallback = LogCategories(rawValue: 1 << 7)
+  public static let setup = LogCategories(rawValue: 1 << 8)
+  public static let properties = LogCategories(rawValue: 1 << 9)
+  public static let queueAlloc = LogCategories(rawValue: 1 << 10)
+  public static let queueGpu = LogCategories(rawValue: 1 << 11)
+  public static let queueCpu = LogCategories(rawValue: 1 << 12)
+  public static let queueSync = LogCategories(rawValue: 1 << 13)
 }
 
 public enum LogCategory: CustomStringConvertible {
-    case alloc, blank, block, copy, create, device, expanding,
-         fallback, layout, mutation, queueGpu, queueCpu, record, reference,
-         release, reorder, setup, signaled, sync, timeout, wait
-    
-    public var description: String {
-        switch self {
-        case .alloc:     return "[\(setText("ALLOCATE ", color: .cyan))] "
-        case .blank:     return "            "
-        case .block:     return "[\(setText("BLOCK    ", color: .red))] "
-        case .copy:      return "[\(setText("COPY     ", color: .blue))] "
-        case .create:    return "[\(setText("CREATE   ", color: .cyan))] "
-        case .device:    return "[\(setText("DEVICE   ", color: .cyan))] "
-        case .expanding: return "[\(setText("EXPANDING", color: .cyan))] "
-        case .fallback:  return "[\(setText("FALLBACK ", color: .yellow))] "
-        case .layout:    return "[\(setText("LAYOUT   ", color: .yellow))] "
-        case .mutation:  return "[\(setText("MUTATE   ", color: .blue))] "
-        case .queueGpu:  return "[\(setText("GPU >>>> ", color: .white))] "
-        case .queueCpu:  return "[\(setText("CPU >>>> ", color: .white))] "
-        case .record:    return "[\(setText("RECORD   ", color: .yellow))] "
-        case .reference: return "[\(setText("REFERENCE", color: .cyan))] "
-        case .release:   return "[\(setText("RELEASE  ", color: .cyan))] "
-        case .reorder:   return "[\(setText("REORDER  ", color: .blue))] "
-        case .setup:     return "[\(setText("SETUP    ", color: .white))] "
-        case .signaled:  return "[\(setText("SIGNALED ", color: .green))] "
-        case .sync:      return "[\(setText("SYNC     ", color: .yellow))] "
-        case .timeout:   return "[\(setText("TIMEOUT  ", color: .red))] "
-        case .wait:      return "[\(setText("WAIT     ", color: .red))] "
-        }
+  case alloc, blank, block, copy, create, device, expanding,
+    fallback, layout, mutation, queueGpu, queueCpu, record, reference,
+    release, reorder, setup, signaled, sync, timeout, wait
+
+  public var description: String {
+    switch self {
+    case .alloc: return "[\(setText("ALLOCATE ", color: .cyan))] "
+    case .blank: return "            "
+    case .block: return "[\(setText("BLOCK    ", color: .red))] "
+    case .copy: return "[\(setText("COPY     ", color: .blue))] "
+    case .create: return "[\(setText("CREATE   ", color: .cyan))] "
+    case .device: return "[\(setText("DEVICE   ", color: .cyan))] "
+    case .expanding: return "[\(setText("EXPANDING", color: .cyan))] "
+    case .fallback: return "[\(setText("FALLBACK ", color: .yellow))] "
+    case .layout: return "[\(setText("LAYOUT   ", color: .yellow))] "
+    case .mutation: return "[\(setText("MUTATE   ", color: .blue))] "
+    case .queueGpu: return "[\(setText("GPU >>>> ", color: .white))] "
+    case .queueCpu: return "[\(setText("CPU >>>> ", color: .white))] "
+    case .record: return "[\(setText("RECORD   ", color: .yellow))] "
+    case .reference: return "[\(setText("REFERENCE", color: .cyan))] "
+    case .release: return "[\(setText("RELEASE  ", color: .cyan))] "
+    case .reorder: return "[\(setText("REORDER  ", color: .blue))] "
+    case .setup: return "[\(setText("SETUP    ", color: .white))] "
+    case .signaled: return "[\(setText("SIGNALED ", color: .green))] "
+    case .sync: return "[\(setText("SYNC     ", color: .yellow))] "
+    case .timeout: return "[\(setText("TIMEOUT  ", color: .red))] "
+    case .wait: return "[\(setText("WAIT     ", color: .red))] "
     }
+  }
 }
 
 //------------------------------------------------------------------------------
 // LogLevel
 public enum LogLevel: Int, Comparable {
-    case error, warning, status, diagnostic
+  case error, warning, status, diagnostic
 
-    @inlinable
-    public init?(string: String) {
-        switch string {
-        case "error"     : self = .error
-        case "warning"   : self = .warning
-        case "status"    : self = .status
-        case "diagnostic": self = .diagnostic
-        default: return nil
-        }
+  @inlinable
+  public init?(string: String) {
+    switch string {
+    case "error": self = .error
+    case "warning": self = .warning
+    case "status": self = .status
+    case "diagnostic": self = .diagnostic
+    default: return nil
     }
-    
-    public static let maxStringWidth =
-        String(describing: LogLevel.diagnostic).count
+  }
+
+  public static let maxStringWidth =
+    String(describing: LogLevel.diagnostic).count
 }
 
 @inlinable
-public func<(lhs: LogLevel, rhs: LogLevel) -> Bool {
-    lhs.rawValue < rhs.rawValue
+public func < (lhs: LogLevel, rhs: LogLevel) -> Bool {
+  lhs.rawValue < rhs.rawValue
 }

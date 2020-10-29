@@ -13,14 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 import XCTest
 
 #if !canImport(ObjectiveC)
-public func allTests() -> [XCTestCaseEntry] {
+  public func allTests() -> [XCTestCaseEntry] {
     return [
-        testCase(test_Convolution.allTests),
-        testCase(test_Recurrent.allTests),
-        testCase(test_Dense.allTests),
+      testCase(test_Convolution.allTests),
+      testCase(test_Recurrent.allTests),
+      testCase(test_Dense.allTests),
     ]
-}
+  }
 #endif

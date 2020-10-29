@@ -13,37 +13,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 import Foundation
 
 //==============================================================================
 // CpuEvent
 /// An event that blocks all until signaled, then lets all through
 public class CpuEvent: QueueEvent, Logging {
-    public let id = Platform.eventId.next
-    @usableFromInline let event: DispatchSemaphore
+  public let id = Platform.eventId.next
+  @usableFromInline let event: DispatchSemaphore
 
-    @inlinable public init(
-        _ state: EventState,
-        options: QueueEventOptions = []
-    ) {
-        event = DispatchSemaphore(value: state == .blocking ? 0 : 1)
-    }
-    
-    // event must be signaled before going out of scope to ensure 
-    @inlinable deinit {
-        event.wait()
-    }
+  @inlinable public init(
+    _ state: EventState,
+    options: QueueEventOptions = []
+  ) {
+    event = DispatchSemaphore(value: state == .blocking ? 0 : 1)
+  }
 
-    @inlinable public func signal() {
-        event.signal()
-    }
+  // event must be signaled before going out of scope to ensure
+  @inlinable deinit {
+    event.wait()
+  }
 
-    @inlinable public func wait() {
-        event.wait()
-        event.signal()
-    }
+  @inlinable public func signal() {
+    event.signal()
+  }
+
+  @inlinable public func wait() {
+    event.wait()
+    event.signal()
+  }
 }
 
 public enum EventState {
-    case blocking, signaled 
+  case blocking, signaled
 }

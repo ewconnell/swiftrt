@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 import Foundation
 
 //==============================================================================
@@ -20,55 +21,60 @@ import Foundation
 /// The collection of compute resources available to the application
 /// on the machine where the process is being run.
 public final class CpuPlatform: ComputePlatform {
-    // types
-    public typealias Storage = CpuStorage
+  // types
+  public typealias Storage = CpuStorage
 
-    // shared
-    public static let acceleratorQueueCount = 0
-    public static var cpuQueueCount = 0
-    public static let discreteMemoryDeviceId = 1
-    public static let eventId = AtomicCounter()
-    public static let local = CpuPlatform()
-    public static let mainThread = pthread_self()
-    public static let objectId = AtomicCounter()
-    public static let queueId = AtomicCounter()
-    public static let startTime = Date()
-    public static var lastRandomSeed: RandomSeed = generateRandomSeed()
+  // shared
+  public static let acceleratorQueueCount = 0
+  public static var cpuQueueCount = 0
+  public static let discreteMemoryDeviceId = 1
+  public static let eventId = AtomicCounter()
+  public static let local = CpuPlatform()
+  public static let mainThread = pthread_self()
+  public static let objectId = AtomicCounter()
+  public static let queueId = AtomicCounter()
+  public static let startTime = Date()
+  public static var lastRandomSeed: RandomSeed = generateRandomSeed()
 
-    //-------------------------------------
-    public static let testDevice =
-        CpuDevice(index: 1, memoryType: .discrete, queueCount: 2)
+  //-------------------------------------
+  public static let testDevice =
+    CpuDevice(index: 1, memoryType: .discrete, queueCount: 2)
 
-    //-------------------------------------
-    // for synchrnous execution and syncing with the app thread
-    public static let syncQueue =
-        CpuQueue(deviceIndex: 0, name: "appThread",
-                 queueMode: .sync, memoryType: .unified)
+  //-------------------------------------
+  // for synchrnous execution and syncing with the app thread
+  public static let syncQueue =
+    CpuQueue(
+      deviceIndex: 0, name: "appThread",
+      queueMode: .sync, memoryType: .unified)
 
-    // properties
-    public var devices: [CpuDevice]
-    @inlinable public var name: String { "\(Self.self)" }
-    public var queueStack: [CpuQueue]
+  // properties
+  public var devices: [CpuDevice]
+  @inlinable public var name: String { "\(Self.self)" }
+  public var queueStack: [CpuQueue]
 
-    //-------------------------------------
-    // HACK for AD
-    /// a storage buffer with a single zero value which is shared
-    /// every time Element.zero is obtained by AD.
-    // used to minimize AD overhead. AD needs to fix this problem.
-    public static let zeroStorage: Storage = {
-        Storage(storedElement: Int64(0), name: "Zero")
-    }()
+  //-------------------------------------
+  // HACK for AD
+  /// a storage buffer with a single zero value which is shared
+  /// every time Element.zero is obtained by AD.
+  // used to minimize AD overhead. AD needs to fix this problem.
+  public static let zeroStorage: Storage = {
+    Storage(storedElement: Int64(0), name: "Zero")
+  }()
 
-    //--------------------------------------------------------------------------
-    @inlinable public init(queueCount: Int = CpuPlatform.cpuQueueCount) {
-        // create the device and default number of async queues
-        devices = [CpuDevice(index: 0, memoryType: .unified,
-                             queueCount: queueCount)]
+  //--------------------------------------------------------------------------
+  @inlinable public init(queueCount: Int = CpuPlatform.cpuQueueCount) {
+    // create the device and default number of async queues
+    devices = [
+      CpuDevice(
+        index: 0, memoryType: .unified,
+        queueCount: queueCount)
+    ]
 
-        // make the app thread queue current by default
-        queueStack = [Self.syncQueue]
+    // make the app thread queue current by default
+    queueStack = [Self.syncQueue]
 
-        diagnostic(.device, "create  sync queue: appThread",
-                   categories: .queueAlloc)
-    }
+    diagnostic(
+      .device, "create  sync queue: appThread",
+      categories: .queueAlloc)
+  }
 }

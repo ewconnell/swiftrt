@@ -14,35 +14,35 @@
 // limitations under the License.
 
 extension Array.DifferentiableView:
-    BidirectionalCollection,
-    Collection,
-    MutableCollection,
-    RandomAccessCollection,
-    Sequence
+  BidirectionalCollection,
+  Collection,
+  MutableCollection,
+  RandomAccessCollection,
+  Sequence
 where Element: Differentiable {
-    public typealias Element = Array<Element>.Element
-    public typealias Index = Array<Element>.Index
-    public typealias Indices = Array<Element>.Indices
-    public typealias SubSequence = Array<Element>.SubSequence
-    
-    @inlinable
-    public subscript(position: Array<Element>.Index) -> Element {
-        _read { yield base[position] }
-        set { base[position] = newValue }
-    }
-    
-    @inlinable
-    public var startIndex: Index { base.startIndex }
-    
-    @inlinable
-    public var endIndex: Index { base.endIndex }
-    
-    @inlinable
-    public init() { self.init(.init()) }
+  public typealias Element = Array<Element>.Element
+  public typealias Index = Array<Element>.Index
+  public typealias Indices = Array<Element>.Indices
+  public typealias SubSequence = Array<Element>.SubSequence
+
+  @inlinable
+  public subscript(position: Array<Element>.Index) -> Element {
+    _read { yield base[position] }
+    set { base[position] = newValue }
+  }
+
+  @inlinable
+  public var startIndex: Index { base.startIndex }
+
+  @inlinable
+  public var endIndex: Index { base.endIndex }
+
+  @inlinable
+  public init() { self.init(.init()) }
 }
 
 extension FixedWidthInteger {
-    @inlinable public func roundUp(toMultipleOf value: Self) -> Self {
-        return (self + value - 1) / value * value
-    }
+  @inlinable public func roundUp(toMultipleOf value: Self) -> Self {
+    return (self + value - 1) / value * value
+  }
 }

@@ -13,19 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-import XCTest
+
 import Foundation
 import SwiftRTLayers
+import XCTest
 
 class test_Dense: XCTestCase {
-    //==========================================================================
-    // support terminal test run
-    static var allTests = [
-        ("test_Tensor1", test_Tensor1),
-    ]
-    
-    //==========================================================================
-    // test_Tensor1
-    func test_Tensor1() {
-    }
+  //==========================================================================
+  // support terminal test run
+  static var allTests = [
+    ("test_Tensor1", test_Tensor1)
+  ]
+
+  //==========================================================================
+  // test_Tensor1
+  func test_Tensor1() {
+  }
 }

@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 import Foundation
 import Numerics
 
@@ -33,119 +34,133 @@ import Numerics
 /// a packed 3 element `SIMD` vector (need to fully investigate this).
 ///
 public protocol VectorElement: StorageElement {
-    associatedtype Scalar: StorageElement
-    
-    /// The number of scalars, or elements, in a vector of this type.
-    static var scalarCount: Int { get }
+  associatedtype Scalar: StorageElement
+
+  /// The number of scalars, or elements, in a vector of this type.
+  static var scalarCount: Int { get }
 }
 
 //==============================================================================
 // RGBA
 @frozen public struct RGBA<Scalar>: VectorElement, SIMD
-where Scalar: SIMDScalar & StorageElement
-{
-    public typealias Stored = Self
-    public typealias Value = Self
-    
-    public var _storage: Scalar.SIMD4Storage
-    public typealias MaskStorage = SIMD4<Scalar.SIMDMaskScalar>
-    
-    /// The number of scalars in the vector.
-    @_transparent public var scalarCount: Int { 4 }
-    @_transparent public var r: Scalar { get { self[0] } set(v) { self[0] = v }}
-    @_transparent public var g: Scalar { get { self[1] } set(v) { self[1] = v }}
-    @_transparent public var b: Scalar { get { self[2] } set(v) { self[2] = v }}
-    @_transparent public var a: Scalar { get { self[3] } set(v) { self[3] = v }}
+where Scalar: SIMDScalar & StorageElement {
+  public typealias Stored = Self
+  public typealias Value = Self
 
+  public var _storage: Scalar.SIMD4Storage
+  public typealias MaskStorage = SIMD4<Scalar.SIMDMaskScalar>
 
+  /// The number of scalars in the vector.
+  @_transparent public var scalarCount: Int { 4 }
+  @_transparent public var r: Scalar {
+    get { self[0] }
+    set(v) { self[0] = v }
+  }
+  @_transparent public var g: Scalar {
+    get { self[1] }
+    set(v) { self[1] = v }
+  }
+  @_transparent public var b: Scalar {
+    get { self[2] }
+    set(v) { self[2] = v }
+  }
+  @_transparent public var a: Scalar {
+    get { self[3] }
+    set(v) { self[3] = v }
+  }
 
-    /// Creates a pixel with zero in all lanes
-    @_transparent public init() {
-        _storage = Scalar.SIMD4Storage()
+  /// Creates a pixel with zero in all lanes
+  @_transparent public init() {
+    _storage = Scalar.SIMD4Storage()
+  }
+
+  /// Accesses the scalar at the specified position.
+  public subscript(index: Int) -> Scalar {
+    @_transparent get {
+      assert(indices.contains(index))
+      return _storage[index]
     }
-    
-    /// Accesses the scalar at the specified position.
-    public subscript(index: Int) -> Scalar {
-        @_transparent get {
-            assert(indices.contains(index))
-            return _storage[index]
-        }
-        @_transparent set {
-            assert(indices.contains(index))
-            _storage[index] = newValue
-        }
+    @_transparent set {
+      assert(indices.contains(index))
+      _storage[index] = newValue
     }
+  }
 }
 
 //------------------------------------------------------------------------------
 extension RGBA where Scalar: FixedWidthInteger {
-    @_transparent public init(
-        _ r: Scalar,
-        _ g: Scalar,
-        _ b: Scalar,
-        _ a: Scalar = Scalar.max
-    ) {
-        self.init()
-        self[0] = r
-        self[1] = g
-        self[2] = b
-        self[3] = a
-    }
+  @_transparent public init(
+    _ r: Scalar,
+    _ g: Scalar,
+    _ b: Scalar,
+    _ a: Scalar = Scalar.max
+  ) {
+    self.init()
+    self[0] = r
+    self[1] = g
+    self[2] = b
+    self[3] = a
+  }
 }
 
 extension RGBA where Scalar: BinaryFloatingPoint {
-    @_transparent public init(
-        _ r: Scalar,
-        _ g: Scalar,
-        _ b: Scalar,
-        _ a: Scalar = 1
-    ) {
-        self.init()
-        self[0] = r
-        self[1] = g
-        self[2] = b
-        self[3] = a
-    }
+  @_transparent public init(
+    _ r: Scalar,
+    _ g: Scalar,
+    _ b: Scalar,
+    _ a: Scalar = 1
+  ) {
+    self.init()
+    self[0] = r
+    self[1] = g
+    self[2] = b
+    self[3] = a
+  }
 }
 
-extension RGBA: AdditiveArithmetic where Scalar: FloatingPoint { }
+extension RGBA: AdditiveArithmetic where Scalar: FloatingPoint {}
 
 //==============================================================================
 // Stereo
 @frozen public struct Stereo<Scalar>: VectorElement, SIMD
-where Scalar: SIMDScalar & StorageElement
-{
-    public typealias Stored = Self
-    public typealias Value = Self
-    
-    public var _storage: Scalar.SIMD2Storage
-    public typealias MaskStorage = SIMD2<Scalar.SIMDMaskScalar>
-    
-    /// The number of scalars in the vector.
-    @_transparent public var scalarCount: Int { 2 }
-    @_transparent public var r: Scalar { get { self[0] } set(v) { self[0] = v }}
-    @_transparent public var l: Scalar { get { self[1] } set(v) { self[1] = v }}
-    
-    /// Creates a pixel with zero in all lanes
-    @_transparent public init() {
-        _storage = Scalar.SIMD2Storage()
+where Scalar: SIMDScalar & StorageElement {
+  public typealias Stored = Self
+  public typealias Value = Self
+
+  public var _storage: Scalar.SIMD2Storage
+  public typealias MaskStorage = SIMD2<Scalar.SIMDMaskScalar>
+
+  /// The number of scalars in the vector.
+  @_transparent public var scalarCount: Int { 2 }
+  @_transparent public var r: Scalar {
+    get { self[0] }
+    set(v) { self[0] = v }
+  }
+  @_transparent public var l: Scalar {
+    get { self[1] }
+    set(v) { self[1] = v }
+  }
+
+  /// Creates a pixel with zero in all lanes
+  @_transparent public init() {
+    _storage = Scalar.SIMD2Storage()
+  }
+
+  @_transparent public init(_ v0: Scalar, _ v1: Scalar) {
+    self.init()
+    self[0] = v0
+    self[1] = v1
+  }
+
+  /// Accesses the scalar at the specified position.
+  public subscript(index: Int) -> Scalar {
+    @_transparent get {
+      assert(indices.contains(index))
+      return _storage[index]
     }
-    
-    @_transparent public init(_ v0: Scalar, _ v1: Scalar) {
-        self.init()
-        self[0] = v0
-        self[1] = v1
+    @_transparent set {
+      assert(indices.contains(index))
+      _storage[index] = newValue
     }
-    
-    /// Accesses the scalar at the specified position.
-    public subscript(index: Int) -> Scalar {
-        @_transparent get {
-            assert(indices.contains(index))
-            return _storage[index]
-        }
-        @_transparent set {
-            assert(indices.contains(index))
-            _storage[index] = newValue
-        }
-    }
+  }
 }

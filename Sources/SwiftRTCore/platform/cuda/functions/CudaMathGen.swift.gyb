@@ -65,22 +65,22 @@ extension CudaQueue {
 %   name = functions[i][0]
 %   conformance = functions[i][1]
 %   externalName = "srt" + name[:1].upper() + name[1:]
-    //--------------------------------------------------------------------------
-    @inlinable func ${name}<S,E>(
-        _ x: Tensor<S,E>, 
-        _ out: inout Tensor<S,E>
-    ) where E.Value: ${conformance} {
-        assert(out.isContiguous, _messageElementsMustBeContiguous)
-        guard useGpu else { cpu_${name}(x, &out); return }
-        diagnostic(.queueGpu, "${name}() on \(name)", categories: .queueGpu)
+  //--------------------------------------------------------------------------
+  @inlinable func ${name}<S,E>(
+    _ x: Tensor<S,E>, 
+    _ out: inout Tensor<S,E>
+  ) where E.Value: ${conformance} {
+    assert(out.isContiguous, _messageElementsMustBeContiguous)
+    guard useGpu else { cpu_${name}(x, &out); return }
+    diagnostic(.queueGpu, "${name}() on \(name)", categories: .queueGpu)
 
-        let status = out.withMutableTensor(using: self) { o, oDesc in
-            x.withTensor(using: self) { xData, x in
-                ${externalName}(xData, x, o, oDesc, stream)
-            }
+    let status = out.withMutableTensor(using: self) { o, oDesc in
+        x.withTensor(using: self) { xData, x in
+            ${externalName}(xData, x, o, oDesc, stream)
         }
-        cpuFallback(status) { $0.${name}(x, &out) }
     }
+    cpuFallback(status) { $0.${name}(x, &out) }
+  }
 
 %end
 }

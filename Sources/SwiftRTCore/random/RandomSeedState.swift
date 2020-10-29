@@ -16,5 +16,5 @@
 //==============================================================================
 // RandomNumberGeneratorState
 public protocol RandomNumberGeneratorState {
-    var seedCount: Int { get }
+  var seedCount: Int { get }
 }
