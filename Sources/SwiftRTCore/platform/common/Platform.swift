@@ -93,7 +93,7 @@ public extension ComputePlatform {
     
     /// selects the application thread data interchange queue within
     /// the scope of the body
-    @inlinable func useAppThreadQueue() {
+    @inlinable func useSyncQueue() {
         queueStack[queueStack.count - 1] = Self.syncQueue
     }
     
@@ -175,10 +175,10 @@ public extension ComputePlatform {
 //==============================================================================
 // queue API
 
-/// useAppThreadQueue
+/// useSyncQueue
 /// specifies the application thread queue to be used for operator execution
-@inlinable public func useAppThreadQueue() {
-    platform.useAppThreadQueue()
+@inlinable public func useSyncQueue() {
+    platform.useSyncQueue()
 }
 
 /// usingSyncQueue(body:

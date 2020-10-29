@@ -111,7 +111,7 @@
             "name": "Device Queue Selection",
             "children": [
                 "use(device:queue:)",
-                "useAppThreadQueue()",
+                "useSyncQueue()",
                 "using(device:queue:_:)",
                 "using(queue:_:)",
                 "usingSyncQueue(_:)"

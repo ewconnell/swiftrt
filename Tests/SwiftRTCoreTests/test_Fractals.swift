@@ -25,8 +25,9 @@ final class test_Fractals: XCTestCase {
     //==========================================================================
     // support terminal test run
     static var allTests = [
-        // ("test_pmapJulia", test_pmapJulia),
-        // ("test_pmapKernelJulia", test_pmapKernelJulia),
+        ("test_pmapJulia", test_pmapJulia),
+        ("test_pmapKernelJulia", test_pmapKernelJulia),
+        ("test_pmapKernelMandelbrot", test_pmapKernelMandelbrot),
         ("test_Julia", test_Julia),
         ("test_Mandelbrot", test_Mandelbrot),
     ]
@@ -115,6 +116,7 @@ final class test_Fractals: XCTestCase {
     func test_pmapJulia() {
         //  #if !DEBUG
         // parameters
+        useSyncQueue()
         let iterations = 2048
         let size = (r: 1000, c: 1000)
         let tolerance: Float = 4.0
@@ -131,7 +133,7 @@ final class test_Fractals: XCTestCase {
         var divergence = full(size, iterations)
 
         // cpu platform: mac cpu16 0.850s, ubuntu cpu6: 2.589s
-        // cuda platform: ubuntu cpu6: 3.790s, gpu: 
+        // cuda platform: ubuntu cpu6: 3.296s, gpu: 
         measure {
             pmap(Z, &divergence) { Z, divergence in
                 for i in 0..<iterations {
@@ -146,6 +148,7 @@ final class test_Fractals: XCTestCase {
     func test_pmapKernelJulia() {
         #if !DEBUG
         // parameters
+        useSyncQueue()
         let iterations = 2048
         let size = (r: 1000, c: 1000)
         let tolerance: Float = 4.0
@@ -162,10 +165,38 @@ final class test_Fractals: XCTestCase {
         var divergence = full(size, iterations)
 
         // cpu platform: mac cpu32: 0.116s, ubuntu cpu12: 0.141s
-        // cuda platform: cpu12:  , gpu: no jit yet, but srtJulia is 0.003s
+        // cuda platform: cpu12: 0.144s
         measure {
             pmap(Z, &divergence, limitedBy: .compute) {
-                juliaKernel(Z: $0, divergence: &$1, C, tolerance)
+                juliaCpuKernel(Z: $0, divergence: &$1, C, tolerance, Float(iterations))
+            }
+        }
+        #endif
+    }
+
+    func test_pmapKernelMandelbrot() {
+        #if !DEBUG
+        // parameters
+        useSyncQueue()
+        let iterations = 2048
+        let size = (r: 1000, c: 1000)
+        let tolerance: Float = 4.0
+        let first = Complex<Float>(-1.7, 1.7)
+        let last = Complex<Float>(1.7, -1.7)
+        typealias CF = Complex<Float>
+        let rFirst = CF(first.real, 0), rLast = CF(last.real, 0)
+        let iFirst = CF(0, first.imaginary), iLast = CF(0, last.imaginary)
+        
+        // repeat rows of real range, columns of imaginary range, and combine
+        let Z = repeating(array(from: rFirst, to: rLast, (1, size.c)), size) +
+                repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+        var divergence = full(size, iterations)
+
+        // cpu platform: mac cpu32: 0.116s, ubuntu cpu12:
+        // cuda platform: cpu12: 0.430s
+        measure {
+            pmap(Z, &divergence, limitedBy: .compute) {
+                mandelbrotCpuKernel(Z: $0, divergence: &$1, tolerance, Float(iterations))
             }
         }
         #endif
@@ -174,19 +205,42 @@ final class test_Fractals: XCTestCase {
 
 //==============================================================================
 // user defined element wise function
-@inlinable public func juliaKernel<E>(
+@inlinable public func juliaCpuKernel<E>(
     Z: TensorR2<Complex<E>>,
     divergence: inout TensorR2<E>,
     _ c: Complex<E>,
-    _ tolerance: E
+    _ tolerance: E,
+    _ iterations: E.Value
 ) where E: StorageElement & BinaryFloatingPoint, E.Value: BinaryFloatingPoint {
     let message = "julia(Z: \(Z.name), divergence: \(divergence.name), " +
         "constant: \(c), tolerance: \(tolerance)"
 
-    kernel(Z, &divergence, message) {
-        var z = $0, d = $1, i = E.Value.zero
+    kernel(Z, &divergence, message) { zval, _ in
+        var z = zval, d = iterations, i = E.Value.zero
         while abs(z) <= tolerance && i < d {
             z = z * z + c
+            i += 1
+        }
+        return i
+    }
+}
+
+//==============================================================================
+// user defined element wise function
+@inlinable public func mandelbrotCpuKernel<E>(
+    Z: TensorR2<Complex<E>>,
+    divergence: inout TensorR2<E>,
+    _ tolerance: E,
+    _ iterations: E.Value
+) where E == E.Value, E.Value: Real & Comparable {
+    let message =
+    "mandelbrot(Z: \(Z.name), divergence: \(divergence.name), " +
+    "tolerance: \(tolerance), iterations: \(iterations))"
+
+    kernel(Z, &divergence, message) { xval, _ in
+        let x = xval; var z = x, d = iterations, i = E.Value.zero
+        while abs(z) <= tolerance && i < d {
+            z = z * z + x
             i += 1
         }
         return i

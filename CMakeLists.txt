@@ -5,6 +5,20 @@ include(CTest)
 
 option(SWIFTRT_ENABLE_CUDA "Enable CUDA Support" NO)
 option(SWIFTRT_LOGLEVEL_DIAGNOSTIC "Set the default Log level to diagnostic" NO)
+option(SWIFTRT_RELEASE_UNCHECKED "Enable Unchecked Release build" NO)
+
+#--------------------------------------
+# Report build configuration
+if((CMAKE_BUILD_TYPE STREQUAL Release) AND SWIFTRT_RELEASE_UNCHECKED)
+  message(STATUS "SwiftRT build type is Release Unchecked")
+  add_compile_options("SHELL:$<$<COMPILE_LANGUAGE:Swift>:-Ounchecked -enforce-exclusivity=unchecked>")
+elseif(CMAKE_BUILD_TYPE STREQUAL Debug)
+  add_compile_definitions(DEBUG)
+  message(STATUS "SwiftRT build type is Debug")
+else()
+  message(STATUS "SwiftRT build type is ${CMAKE_BUILD_TYPE}")
+endif()
+#--------------------------------------
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -99,12 +113,6 @@ set_target_properties(Numerics PROPERTIES
 
 find_package(dispatch CONFIG QUIET)
 find_package(Foundation CONFIG QUIET)
-
-message(STATUS "SwiftRT build type is: ${CMAKE_BUILD_TYPE}")
-
-if(CMAKE_BUILD_TYPE STREQUAL Debug)
-  add_compile_definitions(DEBUG)
-endif()
 
 add_subdirectory(Sources)
 if(BUILD_TESTING)

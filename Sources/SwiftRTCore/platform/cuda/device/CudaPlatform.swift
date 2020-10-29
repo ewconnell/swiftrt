@@ -74,7 +74,7 @@ public class CudaPlatform: ComputePlatform {
         devices = [cpuDevice]
 
         // if the cpu queue count is 0 then at least add in
-        // the appThreadQueue so there is something to work with
+        // the SyncQueue so there is something to work with
         if devices[0].queues.count == 0 {
             devices[0].queues.append(Self.syncQueue)
         }            
