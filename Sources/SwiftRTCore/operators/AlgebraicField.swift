@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import _Differentiation
 import Numerics
+import _Differentiation
 
 extension Tensor where Element: AdditiveArithmetic {
   //==============================================================================
@@ -218,7 +218,7 @@ extension Tensor where Element: AdditiveArithmetic {
 
 // TODO: Remove this when we find a better way to deal with PointwiseMultiplicative.
 #if !canImport(TensorFlow)
-infix operator .*
+  infix operator .*
 #endif
 
 //==============================================================================

@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 
-import _Differentiation
 import Numerics
+import _Differentiation
 
 //==============================================================================
 /// and

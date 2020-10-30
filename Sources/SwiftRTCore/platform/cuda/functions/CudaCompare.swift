@@ -542,6 +542,7 @@ extension CudaQueue {
         E.type,
         x.deviceRead(using: self),
         y.deviceRead(using: self),
+        boolean,
         condition.deviceRead(using: self),
         out.deviceReadWrite(using: self),
         out.count,
