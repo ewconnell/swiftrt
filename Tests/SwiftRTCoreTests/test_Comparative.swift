@@ -13,7 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+<<<<<<< HEAD
 
+=======
+import XCTest
+import _Differentiation
+>>>>>>> origin
 import Foundation
 import Numerics
 import SwiftRT

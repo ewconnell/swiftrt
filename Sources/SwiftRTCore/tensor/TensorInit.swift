@@ -16,6 +16,7 @@
 
 import Foundation
 import Numerics
+import _Differentiation
 
 //==============================================================================
 // ranked convenience types

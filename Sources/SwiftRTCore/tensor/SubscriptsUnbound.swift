@@ -15,6 +15,7 @@
 //
 
 import Foundation
+import _Differentiation
 
 /// `Tensor Subscript Behavior`
 /// A tensor subscripted with a range returns a sub view.

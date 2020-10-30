@@ -18,6 +18,7 @@ import Foundation
 import Numerics
 import SwiftRT
 import XCTest
+import _Differentiation
 
 class test_AlgebraicField: XCTestCase {
   //--------------------------------------------------------------------------

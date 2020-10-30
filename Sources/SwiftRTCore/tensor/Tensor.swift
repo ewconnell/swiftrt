@@ -16,6 +16,7 @@
 
 import Foundation
 import Numerics
+import _Differentiation
 
 public let defaultElementName = "Element"
 public let defaultTensorName = "Tensor"

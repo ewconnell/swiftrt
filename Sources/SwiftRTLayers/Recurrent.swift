@@ -17,6 +17,8 @@ import Foundation
 import SwiftRTCore
 import Numerics
 
+#if canImport(TensorFlow)
+
 //==============================================================================
 /// RNNCellInput
 /// An input to a recurrent neural network
@@ -457,3 +459,5 @@ public typealias LSTM<Element> = RecurrentLayer<LSTMCell<Element>>
 public typealias GRU<Element> = RecurrentLayer<GRUCell<Element>>
     where Element: StorageElement,
           Element.Value: StorageElement & Real & BinaryFloatingPoint & DifferentiableNumeric
+
+#endif
