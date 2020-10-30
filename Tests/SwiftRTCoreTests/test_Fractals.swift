@@ -231,9 +231,8 @@ final class test_Fractals: XCTestCase {
 
   kernel(Z, &divergence, message) { zval, _ in
     var z = zval
-    var d = iterations
     var i = E.Value.zero
-    while abs(z) <= tolerance && i < d {
+    while abs(z) <= tolerance && i < iterations {
       z = z * z + c
       i += 1
     }
@@ -256,9 +255,8 @@ final class test_Fractals: XCTestCase {
   kernel(Z, &divergence, message) { xval, _ in
     let x = xval
     var z = x
-    var d = iterations
     var i = E.Value.zero
-    while abs(z) <= tolerance && i < d {
+    while abs(z) <= tolerance && i < iterations {
       z = z * z + x
       i += 1
     }

@@ -130,7 +130,7 @@ final class test_perfFractals: XCTestCase {
 
   kernel(Z, &divergence, message) {
     var z = $0
-    var d = $1
+    let d = $1
     var i = E.Value.zero
     while abs(z) <= tolerance && i < d {
       z = z * z + c
