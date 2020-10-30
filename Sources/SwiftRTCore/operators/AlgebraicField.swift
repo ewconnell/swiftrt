@@ -12,6 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+import _Differentiation
 import Numerics
 
 extension Tensor where Element: AdditiveArithmetic {
@@ -209,6 +210,11 @@ extension Tensor where Element: AdditiveArithmetic {
     currentQueue.multiply(lhs, rhs, add: bias, &out)
     return out
 }
+
+// TODO: Remove this when we find a better way to deal with PointwiseMultiplicative.
+#if !canImport(TensorFlow)
+infix operator .*
+#endif
 
 //==============================================================================
 /// mul
