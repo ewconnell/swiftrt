@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 import XCTest
+import _Differentiation
 import Foundation
 import SwiftRT
 

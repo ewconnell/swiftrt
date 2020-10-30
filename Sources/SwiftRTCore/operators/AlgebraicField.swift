@@ -211,6 +211,11 @@ extension Tensor where Element: AdditiveArithmetic {
     return out
 }
 
+// TODO: Remove this when we find a better way to deal with PointwiseMultiplicative.
+#if !canImport(TensorFlow)
+infix operator .*
+#endif
+
 //==============================================================================
 /// mul
 extension Tensor where Element: Numeric {
