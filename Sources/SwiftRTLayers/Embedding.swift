@@ -15,6 +15,8 @@
 //
 import SwiftRTCore
 
+#if canImport(TensorFlow)
+
 //==============================================================================
 /// Embedding
 public struct Embedding<Element> : Module
@@ -61,3 +63,5 @@ where Element: StorageElement,
         embeddings.gathering(indices: input)
     }
 }
+
+#endif

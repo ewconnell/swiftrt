@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 import SwiftRTCore
+#if canImport(TensorFlow)
 
 //==============================================================================
 ///
@@ -94,3 +95,4 @@ public extension Dense where S == Shape3 {
 //            activation: activation)
 //    }
 //}
+#endif

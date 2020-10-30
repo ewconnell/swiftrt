@@ -25,6 +25,7 @@ class test_Recurrent: XCTestCase {
 
     //--------------------------------------------------------------------------
     func test_Embedding() {
+        #if canImport(TensorFlow)
         let vocabSize = 4
         let encoder = Embedding<Float>(
                 vocabularySize: vocabSize,
@@ -38,6 +39,7 @@ class test_Recurrent: XCTestCase {
             [3.0, 4.0, 5.0],
             [9.0, 10.0, 11.0]
         ])
+        #endif
     }
     
     //--------------------------------------------------------------------------
