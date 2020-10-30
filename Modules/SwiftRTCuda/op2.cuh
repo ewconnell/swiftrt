@@ -392,6 +392,59 @@ static inline cudaError_t select(
     return cudaErrorNotSupported;
 }
 
+// input and output are the same type
+template<template<typename A, typename B, typename O> class Op>
+static inline cudaError_t selectTE(
+    srtDataType abtype,
+    const void* a,
+    const void* e,
+    srtDataType otype,
+    void* out,
+    uint32_t count,
+    cudaStream_t stream
+) {
+    if (abtype == otype) {
+        switch(abtype) {
+        case real32F:  return flattenedTE<Op<float,float,float>>(a, e, out, count, stream);
+        case real64F:  return flattenedTE<Op<double,double,double>>(a, e, out, count, stream);
+        case real32I:  return flattenedTE<Op<int32_t,int32_t,int32_t>>(a, e, out, count, stream);
+        
+        case real16F:  return flattenedTE<typename Op<half,half,half>::packed>(a, e, out, count, stream);
+        case real16BF: return flattenedTE<typename Op<bfloat16,bfloat16,bfloat16>::packed>(a, e, out, count, stream);
+        case real8U:   return flattenedTE<typename Op<uint8_t,uint8_t,uint8_t>::packed>(a, e, out, count, stream);
+        case real8I:   return flattenedTE<typename Op<int8_t,int8_t,int8_t>::packed>(a, e, out, count, stream);
+        case real16U:  return flattenedTE<typename Op<uint16_t,uint16_t,uint16_t>::packed>(a, e, out, count, stream);
+        case real16I:  return flattenedTE<typename Op<int16_t,int16_t,int16_t>::packed>(a, e, out, count, stream);
+        case boolean:  return flattenedTE<typename Op<bool,bool,bool>::packed>(a, e, out, count, stream);
+
+        case complex32F: return flattenedTE<Op<Complex<float>,Complex<float>,Complex<float>>>(a, e, out, count, stream);
+        case complex16F: return flattenedTE<Op<Complex<float16>,Complex<float16>,Complex<float16>>>(a, e, out, count, stream);
+        case complex16BF: return flattenedTE<Op<Complex<bfloat16>,Complex<bfloat16>,Complex<bfloat16>>>(a, e, out, count, stream);
+        default: return cudaErrorNotSupported;
+        }
+    } else if (otype == boolean) {
+        switch(abtype) {
+        case real32F:  return flattenedTE<Op<float,float,bool>>(a, e, out, count, stream);
+        case real64F:  return flattenedTE<Op<double,double,bool>>(a, e, out, count, stream);
+        case real32I:  return flattenedTE<Op<int32_t,int32_t,bool>>(a, e, out, count, stream);
+
+        case real16F:  return flattenedTE<typename Op<half,half,bool>::packed>(a, e, out, count, stream);
+        case real16BF: return flattenedTE<typename Op<bfloat16,bfloat16,bool>::packed>(a, e, out, count, stream);
+        case real8U:   return flattenedTE<typename Op<uint8_t,uint8_t,bool>::packed>(a, e, out, count, stream);
+        case real8I:   return flattenedTE<typename Op<int8_t,int8_t,bool>::packed>(a, e, out, count, stream);
+        case real16U:  return flattenedTE<typename Op<uint16_t,uint16_t,bool>::packed>(a, e, out, count, stream);
+        case real16I:  return flattenedTE<typename Op<int16_t,int16_t,bool>::packed>(a, e, out, count, stream);
+        case boolean:  return flattenedTE<typename Op<bool,bool,bool>::packed>(a, e, out, count, stream);
+
+        case complex32F: return flattenedTE<Op<Complex<float>,Complex<float>,bool>>(a, e, out, count, stream);
+        case complex16F: return flattenedTE<Op<Complex<float16>,Complex<float16>,bool>>(a, e, out, count, stream);
+        case complex16BF: return flattenedTE<Op<Complex<bfloat16>,Complex<bfloat16>,bool>>(a, e, out, count, stream);
+        default: return cudaErrorNotSupported;
+        }
+    }
+    return cudaErrorNotSupported;
+}
+
 //==============================================================================
 // select strided
 // converts from dynamic to static type and delegates for stride selection

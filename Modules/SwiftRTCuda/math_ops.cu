@@ -26,9 +26,12 @@
 Op1(Abs, abs, ((isSignedNumeric<A>() && isSame<A,Out>()) || isComplexRealType<A,Out>()))
 
 cudaError_t srtAbsFlat(
-    const void* a, srtDataType atype,
-    void* out, srtDataType otype,
-    size_t count, cudaStream_t stream
+    srtDataType atype,
+    const void* a,
+    srtDataType otype,
+    void* out,
+    size_t count,
+    cudaStream_t stream
 ) {
     return select<Abs>(a, atype, out, otype, count, stream);
 }
@@ -446,6 +449,21 @@ cudaError_t srtMultiplyAdd(
     return select<MultiplyAdd>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
 }
 
+Op3Same(MultiplyAddFlat, multiplyAdd, isNumeric<A>())
+
+cudaError_t srtMultiplyAddFlat(
+    srtDataType type,
+    const void* a,
+    const void* b,
+    const void* c,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    return select<MultiplyAddFlat>(type, a, b, c, out, count, stream);
+}
+
+
 Op3SwapBC(MultiplyAddE, multiplyAdd, (isNumeric<A>() && isSame<A,Out>()))
 
 cudaError_t srtMultiplyAddTTE(
@@ -457,6 +475,20 @@ cudaError_t srtMultiplyAddTTE(
 ) {
     Cast2TensorDescriptorsAB(paDesc, pbDesc, poDesc)
     return select<MultiplyAddE>(a, aDesc, element, b, bDesc, out, oDesc, stream);
+}
+
+Op3SwapBCSame(MultiplyAddEFlat, multiplyAdd, isNumeric<A>())
+
+cudaError_t srtMultiplyAddFlatTTE(
+    srtDataType type,
+    const void* a,
+    const void* b,
+    const void* element,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    return selectTET<MultiplyAddEFlat>(type, a, element, b, out, count, stream);
 }
 
 //------------------------------------------------------------------------------

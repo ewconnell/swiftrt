@@ -29,10 +29,14 @@ cudaError_t srtAbs(
     cudaStream_t stream);
 
 cudaError_t srtAbsFlat(
-    const void* a, srtDataType atype,
-    void* out, srtDataType otype,
-    size_t count, cudaStream_t stream);
-    
+    srtDataType atype,
+    const void* a,
+    srtDataType otype,
+    void* out,
+    size_t count,
+    cudaStream_t stream);
+
+//------------------------------------------------------------------------------
 cudaError_t srtAcos(
     const void* a, const srtTensorDescriptor* aDesc,
     void* out, const srtTensorDescriptor* oDesc,
@@ -43,6 +47,7 @@ cudaError_t srtAcosFlat(
     void* out,
     size_t count, cudaStream_t stream);
         
+//------------------------------------------------------------------------------
 cudaError_t srtAcosh(
     const void* a, const srtTensorDescriptor* aDesc,
     void* out, const srtTensorDescriptor* oDesc,
@@ -53,6 +58,7 @@ cudaError_t srtAcoshFlat(
     void* out,
     size_t count, cudaStream_t stream);
     
+//------------------------------------------------------------------------------
 cudaError_t srtAdd(
     const void* a, const srtTensorDescriptor* aDesc,
     const void* b, const srtTensorDescriptor* bDesc,
@@ -79,6 +85,7 @@ cudaError_t srtAddTEFlat(
     void* out,
     size_t count, cudaStream_t stream);    
     
+//------------------------------------------------------------------------------
 cudaError_t srtAsin(
     const void* a, const srtTensorDescriptor* aDesc,
     void* out, const srtTensorDescriptor* oDesc,
@@ -211,11 +218,21 @@ cudaError_t srtMulTE(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
+//------------------------------------------------------------------------------
 cudaError_t srtMultiplyAdd(
     const void* a, const srtTensorDescriptor* aDesc,
     const void* b, const srtTensorDescriptor* bDesc,
     const void* c, const srtTensorDescriptor* cDesc,
     void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtMultiplyAddFlat(
+    srtDataType type,
+    const void* a,
+    const void* b,
+    const void* c,
+    void* out,
+    size_t count,
     cudaStream_t stream);
 
 cudaError_t srtMultiplyAddTTE(
@@ -225,6 +242,16 @@ cudaError_t srtMultiplyAddTTE(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
+cudaError_t srtMultiplyAddFlatTTE(
+    srtDataType type,
+    const void* a,
+    const void* b,
+    const void* element,
+    void* out,
+    size_t count,
+    cudaStream_t stream);
+
+//------------------------------------------------------------------------------
 cudaError_t srtNeg(
     const void* a, const srtTensorDescriptor* aDesc,
     void* out, const srtTensorDescriptor* oDesc,

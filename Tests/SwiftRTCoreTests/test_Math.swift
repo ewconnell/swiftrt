@@ -112,7 +112,11 @@ class test_Math: XCTestCase {
     ])
     XCTAssert(elementsAlmostEqual(Z, expectedMulAdd, tolerance: CF(0.01, 0.01)).all().element)
 
-    divergence[abs(Z) .> tolerance] = min(divergence, 0)
+    let abz = abs(Z)
+    let gt = abz .> tolerance
+    let md0 = min(divergence, 0)
+    // divergence[abs(Z) .> tolerance] = min(divergence, 0)
+    divergence[gt] = md0
     XCTAssert(
       divergence == [
         [0.0, 0.0, 3.0, 0.0, 0.0],

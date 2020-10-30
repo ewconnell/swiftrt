@@ -538,6 +538,13 @@ struct Complex {
 };
 
 //==========================================================================
+// convenience types
+typedef Complex<float> complexf;
+typedef Complex<float16> complexf16;
+typedef Complex<bfloat16> complexbf16;
+typedef Complex<double> complexd;
+
+//==========================================================================
 // Equatable
 //==========================================================================
 

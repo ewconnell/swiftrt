@@ -35,6 +35,18 @@
 // are retyped into packed versions to use with gpu SIMD instructions
 
 //--------------------------------------
+#define Op3Same(OpName, name, conformance) \
+template<typename T> struct OpName { \
+    typedef T A; typedef T B; typedef T C; typedef T Out; \
+    constexpr static bool conforms() { return (conformance); } \
+    __DEVICE_INLINE__ void operator()(const A& a, const B& b, const C& c, Out& out) const { \
+        if constexpr (conforms()) out = name(a, b, c); \
+    } \
+    typedef typename packed<T>::type PT; \
+    typedef OpName<PT> packed; \
+};
+
+//--------------------------------------
 #define Op3(OpName, name, conformance) \
 template<typename _A, typename _B, typename _C, typename _O> struct OpName { \
     typedef _A A; typedef _B B; typedef _C C; typedef _O Out; \
@@ -68,6 +80,18 @@ template<typename _A, typename _B, typename _C, typename _O> struct OpName { \
     typedef typename matching_packed<PA,C>::type PC; \
     typedef typename matching_packed<PA,Out>::type POut; \
     typedef OpName<PA,PB,PC,POut> packed; \
+};
+
+//--------------------------------------
+#define Op3SwapBCSame(OpName, name, conformance) \
+template<typename T> struct OpName { \
+    typedef T A; typedef T B; typedef T C; typedef T Out; \
+    constexpr static bool conforms() { return (conformance); } \
+    __DEVICE_INLINE__ void operator()(const A& a, const B& b, const C& c, Out& out) const { \
+        if constexpr (conforms()) out = name(a, c, b); \
+    } \
+    typedef typename packed<T>::type PT; \
+    typedef OpName<PT> packed; \
 };
 
 //--------------------------------------
@@ -671,6 +695,79 @@ static inline cudaError_t selectOut(
 }
 
 //==============================================================================
+// select flat
+// converts from dynamic to static type and delegates for stride selection
+
+//--------------------------------------
+// tensorA tensorB tensorC Out
+// inputs and output are the same type
+template<template<typename T> class Op>
+static inline cudaError_t select(
+    srtDataType type,
+    const void* a,
+    const void* b,
+    const void* c,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    switch(type) {
+    case real32F:  return flattened<Op<float>>(a, b, c, out, count, stream);
+    case real64F:  return flattened<Op<double>>(a, b, c, out, count, stream);
+    case real32I:  return flattened<Op<int32_t>>(a, b, c, out, count, stream);
+
+    // recast types that are smaller than 32 bit to their packed simd form
+    case real16F:  return flattened<typename Op<float16>::packed>(a, b, c, out, count, stream);
+    case real16BF: return flattened<typename Op<bfloat16>::packed>(a, b, c, out, count, stream);
+    case real8I:   return flattened<typename Op<int8_t>::packed>(a, b, c, out, count, stream);
+    case real8U:   return flattened<typename Op<uint8_t>::packed>(a, b, c, out, count, stream);
+    case real16I:  return flattened<typename Op<int16_t>::packed>(a, b, c, out, count, stream);
+    case real16U:  return flattened<typename Op<uint16_t>::packed>(a, b, c, out, count, stream);
+    case boolean:  return flattened<typename Op<bool>::packed>(a, b, c, out, count, stream);
+
+    case complex32F:  return flattened<Op<Complex<float>>>(a, b, c, out, count, stream);
+    case complex16F:  return flattened<Op<Complex<float16>>>(a, b, c, out, count, stream);
+    case complex16BF: return flattened<Op<Complex<bfloat16>>>(a, b, c, out, count, stream);
+    default: return cudaErrorNotSupported;
+    }
+}
+
+//--------------------------------------
+// tensorA Element tensorC Out
+// inputs and output are the same type
+template<template<typename T> class Op>
+static inline cudaError_t selectTET(
+    srtDataType type,
+    const void* a,
+    const void* element,
+    const void* c,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    switch(type) {
+    case real32F:  return flattenedTET<Op<float>>(a, element, c, out, count, stream);
+    case real64F:  return flattenedTET<Op<double>>(a, element, c, out, count, stream);
+    case real32I:  return flattenedTET<Op<int32_t>>(a, element, c, out, count, stream);
+
+    // recast types that are smaller than 32 bit to their packed simd form
+    case real16F:  return flattenedTET<typename Op<float16>::packed>(a, element, c, out, count, stream);
+    case real16BF: return flattenedTET<typename Op<bfloat16>::packed>(a, element, c, out, count, stream);
+    case real8I:   return flattenedTET<typename Op<int8_t>::packed>(a, element, c, out, count, stream);
+    case real8U:   return flattenedTET<typename Op<uint8_t>::packed>(a, element, c, out, count, stream);
+    case real16I:  return flattenedTET<typename Op<int16_t>::packed>(a, element, c, out, count, stream);
+    case real16U:  return flattenedTET<typename Op<uint16_t>::packed>(a, element, c, out, count, stream);
+    case boolean:  return flattenedTET<typename Op<bool>::packed>(a, element, c, out, count, stream);
+
+    case complex32F:  return flattenedTET<Op<Complex<float>>>(a, element, c, out, count, stream);
+    case complex16F:  return flattenedTET<Op<Complex<float16>>>(a, element, c, out, count, stream);
+    case complex16BF: return flattenedTET<Op<Complex<bfloat16>>>(a, element, c, out, count, stream);
+    default: return cudaErrorNotSupported;
+    }
+}
+
+
+//==============================================================================
 // select
 // converts from dynamic to static type and delegates for stride selection
 
@@ -834,8 +931,9 @@ static inline cudaError_t selectTTT_O(
     }
 }
 
-//--------------------------------------
+//==============================================================================
 // tensorA tensorB tensorC
+
 // input and output are same type, but C is Bool
 template<template<typename A, typename B, typename C, typename O> class Op>
 static inline cudaError_t selectTTBool_T(
@@ -861,6 +959,37 @@ static inline cudaError_t selectTTBool_T(
     case real16I:  return selectIter<Op<int16_t,int16_t,bool,int16_t>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
     case boolean:  return selectIter<Op<bool,bool,bool,bool>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
     case complex32F: return selectIter<Op<Complex<float>,Complex<float>,bool,Complex<float>>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    default: return cudaErrorNotSupported;
+    }
+}
+
+// input and output are same type, but C is Bool
+template<template<typename A, typename B, typename C, typename O> class Op>
+static inline cudaError_t select(
+    srtDataType type,
+    const void* a,
+    const void* b,
+    srtDataType ctype,
+    const void* c,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    // only call this function when the output doesn't match
+    assert(ctype == boolean);
+
+    switch(type) {
+    // case real32F:  return selectIter<Op<float,float,bool,float>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real16F:  return selectIter<Op<half,half,bool,half>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real16BF: return selectIter<Op<bfloat16,bfloat16,bool,bfloat16>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real64F:  return selectIter<Op<double,double,bool,double>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real32I:  return selectIter<Op<int32_t,int32_t,bool,int32_t>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real8U:   return selectIter<Op<uint8_t,uint8_t,bool,uint8_t>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real8I:   return selectIter<Op<int8_t,int8_t,bool,int8_t>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real16U:  return selectIter<Op<uint16_t,uint16_t,bool,uint16_t>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case real16I:  return selectIter<Op<int16_t,int16_t,bool,int16_t>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case boolean:  return selectIter<Op<bool,bool,bool,bool>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    // case complex32F: return selectIter<Op<Complex<float>,Complex<float>,bool,Complex<float>>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
     default: return cudaErrorNotSupported;
     }
 }

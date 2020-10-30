@@ -18,6 +18,7 @@
 #include "op2.cuh"
 #include "op3.cuh"
 #include "srt_traits.cuh"
+#include "tensor_api.h"
 
 //==============================================================================
 // Swift importable C interface functions
@@ -76,6 +77,17 @@ cudaError_t srtGreater(
     return selectTT_Bool<Greater>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
+cudaError_t srtGreaterFlat(
+    srtDataType type,
+    const void* a,
+    const void* b,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    return select<Greater>(type, a, b, boolean, out, count, stream);
+}
+
 cudaError_t srtGreaterTE(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* element,
@@ -86,6 +98,17 @@ cudaError_t srtGreaterTE(
     return selectTT_Bool<Greater>(a, aDesc, element, out, oDesc, stream);
 }
     
+cudaError_t srtGreaterFlatTE(
+    srtDataType type,
+    const void* a,
+    const void* element,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    return selectTE<Greater>(type, a, element, boolean, out, count, stream);
+}
+
 //------------------------------------------------------------------------------
 Op2(GreaterOrEqual, greaterOrEqual, (isComparable<A>() && isBool<Out>()))
 
@@ -168,6 +191,17 @@ cudaError_t srtMin(
     return select<MinElements>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
+cudaError_t srtMinFlat(
+    srtDataType type,
+    const void* a,
+    const void* b,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    return select<MinElements>(type, a, b, type, out, count, stream);
+}
+
 cudaError_t srtMinTE(
     const void* a, const srtTensorDescriptor* paDesc,
     const void* element,
@@ -177,7 +211,18 @@ cudaError_t srtMinTE(
     Cast2TensorDescriptorsA(paDesc, poDesc)
     return select<MinElements>(a, aDesc, element, out, oDesc, stream);
 }
-    
+
+cudaError_t srtMinFlatTE(
+    srtDataType type,
+    const void* a,
+    const void* element,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    return selectTE<MinElements>(type, a, element, type, out, count, stream);
+}
+
 //------------------------------------------------------------------------------
 Op2(MaxElements, maxElements, (isComparable<A>() && isSame<A, Out>()))
 
@@ -238,7 +283,20 @@ cudaError_t srtReplace(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
-    return selectTTBool_T<Replace>(b, bDesc, a, aDesc, condition, cDesc, out, oDesc, stream);
+    return selectTTBool_T<Replace>(a, aDesc, b, bDesc, condition, cDesc, out, oDesc, stream);
+}
+
+cudaError_t srtReplaceFlat(
+    srtDataType type,
+    const void* a,
+    const void* b,
+    srtDataType ctype,
+    const void* condition,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    return select<Replace>(type, a, b, ctype, condition, out, count, stream);
 }
 
 //==============================================================================

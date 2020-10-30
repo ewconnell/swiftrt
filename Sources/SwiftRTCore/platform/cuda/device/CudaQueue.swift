@@ -213,3 +213,28 @@ extension CudaQueue {
     cpuFallback(cudaErrorNotSupported) { $0.kernel(a, &out, opName, op) }
   }
 }
+
+//==============================================================================
+// helper
+@inlinable public func canFlatten<S,E0,E1>(_ a: Tensor<S,E0>, _ b: Tensor<S,E1>) -> Bool {
+  a.order == b.order && a.isContiguous && b.isContiguous;
+}
+
+@inlinable public func canFlatten<S,E0,E1,E2>(
+  _ t0: Tensor<S,E0>, 
+  _ t1: Tensor<S,E1>,
+  _ t2: Tensor<S,E2>
+) -> Bool {
+  t0.order == t1.order && t0.order == t2.order
+    && t0.isContiguous && t1.isContiguous && t2.isContiguous;
+}
+
+@inlinable public func canFlatten<S,E0,E1,E2,E3>(
+  _ t0: Tensor<S,E0>, 
+  _ t1: Tensor<S,E1>,
+  _ t2: Tensor<S,E2>,
+  _ t3: Tensor<S,E3>
+) -> Bool {
+  t0.order == t1.order && t0.order == t2.order && t0.order == t3.order
+    && t0.isContiguous && t1.isContiguous && t2.isContiguous && t3.isContiguous;
+}

@@ -116,14 +116,24 @@ extension CudaQueue {
       cpu_greater(lhs, rhs, &out)
       return
     }
-    diagnostic(
-      .queueGpu, "greater(\(lhs.name), \(rhs.name))",
-      categories: .queueGpu)
+    diagnostic(.queueGpu, "greater(\(lhs.name), \(rhs.name))", categories: .queueGpu)
+    var status: cudaError_t
 
-    let status = out.withMutableTensor(using: self) { o, oDesc in
-      lhs.withTensor(using: self) { l, lDesc in
-        rhs.withTensor(using: self) { r, rDesc in
-          srtGreater(l, lDesc, r, rDesc, o, oDesc, stream)
+    if canFlatten(lhs, rhs, out) {
+      status = srtGreaterFlat(
+        E.type,
+        lhs.deviceRead(using: self),
+        rhs.deviceRead(using: self),
+        out.deviceReadWrite(using: self),
+        out.count,
+        stream
+      )
+    } else {
+      status = out.withMutableTensor(using: self) { o, oDesc in
+        lhs.withTensor(using: self) { l, lDesc in
+          rhs.withTensor(using: self) { r, rDesc in
+            srtGreater(l, lDesc, r, rDesc, o, oDesc, stream)
+          }
         }
       }
     }
@@ -141,14 +151,26 @@ extension CudaQueue {
       cpu_greater(lhs, rhs, &out)
       return
     }
-    diagnostic(
-      .queueGpu, "greater(\(lhs.name), \(rhs))",
-      categories: .queueGpu)
+    diagnostic(.queueGpu, "greater(\(lhs.name), \(rhs))", categories: .queueGpu)
+    var status: cudaError_t
 
-    let status = out.withMutableTensor(using: self) { o, oDesc in
-      lhs.withTensor(using: self) { l, lDesc in
-        withUnsafePointer(to: rhs) { r in
-          srtGreaterTE(l, lDesc, r, o, oDesc, stream)
+    if canFlatten(lhs, out) {
+      status = withUnsafePointer(to: rhs) { prhs in
+        srtGreaterFlatTE(
+          E.type,
+          lhs.deviceRead(using: self),
+          prhs,
+          out.deviceReadWrite(using: self),
+          out.count,
+          stream
+        )
+      }
+    } else {
+      status = out.withMutableTensor(using: self) { o, oDesc in
+        lhs.withTensor(using: self) { l, lDesc in
+          withUnsafePointer(to: rhs) { r in
+            srtGreaterTE(l, lDesc, r, o, oDesc, stream)
+          }
         }
       }
     }
@@ -332,14 +354,24 @@ extension CudaQueue {
       cpu_min(lhs, rhs, &out)
       return
     }
-    diagnostic(
-      .queueGpu, "min(\(lhs.name), \(rhs.name))",
-      categories: .queueGpu)
+    diagnostic(.queueGpu, "min(\(lhs.name), \(rhs.name))", categories: .queueGpu)
+    var status: cudaError_t
 
-    let status = out.withMutableTensor(using: self) { o, oDesc in
-      lhs.withTensor(using: self) { l, lDesc in
-        rhs.withTensor(using: self) { r, rDesc in
-          srtMin(l, lDesc, r, rDesc, o, oDesc, stream)
+    if canFlatten(lhs, rhs, out) {
+      status = srtMinFlat(
+        E.type,
+        lhs.deviceRead(using: self),
+        rhs.deviceRead(using: self),
+        out.deviceReadWrite(using: self),
+        out.count,
+        stream
+      )
+    } else {
+      status = out.withMutableTensor(using: self) { o, oDesc in
+        lhs.withTensor(using: self) { l, lDesc in
+          rhs.withTensor(using: self) { r, rDesc in
+            srtMin(l, lDesc, r, rDesc, o, oDesc, stream)
+          }
         }
       }
     }
@@ -358,11 +390,25 @@ extension CudaQueue {
       return
     }
     diagnostic(.queueGpu, "min(\(lhs.name), \(rhs))", categories: .queueGpu)
+    var status: cudaError_t
 
-    let status = out.withMutableTensor(using: self) { o, oDesc in
-      lhs.withTensor(using: self) { l, lDesc in
-        withUnsafePointer(to: rhs) { r in
-          srtMinTE(l, lDesc, r, o, oDesc, stream)
+    if canFlatten(lhs, out) {
+      status = withUnsafePointer(to: rhs) { prhs in
+        srtMinFlatTE(
+          E.type,
+          lhs.deviceRead(using: self),
+          prhs,
+          out.deviceReadWrite(using: self),
+          out.count,
+          stream
+        )
+      }
+    } else {
+      status = out.withMutableTensor(using: self) { o, oDesc in
+        lhs.withTensor(using: self) { l, lDesc in
+          withUnsafePointer(to: rhs) { r in
+            srtMinTE(l, lDesc, r, o, oDesc, stream)
+          }
         }
       }
     }
@@ -489,12 +535,25 @@ extension CudaQueue {
       .queueGpu,
       "replace(x: \(x.name), y: \(y.name), condition: \(condition.name))",
       categories: .queueGpu)
+    var status: cudaError_t
 
-    let status = out.withMutableTensor(using: self) { o, oDesc in
-      x.withTensor(using: self) { xData, x in
-        y.withTensor(using: self) { yData, y in
-          condition.withTensor(using: self) { cData, c in
-            srtReplace(xData, x, yData, y, cData, c, o, oDesc, stream)
+    if canFlatten(x, y, condition, out) {
+      status = srtReplaceFlat(
+        E.type,
+        x.deviceRead(using: self),
+        y.deviceRead(using: self),
+        condition.deviceRead(using: self),
+        out.deviceReadWrite(using: self),
+        out.count,
+        stream
+      )
+    } else {
+      status = out.withMutableTensor(using: self) { o, oDesc in
+        x.withTensor(using: self) { x, xDesc in
+          y.withTensor(using: self) { y, yDesc in
+            condition.withTensor(using: self) { c, cDesc in
+              srtReplace(x, xDesc, y, yDesc, c, cDesc, o, oDesc, stream)
+            }
           }
         }
       }
