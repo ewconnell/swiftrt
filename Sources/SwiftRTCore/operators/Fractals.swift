@@ -102,7 +102,7 @@ extension DeviceQueue {
         cpu_juliaSet(a, C, tolerance, iterations, &out)
         return
       }
-      diagnostic(.queueGpu, "juliaSet(\(a.name))", categories: .queueGpu)
+      diagnostic(.queueGpu, "juliaSet(\(a.name)) Flat", categories: .queueGpu)
 
       let status = withUnsafePointer(to: C) { pC in
         srtJuliaFlat(

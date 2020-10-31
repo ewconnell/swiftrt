@@ -13,8 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-import SwiftRTCuda
+
 import Numerics
+import SwiftRTCuda
 
 // gyb utility docs
 // https://nshipster.com/swift-gyb/
@@ -72,7 +73,7 @@ extension CudaQueue {
   ) where E.Value: ${conformance} {
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     guard useGpu else { cpu_${name}(x, &out); return }
-    diagnostic(.queueGpu, "${name}() on \(name)", categories: .queueGpu)
+    diagnostic(.queueGpu, "${name}(\(x.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
         x.withTensor(using: self) { xData, x in

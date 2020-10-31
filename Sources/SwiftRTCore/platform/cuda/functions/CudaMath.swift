@@ -25,15 +25,15 @@ extension CudaQueue {
     _ x: Tensor<S, Complex<E>>,
     _ out: inout Tensor<S, E>
   ) where E == E.Value, E.Value: Comparable & SignedNumeric {
+    var status: cudaError_t
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     guard useGpu else {
       cpu_abs(x, &out)
       return
     }
-    diagnostic(.queueGpu, "abs(\(x.name)) on \(name)", categories: .queueGpu)
-    var status: cudaError_t
 
     if x.order == out.order && x.isContiguous && out.isContiguous {
+      diagnostic(.queueGpu, "abs(\(x.name)) Flat", categories: .queueGpu)
       status = srtAbsFlat(
         Complex<E>.type,
         x.deviceRead(using: self),
@@ -43,9 +43,43 @@ extension CudaQueue {
         stream
       )
     } else {
+      diagnostic(.queueGpu, "abs(\(x.name)) Indexed", categories: .queueGpu)
       status = out.withMutableTensor(using: self) { o, oDesc in
         x.withTensor(using: self) { xData, x in
           srtAbs(xData, x, o, oDesc, stream)
+        }
+      }
+    }
+    cpuFallback(status) { $0.abs(x, &out) }
+  }
+
+  //--------------------------------------------------------------------------
+  @inlinable func abs2<S, E>(
+    _ x: Tensor<S, Complex<E>>,
+    _ out: inout Tensor<S, E>
+  ) where E == E.Value, E.Value: Comparable & SignedNumeric {
+    var status: cudaError_t
+    assert(out.isContiguous, _messageElementsMustBeContiguous)
+    guard useGpu else {
+      cpu_abs(x, &out)
+      return
+    }
+
+    if x.order == out.order && x.isContiguous && out.isContiguous {
+      diagnostic(.queueGpu, "abs2(\(x.name)) Flat", categories: .queueGpu)
+      status = srtAbs2Flat(
+        Complex<E>.type,
+        x.deviceRead(using: self),
+        E.type,
+        out.deviceReadWrite(using: self),
+        out.count,
+        stream
+      )
+    } else {
+      diagnostic(.queueGpu, "abs2(\(x.name)) Indexed", categories: .queueGpu)
+      status = out.withMutableTensor(using: self) { o, oDesc in
+        x.withTensor(using: self) { xData, x in
+          srtAbs2(xData, x, o, oDesc, stream)
         }
       }
     }
@@ -59,16 +93,16 @@ extension CudaQueue {
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: AdditiveArithmetic {
+    var status: cudaError_t
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
     guard useGpu else {
       cpu_add(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "add(\(lhs.name), \(rhs.name))", categories: .queueGpu)
-    var status: cudaError_t
 
     if canFlatten(lhs, rhs, out) {
+      diagnostic(.queueGpu, "add(\(lhs.name), \(rhs.name)) Flat", categories: .queueGpu)
       status = srtAddFlat(
         E.type,
         lhs.deviceRead(using: self),
@@ -79,6 +113,7 @@ extension CudaQueue {
       )
 
     } else {
+      diagnostic(.queueGpu, "add(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
       status = out.withMutableTensor(using: self) { o, oDesc in
         lhs.withTensor(using: self) { l, lDesc in
           rhs.withTensor(using: self) { r, rDesc in
@@ -102,7 +137,7 @@ extension CudaQueue {
       cpu_add(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "add(\(lhs.name), \(rhs))", categories: .queueGpu)
+    diagnostic(.queueGpu, "add(\(lhs.name), \(rhs)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -127,7 +162,7 @@ extension CudaQueue {
       cpu_div(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "div(\(lhs.name), \(rhs.name))", categories: .queueGpu)
+    diagnostic(.queueGpu, "div(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -151,7 +186,7 @@ extension CudaQueue {
       cpu_div(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "div(\(lhs.name), \(rhs))", categories: .queueGpu)
+    diagnostic(.queueGpu, "div(\(lhs.name), \(rhs)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -175,7 +210,7 @@ extension CudaQueue {
       cpu_div(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "div(\(lhs), \(rhs.name))", categories: .queueGpu)
+    diagnostic(.queueGpu, "div(\(lhs), \(rhs.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       withUnsafePointer(to: lhs) { l in
@@ -200,7 +235,7 @@ extension CudaQueue {
       cpu_mul(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "mul(\(lhs.name), \(rhs.name))", categories: .queueGpu)
+    diagnostic(.queueGpu, "mul(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -224,7 +259,7 @@ extension CudaQueue {
       cpu_mul(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "mul(\(lhs.name), \(rhs))", categories: .queueGpu)
+    diagnostic(.queueGpu, "mul(\(lhs.name), \(rhs)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -249,7 +284,7 @@ extension CudaQueue {
       cpu_subtract(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "subtract(\(lhs.name), \(rhs.name))", categories: .queueGpu)
+    diagnostic(.queueGpu, "subtract(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -273,7 +308,7 @@ extension CudaQueue {
       cpu_subtract(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "subtract(\(lhs.name), \(rhs))", categories: .queueGpu)
+    diagnostic(.queueGpu, "subtract(\(lhs.name), \(rhs)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -297,7 +332,7 @@ extension CudaQueue {
       cpu_subtract(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "subtract(\(lhs), \(rhs.name))", categories: .queueGpu)
+    diagnostic(.queueGpu, "subtract(\(lhs), \(rhs.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       withUnsafePointer(to: lhs) { l in
@@ -327,12 +362,13 @@ extension CudaQueue {
       cpu_multiply(lhs, rhs, add: bias, &out)
       return
     }
-    diagnostic(
-      .queueGpu, "multiply(\(lhs.name), \(rhs.name), add: \(bias.name))",
-      categories: .queueGpu)
     var status: cudaError_t
 
     if canFlatten(lhs, rhs, bias, out) {
+      diagnostic(
+        .queueGpu, "multiply(\(lhs.name), \(rhs.name), add: \(bias.name)) Flat",
+        categories: .queueGpu)
+
       status = srtMultiplyAddFlat(
         E.type,
         lhs.deviceRead(using: self),
@@ -343,6 +379,10 @@ extension CudaQueue {
         stream)
 
     } else {
+      diagnostic(
+        .queueGpu, "multiply(\(lhs.name), \(rhs.name), add: \(bias.name)) Indexed",
+        categories: .queueGpu)
+
       status = out.withMutableTensor(using: self) { o, oDesc in
         lhs.withTensor(using: self) { l, lDesc in
           rhs.withTensor(using: self) { r, rDesc in
@@ -364,16 +404,16 @@ extension CudaQueue {
     add bias: E.Value,
     _ out: inout Tensor<S, E>
   ) where E.Value: Numeric {
+    var status: cudaError_t
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
     guard useGpu else {
       cpu_multiply(lhs, rhs, add: bias, &out)
       return
     }
-    diagnostic(.queueGpu, "multiply(\(lhs.name), \(rhs.name), add: \(bias))", categories: .queueGpu)
-    var status: cudaError_t
 
     if canFlatten(lhs, rhs, out) {
+      diagnostic(.queueGpu, "multiply(\(lhs.name), \(rhs.name), add: \(bias)) Flat", categories: .queueGpu)
       status = withUnsafePointer(to: bias) { pbias in
         srtMultiplyAddFlatTTE(
           E.type,
@@ -385,6 +425,7 @@ extension CudaQueue {
           stream)
       }
     } else {
+      diagnostic(.queueGpu, "multiply(\(lhs.name), \(rhs.name), add: \(bias)) Indexed", categories: .queueGpu)
       status = out.withMutableTensor(using: self) { o, oDesc in
         lhs.withTensor(using: self) { l, lDesc in
           rhs.withTensor(using: self) { r, rDesc in
@@ -413,7 +454,7 @@ extension CudaQueue {
       cpu_atan2(y, x, &out)
       return
     }
-    diagnostic(.queueGpu, "atan2(y: \(y.name), x: \(x.name))", categories: .queueGpu)
+    diagnostic(.queueGpu, "atan2(y: \(y.name), x: \(x.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       y.withTensor(using: self) { yData, y in
@@ -434,7 +475,7 @@ extension CudaQueue {
       cpu_cast(from: a, to: &out)
       return
     }
-    diagnostic(.queueGpu, "cast(\(a.name))", categories: .queueGpu)
+    diagnostic(.queueGpu, "cast(\(a.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       a.withTensor(using: self) { a, aDesc in
@@ -454,7 +495,7 @@ extension CudaQueue {
       cpu_cast(from: a, to: &out)
       return
     }
-    diagnostic(.queueGpu, "cast(\(a.name))", categories: .queueGpu)
+    diagnostic(.queueGpu, "cast(\(a.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       a.withTensor(using: self) { a, aDesc in
@@ -475,7 +516,7 @@ extension CudaQueue {
       cpu_hypot(x, y, &out)
       return
     }
-    diagnostic(.queueGpu, "hypot(\(x.name), \(y.name))", categories: .queueGpu)
+    diagnostic(.queueGpu, "hypot(\(x.name), \(y.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       x.withTensor(using: self) { xData, x in
@@ -496,7 +537,7 @@ extension CudaQueue {
       cpu_log(onePlus: x, &out)
       return
     }
-    diagnostic(.queueGpu, "log(onePlus: \(x.name))", categories: .queueGpu)
+    diagnostic(.queueGpu, "log(onePlus: \(x.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       x.withTensor(using: self) { x, xDesc in
@@ -517,7 +558,7 @@ extension CudaQueue {
       cpu_pow(x, y, &out)
       return
     }
-    diagnostic(.queueGpu, "pow(x: \(x.name), y: \(y.name))", categories: .queueGpu)
+    diagnostic(.queueGpu, "pow(x: \(x.name), y: \(y.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       x.withTensor(using: self) { xData, x in
@@ -540,7 +581,7 @@ extension CudaQueue {
       cpu_pow(x, n, &out)
       return
     }
-    diagnostic(.queueGpu, "pow(x: \(x.name), n: \(n))", categories: .queueGpu)
+    diagnostic(.queueGpu, "pow(x: \(x.name), n: \(n)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       x.withTensor(using: self) { x, xDesc in
@@ -563,7 +604,7 @@ extension CudaQueue {
       cpu_root(x, n, &out)
       return
     }
-    diagnostic(.queueGpu, "root(x: \(x.name), n: \(n))", categories: .queueGpu)
+    diagnostic(.queueGpu, "root(x: \(x.name), n: \(n)) Indexed", categories: .queueGpu)
     let e = 1 / E.Value(exactly: n)!
 
     let status = out.withMutableTensor(using: self) { o, oDesc in

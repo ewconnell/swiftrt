@@ -48,6 +48,14 @@ extension DeviceQueue {
     mapOp(x, &out) { abs($0) }
   }
 
+  @inlinable public func abs2<S, E>(
+    _ x: Tensor<S, Complex<E>>,
+    _ out: inout Tensor<S, E>
+  ) where E == E.Value, E.Value: Comparable & SignedNumeric {
+    diagnostic(.queueCpu, "abs2(\(x.name)) on \(name)", categories: .queueCpu)
+    mapOp(x, &out) { SwiftRTCore.abs2($0) }
+  }
+
   //--------------------------------------------------------------------------
   @inlinable func cpu_acos<S, E>(
     _ x: Tensor<S, E>,
@@ -954,6 +962,13 @@ extension CpuQueue {
   }
 
   @inlinable func abs<S, E>(
+    _ x: Tensor<S, Complex<E>>,
+    _ out: inout Tensor<S, E>
+  ) where E == E.Value, E.Value: Comparable & SignedNumeric {
+    cpu_abs(x, &out)
+  }
+
+  @inlinable public func abs2<S, E>(
     _ x: Tensor<S, Complex<E>>,
     _ out: inout Tensor<S, E>
   ) where E == E.Value, E.Value: Comparable & SignedNumeric {

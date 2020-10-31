@@ -31,7 +31,10 @@ extension CudaQueue {
       cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
       return
     }
-    diagnostic(.queueGpu, "matmul() on \(name)", categories: .queueGpu)
+    diagnostic(
+      .queueGpu, 
+      "matmul(\(lhs.name), transL: \(transposeLhs), \(rhs.name), transR: \(transposeRhs))",
+      categories: .queueGpu)
 
     cpuFallback(cudaErrorNotSupported) {
       $0.matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
@@ -47,7 +50,10 @@ extension CudaQueue {
       cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &result)
       return
     }
-    diagnostic(.queueGpu, "matmul() on \(name)", categories: .queueGpu)
+    diagnostic(
+      .queueGpu, 
+      "batch matmul(\(lhs.name), transL: \(transposeLhs), \(rhs.name), transR: \(transposeRhs))",
+      categories: .queueGpu)
 
     cpuFallback(cudaErrorNotSupported) {
       $0.matmul(lhs, transposeLhs, rhs, transposeRhs, &result)

@@ -50,6 +50,33 @@ cudaError_t srtAbs(
 }
 
 //------------------------------------------------------------------------------
+Op1(Abs2, abs2, (isComplexRealType<A,Out>()))
+
+cudaError_t srtAbs2Flat(
+    srtDataType atype,
+    const void* a,
+    srtDataType otype,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    return select<Abs2>(a, atype, out, otype, count, stream);
+}
+
+cudaError_t srtAbs2(
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsA(paDesc, poDesc)
+    if (aDesc.type == oDesc.type) {
+        return select<Abs2>(a, aDesc, out, oDesc, stream);
+    } else {
+        return selectT_O<Abs2>(a, aDesc, out, oDesc, stream);
+    }
+}
+
+//------------------------------------------------------------------------------
 Op1(Acos, acos, isFloating<A>())
 
 cudaError_t srtAcosFlat(

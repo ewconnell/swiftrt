@@ -32,9 +32,8 @@ extension CudaQueue {
       cpu_and(lhs, rhs, &out)
       return
     }
-    diagnostic(
-      .queueGpu, "and(\(lhs.name), \(rhs.name))",
-      categories: .queueGpu)
+
+    diagnostic(.queueGpu, "and(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -59,8 +58,9 @@ extension CudaQueue {
       cpu_elementsAlmostEqual(lhs, rhs, tolerance, &out)
       return
     }
+
     diagnostic(
-      .queueGpu, "elementsAlmostEqual(\(lhs.name), \(rhs.name), " + "tolerance: \(tolerance))",
+      .queueGpu, "elementsAlmostEqual(\(lhs.name), \(rhs.name), tolerance: \(tolerance)) Indexed",
       categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
@@ -87,9 +87,8 @@ extension CudaQueue {
       cpu_equal(lhs, rhs, &out)
       return
     }
-    diagnostic(
-      .queueGpu, "equal(\(lhs.name), \(rhs.name))",
-      categories: .queueGpu)
+
+    diagnostic(.queueGpu, "equal(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -110,16 +109,16 @@ extension CudaQueue {
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
   ) where E.Value: Comparable {
+    var status: cudaError_t
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
     guard useGpu else {
       cpu_greater(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "greater(\(lhs.name), \(rhs.name))", categories: .queueGpu)
-    var status: cudaError_t
 
     if canFlatten(lhs, rhs, out) {
+      diagnostic(.queueGpu, "greater(\(lhs.name), \(rhs.name)) Flat", categories: .queueGpu)
       status = srtGreaterFlat(
         E.type,
         lhs.deviceRead(using: self),
@@ -129,6 +128,7 @@ extension CudaQueue {
         stream
       )
     } else {
+      diagnostic(.queueGpu, "greater(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
       status = out.withMutableTensor(using: self) { o, oDesc in
         lhs.withTensor(using: self) { l, lDesc in
           rhs.withTensor(using: self) { r, rDesc in
@@ -146,15 +146,15 @@ extension CudaQueue {
     _ rhs: E.Value,
     _ out: inout Tensor<S, Bool>
   ) where E.Value: Comparable {
+    var status: cudaError_t
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     guard useGpu else {
       cpu_greater(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "greater(\(lhs.name), \(rhs))", categories: .queueGpu)
-    var status: cudaError_t
 
     if canFlatten(lhs, out) {
+      diagnostic(.queueGpu, "greater(\(lhs.name), \(rhs)) Flat", categories: .queueGpu)
       status = withUnsafePointer(to: rhs) { prhs in
         srtGreaterFlatTE(
           E.type,
@@ -166,6 +166,7 @@ extension CudaQueue {
         )
       }
     } else {
+      diagnostic(.queueGpu, "greater(\(lhs.name), \(rhs)) Indexed", categories: .queueGpu)
       status = out.withMutableTensor(using: self) { o, oDesc in
         lhs.withTensor(using: self) { l, lDesc in
           withUnsafePointer(to: rhs) { r in
@@ -192,8 +193,9 @@ extension CudaQueue {
       cpu_greaterOrEqual(lhs, rhs, &out)
       return
     }
+
     diagnostic(
-      .queueGpu, "greaterOrEqual(\(lhs.name), \(rhs.name))",
+      .queueGpu, "greaterOrEqual(\(lhs.name), \(rhs.name)) Indexed",
       categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
@@ -217,8 +219,9 @@ extension CudaQueue {
       cpu_greaterOrEqual(lhs, rhs, &out)
       return
     }
+
     diagnostic(
-      .queueGpu, "greaterOrEqual(\(lhs.name), \(rhs))",
+      .queueGpu, "greaterOrEqual(\(lhs.name), \(rhs)) Indexed",
       categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
@@ -246,9 +249,8 @@ extension CudaQueue {
       cpu_less(lhs, rhs, &out)
       return
     }
-    diagnostic(
-      .queueGpu, "less(\(lhs.name), \(rhs.name))",
-      categories: .queueGpu)
+
+    diagnostic(.queueGpu, "less(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -271,9 +273,8 @@ extension CudaQueue {
       cpu_less(lhs, rhs, &out)
       return
     }
-    diagnostic(
-      .queueGpu, "less(\(lhs.name), \(rhs))",
-      categories: .queueGpu)
+
+    diagnostic(.queueGpu, "less(\(lhs.name), \(rhs)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -300,9 +301,8 @@ extension CudaQueue {
       cpu_lessOrEqual(lhs, rhs, &out)
       return
     }
-    diagnostic(
-      .queueGpu, "lessOrEqual(\(lhs.name), \(rhs.name))",
-      categories: .queueGpu)
+
+    diagnostic(.queueGpu, "lessOrEqual(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -325,9 +325,8 @@ extension CudaQueue {
       cpu_lessOrEqual(lhs, rhs, &out)
       return
     }
-    diagnostic(
-      .queueGpu, "lessOrEqual(\(lhs.name), \(rhs))",
-      categories: .queueGpu)
+
+    diagnostic(.queueGpu, "lessOrEqual(\(lhs.name), \(rhs)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -348,16 +347,16 @@ extension CudaQueue {
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Comparable {
+    var status: cudaError_t
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
     guard useGpu else {
       cpu_min(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "min(\(lhs.name), \(rhs.name))", categories: .queueGpu)
-    var status: cudaError_t
 
     if canFlatten(lhs, rhs, out) {
+      diagnostic(.queueGpu, "min(\(lhs.name), \(rhs.name)) Flat", categories: .queueGpu)
       status = srtMinFlat(
         E.type,
         lhs.deviceRead(using: self),
@@ -367,6 +366,7 @@ extension CudaQueue {
         stream
       )
     } else {
+      diagnostic(.queueGpu, "min(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
       status = out.withMutableTensor(using: self) { o, oDesc in
         lhs.withTensor(using: self) { l, lDesc in
           rhs.withTensor(using: self) { r, rDesc in
@@ -384,15 +384,15 @@ extension CudaQueue {
     _ rhs: E.Value,
     _ out: inout Tensor<S, E>
   ) where E.Value: Comparable {
+    var status: cudaError_t
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     guard useGpu else {
       cpu_min(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "min(\(lhs.name), \(rhs))", categories: .queueGpu)
-    var status: cudaError_t
 
     if canFlatten(lhs, out) {
+      diagnostic(.queueGpu, "min(\(lhs.name), \(rhs)) Flat", categories: .queueGpu)
       status = withUnsafePointer(to: rhs) { prhs in
         srtMinFlatTE(
           E.type,
@@ -404,6 +404,7 @@ extension CudaQueue {
         )
       }
     } else {
+      diagnostic(.queueGpu, "min(\(lhs.name), \(rhs)) Indexed", categories: .queueGpu)
       status = out.withMutableTensor(using: self) { o, oDesc in
         lhs.withTensor(using: self) { l, lDesc in
           withUnsafePointer(to: rhs) { r in
@@ -427,9 +428,8 @@ extension CudaQueue {
       cpu_max(lhs, rhs, &out)
       return
     }
-    diagnostic(
-      .queueGpu, "max(\(lhs.name), \(rhs.name))",
-      categories: .queueGpu)
+
+    diagnostic(.queueGpu, "max(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -452,7 +452,8 @@ extension CudaQueue {
       cpu_max(lhs, rhs, &out)
       return
     }
-    diagnostic(.queueGpu, "max(\(lhs.name), \(rhs))", categories: .queueGpu)
+
+    diagnostic(.queueGpu, "max(\(lhs.name), \(rhs)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -476,9 +477,7 @@ extension CudaQueue {
       cpu_notEqual(lhs, rhs, &out)
       return
     }
-    diagnostic(
-      .queueGpu, "notEqual(\(lhs.name), \(rhs.name))",
-      categories: .queueGpu)
+    diagnostic(.queueGpu, "notEqual(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -502,9 +501,8 @@ extension CudaQueue {
       cpu_or(lhs, rhs, &out)
       return
     }
-    diagnostic(
-      .queueGpu, "or(\(lhs.name), \(rhs.name))",
-      categories: .queueGpu)
+
+    diagnostic(.queueGpu, "or(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
       lhs.withTensor(using: self) { l, lDesc in
@@ -523,6 +521,7 @@ extension CudaQueue {
     _ condition: Tensor<S, Bool>,
     _ out: inout Tensor<S, E>
   ) {
+    var status: cudaError_t
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     assert(
       x.order == y.order && x.order == condition.order,
@@ -531,13 +530,13 @@ extension CudaQueue {
       cpu_replace(x, y, condition, &out)
       return
     }
-    diagnostic(
-      .queueGpu,
-      "replace(x: \(x.name), y: \(y.name), condition: \(condition.name))",
-      categories: .queueGpu)
-    var status: cudaError_t
 
     if canFlatten(x, y, condition, out) {
+      diagnostic(
+        .queueGpu,
+        "replace(x: \(x.name), y: \(y.name), condition: \(condition.name)) Flat",
+        categories: .queueGpu)
+        
       status = srtReplaceFlat(
         E.type,
         x.deviceRead(using: self),
@@ -549,6 +548,10 @@ extension CudaQueue {
         stream
       )
     } else {
+      diagnostic(
+        .queueGpu,
+        "replace(x: \(x.name), y: \(y.name), condition: \(condition.name)) Indexed",
+        categories: .queueGpu)
       status = out.withMutableTensor(using: self) { o, oDesc in
         x.withTensor(using: self) { x, xDesc in
           y.withTensor(using: self) { y, yDesc in
@@ -574,8 +577,9 @@ extension CudaQueue {
       cpu_vjpMin(x, y, scale, &out)
       return
     }
+
     diagnostic(
-      .queueGpu, "vjpMin(\(x.name), \(y.name), \(scale.name))",
+      .queueGpu, "vjpMin(\(x.name), \(y.name), \(scale.name)) Indexed",
       categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
@@ -602,8 +606,9 @@ extension CudaQueue {
       cpu_vjpMin(x, y, scale, &out)
       return
     }
+
     diagnostic(
-      .queueGpu, "vjpMin(\(x.name), \(y), \(scale.name))",
+      .queueGpu, "vjpMin(\(x.name), \(y), \(scale.name)) Indexed",
       categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
@@ -633,8 +638,9 @@ extension CudaQueue {
       cpu_vjpMin(x, y, scale, &outT, &outF)
       return
     }
+
     diagnostic(
-      .queueGpu, "vjpMin(\(x.name), \(y.name), \(scale.name))",
+      .queueGpu, "vjpMin(\(x.name), \(y.name), \(scale.name)) Indexed",
       categories: .queueGpu)
     var outFShared = outF.shared(using: self)
 
@@ -669,8 +675,9 @@ extension CudaQueue {
       cpu_vjpMin(x, y, scale, &outT, &outF)
       return
     }
+
     diagnostic(
-      .queueGpu, "vjpMin(\(x.name), \(y), \(scale.name))",
+      .queueGpu, "vjpMin(\(x.name), \(y), \(scale.name)) Indexed",
       categories: .queueGpu)
     var outFShared = outF.shared(using: self)
 
@@ -702,8 +709,9 @@ extension CudaQueue {
       cpu_vjpMax(x, y, scale, &out)
       return
     }
+
     diagnostic(
-      .queueGpu, "vjpMax(\(x.name), \(y.name), \(scale.name))",
+      .queueGpu, "vjpMax(\(x.name), \(y.name), \(scale.name)) Indexed",
       categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
@@ -731,7 +739,7 @@ extension CudaQueue {
       return
     }
     diagnostic(
-      .queueGpu, "vjpMax(\(x.name), \(y), \(scale.name))",
+      .queueGpu, "vjpMax(\(x.name), \(y), \(scale.name)) Indexed",
       categories: .queueGpu)
 
     let status = out.withMutableTensor(using: self) { o, oDesc in
@@ -761,8 +769,9 @@ extension CudaQueue {
       cpu_vjpMax(x, y, scale, &outT, &outF)
       return
     }
+
     diagnostic(
-      .queueGpu, "vjpMax(\(x.name), \(y.name), \(scale.name))",
+      .queueGpu, "vjpMax(\(x.name), \(y.name), \(scale.name)) Indexed",
       categories: .queueGpu)
     var outFShared = outF.shared(using: self)
 
@@ -797,8 +806,9 @@ extension CudaQueue {
       cpu_vjpMax(x, y, scale, &outT, &outF)
       return
     }
+
     diagnostic(
-      .queueGpu, "vjpMax(\(x.name), \(y), \(scale.name))",
+      .queueGpu, "vjpMax(\(x.name), \(y), \(scale.name)) Indexed",
       categories: .queueGpu)
     var outFShared = outF.shared(using: self)
 

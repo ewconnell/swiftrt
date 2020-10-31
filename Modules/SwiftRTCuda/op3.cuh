@@ -975,21 +975,23 @@ static inline cudaError_t select(
     size_t count,
     cudaStream_t stream
 ) {
-    // only call this function when the output doesn't match
     assert(ctype == boolean);
-
     switch(type) {
-    // case real32F:  return selectIter<Op<float,float,bool,float>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real16F:  return selectIter<Op<half,half,bool,half>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real16BF: return selectIter<Op<bfloat16,bfloat16,bool,bfloat16>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real64F:  return selectIter<Op<double,double,bool,double>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real32I:  return selectIter<Op<int32_t,int32_t,bool,int32_t>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real8U:   return selectIter<Op<uint8_t,uint8_t,bool,uint8_t>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real8I:   return selectIter<Op<int8_t,int8_t,bool,int8_t>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real16U:  return selectIter<Op<uint16_t,uint16_t,bool,uint16_t>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case real16I:  return selectIter<Op<int16_t,int16_t,bool,int16_t>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case boolean:  return selectIter<Op<bool,bool,bool,bool>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
-    // case complex32F: return selectIter<Op<Complex<float>,Complex<float>,bool,Complex<float>>>(a, aDesc, b, bDesc, c, cDesc, out, oDesc, stream);
+    case real32F:  return flattened<Op<float,float,bool,float>>(a, b, c, out, count, stream);
+    case real64F:  return flattened<Op<double,double,bool,double>>(a, b, c, out, count, stream);
+    case real32I:  return flattened<Op<int32_t,int32_t,bool,int32_t>>(a, b, c, out, count, stream);
+
+    case real16F:  return flattened<typename Op<half,half,bool,half>::packed>(a, b, c, out, count, stream);
+    case real16BF: return flattened<typename Op<bfloat16,bfloat16,bool,bfloat16>::packed>(a, b, c, out, count, stream);
+    case real8U:   return flattened<typename Op<uint8_t,uint8_t,bool,uint8_t>::packed>(a, b, c, out, count, stream);
+    case real8I:   return flattened<typename Op<int8_t,int8_t,bool,int8_t>::packed>(a, b, c, out, count, stream);
+    case real16U:  return flattened<typename Op<uint16_t,uint16_t,bool,uint16_t>::packed>(a, b, c, out, count, stream);
+    case real16I:  return flattened<typename Op<int16_t,int16_t,bool,int16_t>::packed>(a, b, c, out, count, stream);
+    case boolean:  return flattened<typename Op<bool,bool,bool,bool>::packed>(a, b, c, out, count, stream);
+
+    case complex16F:  return flattened<Op<Complex<float16>,Complex<float16>,bool,Complex<float16>>>(a, b, c, out, count, stream);
+    case complex16BF: return flattened<Op<Complex<bfloat16>,Complex<bfloat16>,bool,Complex<bfloat16>>>(a, b, c, out, count, stream);
+    case complex32F:  return flattened<Op<Complex<float>,Complex<float>,bool,Complex<float>>>(a, b, c, out, count, stream);
     default: return cudaErrorNotSupported;
     }
 }

@@ -21,21 +21,21 @@ import _Differentiation
 /// abs(x)
 /// computes the absolute value of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func abs<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Comparable & SignedNumeric {
-  var result = Tensor(like: x)
-  currentQueue.abs(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.abs(x, &out)
+  return out
 }
 
 @inlinable public func abs<S, E>(
   _ x: Tensor<S, Complex<E>>
 ) -> Tensor<S, E> where E == E.Value, E.Value: Comparable & SignedNumeric {
-  var result = Tensor<S, E>(shape: x.shape, order: x.order)
-  currentQueue.abs(x, &result)
-  return result
+  var out = Tensor<S, E>(shape: x.shape, order: x.order)
+  currentQueue.abs(x, &out)
+  return out
 }
 
 @derivative(of:abs)
@@ -58,16 +58,29 @@ extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 }
 
 //==============================================================================
+/// abs2(x)
+/// computes the absolute value of Complex `x` squared
+/// - Parameter x: value tensor
+/// - Returns: out
+@inlinable public func abs2<S, E>(
+  _ x: Tensor<S, Complex<E>>
+) -> Tensor<S, E> where E == E.Value, E.Value: Comparable & SignedNumeric {
+  var out = Tensor<S, E>(shape: x.shape, order: x.order)
+  currentQueue.abs2(x, &out)
+  return out
+}
+
+//==============================================================================
 /// acos(x)
 /// computes the inverse cosine of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func acos<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.acos(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.acos(x, &out)
+  return out
 }
 
 @derivative(of:acos)
@@ -82,13 +95,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// acosh(x)
 /// computes the inverse hyperbolic cosine of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func acosh<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.acosh(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.acosh(x, &out)
+  return out
 }
 
 @derivative(of:acosh)
@@ -103,13 +116,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// asin(x)
 /// computes the inverse sine of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func asin<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.asin(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.asin(x, &out)
+  return out
 }
 
 @derivative(of:asin)
@@ -124,13 +137,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// asinh(x)
 /// computes the inverse hyperbolic sine of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func asinh<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: DifferentiableNumeric & Real {
-  var result = Tensor(like: x)
-  currentQueue.asinh(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.asinh(x, &out)
+  return out
 }
 
 @derivative(of:asinh)
@@ -145,13 +158,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// atan(x)
 /// computes the inverse tangent of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func atan<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.atan(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.atan(x, &out)
+  return out
 }
 
 @derivative(of:atan)
@@ -166,13 +179,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// atanh(x)
 /// computes the inverse hyperbolic tangent of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func atanh<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.atanh(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.atanh(x, &out)
+  return out
 }
 
 @derivative(of:atanh)
@@ -188,14 +201,14 @@ where E.Value: DifferentiableNumeric & Real {
 /// computes the arc tangent of a pair of values
 /// - Parameter y: value tensor
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func atan2<S, E>(
   y: Tensor<S, E>,
   x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.atan2(y, x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.atan2(y, x, &out)
+  return out
 }
 
 @derivative(of:atan2)
@@ -218,7 +231,7 @@ where E.Value: DifferentiableNumeric & Real {
 /// cast(from:to:
 /// casts elements of `x` to the output type
 /// - Parameter other: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func cast<S, E, OE>(
   _ other: Tensor<S, OE>
 ) -> Tensor<S, E>
@@ -226,9 +239,9 @@ where
   E.Value: BinaryFloatingPoint,
   OE.Value: BinaryInteger
 {
-  var result = Tensor<S, E>(shape: other.shape)
-  currentQueue.cast(from: other, to: &result)
-  return result
+  var out = Tensor<S, E>(shape: other.shape)
+  currentQueue.cast(from: other, to: &out)
+  return out
 }
 
 @inlinable public func cast<S, E, OE>(
@@ -238,22 +251,22 @@ where
   E.Value: BinaryInteger,
   OE.Value: BinaryFloatingPoint
 {
-  var result = Tensor<S, E>(shape: other.shape)
-  currentQueue.cast(from: other, to: &result)
-  return result
+  var out = Tensor<S, E>(shape: other.shape)
+  currentQueue.cast(from: other, to: &out)
+  return out
 }
 
 //==============================================================================
 /// cos(x)
 /// computes the cosine of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func cos<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.cos(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.cos(x, &out)
+  return out
 }
 
 @derivative(of:cos)
@@ -268,13 +281,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// cosh(x)
 /// computes the hyperbolic cosine of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func cosh<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.cosh(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.cosh(x, &out)
+  return out
 }
 
 @derivative(of:cosh)
@@ -289,13 +302,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// erf(x)
 /// computes the error function of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func erf<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.erf(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.erf(x, &out)
+  return out
 }
 
 @derivative(of:erf)
@@ -316,13 +329,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// erfc(x)
 /// computes the complementary error function of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func erfc<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.erfc(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.erfc(x, &out)
+  return out
 }
 
 @derivative(of:erfc)
@@ -338,13 +351,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// exp(x)
 /// computes the exponential value of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func exp<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.exp(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.exp(x, &out)
+  return out
 }
 
 @derivative(of:exp)
@@ -370,40 +383,40 @@ extension Tensor where TensorElement.Value: Real {
 /// exp2(x)
 /// Returns two raised to the power of the specified tensor element-wise.
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func exp2<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.exp2(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.exp2(x, &out)
+  return out
 }
 
 //==============================================================================
 /// exp10(x)
 /// Returns 10 raised to the power of the specified tensor element-wise.
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 /// Returns ten raised to the power of the specified tensor element-wise.
 @inlinable public func exp10<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.exp10(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.exp10(x, &out)
+  return out
 }
 
 //==============================================================================
 /// expMinusOne(x)
 /// computes the exponential minus one value of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func expMinusOne<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.expMinusOne(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.expMinusOne(x, &out)
+  return out
 }
 
 @derivative(of:expMinusOne)
@@ -419,13 +432,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// gamma(x)
 /// computes the gamma of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func gamma<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.gamma(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.gamma(x, &out)
+  return out
 }
 
 @derivative(of:gamma)
@@ -442,14 +455,14 @@ where E.Value: DifferentiableNumeric & Real {
 /// calculate the length of the hypotenuse of a right triangle
 /// - Parameter x: value tensor
 /// - Parameter y: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func hypot<S, E>(
   _ x: Tensor<S, E>,
   _ y: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.hypot(x, y, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.hypot(x, y, &out)
+  return out
 }
 
 @derivative(of:hypot)
@@ -466,13 +479,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// log(x)
 /// computes the log of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func log<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.log(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.log(x, &out)
+  return out
 }
 
 @derivative(of:log(_:))
@@ -486,17 +499,17 @@ where E.Value: DifferentiableNumeric & Real {
 @inlinable public func log2<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.log2(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.log2(x, &out)
+  return out
 }
 
 @inlinable public func log10<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.log10(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.log10(x, &out)
+  return out
 }
 
 // Tensor extension
@@ -513,13 +526,13 @@ extension Tensor where TensorElement.Value: Real {
 /// log(onePlus x:
 /// computes one plus the log of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func log<S, E>(
   onePlus x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.log(onePlus: x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.log(onePlus: x, &out)
+  return out
 }
 
 @derivative(of:log(onePlus:))
@@ -535,13 +548,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// logGamma(x)
 /// computes the log gamma of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func logGamma<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.logGamma(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.logGamma(x, &out)
+  return out
 }
 
 @derivative(of:logGamma)
@@ -557,13 +570,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// neg(x)
 /// computes the negated value of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func neg<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: SignedNumeric {
-  var result = Tensor(like: x)
-  currentQueue.neg(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.neg(x, &out)
+  return out
 }
 
 @derivative(of:neg)
@@ -588,13 +601,13 @@ extension Tensor where TensorElement.Value: SignedNumeric {
 /// sin(x)
 /// computes the sign of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func sin<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.sin(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.sin(x, &out)
+  return out
 }
 
 @derivative(of:sin)
@@ -609,13 +622,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// sinh(x)
 /// computes the hyperbolic sine of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func sinh<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.sinh(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.sinh(x, &out)
+  return out
 }
 
 @derivative(of:sinh)
@@ -630,13 +643,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// squared(x)
 /// computes the elementwise squares of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func squared<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Numeric {
-  var result = Tensor(like: x)
-  currentQueue.squared(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.squared(x, &out)
+  return out
 }
 
 @derivative(of:squared)
@@ -667,15 +680,15 @@ extension Numeric {
 /// computes elementwise `x` to the power of `y`
 /// - Parameter x: value tensor
 /// - Parameter y: power tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func pow<S, E>(
   _ x: Tensor<S, E>,
   _ y: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
   assert(x.shape == y.shape, _messageTensorShapeMismatch)
-  var result = Tensor(like: x)
-  currentQueue.pow(x, y, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.pow(x, y, &out)
+  return out
 }
 
 @derivative(of:pow)
@@ -694,9 +707,9 @@ where E.Value: DifferentiableNumeric & Real {
   _ x: Tensor<S, E>,
   _ n: Int
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.pow(x, n, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.pow(x, n, &out)
+  return out
 }
 
 // Tensor extension
@@ -711,14 +724,14 @@ extension Tensor where TensorElement.Value: Real {
 /// computes the nth root of `x`
 /// - Parameter x: value tensor
 /// - Parameter n: power
-/// - Returns: result
+/// - Returns: out
 @inlinable public func root<S, E>(
   _ x: Tensor<S, E>,
   _ n: Int
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.root(x, n, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.root(x, n, &out)
+  return out
 }
 
 @derivative(of:root)
@@ -735,13 +748,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// sqrt(x)
 /// computes the square root of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func sqrt<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.sqrt(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.sqrt(x, &out)
+  return out
 }
 
 @derivative(of:sqrt)
@@ -771,9 +784,9 @@ extension Tensor where TensorElement.Value: Real {
 @inlinable public func sign<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Comparable & SignedNumeric {
-  var result = Tensor(like: x)
-  currentQueue.sign(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.sign(x, &out)
+  return out
 }
 
 @derivative(of:sign)
@@ -804,9 +817,9 @@ extension Tensor where TensorElement.Value: Comparable & SignedNumeric {
 @inlinable public func sigmoid<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.sigmoid(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.sigmoid(x, &out)
+  return out
 }
 
 @derivative(of:sigmoid)
@@ -837,13 +850,13 @@ extension Tensor where TensorElement.Value: Real {
 /// tan(x)
 /// computes the tangent of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func tan<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.tan(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.tan(x, &out)
+  return out
 }
 
 @derivative(of:tan)
@@ -859,13 +872,13 @@ where E.Value: DifferentiableNumeric & Real {
 /// tanh(x)
 /// computes the hyperbolic tangent of `x`
 /// - Parameter x: value tensor
-/// - Returns: result
+/// - Returns: out
 @inlinable public func tanh<S, E>(
   _ x: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Real {
-  var result = Tensor(like: x)
-  currentQueue.tanh(x, &result)
-  return result
+  var out = Tensor(like: x)
+  currentQueue.tanh(x, &out)
+  return out
 }
 
 @derivative(of:tanh)

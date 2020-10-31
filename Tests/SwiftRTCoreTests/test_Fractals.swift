@@ -120,7 +120,7 @@ final class test_Fractals: XCTestCase {
   func test_pmapJulia() {
     #if !DEBUG
       // parameters
-      useSyncQueue()
+      // useSyncQueue()
       let iterations = 2048
       let size = (r: 1000, c: 1000)
       let tolerance: Float = 4.0
@@ -134,20 +134,20 @@ final class test_Fractals: XCTestCase {
       let iLast = CF(0, last.imaginary)
 
       // repeat rows of real range, columns of imaginary range, and combine
-      let Z =
+      var divergence = full(size, iterations)
+      var Z =
         repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
         + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-      var divergence = full(size, iterations)
 
       // cpu platform: mac cpu16 0.850s, ubuntu cpu6: 2.589s
-      // cuda platform: ubuntu cpu6: 3.296s, gpu:
+      // cuda platform: ubuntu cpu6: 3.296s, gpu: 1.430s
       measure {
-        pmap(Z, &divergence) { Z, divergence in
+      //   pmap(Z, &divergence) { Z, divergence in
           for i in 0..<iterations {
             Z = multiply(Z, Z, add: C)
             divergence[abs(Z) .> tolerance] = min(divergence, i)
           }
-        }
+      //   }
       }
     #endif
   }

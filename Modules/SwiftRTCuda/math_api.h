@@ -36,6 +36,19 @@ cudaError_t srtAbsFlat(
     size_t count,
     cudaStream_t stream);
 
+cudaError_t srtAbs2(
+    const void* a, const srtTensorDescriptor* aDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtAbs2Flat(
+    srtDataType atype,
+    const void* a,
+    srtDataType otype,
+    void* out,
+    size_t count,
+    cudaStream_t stream);
+
 //------------------------------------------------------------------------------
 cudaError_t srtAcos(
     const void* a, const srtTensorDescriptor* aDesc,
