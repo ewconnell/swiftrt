@@ -118,38 +118,38 @@ final class test_Fractals: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_pmapJulia() {
-    //  #if !DEBUG
-    // parameters
-    useSyncQueue()
-    let iterations = 2048
-    let size = (r: 1000, c: 1000)
-    let tolerance: Float = 4.0
-    let C = Complex<Float>(-0.8, 0.156)
-    let first = Complex<Float>(-1.7, 1.7)
-    let last = Complex<Float>(1.7, -1.7)
-    typealias CF = Complex<Float>
-    let rFirst = CF(first.real, 0)
-    let rLast = CF(last.real, 0)
-    let iFirst = CF(0, first.imaginary)
-    let iLast = CF(0, last.imaginary)
+    #if !DEBUG
+      // parameters
+      useSyncQueue()
+      let iterations = 2048
+      let size = (r: 1000, c: 1000)
+      let tolerance: Float = 4.0
+      let C = Complex<Float>(-0.8, 0.156)
+      let first = Complex<Float>(-1.7, 1.7)
+      let last = Complex<Float>(1.7, -1.7)
+      typealias CF = Complex<Float>
+      let rFirst = CF(first.real, 0)
+      let rLast = CF(last.real, 0)
+      let iFirst = CF(0, first.imaginary)
+      let iLast = CF(0, last.imaginary)
 
-    // repeat rows of real range, columns of imaginary range, and combine
-    let Z =
-      repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-      + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-    var divergence = full(size, iterations)
+      // repeat rows of real range, columns of imaginary range, and combine
+      let Z =
+        repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
+        + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+      var divergence = full(size, iterations)
 
-    // cpu platform: mac cpu16 0.850s, ubuntu cpu6: 2.589s
-    // cuda platform: ubuntu cpu6: 3.296s, gpu:
-    measure {
-      pmap(Z, &divergence) { Z, divergence in
-        for i in 0..<iterations {
-          Z = multiply(Z, Z, add: C)
-          divergence[abs(Z) .> tolerance] = min(divergence, i)
+      // cpu platform: mac cpu16 0.850s, ubuntu cpu6: 2.589s
+      // cuda platform: ubuntu cpu6: 3.296s, gpu:
+      measure {
+        pmap(Z, &divergence) { Z, divergence in
+          for i in 0..<iterations {
+            Z = multiply(Z, Z, add: C)
+            divergence[abs(Z) .> tolerance] = min(divergence, i)
+          }
         }
       }
-    }
-    //  #endif
+    #endif
   }
 
   func test_pmapKernelJulia() {
