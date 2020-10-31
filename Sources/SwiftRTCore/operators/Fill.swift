@@ -65,17 +65,17 @@ import _Differentiation
   concatenate(tensors, axis: axis)
 }
 
-// TODO: re-enable with the next official toolchain release
-// extension Tensor {
-//   @differentiable(where Element: DifferentiableNumeric)
-//   @inlinable public func concatenated(
-//     with others: Self...,
-//     alongAxis axis: Int = 0
-//   ) -> Self {
-//     guard others.count > 1 else { return self }
-//     return SwiftRTCore.concatenate([self] + others, axis: axis)
-//   }
-// }
+extension Tensor {
+  // TODO: re-enable with the next official toolchain release
+  // @differentiable(where Element: DifferentiableNumeric)
+  @inlinable public func concatenated(
+    with others: Self...,
+    alongAxis axis: Int = 0
+  ) -> Self {
+    guard others.count > 1 else { return self }
+    return SwiftRTCore.concatenate([self] + others, axis: axis)
+  }
+}
 
 @inlinable public func concatenatedShape<S, E>(
   _ tensors: [Tensor<S, E>],
