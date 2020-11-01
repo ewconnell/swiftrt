@@ -96,6 +96,16 @@ struct Constant {
         return value;
     }
 
+    __DEVICE_INLINE__ T operator[](uint32_t index) const {
+        return value;
+    }
+
+    //--------------------------------------------------------------------------
+    // the linear buffer position
+    __DEVICE_INLINE__ uint32_t linear(const Logical& position) const {
+        return 0;
+    }
+
     __DEVICE_INLINE__ uint32_t sequence(const Logical& position) const {
         return position[0];
     }
@@ -155,7 +165,7 @@ struct Flat {
         return buffer[index];
     }
 
-        //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     // the linear buffer position
     __DEVICE_INLINE__ uint32_t linear(const Logical& position) const {
         return position[0];

@@ -20,6 +20,8 @@
 #include "complex.cuh"
 #include "iterators.cuh"
 
+#include <stdio.h>
+
 //==============================================================================
 /// Op3
 /// - Parameters:
@@ -123,6 +125,15 @@ __global__ void map(
 ) {
     auto p = IterOut::Logical(blockIdx, blockDim, threadIdx);
     if (iterOut.isInBounds(p)) op(iterA[p], iterB[p], iterC[p], iterOut[p]);
+
+    // if (iterOut.isInBounds(p)) {
+    //     auto ia = iterA.linear(p);
+    //     auto ib = iterB.linear(p);
+    //     auto ic = iterC.linear(p);
+    //     auto io = iterOut.linear(p);
+    //     op(iterA[p], iterB[p], iterC[p], iterOut[p]);
+    //     // op(iterA[ia], iterB[ib], iterC[ic], iterOut[io]);
+    // }
 }
 
 //--------------------------------------
@@ -212,7 +223,7 @@ static cudaError_t flattenedTET(
         dim3 grid = gridSize(iterO.count, tile);
 
         map<<<grid, tile, 0, stream>>>(Op(), iterA, iterE, iterC, iterO);
-        return CudaKernelPostCheck(stream);
+        return cudaSuccess;
     }
     return cudaErrorNotSupported;
 }
