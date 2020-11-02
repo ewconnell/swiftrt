@@ -154,50 +154,50 @@ final class test_Fractals: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_JuliaInto() {
-    // // #if !DEBUG
-    //   // parameters
-    //   // useSyncQueue()
-    //   let iterations = 2048 * 10
-    //   let size = (r: 1000, c: 1000)
-    //   let tolerance: Float = 4.0
-    //   var C = Complex<Float>(-0.8, 0.156)
-    //   let first = Complex<Float>(-1.7, 1.7)
-    //   let last = Complex<Float>(1.7, -1.7)
-    //   typealias CF = Complex<Float>
-    //   let rFirst = CF(first.real, 0)
-    //   let rLast = CF(last.real, 0)
-    //   let iFirst = CF(0, first.imaginary)
-    //   let iLast = CF(0, last.imaginary)
+    // #if !DEBUG
+      // parameters
+      // useSyncQueue()
+      let iterations = 2048
+      let size = (r: 1000, c: 1000)
+      let tolerance: Float = 4.0
+      let C = Complex<Float>(-0.8, 0.156)
+      let first = Complex<Float>(-1.7, 1.7)
+      let last = Complex<Float>(1.7, -1.7)
+      typealias CF = Complex<Float>
+      let rFirst = CF(first.real, 0)
+      let rLast = CF(last.real, 0)
+      let iFirst = CF(0, first.imaginary)
+      let iLast = CF(0, last.imaginary)
 
-    //   // repeat rows of real range, columns of imaginary range, and combine
-    //   let d = full(size, iterations)
-    //   var Z =
-    //     repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-    //     + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-    //   Z = Z.shared()
+      // repeat rows of real range, columns of imaginary range, and combine
+      var d = full(size, iterations)
+      d = d.shared()
+      var Z =
+        repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
+        + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+      Z = Z.shared()
 
-    //   // cpu platform: mac cpu16 0.850s, ubuntu cpu6: 2.589s
-    //   // cuda platform: ubuntu cpu6: 3.296s, gpu: 1.430s
-    //   var mindi = Tensor(like: d)
-    //   var absZ = Tensor(like: Z)
-    //   var zgtt = TensorR2<Bool>(shape: Z.shape, order: Z.order)
+      // cpu platform: mac cpu16 0.850s, ubuntu cpu6: 2.589s
+      // cuda platform: ubuntu cpu6: 3.296s, gpu: 1.430s
+      var mindi = Tensor(like: d)
+      var absZ =  TensorR2<Float>(shape: Z.shape, order: Z.order)
+      var zgtt = TensorR2<Bool>(shape: Z.shape, order: Z.order)
 
-    //   measure {
-    //     //   pmap(Z, &divergence) { Z, divergence in
-    //     for _ in 0..<iterations {
-    //       multiply(Z, Z, add: C, into: &Z)
-          
-    //       let m = min(d, i, into: &mindi)
-    //       let absz = abs(X, into: absZ)
-    //       let gt = greater(absz, tolerance, into: zgtt)
-    //       replace(d, m, where: gt, into: &d)
+      measure {
+        //   pmap(Z, &divergence) { Z, divergence in
+        for i in 0..<iterations {
+          multiply(Z, Z, add: C, into: &Z)
+          min(d, i, into: &mindi)
+          abs(Z, into: &absZ)
+          greater(absZ, tolerance, into: &zgtt)
+          replace(x: d, with: mindi, where: zgtt, into: &d)
 
-    //       // d[abs(Z) .> tolerance] = min(d, i)
-    //     }
-    //     currentQueue.waitForCompletion()
-    //     //   }
-    //   }
-    // // #endif
+          // d[abs(Z) .> tolerance] = min(d, i)
+        }
+        currentQueue.waitForCompletion()
+        //   }
+      }
+    // #endif
   }
 
   func test_pmapKernelJulia() {

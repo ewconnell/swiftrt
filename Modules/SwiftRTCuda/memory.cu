@@ -22,6 +22,7 @@
 #include <cub/device/device_reduce.cuh>
 using namespace cub;
 
+#include <stdio.h>
 
 //---------------------------------------------------------------------
 // Globals, constants and typedefs
@@ -32,6 +33,7 @@ CachingDeviceAllocator  g_allocator(true);  // Caching allocator for device memo
 
 
 cudaError_t srtDeviceAllocate(void **devPtr, size_t size, cudaStream_t stream) {
+    // printf("srtDeviceAllocate: %ld\n", size);
     return g_allocator.DeviceAllocate(devPtr, size, stream);
 }
 

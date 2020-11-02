@@ -87,12 +87,30 @@ where S: TensorShape, E.Value: DifferentiableNumeric & Comparable {
   return result
 }
 
+@inlinable public func min<S, E>(
+  _ lhs: Tensor<S, E>,
+  _ rhs: E.Value,
+  into out: inout Tensor<S, E>
+) where E.Value: Comparable {
+  assert(lhs.shape == out.shape, _messageTensorShapeMismatch)
+  currentQueue.min(lhs, rhs, &out)
+}
+
+
 @differentiable(where E.Value: DifferentiableNumeric)
 @inlinable public func min<S, E>(
   _ lhs: Tensor<S, E>,
   _ rhs: Int
 ) -> Tensor<S, E> where E.Value: Comparable & Numeric {
   min(lhs, E.Value(exactly: rhs)!)
+}
+
+@inlinable public func min<S, E>(
+  _ lhs: Tensor<S, E>,
+  _ rhs: Int,
+  into out: inout Tensor<S, E>
+) where E.Value: Comparable & Numeric {
+  min(lhs, E.Value(exactly: rhs)!, into: &out)
 }
 
 @derivative(of:min)
@@ -355,6 +373,15 @@ extension Tensor where TensorElement.Value: Equatable {
 //==============================================================================
 /// greater
 /// Computes `lhs .> rhs` element-wise and returns a tensor of Bool values
+@inlinable public func greater<S,E>(
+  _ lhs: Tensor<S,E>,
+  _ rhs: E.Value,
+  into out: inout Tensor<S,Bool>
+) where E.Value: Comparable {
+  assert(lhs.shape == out.shape, _messageTensorShapeMismatch)
+  currentQueue.greater(lhs, rhs, &out)
+}
+
 extension Tensor where TensorElement.Value: Comparable {
   @inlinable public static func .> (_ lhs: Self, _ rhs: Self) -> Tensor<Shape, Bool> {
     assert(lhs.shape == rhs.shape, _messageTensorShapeMismatch)

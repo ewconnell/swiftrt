@@ -255,3 +255,12 @@ extension Tensor {
   currentQueue.replace(x, y, condition, &result)
   return result
 }
+
+@inlinable public func replace<S, E>(
+  x: Tensor<S, E>,
+  with y: Tensor<S, E>,
+  where condition: Tensor<S, Bool>,
+  into out: inout Tensor<S, E> 
+) {
+  currentQueue.replace(x, y, condition, &out)
+}
