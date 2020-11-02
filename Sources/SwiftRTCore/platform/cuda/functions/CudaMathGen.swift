@@ -47,7 +47,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func acos<S,E>(
+  @inlinable public func acos<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -64,7 +64,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func acosh<S,E>(
+  @inlinable public func acosh<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -81,7 +81,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func asin<S,E>(
+  @inlinable public func asin<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -98,7 +98,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func asinh<S,E>(
+  @inlinable public func asinh<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -115,7 +115,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func atan<S,E>(
+  @inlinable public func atan<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -132,7 +132,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func atanh<S,E>(
+  @inlinable public func atanh<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -149,7 +149,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cos<S,E>(
+  @inlinable public func cos<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -166,7 +166,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cosh<S,E>(
+  @inlinable public func cosh<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -183,7 +183,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func erf<S,E>(
+  @inlinable public func erf<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -200,7 +200,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func erfc<S,E>(
+  @inlinable public func erfc<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -217,7 +217,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func exp<S,E>(
+  @inlinable public func exp<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -234,7 +234,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func exp2<S,E>(
+  @inlinable public func exp2<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -251,7 +251,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func exp10<S,E>(
+  @inlinable public func exp10<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -268,7 +268,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func expMinusOne<S,E>(
+  @inlinable public func expMinusOne<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -285,7 +285,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func gamma<S,E>(
+  @inlinable public func gamma<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -302,7 +302,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func log<S,E>(
+  @inlinable public func log<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -319,7 +319,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func log2<S,E>(
+  @inlinable public func log2<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -336,7 +336,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func log10<S,E>(
+  @inlinable public func log10<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -353,7 +353,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func logGamma<S,E>(
+  @inlinable public func logGamma<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -370,7 +370,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func neg<S,E>(
+  @inlinable public func neg<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: SignedNumeric {
@@ -387,7 +387,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func sigmoid<S,E>(
+  @inlinable public func sigmoid<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -404,7 +404,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func sign<S,E>(
+  @inlinable public func sign<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Comparable & SignedNumeric {
@@ -421,7 +421,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func sin<S,E>(
+  @inlinable public func sin<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -438,7 +438,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func sinh<S,E>(
+  @inlinable public func sinh<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -455,7 +455,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func sqrt<S,E>(
+  @inlinable public func sqrt<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -472,7 +472,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func squared<S,E>(
+  @inlinable public func squared<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Numeric {
@@ -489,7 +489,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func tan<S,E>(
+  @inlinable public func tan<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {
@@ -506,7 +506,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func tanh<S,E>(
+  @inlinable public func tanh<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Real {

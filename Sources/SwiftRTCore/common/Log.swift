@@ -439,7 +439,7 @@ public struct LogCategories: OptionSet {
 
 public enum LogCategory: CustomStringConvertible {
   case alloc, blank, block, copy, create, device, expanding,
-    fallback, layout, mutation, queueGpu, queueCpu, record, reference,
+    fallback, layout, mutate, queueGpu, queueCpu, record, reference,
     release, reorder, setup, signaled, sync, timeout, wait
 
   public var description: String {
@@ -453,7 +453,7 @@ public enum LogCategory: CustomStringConvertible {
     case .expanding: return "[\(setText("EXPANDING", color: .cyan))] "
     case .fallback: return "[\(setText("FALLBACK ", color: .yellow))] "
     case .layout: return "[\(setText("LAYOUT   ", color: .yellow))] "
-    case .mutation: return "[\(setText("MUTATE   ", color: .blue))] "
+    case .mutate: return "[\(setText("MUTATE   ", color: .magenta))] "
     case .queueGpu: return "[\(setText("GPU >>>> ", color: .white))] "
     case .queueCpu: return "[\(setText("CPU >>>> ", color: .white))] "
     case .record: return "[\(setText("RECORD   ", color: .yellow))] "

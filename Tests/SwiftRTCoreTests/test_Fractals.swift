@@ -30,7 +30,7 @@ final class test_Fractals: XCTestCase {
     ("test_pmapKernelJulia", test_pmapKernelJulia),
     ("test_pmapKernelMandelbrot", test_pmapKernelMandelbrot),
     ("test_Julia", test_Julia),
-    ("test_JuliaInto", test_JuliaInto),
+    ("test_JuliaCachedMemory", test_JuliaCachedMemory),
     ("test_Mandelbrot", test_Mandelbrot),
   ]
 
@@ -153,7 +153,7 @@ final class test_Fractals: XCTestCase {
   }
 
   //--------------------------------------------------------------------------
-  func test_JuliaInto() {
+  func test_JuliaCachedMemory() {
     #if !DEBUG
       // parameters
       // useSyncQueue()
@@ -170,27 +170,28 @@ final class test_Fractals: XCTestCase {
       let iLast = CF(0, last.imaginary)
 
       // repeat rows of real range, columns of imaginary range, and combine
-      var d = full(size, iterations)
-      d = d.shared()
       var Z =
         repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
         + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-      Z = Z.shared()
+      var d = full(size, iterations)
 
       // cpu platform: mac cpu16 0.850s, ubuntu cpu6: 2.589s
       // cuda platform: ubuntu cpu6: 3.296s, gpu: 1.430s
-      let queue = currentQueue
-      var mindi = Tensor(like: d)
-      var absZ =  TensorR2<Float>(shape: Z.shape, order: Z.order)
-      var zgtt = TensorR2<Bool>(shape: Z.shape, order: Z.order)
+      Z = Z.shared()
+      d = d.shared()
+
+      var min_di = Tensor(like: d)
+      var abs_Z =  TensorR2<Float>(shape: Z.shape, order: Z.order)
+      var gt_absZt2 = TensorR2<Bool>(shape: Z.shape, order: Z.order)
+      let t2 = tolerance * tolerance
 
       measure {
         for i in 0..<iterations {
-          queue.multiply(Z, Z, add: C, &Z)
-          queue.min(d, Float(i), &mindi)
-          queue.abs(Z, &absZ)
-          queue.greater(absZ, tolerance, &zgtt)
-          queue.replace(d, mindi, zgtt, &d)
+          currentQueue.multiply(Z, Z, add: C, &Z)
+          currentQueue.min(d, Float(i), &min_di)
+          currentQueue.abs2(Z, &abs_Z)
+          currentQueue.greater(abs_Z, t2, &gt_absZt2)
+          currentQueue.replace(d, min_di, gt_absZt2, &d)
         }
         currentQueue.waitForCompletion()
       }

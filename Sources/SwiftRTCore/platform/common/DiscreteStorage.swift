@@ -128,22 +128,27 @@ public final class DiscreteStorage: StorageBuffer {
     isReadOnly = other.isReadOnly
     isReference = other.isReference
     isZero = other.isZero
-    _name = other.name
-    masterVersion = -1
+    _name = other._name
     _lastAccessCopiedMemory = false
+    masterVersion = -1
 
     // setup replica managment
     replicas = [DeviceMemory?](repeating: nil, count: other.replicas.count)
 
-    // copy other master to self using the current queue
-    let queue = currentQueue
+    // get the memory block to copy
     let otherMemory = other.getDeviceMemory(Element.self, queue)
-    let selfMemory = getDeviceMemory(Element.self, queue)
+
+    // use migrate to create a new device memory instance
+    _ = migrate(type, willMutate: true, using: queue)
+
     diagnostic(
       .copy,
-      "\(other.name) --> \(name) \(Element.self)" + "[\(byteCount / MemoryLayout<Element>.size)]",
+      "\(other.name) --> \(self.name) \(Element.self)[\(byteCount / MemoryLayout<Element>.size)]"
+      + " on \(queue.name)",
       categories: .dataCopy)
-    queue.copyAsync(from: otherMemory, to: selfMemory)
+
+    // copy other master to self using the current queue
+    queue.copyAsync(from: otherMemory, to: replicas[queue.deviceIndex]!)
   }
 
   //--------------------------------------------------------------------------
@@ -247,8 +252,7 @@ public final class DiscreteStorage: StorageBuffer {
 
       if willLog(level: .diagnostic) {
         let count = byteCount / MemoryLayout<Element>.size
-        let msg =
-          "\(name) on \(queue.deviceName) using \(queue.name) " + " \(Element.self)[\(count)]"
+        let msg = "\(name) on \(queue.name)  \(Element.self)[\(count)]"
         diagnostic(.alloc, msg, categories: .dataAlloc)
         memory.name = name
         memory.releaseMessage = msg
@@ -308,9 +312,7 @@ public final class DiscreteStorage: StorageBuffer {
     willMutate: Bool,
     using queue: Platform.Device.Queue
   ) -> UnsafeMutableBufferPointer<Element> {
-    assert(
-      willMutate || master != nil,
-      "attempting to read uninitialized memory")
+    assert(willMutate || master != nil, "attempting to read uninitialized memory")
 
     // For this tensor, get a buffer on the device associated
     // with `queue`. This is a synchronous operation. If the buffer

@@ -32,7 +32,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_abs<S, E>(
+  @inlinable public func cpu_abs<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Comparable & SignedNumeric {
@@ -40,7 +40,7 @@ extension DeviceQueue {
     mapOp(x, &out) { abs($0) }
   }
 
-  @inlinable func cpu_abs<S, E>(
+  @inlinable public func cpu_abs<S, E>(
     _ x: Tensor<S, Complex<E>>,
     _ out: inout Tensor<S, E>
   ) where E == E.Value, E.Value: Comparable & SignedNumeric {
@@ -57,7 +57,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_acos<S, E>(
+  @inlinable public func cpu_acos<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -66,7 +66,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_acosh<S, E>(
+  @inlinable public func cpu_acosh<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -75,7 +75,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_add<S, E>(
+  @inlinable public func cpu_add<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -86,7 +86,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out, +)
   }
 
-  @inlinable func cpu_add<S, E>(
+  @inlinable public func cpu_add<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, E>
@@ -98,7 +98,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_and<S, E>(
+  @inlinable public func cpu_and<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -110,7 +110,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_asin<S, E>(
+  @inlinable public func cpu_asin<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -119,7 +119,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_asinh<S, E>(
+  @inlinable public func cpu_asinh<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -128,7 +128,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_atan<S, E>(
+  @inlinable public func cpu_atan<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -137,7 +137,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_atan2<S, E>(
+  @inlinable public func cpu_atan2<S, E>(
     _ y: Tensor<S, E>,
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -149,7 +149,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_atanh<S, E>(
+  @inlinable public func cpu_atanh<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -159,7 +159,7 @@ extension DeviceQueue {
 
   //--------------------------------------------------------------------------
   // FloatingPoint -> Integer
-  @inlinable func cpu_cast<S, E, RE>(
+  @inlinable public func cpu_cast<S, E, RE>(
     from a: Tensor<S, E>,
     to out: inout Tensor<S, RE>
   ) where E.Value: BinaryFloatingPoint, RE.Value: BinaryInteger {
@@ -169,7 +169,7 @@ extension DeviceQueue {
 
   //--------------------------------------------------------------------------
   // Integer -> FloatingPoint
-  @inlinable func cpu_cast<S, E, RE>(
+  @inlinable public func cpu_cast<S, E, RE>(
     from a: Tensor<S, E>,
     to out: inout Tensor<S, RE>
   ) where E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint {
@@ -178,7 +178,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_copy<S, E>(
+  @inlinable public func cpu_copy<S, E>(
     from a: Tensor<S, E>,
     to out: inout Tensor<S, E>
   ) where S: TensorShape {
@@ -189,7 +189,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_cos<S, E>(
+  @inlinable public func cpu_cos<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -198,7 +198,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_cosh<S, E>(
+  @inlinable public func cpu_cosh<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -207,7 +207,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_div<S, E>(
+  @inlinable public func cpu_div<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -218,7 +218,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out, /)
   }
 
-  @inlinable func cpu_div<S, E>(
+  @inlinable public func cpu_div<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, E>
@@ -229,7 +229,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out, /)
   }
 
-  @inlinable func cpu_div<S, E>(
+  @inlinable public func cpu_div<S, E>(
     _ lhs: E.Value,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -241,7 +241,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_elementsAlmostEqual<S, E>(
+  @inlinable public func cpu_elementsAlmostEqual<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ tolerance: E.Value,
@@ -256,7 +256,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_equal<S, E>(
+  @inlinable public func cpu_equal<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
@@ -268,7 +268,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_erf<S, E>(
+  @inlinable public func cpu_erf<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -277,7 +277,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_erfc<S, E>(
+  @inlinable public func cpu_erfc<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -286,7 +286,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_exp<S, E>(
+  @inlinable public func cpu_exp<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -295,7 +295,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_exp2<S, E>(
+  @inlinable public func cpu_exp2<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -304,7 +304,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_exp10<S, E>(
+  @inlinable public func cpu_exp10<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -313,7 +313,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_expMinusOne<S, E>(
+  @inlinable public func cpu_expMinusOne<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -324,7 +324,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_gamma<S, E>(
+  @inlinable public func cpu_gamma<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -333,7 +333,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_greater<S, E>(
+  @inlinable public func cpu_greater<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
@@ -344,7 +344,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out, >)
   }
 
-  @inlinable func cpu_greater<S, E>(
+  @inlinable public func cpu_greater<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, Bool>
@@ -356,7 +356,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_greaterOrEqual<S, E>(
+  @inlinable public func cpu_greaterOrEqual<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
@@ -368,7 +368,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out, >=)
   }
 
-  @inlinable func cpu_greaterOrEqual<S, E>(
+  @inlinable public func cpu_greaterOrEqual<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, Bool>
@@ -380,7 +380,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_hypot<S, E>(
+  @inlinable public func cpu_hypot<S, E>(
     _ x: Tensor<S, E>,
     _ y: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -392,7 +392,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_less<S, E>(
+  @inlinable public func cpu_less<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
@@ -403,7 +403,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out, <)
   }
 
-  @inlinable func cpu_less<S, E>(
+  @inlinable public func cpu_less<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, Bool>
@@ -414,7 +414,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out, <)
   }
   //--------------------------------------------------------------------------
-  @inlinable func cpu_lessOrEqual<S, E>(
+  @inlinable public func cpu_lessOrEqual<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
@@ -425,7 +425,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out, <=)
   }
 
-  @inlinable func cpu_lessOrEqual<S, E>(
+  @inlinable public func cpu_lessOrEqual<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, Bool>
@@ -437,7 +437,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_log<S, E>(
+  @inlinable public func cpu_log<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -446,7 +446,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_log<S, E>(
+  @inlinable public func cpu_log<S, E>(
     onePlus x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -457,7 +457,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_log2<S, E>(
+  @inlinable public func cpu_log2<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -466,7 +466,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_log10<S, E>(
+  @inlinable public func cpu_log10<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -475,7 +475,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_logGamma<S, E>(
+  @inlinable public func cpu_logGamma<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -484,7 +484,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_matmul<E>(
+  @inlinable public func cpu_matmul<E>(
     _ lhs: TensorR2<E>, _ transposeLhs: Bool,
     _ rhs: TensorR2<E>, _ transposeRhs: Bool,
     _ out: inout TensorR2<E>
@@ -507,7 +507,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_matmul<E>(
+  @inlinable public func cpu_matmul<E>(
     _ lhs: TensorR3<E>, _ transposeLhs: Bool,
     _ rhs: TensorR3<E>, _ transposeRhs: Bool,
     _ out: inout TensorR3<E>
@@ -532,7 +532,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_max<S, E>(
+  @inlinable public func cpu_max<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -543,7 +543,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out) { $0 >= $1 ? $0 : $1 }
   }
 
-  @inlinable func cpu_max<S, E>(
+  @inlinable public func cpu_max<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, E>
@@ -555,7 +555,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_min<S, E>(
+  @inlinable public func cpu_min<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -566,7 +566,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out) { $0 < $1 ? $0 : $1 }
   }
 
-  @inlinable func cpu_min<S, E>(
+  @inlinable public func cpu_min<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, E>
@@ -578,7 +578,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_mul<S, E>(
+  @inlinable public func cpu_mul<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -589,7 +589,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out, *)
   }
 
-  @inlinable func cpu_mul<S, E>(
+  @inlinable public func cpu_mul<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, E>
@@ -602,7 +602,7 @@ extension DeviceQueue {
 
   //--------------------------------------------------------------------------
   // fused multiply add
-  @inlinable func cpu_multiply<S, E>(
+  @inlinable public func cpu_multiply<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     add bias: E.Value,
@@ -615,7 +615,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, bias, &out) { $0 * $1 + $2 }
   }
 
-  @inlinable func cpu_multiply<S, E>(
+  @inlinable public func cpu_multiply<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     add bias: Tensor<S, E>,
@@ -629,7 +629,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_neg<S, E>(
+  @inlinable public func cpu_neg<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: SignedNumeric {
@@ -638,7 +638,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_notEqual<S, E>(
+  @inlinable public func cpu_notEqual<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
@@ -650,7 +650,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_or<S, E>(
+  @inlinable public func cpu_or<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -662,7 +662,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_pow<S, E>(
+  @inlinable public func cpu_pow<S, E>(
     _ x: Tensor<S, E>,
     _ y: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -674,7 +674,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_pow<S, E>(
+  @inlinable public func cpu_pow<S, E>(
     _ x: Tensor<S, E>,
     _ n: Int,
     _ out: inout Tensor<S, E>
@@ -686,7 +686,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_replace<S, E>(
+  @inlinable public func cpu_replace<S, E>(
     _ x: Tensor<S, E>,
     _ y: Tensor<S, E>,
     _ condition: Tensor<S, Bool>,
@@ -700,7 +700,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_root<S, E>(
+  @inlinable public func cpu_root<S, E>(
     _ x: Tensor<S, E>,
     _ n: Int,
     _ out: inout Tensor<S, E>
@@ -712,7 +712,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_sigmoid<S, E>(
+  @inlinable public func cpu_sigmoid<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -723,7 +723,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_sign<S, E>(
+  @inlinable public func cpu_sign<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Comparable & SignedNumeric {
@@ -732,7 +732,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_sin<S, E>(
+  @inlinable public func cpu_sin<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -741,7 +741,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_sinh<S, E>(
+  @inlinable public func cpu_sinh<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -750,7 +750,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_subtract<S, E>(
+  @inlinable public func cpu_subtract<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -762,7 +762,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out, -)
   }
 
-  @inlinable func cpu_subtract<S, E>(
+  @inlinable public func cpu_subtract<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, E>
@@ -774,7 +774,7 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out, -)
   }
 
-  @inlinable func cpu_subtract<S, E>(
+  @inlinable public func cpu_subtract<S, E>(
     _ lhs: E.Value,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -786,7 +786,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_sqrt<S, E>(
+  @inlinable public func cpu_sqrt<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -795,7 +795,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_squared<S, E>(
+  @inlinable public func cpu_squared<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Numeric {
@@ -804,7 +804,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cpu_tan<S, E>(
+  @inlinable public func cpu_tan<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -812,7 +812,7 @@ extension DeviceQueue {
     mapOp(x, &out) { .tan($0) }
   }
 
-  @inlinable func cpu_tanh<S, E>(
+  @inlinable public func cpu_tanh<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -824,7 +824,7 @@ extension DeviceQueue {
   // specialized derivative implementations
   //==========================================================================
   /// cpu_vjpMin
-  @inlinable func cpu_vjpMin<S, E>(
+  @inlinable public func cpu_vjpMin<S, E>(
     _ x: Tensor<S, E>,
     _ y: Tensor<S, E>,
     _ scale: Tensor<S, E>,
@@ -837,7 +837,7 @@ extension DeviceQueue {
   }
 
   /// cpu_vjpMin
-  @inlinable func cpu_vjpMin<S, E>(
+  @inlinable public func cpu_vjpMin<S, E>(
     _ x: Tensor<S, E>,
     _ y: E.Value,
     _ scale: Tensor<S, E>,
@@ -850,7 +850,7 @@ extension DeviceQueue {
   }
 
   /// cpu_vjpMin
-  @inlinable func cpu_vjpMin<S, E>(
+  @inlinable public func cpu_vjpMin<S, E>(
     _ x: Tensor<S, E>,
     _ y: Tensor<S, E>,
     _ scale: Tensor<S, E>,
@@ -866,7 +866,7 @@ extension DeviceQueue {
   }
 
   /// cpu_vjpMin
-  @inlinable func cpu_vjpMin<S, E>(
+  @inlinable public func cpu_vjpMin<S, E>(
     _ x: Tensor<S, E>,
     _ y: E.Value,
     _ scale: Tensor<S, E>,
@@ -883,7 +883,7 @@ extension DeviceQueue {
 
   //--------------------------------------------------------------------------
   /// cpu_vjpMax
-  @inlinable func cpu_vjpMax<S, E>(
+  @inlinable public func cpu_vjpMax<S, E>(
     _ x: Tensor<S, E>,
     _ y: Tensor<S, E>,
     _ scale: Tensor<S, E>,
@@ -896,7 +896,7 @@ extension DeviceQueue {
   }
 
   /// cpu_vjpMax
-  @inlinable func cpu_vjpMax<S, E>(
+  @inlinable public func cpu_vjpMax<S, E>(
     _ x: Tensor<S, E>,
     _ y: E.Value,
     _ scale: Tensor<S, E>,
@@ -909,7 +909,7 @@ extension DeviceQueue {
   }
 
   /// cpu_vjpMax
-  @inlinable func cpu_vjpMax<S, E>(
+  @inlinable public func cpu_vjpMax<S, E>(
     _ x: Tensor<S, E>,
     _ y: Tensor<S, E>,
     _ scale: Tensor<S, E>,
@@ -925,7 +925,7 @@ extension DeviceQueue {
   }
 
   /// cpu_vjpMax
-  @inlinable func cpu_vjpMax<S, E>(
+  @inlinable public func cpu_vjpMax<S, E>(
     _ x: Tensor<S, E>,
     _ y: E.Value,
     _ scale: Tensor<S, E>,
@@ -976,14 +976,14 @@ extension CpuQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func acos<S, E>(
+  @inlinable public func acos<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
     cpu_acos(x, &out)
   }
   //--------------------------------------------------------------------------
-  @inlinable func acosh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func acosh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_acosh(x, &out) }
   //--------------------------------------------------------------------------
   @inlinable public func add<S, E>(
@@ -1002,52 +1002,52 @@ extension CpuQueue {
     cpu_add(lhs, rhs, &out)
   }
   //--------------------------------------------------------------------------
-  @inlinable func and<S, E>(
+  @inlinable public func and<S, E>(
     _ lhs: Tensor<S, E>, _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   )
   where E.Value == Bool { cpu_and(lhs, rhs, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func asin<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func asin<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_asin(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func asinh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func asinh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_asinh(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func atan<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func atan<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_atan(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func atan2<S, E>(
+  @inlinable public func atan2<S, E>(
     _ y: Tensor<S, E>, _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   )
   where E.Value: Real { cpu_atan2(y, x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func atanh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func atanh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_atanh(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func cast<S, E, RE>(
+  @inlinable public func cast<S, E, RE>(
     from buffer: Tensor<S, E>,
     to out: inout Tensor<S, RE>
   )
   where E.Value: BinaryFloatingPoint, RE.Value: BinaryInteger { cpu_cast(from: buffer, to: &out) }
   //--------------------------------------------------------------------------
-  @inlinable func cast<S, E, RE>(
+  @inlinable public func cast<S, E, RE>(
     from buffer: Tensor<S, E>,
     to out: inout Tensor<S, RE>
   )
   where E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint { cpu_cast(from: buffer, to: &out) }
   //--------------------------------------------------------------------------
-  @inlinable func copy<S, E>(from a: Tensor<S, E>, to b: inout Tensor<S, E>)
+  @inlinable public func copy<S, E>(from a: Tensor<S, E>, to b: inout Tensor<S, E>)
   where S: TensorShape { cpu_copy(from: a, to: &b) }
   //--------------------------------------------------------------------------
-  @inlinable func cos<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func cos<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_cos(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func cosh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func cosh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_cosh(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func div<S, E>(
+  @inlinable public func div<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -1055,7 +1055,7 @@ extension CpuQueue {
     cpu_div(lhs, rhs, &out)
   }
 
-  @inlinable func div<S, E>(
+  @inlinable public func div<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, E>
@@ -1063,7 +1063,7 @@ extension CpuQueue {
     cpu_div(lhs, rhs, &out)
   }
 
-  @inlinable func div<S, E>(
+  @inlinable public func div<S, E>(
     _ lhs: E.Value,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -1072,7 +1072,7 @@ extension CpuQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func elementsAlmostEqual<S, E>(
+  @inlinable public func elementsAlmostEqual<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ tolerance: E.Value,
@@ -1081,47 +1081,47 @@ extension CpuQueue {
     cpu_elementsAlmostEqual(lhs, rhs, tolerance, &out)
   }
   //--------------------------------------------------------------------------
-  @inlinable func equal<S, E>(
+  @inlinable public func equal<S, E>(
     _ lhs: Tensor<S, E>, _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
   )
   where E.Value: Equatable { cpu_equal(lhs, rhs, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func erf<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func erf<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_erf(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func erfc<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func erfc<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_erfc(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func exp<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func exp<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_exp(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func exp2<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func exp2<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_exp2(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func exp10<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func exp10<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_exp10(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func expMinusOne<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func expMinusOne<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_expMinusOne(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func gamma<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func gamma<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_gamma(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func greater<S, E>(
+  @inlinable public func greater<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
   ) where E.Value: Comparable { cpu_greater(lhs, rhs, &out) }
 
-  @inlinable func greater<S, E>(
+  @inlinable public func greater<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, Bool>
   ) where E.Value: Comparable { cpu_greater(lhs, rhs, &out) }
 
   //--------------------------------------------------------------------------
-  @inlinable func greaterOrEqual<S, E>(
+  @inlinable public func greaterOrEqual<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
@@ -1129,7 +1129,7 @@ extension CpuQueue {
     cpu_greaterOrEqual(lhs, rhs, &out)
   }
 
-  @inlinable func greaterOrEqual<S, E>(
+  @inlinable public func greaterOrEqual<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, Bool>
@@ -1137,57 +1137,57 @@ extension CpuQueue {
     cpu_greaterOrEqual(lhs, rhs, &out)
   }
   //--------------------------------------------------------------------------
-  @inlinable func hypot<S, E>(
+  @inlinable public func hypot<S, E>(
     _ x: Tensor<S, E>, _ y: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   )
   where E.Value: Real { cpu_hypot(x, y, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func less<S, E>(
+  @inlinable public func less<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
   ) where E.Value: Comparable { cpu_less(lhs, rhs, &out) }
 
-  @inlinable func less<S, E>(
+  @inlinable public func less<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, Bool>
   ) where E.Value: Comparable { cpu_less(lhs, rhs, &out) }
 
   //--------------------------------------------------------------------------
-  @inlinable func lessOrEqual<S, E>(
+  @inlinable public func lessOrEqual<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
   ) where E.Value: Comparable { cpu_lessOrEqual(lhs, rhs, &out) }
 
-  @inlinable func lessOrEqual<S, E>(
+  @inlinable public func lessOrEqual<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, Bool>
   ) where E.Value: Comparable { cpu_lessOrEqual(lhs, rhs, &out) }
 
   //--------------------------------------------------------------------------
-  @inlinable func log<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func log<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_log(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func log<S, E>(onePlus x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func log<S, E>(onePlus x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_log(onePlus: x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func log2<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func log2<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_log2(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func log10<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func log10<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_log10(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func logGamma<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func logGamma<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_logGamma(x, &out) }
   //--------------------------------------------------------------------------
-  //    @inlinable func matmul2<E>(type: E.Type) -> DeviceMatmul2<E>
+  //    @inlinable public func matmul2<E>(type: E.Type) -> DeviceMatmul2<E>
   //    where E: StorageElement, E.Value: StorageElement & Numeric { CpuMatmul2<E>() }
   //--------------------------------------------------------------------------
-  @inlinable func matmul<E>(
+  @inlinable public func matmul<E>(
     _ lhs: TensorR2<E>, _ transposeLhs: Bool,
     _ rhs: TensorR2<E>, _ transposeRhs: Bool,
     _ out: inout TensorR2<E>
@@ -1195,7 +1195,7 @@ extension CpuQueue {
     cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &out)
   }
   //--------------------------------------------------------------------------
-  @inlinable func matmul<E>(
+  @inlinable public func matmul<E>(
     _ lhs: TensorR3<E>, _ transposeLhs: Bool,
     _ rhs: TensorR3<E>, _ transposeRhs: Bool,
     _ out: inout TensorR3<E>
@@ -1220,7 +1220,7 @@ extension CpuQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func max<S, E>(
+  @inlinable public func max<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -1228,7 +1228,7 @@ extension CpuQueue {
     cpu_max(lhs, rhs, &out)
   }
 
-  @inlinable func max<S, E>(
+  @inlinable public func max<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, E>
@@ -1237,7 +1237,7 @@ extension CpuQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func mul<S, E>(
+  @inlinable public func mul<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -1245,7 +1245,7 @@ extension CpuQueue {
     cpu_mul(lhs, rhs, &out)
   }
 
-  @inlinable func mul<S, E>(
+  @inlinable public func mul<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, E>
@@ -1274,28 +1274,28 @@ extension CpuQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func neg<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func neg<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: SignedNumeric { cpu_neg(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func notEqual<S, E>(
+  @inlinable public func notEqual<S, E>(
     _ lhs: Tensor<S, E>, _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
   )
   where E.Value: Equatable { cpu_notEqual(lhs, rhs, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func or<S, E>(
+  @inlinable public func or<S, E>(
     _ lhs: Tensor<S, E>, _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   )
   where E.Value == Bool { cpu_or(lhs, rhs, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func pow<S, E>(
+  @inlinable public func pow<S, E>(
     _ x: Tensor<S, E>, _ y: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   )
   where E.Value: Real { cpu_pow(x, y, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func pow<S, E>(
+  @inlinable public func pow<S, E>(
     _ x: Tensor<S, E>, _ n: Int,
     _ out: inout Tensor<S, E>
   )
@@ -1308,27 +1308,27 @@ extension CpuQueue {
     _ out: inout Tensor<S, E>
   ) { cpu_replace(x, y, condition, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func root<S, E>(
+  @inlinable public func root<S, E>(
     _ x: Tensor<S, E>, _ n: Int,
     _ out: inout Tensor<S, E>
   )
   where E.Value: Real { cpu_root(x, n, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func sigmoid<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func sigmoid<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_sigmoid(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func sign<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func sign<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Comparable & SignedNumeric {
     cpu_sign(x, &out)
   }
   //--------------------------------------------------------------------------
-  @inlinable func sin<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func sin<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_sin(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func sinh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func sinh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_sinh(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func subtract<S, E>(
+  @inlinable public func subtract<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -1336,7 +1336,7 @@ extension CpuQueue {
     cpu_subtract(lhs, rhs, &out)
   }
 
-  @inlinable func subtract<S, E>(
+  @inlinable public func subtract<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, E>
@@ -1344,7 +1344,7 @@ extension CpuQueue {
     cpu_subtract(lhs, rhs, &out)
   }
 
-  @inlinable func subtract<S, E>(
+  @inlinable public func subtract<S, E>(
     _ lhs: E.Value,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -1353,16 +1353,16 @@ extension CpuQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func sqrt<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func sqrt<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_sqrt(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func squared<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func squared<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Numeric { cpu_squared(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func tan<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func tan<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_tan(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func tanh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  @inlinable public func tanh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_tanh(x, &out) }
 }
 
@@ -1370,50 +1370,50 @@ extension CpuQueue {
 // DeviceQueue specialized derivative delegation
 extension DeviceQueue where Self: CpuFunctions {
   //--------------------------------------------------------------------------
-  @inlinable func vjpMin<S, E>(
+  @inlinable public func vjpMin<S, E>(
     _ x: Tensor<S, E>, _ y: Tensor<S, E>, _ scale: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   )
   where E.Value: Comparable & Numeric { cpu_vjpMin(x, y, scale, &out) }
 
-  @inlinable func vjpMin<S, E>(
+  @inlinable public func vjpMin<S, E>(
     _ x: Tensor<S, E>, _ y: E.Value, _ scale: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   )
   where E.Value: Comparable & Numeric { cpu_vjpMin(x, y, scale, &out) }
 
-  @inlinable func vjpMin<S, E>(
+  @inlinable public func vjpMin<S, E>(
     _ x: Tensor<S, E>, _ y: Tensor<S, E>, _ scale: Tensor<S, E>,
     _ resultTrue: inout Tensor<S, E>, _ resultFalse: inout Tensor<S, E>
   )
   where E.Value: Comparable & Numeric { cpu_vjpMin(x, y, scale, &resultTrue, &resultFalse) }
 
-  @inlinable func vjpMin<S, E>(
+  @inlinable public func vjpMin<S, E>(
     _ x: Tensor<S, E>, _ y: E.Value, _ scale: Tensor<S, E>,
     _ resultTrue: inout Tensor<S, E>, _ resultFalse: inout Tensor<S, E>
   )
   where E.Value: Comparable & Numeric { cpu_vjpMin(x, y, scale, &resultTrue, &resultFalse) }
 
   //--------------------------------------------------------------------------
-  @inlinable func vjpMax<S, E>(
+  @inlinable public func vjpMax<S, E>(
     _ x: Tensor<S, E>, _ y: Tensor<S, E>, _ scale: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   )
   where E.Value: Comparable & Numeric { cpu_vjpMax(x, y, scale, &out) }
 
-  @inlinable func vjpMax<S, E>(
+  @inlinable public func vjpMax<S, E>(
     _ x: Tensor<S, E>, _ y: E.Value, _ scale: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   )
   where E.Value: Comparable & Numeric { cpu_vjpMax(x, y, scale, &out) }
 
-  @inlinable func vjpMax<S, E>(
+  @inlinable public func vjpMax<S, E>(
     _ x: Tensor<S, E>, _ y: Tensor<S, E>, _ scale: Tensor<S, E>,
     _ resultTrue: inout Tensor<S, E>, _ resultFalse: inout Tensor<S, E>
   )
   where E.Value: Comparable & Numeric { cpu_vjpMax(x, y, scale, &resultTrue, &resultFalse) }
 
-  @inlinable func vjpMax<S, E>(
+  @inlinable public func vjpMax<S, E>(
     _ x: Tensor<S, E>, _ y: E.Value, _ scale: Tensor<S, E>,
     _ resultTrue: inout Tensor<S, E>, _ resultFalse: inout Tensor<S, E>
   )

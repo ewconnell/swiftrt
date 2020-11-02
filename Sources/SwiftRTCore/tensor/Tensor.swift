@@ -372,7 +372,7 @@ where Shape: TensorShape {
 
 //==============================================================================
 /// inplace
-/// prepares a tensor to be modified inplace without causing mutation.
+/// prepares a tensor to be modified inplace without causing mutate.
 /// Primarily used by tensor subscript set functions
 @inlinable public func inplace<S, E>(
   _ tensor: inout Tensor<S, E>,
@@ -552,12 +552,10 @@ extension Tensor {
     } else if !(isKnownUniquelyReferenced(&storage) || isShared) {
       // if not uniquely held then copy before creating the shared view
       diagnostic(
-        .mutation, "\(storage.name) \(Element.self)[\(count)]",
+        .mutate, "\(storage.name) \(Element.self)[\(count)] on \(queue.name)",
         categories: [.dataCopy, .dataMutation])
 
-      storage = Platform.Storage(
-        type: Element.self, copying: storage,
-        using: queue)
+      storage = Platform.Storage(type: Element.self, copying: storage, using: queue)
       logicalElements = LogicalElements(tensor: self)
     }
   }

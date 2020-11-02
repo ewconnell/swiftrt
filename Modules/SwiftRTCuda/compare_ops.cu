@@ -283,7 +283,8 @@ cudaError_t srtReplace(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsABC(paDesc, pbDesc, pcDesc, poDesc)
-    return selectTTBool_T<Replace>(a, aDesc, b, bDesc, condition, cDesc, out, oDesc, stream);
+    // a and b are reversed because conditionalAssign has opposite behavior of replace
+    return selectTTBool_T<Replace>(b, bDesc, a, aDesc, condition, cDesc, out, oDesc, stream);
 }
 
 cudaError_t srtReplaceFlat(
@@ -296,7 +297,8 @@ cudaError_t srtReplaceFlat(
     size_t count,
     cudaStream_t stream
 ) {
-    return select<Replace>(type, a, b, ctype, condition, out, count, stream);
+    // a and b are reversed because conditionalAssign has opposite behavior of replace
+    return select<Replace>(type, b, a, ctype, condition, out, count, stream);
 }
 
 //==============================================================================

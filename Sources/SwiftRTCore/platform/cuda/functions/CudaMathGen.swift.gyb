@@ -67,7 +67,7 @@ extension CudaQueue {
 %   conformance = functions[i][1]
 %   externalName = "srt" + name[:1].upper() + name[1:]
   //--------------------------------------------------------------------------
-  @inlinable func ${name}<S,E>(
+  @inlinable public func ${name}<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: ${conformance} {

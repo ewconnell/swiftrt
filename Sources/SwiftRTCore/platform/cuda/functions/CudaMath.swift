@@ -54,7 +54,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func abs2<S, E>(
+  @inlinable public func abs2<S, E>(
     _ x: Tensor<S, Complex<E>>,
     _ out: inout Tensor<S, E>
   ) where E == E.Value, E.Value: Comparable & SignedNumeric {
@@ -405,6 +405,7 @@ extension CudaQueue {
     _ out: inout Tensor<S, E>
   ) where E.Value: Numeric {
     var status: cudaError_t
+    var bias = bias
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
     guard useGpu else {
@@ -414,24 +415,21 @@ extension CudaQueue {
 
     if canFlatten(lhs, rhs, out) {
       diagnostic(.queueGpu, "multiply(\(lhs.name), \(rhs.name), add: \(bias)) Flat", categories: .queueGpu)
-      status = withUnsafePointer(to: bias) { pbias in
-        srtMultiplyAddFlatTTE(
+      status = srtMultiplyAddFlatTTE(
           E.type,
           lhs.deviceRead(using: self),
           rhs.deviceRead(using: self),
-          pbias,
+          &bias,
           out.deviceReadWrite(using: self),
           out.count,
           stream)
-      }
+
     } else {
       diagnostic(.queueGpu, "multiply(\(lhs.name), \(rhs.name), add: \(bias)) Indexed", categories: .queueGpu)
       status = out.withMutableTensor(using: self) { o, oDesc in
         lhs.withTensor(using: self) { l, lDesc in
           rhs.withTensor(using: self) { r, rDesc in
-            withUnsafePointer(to: bias) { b in
-              srtMultiplyAddTTE(l, lDesc, r, rDesc, b, o, oDesc, stream)
-            }
+            srtMultiplyAddTTE(l, lDesc, r, rDesc, &bias, o, oDesc, stream)
           }
         }
       }
@@ -444,7 +442,7 @@ extension CudaQueue {
 // Additional math ops with unique arguments
 extension CudaQueue {
   //--------------------------------------------------------------------------
-  @inlinable func atan2<S, E>(
+  @inlinable public func atan2<S, E>(
     _ y: Tensor<S, E>,
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -467,7 +465,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cast<S, E, RE>(
+  @inlinable public func cast<S, E, RE>(
     from a: Tensor<S, E>,
     to out: inout Tensor<S, RE>
   ) where E.Value: BinaryFloatingPoint, RE.Value: BinaryInteger {
@@ -486,7 +484,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func cast<S, E, RE>(
+  @inlinable public func cast<S, E, RE>(
     from a: Tensor<S, E>,
     to out: inout Tensor<S, RE>
   )
@@ -506,7 +504,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func hypot<S, E>(
+  @inlinable public func hypot<S, E>(
     _ x: Tensor<S, E>,
     _ y: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -529,7 +527,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func log<S, E>(
+  @inlinable public func log<S, E>(
     onePlus x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
@@ -548,7 +546,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func pow<S, E>(
+  @inlinable public func pow<S, E>(
     _ x: Tensor<S, E>,
     _ y: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -571,7 +569,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func pow<S, E>(
+  @inlinable public func pow<S, E>(
     _ x: Tensor<S, E>,
     _ n: Int,
     _ out: inout Tensor<S, E>
@@ -594,7 +592,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func root<S, E>(
+  @inlinable public func root<S, E>(
     _ x: Tensor<S, E>,
     _ n: Int,
     _ out: inout Tensor<S, E>

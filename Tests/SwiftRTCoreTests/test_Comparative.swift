@@ -86,7 +86,7 @@ class test_Comparative: XCTestCase {
     let replacement = h[0, 1..<(maxj - 1), 1..<(maxi - 1)] - 2.0
 
     // taking a tensor slice adds a copy-on-write reference
-    // so share it first to allow inplace mutation of subview
+    // so share it first to allow inplace mutate of subview
     // by the mask replacement subscript
     var range = rh.shared()[0, 1..<(maxj - 1), 1..<(maxi - 1)]
     range[mask] = replacement

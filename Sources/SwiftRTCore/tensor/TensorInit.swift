@@ -70,10 +70,7 @@ extension Tensor {
     name: String = defaultTensorName
   ) {
     let count = shape.elementCount()
-    let storage = Platform.Storage(
-      type: TensorElement.self,
-      count: count, name: name)
-
+    let storage = Platform.Storage(type: TensorElement.self, count: count, name: name)
     self.init(
       shape: shape,
       strides: shape.strides(for: order),
