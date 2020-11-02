@@ -154,7 +154,7 @@ final class test_Fractals: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_JuliaInto() {
-    // #if !DEBUG
+    #if !DEBUG
       // parameters
       // useSyncQueue()
       let iterations = 2048
@@ -194,7 +194,7 @@ final class test_Fractals: XCTestCase {
         }
         currentQueue.waitForCompletion()
       }
-    // #endif
+    #endif
   }
 
   func test_pmapKernelJulia() {
