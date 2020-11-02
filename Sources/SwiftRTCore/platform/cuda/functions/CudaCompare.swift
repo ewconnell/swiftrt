@@ -515,7 +515,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func replace<S, E>(
+  @inlinable public func replace<S, E>(
     _ x: Tensor<S, E>,
     _ y: Tensor<S, E>,
     _ condition: Tensor<S, Bool>,

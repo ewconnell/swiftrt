@@ -30,7 +30,7 @@ import SwiftRTCuda
 // DeviceQueue functions with default cpu delegation
 extension CudaQueue {
   //--------------------------------------------------------------------------
-  @inlinable func abs<S,E>(
+  @inlinable public func abs<S,E>(
     _ x: Tensor<S,E>, 
     _ out: inout Tensor<S,E>
   ) where E.Value: Comparable & SignedNumeric {

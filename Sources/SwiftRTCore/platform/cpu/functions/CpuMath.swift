@@ -954,14 +954,14 @@ extension CpuQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func abs<S, E>(
+  @inlinable public func abs<S, E>(
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Comparable & SignedNumeric {
     cpu_abs(x, &out)
   }
 
-  @inlinable func abs<S, E>(
+  @inlinable public func abs<S, E>(
     _ x: Tensor<S, Complex<E>>,
     _ out: inout Tensor<S, E>
   ) where E == E.Value, E.Value: Comparable & SignedNumeric {
@@ -1203,7 +1203,7 @@ extension CpuQueue {
     cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &out)
   }
   //--------------------------------------------------------------------------
-  @inlinable func min<S, E>(
+  @inlinable public func min<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
@@ -1211,7 +1211,7 @@ extension CpuQueue {
     cpu_min(lhs, rhs, &out)
   }
 
-  @inlinable func min<S, E>(
+  @inlinable public func min<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: E.Value,
     _ out: inout Tensor<S, E>
@@ -1255,7 +1255,7 @@ extension CpuQueue {
 
   //--------------------------------------------------------------------------
   // fused multiply add
-  @inlinable func multiply<S, E>(
+  @inlinable public func multiply<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     add bias: E.Value,
@@ -1264,7 +1264,7 @@ extension CpuQueue {
     cpu_multiply(lhs, rhs, add: bias, &out)
   }
 
-  @inlinable func multiply<S, E>(
+  @inlinable public func multiply<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     add bias: Tensor<S, E>,
@@ -1301,8 +1301,9 @@ extension CpuQueue {
   )
   where E.Value: Real { cpu_pow(x, n, &out) }
   //--------------------------------------------------------------------------
-  @inlinable func replace<S, E>(
-    _ x: Tensor<S, E>, _ y: Tensor<S, E>,
+  @inlinable public func replace<S, E>(
+    _ x: Tensor<S, E>, 
+    _ y: Tensor<S, E>,
     _ condition: Tensor<S, Bool>,
     _ out: inout Tensor<S, E>
   ) { cpu_replace(x, y, condition, &out) }

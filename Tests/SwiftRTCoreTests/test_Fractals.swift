@@ -179,23 +179,20 @@ final class test_Fractals: XCTestCase {
 
       // cpu platform: mac cpu16 0.850s, ubuntu cpu6: 2.589s
       // cuda platform: ubuntu cpu6: 3.296s, gpu: 1.430s
+      let queue = currentQueue
       var mindi = Tensor(like: d)
       var absZ =  TensorR2<Float>(shape: Z.shape, order: Z.order)
       var zgtt = TensorR2<Bool>(shape: Z.shape, order: Z.order)
 
       measure {
-        //   pmap(Z, &divergence) { Z, divergence in
         for i in 0..<iterations {
-          multiply(Z, Z, add: C, into: &Z)
-          min(d, i, into: &mindi)
-          abs(Z, into: &absZ)
-          greater(absZ, tolerance, into: &zgtt)
-          replace(x: d, with: mindi, where: zgtt, into: &d)
-
-          // d[abs(Z) .> tolerance] = min(d, i)
+          queue.multiply(Z, Z, add: C, &Z)
+          queue.min(d, Float(i), &mindi)
+          queue.abs(Z, &absZ)
+          queue.greater(absZ, tolerance, &zgtt)
+          queue.replace(d, mindi, zgtt, &d)
         }
         currentQueue.waitForCompletion()
-        //   }
       }
     // #endif
   }

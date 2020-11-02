@@ -21,7 +21,7 @@ import SwiftRTCuda
 // DeviceQueue functions with default cpu delegation
 extension CudaQueue {
   //--------------------------------------------------------------------------
-  @inlinable func abs<S, E>(
+  @inlinable public func abs<S, E>(
     _ x: Tensor<S, Complex<E>>,
     _ out: inout Tensor<S, E>
   ) where E == E.Value, E.Value: Comparable & SignedNumeric {
@@ -348,7 +348,7 @@ extension CudaQueue {
   // fused multiply add
 
   // multiply tensor tensor tensor
-  @inlinable func multiply<S, E>(
+  @inlinable public func multiply<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     add bias: Tensor<S, E>,
@@ -398,7 +398,7 @@ extension CudaQueue {
 
   //----------------------------------
   // multiply tensor tensor Element
-  @inlinable func multiply<S, E>(
+  @inlinable public func multiply<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
     add bias: E.Value,
