@@ -298,9 +298,9 @@ static inline cudaError_t select(
     case real16I:  return selectOut<Op,int16_t>(a, otype, out, count, stream);
     case boolean:  return selectOut<Op,bool>(a, otype, out, count, stream);
 
-    // case complex32F:  return selectOut<Op, Complex<float>>(a, otype, out, count, stream);
-    // case complex16F:  return selectOut<Op, Complex<float16>>(a, otype, out, count, stream);
-    // case complex16BF: return selectOut<Op, Complex<bfloat16>>(a, otype, out, count, stream);
+    case complex32F:  return selectOut<Op, Complex<float>>(a, otype, out, count, stream);
+    case complex16F:  return selectOut<Op, Complex<float16>>(a, otype, out, count, stream);
+    case complex16BF: return selectOut<Op, Complex<bfloat16>>(a, otype, out, count, stream);
     default: return cudaErrorNotSupported;
     }
 }

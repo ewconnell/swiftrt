@@ -134,6 +134,38 @@ __DEVICE_INLINE__ bool2 cast(const bfloat162& a) {
 // template<>
 // __DEVICE_INLINE__ short2 cast(const bfloat162& a) { return make_short2(a.x, a.y); }
 
+//--------------------------------------
+// Complex
+template<>
+__DEVICE_INLINE__ Complex<float16> cast(const Complex<float>& a) {
+    return Complex<float16>(a.x, a.y);
+}
+
+template<>
+__DEVICE_INLINE__ Complex<bfloat16> cast(const Complex<float>& a) {
+    return Complex<bfloat16>(a.x, a.y);
+}
+
+template<>
+__DEVICE_INLINE__ Complex<float> cast(const Complex<float16>& a) {
+    return Complex<float>(a.x, a.y);
+}
+
+template<>
+__DEVICE_INLINE__ Complex<bfloat16> cast(const Complex<float16>& a) {
+    return Complex<bfloat16>(float(a.x), float(a.y));
+}
+
+template<>
+__DEVICE_INLINE__ Complex<float> cast(const Complex<bfloat16>& a) {
+    return Complex<float>(a.x, a.y);
+}
+
+template<>
+__DEVICE_INLINE__ Complex<float16> cast(const Complex<bfloat16>& a) {
+    return Complex<float16>(float(a.x), float(a.y));
+}
+
 //==============================================================================
 
 template<typename _A, typename _O> struct CastOp {
