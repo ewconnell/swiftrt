@@ -1,5 +1,6 @@
 add_library(SwiftRTCuda
   compare_ops.cu
+  copy_ops.cu
   utilities.cu
   fill_ops.cu
   math_ops.cu

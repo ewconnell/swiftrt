@@ -21,21 +21,38 @@ import SwiftRTCuda
 extension CudaQueue {
   //--------------------------------------------------------------------------
   @inlinable public func copy<S, E>(
-    from x: Tensor<S, E>,
+    from a: Tensor<S, E>,
     to out: inout Tensor<S, E>
   ) {
+    var status: cudaError_t
     guard useGpu else {
-      cpu_copy(from: x, to: &out)
+      cpu_copy(from: a, to: &out)
       return
     }
 
-    diagnostic(.queueGpu, "copy(from: \(x.name), to: \(out.name)) Indexed", categories: .queueGpu)
-    let status = out.withMutableTensor(using: self) { o, oDesc in
-      x.withTensor(using: self) { xData, x in
-        srtCopy(xData, x, o, oDesc, stream)
+    // TODO: add check if a and out are on the same device and not the one for this queue
+    // so that data is only transported once
+
+    if canFlatten(a, out) {
+      diagnostic(.queueGpu, "copy(from: \(a.name), to: \(out.name)) Flat", categories: .queueGpu)
+      precondition(a.count == out.count, "tensor size mismatch")
+
+      status = cudaMemcpyAsync(
+        out.deviceReadWrite(using: self),
+        a.deviceRead(using: self),
+        MemoryLayout<E>.size * a.count,
+        cudaMemcpyDeviceToDevice,
+        stream
+      )
+    } else {
+      diagnostic(.queueGpu, "copy(from: \(a.name), to: \(out.name)) Indexed", categories: .queueGpu)
+      status = out.withMutableTensor(using: self) { o, oDesc in
+        a.withTensor(using: self) { a, aDesc in
+          srtCopy(a, aDesc, o, oDesc, stream)
+        }
       }
     }
-    cpuFallback(status) { $0.copy(from: x, to: &out) }
+    cpuFallback(status) { $0.copy(from: a, to: &out) }
   }
 
   //--------------------------------------------------------------------------
@@ -155,7 +172,7 @@ extension CudaQueue {
     let seed64 = UInt64(msb: seed.op, lsb: seed.graph)
 
     diagnostic(
-      .queueGpu, 
+      .queueGpu,
       "fill(randomNormal: \(out.name), mean: \(mean), std: \(std), ssed: \(seed)) Indexed",
       categories: .queueGpu)
 

@@ -13,49 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include <cublasLt.h>
-
 #include "fill_api.h"
-#include "float16.cuh"
-#include "bfloat16.cuh"
-#include "complex.cuh"
-#include "iterators.cuh"
 #include "tensor.cuh"
-#include "tensor_api.h"
-#include "op1.cuh"
+#include "srt_traits.cuh"
+#include "iterators.cuh"
 
 //==============================================================================
 // Swift importable C interface functions
 //==============================================================================
-
-template<typename A, typename O>
-__DEVICE_INLINE__ O cast(const A& a) {
-    return O(a);
-} 
-
-//==============================================================================
-// srtCopy
-Op1(CopyCast, cast, true)
-
-cudaError_t srtCopy(
-    const void* a, const srtTensorDescriptor* paDesc,
-    void* out, const srtTensorDescriptor* poDesc,
-    cudaStream_t stream
-) {
-    // Cast2TensorDescriptorsA(paDesc, poDesc)
-    return cudaErrorNotSupported;
-}
-
-cudaError_t srtCopyFlat(
-    srtDataType atype,
-    const void* a,
-    srtDataType otype,
-    void* out,
-    size_t count,
-    cudaStream_t stream
-) {
-    return select<CopyCast>(atype, a, otype, out, count, stream);
-}
 
 //==============================================================================
 // srtFill

@@ -234,11 +234,7 @@ where E.Value: DifferentiableNumeric & Real {
 /// - Returns: out
 @inlinable public func cast<S, E, OE>(
   _ other: Tensor<S, OE>
-) -> Tensor<S, E>
-where
-  E.Value: BinaryFloatingPoint,
-  OE.Value: BinaryInteger
-{
+) -> Tensor<S, E> where E.Value: BinaryFloatingPoint, OE.Value: BinaryInteger {
   var out = Tensor<S, E>(shape: other.shape)
   currentQueue.cast(from: other, to: &out)
   return out
@@ -246,12 +242,24 @@ where
 
 @inlinable public func cast<S, E, OE>(
   _ other: Tensor<S, OE>
-) -> Tensor<S, E>
-where
-  E.Value: BinaryInteger,
-  OE.Value: BinaryFloatingPoint
-{
+) -> Tensor<S, E> where E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint {
   var out = Tensor<S, E>(shape: other.shape)
+  currentQueue.cast(from: other, to: &out)
+  return out
+}
+
+@inlinable public func cast<S, E>(
+  _ other: Tensor<S,Bool>
+) -> Tensor<S, E> where E.Value: Numeric {
+  var out = Tensor<S, E>(shape: other.shape)
+  currentQueue.cast(from: other, to: &out)
+  return out
+}
+
+@inlinable public func cast<S, E>(
+  _ other: Tensor<S,E>
+) -> Tensor<S, Bool> where E.Value: Numeric {
+  var out = Tensor<S,Bool>(shape: other.shape)
   currentQueue.cast(from: other, to: &out)
   return out
 }

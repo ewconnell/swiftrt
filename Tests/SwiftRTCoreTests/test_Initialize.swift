@@ -66,16 +66,24 @@ class test_Initialize: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_castElements() {
-    let fMatrix = array(0..<6, (3, 2))
-    let iMatrix = TensorR2<Int32>(fMatrix)
-    XCTAssert(iMatrix == [[0, 1], [2, 3], [4, 5]])
+    do {
+      let f = array(0..<6, (3, 2))
+      let i = TensorR2<Int32>(f)
+      XCTAssert(i == [[0, 1], [2, 3], [4, 5]])
+    }
+
+    do {
+      let b = array([true, false, true, false, false])
+      let f = Tensor1(b)
+      XCTAssert(f == [1, 0, 1, 0, 0])
+    }
   }
 
   //--------------------------------------------------------------------------
   func test_copy() {
     let a = array(1...3)
     var b = array(repeatElement(0, count: 3))
-    SwiftRT.copy(from: a, to: &b)
+    copy(from: a, to: &b)
     XCTAssert(b == [1, 2, 3])
   }
 

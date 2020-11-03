@@ -153,7 +153,8 @@ static inline cudaError_t selectIter(
 template<template<typename A, typename O> class Op, typename A>
 static inline cudaError_t selectOut(
     const void* a,
-    void* out,  srtDataType otype,
+    srtDataType otype,
+    void* out,
     size_t count, 
     cudaStream_t stream
 ) {
@@ -162,17 +163,52 @@ static inline cudaError_t selectOut(
     case real64F:  return flattened<Op<A,double>>(a, out, count, stream);
     case real32I:  return flattened<Op<A,int32_t>>(a, out, count, stream);
 
-    case real16F:  return flattened<Op<A,float16>>(a, out, count, stream);
-    case real16BF: return flattened<Op<A,bfloat16>>(a, out, count, stream);
-    case real8U:   return flattened<Op<A,uint8_t>>(a, out, count, stream);
-    case real8I:   return flattened<Op<A,int8_t>>(a, out, count, stream);
-    case real16U:  return flattened<Op<A,uint16_t>>(a, out, count, stream);
-    case real16I:  return flattened<Op<A,int16_t>>(a, out, count, stream);
-    case boolean:  return flattened<Op<A,bool>>(a, out, count, stream);
+    case real16F:
+        if constexpr (canPack<A,float16>()) {
+            return flattened<typename Op<A,float16>::packed>(a, out, count, stream);
+        } else {
+            return flattened<Op<A,float16>>(a, out, count, stream);
+        }
+    case real16BF:
+        if constexpr (canPack<A,bfloat16>()) {
+            return flattened<typename Op<A,bfloat16>::packed>(a, out, count, stream);
+        } else {
+            return flattened<Op<A,bfloat16>>(a, out, count, stream);
+        }
+    case real8U:
+        if constexpr (canPack<A,uint8_t>()) {
+            return flattened<typename Op<A,uint8_t>::packed>(a, out, count, stream);
+        } else {
+            return flattened<Op<A,uint8_t>>(a, out, count, stream);
+        }
+    case real8I:
+        if constexpr (canPack<A,int8_t>()) {
+            return flattened<typename Op<A,int8_t>::packed>(a, out, count, stream);
+        } else {
+            return flattened<Op<A,int8_t>>(a, out, count, stream);
+        }
+    case real16U:
+        if constexpr (canPack<A,uint16_t>()) {
+            return flattened<typename Op<A,uint16_t>::packed>(a, out, count, stream);
+        } else {
+            return flattened<Op<A,uint16_t>>(a, out, count, stream);
+        }
+    case real16I:
+        if constexpr (canPack<A,int16_t>()) {
+            return flattened<typename Op<A,int16_t>::packed>(a, out, count, stream);
+        } else {
+            return flattened<Op<A,int16_t>>(a, out, count, stream);
+        }
+    case boolean:
+        if constexpr (canPack<A,bool>()) {
+            return flattened<typename Op<A,bool>::packed>(a, out, count, stream);
+        } else {
+            return flattened<Op<A,bool>>(a, out, count, stream);
+        }
 
     case complex32F:  return flattened<Op<A,Complex<float>>>(a, out, count, stream);
-    // case complex16F:  return flattened<Op<A,Complex<float16>>>(a, out, count, stream);
-    // case complex16BF: return flattened<Op<A,Complex<bfloat16>>>(a, out, count, stream);
+    case complex16F:  return flattened<Op<A,Complex<float16>>>(a, out, count, stream);
+    case complex16BF: return flattened<Op<A,Complex<bfloat16>>>(a, out, count, stream);
     default: return cudaErrorNotSupported;
     }
 }
@@ -250,20 +286,21 @@ static inline cudaError_t select(
     cudaStream_t stream
 ) {
     switch(atype) {
-    case real32F:  return selectOut<Op,float>(a, out, otype, count, stream);
-    case real16F:  return selectOut<Op,float16>(a, out, otype, count, stream);
-    case real16BF: return selectOut<Op,bfloat16>(a, out, otype, count, stream);
-    case real64F:  return selectOut<Op,double>(a, out, otype, count, stream);
-    case real32I:  return selectOut<Op,int32_t>(a, out, otype, count, stream);
-    case real8U:   return selectOut<Op,uint8_t>(a, out, otype, count, stream);
-    case real8I:   return selectOut<Op,int8_t>(a, out, otype, count, stream);
-    case real16U:  return selectOut<Op,uint16_t>(a, out, otype, count, stream);
-    case real16I:  return selectOut<Op,int16_t>(a, out, otype, count, stream);
-    case boolean:  return selectOut<Op,bool>(a, out, otype, count, stream);
+    case real32F:  return selectOut<Op,float>(a, otype, out, count, stream);
+    case real64F:  return selectOut<Op,double>(a, otype, out, count, stream);
+    case real32I:  return selectOut<Op,int32_t>(a, otype, out, count, stream);
 
-    case complex32F:  return selectOut<Op, Complex<float>>(a, out, otype, count, stream);
-    case complex16F:  return selectOut<Op, Complex<float16>>(a, out, otype, count, stream);
-    case complex16BF: return selectOut<Op, Complex<bfloat16>>(a, out, otype, count, stream);
+    case real16F:  return selectOut<Op,float16>(a, otype, out, count, stream);
+    case real16BF: return selectOut<Op,bfloat16>(a, otype, out, count, stream);
+    case real8U:   return selectOut<Op,uint8_t>(a, otype, out, count, stream);
+    case real8I:   return selectOut<Op,int8_t>(a, otype, out, count, stream);
+    case real16U:  return selectOut<Op,uint16_t>(a, otype, out, count, stream);
+    case real16I:  return selectOut<Op,int16_t>(a, otype, out, count, stream);
+    case boolean:  return selectOut<Op,bool>(a, otype, out, count, stream);
+
+    // case complex32F:  return selectOut<Op, Complex<float>>(a, otype, out, count, stream);
+    // case complex16F:  return selectOut<Op, Complex<float16>>(a, otype, out, count, stream);
+    // case complex16BF: return selectOut<Op, Complex<bfloat16>>(a, otype, out, count, stream);
     default: return cudaErrorNotSupported;
     }
 }

@@ -1,5 +1,5 @@
 //******************************************************************************
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,13 +14,30 @@
 // limitations under the License.
 //
 #pragma once
+#include "tensor_api.h"
 
-// this is an umbrella header
-#include "compare_api.h"
-#include "copy_api.h"
-#include "fill_api.h"
-#include "math_api.h"
-#include "memory_api.h"
-#include "reduce_api.h"
-#include "specialized_api.h"
-#include "utilities_api.h"
+
+// make visible to Swift as C API
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//==============================================================================
+
+cudaError_t srtCopy(
+    const void* a, const srtTensorDescriptor* aDesc,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtCopyFlat(
+    srtDataType atype,
+    const void* a,
+    srtDataType otype,
+    void* out,
+    size_t count,
+    cudaStream_t stream);
+
+//==============================================================================
+#ifdef __cplusplus
+}
+#endif

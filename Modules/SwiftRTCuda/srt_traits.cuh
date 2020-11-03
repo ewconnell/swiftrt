@@ -216,9 +216,11 @@ template<> struct matching_packed<ushort2, uint16_t> { typedef ushort2 type; };
 
 template<> struct matching_packed<half2, bool> { typedef bool2 type; };
 template<> struct matching_packed<half2, half> { typedef half2 type; };
+template<> struct matching_packed<half2, bfloat16> { typedef bfloat162 type; };
 
 template<> struct matching_packed<bfloat162, bool> { typedef bool2 type; };
 template<> struct matching_packed<bfloat162, bfloat16> { typedef bfloat162 type; };
+template<> struct matching_packed<bfloat162, float16> { typedef float162 type; };
 
 //--------------------------------------
 // given an input type A and an output type O, if the input is
@@ -243,10 +245,11 @@ template<> struct packing<const half2> { static const int count = 2; };
 template<> struct packing<bfloat162> { static const int count = 2; };
 template<> struct packing<const bfloat162> { static const int count = 2; };
 
-// template<typename A, typename O>
-// inline constexpr bool canPack() {
-//     return packing<A>::count == packing<O>::count;
-// }
+template<typename A, typename O>
+inline constexpr bool canPack() {
+    return packing<typename packed<A>::type>::count == 
+        packing<typename matching_packed<A,O>::type>::count;
+}
 
 
 //==============================================================================

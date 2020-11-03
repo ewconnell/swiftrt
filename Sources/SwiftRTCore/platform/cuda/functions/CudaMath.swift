@@ -414,18 +414,21 @@ extension CudaQueue {
     }
 
     if canFlatten(lhs, rhs, out) {
-      diagnostic(.queueGpu, "multiply(\(lhs.name), \(rhs.name), add: \(bias)) Flat", categories: .queueGpu)
+      diagnostic(
+        .queueGpu, "multiply(\(lhs.name), \(rhs.name), add: \(bias)) Flat", categories: .queueGpu)
       status = srtMultiplyAddFlatTTE(
-          E.type,
-          lhs.deviceRead(using: self),
-          rhs.deviceRead(using: self),
-          &bias,
-          out.deviceReadWrite(using: self),
-          out.count,
-          stream)
+        E.type,
+        lhs.deviceRead(using: self),
+        rhs.deviceRead(using: self),
+        &bias,
+        out.deviceReadWrite(using: self),
+        out.count,
+        stream)
 
     } else {
-      diagnostic(.queueGpu, "multiply(\(lhs.name), \(rhs.name), add: \(bias)) Indexed", categories: .queueGpu)
+      diagnostic(
+        .queueGpu, "multiply(\(lhs.name), \(rhs.name), add: \(bias)) Indexed", categories: .queueGpu
+      )
       status = out.withMutableTensor(using: self) { o, oDesc in
         lhs.withTensor(using: self) { l, lDesc in
           rhs.withTensor(using: self) { r, rDesc in
@@ -465,6 +468,31 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
+  @inlinable func gpuCast<S,E,RE>(
+    _ a: Tensor<S, E>,
+    _ out: inout Tensor<S, RE>
+  ) -> cudaError_t {
+    if canFlatten(a, out) {
+      diagnostic(.queueGpu, "cast(\(a.name)) Flat", categories: .queueGpu)
+      return srtCopyFlat(
+        E.type,
+        a.deviceRead(using: self),
+        RE.type,
+        out.deviceReadWrite(using: self),
+        out.count,
+        stream
+      )
+
+    } else {
+      diagnostic(.queueGpu, "cast(\(a.name)) Indexed", categories: .queueGpu)
+      return out.withMutableTensor(using: self) { o, oDesc in
+        a.withTensor(using: self) { a, aDesc in
+          srtCopy(a, aDesc, o, oDesc, stream)
+        }
+      }
+    }
+  }
+
   @inlinable public func cast<S, E, RE>(
     from a: Tensor<S, E>,
     to out: inout Tensor<S, RE>
@@ -473,34 +501,43 @@ extension CudaQueue {
       cpu_cast(from: a, to: &out)
       return
     }
-    diagnostic(.queueGpu, "cast(\(a.name)) Indexed", categories: .queueGpu)
-
-    let status = out.withMutableTensor(using: self) { o, oDesc in
-      a.withTensor(using: self) { a, aDesc in
-        srtCopy(a, aDesc, o, oDesc, stream)
-      }
-    }
-    cpuFallback(status) { $0.cast(from: a, to: &out) }
+    cpuFallback(gpuCast(a, &out)) { $0.cast(from: a, to: &out) }
   }
 
-  //--------------------------------------------------------------------------
+  //------------------------------------
   @inlinable public func cast<S, E, RE>(
     from a: Tensor<S, E>,
     to out: inout Tensor<S, RE>
-  )
-  where E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint {
+  ) where E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint {
     guard useGpu else {
       cpu_cast(from: a, to: &out)
       return
     }
-    diagnostic(.queueGpu, "cast(\(a.name)) Indexed", categories: .queueGpu)
+    cpuFallback(gpuCast(a, &out)) { $0.cast(from: a, to: &out) }
+  }
 
-    let status = out.withMutableTensor(using: self) { o, oDesc in
-      a.withTensor(using: self) { a, aDesc in
-        srtCopy(a, aDesc, o, oDesc, stream)
-      }
+  //------------------------------------
+  @inlinable public func cast<S, E>(
+    from a: Tensor<S, Bool>,
+    to out: inout Tensor<S, E>
+  ) where E.Value: Numeric {
+    guard useGpu else {
+      cpu_cast(from: a, to: &out)
+      return
     }
-    cpuFallback(status) { $0.cast(from: a, to: &out) }
+    cpuFallback(gpuCast(a, &out)) { $0.cast(from: a, to: &out) }
+  }
+
+  //------------------------------------
+  @inlinable public func cast<S, E>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, Bool>
+  ) where E.Value: Numeric {
+    guard useGpu else {
+      cpu_cast(from: a, to: &out)
+      return
+    }
+    cpuFallback(gpuCast(a, &out)) { $0.cast(from: a, to: &out) }
   }
 
   //--------------------------------------------------------------------------

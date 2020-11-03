@@ -1038,13 +1038,27 @@ extension Tensor {
   /// casting
   /// - Parameter other: a tensor of the same shape whose elements are
   /// to be cast
-  @inlinable public init<E>(_ other: Tensor<Shape, E>)
-  where TensorElement.Value: BinaryFloatingPoint, E.Value: BinaryInteger {
+  @inlinable public init<E>(
+    _ other: Tensor<Shape, E>
+  ) where TensorElement.Value: BinaryFloatingPoint, E.Value: BinaryInteger {
     self = cast(other)
   }
 
-  @inlinable public init<E>(_ other: Tensor<Shape, E>)
-  where TensorElement.Value: BinaryInteger, E.Value: BinaryFloatingPoint {
+  @inlinable public init<E>(
+    _ other: Tensor<Shape, E>
+  ) where TensorElement.Value: BinaryInteger, E.Value: BinaryFloatingPoint {
+    self = cast(other)
+  }
+
+  @inlinable public init(
+    _ other: Tensor<Shape, Bool>
+  ) where TensorElement.Value: Numeric {
+    self = cast(other)
+  }
+
+  @inlinable public init<E>(
+    _ other: Tensor<Shape, E>
+  ) where TensorElement == Bool, E.Value: Numeric {
     self = cast(other)
   }
 }

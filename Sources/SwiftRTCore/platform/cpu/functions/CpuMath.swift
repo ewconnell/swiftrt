@@ -167,7 +167,6 @@ extension DeviceQueue {
     mapOp(a, &out) { RE.Value($0) }
   }
 
-  //--------------------------------------------------------------------------
   // Integer -> FloatingPoint
   @inlinable public func cpu_cast<S, E, RE>(
     from a: Tensor<S, E>,
@@ -175,6 +174,22 @@ extension DeviceQueue {
   ) where E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint {
     diagnostic(.queueCpu, "cast(\(a.name)) on \(name)", categories: .queueCpu)
     mapOp(a, &out) { RE.Value($0) }
+  }
+
+  @inlinable public func cpu_cast<S,E>(
+    from a: Tensor<S,Bool>,
+    to out: inout Tensor<S,E>
+  ) where E.Value: Numeric {
+    diagnostic(.queueCpu, "cast(\(a.name)) on \(name)", categories: .queueCpu)
+    mapOp(a, &out) { $0 ? E.Value.one : E.Value.zero }
+  }
+
+  @inlinable public func cpu_cast<S,E>(
+    from a: Tensor<S,E>,
+    to out: inout Tensor<S,Bool>
+  ) where E.Value: Numeric {
+    diagnostic(.queueCpu, "cast(\(a.name)) on \(name)", categories: .queueCpu)
+    mapOp(a, &out) { $0 != E.Value.zero }
   }
 
   //--------------------------------------------------------------------------
@@ -1026,17 +1041,34 @@ extension CpuQueue {
   @inlinable public func atanh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_atanh(x, &out) }
   //--------------------------------------------------------------------------
-  @inlinable public func cast<S, E, RE>(
-    from buffer: Tensor<S, E>,
+  @inlinable public func cast<S,E,RE>(
+    from a: Tensor<S, E>,
     to out: inout Tensor<S, RE>
-  )
-  where E.Value: BinaryFloatingPoint, RE.Value: BinaryInteger { cpu_cast(from: buffer, to: &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func cast<S, E, RE>(
-    from buffer: Tensor<S, E>,
+  ) where E.Value: BinaryFloatingPoint, RE.Value: BinaryInteger {
+    cpu_cast(from: a, to: &out)
+  }
+  
+  @inlinable public func cast<S,E,RE>(
+    from a: Tensor<S, E>,
     to out: inout Tensor<S, RE>
-  )
-  where E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint { cpu_cast(from: buffer, to: &out) }
+  ) where E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint {
+    cpu_cast(from: a, to: &out)
+  }
+
+  @inlinable public func cast<S,E>(
+    from a: Tensor<S,Bool>,
+    to out: inout Tensor<S,E>
+  ) where E.Value: Numeric {
+    cpu_cast(from: a, to: &out)
+  }
+
+  @inlinable public func cast<S,E>(
+    from a: Tensor<S,E>,
+    to out: inout Tensor<S,Bool>
+  ) where E.Value: Numeric {
+    cpu_cast(from: a, to: &out)
+  }
+
   //--------------------------------------------------------------------------
   @inlinable public func copy<S, E>(from a: Tensor<S, E>, to b: inout Tensor<S, E>)
   where S: TensorShape { cpu_copy(from: a, to: &b) }

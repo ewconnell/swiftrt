@@ -326,9 +326,8 @@ public final class DiscreteStorage: StorageBuffer {
       func outputCopyMessage() {
         diagnostic(
           .copy,
-          "\(name) dev:\(master.deviceIndex)" + "\(setText(" --> ", color: .blue))"
-            + "\(queue.deviceName)_q\(queue.id)  "
-            + "\(Element.self)[\(replica.count(of: Element.self))]",
+          "\(name) dev:\(master.deviceIndex)\(setText(" --> ", color: .blue))"
+            + "\(queue.name)  \(Element.self)[\(replica.count(of: Element.self))]",
           categories: .dataCopy)
       }
 
