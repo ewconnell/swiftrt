@@ -3,6 +3,7 @@ add_library(SwiftRTCoreTests
   XCTestManifests.swift
   test_AlgebraicField.swift
   test_Async.swift
+  test_Casting.swift
   test_Codable.swift
   test_Comparative.swift
   test_Fractals.swift

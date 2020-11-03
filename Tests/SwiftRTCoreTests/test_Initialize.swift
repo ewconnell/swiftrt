@@ -26,7 +26,6 @@ class test_Initialize: XCTestCase {
   static var allTests = [
     ("test_FloatRange", test_FloatRange),
     ("test_complexRange", test_complexRange),
-    ("test_castElements", test_castElements),
     ("test_copy", test_copy),
     ("test_copyOnWrite", test_copyOnWrite),
     ("test_columnMajorDataView", test_columnMajorDataView),
@@ -62,21 +61,6 @@ class test_Initialize: XCTestCase {
         [Complex<Float>(-1.7, 1.7), Complex<Float>(-0.5666666, 0.5666666)],
         [Complex<Float>(0.56666684, -0.56666684), Complex<Float>(1.7, -1.7)],
       ])
-  }
-
-  //--------------------------------------------------------------------------
-  func test_castElements() {
-    do {
-      let f = array(0..<6, (3, 2))
-      let i = TensorR2<Int32>(f)
-      XCTAssert(i == [[0, 1], [2, 3], [4, 5]])
-    }
-
-    do {
-      let b = array([true, false, true, false, false])
-      let f = Tensor1(b)
-      XCTAssert(f == [1, 0, 1, 0, 0])
-    }
   }
 
   //--------------------------------------------------------------------------
