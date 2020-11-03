@@ -208,32 +208,12 @@ extension Tensor where Element: AdditiveArithmetic {
 @inlinable public func multiply<S, E>(
   _ lhs: Tensor<S, E>,
   _ rhs: Tensor<S, E>,
-  add bias: E.Value,
-  into out: inout Tensor<S, E>
-) where E.Value: Numeric {
-  assert(lhs.shape == rhs.shape && lhs.shape == out.shape)
-  currentQueue.multiply(lhs, rhs, add: bias, &out)
-}
-
-@inlinable public func multiply<S, E>(
-  _ lhs: Tensor<S, E>,
-  _ rhs: Tensor<S, E>,
   add bias: Tensor<S, E>
 ) -> Tensor<S, E> where E.Value: Numeric {
   assert(lhs.shape == rhs.shape && lhs.shape == bias.shape)
   var out = Tensor(like: lhs)
   currentQueue.multiply(lhs, rhs, add: bias, &out)
   return out
-}
-
-@inlinable public func multiply<S, E>(
-  _ lhs: Tensor<S, E>,
-  _ rhs: Tensor<S, E>,
-  add bias: Tensor<S, E>,
-  into out: inout Tensor<S, E>
-) where E.Value: Numeric {
-  assert(lhs.shape == rhs.shape && lhs.shape == bias.shape && lhs.shape == out.shape)
-  currentQueue.multiply(lhs, rhs, add: bias, &out)
 }
 
 // TODO: Remove this when we find a better way to deal with PointwiseMultiplicative.

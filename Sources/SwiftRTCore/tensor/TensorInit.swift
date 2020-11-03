@@ -729,7 +729,7 @@ extension Tensor {
     axis: Int = 0
   ) where S: TensorShape {
     // make positive
-    let positiveAxis = axis < 0 ? axis + S.rank : axis
+    let positiveAxis = axis < 0 ? axis + Shape.rank : axis
     // create tensor of stacked shape and copy
     self = withoutDerivative(
       at: Self(

@@ -34,6 +34,7 @@ class test_Shape: XCTestCase {
     ("test_stridePermutation", test_stridePermutation),
     ("test_squeeze", test_squeeze),
     ("test_stack", test_stack),
+    ("test_stackNegativeAxis", test_stackNegativeAxis),
     ("test_stackingGradients", test_stackingGradients),
     ("test_stackingExpression", test_stackingExpression),
     ("test_perfTensor1", test_perfTensor1),
@@ -297,6 +298,14 @@ class test_Shape: XCTestCase {
     func f2(a: Tensor2) -> Tensor1 { squeeze(a.squared(), axis: 0) }
     XCTAssert(pullback(at: array([[3, 5]]), in: f1)(array([1, 1])) == [[6, 10]])
     XCTAssert(pullback(at: array([[3, 5]]), in: f2)(array([1, 1])) == [[6, 10]])
+  }
+
+  //--------------------------------------------------------------------------
+  func test_stackNegativeAxis() {
+    let a = array(0..<6, (2, 3))
+    let b = array(6..<12, (2, 3))
+    let s0 = Tensor3(stacking: a, b, axis: -1)
+    print(s0)
   }
 
   //--------------------------------------------------------------------------

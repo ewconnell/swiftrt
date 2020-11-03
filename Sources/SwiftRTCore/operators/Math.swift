@@ -38,13 +38,6 @@ import _Differentiation
   return out
 }
 
-@inlinable public func abs<S, E>(
-  _ x: Tensor<S, Complex<E>>,
-  into out: inout Tensor<S, E>
-) where E == E.Value, E.Value: Comparable & SignedNumeric {
-  currentQueue.abs(x, &out)
-}
-
 @derivative(of:abs)
 @usableFromInline func _vjpAbs<S, E>(
   _ x: Tensor<S, E>

@@ -176,7 +176,7 @@ final class test_Fractals: XCTestCase {
       var d = full(size, iterations)
 
       // cpu platform: mac cpu16 0.850s, ubuntu cpu6: 2.589s
-      // cuda platform: ubuntu cpu6: 3.296s, gpu: 1.430s
+      // cuda platform: ubuntu cpu6: 3.296s, gpu: 0.200s
       Z = Z.shared()
       d = d.shared()
 
