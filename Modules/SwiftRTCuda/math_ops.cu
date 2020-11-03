@@ -33,7 +33,7 @@ cudaError_t srtAbsFlat(
     size_t count,
     cudaStream_t stream
 ) {
-    return select<Abs>(a, atype, out, otype, count, stream);
+    return select<Abs>(atype, a, otype, out, count, stream);
 }
 
 cudaError_t srtAbs(
@@ -60,7 +60,7 @@ cudaError_t srtAbs2Flat(
     size_t count,
     cudaStream_t stream
 ) {
-    return select<Abs2>(a, atype, out, otype, count, stream);
+    return select<Abs2>(atype, a, otype, out, count, stream);
 }
 
 cudaError_t srtAbs2(
@@ -84,7 +84,7 @@ cudaError_t srtAcosFlat(
     void* out,
     size_t count, cudaStream_t stream
 ) {
-    return select<Acos>(a, atype, out, count, stream);
+    return select<Acos>(atype, a, out, count, stream);
 }
 
 cudaError_t srtAcos(
@@ -104,7 +104,7 @@ cudaError_t srtAcoshFlat(
     void* out,
     size_t count, cudaStream_t stream
 ) {
-    return select<Acosh>(a, atype, out, count, stream);
+    return select<Acosh>(atype, a, out, count, stream);
 }
 
 cudaError_t srtAcosh(

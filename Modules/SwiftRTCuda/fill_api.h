@@ -25,10 +25,18 @@ extern "C" {
 //==============================================================================
 
 cudaError_t srtCopy(
-    const void* x, const srtTensorDescriptor* xDesc,
+    const void* a, const srtTensorDescriptor* aDesc,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
+cudaError_t srtCopyFlat(
+    srtDataType atype,
+    const void* a,
+    srtDataType otype,
+    void* out,
+    cudaStream_t stream);
+
+//------------------------------------------------------------------------------
 cudaError_t srtFill(
     void* out, const srtTensorDescriptor* oDesc,
     const void* element,

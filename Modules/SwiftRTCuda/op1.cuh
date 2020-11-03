@@ -211,7 +211,8 @@ static inline cudaError_t selectOut(
 // input and output are the same type
 template<template<typename A, typename O> class Op>
 static inline cudaError_t select(
-    const void* a, srtDataType atype,
+    srtDataType atype,
+    const void* a,
     void* out,
     size_t count, 
     cudaStream_t stream
@@ -241,8 +242,10 @@ static inline cudaError_t select(
 // like for casting or Complex Abs
 template<template<typename A, typename O> class Op>
 static inline cudaError_t select(
-    const void* a, srtDataType atype,
-    void* out, srtDataType otype,
+    srtDataType atype,
+    const void* a,
+    srtDataType otype,
+    void* out,
     size_t count, 
     cudaStream_t stream
 ) {

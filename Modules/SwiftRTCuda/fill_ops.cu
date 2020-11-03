@@ -21,19 +21,40 @@
 #include "complex.cuh"
 #include "iterators.cuh"
 #include "tensor.cuh"
+#include "tensor_api.h"
+#include "op1.cuh"
 
 //==============================================================================
 // Swift importable C interface functions
 //==============================================================================
 
+template<typename A, typename O>
+__DEVICE_INLINE__ O cast(const A& a) {
+    return O(a);
+} 
+
 //==============================================================================
 // srtCopy
+Op1(CopyCast, cast, true)
+
 cudaError_t srtCopy(
-    const void* x, const srtTensorDescriptor* xDesc,
-    void* out, const srtTensorDescriptor* oDesc,
+    const void* a, const srtTensorDescriptor* paDesc,
+    void* out, const srtTensorDescriptor* poDesc,
     cudaStream_t stream
 ) {
+    // Cast2TensorDescriptorsA(paDesc, poDesc)
     return cudaErrorNotSupported;
+}
+
+cudaError_t srtCopyFlat(
+    srtDataType atype,
+    const void* a,
+    srtDataType otype,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    return select<CopyCast>(atype, a, otype, out, count, stream);
 }
 
 //==============================================================================
