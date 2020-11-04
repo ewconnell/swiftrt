@@ -90,7 +90,7 @@ public class PoolingConfiguration {
 
 //==============================================================================
 // PoolingDescriptor
-public struct PoolingDescriptor<Shape: TensorShape> {	
+public class PoolingDescriptor<Shape: TensorShape> {	
 	// properties
 	let desc: cudnnPoolingDescriptor_t
 
