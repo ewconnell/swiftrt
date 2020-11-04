@@ -20,6 +20,7 @@ add_library(SwiftRTCore
   operators/Math.swift
   operators/Matmul.swift
   operators/Reductions.swift
+  operators/Spatial.swift
   operators/Fractals.swift
 
   platform/common/TempFloat16.swift
@@ -45,6 +46,7 @@ add_library(SwiftRTCore
   platform/cpu/functions/CpuMapOps.swift
   platform/cpu/functions/CpuMath.swift
   platform/cpu/functions/CpuMatmul.swift
+  platform/cpu/functions/CpuPool.swift
   platform/cpu/functions/CpuReductions.swift
 
   random/RandomGenerators.swift
@@ -80,6 +82,7 @@ if(SWIFTRT_ENABLE_CUDA)
     platform/cuda/functions/CudaMath.swift
     platform/cuda/functions/CudaMathGen.swift
     platform/cuda/functions/CudaMatmul.swift
+    platform/cuda/functions/CudaPool.swift
     platform/cuda/functions/CudaReductions.swift
 
     platform/cuda/layers/CudaActivation.swift

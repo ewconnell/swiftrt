@@ -32,6 +32,7 @@ import XCTest
       testCase(test_Random.allTests),
       testCase(test_Reductions.allTests),
       testCase(test_Shape.allTests),
+      testCase(test_Spatial.allTests),
       testCase(test_StorageElement.allTests),
       testCase(test_Subscripting.allTests),
       testCase(test_VectorElement.allTests),
