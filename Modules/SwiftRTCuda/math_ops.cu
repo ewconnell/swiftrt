@@ -247,7 +247,7 @@ cudaError_t srtCosh(
 }
 
 //------------------------------------------------------------------------------
-Op2(Div, divide, isNumeric<A>())
+Op2(Div, divide, (isNumeric<A>() && isSame<A,Out>()))
 
 cudaError_t srtDiv(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -270,7 +270,7 @@ cudaError_t srtDivTE(
 }
 
 // `true` swaps `a` and `element` when calling `divide`
-Op2SwapAB(DivET, divide, isNumeric<A>())
+Op2SwapAB(DivET, divide, (isNumeric<A>() && isSame<A,Out>()))
 
 cudaError_t srtDivET(
     const void* element,
@@ -440,7 +440,7 @@ cudaError_t srtLogGamma(
 }
 
 //------------------------------------------------------------------------------
-Op2(Mul, multiply, isNumeric<A>())
+Op2(Mul, multiply, (isNumeric<A>() && isSame<A,Out>()))
 
 cudaError_t srtMul(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -626,7 +626,7 @@ cudaError_t srtSquared(
 }
 
 //------------------------------------------------------------------------------
-Op2(Sub, subtract, isNumeric<A>())
+Op2(Sub, subtract, (isNumeric<A>() && isSame<A,Out>()))
 
 cudaError_t srtSub(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -649,7 +649,7 @@ cudaError_t srtSubTE(
 }
 
 // `true` swaps `a` and `element` when calling `divide`
-Op2SwapAB(SubET, subtract, isNumeric<A>())
+Op2SwapAB(SubET, subtract, (isNumeric<A>() && isSame<A,Out>()))
 
 cudaError_t srtSubET(
     const void* element,

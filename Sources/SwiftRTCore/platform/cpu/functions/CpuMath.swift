@@ -18,6 +18,527 @@ import Foundation
 import Numerics
 
 //==============================================================================
+// DeviceQueue functions with default cpu delegation
+extension CpuQueue {
+  @inlinable public func kernel<S, AE, RE>(
+    _ a: Tensor<S, AE>,
+    _ out: inout Tensor<S, RE>,
+    _ opName: String,
+    _ op: @escaping (AE.Value, RE.Value) -> RE.Value
+  ) {
+    cpu_kernel(a, &out, opName, op)
+  }
+
+  //--------------------------------------------------------------------------
+  @inlinable public func abs<S, E>(
+    _ x: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: Comparable & SignedNumeric {
+    cpu_abs(x, &out)
+  }
+
+  @inlinable public func abs<S, E>(
+    _ x: Tensor<S, Complex<E>>,
+    _ out: inout Tensor<S, E>
+  ) where E == E.Value, E.Value: Comparable & SignedNumeric {
+    cpu_abs(x, &out)
+  }
+
+  @inlinable public func abs2<S, E>(
+    _ x: Tensor<S, Complex<E>>,
+    _ out: inout Tensor<S, E>
+  ) where E == E.Value, E.Value: Comparable & SignedNumeric {
+    cpu_abs(x, &out)
+  }
+
+  //--------------------------------------------------------------------------
+  @inlinable public func acos<S, E>(
+    _ x: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: Real {
+    cpu_acos(x, &out)
+  }
+  //--------------------------------------------------------------------------
+  @inlinable public func acosh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_acosh(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func add<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: AdditiveArithmetic {
+    cpu_add(lhs, rhs, &out)
+  }
+  //--------------------------------------------------------------------------
+  @inlinable public func add<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: AdditiveArithmetic {
+    cpu_add(lhs, rhs, &out)
+  }
+  //--------------------------------------------------------------------------
+  @inlinable public func and<S, E>(
+    _ lhs: Tensor<S, E>, _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  )
+  where E.Value == Bool { cpu_and(lhs, rhs, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func asin<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_asin(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func asinh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_asinh(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func atan<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_atan(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func atan2<S, E>(
+    _ y: Tensor<S, E>, _ x: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  )
+  where E.Value: Real { cpu_atan2(y, x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func atanh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_atanh(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func cast<S, E, OE>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  ) where E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint {
+    cpu_cast(from: a, to: &out)
+  }
+
+  @inlinable public func cast<S, E, OE>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  ) where E.Value: BinaryFloatingPoint, OE.Value: BinaryInteger {
+    cpu_cast(from: a, to: &out)
+  }
+
+  @inlinable public func cast<S, E, OE>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  ) where E.Value: Numeric, OE.Value == Bool {
+    cpu_cast(from: a, to: &out)
+  }
+
+  @inlinable public func cast<S, E, OE>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  ) where E.Value == Bool, OE.Value: Numeric {
+    cpu_cast(from: a, to: &out)
+  }
+
+  @inlinable public func cast<S, E, OE>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  ) where OE.Value == Complex<E>, E == E.Value {
+    cpu_cast(from: a, to: &out)
+  }
+
+  @inlinable public func cast<S, E, OE, OR>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  ) where OE.Value == Complex<OR>, OR: BinaryFloatingPoint, E.Value: BinaryFloatingPoint {
+    cpu_cast(from: a, to: &out)
+  }
+
+  @inlinable public func cast<S, E, ER, OE, OR>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  )
+  where
+    E.Value == Complex<ER>, ER: BinaryFloatingPoint,
+    OE.Value == Complex<OR>, OR: BinaryFloatingPoint
+  {
+    cpu_cast(from: a, to: &out)
+  }
+
+  //--------------------------------------------------------------------------
+  @inlinable public func copy<S, E>(from a: Tensor<S, E>, to b: inout Tensor<S, E>)
+  where S: TensorShape { cpu_copy(from: a, to: &b) }
+  //--------------------------------------------------------------------------
+  @inlinable public func cos<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_cos(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func cosh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_cosh(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func div<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: AlgebraicField {
+    cpu_div(lhs, rhs, &out)
+  }
+
+  @inlinable public func div<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: AlgebraicField {
+    cpu_div(lhs, rhs, &out)
+  }
+
+  @inlinable public func div<S, E>(
+    _ lhs: E.Value,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: AlgebraicField {
+    cpu_div(lhs, rhs, &out)
+  }
+
+  //--------------------------------------------------------------------------
+  @inlinable public func elementsAlmostEqual<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ tolerance: E.Value,
+    _ out: inout Tensor<S, Bool>
+  ) where E.Value: SignedNumeric & Comparable {
+    cpu_elementsAlmostEqual(lhs, rhs, tolerance, &out)
+  }
+  //--------------------------------------------------------------------------
+  @inlinable public func equal<S, E>(
+    _ lhs: Tensor<S, E>, _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, Bool>
+  )
+  where E.Value: Equatable { cpu_equal(lhs, rhs, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func erf<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_erf(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func erfc<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_erfc(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func exp<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_exp(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func exp2<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_exp2(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func exp10<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_exp10(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func expMinusOne<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_expMinusOne(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func gamma<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_gamma(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func greater<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, Bool>
+  ) where E.Value: Comparable { cpu_greater(lhs, rhs, &out) }
+
+  @inlinable public func greater<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, Bool>
+  ) where E.Value: Comparable { cpu_greater(lhs, rhs, &out) }
+
+  //--------------------------------------------------------------------------
+  @inlinable public func greaterOrEqual<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, Bool>
+  ) where E.Value: Comparable {
+    cpu_greaterOrEqual(lhs, rhs, &out)
+  }
+
+  @inlinable public func greaterOrEqual<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, Bool>
+  ) where E.Value: Comparable {
+    cpu_greaterOrEqual(lhs, rhs, &out)
+  }
+  //--------------------------------------------------------------------------
+  @inlinable public func hypot<S, E>(
+    _ x: Tensor<S, E>, _ y: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  )
+  where E.Value: Real { cpu_hypot(x, y, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func less<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, Bool>
+  ) where E.Value: Comparable { cpu_less(lhs, rhs, &out) }
+
+  @inlinable public func less<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, Bool>
+  ) where E.Value: Comparable { cpu_less(lhs, rhs, &out) }
+
+  //--------------------------------------------------------------------------
+  @inlinable public func lessOrEqual<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, Bool>
+  ) where E.Value: Comparable { cpu_lessOrEqual(lhs, rhs, &out) }
+
+  @inlinable public func lessOrEqual<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, Bool>
+  ) where E.Value: Comparable { cpu_lessOrEqual(lhs, rhs, &out) }
+
+  //--------------------------------------------------------------------------
+  @inlinable public func log<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_log(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func log<S, E>(onePlus x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_log(onePlus: x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func log2<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_log2(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func log10<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_log10(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func logGamma<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_logGamma(x, &out) }
+  //--------------------------------------------------------------------------
+  //    @inlinable public func matmul2<E>(type: E.Type) -> DeviceMatmul2<E>
+  //    where E: StorageElement, E.Value: StorageElement & Numeric { CpuMatmul2<E>() }
+  //--------------------------------------------------------------------------
+  @inlinable public func matmul<E>(
+    _ lhs: TensorR2<E>, _ transposeLhs: Bool,
+    _ rhs: TensorR2<E>, _ transposeRhs: Bool,
+    _ out: inout TensorR2<E>
+  ) where E.Value: Numeric {
+    cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &out)
+  }
+  //--------------------------------------------------------------------------
+  @inlinable public func matmul<E>(
+    _ lhs: TensorR3<E>, _ transposeLhs: Bool,
+    _ rhs: TensorR3<E>, _ transposeRhs: Bool,
+    _ out: inout TensorR3<E>
+  ) where E.Value: Numeric {
+    cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &out)
+  }
+  //--------------------------------------------------------------------------
+  @inlinable public func min<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: Comparable {
+    cpu_min(lhs, rhs, &out)
+  }
+
+  @inlinable public func min<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: Comparable {
+    cpu_min(lhs, rhs, &out)
+  }
+
+  //--------------------------------------------------------------------------
+  @inlinable public func max<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: Comparable {
+    cpu_max(lhs, rhs, &out)
+  }
+
+  @inlinable public func max<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: Comparable {
+    cpu_max(lhs, rhs, &out)
+  }
+
+  //--------------------------------------------------------------------------
+  @inlinable public func mul<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: Numeric {
+    cpu_mul(lhs, rhs, &out)
+  }
+
+  @inlinable public func mul<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: Numeric {
+    cpu_mul(lhs, rhs, &out)
+  }
+
+  //--------------------------------------------------------------------------
+  // fused multiply add
+  @inlinable public func multiply<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    add bias: E.Value,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: Numeric {
+    cpu_multiply(lhs, rhs, add: bias, &out)
+  }
+
+  @inlinable public func multiply<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    add bias: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: Numeric {
+    cpu_multiply(lhs, rhs, add: bias, &out)
+  }
+
+  //--------------------------------------------------------------------------
+  @inlinable public func neg<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: SignedNumeric { cpu_neg(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func notEqual<S, E>(
+    _ lhs: Tensor<S, E>, _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, Bool>
+  )
+  where E.Value: Equatable { cpu_notEqual(lhs, rhs, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func or<S, E>(
+    _ lhs: Tensor<S, E>, _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  )
+  where E.Value == Bool { cpu_or(lhs, rhs, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func pow<S, E>(
+    _ x: Tensor<S, E>, _ y: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  )
+  where E.Value: Real { cpu_pow(x, y, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func pow<S, E>(
+    _ x: Tensor<S, E>, _ n: Int,
+    _ out: inout Tensor<S, E>
+  )
+  where E.Value: Real { cpu_pow(x, n, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func replace<S, E>(
+    _ x: Tensor<S, E>,
+    _ y: Tensor<S, E>,
+    _ condition: Tensor<S, Bool>,
+    _ out: inout Tensor<S, E>
+  ) { cpu_replace(x, y, condition, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func root<S, E>(
+    _ x: Tensor<S, E>, _ n: Int,
+    _ out: inout Tensor<S, E>
+  )
+  where E.Value: Real { cpu_root(x, n, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func sigmoid<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_sigmoid(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func sign<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Comparable & SignedNumeric {
+    cpu_sign(x, &out)
+  }
+  //--------------------------------------------------------------------------
+  @inlinable public func sin<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_sin(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func sinh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_sinh(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func subtract<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: AdditiveArithmetic {
+    cpu_subtract(lhs, rhs, &out)
+  }
+
+  @inlinable public func subtract<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: AdditiveArithmetic {
+    cpu_subtract(lhs, rhs, &out)
+  }
+
+  @inlinable public func subtract<S, E>(
+    _ lhs: E.Value,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: AdditiveArithmetic {
+    cpu_subtract(lhs, rhs, &out)
+  }
+
+  //--------------------------------------------------------------------------
+  @inlinable public func sqrt<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_sqrt(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func squared<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Numeric { cpu_squared(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func tan<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_tan(x, &out) }
+  //--------------------------------------------------------------------------
+  @inlinable public func tanh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
+  where E.Value: Real { cpu_tanh(x, &out) }
+}
+
+//==============================================================================
+// DeviceQueue specialized derivative delegation
+extension DeviceQueue where Self: CpuFunctions {
+  //--------------------------------------------------------------------------
+  @inlinable public func vjpMin<S, E>(
+    _ x: Tensor<S, E>, _ y: Tensor<S, E>, _ scale: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  )
+  where E.Value: Comparable & Numeric { cpu_vjpMin(x, y, scale, &out) }
+
+  @inlinable public func vjpMin<S, E>(
+    _ x: Tensor<S, E>, _ y: E.Value, _ scale: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  )
+  where E.Value: Comparable & Numeric { cpu_vjpMin(x, y, scale, &out) }
+
+  @inlinable public func vjpMin<S, E>(
+    _ x: Tensor<S, E>, _ y: Tensor<S, E>, _ scale: Tensor<S, E>,
+    _ resultTrue: inout Tensor<S, E>, _ resultFalse: inout Tensor<S, E>
+  )
+  where E.Value: Comparable & Numeric { cpu_vjpMin(x, y, scale, &resultTrue, &resultFalse) }
+
+  @inlinable public func vjpMin<S, E>(
+    _ x: Tensor<S, E>, _ y: E.Value, _ scale: Tensor<S, E>,
+    _ resultTrue: inout Tensor<S, E>, _ resultFalse: inout Tensor<S, E>
+  )
+  where E.Value: Comparable & Numeric { cpu_vjpMin(x, y, scale, &resultTrue, &resultFalse) }
+
+  //--------------------------------------------------------------------------
+  @inlinable public func vjpMax<S, E>(
+    _ x: Tensor<S, E>, _ y: Tensor<S, E>, _ scale: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  )
+  where E.Value: Comparable & Numeric { cpu_vjpMax(x, y, scale, &out) }
+
+  @inlinable public func vjpMax<S, E>(
+    _ x: Tensor<S, E>, _ y: E.Value, _ scale: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  )
+  where E.Value: Comparable & Numeric { cpu_vjpMax(x, y, scale, &out) }
+
+  @inlinable public func vjpMax<S, E>(
+    _ x: Tensor<S, E>, _ y: Tensor<S, E>, _ scale: Tensor<S, E>,
+    _ resultTrue: inout Tensor<S, E>, _ resultFalse: inout Tensor<S, E>
+  )
+  where E.Value: Comparable & Numeric { cpu_vjpMax(x, y, scale, &resultTrue, &resultFalse) }
+
+  @inlinable public func vjpMax<S, E>(
+    _ x: Tensor<S, E>, _ y: E.Value, _ scale: Tensor<S, E>,
+    _ resultTrue: inout Tensor<S, E>, _ resultFalse: inout Tensor<S, E>
+  )
+  where E.Value: Comparable & Numeric { cpu_vjpMax(x, y, scale, &resultTrue, &resultFalse) }
+}
+
+//==============================================================================
 // Cpu device queue function implementations
 extension DeviceQueue {
   //--------------------------------------------------------------------------
@@ -159,37 +680,64 @@ extension DeviceQueue {
 
   //--------------------------------------------------------------------------
   // FloatingPoint -> Integer
-  @inlinable public func cpu_cast<S, E, RE>(
+  @inlinable public func cpu_cast<S, E, OE>(
     from a: Tensor<S, E>,
-    to out: inout Tensor<S, RE>
-  ) where E.Value: BinaryFloatingPoint, RE.Value: BinaryInteger {
+    to out: inout Tensor<S, OE>
+  ) where E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint {
     diagnostic(.queueCpu, "cast(\(a.name)) on \(name)", categories: .queueCpu)
-    mapOp(a, &out) { RE.Value($0) }
+    mapOp(a, &out) { OE.Value($0) }
   }
 
-  // Integer -> FloatingPoint
-  @inlinable public func cpu_cast<S, E, RE>(
+  @inlinable public func cpu_cast<S, E, OE>(
     from a: Tensor<S, E>,
-    to out: inout Tensor<S, RE>
-  ) where E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint {
+    to out: inout Tensor<S, OE>
+  ) where E.Value: BinaryFloatingPoint, OE.Value: BinaryInteger {
     diagnostic(.queueCpu, "cast(\(a.name)) on \(name)", categories: .queueCpu)
-    mapOp(a, &out) { RE.Value($0) }
+    mapOp(a, &out) { OE.Value($0) }
   }
 
-  @inlinable public func cpu_cast<S,E>(
-    from a: Tensor<S,Bool>,
-    to out: inout Tensor<S,E>
-  ) where E.Value: Numeric {
+  @inlinable public func cpu_cast<S, E, OE>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  ) where E.Value: Numeric, OE.Value == Bool {
     diagnostic(.queueCpu, "cast(\(a.name)) on \(name)", categories: .queueCpu)
-    mapOp(a, &out) { $0 ? E.Value.one : E.Value.zero }
+    mapOp(a, &out) { OE.Value($0 != E.Value.zero) }
   }
 
-  @inlinable public func cpu_cast<S,E>(
-    from a: Tensor<S,E>,
-    to out: inout Tensor<S,Bool>
-  ) where E.Value: Numeric {
+  @inlinable public func cpu_cast<S, E, OE>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  ) where E.Value == Bool, OE.Value: Numeric {
     diagnostic(.queueCpu, "cast(\(a.name)) on \(name)", categories: .queueCpu)
-    mapOp(a, &out) { $0 != E.Value.zero }
+    mapOp(a, &out) { OE.Value(exactly: $0 ? 1 : 0)! }
+  }
+
+  @inlinable public func cpu_cast<S, E, OE>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  ) where OE.Value == Complex<E>, E == E.Value {
+    diagnostic(.queueCpu, "cast(\(a.name)) on \(name)", categories: .queueCpu)
+    mapOp(a, &out) { OE.Value($0) }
+  }
+
+  @inlinable public func cpu_cast<S, E, OE, OR>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  ) where OE.Value == Complex<OR>, OR: BinaryFloatingPoint, E.Value: BinaryFloatingPoint {
+    diagnostic(.queueCpu, "cast(\(a.name)) on \(name)", categories: .queueCpu)
+    mapOp(a, &out) { OE.Value(OR($0)) }
+  }
+
+  @inlinable public func cpu_cast<S, E, ER, OE, OR>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  )
+  where
+    E.Value == Complex<ER>, ER: BinaryFloatingPoint,
+    OE.Value == Complex<OR>, OR: BinaryFloatingPoint
+  {
+    diagnostic(.queueCpu, "cast(\(a.name)) on \(name)", categories: .queueCpu)
+    mapOp(a, &out) { OE.Value($0) }
   }
 
   //--------------------------------------------------------------------------
@@ -954,500 +1502,4 @@ extension DeviceQueue {
       $0 >= $2 ? ($1, E.Value.zero) : (E.Value.zero, $1)
     }
   }
-}
-
-//==============================================================================
-// DeviceQueue functions with default cpu delegation
-extension CpuQueue {
-  @inlinable public func kernel<S, AE, RE>(
-    _ a: Tensor<S, AE>,
-    _ out: inout Tensor<S, RE>,
-    _ opName: String,
-    _ op: @escaping (AE.Value, RE.Value) -> RE.Value
-  ) {
-    cpu_kernel(a, &out, opName, op)
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable public func abs<S, E>(
-    _ x: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: Comparable & SignedNumeric {
-    cpu_abs(x, &out)
-  }
-
-  @inlinable public func abs<S, E>(
-    _ x: Tensor<S, Complex<E>>,
-    _ out: inout Tensor<S, E>
-  ) where E == E.Value, E.Value: Comparable & SignedNumeric {
-    cpu_abs(x, &out)
-  }
-
-  @inlinable public func abs2<S, E>(
-    _ x: Tensor<S, Complex<E>>,
-    _ out: inout Tensor<S, E>
-  ) where E == E.Value, E.Value: Comparable & SignedNumeric {
-    cpu_abs(x, &out)
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable public func acos<S, E>(
-    _ x: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: Real {
-    cpu_acos(x, &out)
-  }
-  //--------------------------------------------------------------------------
-  @inlinable public func acosh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_acosh(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func add<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: AdditiveArithmetic {
-    cpu_add(lhs, rhs, &out)
-  }
-  //--------------------------------------------------------------------------
-  @inlinable public func add<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: E.Value,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: AdditiveArithmetic {
-    cpu_add(lhs, rhs, &out)
-  }
-  //--------------------------------------------------------------------------
-  @inlinable public func and<S, E>(
-    _ lhs: Tensor<S, E>, _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  )
-  where E.Value == Bool { cpu_and(lhs, rhs, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func asin<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_asin(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func asinh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_asinh(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func atan<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_atan(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func atan2<S, E>(
-    _ y: Tensor<S, E>, _ x: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  )
-  where E.Value: Real { cpu_atan2(y, x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func atanh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_atanh(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func cast<S,E,RE>(
-    from a: Tensor<S, E>,
-    to out: inout Tensor<S, RE>
-  ) where E.Value: BinaryFloatingPoint, RE.Value: BinaryInteger {
-    cpu_cast(from: a, to: &out)
-  }
-  
-  @inlinable public func cast<S,E,RE>(
-    from a: Tensor<S, E>,
-    to out: inout Tensor<S, RE>
-  ) where E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint {
-    cpu_cast(from: a, to: &out)
-  }
-
-  @inlinable public func cast<S,E>(
-    from a: Tensor<S,Bool>,
-    to out: inout Tensor<S,E>
-  ) where E.Value: Numeric {
-    cpu_cast(from: a, to: &out)
-  }
-
-  @inlinable public func cast<S,E>(
-    from a: Tensor<S,E>,
-    to out: inout Tensor<S,Bool>
-  ) where E.Value: Numeric {
-    cpu_cast(from: a, to: &out)
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable public func copy<S, E>(from a: Tensor<S, E>, to b: inout Tensor<S, E>)
-  where S: TensorShape { cpu_copy(from: a, to: &b) }
-  //--------------------------------------------------------------------------
-  @inlinable public func cos<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_cos(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func cosh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_cosh(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func div<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: AlgebraicField {
-    cpu_div(lhs, rhs, &out)
-  }
-
-  @inlinable public func div<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: E.Value,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: AlgebraicField {
-    cpu_div(lhs, rhs, &out)
-  }
-
-  @inlinable public func div<S, E>(
-    _ lhs: E.Value,
-    _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: AlgebraicField {
-    cpu_div(lhs, rhs, &out)
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable public func elementsAlmostEqual<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: Tensor<S, E>,
-    _ tolerance: E.Value,
-    _ out: inout Tensor<S, Bool>
-  ) where E.Value: SignedNumeric & Comparable {
-    cpu_elementsAlmostEqual(lhs, rhs, tolerance, &out)
-  }
-  //--------------------------------------------------------------------------
-  @inlinable public func equal<S, E>(
-    _ lhs: Tensor<S, E>, _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, Bool>
-  )
-  where E.Value: Equatable { cpu_equal(lhs, rhs, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func erf<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_erf(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func erfc<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_erfc(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func exp<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_exp(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func exp2<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_exp2(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func exp10<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_exp10(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func expMinusOne<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_expMinusOne(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func gamma<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_gamma(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func greater<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, Bool>
-  ) where E.Value: Comparable { cpu_greater(lhs, rhs, &out) }
-
-  @inlinable public func greater<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: E.Value,
-    _ out: inout Tensor<S, Bool>
-  ) where E.Value: Comparable { cpu_greater(lhs, rhs, &out) }
-
-  //--------------------------------------------------------------------------
-  @inlinable public func greaterOrEqual<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, Bool>
-  ) where E.Value: Comparable {
-    cpu_greaterOrEqual(lhs, rhs, &out)
-  }
-
-  @inlinable public func greaterOrEqual<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: E.Value,
-    _ out: inout Tensor<S, Bool>
-  ) where E.Value: Comparable {
-    cpu_greaterOrEqual(lhs, rhs, &out)
-  }
-  //--------------------------------------------------------------------------
-  @inlinable public func hypot<S, E>(
-    _ x: Tensor<S, E>, _ y: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  )
-  where E.Value: Real { cpu_hypot(x, y, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func less<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, Bool>
-  ) where E.Value: Comparable { cpu_less(lhs, rhs, &out) }
-
-  @inlinable public func less<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: E.Value,
-    _ out: inout Tensor<S, Bool>
-  ) where E.Value: Comparable { cpu_less(lhs, rhs, &out) }
-
-  //--------------------------------------------------------------------------
-  @inlinable public func lessOrEqual<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, Bool>
-  ) where E.Value: Comparable { cpu_lessOrEqual(lhs, rhs, &out) }
-
-  @inlinable public func lessOrEqual<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: E.Value,
-    _ out: inout Tensor<S, Bool>
-  ) where E.Value: Comparable { cpu_lessOrEqual(lhs, rhs, &out) }
-
-  //--------------------------------------------------------------------------
-  @inlinable public func log<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_log(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func log<S, E>(onePlus x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_log(onePlus: x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func log2<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_log2(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func log10<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_log10(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func logGamma<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_logGamma(x, &out) }
-  //--------------------------------------------------------------------------
-  //    @inlinable public func matmul2<E>(type: E.Type) -> DeviceMatmul2<E>
-  //    where E: StorageElement, E.Value: StorageElement & Numeric { CpuMatmul2<E>() }
-  //--------------------------------------------------------------------------
-  @inlinable public func matmul<E>(
-    _ lhs: TensorR2<E>, _ transposeLhs: Bool,
-    _ rhs: TensorR2<E>, _ transposeRhs: Bool,
-    _ out: inout TensorR2<E>
-  ) where E.Value: Numeric {
-    cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &out)
-  }
-  //--------------------------------------------------------------------------
-  @inlinable public func matmul<E>(
-    _ lhs: TensorR3<E>, _ transposeLhs: Bool,
-    _ rhs: TensorR3<E>, _ transposeRhs: Bool,
-    _ out: inout TensorR3<E>
-  ) where E.Value: Numeric {
-    cpu_matmul(lhs, transposeLhs, rhs, transposeRhs, &out)
-  }
-  //--------------------------------------------------------------------------
-  @inlinable public func min<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: Comparable {
-    cpu_min(lhs, rhs, &out)
-  }
-
-  @inlinable public func min<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: E.Value,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: Comparable {
-    cpu_min(lhs, rhs, &out)
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable public func max<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: Comparable {
-    cpu_max(lhs, rhs, &out)
-  }
-
-  @inlinable public func max<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: E.Value,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: Comparable {
-    cpu_max(lhs, rhs, &out)
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable public func mul<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: Numeric {
-    cpu_mul(lhs, rhs, &out)
-  }
-
-  @inlinable public func mul<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: E.Value,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: Numeric {
-    cpu_mul(lhs, rhs, &out)
-  }
-
-  //--------------------------------------------------------------------------
-  // fused multiply add
-  @inlinable public func multiply<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: Tensor<S, E>,
-    add bias: E.Value,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: Numeric {
-    cpu_multiply(lhs, rhs, add: bias, &out)
-  }
-
-  @inlinable public func multiply<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: Tensor<S, E>,
-    add bias: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: Numeric {
-    cpu_multiply(lhs, rhs, add: bias, &out)
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable public func neg<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: SignedNumeric { cpu_neg(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func notEqual<S, E>(
-    _ lhs: Tensor<S, E>, _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, Bool>
-  )
-  where E.Value: Equatable { cpu_notEqual(lhs, rhs, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func or<S, E>(
-    _ lhs: Tensor<S, E>, _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  )
-  where E.Value == Bool { cpu_or(lhs, rhs, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func pow<S, E>(
-    _ x: Tensor<S, E>, _ y: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  )
-  where E.Value: Real { cpu_pow(x, y, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func pow<S, E>(
-    _ x: Tensor<S, E>, _ n: Int,
-    _ out: inout Tensor<S, E>
-  )
-  where E.Value: Real { cpu_pow(x, n, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func replace<S, E>(
-    _ x: Tensor<S, E>, 
-    _ y: Tensor<S, E>,
-    _ condition: Tensor<S, Bool>,
-    _ out: inout Tensor<S, E>
-  ) { cpu_replace(x, y, condition, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func root<S, E>(
-    _ x: Tensor<S, E>, _ n: Int,
-    _ out: inout Tensor<S, E>
-  )
-  where E.Value: Real { cpu_root(x, n, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func sigmoid<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_sigmoid(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func sign<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Comparable & SignedNumeric {
-    cpu_sign(x, &out)
-  }
-  //--------------------------------------------------------------------------
-  @inlinable public func sin<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_sin(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func sinh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_sinh(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func subtract<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: AdditiveArithmetic {
-    cpu_subtract(lhs, rhs, &out)
-  }
-
-  @inlinable public func subtract<S, E>(
-    _ lhs: Tensor<S, E>,
-    _ rhs: E.Value,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: AdditiveArithmetic {
-    cpu_subtract(lhs, rhs, &out)
-  }
-
-  @inlinable public func subtract<S, E>(
-    _ lhs: E.Value,
-    _ rhs: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  ) where E.Value: AdditiveArithmetic {
-    cpu_subtract(lhs, rhs, &out)
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable public func sqrt<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_sqrt(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func squared<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Numeric { cpu_squared(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func tan<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_tan(x, &out) }
-  //--------------------------------------------------------------------------
-  @inlinable public func tanh<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
-  where E.Value: Real { cpu_tanh(x, &out) }
-}
-
-//==============================================================================
-// DeviceQueue specialized derivative delegation
-extension DeviceQueue where Self: CpuFunctions {
-  //--------------------------------------------------------------------------
-  @inlinable public func vjpMin<S, E>(
-    _ x: Tensor<S, E>, _ y: Tensor<S, E>, _ scale: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  )
-  where E.Value: Comparable & Numeric { cpu_vjpMin(x, y, scale, &out) }
-
-  @inlinable public func vjpMin<S, E>(
-    _ x: Tensor<S, E>, _ y: E.Value, _ scale: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  )
-  where E.Value: Comparable & Numeric { cpu_vjpMin(x, y, scale, &out) }
-
-  @inlinable public func vjpMin<S, E>(
-    _ x: Tensor<S, E>, _ y: Tensor<S, E>, _ scale: Tensor<S, E>,
-    _ resultTrue: inout Tensor<S, E>, _ resultFalse: inout Tensor<S, E>
-  )
-  where E.Value: Comparable & Numeric { cpu_vjpMin(x, y, scale, &resultTrue, &resultFalse) }
-
-  @inlinable public func vjpMin<S, E>(
-    _ x: Tensor<S, E>, _ y: E.Value, _ scale: Tensor<S, E>,
-    _ resultTrue: inout Tensor<S, E>, _ resultFalse: inout Tensor<S, E>
-  )
-  where E.Value: Comparable & Numeric { cpu_vjpMin(x, y, scale, &resultTrue, &resultFalse) }
-
-  //--------------------------------------------------------------------------
-  @inlinable public func vjpMax<S, E>(
-    _ x: Tensor<S, E>, _ y: Tensor<S, E>, _ scale: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  )
-  where E.Value: Comparable & Numeric { cpu_vjpMax(x, y, scale, &out) }
-
-  @inlinable public func vjpMax<S, E>(
-    _ x: Tensor<S, E>, _ y: E.Value, _ scale: Tensor<S, E>,
-    _ out: inout Tensor<S, E>
-  )
-  where E.Value: Comparable & Numeric { cpu_vjpMax(x, y, scale, &out) }
-
-  @inlinable public func vjpMax<S, E>(
-    _ x: Tensor<S, E>, _ y: Tensor<S, E>, _ scale: Tensor<S, E>,
-    _ resultTrue: inout Tensor<S, E>, _ resultFalse: inout Tensor<S, E>
-  )
-  where E.Value: Comparable & Numeric { cpu_vjpMax(x, y, scale, &resultTrue, &resultFalse) }
-
-  @inlinable public func vjpMax<S, E>(
-    _ x: Tensor<S, E>, _ y: E.Value, _ scale: Tensor<S, E>,
-    _ resultTrue: inout Tensor<S, E>, _ resultFalse: inout Tensor<S, E>
-  )
-  where E.Value: Comparable & Numeric { cpu_vjpMax(x, y, scale, &resultTrue, &resultFalse) }
 }

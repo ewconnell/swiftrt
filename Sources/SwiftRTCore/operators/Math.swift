@@ -228,39 +228,66 @@ where E.Value: DifferentiableNumeric & Real {
 }
 
 //==============================================================================
-/// cast(from:to:
-/// casts elements of `x` to the output type
-/// - Parameter other: value tensor
+/// cast(_:elementsTo:
+/// casts elements of `tensor` to the output type
+/// - Parameter tensor: value tensor
 /// - Returns: out
 @inlinable public func cast<S, E, OE>(
-  _ other: Tensor<S, OE>
-) -> Tensor<S, E> where E.Value: BinaryFloatingPoint, OE.Value: BinaryInteger {
-  var out = Tensor<S, E>(shape: other.shape)
-  currentQueue.cast(from: other, to: &out)
+  _ tensor: Tensor<S, E>,
+  elementsTo type: OE.Type
+) -> Tensor<S, OE> where E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint {
+  var out = Tensor<S, OE>(shape: tensor.shape, order: tensor.order)
+  currentQueue.cast(from: tensor, to: &out)
   return out
 }
 
 @inlinable public func cast<S, E, OE>(
-  _ other: Tensor<S, OE>
-) -> Tensor<S, E> where E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint {
-  var out = Tensor<S, E>(shape: other.shape)
-  currentQueue.cast(from: other, to: &out)
+  _ tensor: Tensor<S, E>,
+  elementsTo type: OE.Type
+) -> Tensor<S, OE> where E.Value: BinaryFloatingPoint, OE.Value: BinaryInteger {
+  var out = Tensor<S, OE>(shape: tensor.shape, order: tensor.order)
+  currentQueue.cast(from: tensor, to: &out)
   return out
 }
 
-@inlinable public func cast<S, E>(
-  _ other: Tensor<S,Bool>
-) -> Tensor<S, E> where E.Value: Numeric {
-  var out = Tensor<S, E>(shape: other.shape)
-  currentQueue.cast(from: other, to: &out)
+@inlinable public func cast<S, E, OE>(
+  _ tensor: Tensor<S, E>,
+  elementsTo type: OE.Type
+) -> Tensor<S, OE> where E.Value: Numeric, OE.Value == Bool {
+  var out = Tensor<S, OE>(shape: tensor.shape, order: tensor.order)
+  currentQueue.cast(from: tensor, to: &out)
   return out
 }
 
-@inlinable public func cast<S, E>(
-  _ other: Tensor<S,E>
-) -> Tensor<S, Bool> where E.Value: Numeric {
-  var out = Tensor<S,Bool>(shape: other.shape)
-  currentQueue.cast(from: other, to: &out)
+@inlinable public func cast<S, E, OE>(
+  _ tensor: Tensor<S, E>,
+  elementsTo type: OE.Type
+) -> Tensor<S, OE> where E.Value == Bool, OE.Value: Numeric {
+  var out = Tensor<S, OE>(shape: tensor.shape, order: tensor.order)
+  currentQueue.cast(from: tensor, to: &out)
+  return out
+}
+
+@inlinable public func cast<S, E, OE, OR>(
+  _ tensor: Tensor<S, E>,
+  elementsTo type: OE.Type
+) -> Tensor<S, OE>
+where OE.Value == Complex<OR>, OR: BinaryFloatingPoint, E.Value: BinaryFloatingPoint {
+  var out = Tensor<S, OE>(shape: tensor.shape, order: tensor.order)
+  currentQueue.cast(from: tensor, to: &out)
+  return out
+}
+
+@inlinable public func cast<S, E, ER, OE, OR>(
+  _ tensor: Tensor<S, E>,
+  elementsTo type: OE.Type
+) -> Tensor<S, OE>
+where
+  E.Value == Complex<ER>, ER: BinaryFloatingPoint,
+  OE.Value == Complex<OR>, OR: BinaryFloatingPoint
+{
+  var out = Tensor<S, OE>(shape: tensor.shape, order: tensor.order)
+  currentQueue.cast(from: tensor, to: &out)
   return out
 }
 

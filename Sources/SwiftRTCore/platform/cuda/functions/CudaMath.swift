@@ -468,7 +468,7 @@ extension CudaQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable func gpuCast<S,E,RE>(
+  @inlinable func gpuCast<S, E, RE>(
     _ a: Tensor<S, E>,
     _ out: inout Tensor<S, RE>
   ) -> cudaError_t {
@@ -493,10 +493,10 @@ extension CudaQueue {
     }
   }
 
-  @inlinable public func cast<S, E, RE>(
+  @inlinable public func cast<S, E, OE>(
     from a: Tensor<S, E>,
-    to out: inout Tensor<S, RE>
-  ) where E.Value: BinaryFloatingPoint, RE.Value: BinaryInteger {
+    to out: inout Tensor<S, OE>
+  ) where E.Value: BinaryInteger, OE.Value: BinaryFloatingPoint {
     guard useGpu else {
       cpu_cast(from: a, to: &out)
       return
@@ -504,11 +504,10 @@ extension CudaQueue {
     cpuFallback(gpuCast(a, &out)) { $0.cast(from: a, to: &out) }
   }
 
-  //------------------------------------
-  @inlinable public func cast<S, E, RE>(
+  @inlinable public func cast<S, E, OE>(
     from a: Tensor<S, E>,
-    to out: inout Tensor<S, RE>
-  ) where E.Value: BinaryInteger, RE.Value: BinaryFloatingPoint {
+    to out: inout Tensor<S, OE>
+  ) where E.Value: BinaryFloatingPoint, OE.Value: BinaryInteger {
     guard useGpu else {
       cpu_cast(from: a, to: &out)
       return
@@ -516,11 +515,10 @@ extension CudaQueue {
     cpuFallback(gpuCast(a, &out)) { $0.cast(from: a, to: &out) }
   }
 
-  //------------------------------------
-  @inlinable public func cast<S, E>(
-    from a: Tensor<S, Bool>,
-    to out: inout Tensor<S, E>
-  ) where E.Value: Numeric {
+  @inlinable public func cast<S, E, OE>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  ) where E.Value: Numeric, OE.Value == Bool {
     guard useGpu else {
       cpu_cast(from: a, to: &out)
       return
@@ -528,11 +526,47 @@ extension CudaQueue {
     cpuFallback(gpuCast(a, &out)) { $0.cast(from: a, to: &out) }
   }
 
-  //------------------------------------
-  @inlinable public func cast<S, E>(
+  @inlinable public func cast<S, E, OE>(
     from a: Tensor<S, E>,
-    to out: inout Tensor<S, Bool>
-  ) where E.Value: Numeric {
+    to out: inout Tensor<S, OE>
+  ) where E.Value == Bool, OE.Value: Numeric {
+    guard useGpu else {
+      cpu_cast(from: a, to: &out)
+      return
+    }
+    cpuFallback(gpuCast(a, &out)) { $0.cast(from: a, to: &out) }
+  }
+
+  @inlinable public func cast<S, E, OE>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  ) where OE.Value == Complex<E>, E == E.Value {
+    guard useGpu else {
+      cpu_cast(from: a, to: &out)
+      return
+    }
+    cpuFallback(gpuCast(a, &out)) { $0.cast(from: a, to: &out) }
+  }
+
+  @inlinable public func cast<S, E, OE, OR>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  ) where OE.Value == Complex<OR>, OR: BinaryFloatingPoint, E.Value: BinaryFloatingPoint {
+    guard useGpu else {
+      cpu_cast(from: a, to: &out)
+      return
+    }
+    cpuFallback(gpuCast(a, &out)) { $0.cast(from: a, to: &out) }
+  }
+
+  @inlinable public func cast<S, E, ER, OE, OR>(
+    from a: Tensor<S, E>,
+    to out: inout Tensor<S, OE>
+  )
+  where
+    E.Value == Complex<ER>, ER: BinaryFloatingPoint,
+    OE.Value == Complex<OR>, OR: BinaryFloatingPoint
+  {
     guard useGpu else {
       cpu_cast(from: a, to: &out)
       return
