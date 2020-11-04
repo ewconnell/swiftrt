@@ -22,6 +22,7 @@ import XCTest
       testCase(test_AlgebraicField.allTests),
       testCase(test_arraySyntax.allTests),
       testCase(test_Async.allTests),
+      testCase(test_Casting.allTests),
       testCase(test_Codable.allTests),
       testCase(test_Comparative.allTests),
       testCase(test_Fractals.allTests),
