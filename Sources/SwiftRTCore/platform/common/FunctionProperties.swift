@@ -31,14 +31,6 @@ public enum BatchNormalizeMode: Int, Codable {
 }
 
 //==============================================================================
-public enum PoolingMode: Int, Codable {
-  case averageExcludePadding
-  case averageIncludePadding
-  case max
-  case maxDeterministic
-}
-
-//==============================================================================
 open class Activation<S, E>
 where S: TensorShape, E: StorageElement & BinaryFloatingPoint {
   public func infer(y: inout Tensor<S, E>, from x: Tensor<S, E>) throws { fatalError("Abstract") }

@@ -29,7 +29,7 @@ class test_Spatial: XCTestCase {
   //--------------------------------------------------------------------------
   func test_pool() {
     let a = array(0..<6, (2, 3))
-    let avg = pool(a, size: (3, 3), strides: (1, 1), pad: .same, op: .average)
+    let avg = pool(a, size: (3, 3), strides: (1, 1), pad: .same)
     print(avg)
   }
 }

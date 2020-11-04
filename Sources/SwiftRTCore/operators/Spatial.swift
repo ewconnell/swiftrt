@@ -16,11 +16,6 @@
 
 import Numerics
 
-public enum PoolingOp {
-  case average
-  case max
-}
-
 //==============================================================================
 /// pool(_:size:strides:pad:op:
 /// computes the absolute value of `x`
@@ -38,9 +33,9 @@ public enum PoolingOp {
   size: S.Tuple,
   strides: S.Tuple,
   pad: Padding = .valid,
-  op: PoolingOp = .average
+  mode: PoolingMode = .average
 ) -> Tensor<S, E> {
-  return pool(x, size: S(size), strides: S(strides), pad: pad, op: op)
+  return pool(x, size: S(size), strides: S(strides), pad: pad, mode: mode)
 }
 
 @inlinable public func pool<S, E>(
@@ -48,9 +43,17 @@ public enum PoolingOp {
   size: S,
   strides: S,
   pad: Padding = .valid,
-  op: PoolingOp = .average
+  mode: PoolingMode = .average
 ) -> Tensor<S, E> {
   var out = Tensor(like: x)
-  currentQueue.pool(x, size, strides, pad, op, &out)
+  currentQueue.pool(x, size, strides, pad, mode, &out)
   return out
 }
+
+//==============================================================================
+public enum PoolingMode: Int, Codable {
+  case average
+  case max
+  case maxDeterministic
+}
+

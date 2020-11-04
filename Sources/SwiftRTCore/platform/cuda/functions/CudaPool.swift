@@ -25,16 +25,61 @@ extension CudaQueue {
     _ size: S,
     _ strides: S,
     _ pad: Padding,
-    _ op: PoolingOp,
+    _ mode: PoolingMode,
     _ out: inout Tensor<S, E>
   ) {
-    var status: cudaError_t
+    // var status: cudaError_t
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     guard useGpu else {
-      cpu_pool(x, size, strides, pad, op, &out)
+      cpu_pool(x, size, strides, pad, mode, &out)
       return
     }
 
+    let _ = PoolingConfiguration(
+      x: x, size: size, strides: strides, pad: pad, mode: mode, out: &out
+    )
+
+  }
+
+}
+
+//----------------------------------------------------------------------------
+public struct PoolingConfiguration {
+  // let poolingDesc: PoolingDescriptor
+  // let xDesc: TensorDescriptor
+  // let outDesc: TensorDescriptor
+
+  @inlinable public init<S, E>(
+    x: Tensor<S, E>,
+    size: S,
+    strides: S,
+    pad: Padding,
+    mode: PoolingMode,
+    out: inout Tensor<S, E>
+  ) {
+    // create descriptor
+    // let poolingRank = inData.extent.count - 2
+    // let padding = expand(array: props.pad, to: poolingRank)
+    // let windowSize = expand(array: props.windowSize, to: poolingRank)
+    // let stride = expand(array: props.stride, to: poolingRank)
+
+    // poolingDescriptor = PoolingDescriptor(
+    //   mode: props.mode, nan: props.nan, rank: poolingRank,
+    //   window: windowSize, padding: padding, stride: stride)
+
+    // // create input tensor descriptor
+    // inTensor = try inData.createTensorDescriptor()
+
+    // // assure the output is the correct type and size
+    // var outDims = [Int32](repeating: 0, count: inData.extent.count)
+    // try cudaCheck(
+    //   status: cudnnGetPoolingNdForwardOutputDim(
+    //     poolingDescriptor.desc, inTensor.desc, Int32(inData.extent.count), &outDims))
+
+    // // create output
+    // let outShape = Shape(extent: outDims.map { Int($0) })
+    // outData = DataView(shape: outShape, dataType: props.outDataType)
+    // outTensor = try outData.createTensorDescriptor()
   }
 
 }

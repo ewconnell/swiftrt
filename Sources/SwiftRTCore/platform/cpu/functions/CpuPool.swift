@@ -26,10 +26,10 @@ extension CpuQueue {
     _ size: S,
     _ strides: S,
     _ pad: Padding,
-    _ op: PoolingOp,
+    _ mode: PoolingMode,
     _ out: inout Tensor<S, E>
   ) {
-    cpu_pool(x, size, strides, pad, op, &out)
+    cpu_pool(x, size, strides, pad, mode, &out)
   }
 
 }
@@ -43,7 +43,7 @@ extension DeviceQueue {
     _ size: S,
     _ strides: S,
     _ pad: Padding,
-    _ op: PoolingOp,
+    _ mode: PoolingMode,
     _ out: inout Tensor<S, E>
   ) {
     fatalError("cpu_pool not implemented yet")
