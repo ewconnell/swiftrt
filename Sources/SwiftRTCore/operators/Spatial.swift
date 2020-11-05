@@ -17,6 +17,26 @@
 import Numerics
 
 //==============================================================================
+#if canImport(SwiftRTCuda)
+  public typealias PoolingConfiguration<S, E> = CudaPoolingConfiguration<S, E>
+  where S: TensorShape, E: StorageElement
+#else
+  public typealias PoolingConfiguration<S, E> = CpuPoolingConfiguration<S, E>
+  where S: TensorShape, E: StorageElement
+#endif
+
+//==============================================================================
+/// PoolingMode
+public enum PoolingMode: Int, Codable {
+  /// averages elements within the pooling window excluding padding
+  case average
+  /// averages elements within the pooling window including padding
+  case averagePadding
+  /// The maximum value inside the pooling window is used
+  case max
+}
+
+//==============================================================================
 /// pool(_:size:strides:pad:mode:
 /// computes the absolute value of `x`
 /// - Parameters:
@@ -63,12 +83,3 @@ import Numerics
   return out
 }
 
-//==============================================================================
-public enum PoolingMode: Int, Codable {
-  /// averages elements within the pooling window excluding padding
-  case average
-  /// averages elements within the pooling window including padding
-  case averagePadding
-  /// The maximum value inside the pooling window is used
-  case max
-}

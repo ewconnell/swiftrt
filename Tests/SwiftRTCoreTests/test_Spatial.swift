@@ -29,51 +29,56 @@ class test_Spatial: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_averagePool() {
-    let a = array([
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-    ])
-
-    // same
-    let same = pool(x: a, size: (3, 3), strides: (1, 1), pad: .same, mode: .average)
-    XCTAssert(
-      same == [
-        [2.0, 2.5, 3.0],
-        [3.5, 4.0, 4.5],
-        [5.0, 5.5, 6.0],
+    #if canImport(SwiftRTCuda)
+      let a = array([
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
       ])
 
-    // valid
-    let valid = pool(x: a, size: (3, 3), strides: (1, 1), pad: .valid, mode: .average)
-    XCTAssert(valid == [[4.0]])
+      // same
+      let same = pool(x: a, size: (3, 3), strides: (1, 1), pad: .same, mode: .average)
+      XCTAssert(
+        same == [
+          [2.0, 2.5, 3.0],
+          [3.5, 4.0, 4.5],
+          [5.0, 5.5, 6.0],
+        ])
 
-    // using a configuration
-    let cfg = PoolingConfiguration(x: a, size: (3, 3), strides: (1, 1), pad: .valid, mode: .average)
-    var out = cfg.createOutput()
-    let p = pool(config: cfg, x: a, out: &out)
-    XCTAssert(p == [[4.0]])
+      // valid
+      let valid = pool(x: a, size: (3, 3), strides: (1, 1), pad: .valid, mode: .average)
+      XCTAssert(valid == [[4.0]])
+
+      // using a configuration
+      let cfg = PoolingConfiguration(
+        x: a, size: (3, 3), strides: (1, 1), pad: .valid, mode: .average)
+      var out = cfg.createOutput()
+      let p = pool(config: cfg, x: a, out: &out)
+      XCTAssert(p == [[4.0]])
+    #endif
   }
 
   //--------------------------------------------------------------------------
   func test_maxPool() {
-    let a = array([
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-    ])
-
-    // same
-    let same = pool(x: a, size: (3, 3), strides: (1, 1), pad: .same, mode: .max)
-    XCTAssert(
-      same == [
-        [4.0, 5.0, 5.0],
-        [7.0, 8.0, 8.0],
-        [7.0, 8.0, 8.0],
+    #if canImport(SwiftRTCuda)
+      let a = array([
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
       ])
 
-    // valid
-    let valid = pool(x: a, size: (3, 3), strides: (1, 1), pad: .valid, mode: .max)
-    XCTAssert(valid == [[8.0]])
+      // same
+      let same = pool(x: a, size: (3, 3), strides: (1, 1), pad: .same, mode: .max)
+      XCTAssert(
+        same == [
+          [4.0, 5.0, 5.0],
+          [7.0, 8.0, 8.0],
+          [7.0, 8.0, 8.0],
+        ])
+
+      // valid
+      let valid = pool(x: a, size: (3, 3), strides: (1, 1), pad: .valid, mode: .max)
+      XCTAssert(valid == [[8.0]])
+    #endif
   }
 }

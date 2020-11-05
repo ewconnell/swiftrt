@@ -60,7 +60,7 @@ extension CudaQueue {
 }  // CudaQueue
 
 //==============================================================================
-public final class PoolingConfiguration<Shape: TensorShape, E: StorageElement> {
+public final class CudaPoolingConfiguration<Shape: TensorShape, E: StorageElement> {
   // properties
   public let pooling: PoolingDescriptor<Shape>
   public let xDesc: TensorDescriptor<Shape, E>
@@ -135,7 +135,6 @@ public final class PoolingConfiguration<Shape: TensorShape, E: StorageElement> {
     outDesc = TensorDescriptor(Tensor<Shape, E>(shape: outShape, order: outOrder))
   }
 
-  //----------------------------------------------------------------------------
   @inlinable public func createOutput() -> Tensor<Shape, E> {
     Tensor<Shape, E>(shape: outShape, order: outOrder)
   }

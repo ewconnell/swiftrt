@@ -45,3 +45,37 @@ extension DeviceQueue {
 
   }
 }
+
+//==============================================================================
+public final class CpuPoolingConfiguration<Shape: TensorShape, E: StorageElement> {
+
+  public let outOrder: Order
+  public let outShape: Shape
+
+  //----------------------------------------------------------------------------
+  @inlinable public convenience init(
+    x: Tensor<Shape, E>,
+    size: Shape.Tuple,
+    strides: Shape.Tuple,
+    pad: Padding,
+    mode: PoolingMode
+  ) {
+    self.init(x: x, size: Shape(size), strides: Shape(strides), pad: pad, mode: mode)
+  }
+
+  //----------------------------------------------------------------------------
+  @inlinable public init(
+    x: Tensor<Shape, E>,
+    size: Shape,
+    strides: Shape,
+    pad: Padding,
+    mode: PoolingMode
+  ) {
+    outOrder = x.order
+    outShape = x.shape
+  }
+
+  @inlinable public func createOutput() -> Tensor<Shape, E> {
+    Tensor<Shape, E>(shape: outShape, order: outOrder)
+  }
+}
