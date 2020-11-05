@@ -22,14 +22,11 @@ import Numerics
 extension CpuQueue {
   //--------------------------------------------------------------------------
   @inlinable public func pool<S, E>(
+    _ config: PoolingConfiguration<S, E>,
     _ x: Tensor<S, E>,
-    _ size: S,
-    _ strides: S,
-    _ pad: Padding,
-    _ mode: PoolingMode,
     _ out: inout Tensor<S, E>
-  ) {
-    cpu_pool(x, size, strides, pad, mode, &out)
+  ) where E: Numeric {
+    cpu_pool(config, x, &out)
   }
 
 }
@@ -39,13 +36,12 @@ extension CpuQueue {
 extension DeviceQueue {
   //--------------------------------------------------------------------------
   @inlinable public func cpu_pool<S, E>(
+    _ config: PoolingConfiguration<S, E>,
     _ x: Tensor<S, E>,
-    _ size: S,
-    _ strides: S,
-    _ pad: Padding,
-    _ mode: PoolingMode,
     _ out: inout Tensor<S, E>
-  ) {
+  ) where E: Numeric {
     fatalError("cpu_pool not implemented yet")
+    // diagnostic(.queueCpu, "pool(\(x.name))", categories: .queueCpu)
+
   }
 }

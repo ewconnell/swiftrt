@@ -60,7 +60,6 @@ extension CudaQueue {
 public final class CudaConvolution<Shape, Element, FilterElement>:
   DeviceConvolution<Shape, Element, FilterElement>
 where
-
   Shape: TensorShape,
   Element: StorageElement & Numeric,
   FilterElement: StorageElement & Numeric
@@ -80,10 +79,10 @@ where
   public let filterBiasBackQueue: CudaQueue
 
   public var convolutionDescriptor: ConvolutionDescriptor<Shape>!
-  public var xTensorDescriptor: TensorDescriptor!
-  public var yTensorDescriptor: TensorDescriptor!
+  public var xTensorDescriptor: TensorDescriptor<Shape, Element>!
+  public var yTensorDescriptor: TensorDescriptor<Shape, Element>!
   public var filterDescriptor: FilterDescriptor!
-  public var biasTensorDescriptor: TensorDescriptor!
+  public var biasTensorDescriptor: TensorDescriptor<Shape1, FilterElement>!
 
   // forward
   public var fwdAlgo: cudnnConvolutionFwdAlgo_t
@@ -286,9 +285,9 @@ where
     _ bias: Bias,
     _ mode: EvaluationMode
   ) {
-    xTensorDescriptor = x.createTensorDescriptor()
+    xTensorDescriptor = TensorDescriptor(x)
     filterDescriptor = FilterDescriptor(filter)
-    biasTensorDescriptor = bias.createTensorDescriptor()
+    biasTensorDescriptor = TensorDescriptor(bias)
 
     //----------------------------------
     // create convolution descriptor
@@ -321,7 +320,7 @@ where
     // with the same scalarType for y as x
 
     // TODO: let yShape = Shape(yExtent.map(Int.init))
-    yTensorDescriptor = x.createTensorDescriptor()
+    yTensorDescriptor = TensorDescriptor(x)
     selectForwardAlgorithm(x: x, properties: properties)
 
     if mode == .training {

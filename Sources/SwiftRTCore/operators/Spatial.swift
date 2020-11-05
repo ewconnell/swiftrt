@@ -17,43 +17,58 @@
 import Numerics
 
 //==============================================================================
-/// pool(_:size:strides:pad:op:
+/// pool(_:size:strides:pad:mode:
 /// computes the absolute value of `x`
 /// - Parameters:
 ///  - x: input
 ///  - size: the size of the pooling window
 ///  - strides: the sliding window strides
-///  - pad: the padding mode
-///  - op: the pooling operation
+///  - pad: the padding type
+///  - mode: the pooling mode
 ///
 /// - Returns: the pooled result
 ///
 @inlinable public func pool<S, E>(
-  _ x: Tensor<S, E>,
+  x: Tensor<S, E>,
   size: S.Tuple,
   strides: S.Tuple,
   pad: Padding = .valid,
   mode: PoolingMode = .average
-) -> Tensor<S, E> {
-  return pool(x, size: S(size), strides: S(strides), pad: pad, mode: mode)
+) -> Tensor<S, E> where E: Numeric {
+  return pool(x: x, size: S(size), strides: S(strides), pad: pad, mode: mode)
 }
 
 @inlinable public func pool<S, E>(
-  _ x: Tensor<S, E>,
+  x: Tensor<S, E>,
   size: S,
   strides: S,
   pad: Padding = .valid,
   mode: PoolingMode = .average
-) -> Tensor<S, E> {
-  var out = Tensor(like: x)
-  currentQueue.pool(x, size, strides, pad, mode, &out)
+) -> Tensor<S, E> where E: Numeric {
+  // create the pooling configuration
+  let config = PoolingConfiguration<S, E>(
+    x: x, size: size, strides: strides, pad: pad, mode: mode)
+
+  var out = config.createOutput()
+  currentQueue.pool(config, x, &out)
+  return out
+}
+
+@inlinable public func pool<S, E>(
+  config: PoolingConfiguration<S, E>,
+  x: Tensor<S, E>,
+  out: inout Tensor<S, E>
+) -> Tensor<S, E> where E: Numeric {
+  currentQueue.pool(config, x, &out)
   return out
 }
 
 //==============================================================================
 public enum PoolingMode: Int, Codable {
+  /// averages elements within the pooling window excluding padding
   case average
+  /// averages elements within the pooling window including padding
+  case averagePadding
+  /// The maximum value inside the pooling window is used
   case max
-  case maxDeterministic
 }
-

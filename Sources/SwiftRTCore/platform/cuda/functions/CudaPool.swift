@@ -21,48 +21,85 @@ import SwiftRTCuda
 extension CudaQueue {
   //--------------------------------------------------------------------------
   @inlinable public func pool<S, E>(
+    _ config: PoolingConfiguration<S, E>,
     _ x: Tensor<S, E>,
-    _ size: S,
-    _ strides: S,
-    _ pad: Padding,
-    _ mode: PoolingMode,
     _ out: inout Tensor<S, E>
-  ) {
+  ) where E: Numeric {
     // var status: cudaError_t
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     guard useGpu else {
-      cpu_pool(x, size, strides, pad, mode, &out)
+      cpu_pool(config, x, &out)
       return
     }
+    diagnostic(.queueGpu, "pool(\(x.name))", categories: .queueGpu)
 
-    let _ = PoolingConfiguration<S,E>(
-      x: x, size: size, strides: strides, pad: pad, mode: mode, out: &out
+    // constants
+    var zero = E.zero
+    var one = E.one
+
+    cudaCheck(
+      cudnnPoolingForward(
+        cudnn.handle,
+        config.pooling.desc,
+        // alpha
+        &one,
+        // xDesc
+        config.xDesc.desc,
+        // x
+        x.deviceRead(using: self),
+        // beta
+        &zero,
+        // yDesc
+        config.outDesc.desc,
+        // y
+        out.deviceReadWrite(using: self)
+      )
     )
-
   }
 
-}
+}  // CudaQueue
 
-//----------------------------------------------------------------------------
+//==============================================================================
 public final class PoolingConfiguration<Shape: TensorShape, E: StorageElement> {
+  // properties
   public let pooling: PoolingDescriptor<Shape>
-  // public let xDesc: TensorDescriptor
-  // public let outDesc: TensorDescriptor
+  public let xDesc: TensorDescriptor<Shape, E>
 
+  // out
+  public let outDesc: TensorDescriptor<Shape, E>
+  public let outOrder: Order
+  public let outShape: Shape
+
+  //----------------------------------------------------------------------------
+  @inlinable public convenience init(
+    x: Tensor<Shape, E>,
+    size: Shape.Tuple,
+    strides: Shape.Tuple,
+    pad: Padding,
+    mode: PoolingMode
+  ) {
+    self.init(x: x, size: Shape(size), strides: Shape(strides), pad: pad, mode: mode)
+  }
+
+  //----------------------------------------------------------------------------
   @inlinable public init(
     x: Tensor<Shape, E>,
     size: Shape,
     strides: Shape,
     pad: Padding,
-    mode: PoolingMode,
-    out: inout Tensor<Shape, E>
+    mode: PoolingMode
   ) {
-    // create descriptor
-    // let poolingRank = inData.extent.count - 2
-    let padding = Shape.zero
-    // let padding = expand(array: props.pad, to: poolingRank)
-    // let windowSize = expand(array: props.windowSize, to: poolingRank)
-    // let stride = expand(array: props.stride, to: poolingRank)
+    // if `pad` is .valid then size `x` must be >= `size`
+    assert(
+      pad == .same
+        || {
+          for i in 0..<Shape.rank {
+            if size[i] > x.shape[i] { return false }
+          }
+          return true
+        }(), "with `.valid` padding, the input size `x` must be >= the window `size`")
+
+    let padding = pad == .valid ? Shape.zero : size / 2
 
     pooling = PoolingDescriptor<Shape>(
       mode: mode,
@@ -71,54 +108,73 @@ public final class PoolingConfiguration<Shape: TensorShape, E: StorageElement> {
       padding: padding,
       strides: strides)
 
-    // // create input tensor descriptor
-    // inTensor = try inData.createTensorDescriptor()
+    // create input descriptor indenting dimensions with 1 as needed
+    xDesc = TensorDescriptor(x)
 
-    // // assure the output is the correct type and size
-    // var outDims = [Int32](repeating: 0, count: inData.extent.count)
-    // try cudaCheck(
-    //   status: cudnnGetPoolingNdForwardOutputDim(
-    //     poolingDescriptor.desc, inTensor.desc, Int32(inData.extent.count), &outDims))
+    // get the output shape
+    var shape32 = [Int32](repeating: 0, count: xDesc.rank)
+    cudaCheck(
+      cudnnGetPoolingNdForwardOutputDim(
+        pooling.desc,
+        xDesc.desc,
+        Int32(xDesc.rank),
+        &shape32
+      )
+    )
 
-    // // create output
-    // let outShape = Shape(extent: outDims.map { Int($0) })
-    // outData = DataView(shape: outShape, dataType: props.outDataType)
-    // outTensor = try outData.createTensorDescriptor()
+    // cudnn insists on ranks being 4 to 8, so skip leading 1s for lower ranks
+    var s = Shape.zero
+    let base = xDesc.rank > Shape.rank ? xDesc.rank - Shape.rank : 0
+    for i in 0..<Shape.rank {
+      s[i] = Int(shape32[base + i])
+    }
+    outShape = s
+
+    // create output descriptor
+    outOrder = x.order
+    outDesc = TensorDescriptor(Tensor<Shape, E>(shape: outShape, order: outOrder))
   }
 
+  //----------------------------------------------------------------------------
+  @inlinable public func createOutput() -> Tensor<Shape, E> {
+    Tensor<Shape, E>(shape: outShape, order: outOrder)
+  }
 }
 
 //==============================================================================
 // PoolingDescriptor
-public final class PoolingDescriptor<Shape: TensorShape> {	
-	// properties
-	public let desc: cudnnPoolingDescriptor_t
+public final class PoolingDescriptor<Shape: TensorShape> {
+  // properties
+  public let desc: cudnnPoolingDescriptor_t
 
-	// initializers
-	@inlinable public init(
+  // initializers
+  @inlinable public init(
     mode: PoolingMode,
     nan: NanPropagation,
     window: Shape,
-	  padding: Shape,
+    padding: Shape,
     strides: Shape
   ) {
-		// create the descriptor
-		var temp: cudnnPoolingDescriptor_t?
-		cudaCheck(cudnnCreatePoolingDescriptor(&temp))
-		desc = temp!
-		
-		// // initialize
-		// try cudaCheck(status: cudnnSetPoolingNdDescriptor(
-		// 	desc,
-    //   mode.cudnn,
-    //   nan.cudnn,
-		// 	CInt(Shape.rank),
-		// 	window.map { CInt($0) },
-		// 	padding.map { CInt($0) },
-		// 	stride.map { CInt($0) }))
-	}
+    // create the descriptor
+    var temp: cudnnPoolingDescriptor_t!
+    cudaCheck(cudnnCreatePoolingDescriptor(&temp))
+    desc = temp
 
-	deinit {
-		cudaCheck(cudnnDestroyLRNDescriptor(desc))
-	}
+    // initialize
+    cudaCheck(
+      cudnnSetPoolingNdDescriptor(
+        desc,
+        mode.cudnn,
+        nan.cudnn,
+        Int32(Shape.rank),
+        window.asInt32,
+        padding.asInt32,
+        strides.asInt32
+      )
+    )
+  }
+
+  deinit {
+    cudaCheck(cudnnDestroyLRNDescriptor(desc))
+  }
 }

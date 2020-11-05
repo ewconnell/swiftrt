@@ -311,6 +311,18 @@ extension Tensor {
 }
 
 //==============================================================================
+// PoolingMode extension
+extension PoolingMode {
+  @inlinable public var cudnn: cudnnPoolingMode_t {
+    switch self {
+    case .average: return CUDNN_POOLING_AVERAGE_COUNT_EXCLUDE_PADDING
+    case .averagePadding: return CUDNN_POOLING_AVERAGE_COUNT_INCLUDE_PADDING
+    case .max: return CUDNN_POOLING_MAX
+    }
+  }
+}
+
+//==============================================================================
 // ReductionType extension
 extension cudnnReduceTensorOp_t: Hashable {}
 
@@ -413,7 +425,7 @@ public final class CudnnHandle {
 
 //==============================================================================
 // DropoutDescriptor
-public class DropoutDescriptor {
+public class DropoutDescriptor<S: TensorShape, E: StorageElement> {
   // properties
   public let desc: cudnnDropoutDescriptor_t
   public let states: DeviceMemory
@@ -423,7 +435,7 @@ public class DropoutDescriptor {
     stream: CudaQueue,
     drop: Double,
     seed: UInt64,
-    tensorDesc: TensorDescriptor
+    tensorDesc: TensorDescriptor<S,E>
   ) {
     // create the descriptor
     var temp: cudnnDropoutDescriptor_t?
@@ -522,37 +534,48 @@ public final class LRNDescriptor {
 //==============================================================================
 /// TensorDescriptor
 /// creates and manages the lifetime of a cudnn tensor handle
-public final class TensorDescriptor {
+public final class TensorDescriptor<S: TensorShape, E: StorageElement> {
   // properties
+  public let rank: Int
   public let desc: cudnnTensorDescriptor_t
 
   //--------------------------------------------------------------------------
-  @inlinable public init<S: TensorShape>(
-    shape: S,
-    strides: S,
-    scalarType: cudnnDataType_t
-  ) {
-    assert(
-      shape.count >= 4 && shape.count <= CUDNN_DIM_MAX,
-      "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
+  @inlinable public init(_ tensor: Tensor<S, E>) {
+    assert(S.rank <= CUDNN_DIM_MAX, "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
+
     // create the descriptor
     var temp: cudnnTensorDescriptor_t?
     cudaCheck(cudnnCreateTensorDescriptor(&temp))
     self.desc = temp!
 
-    // initialize
-    cudaCheck(
-      cudnnSetTensorNdDescriptor(
-        self.desc,
-        scalarType,
-        Int32(shape.count),
-        shape.asInt32,
-        strides.asInt32))
+    // indent if needed
+    if S.rank < 4 {
+      rank = 4
+      let tensor4 = TensorR4<E>(indenting: tensor)
+      cudaCheck(
+        cudnnSetTensorNdDescriptor(
+          desc,
+          E.cudnn,
+          4,
+          tensor4.shape.asInt32,
+          tensor4.strides.asInt32))
+
+    } else {
+      rank = S.rank
+      cudaCheck(
+        cudnnSetTensorNdDescriptor(
+          desc,
+          E.cudnn,
+          Int32(rank),
+          tensor.shape.asInt32,
+          tensor.strides.asInt32))
+    }
+
   }
 
-  @inlinable public init(owning desc: cudnnTensorDescriptor_t) {
-    self.desc = desc
-  }
+  // @inlinable public init(owning desc: cudnnTensorDescriptor_t) {
+  //   self.desc = desc
+  // }
 
   //--------------------------------------------------------------------------
   @inlinable deinit {
@@ -585,18 +608,6 @@ public final class TensorDescriptor {
       strides[0..<Int(numDims)].map(Int.init),
       type
     )
-  }
-}
-
-//==============================================================================
-/// createTensorDescriptor
-/// creates a cudnn tensor descriptor for the associated Tensor
-extension Tensor {
-  @inlinable public func createTensorDescriptor() -> TensorDescriptor {
-    return TensorDescriptor(
-      shape: shape,
-      strides: strides,
-      scalarType: TensorElement.cudnn)
   }
 }
 

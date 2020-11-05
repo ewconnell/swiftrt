@@ -30,7 +30,7 @@ where Shape: TensorShape, Element: StorageElement & FloatingPoint {
 
   // properties
   public let activationDescriptor: ActivationDescriptor
-  public var xyTensorDescriptor: TensorDescriptor!
+  public var xyTensorDescriptor: TensorDescriptor<Shape, Element>!
   public let deviceQueue: CudaQueue
   public var inputShape: Shape
 
@@ -90,7 +90,7 @@ where Shape: TensorShape, Element: StorageElement & FloatingPoint {
     //        let tensorShape = inData.layout != .matrix ? inData.shape :
     //            Shape(extent: [inData.rows, inData.cols, 1, 1], layout: .nchw)
 
-    xyTensorDescriptor = x.createTensorDescriptor()
+    xyTensorDescriptor = TensorDescriptor(x)
     y = Tensor(like: x)
   }
 

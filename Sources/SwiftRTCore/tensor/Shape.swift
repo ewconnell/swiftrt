@@ -73,6 +73,14 @@ public typealias Shape6 = SIMD6<Int>
 //==============================================================================
 // TensorShape extensions
 extension TensorShape {
+  //--------------------------------------------------------------------------
+  @inlinable public init(_ shape: [Int32]) {
+    assert(shape.count == Self.rank, "rank mismatch")
+    self.init()
+    for i in 0..<Self.rank {
+      self[i] = Int(shape[i])
+    }
+  }
 
   //--------------------------------------------------------------------------
   /// init with optional tuple shape
