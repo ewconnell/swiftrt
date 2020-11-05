@@ -35,7 +35,7 @@ extension CudaQueue {
       return
     }
 
-    let _ = PoolingConfiguration(
+    let _ = PoolingConfiguration<S,E>(
       x: x, size: size, strides: strides, pad: pad, mode: mode, out: &out
     )
 
@@ -44,27 +44,27 @@ extension CudaQueue {
 }
 
 //----------------------------------------------------------------------------
-public class PoolingConfiguration {
-  let poolingDesc: PoolingDescriptor
-  // let xDesc: TensorDescriptor
-  // let outDesc: TensorDescriptor
+public final class PoolingConfiguration<Shape: TensorShape, E: StorageElement> {
+  public let pooling: PoolingDescriptor<Shape>
+  // public let xDesc: TensorDescriptor
+  // public let outDesc: TensorDescriptor
 
-  @inlinable public init<S, E>(
-    x: Tensor<S, E>,
-    size: S,
-    strides: S,
+  @inlinable public init(
+    x: Tensor<Shape, E>,
+    size: Shape,
+    strides: Shape,
     pad: Padding,
     mode: PoolingMode,
-    out: inout Tensor<S, E>
+    out: inout Tensor<Shape, E>
   ) {
     // create descriptor
     // let poolingRank = inData.extent.count - 2
-    let padding = S.zero
+    let padding = Shape.zero
     // let padding = expand(array: props.pad, to: poolingRank)
     // let windowSize = expand(array: props.windowSize, to: poolingRank)
     // let stride = expand(array: props.stride, to: poolingRank)
 
-    poolingDescriptor = PoolingDescriptor(
+    pooling = PoolingDescriptor<Shape>(
       mode: mode,
       nan: .propagate,
       window: size,
@@ -90,32 +90,32 @@ public class PoolingConfiguration {
 
 //==============================================================================
 // PoolingDescriptor
-public class PoolingDescriptor<Shape: TensorShape> {	
+public final class PoolingDescriptor<Shape: TensorShape> {	
 	// properties
-	let desc: cudnnPoolingDescriptor_t
+	public let desc: cudnnPoolingDescriptor_t
 
 	// initializers
-	public init(
+	@inlinable public init(
     mode: PoolingMode,
     nan: NanPropagation,
     window: Shape,
 	  padding: Shape,
-    stride: Shape
+    strides: Shape
   ) {
 		// create the descriptor
 		var temp: cudnnPoolingDescriptor_t?
-		try cudaCheck(status: cudnnCreatePoolingDescriptor(&temp))
+		cudaCheck(cudnnCreatePoolingDescriptor(&temp))
 		desc = temp!
 		
-		// initialize
-		try cudaCheck(status: cudnnSetPoolingNdDescriptor(
-			desc,
-      mode.cudnn,
-      nan.cudnn,
-			CInt(Shape.rank),
-			window.map { CInt($0) },
-			padding.map { CInt($0) },
-			stride.map { CInt($0) }))
+		// // initialize
+		// try cudaCheck(status: cudnnSetPoolingNdDescriptor(
+		// 	desc,
+    //   mode.cudnn,
+    //   nan.cudnn,
+		// 	CInt(Shape.rank),
+		// 	window.map { CInt($0) },
+		// 	padding.map { CInt($0) },
+		// 	stride.map { CInt($0) }))
 	}
 
 	deinit {
