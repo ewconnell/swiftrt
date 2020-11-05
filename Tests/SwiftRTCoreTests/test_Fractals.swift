@@ -53,9 +53,9 @@ final class test_Fractals: XCTestCase {
 
       // repeat rows of real range, columns of imaginary range, and combine
       let Z =
-        repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-        + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-      var divergence = empty(size, type: RT.self)
+        repeating(array(from: rFirst, to: rLast, shape: (1, size.c)), shape: size)
+        + repeating(array(from: iFirst, to: iLast, shape: (size.r, 1)), shape: size)
+      var divergence = empty(shape: size, type: RT.self)
       let queue = currentQueue
 
       // cpu platform mac and ubuntu: 12.816s
@@ -96,9 +96,9 @@ final class test_Fractals: XCTestCase {
 
       // repeat rows of real range, columns of imaginary range, and combine
       let X =
-        repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-        + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-      var divergence = empty(size, type: RT.self)
+        repeating(array(from: rFirst, to: rLast, shape: (1, size.c)), shape: size)
+        + repeating(array(from: iFirst, to: iLast, shape: (size.r, 1)), shape: size)
+      var divergence = empty(shape: size, type: RT.self)
       let queue = currentQueue
 
       // cpu platform mac and ubuntu: 12.816s

@@ -107,7 +107,7 @@ class test_PackedElements: XCTestCase {
           [false, false, true, true, false],
         ])
 
-      let row = array([true, false, false], (1, 3), type: Bool1.self)
+      let row = array([true, false, false], shape: (1, 3), type: Bool1.self)
       a[1, 1...3] = row
       XCTAssert(
         a == [
@@ -158,7 +158,7 @@ class test_PackedElements: XCTestCase {
           [0, 0, 1, 1, 0],
         ])
 
-      let row = array([1, 0, 0], (1, 3), type: UInt1.self)
+      let row = array([1, 0, 0], shape: (1, 3), type: UInt1.self)
       a[1, 1...3] = row
       XCTAssert(
         a == [
@@ -199,7 +199,7 @@ class test_PackedElements: XCTestCase {
 
     // modify range across packing boundaries
     do {
-      var a = array(0..<8, (2, 4), type: UInt4.self)
+      var a = array(0..<8, shape: (2, 4), type: UInt4.self)
       XCTAssert(a.storage.countOf(type: UInt4.Stored.self) == 4)
       XCTAssert(
         a == [
@@ -207,7 +207,7 @@ class test_PackedElements: XCTestCase {
           [4, 5, 6, 7],
         ])
 
-      let row = array([3, 3], (1, 2), type: UInt4.self)
+      let row = array([3, 3], shape: (1, 2), type: UInt4.self)
       XCTAssert(row.storage.countOf(type: UInt4.Stored.self) == 1)
       a[1, 1...2] = row
       XCTAssert(

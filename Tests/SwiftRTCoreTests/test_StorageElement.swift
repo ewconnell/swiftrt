@@ -95,7 +95,7 @@ class test_StorageElement: XCTestCase {
         [1, 1],
       ], type: UInt1.self)
 
-    let b = array(a, (4, 2), type: Bool.self)
+    let b = array(a, shape: (4, 2), type: Bool.self)
 
     let c = array([
       [false, false],
@@ -116,7 +116,7 @@ class test_StorageElement: XCTestCase {
         [1, 1],
       ], type: UInt1.self)
 
-    let b = reshape(a, (2, 4))
+    let b = reshape(a, shape: (2, 4))
     XCTAssert(
       b == [
         [0, 0, 0, 1],

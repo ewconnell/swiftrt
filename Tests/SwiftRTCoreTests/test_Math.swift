@@ -69,8 +69,8 @@ class test_Math: XCTestCase {
 
     // repeat rows of real range, columns of imaginary range, and combine
     var Z =
-      repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-      + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+      repeating(array(from: rFirst, to: rLast, shape: (1, size.c)), shape: size)
+      + repeating(array(from: iFirst, to: iLast, shape: (size.r, 1)), shape: size)
 
     let expected = array([
       [CF(-1.7, 1.7), CF(-0.85, 1.7), CF(0.0, 1.7), CF(0.8506, 1.7), CF(1.7, 1.7)],
@@ -84,7 +84,7 @@ class test_Math: XCTestCase {
     ])
     XCTAssert(elementsAlmostEqual(Z, expected, tolerance: CF(0.01, 0.01)).all().element)
 
-    var divergence = full(size, RT(iterations), type: RT.self)
+    var divergence = full(shape: size, RT(iterations), type: RT.self)
     XCTAssert(
       divergence == [
         [3.0, 3.0, 3.0, 3.0, 3.0],
@@ -194,7 +194,7 @@ class test_Math: XCTestCase {
   //--------------------------------------------------------------------------
   // test_log
   func test_log() {
-    let a = array([0.0, 1, 2, 3, 4, 5], (3, 2))
+    let a = array([0.0, 1, 2, 3, 4, 5], shape: (3, 2))
     let expected = a.map(Foundation.log)
     XCTAssert(log(a).flatArray == expected)
 
@@ -207,7 +207,7 @@ class test_Math: XCTestCase {
   //--------------------------------------------------------------------------
   // test_neg
   func test_neg() {
-    let a = array(0..<6, (3, 2))
+    let a = array(0..<6, shape: (3, 2))
     let expected = a.map(-)
     XCTAssert(neg(a).flatArray == expected)
 

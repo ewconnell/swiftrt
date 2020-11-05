@@ -51,7 +51,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 /// - Returns: Tensor of uninitialized (arbitrary) data of the given shape,
 ///   type, and order. Elements will not be initialized.
 @inlinable public func empty<Shape: TensorShape, Element: StorageElement>(
-    _ shape: Shape.Tuple,
+    shape: Shape.Tuple,
     _ type: Element.Type,
     _ order: Order = .defaultOrder,
     name: String = defaultTensorName
@@ -60,7 +60,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 }
 
 @inlinable public func empty<Shape: TensorShape, Element: StorageElement>(
-    _ shape: Shape,
+    shape: Shape,
     _ type: Element.Type,
     _ order: Order = .defaultOrder,
     name: String = defaultTensorName
@@ -73,242 +73,242 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 @inlinable public func empty(
     name: String = defaultTensorName
 ) -> Tensor<Shape1, DType> {
-    empty(Shape1(1), DType.self, name: name)
+    empty(shape: Shape1(1), DType.self, name: name)
 }
 
 @inlinable public func empty<Element: StorageElement>(
     type: Element.Type,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> {
-    empty(Shape1(1), type, name: name)
+    empty(shape: Shape1(1), type, name: name)
 }
 
 //---------------------------------------
 // Rank1
 // shape
 @inlinable public func empty(
-    _ shape: Shape1.Tuple,
+    shape: Shape1.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, DType> {
-    empty(shape, DType.self, order, name: name)
+    empty(shape: shape, DType.self, order, name: name)
 }
 
 @inlinable public func empty(
-    _ shape: Shape1,
+    shape: Shape1,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, DType> {
-    empty(shape, DType.self, order, name: name)
+    empty(shape: shape, DType.self, order, name: name)
 }
 
 // shape, type
 @inlinable public func empty<Element: StorageElement>(
-    _ shape: Shape1.Tuple,
+    shape: Shape1.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> {
-    empty(shape, type, order, name: name)
+    empty(shape: shape, type, order, name: name)
 }
 
 @inlinable public func empty<Element: StorageElement>(
-    _ shape: Shape1,
+    shape: Shape1,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> {
-    empty(shape, type, order, name: name)
+    empty(shape: shape, type, order, name: name)
 }
     
 //---------------------------------------
 // Rank2
 // shape
 @inlinable public func empty(
-    _ shape: Shape2.Tuple,
+    shape: Shape2.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2, DType> {
-    empty(shape, DType.self, order, name: name)
+    empty(shape: shape, DType.self, order, name: name)
 }
 
 @inlinable public func empty(
-    _ shape: Shape2,
+    shape: Shape2,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2, DType> {
-    empty(shape, DType.self, order, name: name)
+    empty(shape: shape, DType.self, order, name: name)
 }
 
 // shape, type
 @inlinable public func empty<Element: StorageElement>(
-    _ shape: Shape2.Tuple,
+    shape: Shape2.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> {
-    empty(shape, type, order, name: name)
+    empty(shape: shape, type, order, name: name)
 }
 
 @inlinable public func empty<Element: StorageElement>(
-    _ shape: Shape2,
+    shape: Shape2,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> {
-    empty(shape, type, order, name: name)
+    empty(shape: shape, type, order, name: name)
 }
     
 //---------------------------------------
 // Rank3
 // shape
 @inlinable public func empty(
-    _ shape: Shape3.Tuple,
+    shape: Shape3.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3, DType> {
-    empty(shape, DType.self, order, name: name)
+    empty(shape: shape, DType.self, order, name: name)
 }
 
 @inlinable public func empty(
-    _ shape: Shape3,
+    shape: Shape3,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3, DType> {
-    empty(shape, DType.self, order, name: name)
+    empty(shape: shape, DType.self, order, name: name)
 }
 
 // shape, type
 @inlinable public func empty<Element: StorageElement>(
-    _ shape: Shape3.Tuple,
+    shape: Shape3.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> {
-    empty(shape, type, order, name: name)
+    empty(shape: shape, type, order, name: name)
 }
 
 @inlinable public func empty<Element: StorageElement>(
-    _ shape: Shape3,
+    shape: Shape3,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> {
-    empty(shape, type, order, name: name)
+    empty(shape: shape, type, order, name: name)
 }
     
 //---------------------------------------
 // Rank4
 // shape
 @inlinable public func empty(
-    _ shape: Shape4.Tuple,
+    shape: Shape4.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4, DType> {
-    empty(shape, DType.self, order, name: name)
+    empty(shape: shape, DType.self, order, name: name)
 }
 
 @inlinable public func empty(
-    _ shape: Shape4,
+    shape: Shape4,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4, DType> {
-    empty(shape, DType.self, order, name: name)
+    empty(shape: shape, DType.self, order, name: name)
 }
 
 // shape, type
 @inlinable public func empty<Element: StorageElement>(
-    _ shape: Shape4.Tuple,
+    shape: Shape4.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> {
-    empty(shape, type, order, name: name)
+    empty(shape: shape, type, order, name: name)
 }
 
 @inlinable public func empty<Element: StorageElement>(
-    _ shape: Shape4,
+    shape: Shape4,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> {
-    empty(shape, type, order, name: name)
+    empty(shape: shape, type, order, name: name)
 }
     
 //---------------------------------------
 // Rank5
 // shape
 @inlinable public func empty(
-    _ shape: Shape5.Tuple,
+    shape: Shape5.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5, DType> {
-    empty(shape, DType.self, order, name: name)
+    empty(shape: shape, DType.self, order, name: name)
 }
 
 @inlinable public func empty(
-    _ shape: Shape5,
+    shape: Shape5,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5, DType> {
-    empty(shape, DType.self, order, name: name)
+    empty(shape: shape, DType.self, order, name: name)
 }
 
 // shape, type
 @inlinable public func empty<Element: StorageElement>(
-    _ shape: Shape5.Tuple,
+    shape: Shape5.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> {
-    empty(shape, type, order, name: name)
+    empty(shape: shape, type, order, name: name)
 }
 
 @inlinable public func empty<Element: StorageElement>(
-    _ shape: Shape5,
+    shape: Shape5,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> {
-    empty(shape, type, order, name: name)
+    empty(shape: shape, type, order, name: name)
 }
     
 //---------------------------------------
 // Rank6
 // shape
 @inlinable public func empty(
-    _ shape: Shape6.Tuple,
+    shape: Shape6.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6, DType> {
-    empty(shape, DType.self, order, name: name)
+    empty(shape: shape, DType.self, order, name: name)
 }
 
 @inlinable public func empty(
-    _ shape: Shape6,
+    shape: Shape6,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6, DType> {
-    empty(shape, DType.self, order, name: name)
+    empty(shape: shape, DType.self, order, name: name)
 }
 
 // shape, type
 @inlinable public func empty<Element: StorageElement>(
-    _ shape: Shape6.Tuple,
+    shape: Shape6.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> {
-    empty(shape, type, order, name: name)
+    empty(shape: shape, type, order, name: name)
 }
 
 @inlinable public func empty<Element: StorageElement>(
-    _ shape: Shape6,
+    shape: Shape6,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> {
-    empty(shape, type, order, name: name)
+    empty(shape: shape, type, order, name: name)
 }
     
 
@@ -334,7 +334,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     order: Order? = nil,
     name: String = defaultTensorName
 ) -> Tensor<S,E> {
-    empty(prototype.shape, E.self, order ?? prototype.order, name: name)
+    empty(shape: prototype.shape, E.self, order ?? prototype.order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -347,7 +347,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, E> {
     assert(prototype.count == Shape1(shape).elementCount())
-    return empty(shape, E.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, E.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func empty<S,E>(
@@ -357,7 +357,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, E> {
     assert(prototype.count == shape.elementCount())
-    return empty(shape, E.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, E.self, order ?? prototype.order, name: name)
 }
 
 // Rank2
@@ -368,7 +368,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, E> {
     assert(prototype.count == Shape2(shape).elementCount())
-    return empty(shape, E.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, E.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func empty<S,E>(
@@ -378,7 +378,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, E> {
     assert(prototype.count == shape.elementCount())
-    return empty(shape, E.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, E.self, order ?? prototype.order, name: name)
 }
 
 // Rank3
@@ -389,7 +389,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, E> {
     assert(prototype.count == Shape3(shape).elementCount())
-    return empty(shape, E.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, E.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func empty<S,E>(
@@ -399,7 +399,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, E> {
     assert(prototype.count == shape.elementCount())
-    return empty(shape, E.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, E.self, order ?? prototype.order, name: name)
 }
 
 // Rank4
@@ -410,7 +410,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, E> {
     assert(prototype.count == Shape4(shape).elementCount())
-    return empty(shape, E.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, E.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func empty<S,E>(
@@ -420,7 +420,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, E> {
     assert(prototype.count == shape.elementCount())
-    return empty(shape, E.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, E.self, order ?? prototype.order, name: name)
 }
 
 // Rank5
@@ -431,7 +431,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, E> {
     assert(prototype.count == Shape5(shape).elementCount())
-    return empty(shape, E.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, E.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func empty<S,E>(
@@ -441,7 +441,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, E> {
     assert(prototype.count == shape.elementCount())
-    return empty(shape, E.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, E.self, order ?? prototype.order, name: name)
 }
 
 // Rank6
@@ -452,7 +452,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, E> {
     assert(prototype.count == Shape6(shape).elementCount())
-    return empty(shape, E.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, E.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func empty<S,E>(
@@ -462,7 +462,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, E> {
     assert(prototype.count == shape.elementCount())
-    return empty(shape, E.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, E.self, order ?? prototype.order, name: name)
 }
 
 
@@ -474,7 +474,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     order: Order? = nil,
     name: String = defaultTensorName
 ) -> Tensor<S, Element> {
-    empty(prototype.shape, Element.self, order ?? prototype.order, name: name)
+    empty(shape: prototype.shape, Element.self, order ?? prototype.order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -488,7 +488,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> {
     assert(prototype.count == Shape1(shape).elementCount())
-    return empty(shape, Element.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, Element.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func empty<S,E,Element>(
@@ -499,7 +499,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> {
     assert(prototype.count == shape.elementCount())
-    return empty(shape, Element.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, Element.self, order ?? prototype.order, name: name)
 }
 
 // Rank2
@@ -511,7 +511,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> {
     assert(prototype.count == Shape2(shape).elementCount())
-    return empty(shape, Element.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, Element.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func empty<S,E,Element>(
@@ -522,7 +522,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> {
     assert(prototype.count == shape.elementCount())
-    return empty(shape, Element.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, Element.self, order ?? prototype.order, name: name)
 }
 
 // Rank3
@@ -534,7 +534,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> {
     assert(prototype.count == Shape3(shape).elementCount())
-    return empty(shape, Element.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, Element.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func empty<S,E,Element>(
@@ -545,7 +545,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> {
     assert(prototype.count == shape.elementCount())
-    return empty(shape, Element.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, Element.self, order ?? prototype.order, name: name)
 }
 
 // Rank4
@@ -557,7 +557,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> {
     assert(prototype.count == Shape4(shape).elementCount())
-    return empty(shape, Element.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, Element.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func empty<S,E,Element>(
@@ -568,7 +568,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> {
     assert(prototype.count == shape.elementCount())
-    return empty(shape, Element.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, Element.self, order ?? prototype.order, name: name)
 }
 
 // Rank5
@@ -580,7 +580,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> {
     assert(prototype.count == Shape5(shape).elementCount())
-    return empty(shape, Element.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, Element.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func empty<S,E,Element>(
@@ -591,7 +591,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> {
     assert(prototype.count == shape.elementCount())
-    return empty(shape, Element.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, Element.self, order ?? prototype.order, name: name)
 }
 
 // Rank6
@@ -603,7 +603,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> {
     assert(prototype.count == Shape6(shape).elementCount())
-    return empty(shape, Element.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, Element.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func empty<S,E,Element>(
@@ -614,7 +614,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> {
     assert(prototype.count == shape.elementCount())
-    return empty(shape, Element.self, order ?? prototype.order, name: name)
+    return empty(shape: shape, Element.self, order ?? prototype.order, name: name)
 }
 
 
@@ -635,17 +635,17 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 /// - Returns: Fill of uninitialized (arbitrary) data of the given shape,
 ///   type, and order. Elements will not be initialized.
 @inlinable public func full<Shape: TensorShape, Element: StorageElement>(
-    _ shape: Shape.Tuple,
+    shape: Shape.Tuple,
     _ value: Element.Value,
     _ type: Element.Type,
     _ order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape, Element> {
-    full(Shape(shape), value, type, order, name: name)
+    full(shape: Shape(shape), value, type, order, name: name)
 }
 
 @inlinable public func full<Shape: TensorShape, Element: StorageElement>(
-    _ shape: Shape,
+    shape: Shape,
     _ value: Element.Value,
     _ type: Element.Type,
     _ order: Order = .C,
@@ -662,14 +662,14 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     _ value: DType,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, DType> {
-    full(Shape1(1), value, DType.self, name: name)
+    full(shape: Shape1(1), value, DType.self, name: name)
 }
 
 @inlinable public func full(
     _ value: Int,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, DType> {
-    full(Shape1(1), DType(value), DType.self, name: name)
+    full(shape: Shape1(1), DType(value), DType.self, name: name)
 }
 
 @inlinable public func full<Element: StorageElement>(
@@ -677,373 +677,373 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     type: Element.Type,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> {
-    full(Shape1(1), value, type, name: name)
+    full(shape: Shape1(1), value, type, name: name)
 }
 
 //---------------------------------------
 // Rank1
 // shape, value
 @inlinable public func full(
-    _ shape: Shape1.Tuple,
+    shape: Shape1.Tuple,
     _ value: DType,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor1 {
-    full(shape, value, DType.self, order, name: name)
+    full(shape: shape, value, DType.self, order, name: name)
 }
 
 @inlinable public func full(
-    _ shape: Shape1,
+    shape: Shape1,
     _ value: DType,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor1 {
-    full(shape, value, DType.self, order, name: name)
+    full(shape: shape, value, DType.self, order, name: name)
 }
 
 // shape, value, implicit Int
 @inlinable public func full(
-    _ shape: Shape1.Tuple,
+    shape: Shape1.Tuple,
     _ value: Int,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor1 {
-    full(shape, DType(value), DType.self, order, name: name)
+    full(shape: shape, DType(value), DType.self, order, name: name)
 }
 
 @inlinable public func full(
-    _ shape: Shape1,
+    shape: Shape1,
     _ value: Int,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor1 {
-    full(shape, DType(value), DType.self, order, name: name)
+    full(shape: shape, DType(value), DType.self, order, name: name)
 }
 
 // shape, value, type
 @inlinable public func full<Element: StorageElement>(
-    _ shape: Shape1.Tuple,
+    shape: Shape1.Tuple,
     _ value: Element.Value,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> {
-    full(shape, value, type, order, name: name)
+    full(shape: shape, value, type, order, name: name)
 }
 
 @inlinable public func full<Element: StorageElement>(
-    _ shape: Shape1,
+    shape: Shape1,
     _ value: Element.Value,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> {
-    full(shape, value, type, order, name: name)
+    full(shape: shape, value, type, order, name: name)
 }
 
 //---------------------------------------
 // Rank2
 // shape, value
 @inlinable public func full(
-    _ shape: Shape2.Tuple,
+    shape: Shape2.Tuple,
     _ value: DType,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor2 {
-    full(shape, value, DType.self, order, name: name)
+    full(shape: shape, value, DType.self, order, name: name)
 }
 
 @inlinable public func full(
-    _ shape: Shape2,
+    shape: Shape2,
     _ value: DType,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor2 {
-    full(shape, value, DType.self, order, name: name)
+    full(shape: shape, value, DType.self, order, name: name)
 }
 
 // shape, value, implicit Int
 @inlinable public func full(
-    _ shape: Shape2.Tuple,
+    shape: Shape2.Tuple,
     _ value: Int,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor2 {
-    full(shape, DType(value), DType.self, order, name: name)
+    full(shape: shape, DType(value), DType.self, order, name: name)
 }
 
 @inlinable public func full(
-    _ shape: Shape2,
+    shape: Shape2,
     _ value: Int,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor2 {
-    full(shape, DType(value), DType.self, order, name: name)
+    full(shape: shape, DType(value), DType.self, order, name: name)
 }
 
 // shape, value, type
 @inlinable public func full<Element: StorageElement>(
-    _ shape: Shape2.Tuple,
+    shape: Shape2.Tuple,
     _ value: Element.Value,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> {
-    full(shape, value, type, order, name: name)
+    full(shape: shape, value, type, order, name: name)
 }
 
 @inlinable public func full<Element: StorageElement>(
-    _ shape: Shape2,
+    shape: Shape2,
     _ value: Element.Value,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> {
-    full(shape, value, type, order, name: name)
+    full(shape: shape, value, type, order, name: name)
 }
 
 //---------------------------------------
 // Rank3
 // shape, value
 @inlinable public func full(
-    _ shape: Shape3.Tuple,
+    shape: Shape3.Tuple,
     _ value: DType,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor3 {
-    full(shape, value, DType.self, order, name: name)
+    full(shape: shape, value, DType.self, order, name: name)
 }
 
 @inlinable public func full(
-    _ shape: Shape3,
+    shape: Shape3,
     _ value: DType,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor3 {
-    full(shape, value, DType.self, order, name: name)
+    full(shape: shape, value, DType.self, order, name: name)
 }
 
 // shape, value, implicit Int
 @inlinable public func full(
-    _ shape: Shape3.Tuple,
+    shape: Shape3.Tuple,
     _ value: Int,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor3 {
-    full(shape, DType(value), DType.self, order, name: name)
+    full(shape: shape, DType(value), DType.self, order, name: name)
 }
 
 @inlinable public func full(
-    _ shape: Shape3,
+    shape: Shape3,
     _ value: Int,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor3 {
-    full(shape, DType(value), DType.self, order, name: name)
+    full(shape: shape, DType(value), DType.self, order, name: name)
 }
 
 // shape, value, type
 @inlinable public func full<Element: StorageElement>(
-    _ shape: Shape3.Tuple,
+    shape: Shape3.Tuple,
     _ value: Element.Value,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> {
-    full(shape, value, type, order, name: name)
+    full(shape: shape, value, type, order, name: name)
 }
 
 @inlinable public func full<Element: StorageElement>(
-    _ shape: Shape3,
+    shape: Shape3,
     _ value: Element.Value,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> {
-    full(shape, value, type, order, name: name)
+    full(shape: shape, value, type, order, name: name)
 }
 
 //---------------------------------------
 // Rank4
 // shape, value
 @inlinable public func full(
-    _ shape: Shape4.Tuple,
+    shape: Shape4.Tuple,
     _ value: DType,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor4 {
-    full(shape, value, DType.self, order, name: name)
+    full(shape: shape, value, DType.self, order, name: name)
 }
 
 @inlinable public func full(
-    _ shape: Shape4,
+    shape: Shape4,
     _ value: DType,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor4 {
-    full(shape, value, DType.self, order, name: name)
+    full(shape: shape, value, DType.self, order, name: name)
 }
 
 // shape, value, implicit Int
 @inlinable public func full(
-    _ shape: Shape4.Tuple,
+    shape: Shape4.Tuple,
     _ value: Int,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor4 {
-    full(shape, DType(value), DType.self, order, name: name)
+    full(shape: shape, DType(value), DType.self, order, name: name)
 }
 
 @inlinable public func full(
-    _ shape: Shape4,
+    shape: Shape4,
     _ value: Int,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor4 {
-    full(shape, DType(value), DType.self, order, name: name)
+    full(shape: shape, DType(value), DType.self, order, name: name)
 }
 
 // shape, value, type
 @inlinable public func full<Element: StorageElement>(
-    _ shape: Shape4.Tuple,
+    shape: Shape4.Tuple,
     _ value: Element.Value,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> {
-    full(shape, value, type, order, name: name)
+    full(shape: shape, value, type, order, name: name)
 }
 
 @inlinable public func full<Element: StorageElement>(
-    _ shape: Shape4,
+    shape: Shape4,
     _ value: Element.Value,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> {
-    full(shape, value, type, order, name: name)
+    full(shape: shape, value, type, order, name: name)
 }
 
 //---------------------------------------
 // Rank5
 // shape, value
 @inlinable public func full(
-    _ shape: Shape5.Tuple,
+    shape: Shape5.Tuple,
     _ value: DType,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor5 {
-    full(shape, value, DType.self, order, name: name)
+    full(shape: shape, value, DType.self, order, name: name)
 }
 
 @inlinable public func full(
-    _ shape: Shape5,
+    shape: Shape5,
     _ value: DType,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor5 {
-    full(shape, value, DType.self, order, name: name)
+    full(shape: shape, value, DType.self, order, name: name)
 }
 
 // shape, value, implicit Int
 @inlinable public func full(
-    _ shape: Shape5.Tuple,
+    shape: Shape5.Tuple,
     _ value: Int,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor5 {
-    full(shape, DType(value), DType.self, order, name: name)
+    full(shape: shape, DType(value), DType.self, order, name: name)
 }
 
 @inlinable public func full(
-    _ shape: Shape5,
+    shape: Shape5,
     _ value: Int,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor5 {
-    full(shape, DType(value), DType.self, order, name: name)
+    full(shape: shape, DType(value), DType.self, order, name: name)
 }
 
 // shape, value, type
 @inlinable public func full<Element: StorageElement>(
-    _ shape: Shape5.Tuple,
+    shape: Shape5.Tuple,
     _ value: Element.Value,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> {
-    full(shape, value, type, order, name: name)
+    full(shape: shape, value, type, order, name: name)
 }
 
 @inlinable public func full<Element: StorageElement>(
-    _ shape: Shape5,
+    shape: Shape5,
     _ value: Element.Value,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> {
-    full(shape, value, type, order, name: name)
+    full(shape: shape, value, type, order, name: name)
 }
 
 //---------------------------------------
 // Rank6
 // shape, value
 @inlinable public func full(
-    _ shape: Shape6.Tuple,
+    shape: Shape6.Tuple,
     _ value: DType,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor6 {
-    full(shape, value, DType.self, order, name: name)
+    full(shape: shape, value, DType.self, order, name: name)
 }
 
 @inlinable public func full(
-    _ shape: Shape6,
+    shape: Shape6,
     _ value: DType,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor6 {
-    full(shape, value, DType.self, order, name: name)
+    full(shape: shape, value, DType.self, order, name: name)
 }
 
 // shape, value, implicit Int
 @inlinable public func full(
-    _ shape: Shape6.Tuple,
+    shape: Shape6.Tuple,
     _ value: Int,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor6 {
-    full(shape, DType(value), DType.self, order, name: name)
+    full(shape: shape, DType(value), DType.self, order, name: name)
 }
 
 @inlinable public func full(
-    _ shape: Shape6,
+    shape: Shape6,
     _ value: Int,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor6 {
-    full(shape, DType(value), DType.self, order, name: name)
+    full(shape: shape, DType(value), DType.self, order, name: name)
 }
 
 // shape, value, type
 @inlinable public func full<Element: StorageElement>(
-    _ shape: Shape6.Tuple,
+    shape: Shape6.Tuple,
     _ value: Element.Value,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> {
-    full(shape, value, type, order, name: name)
+    full(shape: shape, value, type, order, name: name)
 }
 
 @inlinable public func full<Element: StorageElement>(
-    _ shape: Shape6,
+    shape: Shape6,
     _ value: Element.Value,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> {
-    full(shape, value, type, order, name: name)
+    full(shape: shape, value, type, order, name: name)
 }
 
 
@@ -1072,7 +1072,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     order: Order? = nil,
     name: String = defaultTensorName
 ) -> Tensor<S,E> {
-    full(prototype.shape, value, E.self, order ?? prototype.order, name: name)
+    full(shape: prototype.shape, value, E.self, order ?? prototype.order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -1086,7 +1086,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, E> {
     assert(prototype.count == Shape1(shape).elementCount())
-    return full(shape, value, E.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, E.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func full<S,E>(
@@ -1097,7 +1097,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, E> {
     assert(prototype.count == shape.elementCount())
-    return full(shape, value, E.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, E.self, order ?? prototype.order, name: name)
 }
 
 // Rank2
@@ -1109,7 +1109,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, E> {
     assert(prototype.count == Shape2(shape).elementCount())
-    return full(shape, value, E.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, E.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func full<S,E>(
@@ -1120,7 +1120,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, E> {
     assert(prototype.count == shape.elementCount())
-    return full(shape, value, E.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, E.self, order ?? prototype.order, name: name)
 }
 
 // Rank3
@@ -1132,7 +1132,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, E> {
     assert(prototype.count == Shape3(shape).elementCount())
-    return full(shape, value, E.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, E.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func full<S,E>(
@@ -1143,7 +1143,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, E> {
     assert(prototype.count == shape.elementCount())
-    return full(shape, value, E.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, E.self, order ?? prototype.order, name: name)
 }
 
 // Rank4
@@ -1155,7 +1155,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, E> {
     assert(prototype.count == Shape4(shape).elementCount())
-    return full(shape, value, E.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, E.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func full<S,E>(
@@ -1166,7 +1166,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, E> {
     assert(prototype.count == shape.elementCount())
-    return full(shape, value, E.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, E.self, order ?? prototype.order, name: name)
 }
 
 // Rank5
@@ -1178,7 +1178,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, E> {
     assert(prototype.count == Shape5(shape).elementCount())
-    return full(shape, value, E.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, E.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func full<S,E>(
@@ -1189,7 +1189,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, E> {
     assert(prototype.count == shape.elementCount())
-    return full(shape, value, E.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, E.self, order ?? prototype.order, name: name)
 }
 
 // Rank6
@@ -1201,7 +1201,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, E> {
     assert(prototype.count == Shape6(shape).elementCount())
-    return full(shape, value, E.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, E.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func full<S,E>(
@@ -1212,7 +1212,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, E> {
     assert(prototype.count == shape.elementCount())
-    return full(shape, value, E.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, E.self, order ?? prototype.order, name: name)
 }
 
 
@@ -1225,7 +1225,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     order: Order? = nil,
     name: String = defaultTensorName
 ) -> Tensor<S, Element> {
-    full(prototype.shape, value, Element.self, order ?? prototype.order, name: name)
+    full(shape: prototype.shape, value, Element.self, order ?? prototype.order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -1240,7 +1240,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> {
     assert(prototype.count == Shape1(shape).elementCount())
-    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, Element.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func full<S,E,Element>(
@@ -1252,7 +1252,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> {
     assert(prototype.count == shape.elementCount())
-    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, Element.self, order ?? prototype.order, name: name)
 }
 
 // Rank2
@@ -1265,7 +1265,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> {
     assert(prototype.count == Shape2(shape).elementCount())
-    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, Element.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func full<S,E,Element>(
@@ -1277,7 +1277,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> {
     assert(prototype.count == shape.elementCount())
-    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, Element.self, order ?? prototype.order, name: name)
 }
 
 // Rank3
@@ -1290,7 +1290,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> {
     assert(prototype.count == Shape3(shape).elementCount())
-    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, Element.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func full<S,E,Element>(
@@ -1302,7 +1302,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> {
     assert(prototype.count == shape.elementCount())
-    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, Element.self, order ?? prototype.order, name: name)
 }
 
 // Rank4
@@ -1315,7 +1315,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> {
     assert(prototype.count == Shape4(shape).elementCount())
-    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, Element.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func full<S,E,Element>(
@@ -1327,7 +1327,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> {
     assert(prototype.count == shape.elementCount())
-    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, Element.self, order ?? prototype.order, name: name)
 }
 
 // Rank5
@@ -1340,7 +1340,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> {
     assert(prototype.count == Shape5(shape).elementCount())
-    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, Element.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func full<S,E,Element>(
@@ -1352,7 +1352,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> {
     assert(prototype.count == shape.elementCount())
-    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, Element.self, order ?? prototype.order, name: name)
 }
 
 // Rank6
@@ -1365,7 +1365,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> {
     assert(prototype.count == Shape6(shape).elementCount())
-    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, Element.self, order ?? prototype.order, name: name)
 }
 
 @inlinable public func full<S,E,Element>(
@@ -1377,7 +1377,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> {
     assert(prototype.count == shape.elementCount())
-    return full(shape, value, Element.self, order ?? prototype.order, name: name)
+    return full(shape: shape, value, Element.self, order ?? prototype.order, name: name)
 }
 
 
@@ -1396,7 +1396,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 /// - Returns: Fill of uninitialized (arbitrary) data of the given shape,
 ///   type, and order. Elements will not be initialized.
 @inlinable public func ones<Shape, Element>(
-    _ shape: Shape.Tuple,
+    shape: Shape.Tuple,
     _ type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
@@ -1405,7 +1405,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 }
 
 @inlinable public func ones<Shape, Element>(
-    _ shape: Shape,
+    shape: Shape,
     _ type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
@@ -1418,230 +1418,230 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 @inlinable public func one(
     name: String = defaultTensorName
 ) -> Tensor<Shape1, DType> {
-    ones(Shape1(1), DType.self, name: name)
+    ones(shape: Shape1(1), DType.self, name: name)
 }
 
 @inlinable public func one<Element>(
     type: Element.Type,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> where Element.Value: Numeric {
-    ones(Shape1(1), type, name: name)
+    ones(shape: Shape1(1), type, name: name)
 }
 
 //---------------------------------------
 // Rank1
 @inlinable public func ones(
-    _ shape: Shape1.Tuple,
+    shape: Shape1.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor1 {
-    ones(shape, DType.self, order: order, name: name)
+    ones(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func ones(
-    _ shape: Shape1,
+    shape: Shape1,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor1 {
-    ones(shape, DType.self, order: order, name: name)
+    ones(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func ones<Element>(
-    _ shape: Shape1.Tuple,
+    shape: Shape1.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> where Element.Value: Numeric {
-    ones(shape, type, order: order, name: name)
+    ones(shape: shape, type, order: order, name: name)
 }
 
 @inlinable public func ones<Element>(
-    _ shape: Shape1,
+    shape: Shape1,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> where Element.Value: Numeric {
-    ones(shape, type, order: order, name: name)
+    ones(shape: shape, type, order: order, name: name)
 }
 
 //---------------------------------------
 // Rank2
 @inlinable public func ones(
-    _ shape: Shape2.Tuple,
+    shape: Shape2.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor2 {
-    ones(shape, DType.self, order: order, name: name)
+    ones(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func ones(
-    _ shape: Shape2,
+    shape: Shape2,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor2 {
-    ones(shape, DType.self, order: order, name: name)
+    ones(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func ones<Element>(
-    _ shape: Shape2.Tuple,
+    shape: Shape2.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> where Element.Value: Numeric {
-    ones(shape, type, order: order, name: name)
+    ones(shape: shape, type, order: order, name: name)
 }
 
 @inlinable public func ones<Element>(
-    _ shape: Shape2,
+    shape: Shape2,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> where Element.Value: Numeric {
-    ones(shape, type, order: order, name: name)
+    ones(shape: shape, type, order: order, name: name)
 }
 
 //---------------------------------------
 // Rank3
 @inlinable public func ones(
-    _ shape: Shape3.Tuple,
+    shape: Shape3.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor3 {
-    ones(shape, DType.self, order: order, name: name)
+    ones(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func ones(
-    _ shape: Shape3,
+    shape: Shape3,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor3 {
-    ones(shape, DType.self, order: order, name: name)
+    ones(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func ones<Element>(
-    _ shape: Shape3.Tuple,
+    shape: Shape3.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> where Element.Value: Numeric {
-    ones(shape, type, order: order, name: name)
+    ones(shape: shape, type, order: order, name: name)
 }
 
 @inlinable public func ones<Element>(
-    _ shape: Shape3,
+    shape: Shape3,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> where Element.Value: Numeric {
-    ones(shape, type, order: order, name: name)
+    ones(shape: shape, type, order: order, name: name)
 }
 
 //---------------------------------------
 // Rank4
 @inlinable public func ones(
-    _ shape: Shape4.Tuple,
+    shape: Shape4.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor4 {
-    ones(shape, DType.self, order: order, name: name)
+    ones(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func ones(
-    _ shape: Shape4,
+    shape: Shape4,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor4 {
-    ones(shape, DType.self, order: order, name: name)
+    ones(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func ones<Element>(
-    _ shape: Shape4.Tuple,
+    shape: Shape4.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> where Element.Value: Numeric {
-    ones(shape, type, order: order, name: name)
+    ones(shape: shape, type, order: order, name: name)
 }
 
 @inlinable public func ones<Element>(
-    _ shape: Shape4,
+    shape: Shape4,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> where Element.Value: Numeric {
-    ones(shape, type, order: order, name: name)
+    ones(shape: shape, type, order: order, name: name)
 }
 
 //---------------------------------------
 // Rank5
 @inlinable public func ones(
-    _ shape: Shape5.Tuple,
+    shape: Shape5.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor5 {
-    ones(shape, DType.self, order: order, name: name)
+    ones(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func ones(
-    _ shape: Shape5,
+    shape: Shape5,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor5 {
-    ones(shape, DType.self, order: order, name: name)
+    ones(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func ones<Element>(
-    _ shape: Shape5.Tuple,
+    shape: Shape5.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> where Element.Value: Numeric {
-    ones(shape, type, order: order, name: name)
+    ones(shape: shape, type, order: order, name: name)
 }
 
 @inlinable public func ones<Element>(
-    _ shape: Shape5,
+    shape: Shape5,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> where Element.Value: Numeric {
-    ones(shape, type, order: order, name: name)
+    ones(shape: shape, type, order: order, name: name)
 }
 
 //---------------------------------------
 // Rank6
 @inlinable public func ones(
-    _ shape: Shape6.Tuple,
+    shape: Shape6.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor6 {
-    ones(shape, DType.self, order: order, name: name)
+    ones(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func ones(
-    _ shape: Shape6,
+    shape: Shape6,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor6 {
-    ones(shape, DType.self, order: order, name: name)
+    ones(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func ones<Element>(
-    _ shape: Shape6.Tuple,
+    shape: Shape6.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> where Element.Value: Numeric {
-    ones(shape, type, order: order, name: name)
+    ones(shape: shape, type, order: order, name: name)
 }
 
 @inlinable public func ones<Element>(
-    _ shape: Shape6,
+    shape: Shape6,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> where Element.Value: Numeric {
-    ones(shape, type, order: order, name: name)
+    ones(shape: shape, type, order: order, name: name)
 }
 
 
@@ -1668,7 +1668,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     order: Order? = nil,
     name: String = defaultTensorName
 ) -> Tensor<S,E> where E.Value: Numeric {
-    ones(prototype.shape, E.self, order: order ?? prototype.order, name: name)
+    ones(shape: prototype.shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -1681,7 +1681,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, E> where E.Value: Numeric {
     assert(prototype.count == Shape1(shape).elementCount())
-    return ones(shape, E.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func ones<S, E>(
@@ -1691,7 +1691,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, E> where E.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return ones(shape, E.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank2
@@ -1702,7 +1702,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, E> where E.Value: Numeric {
     assert(prototype.count == Shape2(shape).elementCount())
-    return ones(shape, E.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func ones<S, E>(
@@ -1712,7 +1712,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, E> where E.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return ones(shape, E.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank3
@@ -1723,7 +1723,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, E> where E.Value: Numeric {
     assert(prototype.count == Shape3(shape).elementCount())
-    return ones(shape, E.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func ones<S, E>(
@@ -1733,7 +1733,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, E> where E.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return ones(shape, E.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank4
@@ -1744,7 +1744,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, E> where E.Value: Numeric {
     assert(prototype.count == Shape4(shape).elementCount())
-    return ones(shape, E.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func ones<S, E>(
@@ -1754,7 +1754,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, E> where E.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return ones(shape, E.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank5
@@ -1765,7 +1765,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, E> where E.Value: Numeric {
     assert(prototype.count == Shape5(shape).elementCount())
-    return ones(shape, E.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func ones<S, E>(
@@ -1775,7 +1775,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, E> where E.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return ones(shape, E.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank6
@@ -1786,7 +1786,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, E> where E.Value: Numeric {
     assert(prototype.count == Shape6(shape).elementCount())
-    return ones(shape, E.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func ones<S, E>(
@@ -1796,7 +1796,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, E> where E.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return ones(shape, E.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 
@@ -1808,7 +1808,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     order: Order? = nil,
     name: String = defaultTensorName
 ) -> Tensor<S, Element> where Element.Value: Numeric {
-    ones(prototype.shape, Element.self, order: order ?? prototype.order, name: name)
+    ones(shape: prototype.shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -1822,7 +1822,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape1(shape).elementCount())
-    return ones(shape, Element.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func ones<S, E, Element>(
@@ -1833,7 +1833,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> where Element.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return ones(shape, Element.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank2
@@ -1845,7 +1845,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape2(shape).elementCount())
-    return ones(shape, Element.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func ones<S, E, Element>(
@@ -1856,7 +1856,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> where Element.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return ones(shape, Element.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank3
@@ -1868,7 +1868,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape3(shape).elementCount())
-    return ones(shape, Element.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func ones<S, E, Element>(
@@ -1879,7 +1879,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> where Element.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return ones(shape, Element.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank4
@@ -1891,7 +1891,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape4(shape).elementCount())
-    return ones(shape, Element.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func ones<S, E, Element>(
@@ -1902,7 +1902,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> where Element.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return ones(shape, Element.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank5
@@ -1914,7 +1914,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape5(shape).elementCount())
-    return ones(shape, Element.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func ones<S, E, Element>(
@@ -1925,7 +1925,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> where Element.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return ones(shape, Element.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank6
@@ -1937,7 +1937,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape6(shape).elementCount())
-    return ones(shape, Element.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func ones<S, E, Element>(
@@ -1948,7 +1948,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> where Element.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return ones(shape, Element.self, order: order ?? prototype.order, name: name)
+    return ones(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 
@@ -1968,7 +1968,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 /// - Returns: Fill of uninitialized (arbitrary) data of the given shape,
 ///   type, and order. Elements will not be initialized.
 @inlinable public func zeros<S,E>(
-    _ shape: S.Tuple,
+    shape: S.Tuple,
     _ type: E.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
@@ -1977,7 +1977,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 }
 
 @inlinable public func zeros<S,E>(
-    _ shape: S,
+    shape: S,
     _ type: E.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
@@ -1990,230 +1990,230 @@ public typealias Tensor6 = Tensor<Shape6,DType>
 @inlinable public func zero(
     name: String = defaultTensorName
 ) -> Tensor<Shape1, DType> {
-    zeros(Shape1(1), DType.self, name: name)
+    zeros(shape: Shape1(1), DType.self, name: name)
 }
 
 @inlinable public func zero<Element>(
     type: Element.Type,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> where Element.Value: Numeric {
-    zeros(Shape1(1), type, name: name)
+    zeros(shape: Shape1(1), type, name: name)
 }
 
 //---------------------------------------
 // Rank1
 @inlinable public func zeros(
-    _ shape: Shape1.Tuple,
+    shape: Shape1.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor1 {
-    zeros(shape, DType.self, order: order, name: name)
+    zeros(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func zeros(
-    _ shape: Shape1,
+    shape: Shape1,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor1 {
-    zeros(shape, DType.self, order: order, name: name)
+    zeros(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func zeros<Element>(
-    _ shape: Shape1.Tuple,
+    shape: Shape1.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> where Element.Value: Numeric {
-    zeros(shape, type, order: order, name: name)
+    zeros(shape: shape, type, order: order, name: name)
 }
 
 @inlinable public func zeros<Element>(
-    _ shape: Shape1,
+    shape: Shape1,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> where Element.Value: Numeric {
-    zeros(shape, type, order: order, name: name)
+    zeros(shape: shape, type, order: order, name: name)
 }
 
 //---------------------------------------
 // Rank2
 @inlinable public func zeros(
-    _ shape: Shape2.Tuple,
+    shape: Shape2.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor2 {
-    zeros(shape, DType.self, order: order, name: name)
+    zeros(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func zeros(
-    _ shape: Shape2,
+    shape: Shape2,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor2 {
-    zeros(shape, DType.self, order: order, name: name)
+    zeros(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func zeros<Element>(
-    _ shape: Shape2.Tuple,
+    shape: Shape2.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> where Element.Value: Numeric {
-    zeros(shape, type, order: order, name: name)
+    zeros(shape: shape, type, order: order, name: name)
 }
 
 @inlinable public func zeros<Element>(
-    _ shape: Shape2,
+    shape: Shape2,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> where Element.Value: Numeric {
-    zeros(shape, type, order: order, name: name)
+    zeros(shape: shape, type, order: order, name: name)
 }
 
 //---------------------------------------
 // Rank3
 @inlinable public func zeros(
-    _ shape: Shape3.Tuple,
+    shape: Shape3.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor3 {
-    zeros(shape, DType.self, order: order, name: name)
+    zeros(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func zeros(
-    _ shape: Shape3,
+    shape: Shape3,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor3 {
-    zeros(shape, DType.self, order: order, name: name)
+    zeros(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func zeros<Element>(
-    _ shape: Shape3.Tuple,
+    shape: Shape3.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> where Element.Value: Numeric {
-    zeros(shape, type, order: order, name: name)
+    zeros(shape: shape, type, order: order, name: name)
 }
 
 @inlinable public func zeros<Element>(
-    _ shape: Shape3,
+    shape: Shape3,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> where Element.Value: Numeric {
-    zeros(shape, type, order: order, name: name)
+    zeros(shape: shape, type, order: order, name: name)
 }
 
 //---------------------------------------
 // Rank4
 @inlinable public func zeros(
-    _ shape: Shape4.Tuple,
+    shape: Shape4.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor4 {
-    zeros(shape, DType.self, order: order, name: name)
+    zeros(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func zeros(
-    _ shape: Shape4,
+    shape: Shape4,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor4 {
-    zeros(shape, DType.self, order: order, name: name)
+    zeros(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func zeros<Element>(
-    _ shape: Shape4.Tuple,
+    shape: Shape4.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> where Element.Value: Numeric {
-    zeros(shape, type, order: order, name: name)
+    zeros(shape: shape, type, order: order, name: name)
 }
 
 @inlinable public func zeros<Element>(
-    _ shape: Shape4,
+    shape: Shape4,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> where Element.Value: Numeric {
-    zeros(shape, type, order: order, name: name)
+    zeros(shape: shape, type, order: order, name: name)
 }
 
 //---------------------------------------
 // Rank5
 @inlinable public func zeros(
-    _ shape: Shape5.Tuple,
+    shape: Shape5.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor5 {
-    zeros(shape, DType.self, order: order, name: name)
+    zeros(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func zeros(
-    _ shape: Shape5,
+    shape: Shape5,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor5 {
-    zeros(shape, DType.self, order: order, name: name)
+    zeros(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func zeros<Element>(
-    _ shape: Shape5.Tuple,
+    shape: Shape5.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> where Element.Value: Numeric {
-    zeros(shape, type, order: order, name: name)
+    zeros(shape: shape, type, order: order, name: name)
 }
 
 @inlinable public func zeros<Element>(
-    _ shape: Shape5,
+    shape: Shape5,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> where Element.Value: Numeric {
-    zeros(shape, type, order: order, name: name)
+    zeros(shape: shape, type, order: order, name: name)
 }
 
 //---------------------------------------
 // Rank6
 @inlinable public func zeros(
-    _ shape: Shape6.Tuple,
+    shape: Shape6.Tuple,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor6 {
-    zeros(shape, DType.self, order: order, name: name)
+    zeros(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func zeros(
-    _ shape: Shape6,
+    shape: Shape6,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor6 {
-    zeros(shape, DType.self, order: order, name: name)
+    zeros(shape: shape, DType.self, order: order, name: name)
 }
 
 @inlinable public func zeros<Element>(
-    _ shape: Shape6.Tuple,
+    shape: Shape6.Tuple,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> where Element.Value: Numeric {
-    zeros(shape, type, order: order, name: name)
+    zeros(shape: shape, type, order: order, name: name)
 }
 
 @inlinable public func zeros<Element>(
-    _ shape: Shape6,
+    shape: Shape6,
     type: Element.Type,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> where Element.Value: Numeric {
-    zeros(shape, type, order: order, name: name)
+    zeros(shape: shape, type, order: order, name: name)
 }
 
 
@@ -2240,7 +2240,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     order: Order? = nil,
     name: String = defaultTensorName
 ) -> Tensor<S,E> where E.Value: Numeric {
-    zeros(prototype.shape, E.self, order: order ?? prototype.order, name: name)
+    zeros(shape: prototype.shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -2253,7 +2253,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, E> where E.Value: Numeric {
     assert(prototype.count == Shape1(shape).elementCount())
-    return zeros(shape, E.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func zeros<S,E>(
@@ -2263,7 +2263,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, E> where E.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return zeros(shape, E.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank2
@@ -2274,7 +2274,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, E> where E.Value: Numeric {
     assert(prototype.count == Shape2(shape).elementCount())
-    return zeros(shape, E.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func zeros<S,E>(
@@ -2284,7 +2284,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, E> where E.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return zeros(shape, E.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank3
@@ -2295,7 +2295,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, E> where E.Value: Numeric {
     assert(prototype.count == Shape3(shape).elementCount())
-    return zeros(shape, E.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func zeros<S,E>(
@@ -2305,7 +2305,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, E> where E.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return zeros(shape, E.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank4
@@ -2316,7 +2316,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, E> where E.Value: Numeric {
     assert(prototype.count == Shape4(shape).elementCount())
-    return zeros(shape, E.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func zeros<S,E>(
@@ -2326,7 +2326,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, E> where E.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return zeros(shape, E.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank5
@@ -2337,7 +2337,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, E> where E.Value: Numeric {
     assert(prototype.count == Shape5(shape).elementCount())
-    return zeros(shape, E.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func zeros<S,E>(
@@ -2347,7 +2347,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, E> where E.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return zeros(shape, E.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank6
@@ -2358,7 +2358,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, E> where E.Value: Numeric {
     assert(prototype.count == Shape6(shape).elementCount())
-    return zeros(shape, E.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func zeros<S,E>(
@@ -2368,7 +2368,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, E> where E.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return zeros(shape, E.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, E.self, order: order ?? prototype.order, name: name)
 }
 
 
@@ -2380,7 +2380,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     order: Order? = nil,
     name: String = defaultTensorName
 ) -> Tensor<S, Element> where Element.Value: Numeric {
-    zeros(prototype.shape, Element.self, order: order ?? prototype.order, name: name)
+    zeros(shape: prototype.shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -2394,7 +2394,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape1(shape).elementCount())
-    return zeros(shape, Element.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func zeros<S,E,Element>(
@@ -2405,7 +2405,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape1, Element> where Element.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return zeros(shape, Element.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank2
@@ -2417,7 +2417,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape2(shape).elementCount())
-    return zeros(shape, Element.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func zeros<S,E,Element>(
@@ -2428,7 +2428,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape2, Element> where Element.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return zeros(shape, Element.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank3
@@ -2440,7 +2440,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape3(shape).elementCount())
-    return zeros(shape, Element.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func zeros<S,E,Element>(
@@ -2451,7 +2451,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape3, Element> where Element.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return zeros(shape, Element.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank4
@@ -2463,7 +2463,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape4(shape).elementCount())
-    return zeros(shape, Element.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func zeros<S,E,Element>(
@@ -2474,7 +2474,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape4, Element> where Element.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return zeros(shape, Element.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank5
@@ -2486,7 +2486,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape5(shape).elementCount())
-    return zeros(shape, Element.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func zeros<S,E,Element>(
@@ -2497,7 +2497,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape5, Element> where Element.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return zeros(shape, Element.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 // Rank6
@@ -2509,7 +2509,7 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> where Element.Value: Numeric {
     assert(prototype.count == Shape6(shape).elementCount())
-    return zeros(shape, Element.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 
 @inlinable public func zeros<S,E,Element>(
@@ -2520,6 +2520,6 @@ public typealias Tensor6 = Tensor<Shape6,DType>
     name: String = defaultTensorName
 ) -> Tensor<Shape6, Element> where Element.Value: Numeric {
     assert(prototype.count == shape.elementCount())
-    return zeros(shape, Element.self, order: order ?? prototype.order, name: name)
+    return zeros(shape: shape, Element.self, order: order ?? prototype.order, name: name)
 }
 

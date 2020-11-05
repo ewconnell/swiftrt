@@ -41,7 +41,7 @@ class test_arraySyntax: XCTestCase {
   func test_initSyntax() {
     // stored bit pattern
     let _ = array(stored: [Float16(0), Float16(1)])
-    let _ = array(stored: [Float16(0), Float16(1)], (1, 2))
+    let _ = array(stored: [Float16(0), Float16(1)], shape: (1, 2))
 
     // packed types
     let _ = array([0, 1, 0, 1], type: UInt1.self)
@@ -60,13 +60,13 @@ class test_arraySyntax: XCTestCase {
     let _ = array([true, false], type: Double.self)
 
     // boolean conversion to shaped Element
-    let _ = array([true, false], (1, 2), type: UInt1.self)
-    let _ = array([true, false], (1, 2), type: UInt4.self)
-    let _ = array([true, false], (1, 2), type: UInt8.self)
-    let _ = array([true, false], (1, 2), type: Int32.self)
-    let _ = array([true, false], (1, 2), type: Float16.self)
-    let _ = array([true, false], (1, 2), type: Float.self)
-    let _ = array([true, false], (1, 2), type: Double.self)
+    let _ = array([true, false], shape: (1, 2), type: UInt1.self)
+    let _ = array([true, false], shape: (1, 2), type: UInt4.self)
+    let _ = array([true, false], shape: (1, 2), type: UInt8.self)
+    let _ = array([true, false], shape: (1, 2), type: Int32.self)
+    let _ = array([true, false], shape: (1, 2), type: Float16.self)
+    let _ = array([true, false], shape: (1, 2), type: Float.self)
+    let _ = array([true, false], shape: (1, 2), type: Double.self)
 
     // implicit vectors
     let _ = array([true, false])
@@ -77,9 +77,9 @@ class test_arraySyntax: XCTestCase {
     let _ = array([RGBA<Float>(0, 0.5, 1, 1), RGBA<Float>(0.25, 0.5, 0.75, 1)])
 
     // implicit shaped
-    let _ = array([true, false], (1, 2))
-    let _ = array([RGBA<UInt8>(0, 127, 255, 255), RGBA<UInt8>(63, 127, 191, 255)], (1, 2))
-    let _ = array([RGBA<Float>(0, 0.5, 1, 1), RGBA<Float>(0.25, 0.5, 0.75, 1)], (1, 2))
+    let _ = array([true, false], shape: (1, 2))
+    let _ = array([RGBA<UInt8>(0, 127, 255, 255), RGBA<UInt8>(63, 127, 191, 255)], shape: (1, 2))
+    let _ = array([RGBA<Float>(0, 0.5, 1, 1), RGBA<Float>(0.25, 0.5, 0.75, 1)], shape: (1, 2))
 
     // integer conversions to Element
     let _ = array([0, 1, 2], type: Bool.self)
@@ -96,18 +96,18 @@ class test_arraySyntax: XCTestCase {
     let _ = array([0.0, 1.5, 2.5], type: Double.self)
 
     // integer conversions to shaped Element
-    let _ = array([0, 1, 2], (1, 3), type: Bool.self)
-    let _ = array([0, 1, 2], (1, 3), type: UInt8.self)
-    let _ = array([0, 1, 2], (1, 3), type: Int32.self)
-    let _ = array([0, 1, 2], (1, 3), type: Float.self)
-    let _ = array([0, 1, 2], (1, 3), type: Double.self)
+    let _ = array([0, 1, 2], shape: (1, 3), type: Bool.self)
+    let _ = array([0, 1, 2], shape: (1, 3), type: UInt8.self)
+    let _ = array([0, 1, 2], shape: (1, 3), type: Int32.self)
+    let _ = array([0, 1, 2], shape: (1, 3), type: Float.self)
+    let _ = array([0, 1, 2], shape: (1, 3), type: Double.self)
 
     // floating conversions to shaped Element
-    let _ = array([0.0, 1, 2], (1, 3), type: Bool.self)
-    let _ = array([0.0, 1.5, 2.5], (1, 3), type: UInt8.self)
-    let _ = array([0.0, 1.5, 2.5], (1, 3), type: Int32.self)
-    let _ = array([0.0, 1.5, 2.5], (1, 3), type: Float.self)
-    let _ = array([0.0, 1.5, 2.5], (1, 3), type: Double.self)
+    let _ = array([0.0, 1, 2], shape: (1, 3), type: Bool.self)
+    let _ = array([0.0, 1.5, 2.5], shape: (1, 3), type: UInt8.self)
+    let _ = array([0.0, 1.5, 2.5], shape: (1, 3), type: Int32.self)
+    let _ = array([0.0, 1.5, 2.5], shape: (1, 3), type: Float.self)
+    let _ = array([0.0, 1.5, 2.5], shape: (1, 3), type: Double.self)
   }
 
   //--------------------------------------------------------------------------
@@ -129,8 +129,8 @@ class test_arraySyntax: XCTestCase {
     let _ = array(d, type: Int32.self)
 
     let _ = array([[0, 1, 2], [3, 4, 5]])
-    let _ = array([0, 1, 2, 3, 4, 5], (2, 3))
-    let _ = array(0..<6, (2, 3))
+    let _ = array([0, 1, 2, 3, 4, 5], shape: (2, 3))
+    let _ = array(0..<6, shape: (2, 3))
   }
 
   //--------------------------------------------------------------------------
@@ -141,22 +141,22 @@ class test_arraySyntax: XCTestCase {
     let _ = empty(type: Int32.self)
 
     // T1
-    let _ = empty(3)
-    let _ = empty(3, order: .F)
-    let _ = empty(3, type: Int32.self)
-    let _ = empty(3, type: Int32.self, order: .F)
+    let _ = empty(shape: 3)
+    let _ = empty(shape: 3, order: .F)
+    let _ = empty(shape: 3, type: Int32.self)
+    let _ = empty(shape: 3, type: Int32.self, order: .F)
 
     // T2
-    let _ = empty((2, 3))
-    let _ = empty((2, 3), order: .F)
-    let _ = empty((2, 3), type: Int32.self)
-    let _ = empty((2, 3), type: Int32.self, order: .F)
+    let _ = empty(shape: (2, 3))
+    let _ = empty(shape: (2, 3), order: .F)
+    let _ = empty(shape: (2, 3), type: Int32.self)
+    let _ = empty(shape: (2, 3), type: Int32.self, order: .F)
   }
 
   //--------------------------------------------------------------------------
   // test_emptyLike
   func test_emptyLike() {
-    let proto = empty((2, 3))
+    let proto = empty(shape: (2, 3))
 
     let _ = empty(like: proto)
     let _ = empty(like: proto, shape: (6))
@@ -176,22 +176,22 @@ class test_arraySyntax: XCTestCase {
     let _ = one(type: Int32.self)
 
     // T1
-    let _ = ones(3)
-    let _ = ones(3, order: .F)
-    let _ = ones(3, type: Int32.self)
-    let _ = ones(3, type: Int32.self, order: .F)
+    let _ = ones(shape: 3)
+    let _ = ones(shape: 3, order: .F)
+    let _ = ones(shape: 3, type: Int32.self)
+    let _ = ones(shape: 3, type: Int32.self, order: .F)
 
     // T2
-    let _ = ones((2, 3))
-    let _ = ones((2, 3), order: .F)
-    let _ = ones((2, 3), type: Int32.self)
-    let _ = ones((2, 3), type: Int32.self, order: .F)
+    let _ = ones(shape: (2, 3))
+    let _ = ones(shape: (2, 3), order: .F)
+    let _ = ones(shape: (2, 3), type: Int32.self)
+    let _ = ones(shape: (2, 3), type: Int32.self, order: .F)
   }
 
   //--------------------------------------------------------------------------
   // test_onesLike
   func test_onesLike() {
-    let proto = ones((2, 3))
+    let proto = ones(shape: (2, 3))
 
     let _ = ones(like: proto)
     let _ = ones(like: proto, shape: (6))
@@ -206,7 +206,7 @@ class test_arraySyntax: XCTestCase {
   //--------------------------------------------------------------------------
   // test_onesView
   func test_onesView() {
-    let t1 = ones((4, 3), type: Int32.self)
+    let t1 = ones(shape: (4, 3), type: Int32.self)
     let view = t1[1...2, ...]
     XCTAssert(view == [[1, 1, 1], [1, 1, 1]])
   }
@@ -219,22 +219,22 @@ class test_arraySyntax: XCTestCase {
     let _ = zero(type: Int32.self)
 
     // T1
-    let _ = zeros(3)
-    let _ = zeros(3, order: .F)
-    let _ = zeros(3, type: Int32.self)
-    let _ = zeros(3, type: Int32.self, order: .F)
+    let _ = zeros(shape: 3)
+    let _ = zeros(shape: 3, order: .F)
+    let _ = zeros(shape: 3, type: Int32.self)
+    let _ = zeros(shape: 3, type: Int32.self, order: .F)
 
     // T2
-    let _ = zeros((2, 3))
-    let _ = zeros((2, 3), order: .F)
-    let _ = zeros((2, 3), type: Int32.self)
-    let _ = zeros((2, 3), type: Int32.self, order: .F)
+    let _ = zeros(shape: (2, 3))
+    let _ = zeros(shape: (2, 3), order: .F)
+    let _ = zeros(shape: (2, 3), type: Int32.self)
+    let _ = zeros(shape: (2, 3), type: Int32.self, order: .F)
   }
 
   //--------------------------------------------------------------------------
   // test_zerosLike
   func test_zerosLike() {
-    let proto = zeros((2, 3))
+    let proto = zeros(shape: (2, 3))
 
     let _ = zeros(like: proto)
     let _ = zeros(like: proto, shape: (6))
@@ -255,21 +255,21 @@ class test_arraySyntax: XCTestCase {
 
     // T1
     let _ = full(3)
-    let _ = full(3, 42, order: .F)
-    let _ = full(3, 42, type: Int32.self)
-    let _ = full(3, 42, type: Int32.self, order: .F)
+    let _ = full(shape: 3, 42, order: .F)
+    let _ = full(shape: 3, 42, type: Int32.self)
+    let _ = full(shape: 3, 42, type: Int32.self, order: .F)
 
     // T2
-    let _ = full((2, 3), 42)
-    let _ = full((2, 3), 42, order: .F)
-    let _ = full((2, 3), 42, type: Int32.self)
-    let _ = full((2, 3), 42, type: Int32.self, order: .F)
+    let _ = full(shape: (2, 3), 42)
+    let _ = full(shape: (2, 3), 42, order: .F)
+    let _ = full(shape: (2, 3), 42, type: Int32.self)
+    let _ = full(shape: (2, 3), 42, type: Int32.self, order: .F)
   }
 
   //--------------------------------------------------------------------------
   // test_fullLike
   func test_fullLike() {
-    let proto = empty((2, 3))
+    let proto = empty(shape: (2, 3))
 
     let _ = full(like: proto, 42)
     let _ = full(like: proto, 42, shape: (6))

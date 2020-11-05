@@ -71,28 +71,28 @@ class test_Subscripting: XCTestCase {
   //--------------------------------------------------------------------------
   func test_writeToRepeated() {
     // test through subscript
-    var a = repeating(1, (2, 3))
+    var a = repeating(1, shape: (2, 3))
     a[1, 1] = 42
     XCTAssert(a == [[1, 1, 1], [1, 42, 1]])
 
     // test assigning range through subscript
-    a[0..<1, ...] = repeating(2, (1, 3))
+    a[0..<1, ...] = repeating(2, shape: (1, 3))
     XCTAssert(a == [[2, 2, 2], [1, 42, 1]])
   }
 
   //--------------------------------------------------------------------------
   func test_negativeIndexRelativeRange() {
-    let m = array(0..<9, (3, 3))
+    let m = array(0..<9, shape: (3, 3))
     let v = m[-2 ..+ 1, ...]
     XCTAssert(v == [[3, 4, 5]])
   }
 
   //--------------------------------------------------------------------------
   func test_AssignDataToTensor3Item() {
-    var a3 = array(0..<24, (2, 3, 4))
+    var a3 = array(0..<24, shape: (2, 3, 4))
 
     // assign a volume depth to item 0
-    a3[0] = repeating(3, (1, 3, 4))
+    a3[0] = repeating(3, shape: (1, 3, 4))
     XCTAssert(
       a3 == [
         [[3, 3, 3, 3], [3, 3, 3, 3], [3, 3, 3, 3]],
@@ -100,7 +100,7 @@ class test_Subscripting: XCTestCase {
       ])
 
     // assign via type expansion to item 1
-    a3[1] = expand(dims: repeating(7, (3, 4)), axis: 0)
+    a3[1] = expand(dims: repeating(7, shape: (3, 4)), axis: 0)
     XCTAssert(
       a3.array == [
         [[3, 3, 3, 3], [3, 3, 3, 3], [3, 3, 3, 3]],
@@ -108,17 +108,17 @@ class test_Subscripting: XCTestCase {
       ])
 
     let g = pullback(
-      at: repeating(7, (3, 4)),
-      in: { expand(dims: $0, axis: 0) })(ones((1, 3, 4)))
+      at: repeating(7, shape: (3, 4)),
+      in: { expand(dims: $0, axis: 0) })(ones(shape: (1, 3, 4)))
     XCTAssert(g.flatArray == [Float](repeating: 1, count: 12))
   }
 
   //--------------------------------------------------------------------------
   func test_AssignDataToTensor3Range() {
-    var volume = array(0..<24, (2, 3, 4))
+    var volume = array(0..<24, shape: (2, 3, 4))
 
     // assign a volume depth to item 0
-    volume[0..<1] = repeating(3, (1, 3, 4))
+    volume[0..<1] = repeating(3, shape: (1, 3, 4))
     XCTAssert(
       volume == [
         [[3, 3, 3, 3], [3, 3, 3, 3], [3, 3, 3, 3]],
@@ -126,7 +126,7 @@ class test_Subscripting: XCTestCase {
       ])
 
     // assign via type expansion to item 1
-    volume[1...1] = expand(dims: repeating(7, (3, 4)), axis: 0)
+    volume[1...1] = expand(dims: repeating(7, shape: (3, 4)), axis: 0)
     XCTAssert(
       volume == [
         [[3, 3, 3, 3], [3, 3, 3, 3], [3, 3, 3, 3]],
@@ -190,7 +190,7 @@ class test_Subscripting: XCTestCase {
         0, 1, 2, 3,
         4, 5, 6, 7,
         8, 9, 10, 11,
-      ], (3, 4))
+      ], shape: (3, 4))
 
     let v1 = m1[1 ..<- 1, ..<3]
     XCTAssert(v1 == [[4, 5, 6]])
@@ -210,17 +210,12 @@ class test_Subscripting: XCTestCase {
   func test_Tensor1WriteRange() {
     //        ComputePlatform.log.level = .diagnostic
     var v1 = array(0...6)
-    let sevens = repeating(7, (3))
+    let sevens = repeating(7, shape: (3))
     v1[2...4] = sevens
     XCTAssert(v1.flatArray == [0, 1, 7, 7, 7, 5, 6])
 
     let v2 = array(1...6)
     let g = pullback(at: v2, in: { exp($0) })(ones(like: v2))
-    XCTAssert(
-      g
-        == array([
-          2.7182817, 7.389056, 20.085537,
-          54.59815, 148.41316, 403.4288,
-        ]))
+    XCTAssert(g == array([2.7182817, 7.389056, 20.085537, 54.59815, 148.41316, 403.4288]))
   }
 }

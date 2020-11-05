@@ -44,7 +44,7 @@ class test_Casting: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_cast2Float() {
-    let i = array(0..<6, (3, 2), type: Int32.self)
+    let i = array(0..<6, shape: (3, 2), type: Int32.self)
     XCTAssert(cast(i, elementsTo: Float.self) == [[0, 1], [2, 3], [4, 5]])
 
     let b = array([true, false, true, false, false])

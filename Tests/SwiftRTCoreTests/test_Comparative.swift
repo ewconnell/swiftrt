@@ -66,8 +66,8 @@ class test_Comparative: XCTestCase {
     }
 
     do {
-      let a = array(1..<7, (2, 3), type: Int8.self)
-      let b = zeros((2, 3), type: Int8.self)
+      let a = array(1..<7, shape: (2, 3), type: Int8.self)
+      let b = zeros(shape: (2, 3), type: Int8.self)
       let c = array([[false, true, false], [true, false, true]])
       let x = replace(x: a, with: b, where: c)
       XCTAssert(x == [[1, 0, 3], [0, 5, 0]])
@@ -80,9 +80,9 @@ class test_Comparative: XCTestCase {
     let maxj = 4
     let maxi = 4
 
-    var rh = ones((2, maxj, maxi), name: "rh")
-    let h = repeating(2.0, (2, maxj, maxi))
-    let mask = array([false, true, true, false], (1, maxj - 2, maxi - 2))
+    var rh = ones(shape: (2, maxj, maxi), name: "rh")
+    let h = repeating(2.0, shape: (2, maxj, maxi))
+    let mask = array([false, true, true, false], shape: (1, maxj - 2, maxi - 2))
     let replacement = h[0, 1..<(maxj - 1), 1..<(maxi - 1)] - 2.0
 
     // taking a tensor slice adds a copy-on-write reference
@@ -158,19 +158,19 @@ class test_Comparative: XCTestCase {
   //--------------------------------------------------------------------------
   func test_equality() {
     // compare by value
-    let a = array(0..<6, (3, 2))
-    let b = array(0..<6, (3, 2))
+    let a = array(0..<6, shape: (3, 2))
+    let b = array(0..<6, shape: (3, 2))
     XCTAssert(a == b)
 
     // compare by value not equal
-    let other = array(1..<7, (3, 2))
+    let other = array(1..<7, shape: (3, 2))
     XCTAssert(a != other)
 
     // compare via alias detection
     let c = b
     XCTAssert(c == b)
 
-    let d = array(1..<7, (3, 2))
+    let d = array(1..<7, shape: (3, 2))
     let ne = (d .!= c).any().element
     XCTAssert(ne)
     XCTAssert(d != c)
@@ -201,7 +201,7 @@ class test_Comparative: XCTestCase {
   //--------------------------------------------------------------------------
   // test_maxScalar
   func test_maxScalar() {
-    let a = array(0...5, (3, 2))
+    let a = array(0...5, shape: (3, 2))
     XCTAssert(max(a, 2) == [[2, 2], [2, 3], [4, 5]])
     XCTAssert(max(2, a) == [[2, 2], [2, 3], [4, 5]])
   }
@@ -231,7 +231,7 @@ class test_Comparative: XCTestCase {
   //--------------------------------------------------------------------------
   // test_minScalar
   func test_minScalar() {
-    let a = array(0...5, (3, 2))
+    let a = array(0...5, shape: (3, 2))
     XCTAssert(min(a, 3) == [[0, 1], [2, 3], [3, 3]])
     XCTAssert(min(3, a) == [[0, 1], [2, 3], [3, 3]])
   }

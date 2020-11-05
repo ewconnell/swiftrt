@@ -54,13 +54,13 @@ class test_Shape: XCTestCase {
   func test_fillRangeColumnMajor() { testEachDevice(fillRangeColumnMajor) }
 
   func fillRangeColumnMajor() {
-    let a = array(from: Float(0), to: Float(3), (2, 3), order: .row)
-    let b = array(from: Float(0), to: Float(3), (2, 3), order: .col)
+    let a = array(from: Float(0), to: Float(3), shape: (2, 3), order: .row)
+    let b = array(from: Float(0), to: Float(3), shape: (2, 3), order: .col)
     XCTAssert(a.array == b.array)
 
     typealias CF = Complex<Float>
-    let c = array(from: CF(0), to: CF(3), (2, 3), order: .row)
-    let d = array(from: CF(0), to: CF(3), (2, 3), order: .col)
+    let c = array(from: CF(0), to: CF(3), shape: (2, 3), order: .row)
+    let d = array(from: CF(0), to: CF(3), shape: (2, 3), order: .col)
     XCTAssert(c.array == d.array)
   }
 
@@ -71,51 +71,51 @@ class test_Shape: XCTestCase {
     let a = array([[0, 1, 2], [3, 4, 5]])
     XCTAssert(Array(a.read()) == [0, 1, 2, 3, 4, 5])
 
-    let b = reshape(a, (2, 3), order: .col)
+    let b = reshape(a, shape: (2, 3), order: .col)
     XCTAssert(Array(b.read()) == [0, 3, 1, 4, 2, 5])
     XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
 
     let c = array([[0, 3, 1], [4, 2, 5]], order: .col)
     XCTAssert(Array(c.buffer) == [0, 3, 1, 4, 2, 5])
 
-    let d = reshape(c, (2, 3))
+    let d = reshape(c, shape: (2, 3))
     XCTAssert(d == [[0, 1, 2], [3, 4, 5]])
     XCTAssert(Array(d.buffer) == [0, 1, 2, 3, 4, 5])
   }
 
   //--------------------------------------------------------------------------
   func test_reshape() {
-    let a3 = array(0..<12, (2, 3, 2))
+    let a3 = array(0..<12, shape: (2, 3, 2))
 
     // R3 -> R2
-    let a2 = reshape(a3, (2, -1))
+    let a2 = reshape(a3, shape: (2, -1))
     XCTAssert(a2.shape == [2, 6])
     XCTAssert(a2 == [[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10, 11]])
 
     // R3 -> R1
-    let a1 = reshape(a3, -1)
+    let a1 = reshape(a3, shape: -1)
     XCTAssert(a1 == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
 
     // R1 -> R2
-    let b2 = reshape(a1, (2, -1))
+    let b2 = reshape(a1, shape: (2, -1))
     XCTAssert(b2 == [[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10, 11]])
 
     // R1 -> R3
-    let b3 = reshape(a1, (2, 2, 3))
+    let b3 = reshape(a1, shape: (2, 2, 3))
     XCTAssert(b3 == [[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]])
 
-    let input = ones((2, 4))
+    let input = ones(shape: (2, 4))
     let reshapedPullback = pullback(at: input) {
-      reshape($0, (2, 2, 2))
+      reshape($0, shape: (2, 2, 2))
     }
-    let reshaped = ones((2, 2, 2))
+    let reshaped = ones(shape: (2, 2, 2))
     XCTAssertEqual(input, reshapedPullback(reshaped))
   }
 
   //--------------------------------------------------------------------------
   func test_repeatExpandTranspose() {
-    let a = repeating(array(0...3, (4, 1, 1)), (4, 3, 4))
-    let b = repeating(expand(dims: array(0...3), axes: (0, 1)), (3, 4, 4))
+    let a = repeating(array(0...3, shape: (4, 1, 1)), shape: (4, 3, 4))
+    let b = repeating(expand(dims: array(0...3), axes: (0, 1)), shape: (3, 4, 4))
       .transposed(permutatedBy: Shape3(2, 0, 1))
     XCTAssert(a == b)
   }
@@ -130,7 +130,7 @@ class test_Shape: XCTestCase {
       0, 0, 0, 10, 10, 10, 10, 10, 10, 10,
       10, 10, 10, 10, 10, 10, 10, 0, 0, 0,
     ])
-    let ts = repeating(expand(dims: vec, axes: (0, 1, 3)), (2, maxj, maxi, maxk))
+    let ts = repeating(expand(dims: vec, axes: (0, 1, 3)), shape: (2, maxj, maxi, maxk))
     XCTAssert(ts[0, ..., ..., 0].count == (maxj * maxi))
 
     let s = ts[0, 0..<maxj, 0..<maxi, 0..<maxk]
@@ -170,15 +170,17 @@ class test_Shape: XCTestCase {
   func test_expandMutate() {
     let maxi = 8
     let maxj = 8
-    var drag = repeating(0, (2, maxj + 2, maxi + 2))
+    var drag = repeating(0, shape: (2, maxj + 2, maxi + 2))
     let idxoffset1 = 6
     let idxoffset2 = 2
     let data = repeating(
-      array([1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0], (1, maxi + 1)),
-      ((idxoffset1 - idxoffset2), maxi + 1))
+      array([1.5, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 1.5, 0.0], shape: (1, maxi + 1)),
+      shape: ((idxoffset1 - idxoffset2), maxi + 1))
+
     drag[1, (maxj - idxoffset1)..<(maxj - idxoffset2), 0...maxi] = expand(dims: data, axis: 0)
     drag[0, (maxj - idxoffset1)..<(maxj - idxoffset2), 0...maxi] =
       drag[1, (maxj - idxoffset1)..<(maxj - idxoffset2), 0...maxi]
+
     XCTAssert(
       drag == [
         [
@@ -213,14 +215,14 @@ class test_Shape: XCTestCase {
     let a = array([[0, 1, 2], [3, 4, 5]])
     XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])
 
-    let b = reshape(a, (2, 3), order: .col)
+    let b = reshape(a, shape: (2, 3), order: .col)
     XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
     XCTAssert(b.flatArray == [0, 3, 1, 4, 2, 5])
 
     let c = array([[0, 3, 1], [4, 2, 5]], order: .col)
     XCTAssert(c.flatArray == [0, 3, 1, 4, 2, 5])
 
-    let d = reshape(c, (2, 3))
+    let d = reshape(c, shape: (2, 3))
     XCTAssert(d == [[0, 1, 2], [3, 4, 5]])
     XCTAssert(d.flatArray == [0, 1, 2, 3, 4, 5])
   }
@@ -230,14 +232,14 @@ class test_Shape: XCTestCase {
     let a = array([[0, 1, 2], [3, 4, 5]])
     XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])
 
-    let b = reshape(a, (2, 3), order: .col)
+    let b = reshape(a, shape: (2, 3), order: .col)
     XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
     XCTAssert(b.flatArray == [0, 3, 1, 4, 2, 5])
 
     let c = array([[0, 3, 1], [4, 2, 5]], order: .col)
     XCTAssert(c.flatArray == [0, 3, 1, 4, 2, 5])
 
-    let d = reshape(c, (2, 3))
+    let d = reshape(c, shape: (2, 3))
     XCTAssert(d == [[0, 1, 2], [3, 4, 5]])
     XCTAssert(d.flatArray == [0, 1, 2, 3, 4, 5])
   }
@@ -264,7 +266,7 @@ class test_Shape: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_squeeze() {
-    let a = array(0..<24, (2, 3, 4))
+    let a = array(0..<24, shape: (2, 3, 4))
 
     let sumCols = a.sum(axes: 2)
     XCTAssert(sumCols.shape == [2, 3, 1])
@@ -301,8 +303,8 @@ class test_Shape: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_stack() {
-    let a = array(0..<6, (2, 3))
-    let b = array(6..<12, (2, 3))
+    let a = array(0..<6, shape: (2, 3))
+    let b = array(6..<12, shape: (2, 3))
 
     let v0 = stack(a, b)
     XCTAssert(v0 == [[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]])
@@ -335,8 +337,8 @@ class test_Shape: XCTestCase {
   func test_stackingGradients() {
     let a1 = array([1, 2, 3, 4, 5])
     let b1 = array([6, 7, 8, 9, 10])
-    let a2 = ones((5))
-    let b2 = ones((5))
+    let a2 = ones(shape: (5))
+    let b2 = ones(shape: (5))
 
     //        let c = stack(a1 * a2, b1 * b2, axis: -1).sum().element
 
@@ -352,7 +354,7 @@ class test_Shape: XCTestCase {
     let i = 3
     let j = 3
     let maxK: Float = 16
-    let k1 = array(0..<30, (5, 6))
+    let k1 = array(0..<30, shape: (5, 6))
 
     let mask =
       squeeze(
@@ -496,22 +498,22 @@ class test_Shape: XCTestCase {
     XCTAssert(subv.isContiguous)
 
     // a batch of rows are sequential
-    let m = empty((4, 5))
+    let m = empty(shape: (4, 5))
     let mrows = m[1...2, ...]
     XCTAssert(mrows.isContiguous)
 
     // a batch of columns are not sequential
-    let m1 = empty((4, 5))
+    let m1 = empty(shape: (4, 5))
     let mcols = m1[..., 1...2]
     XCTAssert(!mcols.isContiguous)
   }
 
   //--------------------------------------------------------------------------
   func test_transposed() {
-    let m = array(0..<9, (3, 3))
+    let m = array(0..<9, shape: (3, 3))
     XCTAssert(m.t == [[0, 3, 6], [1, 4, 7], [2, 5, 8]])
 
-    let a = array(0..<24, (2, 3, 4))
+    let a = array(0..<24, shape: (2, 3, 4))
     let transA = a.transposed(permutatedBy: [2, 1, 0])
     XCTAssert(
       transA == [
@@ -543,8 +545,8 @@ class test_Shape: XCTestCase {
 
   //--------------------------------------------------------------------------
   func testTransposedPullback() {
-    let input = ones((2, 3))
-    let transposed = ones((3, 2))
+    let input = ones(shape: (2, 3))
+    let transposed = ones(shape: (3, 2))
     let transposedPullback = pullback(at: input) { $0.t }
     let transposedPermutationsPullback = pullback(at: input) {
       $0.transposed(permutatedBy: [1, 0])

@@ -73,7 +73,7 @@ class test_Initialize: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_copyOnWrite() {
-    let a = array(0..<6, (3, 2))
+    let a = array(0..<6, shape: (3, 2))
     XCTAssert(a[1, 1] == 3)
 
     // copy shares the same storage
@@ -92,7 +92,7 @@ class test_Initialize: XCTestCase {
   //   2, 3,
   //   4, 5
   func test_columnMajorDataView() {
-    let cm = array([0, 2, 4, 1, 3, 5], (3, 2), type: Int32.self, order: .F)
+    let cm = array([0, 2, 4, 1, 3, 5], shape: (3, 2), type: Int32.self, order: .F)
     XCTAssert(cm == [[0, 1], [2, 3], [4, 5]])
   }
 
@@ -152,14 +152,14 @@ class test_Initialize: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_repeatElement() {
-    let a = repeating(42, (2, 3, 10), type: Int32.self)
+    let a = repeating(42, shape: (2, 3, 10), type: Int32.self)
     let expected = [Int32](repeating: 42, count: a.count)
     XCTAssert(a.flatArray == expected)
   }
 
   //--------------------------------------------------------------------------
   func test_repeatRowVector() {
-    let m = repeating(array(0...4, (1, 5)), (5, 5))
+    let m = repeating(array(0...4, shape: (1, 5)), shape: (5, 5))
     XCTAssert(
       m == [
         [0, 1, 2, 3, 4],
@@ -172,7 +172,7 @@ class test_Initialize: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_repeatColVector() {
-    let m = repeating(array(0...4, (5, 1)), (5, 5))
+    let m = repeating(array(0...4, shape: (5, 1)), shape: (5, 5))
     XCTAssert(
       m == [
         [0, 0, 0, 0, 0],
@@ -185,8 +185,8 @@ class test_Initialize: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_concatenateMatrixRows() {
-    let a = array(1...6, (2, 3))
-    let b = array(7...12, (2, 3))
+    let a = array(1...6, shape: (2, 3))
+    let b = array(7...12, shape: (2, 3))
     let c = concatenate(a, b)
     XCTAssert(c.shape == [4, 3])
     XCTAssert(
@@ -201,8 +201,8 @@ class test_Initialize: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_concatenateMatrixCols() {
-    let a = array(1...6, (2, 3))
-    let b = array(7...12, (2, 3))
+    let a = array(1...6, shape: (2, 3))
+    let b = array(7...12, shape: (2, 3))
     let c = concatenate(a, b, axis: 1)
     XCTAssert(c.shape == [2, 6])
     XCTAssert(

@@ -37,9 +37,9 @@ where
 
   // repeat rows of real range, columns of imaginary range, and combine
   let Z =
-    repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-    + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-  var divergence = full(size, E.Value(exactly: iterations)!, type: E.self)
+    repeating(array(from: rFirst, to: rLast, shape: (1, size.c)), shape: size)
+    + repeating(array(from: iFirst, to: iLast, shape: (size.r, 1)), shape: size)
+  var divergence = full(shape: size, E.Value(exactly: iterations)!, type: E.self)
 
   currentQueue.juliaSet(Z, C, tolerance, iterations, &divergence)
   return divergence
