@@ -318,6 +318,7 @@ extension PoolingMode {
     case .average: return CUDNN_POOLING_AVERAGE_COUNT_EXCLUDE_PADDING
     case .averagePadding: return CUDNN_POOLING_AVERAGE_COUNT_INCLUDE_PADDING
     case .max: return CUDNN_POOLING_MAX
+    case .maxDeterministic: return CUDNN_POOLING_MAX_DETERMINISTIC
     }
   }
 }
@@ -572,10 +573,6 @@ public final class TensorDescriptor<S: TensorShape, E: StorageElement> {
     }
 
   }
-
-  // @inlinable public init(owning desc: cudnnTensorDescriptor_t) {
-  //   self.desc = desc
-  // }
 
   //--------------------------------------------------------------------------
   @inlinable deinit {

@@ -32,7 +32,7 @@ class test_Recurrent: XCTestCase {
                 vocabularySize: vocabSize,
                 embeddingSize: 3,
                 embeddingsInitializer: {
-                    array(0..<($0[0] * $0[1]), ($0[0], $0[1]))
+                    array(0..<($0[0] * $0[1]), shape: ($0[0], $0[1]))
                 })
         let sequence = array([1, 3], type: DeviceIndex.self)
         let embedded = encoder(sequence)

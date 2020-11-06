@@ -34,6 +34,8 @@ public enum PoolingMode: Int, Codable {
   case averagePadding
   /// The maximum value inside the pooling window is used
   case max
+  /// The maximum value inside the pooling window is used via a deterministic algorithm
+  case maxDeterministic
 }
 
 //==============================================================================
