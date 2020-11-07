@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 #include "copy_fn.cuh"
-#include "op1.cuh"
+#include "op1.h"
 
 //==============================================================================
 // Swift importable C interface functions

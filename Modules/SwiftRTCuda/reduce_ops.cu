@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 #include "reduce_fn.cuh"
-#include "op1.cuh"
+#include "op1.h"
 
 using namespace cub;
 

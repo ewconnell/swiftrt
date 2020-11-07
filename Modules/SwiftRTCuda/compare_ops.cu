@@ -15,8 +15,8 @@
 //
 #include "compare_fn.cuh"
 #include "compare_vjp.cuh"
-#include "op2.cuh"
-#include "op3.cuh"
+#include "op2.h"
+#include "op3.h"
 #include "srt_traits.cuh"
 #include "tensor_api.h"
 
