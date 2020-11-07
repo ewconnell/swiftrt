@@ -286,8 +286,7 @@ extension Tensor where TensorElement.Value: Comparable {
 //==============================================================================
 /// equal
 extension Tensor: Equatable where TensorElement.Value: Equatable {
-  /// Performs element-wise equality comparison and returns a
-  /// tensor of Bool values
+  /// Performs element-wise equality comparison and returns a tensor of Bool values
   @inlinable public static func .== (
     _ lhs: Self,
     _ rhs: Self
@@ -296,6 +295,16 @@ extension Tensor: Equatable where TensorElement.Value: Equatable {
     var result = Tensor<Shape, Bool>(shape: lhs.shape, order: lhs.order)
     currentQueue.equal(lhs, rhs, &result)
     return result
+  }
+
+  /// Performs element-wise equality comparison and returns a tensor of Bool values
+  @inlinable public static func .== (
+    _ lhs: Self,
+    _ rhs: Element
+  ) -> Tensor<Shape, Bool> {
+    var out = Tensor<Shape, Bool>(shape: lhs.shape, order: lhs.order)
+    currentQueue.equal(lhs, rhs, &out)
+    return out
   }
 
   /// - Parameter lhs: left hand tensor

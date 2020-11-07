@@ -200,10 +200,20 @@ extension CpuQueue {
   }
   //--------------------------------------------------------------------------
   @inlinable public func equal<S, E>(
-    _ lhs: Tensor<S, E>, _ rhs: Tensor<S, E>,
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
-  )
-  where E.Value: Equatable { cpu_equal(lhs, rhs, &out) }
+  ) where E.Value: Equatable {
+    cpu_equal(lhs, rhs, &out)
+  }
+
+  @inlinable public func equal<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, Bool>
+  ) where E.Value: Equatable {
+    cpu_equal(lhs, rhs, &out)
+  }
   //--------------------------------------------------------------------------
   @inlinable public func erf<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_erf(x, &out) }
@@ -601,9 +611,7 @@ extension DeviceQueue {
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: AdditiveArithmetic {
-    diagnostic(
-      .queueCpu, "add(\(lhs.name), \(rhs.name)) on \(name)",
-      categories: .queueCpu)
+    diagnostic(.queueCpu, "add(\(lhs.name), \(rhs.name)) on \(name)", categories: .queueCpu)
     mapOp(lhs, rhs, &out, +)
   }
 
@@ -612,9 +620,7 @@ extension DeviceQueue {
     _ rhs: E.Value,
     _ out: inout Tensor<S, E>
   ) where E.Value: AdditiveArithmetic {
-    diagnostic(
-      .queueCpu, "add(\(lhs.name), \(rhs)) on \(name)",
-      categories: .queueCpu)
+    diagnostic(.queueCpu, "add(\(lhs.name), \(rhs)) on \(name)", categories: .queueCpu)
     mapOp(lhs, rhs, &out, +)
   }
 
@@ -624,9 +630,7 @@ extension DeviceQueue {
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value == Bool {
-    diagnostic(
-      .queueCpu, "and(\(lhs.name), \(rhs.name) on \(name)",
-      categories: .queueCpu)
+    diagnostic(.queueCpu, "and(\(lhs.name), \(rhs.name) on \(name)", categories: .queueCpu)
     mapOp(lhs, rhs, &out) { $0 && $1 }
   }
 
@@ -663,9 +667,7 @@ extension DeviceQueue {
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: Real {
-    diagnostic(
-      .queueCpu, "atan2(y: \(y.name), x: \(x.name)) on \(name)",
-      categories: .queueCpu)
+    diagnostic(.queueCpu, "atan2(y: \(y.name), x: \(x.name)) on \(name)", categories: .queueCpu)
     mapOp(y, x, &out) { .atan2(y: $0, x: $1) }
   }
 
@@ -809,8 +811,7 @@ extension DeviceQueue {
     _ rhs: Tensor<S, E>,
     _ tolerance: E.Value,
     _ out: inout Tensor<S, Bool>
-  )
-  where E.Value: SignedNumeric & Comparable {
+  ) where E.Value: SignedNumeric & Comparable {
     diagnostic(
       .queueCpu,
       "elementsAlmostEqual(\(lhs.name), \(rhs.name)) on \(name)",
@@ -824,9 +825,16 @@ extension DeviceQueue {
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
   ) where E.Value: Equatable {
-    diagnostic(
-      .queueCpu, "equal(\(lhs.name), \(rhs.name)) on \(name)",
-      categories: .queueCpu)
+    diagnostic(.queueCpu, "equal(\(lhs.name), \(rhs.name)) on \(name)", categories: .queueCpu)
+    mapOp(lhs, rhs, &out, ==)
+  }
+
+  @inlinable public func cpu_equal<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, Bool>
+  ) where E.Value: Equatable {
+    diagnostic(.queueCpu, "equal(\(lhs.name), \(rhs)) on \(name)", categories: .queueCpu)
     mapOp(lhs, rhs, &out, ==)
   }
 

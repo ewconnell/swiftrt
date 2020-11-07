@@ -81,6 +81,7 @@ extension CudaQueue {
     _ rhs: Tensor<S, E>,
     _ out: inout Tensor<S, Bool>
   ) where E.Value: Equatable {
+    var status: cudaError_t
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     assert(lhs.order == rhs.order, _messageTensorOrderMismatch)
     guard useGpu else {
@@ -88,12 +89,59 @@ extension CudaQueue {
       return
     }
 
-    diagnostic(.queueGpu, "equal(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
+    if canFlatten(lhs, rhs, out) {
+      diagnostic(.queueGpu, "equal(\(lhs.name), \(rhs.name)) Flat", categories: .queueGpu)
+      status = srtEqualFlat(
+        E.type,
+        lhs.deviceRead(using: self),
+        rhs.deviceRead(using: self),
+        out.deviceReadWrite(using: self),
+        out.count,
+        stream
+      )
+    } else {
+      diagnostic(.queueGpu, "equal(\(lhs.name), \(rhs.name)) Indexed", categories: .queueGpu)
+      status = out.withMutableTensor(using: self) { o, oDesc in
+        lhs.withTensor(using: self) { l, lDesc in
+          rhs.withTensor(using: self) { r, rDesc in
+            srtEqual(l, lDesc, r, rDesc, o, oDesc, stream)
+          }
+        }
+      }
+    }
+    cpuFallback(status) { $0.equal(lhs, rhs, &out) }
+  }
 
-    let status = out.withMutableTensor(using: self) { o, oDesc in
-      lhs.withTensor(using: self) { l, lDesc in
-        rhs.withTensor(using: self) { r, rDesc in
-          srtEqual(l, lDesc, r, rDesc, o, oDesc, stream)
+  // greater tensor Element
+  @inlinable public func equal<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, Bool>
+  ) where E.Value: Equatable {
+    var element = rhs
+    var status: cudaError_t
+    assert(out.isContiguous, _messageElementsMustBeContiguous)
+    guard useGpu else {
+      cpu_equal(lhs, rhs, &out)
+      return
+    }
+
+    if canFlatten(lhs, out) {
+      diagnostic(.queueGpu, "equal(\(lhs.name), \(rhs)) Flat", categories: .queueGpu)
+      status = srtEqualFlatTE(
+          E.type,
+          lhs.deviceRead(using: self),
+          &element,
+          out.deviceReadWrite(using: self),
+          out.count,
+          stream
+        )
+
+    } else {
+      diagnostic(.queueGpu, "equal(\(lhs.name), \(rhs)) Indexed", categories: .queueGpu)
+      status = out.withMutableTensor(using: self) { o, oDesc in
+        lhs.withTensor(using: self) { l, lDesc in
+          srtEqualTE(l, lDesc, &element, o, oDesc, stream)
         }
       }
     }
@@ -146,6 +194,7 @@ extension CudaQueue {
     _ rhs: E.Value,
     _ out: inout Tensor<S, Bool>
   ) where E.Value: Comparable {
+    var element = rhs
     var status: cudaError_t
     assert(out.isContiguous, _messageElementsMustBeContiguous)
     guard useGpu else {
@@ -155,23 +204,20 @@ extension CudaQueue {
 
     if canFlatten(lhs, out) {
       diagnostic(.queueGpu, "greater(\(lhs.name), \(rhs)) Flat", categories: .queueGpu)
-      status = withUnsafePointer(to: rhs) { prhs in
-        srtGreaterFlatTE(
+      status = srtGreaterFlatTE(
           E.type,
           lhs.deviceRead(using: self),
-          prhs,
+          &element,
           out.deviceReadWrite(using: self),
           out.count,
           stream
         )
-      }
+
     } else {
       diagnostic(.queueGpu, "greater(\(lhs.name), \(rhs)) Indexed", categories: .queueGpu)
       status = out.withMutableTensor(using: self) { o, oDesc in
         lhs.withTensor(using: self) { l, lDesc in
-          withUnsafePointer(to: rhs) { r in
-            srtGreaterTE(l, lDesc, r, o, oDesc, stream)
-          }
+          srtGreaterTE(l, lDesc, &element, o, oDesc, stream)
         }
       }
     }

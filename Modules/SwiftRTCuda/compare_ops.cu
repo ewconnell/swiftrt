@@ -64,6 +64,38 @@ cudaError_t srtEqual(
     return select<Equal>(a, aDesc, b, bDesc, out, oDesc, stream);
 }
 
+cudaError_t srtEqualFlat(
+    srtDataType type,
+    const void* a,
+    const void* b,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    return select<Equal>(type, a, b, boolean, out, count, stream);
+}
+
+cudaError_t srtEqualTE(
+    const void* a, const srtTensorDescriptor* paDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* poDesc,
+    cudaStream_t stream
+) {
+    Cast2TensorDescriptorsA(paDesc, poDesc);
+    return select<Equal>(a, aDesc, element, out, oDesc, stream);
+}
+
+cudaError_t srtEqualFlatTE(
+    srtDataType type,
+    const void* a,
+    const void* element,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    return selectTE<Equal>(type, a, element, boolean, out, count, stream);
+}
+
 //------------------------------------------------------------------------------
 Op2(Greater, greater, (isComparable<A>() && isBool<Out>()))
 

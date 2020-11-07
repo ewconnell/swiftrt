@@ -36,11 +36,36 @@ cudaError_t srtElementsAlmostEqual(
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
 
+//------------------------------------------------------------------------------
 cudaError_t srtEqual(
     const void* a, const srtTensorDescriptor* aDesc,
     const void* b, const srtTensorDescriptor* bDesc,
     void* out, const srtTensorDescriptor* oDesc,
     cudaStream_t stream);
+
+cudaError_t srtEqualFlat(
+    srtDataType type,
+    const void* a,
+    const void* b,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+);
+
+cudaError_t srtEqualTE(
+    const void* a, const srtTensorDescriptor* aDesc,
+    const void* element,
+    void* out, const srtTensorDescriptor* oDesc,
+    cudaStream_t stream);
+
+cudaError_t srtEqualFlatTE(
+    srtDataType type,
+    const void* a,
+    const void* element,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+);
 
 //------------------------------------------------------------------------------
 cudaError_t srtGreater(

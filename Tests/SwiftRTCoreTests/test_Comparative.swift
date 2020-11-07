@@ -162,6 +162,10 @@ class test_Comparative: XCTestCase {
     let b = array(0..<6, shape: (3, 2))
     XCTAssert(a == b)
 
+    // compare by value with Element
+    let m = array([0, 1, 1, 0, 0]) .== 1
+    XCTAssert(m == [false, true, true, false, false])
+
     // compare by value not equal
     let other = array(1..<7, shape: (3, 2))
     XCTAssert(a != other)
