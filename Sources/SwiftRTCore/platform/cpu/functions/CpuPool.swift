@@ -53,22 +53,49 @@ public final class CpuPoolingConfiguration<Shape: TensorShape, E: StorageElement
   public let outShape: Shape
 
   //----------------------------------------------------------------------------
+  // Tuple helpers
   @inlinable public convenience init(
     x: Tensor<Shape, E>,
-    size: Shape.Tuple,
+    windowSize: Shape.Tuple,
     strides: Shape.Tuple,
-    pad: Padding,
+    padding: Padding,
     mode: PoolingMode
   ) {
-    self.init(x: x, size: Shape(size), strides: Shape(strides), pad: pad, mode: mode)
+    self.init(x: x, windowSize: Shape(windowSize), 
+      strides: Shape(strides), padding: padding, mode: mode)
+  }
+
+  @inlinable public convenience init(
+    x: Tensor<Shape, E>,
+    windowSize: Shape.Tuple,
+    strides: Shape.Tuple,
+    padding: Shape.Tuple,
+    mode: PoolingMode
+  ) {
+    self.init(x: x, windowSize: Shape(windowSize), 
+      strides: Shape(strides), padding: Shape(padding), mode: mode)
+  }
+
+  //----------------------------------------------------------------------------
+  // Padding version for TF compatibility
+  // It converts to correct numeric padding and then delegates
+  @inlinable public convenience init(
+    x: Tensor<Shape, E>,
+    windowSize: Shape,
+    strides: Shape,
+    padding: Padding,
+    mode: PoolingMode
+  ) {
+    let pad = Shape.zero
+    self.init(x: x, windowSize: windowSize, strides: strides, padding: pad, mode: mode)
   }
 
   //----------------------------------------------------------------------------
   @inlinable public init(
     x: Tensor<Shape, E>,
-    size: Shape,
+    windowSize: Shape,
     strides: Shape,
-    pad: Padding,
+    padding: Shape,
     mode: PoolingMode
   ) {
     outOrder = x.order
