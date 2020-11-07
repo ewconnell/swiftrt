@@ -337,13 +337,13 @@ inline dim3 gridSize(uint32_t count, const dim3& tile) {
 
 template<>
 inline dim3 gridSize<2>(const uint32_t* shape, const dim3& tile) {
-    return dim3(divideRoundingUp(shape[0], tile.y), 
-                divideRoundingUp(shape[1], tile.x));
+    return dim3(divideRoundingUp(shape[1], tile.x),
+                divideRoundingUp(shape[0], tile.y));
 }
 
 template<>
 inline dim3 gridSize<3>(const uint32_t* shape, const dim3& tile) {
-    return dim3(divideRoundingUp(shape[0], tile.z), 
+    return dim3(divideRoundingUp(shape[2], tile.x), 
                 divideRoundingUp(shape[1], tile.y), 
-                divideRoundingUp(shape[2], tile.x));
+                divideRoundingUp(shape[0], tile.z));
 }

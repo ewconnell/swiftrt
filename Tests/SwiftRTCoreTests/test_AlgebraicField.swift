@@ -29,6 +29,7 @@ class test_AlgebraicField: XCTestCase {
 
     ("test_perfAdd", test_perfAdd),
     ("test_add", test_add),
+    ("test_addRanks", test_addRanks),
     ("test_addStrided", test_addStrided),
     ("test_addFloat16", test_addFloat16),
     ("test_addBFloat16", test_addBFloat16),
@@ -103,6 +104,23 @@ class test_AlgebraicField: XCTestCase {
       }
       XCTAssert(result.count > 0)
     #endif
+  }
+
+  //--------------------------------------------------------------------------
+  // let testValue3 = repeating(expand(dims: ones(shape: (1024)), axis: 1), shape: (1024, 3)) +
+  // repeating(array([1.0, 1.0, 1.0], shape: (1, 3)), shape: (1024, 3))
+  func test_addRanks() {
+    let N = 20
+
+    let e1 = expand(dims: ones(shape: (N)), axis: 1)
+    let r1 = repeating(e1, shape: (N, 3))
+
+    let a2 = array([1.0, 1.0, 1.0], shape: (1, 3))
+    let r2 = repeating(a2, shape: (N, 3))
+
+    let t3 = r1 + r2
+    let expected = repeating(2, shape: (N, 3))
+    XCTAssert(t3 == expected)
   }
 
   //--------------------------------------------------------------------------

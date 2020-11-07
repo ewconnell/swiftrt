@@ -60,6 +60,8 @@ extension CudaQueue {
 }  // CudaQueue
 
 //==============================================================================
+/// CudaPoolingConfiguration
+///
 public final class CudaPoolingConfiguration<Shape: TensorShape, E: StorageElement> {
   // properties
   public let pooling: PoolingDescriptor<Shape>
@@ -71,40 +73,69 @@ public final class CudaPoolingConfiguration<Shape: TensorShape, E: StorageElemen
   public let outShape: Shape
 
   //----------------------------------------------------------------------------
+  // Tuple helpers
   @inlinable public convenience init(
     x: Tensor<Shape, E>,
-    size: Shape.Tuple,
+    windowSize: Shape.Tuple,
     strides: Shape.Tuple,
-    pad: Padding,
+    padding: Padding,
     mode: PoolingMode
   ) {
-    self.init(x: x, size: Shape(size), strides: Shape(strides), pad: pad, mode: mode)
+    self.init(x: x, windowSize: Shape(windowSize), 
+      strides: Shape(strides), padding: padding, mode: mode)
+  }
+
+  @inlinable public convenience init(
+    x: Tensor<Shape, E>,
+    windowSize: Shape.Tuple,
+    strides: Shape.Tuple,
+    padding: Shape.Tuple,
+    mode: PoolingMode
+  ) {
+    self.init(x: x, windowSize: Shape(windowSize), 
+      strides: Shape(strides), padding: Shape(padding), mode: mode)
   }
 
   //----------------------------------------------------------------------------
-  @inlinable public init(
+  // Padding version for TF compatibility
+  // It converts to correct numeric padding and then delegates
+  @inlinable public convenience init(
     x: Tensor<Shape, E>,
-    size: Shape,
+    windowSize: Shape,
     strides: Shape,
-    pad: Padding,
+    padding: Padding,
     mode: PoolingMode
   ) {
-    // if `pad` is .valid then size `x` must be >= `size`
-    assert(
-      pad == .same
-        || {
-          for i in 0..<Shape.rank {
-            if size[i] > x.shape[i] { return false }
-          }
-          return true
-        }(), "with `.valid` padding, the input size `x` must be >= the window `size`")
+    // TODO this is wrong
+    let pad = Shape.zero
+    // // if `pad` is .valid then size `x` must be >= `windowSize`
+    // assert(
+    //   pad == .same
+    //     || {
+    //       for i in 0..<Shape.rank {
+    //         if windowSize[i] > x.shape[i] { return false }
+    //       }
+    //       return true
+    //     }(), "with `.valid` padding, the input size `x` must be >= the windowSize")
 
-    let padding = pad == .valid ? Shape.zero : size / 2
+    // let padding = pad == .valid ? Shape.zero : windowSize / 2
 
-    pooling = PoolingDescriptor<Shape>(
+    self.init(x: x, windowSize: windowSize, strides: strides, padding: pad, mode: mode)
+  }
+
+  //----------------------------------------------------------------------------
+  /// init(x:windowSize:strides:padding:mode:
+  @inlinable public init(
+    x: Tensor<Shape, E>,
+    windowSize: Shape,
+    strides: Shape,
+    padding: Shape,
+    mode: PoolingMode
+  ) {
+    pooling = PoolingDescriptor(
       mode: mode,
       nan: .propagate,
-      window: size,
+      windowSize: windowSize,
       padding: padding,
       strides: strides)
 
@@ -141,7 +172,7 @@ public final class CudaPoolingConfiguration<Shape: TensorShape, E: StorageElemen
 }
 
 //==============================================================================
-// PoolingDescriptor
+/// PoolingDescriptor
 public final class PoolingDescriptor<Shape: TensorShape> {
   // properties
   public let desc: cudnnPoolingDescriptor_t
@@ -150,7 +181,7 @@ public final class PoolingDescriptor<Shape: TensorShape> {
   @inlinable public init(
     mode: PoolingMode,
     nan: NanPropagation,
-    window: Shape,
+    windowSize: Shape,
     padding: Shape,
     strides: Shape
   ) {
@@ -166,7 +197,7 @@ public final class PoolingDescriptor<Shape: TensorShape> {
         mode.cudnn,
         nan.cudnn,
         Int32(Shape.rank),
-        window.asInt32,
+        windowSize.asInt32,
         padding.asInt32,
         strides.asInt32
       )

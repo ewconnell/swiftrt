@@ -39,49 +39,92 @@ public enum PoolingMode: Int, Codable {
 }
 
 //==============================================================================
-/// pool(_:size:strides:pad:mode:
+/// pool(_:window:strides:padding:mode:
 /// computes the absolute value of `x`
 /// - Parameters:
 ///  - x: input
-///  - size: the size of the pooling window
+///  - window: the size of the pooling window
 ///  - strides: the sliding window strides
-///  - pad: the padding type
+///  - padding: the padding type
 ///  - mode: the pooling mode
 ///
 /// - Returns: the pooled result
 ///
 @inlinable public func pool<S, E>(
-  x: Tensor<S, E>,
-  size: S.Tuple,
-  strides: S.Tuple,
-  pad: Padding = .valid,
-  mode: PoolingMode = .average
-) -> Tensor<S, E> where E: Numeric {
-  return pool(x: x, size: S(size), strides: S(strides), pad: pad, mode: mode)
-}
-
-@inlinable public func pool<S, E>(
-  x: Tensor<S, E>,
-  size: S,
+  _ x: Tensor<S, E>,
+  windowSize: S,
   strides: S,
-  pad: Padding = .valid,
-  mode: PoolingMode = .average
+  padding: S,
+  mode: PoolingMode
 ) -> Tensor<S, E> where E: Numeric {
-  // create the pooling configuration
-  let config = PoolingConfiguration<S, E>(
-    x: x, size: size, strides: strides, pad: pad, mode: mode)
+  let config = PoolingConfiguration(
+    x: x, windowSize: windowSize, strides: strides, padding: padding, mode: mode)
 
   var out = config.createOutput()
   currentQueue.pool(config, x, &out)
   return out
 }
 
+//--------------------------------------
+// using Int for simple symetrical cases
 @inlinable public func pool<S, E>(
-  config: PoolingConfiguration<S, E>,
-  x: Tensor<S, E>,
-  out: inout Tensor<S, E>
+  _ x: Tensor<S, E>,
+  windowSize: Int,
+  strides: Int = 1,
+  padding: Int = 0,
+  mode: PoolingMode
 ) -> Tensor<S, E> where E: Numeric {
+  return pool(
+    x, windowSize: S(repeating: windowSize), strides: S(repeating: strides), 
+    padding: S(repeating: padding), mode: mode)
+}
+
+//--------------------------------------
+// using tuples
+@inlinable public func pool<S, E>(
+  _ x: Tensor<S, E>,
+  windowSize: S.Tuple,
+  strides: S.Tuple,
+  padding: S.Tuple,
+  mode: PoolingMode
+) -> Tensor<S, E> where E: Numeric {
+  return pool(x, windowSize: S(windowSize), strides: S(strides), padding: S(padding), mode: mode)
+}
+
+//--------------------------------------
+// using enum for padding
+@inlinable public func pool<S, E>(
+  _ x: Tensor<S, E>,
+  windowSize: S,
+  strides: S,
+  padding: Padding,
+  mode: PoolingMode
+) -> Tensor<S, E> where E: Numeric {
+  // create the pooling configuration
+  let config = PoolingConfiguration(
+    x: x, windowSize: windowSize, strides: strides, padding: padding, mode: mode)
+  var out = config.createOutput()
   currentQueue.pool(config, x, &out)
   return out
 }
 
+@inlinable public func pool<S, E>(
+  _ x: Tensor<S, E>,
+  windowSize: Int,
+  strides: Int = 1,
+  padding: Padding,
+  mode: PoolingMode
+) -> Tensor<S, E> where E: Numeric {
+  return pool(x, windowSize: S(repeating: windowSize), 
+    strides: S(repeating: strides), padding: padding, mode: mode)
+}
+
+@inlinable public func pool<S, E>(
+  _ x: Tensor<S, E>,
+  windowSize: S.Tuple,
+  strides: S.Tuple = S.oneTuple,
+  padding: Padding,
+  mode: PoolingMode
+) -> Tensor<S, E> where E: Numeric {
+  return pool(x, windowSize: S(windowSize), strides: S(strides), padding: padding, mode: mode)
+}
