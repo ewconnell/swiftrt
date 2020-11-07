@@ -117,7 +117,7 @@ cudaError_t srtAcosh(
 }
 
 //------------------------------------------------------------------------------
-Op2(Add, add, (isNumeric<A>() && isSame<A,Out>()))
+Op2(Add, add, isNumeric<A>())
 
 cudaError_t srtAdd(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -247,7 +247,7 @@ cudaError_t srtCosh(
 }
 
 //------------------------------------------------------------------------------
-Op2(Div, divide, (isNumeric<A>() && isSame<A,Out>()))
+Op2(Div, divide, isNumeric<A>())
 
 cudaError_t srtDiv(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -440,7 +440,7 @@ cudaError_t srtLogGamma(
 }
 
 //------------------------------------------------------------------------------
-Op2(Mul, multiply, (isNumeric<A>() && isSame<A,Out>()))
+Op2(Mul, multiply, isNumeric<A>())
 
 cudaError_t srtMul(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -626,7 +626,7 @@ cudaError_t srtSquared(
 }
 
 //------------------------------------------------------------------------------
-Op2(Sub, subtract, (isNumeric<A>() && isSame<A,Out>()))
+Op2(Sub, subtract, isNumeric<A>())
 
 cudaError_t srtSub(
     const void* a, const srtTensorDescriptor* paDesc,

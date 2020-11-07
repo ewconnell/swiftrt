@@ -38,7 +38,7 @@ class test_Subscripting: XCTestCase {
   //--------------------------------------------------------------------------
   func test_perfTensorSubview() {
     #if !DEBUG
-      let a = array(0..<6, (2, 3))
+      let a = array(0..<6, shape: (2, 3))
       var count: Float = 0
 
       measure {

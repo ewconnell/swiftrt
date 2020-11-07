@@ -67,9 +67,9 @@ final class test_perfFractals: XCTestCase {
 
       // repeat rows of real range, columns of imaginary range, and combine
       let Z =
-        repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-        + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-      var divergence = full(size, iterations)
+        repeating(array(from: rFirst, to: rLast, shape: (1, size.c)), shape: size)
+        + repeating(array(from: iFirst, to: iLast, shape: (size.r, 1)), shape: size)
+      var divergence = full(shape: size, iterations)
 
       // cpu platform: mac cpu16 0.850s, ubuntu cpu6: 2.589s
       // cuda platform: ubuntu cpu6: 3.790s, gpu:
@@ -101,9 +101,9 @@ final class test_perfFractals: XCTestCase {
 
       // repeat rows of real range, columns of imaginary range, and combine
       let Z =
-        repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-        + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-      var divergence = full(size, iterations)
+        repeating(array(from: rFirst, to: rLast, shape: (1, size.c)), shape: size)
+        + repeating(array(from: iFirst, to: iLast, shape: (size.r, 1)), shape: size)
+      var divergence = full(shape: size, iterations)
 
       // cpu platform: mac cpu32: 0.116s, ubuntu cpu12: 0.141s
       // cuda platform: cpu12:  , gpu: no jit yet, but srtJulia is 0.003s

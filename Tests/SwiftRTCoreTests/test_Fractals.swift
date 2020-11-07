@@ -134,10 +134,10 @@ final class test_Fractals: XCTestCase {
       let iLast = CF(0, last.imaginary)
 
       // repeat rows of real range, columns of imaginary range, and combine
-      var divergence = full(size, iterations)
+      var divergence = full(shape: size, iterations)
       var Z =
-        repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-        + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
+        repeating(array(from: rFirst, to: rLast, shape: (1, size.c)), shape: size)
+        + repeating(array(from: iFirst, to: iLast, shape: (size.r, 1)), shape: size)
 
       // cpu platform: mac cpu16 0.850s, ubuntu cpu6: 2.589s
       // cuda platform: ubuntu cpu6: 3.296s, gpu: 1.430s
@@ -171,9 +171,9 @@ final class test_Fractals: XCTestCase {
 
       // repeat rows of real range, columns of imaginary range, and combine
       var Z =
-        repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-        + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-      var d = full(size, iterations)
+        repeating(array(from: rFirst, to: rLast, shape: (1, size.c)), shape: size)
+        + repeating(array(from: iFirst, to: iLast, shape: (size.r, 1)), shape: size)
+      var d = full(shape: size, iterations)
 
       // cpu platform: mac cpu16 0.850s, ubuntu cpu6: 2.589s
       // cuda platform: ubuntu cpu6: 3.296s, gpu: 0.200s
@@ -216,9 +216,9 @@ final class test_Fractals: XCTestCase {
 
       // repeat rows of real range, columns of imaginary range, and combine
       let Z =
-        repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-        + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-      var divergence = full(size, iterations)
+        repeating(array(from: rFirst, to: rLast, shape: (1, size.c)), shape: size)
+        + repeating(array(from: iFirst, to: iLast, shape: (size.r, 1)), shape: size)
+      var divergence = full(shape: size, iterations)
 
       // cpu platform: mac cpu32: 0.116s, ubuntu cpu12: 0.141s
       // cuda platform: cpu12: 0.144s
@@ -247,9 +247,9 @@ final class test_Fractals: XCTestCase {
 
       // repeat rows of real range, columns of imaginary range, and combine
       let Z =
-        repeating(array(from: rFirst, to: rLast, (1, size.c)), size)
-        + repeating(array(from: iFirst, to: iLast, (size.r, 1)), size)
-      var divergence = full(size, iterations)
+        repeating(array(from: rFirst, to: rLast, shape: (1, size.c)), shape: size)
+        + repeating(array(from: iFirst, to: iLast, shape: (size.r, 1)), shape: size)
+      var divergence = full(shape: size, iterations)
 
       // cpu platform: mac cpu32: 0.116s, ubuntu cpu12:
       // cuda platform: cpu12: 0.430s

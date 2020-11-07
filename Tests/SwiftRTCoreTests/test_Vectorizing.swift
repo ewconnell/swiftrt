@@ -44,8 +44,8 @@ class test_Vectorizing: XCTestCase {
       // adding a queue causes change from sync to async by default
       // overhead for this case is 28%
       //                Context.queuesPerDevice = 1
-      let a = ones((1024, 1024))
-      let b = ones((1024, 1024))
+      let a = ones(shape: (1024, 1024))
+      let b = ones(shape: (1024, 1024))
       var count: DType = 0
 
       // 0.0135
@@ -61,8 +61,8 @@ class test_Vectorizing: XCTestCase {
   //--------------------------------------------------------------------------
   func test_perfAminusBSequential() {
     #if !DEBUG
-      let a = ones((1024, 1024))
-      let b = ones((1024, 1024))
+      let a = ones(shape: (1024, 1024))
+      let b = ones(shape: (1024, 1024))
       var count: DType = 0
 
       // 0.0135
@@ -78,8 +78,8 @@ class test_Vectorizing: XCTestCase {
   //--------------------------------------------------------------------------
   func test_perfAmulBSequential() {
     #if !DEBUG
-      let a = ones((1024, 1024))
-      let b = ones((1024, 1024))
+      let a = ones(shape: (1024, 1024))
+      let b = ones(shape: (1024, 1024))
       var count: DType = 0
 
       // 0.0135
@@ -95,8 +95,8 @@ class test_Vectorizing: XCTestCase {
   //--------------------------------------------------------------------------
   func test_perfAdivBSequential() {
     #if !DEBUG
-      let a = ones((1024, 1024))
-      let b = ones((1024, 1024))
+      let a = ones(shape: (1024, 1024))
+      let b = ones(shape: (1024, 1024))
       var count: DType = 0
 
       // 0.0135
@@ -113,7 +113,7 @@ class test_Vectorizing: XCTestCase {
   func test_perfAplusB_NonSequential() {
     #if !DEBUG
       let size = 1024
-      let a = array(0..<(size * (size * 2)), (size, size * 2))
+      let a = array(0..<(size * (size * 2)), shape: (size, size * 2))
       let b = a[..., ..<size]
       let c = a[..., size...]
       var count: DType = 0
@@ -134,7 +134,7 @@ class test_Vectorizing: XCTestCase {
   func test_perfReduceAll() {
     #if !DEBUG
       let size = 1024
-      let x = full((size, size), true, type: Bool.self)
+      let x = full(shape: (size, size), true, type: Bool.self)
       var value: Bool = false
 
       // 0.00357s
@@ -153,7 +153,7 @@ class test_Vectorizing: XCTestCase {
   func test_perfReduceAny() {
     #if !DEBUG
       let size = 1024
-      let x = full((size, size), true, type: Bool.self)
+      let x = full(shape: (size, size), true, type: Bool.self)
       var value: Bool = false
 
       // 0.00354s
@@ -172,7 +172,7 @@ class test_Vectorizing: XCTestCase {
   func test_perfReduceSum() {
     #if !DEBUG
       let size = 1024
-      let x = array(1...(size * size), (size, size))
+      let x = array(1...(size * size), shape: (size, size))
       var value: DType = 0
 
       // 0.010s
@@ -191,7 +191,7 @@ class test_Vectorizing: XCTestCase {
   func test_perfReduceMean() {
     #if !DEBUG
       let size = 1024
-      let x = array(1...(size * size), (size, size))
+      let x = array(1...(size * size), shape: (size, size))
       var value: DType = 0
 
       // 0.010s
@@ -245,8 +245,8 @@ class test_Vectorizing: XCTestCase {
   func test_perfAlessOrEqualBAny() {
     #if !DEBUG
       let size = 1024
-      let a = array(1...(size * size), (size, size))
-      let b = array(0..<(size * size), (size, size))
+      let a = array(1...(size * size), shape: (size, size))
+      let b = array(0..<(size * size), shape: (size, size))
       var value = true
 
       // .0215s
@@ -263,8 +263,8 @@ class test_Vectorizing: XCTestCase {
   func test_perfMinAB() {
     #if !DEBUG
       let size = 1024
-      let a = array(1...(size * size), (size, size))
-      let b = array(0..<(size * size), (size, size))
+      let a = array(1...(size * size), shape: (size, size))
+      let b = array(0..<(size * size), shape: (size, size))
       var value: Float = 0
 
       // .0230s
@@ -281,8 +281,8 @@ class test_Vectorizing: XCTestCase {
   func test_perfMaxAB() {
     #if !DEBUG
       let size = 1024
-      let a = array(1...(size * size), (size, size))
-      let b = array(0..<(size * size), (size, size))
+      let a = array(1...(size * size), shape: (size, size))
+      let b = array(0..<(size * size), shape: (size, size))
       var value: Float = 0
 
       // .0280s

@@ -110,7 +110,7 @@ class test_Initialize: XCTestCase {
       var count = 0
       measure {
         for _ in 0..<iterations {
-          let a = empty((2, 2))
+          let a = empty(shape: (2, 2))
           count += a.count
         }
       }
@@ -123,7 +123,7 @@ class test_Initialize: XCTestCase {
     #if !DEBUG
       let iterations = 100000
       var value: Float = 0
-      let a = array(1...4, (2, 2))
+      let a = array(1...4, shape: (2, 2))
 
       measure {
         for _ in 1...iterations {
@@ -139,7 +139,7 @@ class test_Initialize: XCTestCase {
     #if !DEBUG
       let iterations = 100000
       let value: Float = 1
-      var a = array(1...4, (2, 2))
+      var a = array(1...4, shape: (2, 2))
 
       measure {
         for _ in 1...iterations {

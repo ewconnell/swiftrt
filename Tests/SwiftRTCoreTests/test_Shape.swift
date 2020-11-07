@@ -377,7 +377,7 @@ class test_Shape: XCTestCase {
   //--------------------------------------------------------------------------
   func test_perfTensor1() {
     #if !DEBUG
-      let a = ones(1024 * 1024)
+      let a = ones(shape: 1024 * 1024)
       var count: DType = 0
       self.measure {
         count = a.sum().element
@@ -389,7 +389,7 @@ class test_Shape: XCTestCase {
   //--------------------------------------------------------------------------
   func test_perfTensor2() {
     #if !DEBUG
-      let a = ones((1024, 1024))
+      let a = ones(shape: (1024, 1024))
       var count: DType = 0
 
       // 0.001s
@@ -403,7 +403,7 @@ class test_Shape: XCTestCase {
   //--------------------------------------------------------------------------
   func test_perfRepeatedTensor3() {
     #if !DEBUG
-      let a = repeating(1, (64, 128, 128))
+      let a = repeating(1, shape: (64, 128, 128))
       var count: DType = 0
       self.measure {
         count = a.sum().element
@@ -415,7 +415,7 @@ class test_Shape: XCTestCase {
   //--------------------------------------------------------------------------
   func test_perfTensor3() {
     #if !DEBUG
-      let a = ones((64, 128, 128))
+      let a = ones(shape: (64, 128, 128))
       var count: DType = 0
       self.measure {
         count = a.sum().element
@@ -427,7 +427,7 @@ class test_Shape: XCTestCase {
   //--------------------------------------------------------------------------
   func test_perfTensor4() {
     #if !DEBUG
-      let a = ones((2, 32, 128, 128))
+      let a = ones(shape: (2, 32, 128, 128))
       var count: DType = 0
       self.measure {
         count = a.sum().element
@@ -439,7 +439,7 @@ class test_Shape: XCTestCase {
   //--------------------------------------------------------------------------
   func test_perfTensor5() {
     #if !DEBUG
-      let a = ones((2, 2, 16, 128, 128))
+      let a = ones(shape: (2, 2, 16, 128, 128))
       var count: DType = 0
       self.measure {
         count = a.sum().element

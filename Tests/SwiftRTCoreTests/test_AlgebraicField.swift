@@ -92,9 +92,9 @@ class test_AlgebraicField: XCTestCase {
     #if !DEBUG
       let r = 300
       let c = 200
-      let a = array(0..<(r * c), (r, c), name: "A")
-      let b = array(0..<(r * c), (r, c), name: "B")
-      var result = empty((3, 2))
+      let a = array(0..<(r * c), shape: (r, c), name: "A")
+      let b = array(0..<(r * c), shape: (r, c), name: "B")
+      var result = empty(shape: (3, 2))
 
       measure {
         for _ in 0..<1000 {
