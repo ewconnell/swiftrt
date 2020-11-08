@@ -24,11 +24,15 @@ extern "C" {
 
 //==============================================================================
 
-cudaError_t srtFill(
-    void* out, const srtTensorDescriptor* oDesc,
+cudaError_t srtFillFlat(
+    srtDataType type,
+    void* out,
     const void* element,
-    cudaStream_t stream);
+    size_t count,
+    cudaStream_t stream
+);
 
+//------------------------------------------------------------------------------
 cudaError_t srtFillRange(
     void* out, const srtTensorDescriptor* oDesc,
     const void* first,
@@ -36,6 +40,17 @@ cudaError_t srtFillRange(
     const void* step,
     cudaStream_t stream);
 
+cudaError_t srtFillRangeFlat(
+    srtDataType type,
+    void* out,
+    const void* first,
+    const void* last,
+    const void* step,
+    size_t count,
+    cudaStream_t stream
+);
+
+//------------------------------------------------------------------------------
 cudaError_t srtEye(
     void* out, const srtTensorDescriptor* oDesc,
     const long offset,

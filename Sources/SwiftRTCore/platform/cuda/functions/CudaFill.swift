@@ -66,12 +66,14 @@ extension CudaQueue {
       return
     }
 
-    diagnostic(.queueGpu, "fill(\(out.name), with: \(element)) Indexed", categories: .queueGpu)
-    let status = out.withMutableTensor(using: self) { o, oDesc in
-      withUnsafePointer(to: E.stored(value: element)) {
-        srtFill(o, oDesc, $0, stream)
-      }
-    }
+    diagnostic(.queueGpu, "fill(\(out.name), with: \(element)) Flat", categories: .queueGpu)
+    var value = E.stored(value: element)
+    let status = srtFillFlat(
+      E.type,
+      out.deviceReadWrite(using: self),
+      &value, 
+      out.count,
+      stream)
     cpuFallback(status) { $0.fill(&out, with: element) }
   }
 
@@ -82,25 +84,41 @@ extension CudaQueue {
     to last: E.Value,
     by step: E.Value
   ) where E.Value: Numeric {
-    assert(out.isContiguous, _messageElementsMustBeContiguous)
+    var status: cudaError_t
     guard useGpu else {
       cpu_fill(&out, from: first, to: last, by: step)
       return
     }
 
-    diagnostic(
-      .queueGpu,
-      "fill(\(out.name), from: \(first), to: \(last), by: \(step)) Indexed",
-      categories: .queueGpu)
+    // convert element Value types into native stored types
+    var f = E.stored(value: first)
+    var l = E.stored(value: last)
+    var s = E.stored(value: step)
 
-    let status = out.withMutableTensor(using: self) { o, oDesc in
-      withUnsafePointer(to: E.stored(value: first)) { f in
-        withUnsafePointer(to: E.stored(value: last)) { l in
-          withUnsafePointer(to: E.stored(value: step)) { s in
-            srtFillRange(o, oDesc, f, l, s, stream)
-          }
-        }
-      }
+    if out.isContiguous {
+      diagnostic(
+        .queueGpu,
+        "fill(\(out.name), from: \(f), to: \(l), by: \(s)) Flat",
+        categories: .queueGpu)
+
+      status = srtFillRangeFlat(
+        E.type,
+        out.deviceReadWrite(using: self),
+        &f,
+        &l,
+        &s,
+        out.count,
+        stream)
+
+    } else {
+      diagnostic(
+        .queueGpu,
+        "fill(\(out.name), from: \(f), to: \(l), by: \(s)) Indexed",
+        categories: .queueGpu)
+
+      status = out.withMutableTensor(using: self) { o, oDesc in
+        srtFillRange(o, oDesc, &f, &l, &s, stream)
+      }      
     }
     cpuFallback(status) { $0.fill(&out, from: first, to: last, by: step) }
   }
