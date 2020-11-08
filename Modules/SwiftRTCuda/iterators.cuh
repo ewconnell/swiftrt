@@ -17,7 +17,7 @@
 #include <assert.h>
 #include <type_traits>
 
-#include "srt_traits.cuh"
+#include "srt_traits.h"
 #include "tensor.cuh"
 
 //==============================================================================

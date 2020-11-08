@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 #pragma once
-#include "srt_traits.cuh"
+#include "srt_traits.h"
 #include "copy_api.h"
 #include "float16.cuh"
 #include "bfloat16.cuh"

@@ -42,6 +42,20 @@ namespace std {
     struct __is_floating_point_helper<bfloat162>: public true_type { };
 
     //--------------------------------------------------------------------------
+    // is_integral
+    template<>
+    struct __is_integral_helper<char4>: public true_type { };
+
+    template<>
+    struct __is_integral_helper<uchar4>: public true_type { };
+
+    template<>
+    struct __is_integral_helper<short2>: public true_type { };
+
+    template<>
+    struct __is_integral_helper<ushort2>: public true_type { };
+
+    //--------------------------------------------------------------------------
     // is_signed
     template<>
     struct __is_signed_helper<float16>: public true_type { };
@@ -55,23 +69,17 @@ namespace std {
     template<>
     struct __is_signed_helper<bfloat162>: public true_type { };
 
-    //--------------------------------------------------------------------------
-    // is_signed
-  template<>
-    struct __is_integral_helper<char4>
-    : public true_type { };
+    template<>
+    struct __is_signed_helper<char4>: public true_type { };
 
-  template<>
-    struct __is_integral_helper<uchar4>
-    : public true_type { };
+    template<>
+    struct __is_signed_helper<uchar4>: public false_type { };
 
-  template<>
-    struct __is_integral_helper<short2>
-    : public true_type { };
+    template<>
+    struct __is_signed_helper<short2>: public true_type { };
 
-  template<>
-    struct __is_integral_helper<ushort2>
-    : public true_type { };
+    template<>
+    struct __is_signed_helper<ushort2>: public false_type { };
 }
 
 
@@ -129,13 +137,8 @@ inline constexpr bool isEquatable() {
 }
 
 template<typename A>
-inline constexpr bool isSigned() {
-    return std::is_signed<A>::value || isFloating<A>() || isComplex<A>();
-}
-
-template<typename A>
 inline constexpr bool isSignedNumeric() {
-    return isSigned<A>() && isNumeric<A>();
+    return std::is_signed<A>::value || isFloating<A>() || isComplex<A>();
 }
 
 template<typename A>

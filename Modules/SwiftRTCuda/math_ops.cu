@@ -23,18 +23,8 @@
 //==============================================================================
 
 //------------------------------------------------------------------------------
-Op1(Abs, abs, ((isSignedNumeric<A>() && isSame<A,Out>()) || isComplexRealType<A,Out>()))
-
-cudaError_t srtAbsFlat(
-    srtDataType atype,
-    const void* a,
-    srtDataType otype,
-    void* out,
-    size_t count,
-    cudaStream_t stream
-) {
-    return select<Abs>(atype, a, otype, out, count, stream);
-}
+Op1(Abs, abs, isSignedNumeric<A>())
+Op1_TO(Abs_TO, abs, ((isSignedNumeric<A>() && isSame<A,Out>()) || isComplexRealType<A,Out>()))
 
 cudaError_t srtAbs(
     const void* a, const srtTensorDescriptor* paDesc,
@@ -45,12 +35,27 @@ cudaError_t srtAbs(
     if (aDesc.type == oDesc.type) {
         return select<Abs>(a, aDesc, out, oDesc, stream);
     } else {
-        return selectT_O<Abs>(a, aDesc, out, oDesc, stream);
+        return select<Abs_TO>(a, aDesc, out, oDesc, stream);
+    }
+}
+
+cudaError_t srtAbsFlat(
+    srtDataType atype,
+    const void* a,
+    srtDataType otype,
+    void* out,
+    size_t count,
+    cudaStream_t stream
+) {
+    if (atype == otype) {
+        return select<Abs>(atype, a, out, count, stream);
+    } else {
+        return select<Abs_TO>(atype, a, otype, out, count, stream);
     }
 }
 
 //------------------------------------------------------------------------------
-Op1(Abs2, abs2, (isComplexRealType<A,Out>()))
+Op1_TO(Abs2_TO, abs2, (isComplexRealType<A,Out>()))
 
 cudaError_t srtAbs2Flat(
     srtDataType atype,
@@ -60,7 +65,7 @@ cudaError_t srtAbs2Flat(
     size_t count,
     cudaStream_t stream
 ) {
-    return select<Abs2>(atype, a, otype, out, count, stream);
+    return select<Abs2_TO>(atype, a, otype, out, count, stream);
 }
 
 cudaError_t srtAbs2(
@@ -69,11 +74,7 @@ cudaError_t srtAbs2(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    if (aDesc.type == oDesc.type) {
-        return select<Abs2>(a, aDesc, out, oDesc, stream);
-    } else {
-        return selectT_O<Abs2>(a, aDesc, out, oDesc, stream);
-    }
+    return select<Abs2_TO>(a, aDesc, out, oDesc, stream);
 }
 
 //------------------------------------------------------------------------------

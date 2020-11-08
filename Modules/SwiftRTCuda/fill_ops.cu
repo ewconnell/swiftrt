@@ -15,7 +15,7 @@
 //
 #include "fill_api.h"
 #include "tensor.cuh"
-#include "srt_traits.cuh"
+#include "srt_traits.h"
 #include "iterators.cuh"
 
 //==============================================================================

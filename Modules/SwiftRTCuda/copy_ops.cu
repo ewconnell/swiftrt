@@ -28,7 +28,7 @@ cudaError_t srtCopy(
     cudaStream_t stream
 ) {
     Cast2TensorDescriptorsA(paDesc, poDesc)
-    return selectT_O<CastOp>(a, aDesc, out, oDesc, stream);
+    return select<CastOp>(a, aDesc, out, oDesc, stream);
 }
 
 cudaError_t srtCopyFlat(

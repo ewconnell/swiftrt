@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 #pragma once
-#include "srt_traits.cuh"
+#include "srt_traits.h"
 #include "compare_fn.cuh"
 #include "iterators.cuh"
 

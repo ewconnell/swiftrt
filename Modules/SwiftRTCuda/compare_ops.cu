@@ -17,7 +17,7 @@
 #include "compare_vjp.cuh"
 #include "op2.h"
 #include "op3.h"
-#include "srt_traits.cuh"
+#include "srt_traits.h"
 #include "tensor_api.h"
 
 //==============================================================================
