@@ -12,7 +12,8 @@ let package = Package(
         .library(name: "SwiftRTLayers", targets: ["SwiftRTLayers"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-numerics", .branch("master"))
+        .package(url: "https://github.com/apple/swift-numerics",
+        .branch("main"))
     ],
     targets: [
         // umbrella import
