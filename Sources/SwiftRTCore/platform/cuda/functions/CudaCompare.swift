@@ -568,10 +568,6 @@ extension CudaQueue {
     _ out: inout Tensor<S, E>
   ) {
     var status: cudaError_t
-    assert(out.isContiguous, _messageElementsMustBeContiguous)
-    assert(
-      x.order == y.order && x.order == condition.order,
-      _messageTensorOrderMismatch)
     guard useGpu else {
       cpu_replace(x, y, condition, &out)
       return

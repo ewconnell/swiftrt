@@ -27,7 +27,7 @@ class test_Comparative: XCTestCase {
     ("test_compareFloat16", test_compareFloat16),
     ("test_compareInt8", test_compareInt8),
     ("test_replace", test_replace),
-    ("test_replace2", test_replace2),
+    ("test_replace_issue18", test_replace_issue18),
     ("test_complexOrder", test_complexOrder),
     ("test_elementWiseAndOr", test_elementWiseAndOr),
     ("test_elementsAlmostEqual", test_elementsAlmostEqual),
@@ -76,7 +76,7 @@ class test_Comparative: XCTestCase {
 
   //--------------------------------------------------------------------------
   // https://github.com/ewconnell/swiftrt/issues/18
-  func test_replace2() {
+  func test_replace_issue18() {
     let maxj = 4
     let maxi = 4
 
