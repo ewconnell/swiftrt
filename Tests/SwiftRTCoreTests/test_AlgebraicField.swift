@@ -29,7 +29,7 @@ class test_AlgebraicField: XCTestCase {
 
     ("test_perfAdd", test_perfAdd),
     ("test_add", test_add),
-    ("test_addRanks", test_addRanks),
+    ("test_addRanked", test_addRanked),
     ("test_addStrided", test_addStrided),
     ("test_addFloat16", test_addFloat16),
     ("test_addBFloat16", test_addBFloat16),
@@ -107,9 +107,8 @@ class test_AlgebraicField: XCTestCase {
   }
 
   //--------------------------------------------------------------------------
-  // let testValue3 = repeating(expand(dims: ones(shape: (1024)), axis: 1), shape: (1024, 3)) +
-  // repeating(array([1.0, 1.0, 1.0], shape: (1, 3)), shape: (1024, 3))
-  func test_addRanks() {
+  // https://github.com/ewconnell/swiftrt/issues/33
+  func test_addRanked() {
     let N = 20
 
     let e1 = expand(dims: ones(shape: (N)), axis: 1)
@@ -121,6 +120,12 @@ class test_AlgebraicField: XCTestCase {
     let t3 = r1 + r2
     let expected = repeating(2, shape: (N, 3))
     XCTAssert(t3 == expected)
+
+    let t4 = ones(shape: (12, 12, 1)) * 255.0
+    XCTAssert((t4 .== 255).all().element)
+
+    let t5 = ones(shape: (12, 12)) * 255.0
+    XCTAssert((t5 .== 255).all().element)
   }
 
   //--------------------------------------------------------------------------
