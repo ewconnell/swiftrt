@@ -55,5 +55,6 @@ let package = Package(
             name: "SwiftRTLayerTests",
             dependencies: ["SwiftRT"],
             exclude: ["CMakeLists.txt"]),
-    ]
+    ],
+    cxxLanguageStandard: .cxx1z
 )
