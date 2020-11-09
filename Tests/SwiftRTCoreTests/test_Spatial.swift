@@ -39,7 +39,7 @@ class test_Spatial: XCTestCase {
         ])
 
         // same
-        let same = pool(a, windowSize: 3, strides: 1, padding: .same, mode: .average)
+        let same = pool(x: a, windowSize: 3, strides: 1, padding: .same, mode: .average)
         XCTAssert(a.shape == same.shape)
         XCTAssert(
           same == [
@@ -49,7 +49,7 @@ class test_Spatial: XCTestCase {
           ])
 
         // default is strides 1 padding 0
-        let valid = pool(a, windowSize: 3, mode: .average)
+        let valid = pool(x: a, windowSize: 3, mode: .average)
         XCTAssert(valid == [[4.0]])
 
         // using a configuration
@@ -64,7 +64,7 @@ class test_Spatial: XCTestCase {
         let a = array(0..<25, shape: (5, 5))
 
         // same
-        let same = pool(a, windowSize: (5, 5), padding: .same, mode: .average)
+        let same = pool(x: a, windowSize: (5, 5), padding: .same, mode: .average)
         let expsame = array([
           [6.0, 6.5, 7.0, 7.5, 8.0],
           [8.5, 9.0, 9.5, 10.0, 10.5],
@@ -75,7 +75,7 @@ class test_Spatial: XCTestCase {
         XCTAssert(elementsAlmostEqual(same, expsame, tolerance: 0.001).all().element)
 
         // valid
-        let valid = pool(a, windowSize: 5, padding: 0, mode: .average)
+        let valid = pool(x: a, windowSize: 5, padding: 0, mode: .average)
         print(valid)
         XCTAssert(valid == [[12.0]])
 
@@ -100,7 +100,8 @@ class test_Spatial: XCTestCase {
         ])
 
         // same
-        let same = pool(a, windowSize: (3, 3), strides: (1, 1), padding: .same, mode: .averagePadding)
+        let same = pool(
+          x: a, windowSize: (3, 3), strides: (1, 1), padding: .same, mode: .averagePadding)
         print(same)
         XCTAssert(a.shape == same.shape)
         XCTAssert(
@@ -111,7 +112,8 @@ class test_Spatial: XCTestCase {
           ])
 
         // valid
-        let valid = pool(a, windowSize: (3, 3), strides: (1, 1), padding: .valid, mode: .averagePadding)
+        let valid = pool(
+          x: a, windowSize: (3, 3), strides: (1, 1), padding: .valid, mode: .averagePadding)
         XCTAssert(valid == [[4.0]])
 
         // using a configuration
@@ -126,7 +128,8 @@ class test_Spatial: XCTestCase {
         let a = array(0..<25, shape: (5, 5))
 
         // same
-        let same = pool(a, windowSize: (5, 5), strides: (1, 1), padding: .same, mode: .averagePadding)
+        let same = pool(
+          x: a, windowSize: (5, 5), strides: (1, 1), padding: .same, mode: .averagePadding)
         let expsame = array([
           [6.0, 6.5, 7.0, 7.5, 8.0],
           [8.5, 9.0, 9.5, 10.0, 10.5],
@@ -137,7 +140,8 @@ class test_Spatial: XCTestCase {
         XCTAssert(elementsAlmostEqual(same, expsame, tolerance: 0.001).all().element)
 
         // valid
-        let valid = pool(a, windowSize: (5, 5), strides: (1, 1), padding: .valid, mode: .averagePadding)
+        let valid = pool(
+          x: a, windowSize: (5, 5), strides: (1, 1), padding: .valid, mode: .averagePadding)
         print(valid)
         XCTAssert(valid == [[12.0]])
 
@@ -161,7 +165,7 @@ class test_Spatial: XCTestCase {
       ])
 
       // same
-      let same = pool(a, windowSize: (3, 3), strides: (1, 1), padding: .same, mode: .max)
+      let same = pool(x: a, windowSize: (3, 3), strides: (1, 1), padding: .same, mode: .max)
       XCTAssert(
         same == [
           [4.0, 5.0, 5.0],
@@ -170,7 +174,7 @@ class test_Spatial: XCTestCase {
         ])
 
       // valid
-      let valid = pool(a, windowSize: (3, 3), strides: (1, 1), padding: .valid, mode: .max)
+      let valid = pool(x: a, windowSize: (3, 3), strides: (1, 1), padding: .valid, mode: .max)
       XCTAssert(valid == [[8.0]])
     #endif
   }
