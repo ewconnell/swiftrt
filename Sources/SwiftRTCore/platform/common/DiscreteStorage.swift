@@ -47,15 +47,15 @@ public final class DiscreteStorage: StorageBuffer {
   public var lastQueue: Platform.Device.Queue?
 
   /// whenever a buffer write pointer is taken, the associated DeviceMemory
-  /// becomes the master copy for replication. Synchronization across threads
+  /// becomes the main copy for replication. Synchronization across threads
   /// is still required for taking multiple write pointers, however
   /// this does automatically synchronize data migrations.
   /// The value will be `nil` if no access has been taken yet
-  public var master: DeviceMemory?
+  public var main: DeviceMemory?
 
   /// this is incremented each time a write pointer is taken
   /// all replicated buffers will stay in sync with this version
-  public var masterVersion: Int
+  public var mainVersion: Int
 
   //------------------------------------
   // testing properties
@@ -80,7 +80,7 @@ public final class DiscreteStorage: StorageBuffer {
     isReadOnly = false
     isReference = false
     isZero = false
-    masterVersion = -1
+    mainVersion = -1
     _lastAccessCopiedMemory = false
 
     // setup replica managment
@@ -130,7 +130,7 @@ public final class DiscreteStorage: StorageBuffer {
     isZero = other.isZero
     _name = other._name
     _lastAccessCopiedMemory = false
-    masterVersion = -1
+    mainVersion = -1
 
     // setup replica managment
     replicas = [DeviceMemory?](repeating: nil, count: other.replicas.count)
@@ -147,7 +147,7 @@ public final class DiscreteStorage: StorageBuffer {
       + " on \(queue.name)",
       categories: .dataCopy)
 
-    // copy other master to self using the current queue
+    // copy other main to self using the current queue
     queue.copyAsync(from: otherMemory, to: replicas[queue.deviceIndex]!)
   }
 
@@ -299,7 +299,7 @@ public final class DiscreteStorage: StorageBuffer {
   /// migrate(type:readOnly:queue:
   /// returns a buffer on the device associated with `queue`, lazily
   /// allocating it if it does not exist. The buffer contents will match
-  /// the contents of the master version (most recently mutated).
+  /// the contents of the main version (most recently mutated).
   ///
   /// - Parameters:
   ///  - type: the `Element` type
@@ -312,35 +312,35 @@ public final class DiscreteStorage: StorageBuffer {
     willMutate: Bool,
     using queue: Platform.Device.Queue
   ) -> UnsafeMutableBufferPointer<Element> {
-    assert(willMutate || master != nil, "attempting to read uninitialized memory")
+    assert(willMutate || main != nil, "attempting to read uninitialized memory")
 
     // For this tensor, get a buffer on the device associated
     // with `queue`. This is a synchronous operation. If the buffer
     // doesn't exist, then it will be created.
     let replica = getDeviceMemory(type, queue)
 
-    // If there is a `master` and the replica version doesn't match
-    // then we need copy master --> replica
-    if let master = master, let lastQueue = lastQueue {
+    // If there is a `main` and the replica version doesn't match
+    // then we need copy main --> replica
+    if let main = main, let lastQueue = lastQueue {
 
       func outputCopyMessage() {
         diagnostic(
           .copy,
-          "\(name) dev:\(master.deviceIndex)\(setText(" --> ", color: .blue))"
+          "\(name) dev:\(main.deviceIndex)\(setText(" --> ", color: .blue))"
             + "\(queue.name)  \(Element.self)[\(replica.count(of: Element.self))]",
           categories: .dataCopy)
       }
 
       func copyIfChanged(using q: Platform.Device.Queue) {
-        if master.version != replica.version {
-          q.copyAsync(from: master, to: replica)
+        if main.version != replica.version {
+          q.copyAsync(from: main, to: replica)
           outputCopyMessage()
           // set `true` for unit test purposes
           _lastAccessCopiedMemory = true
         }
       }
 
-      switch (master.type, replica.type) {
+      switch (main.type, replica.type) {
       // host --> host
       case (.unified, .unified):
         // no copy needed
@@ -365,13 +365,13 @@ public final class DiscreteStorage: StorageBuffer {
 
     // increment version if mutating
     if willMutate {
-      masterVersion += 1
-      master = replica
+      mainVersion += 1
+      main = replica
     }
 
-    // the replica version either matches the master by copying
-    // or is the new master
-    replica.version = masterVersion
+    // the replica version either matches the main by copying
+    // or is the new main
+    replica.version = mainVersion
 
     // store a reference to the accessing queue for safe shutdown
     lastQueue = queue
