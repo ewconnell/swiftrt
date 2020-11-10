@@ -82,7 +82,7 @@ class test_Math: XCTestCase {
       ],
       [CF(-1.7, -1.7), CF(-0.85, -1.7), CF(0.0, -1.7), CF(0.8506, -1.7), CF(1.7, -1.7)],
     ])
-    XCTAssert(elementsAlmostEqual(Z, expected, tolerance: CF(0.01, 0.01)).all().element)
+    XCTAssert(almostEqual(Z, expected, tolerance: CF(0.01, 0.01)))
 
     var divergence = full(shape: size, RT(iterations), type: RT.self)
     XCTAssert(
@@ -111,7 +111,7 @@ class test_Math: XCTestCase {
         CF(-0.8, 5.938), CF(-2.969, 3.047), CF(-3.691, 0.156), CF(-2.969, -2.736), CF(-0.8, -5.625),
       ],
     ])
-    XCTAssert(elementsAlmostEqual(Z, expectedMulAdd, tolerance: CF(0.01, 0.01)).all().element)
+    XCTAssert(almostEqual(Z, expectedMulAdd, tolerance: CF(0.01, 0.01)))
 
     let abz = abs(Z)
     let gt = abz .> tolerance
@@ -175,7 +175,7 @@ class test_Math: XCTestCase {
       [1.1283792, 0.41510752], [0.020666987, 0.00013925305],
       [1.2698236e-07, 1.5670867e-11],
     ])
-    XCTAssert(elementsAlmostEqual(g, e, tolerance: 0.0001).all().element)
+    XCTAssert(almostEqual(g, e, tolerance: 0.0001))
   }
 
   //--------------------------------------------------------------------------
@@ -188,7 +188,7 @@ class test_Math: XCTestCase {
     let b = array([1.0, 2, 3])
     let g = pullback(at: b, in: { exp($0) })(ones(like: b))
     let e = array([2.7182817, 7.389056, 20.085537])
-    XCTAssert(elementsAlmostEqual(g, e, tolerance: 0.0001).all().element)
+    XCTAssert(almostEqual(g, e, tolerance: 0.0001))
   }
 
   //--------------------------------------------------------------------------
@@ -201,7 +201,7 @@ class test_Math: XCTestCase {
     let b = array([1.0, -2.0, 3.0])
     let g = pullback(at: b, in: { log($0) })(ones(like: b))
     let e = array([1.0, -0.5, 0.33333334])
-    XCTAssert(elementsAlmostEqual(g, e, tolerance: 0.0001).all().element)
+    XCTAssert(almostEqual(g, e, tolerance: 0.0001))
   }
 
   //--------------------------------------------------------------------------

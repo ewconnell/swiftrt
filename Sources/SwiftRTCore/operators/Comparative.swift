@@ -348,6 +348,14 @@ extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
   }
 }
 
+@inlinable public func almostEqual<S, E>(
+  _ lhs: Tensor<S, E>,
+  _ rhs: Tensor<S, E>,
+  tolerance: E.Value
+) -> Bool where S: TensorShape, E.Value: SignedNumeric & Comparable {
+  elementsAlmostEqual(lhs, rhs, tolerance: tolerance).all().element
+}
+
 //==============================================================================
 /// notEqual
 /// Computes `lhs != rhs` element-wise and returns a `TensorView` of Boolean

@@ -81,7 +81,8 @@ public final class CudaPoolingConfiguration<Shape: TensorShape, E: StorageElemen
     padding: Padding,
     mode: PoolingMode
   ) {
-    self.init(x: x, windowSize: Shape(windowSize), 
+    self.init(
+      x: x, windowSize: Shape(windowSize),
       strides: Shape(strides), padding: padding, mode: mode)
   }
 
@@ -92,7 +93,8 @@ public final class CudaPoolingConfiguration<Shape: TensorShape, E: StorageElemen
     padding: Shape.Tuple,
     mode: PoolingMode
   ) {
-    self.init(x: x, windowSize: Shape(windowSize), 
+    self.init(
+      x: x, windowSize: Shape(windowSize),
       strides: Shape(strides), padding: Shape(padding), mode: mode)
   }
 
@@ -106,19 +108,16 @@ public final class CudaPoolingConfiguration<Shape: TensorShape, E: StorageElemen
     padding: Padding,
     mode: PoolingMode
   ) {
-    // TODO this is wrong
-    let pad = Shape.zero
-    // // if `pad` is .valid then size `x` must be >= `windowSize`
-    // assert(
-    //   pad == .same
-    //     || {
-    //       for i in 0..<Shape.rank {
-    //         if windowSize[i] > x.shape[i] { return false }
-    //       }
-    //       return true
-    //     }(), "with `.valid` padding, the input size `x` must be >= the windowSize")
-
-    // let padding = pad == .valid ? Shape.zero : windowSize / 2
+    let pad = padding == .valid ? Shape.zero : windowSize / 2
+    // if `pad` is .valid then size `x` must be >= `windowSize`
+    assert(
+      padding == .same
+        || {
+          for i in 0..<Shape.rank {
+            if windowSize[i] > x.shape[i] { return false }
+          }
+          return true
+        }(), "with `.valid` padding, the input size `x` must be >= the windowSize")
 
     self.init(x: x, windowSize: windowSize, strides: strides, padding: pad, mode: mode)
   }
