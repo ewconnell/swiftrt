@@ -891,6 +891,36 @@ extension Tensor {
 }
 
 //==============================================================================
+/// init(padding:
+///
+extension Tensor {
+
+  @inlinable public init<S>(padding other: Tensor<S, TensorElement>)
+  where S: TensorShape {
+    assert(S.rank < Shape.rank, "can only indent lower ranked shapes")
+
+    // Self and other are different ranks so we append other's elements
+    var shape = Shape.one
+    var strides = Shape.one
+    for i in 0..<S.rank {
+      shape[i] = other.shape[i]
+      strides[i] = other.strides[i]
+    }
+
+    //-----------------------------------
+    self.init(
+      shape: shape,
+      strides: strides,
+      count: other.count,
+      storage: other.storage,
+      storageBase: other.storageBase,
+      spanCount: other.spanCount,
+      order: other.order,
+      shared: other.isShared)
+  }
+}
+
+//==============================================================================
 /// init(transposing:permutations:
 /// Returns a new data shape where the bounds and strides are permuted
 /// - Parameter permutations: the indice order mapping. `count` must

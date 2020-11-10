@@ -39,7 +39,7 @@ public enum PoolingMode: Int, Codable {
 }
 
 //==============================================================================
-/// pool(_:window:strides:padding:mode:
+/// pool(x:window:strides:padding:mode:
 /// computes the absolute value of `x`
 /// - Parameters:
 ///  - x: input
@@ -59,7 +59,6 @@ public enum PoolingMode: Int, Codable {
 ) -> Tensor<S, E> where E: Numeric {
   let config = PoolingConfiguration(
     x: x, windowSize: windowSize, strides: strides, padding: padding, mode: mode)
-
   var out = config.createOutput()
   currentQueue.pool(config, x, &out)
   return out
@@ -74,6 +73,34 @@ public enum PoolingMode: Int, Codable {
 ) -> Tensor<S, E> where E: Numeric {
   return pool(
     x: x, windowSize: S(windowSize), strides: S(strides),
+    padding: S(padding), mode: mode)
+}
+
+//--------------------------------------
+// batched version
+@inlinable public func pool<S, E>(
+  batch: Tensor<S, E>,
+  windowSize: S,
+  strides: S = S.one,
+  padding: S = S.zero,
+  mode: PoolingMode
+) -> Tensor<S, E> where E: Numeric {
+  let config = PoolingConfiguration(
+    batch: batch, windowSize: windowSize, strides: strides, padding: padding, mode: mode)
+  var out = config.createOutput()
+  currentQueue.pool(config, batch, &out)
+  return out
+}
+
+@inlinable public func pool<S, E>(
+  batch: Tensor<S, E>,
+  windowSize: S.Tuple,
+  strides: S.Tuple = S.oneTuple,
+  padding: S.Tuple = S.zeroTuple,
+  mode: PoolingMode
+) -> Tensor<S, E> where E: Numeric {
+  return pool(
+    batch: batch, windowSize: S(windowSize), strides: S(strides),
     padding: S(padding), mode: mode)
 }
 
@@ -102,5 +129,33 @@ public enum PoolingMode: Int, Codable {
 ) -> Tensor<S, E> where E: Numeric {
   return pool(
     x: x, windowSize: S(windowSize), strides: S(strides),
+    padding: padding, mode: mode)
+}
+
+//--------------------------------------
+// batched version
+@inlinable public func pool<S, E>(
+  batch: Tensor<S, E>,
+  windowSize: S,
+  strides: S = S.one,
+  padding: Padding,
+  mode: PoolingMode
+) -> Tensor<S, E> where E: Numeric {
+  let config = PoolingConfiguration(
+    batch: batch, windowSize: windowSize, strides: strides, padding: padding, mode: mode)
+  var out = config.createOutput()
+  currentQueue.pool(config, batch, &out)
+  return out
+}
+
+@inlinable public func pool<S, E>(
+  batch: Tensor<S, E>,
+  windowSize: S.Tuple,
+  strides: S.Tuple = S.oneTuple,
+  padding: Padding,
+  mode: PoolingMode
+) -> Tensor<S, E> where E: Numeric {
+  return pool(
+    batch: batch, windowSize: S(windowSize), strides: S(strides),
     padding: padding, mode: mode)
 }

@@ -90,7 +90,8 @@ where Shape: TensorShape, Element: StorageElement & FloatingPoint {
     //        let tensorShape = inData.layout != .matrix ? inData.shape :
     //            Shape(extent: [inData.rows, inData.cols, 1, 1], layout: .nchw)
 
-    xyTensorDescriptor = TensorDescriptor(x)
+    // TODO: set isBatch to true for now
+    xyTensorDescriptor = TensorDescriptor(x, true)
     y = Tensor(like: x)
   }
 

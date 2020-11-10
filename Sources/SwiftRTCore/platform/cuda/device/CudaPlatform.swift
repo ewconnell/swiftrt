@@ -436,7 +436,7 @@ public class DropoutDescriptor<S: TensorShape, E: StorageElement> {
     stream: CudaQueue,
     drop: Double,
     seed: UInt64,
-    tensorDesc: TensorDescriptor<S,E>
+    tensorDesc: TensorDescriptor<S, E>
   ) {
     // create the descriptor
     var temp: cudnnDropoutDescriptor_t?
@@ -541,18 +541,17 @@ public final class TensorDescriptor<S: TensorShape, E: StorageElement> {
   public let desc: cudnnTensorDescriptor_t
 
   //--------------------------------------------------------------------------
-  @inlinable public init(_ tensor: Tensor<S, E>) {
+  @inlinable public init(_ tensor: Tensor<S, E>, _ isBatch: Bool) {
     assert(S.rank <= CUDNN_DIM_MAX, "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
-
     // create the descriptor
     var temp: cudnnTensorDescriptor_t?
     cudaCheck(cudnnCreateTensorDescriptor(&temp))
     self.desc = temp!
 
-    // indent if needed
+    // indent or pad if needed
     if S.rank < 4 {
       rank = 4
-      let tensor4 = TensorR4<E>(indenting: tensor)
+      let tensor4 = isBatch ? TensorR4<E>(padding: tensor) : TensorR4<E>(indenting: tensor)
       cudaCheck(
         cudnnSetTensorNdDescriptor(
           desc,

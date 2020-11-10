@@ -285,9 +285,11 @@ where
     _ bias: Bias,
     _ mode: EvaluationMode
   ) {
-    xTensorDescriptor = TensorDescriptor(x)
+        // TODO: set isBatch to true for now
+
+    xTensorDescriptor = TensorDescriptor(x, true)
     filterDescriptor = FilterDescriptor(filter)
-    biasTensorDescriptor = TensorDescriptor(bias)
+    biasTensorDescriptor = TensorDescriptor(bias, true)
 
     //----------------------------------
     // create convolution descriptor
@@ -320,7 +322,7 @@ where
     // with the same scalarType for y as x
 
     // TODO: let yShape = Shape(yExtent.map(Int.init))
-    yTensorDescriptor = TensorDescriptor(x)
+    yTensorDescriptor = TensorDescriptor(x, true)
     selectForwardAlgorithm(x: x, properties: properties)
 
     if mode == .training {
