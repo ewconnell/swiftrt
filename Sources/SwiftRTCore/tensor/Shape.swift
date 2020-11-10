@@ -266,7 +266,7 @@ extension TensorShape {
 
 //==============================================================================
 // SIMD1
-extension SIMD1: TensorShape where Scalar == Int {
+extension SIMD1: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   //--------------------------------------------------------------------------
   // tuple initialization support
   public typealias Tuple = (Scalar)
@@ -277,6 +277,11 @@ extension SIMD1: TensorShape where Scalar == Int {
   public init(_ shape: Tuple) {
     self.init()
     self[0] = shape
+  }
+
+  @inlinable public init(integerLiteral value: Scalar) {
+    self.init()
+    self[0] = value
   }
 
   //--------------------------------------------------------------------------
@@ -308,7 +313,7 @@ extension SIMD1: TensorShape where Scalar == Int {
 
 //==============================================================================
 // SIMD2
-extension SIMD2: TensorShape where Scalar == Int {
+extension SIMD2: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   //--------------------------------------------------------------------------
   // tuple initialization support
   public typealias Tuple = (Scalar, Scalar)
@@ -320,6 +325,10 @@ extension SIMD2: TensorShape where Scalar == Int {
     self.init()
     self[0] = shape.0
     self[1] = shape.1
+  }
+
+  @inlinable public init(integerLiteral value: Scalar) {
+    self.init(repeating: value)
   }
 
   //--------------------------------------------------------------------------
@@ -361,7 +370,7 @@ extension SIMD2: TensorShape where Scalar == Int {
 
 //==============================================================================
 // SIMD3
-extension SIMD3: TensorShape where Scalar == Int {
+extension SIMD3: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   //--------------------------------------------------------------------------
   // tuple initialization support
   public typealias Tuple = (Scalar, Scalar, Scalar)
@@ -374,6 +383,10 @@ extension SIMD3: TensorShape where Scalar == Int {
     self[0] = shape.0
     self[1] = shape.1
     self[2] = shape.2
+  }
+
+  @inlinable public init(integerLiteral value: Scalar) {
+    self.init(repeating: value)
   }
 
   //--------------------------------------------------------------------------
@@ -415,7 +428,7 @@ extension SIMD3: TensorShape where Scalar == Int {
 
 //==============================================================================
 // SIMD4
-extension SIMD4: TensorShape where Scalar == Int {
+extension SIMD4: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   //--------------------------------------------------------------------------
   // tuple initialization support
   public typealias Tuple = (Scalar, Scalar, Scalar, Scalar)
@@ -429,6 +442,10 @@ extension SIMD4: TensorShape where Scalar == Int {
     self[1] = shape.1
     self[2] = shape.2
     self[3] = shape.3
+  }
+
+  @inlinable public init(integerLiteral value: Scalar) {
+    self.init(repeating: value)
   }
 
   //--------------------------------------------------------------------------
@@ -475,7 +492,7 @@ extension SIMD4: TensorShape where Scalar == Int {
 
 //==============================================================================
 // SIMD5
-extension SIMD5: TensorShape where Scalar == Int {
+extension SIMD5: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   //--------------------------------------------------------------------------
   // tuple initialization support
   public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar)
@@ -490,6 +507,10 @@ extension SIMD5: TensorShape where Scalar == Int {
     self[2] = shape.2
     self[3] = shape.3
     self[4] = shape.4
+  }
+
+  @inlinable public init(integerLiteral value: Scalar) {
+    self.init(repeating: value)
   }
 
   //--------------------------------------------------------------------------
@@ -541,7 +562,7 @@ extension SIMD5: TensorShape where Scalar == Int {
 
 //==============================================================================
 // SIMD6
-extension SIMD6: TensorShape where Scalar == Int {
+extension SIMD6: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   //--------------------------------------------------------------------------
   // tuple initialization support
   public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar, Scalar)
@@ -557,6 +578,10 @@ extension SIMD6: TensorShape where Scalar == Int {
     self[3] = shape.3
     self[4] = shape.4
     self[5] = shape.5
+  }
+
+  @inlinable public init(integerLiteral value: Scalar) {
+    self.init(repeating: value)
   }
 
   //--------------------------------------------------------------------------
