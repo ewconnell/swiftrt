@@ -14,14 +14,14 @@ add_library(SwiftRTCore
   operators/Comparative.swift
   operators/DifferentialOperators.swift
   operators/Fill.swift
+  operators/Fractals.swift
   operators/Gather.swift
   operators/Infix.swift
   operators/Kernel.swift
   operators/Math.swift
   operators/Matmul.swift
+  operators/Pool.swift
   operators/Reductions.swift
-  operators/Spatial.swift
-  operators/Fractals.swift
 
   platform/common/TempFloat16.swift
   platform/common/BFloat16.swift

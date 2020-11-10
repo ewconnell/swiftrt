@@ -10,10 +10,10 @@ add_library(SwiftRTCoreTests
   test_Initialize.swift
   test_Math.swift
   test_PackedElements.swift
+  test_Pool.swift
   test_Random.swift
   test_Reductions.swift
   test_Shape.swift
-  test_Spatial.swift
   test_StorageElement.swift
   test_Subscripting.swift
   test_VectorElement.swift

@@ -534,43 +534,65 @@ public final class LRNDescriptor {
 
 //==============================================================================
 /// TensorDescriptor
-/// creates and manages the lifetime of a cudnn tensor handle
+/// creates and manages the lifetime of a cudnn tensor descriptor handle
+/// The tensor format is assumed to be NHWC
+///
 public final class TensorDescriptor<S: TensorShape, E: StorageElement> {
-  // properties
-  public let rank: Int
+
   public let desc: cudnnTensorDescriptor_t
+
+  // the tensor descriptor rank is the data rank + 2
+  @inlinable public var rank: Int { S.rank + 2 }
 
   //--------------------------------------------------------------------------
   @inlinable public init(_ tensor: Tensor<S, E>, _ isBatch: Bool) {
     assert(S.rank <= CUDNN_DIM_MAX, "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
-    // create the descriptor
+    assert(S.rank > 1 || !isBatch, "batch tensors must be rank 2 or higher")
+
     var temp: cudnnTensorDescriptor_t?
     cudaCheck(cudnnCreateTensorDescriptor(&temp))
     self.desc = temp!
 
-    // indent or pad if needed
-    if S.rank < 4 {
-      rank = 4
-      let tensor4 = isBatch ? TensorR4<E>(padding: tensor) : TensorR4<E>(indenting: tensor)
+    func createDescriptor<DS, DE>(_ ndTensor: Tensor<DS, DE>) {
       cudaCheck(
         cudnnSetTensorNdDescriptor(
           desc,
           E.cudnn,
-          4,
-          tensor4.shape.asInt32,
-          tensor4.strides.asInt32))
-
-    } else {
-      rank = S.rank
-      cudaCheck(
-        cudnnSetTensorNdDescriptor(
-          desc,
-          E.cudnn,
-          Int32(rank),
-          tensor.shape.asInt32,
-          tensor.strides.asInt32))
+          Int32(DS.rank),
+          ndTensor.shape.asInt32,
+          ndTensor.strides.asInt32))
     }
 
+    if isBatch {
+      switch S.rank {
+      case 2:
+        let shape = Shape4(tensor.shape[0], 1, 1, tensor.shape[1])
+        createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
+
+      case 3:
+        let shape = Shape5(1, 1, tensor.shape[0], tensor.shape[1], tensor.shape[2])
+        createDescriptor(TensorR5<E>(shape: shape, order: tensor.order))
+
+      default: createDescriptor(tensor)
+      }
+
+    } else {
+      switch S.rank {
+      case 1:
+        let shape = Shape3(1, 1, tensor.shape[0])
+        createDescriptor(TensorR3<E>(shape: shape, order: tensor.order))
+
+      case 2:
+        let shape = Shape4(1, 1, tensor.shape[0], tensor.shape[1])
+        createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
+
+      case 3:
+        let shape = Shape5(1, 1, tensor.shape[0], tensor.shape[1], tensor.shape[2])
+        createDescriptor(TensorR5<E>(shape: shape, order: tensor.order))
+
+      default: createDescriptor(tensor)
+      }
+    }
   }
 
   //--------------------------------------------------------------------------

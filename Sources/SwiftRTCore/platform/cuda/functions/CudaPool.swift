@@ -20,6 +20,7 @@ import SwiftRTCuda
 // DeviceQueue functions with default cpu delegation
 extension CudaQueue {
   //--------------------------------------------------------------------------
+  // Scalar Element version
   @inlinable public func pool<S, E>(
     _ config: PoolingConfiguration<S, E>,
     _ x: Tensor<S, E>,
@@ -55,6 +56,45 @@ extension CudaQueue {
         out.deviceReadWrite(using: self)
       )
     )
+  }
+
+  //--------------------------------------------------------------------------
+  // Vector Element version
+  @inlinable public func pool<S, E>(
+    _ config: PoolingConfiguration<S, E>,
+    _ x: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E: VectorElement, E.Scalar: Numeric {
+    // var status: cudaError_t
+    // assert(out.isContiguous, _messageElementsMustBeContiguous)
+    // guard useGpu else {
+    //   cpu_pool(config, x, &out)
+    //   return
+    // }
+    // diagnostic(.queueGpu, "pool(\(x.name))", categories: .queueGpu)
+
+    // // constants
+    // var zero = E.zero
+    // var one = E.one
+
+    // cudaCheck(
+    //   cudnnPoolingForward(
+    //     cudnn.handle,
+    //     config.pooling.desc,
+    //     // alpha
+    //     &one,
+    //     // xDesc
+    //     config.xDesc.desc,
+    //     // x
+    //     x.deviceRead(using: self),
+    //     // beta
+    //     &zero,
+    //     // yDesc
+    //     config.outDesc.desc,
+    //     // y
+    //     out.deviceReadWrite(using: self)
+    //   )
+    // )
   }
 
 }  // CudaQueue
@@ -199,7 +239,7 @@ public final class CudaPoolingConfiguration<S: TensorShape, E: StorageElement> {
 
     pooling = PoolingDescriptor(
       mode: mode,
-      nan: .propagate,
+      nan: .noPropagate,
       windowSize: windowSize,
       padding: padding,
       strides: strides)

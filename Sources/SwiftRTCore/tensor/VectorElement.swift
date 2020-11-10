@@ -118,6 +118,13 @@ extension RGBA where Scalar: BinaryFloatingPoint {
   }
 }
 
+extension RGBA : ExpressibleByIntegerLiteral where Scalar: FixedWidthInteger {
+  @inlinable @_transparent
+  public init(integerLiteral value: Int) {
+    self.init(repeating: Scalar(value))
+  }
+}
+
 extension RGBA: AdditiveArithmetic where Scalar: FloatingPoint {}
 
 //==============================================================================
