@@ -100,9 +100,9 @@ class test_Spatial: XCTestCase {
         ])
 
         // same
-        let same = pool(
-          x: a, windowSize: (3, 3), strides: (1, 1), padding: .same, mode: .averagePadding)
+        let same = pool(x: a, windowSize: 3, padding: .same, mode: .averagePadding)
         print(same)
+
         XCTAssert(a.shape == same.shape)
         XCTAssert(
           same == [

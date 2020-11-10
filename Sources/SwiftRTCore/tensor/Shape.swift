@@ -279,7 +279,8 @@ extension SIMD1: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
     self[0] = shape
   }
 
-  @inlinable public init(integerLiteral value: Scalar) {
+  @inlinable @_transparent
+  public init(integerLiteral value: Scalar) {
     self.init()
     self[0] = value
   }
@@ -288,12 +289,13 @@ extension SIMD1: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   @inlinable @_transparent
   public static var rank: Int { 1 }
 
-  @inlinable public func elementCount() -> Int { self[0] }
+  @inlinable @_transparent
+  public func elementCount() -> Int { self[0] }
 
-  @inlinable public func sequentialStrides() -> Self { Self(1) }
+  @inlinable @_transparent
+  public func sequentialStrides() -> Self { Self(1) }
 
-  @inlinable
-  public func incremented(between lower: Self, and upper: Self) -> Self {
+  @inlinable public func incremented(between lower: Self, and upper: Self) -> Self {
     assert(self[0] >= lower[0])
     var next = self
     next[0] &+= 1
@@ -327,7 +329,8 @@ extension SIMD2: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
     self[1] = shape.1
   }
 
-  @inlinable public init(integerLiteral value: Scalar) {
+  @inlinable @_transparent
+  public init(integerLiteral value: Scalar) {
     self.init(repeating: value)
   }
 
@@ -335,12 +338,12 @@ extension SIMD2: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   @inlinable @_transparent
   public static var rank: Int { 2 }
 
-  @inlinable
+  @inlinable @_transparent
   public func elementCount() -> Int {
     self[0] &* self[1]
   }
 
-  @inlinable
+  @inlinable @_transparent
   public func sequentialStrides() -> Self {
     Self(self[1], 1)
   }
@@ -385,7 +388,8 @@ extension SIMD3: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
     self[2] = shape.2
   }
 
-  @inlinable public init(integerLiteral value: Scalar) {
+  @inlinable @_transparent
+  public init(integerLiteral value: Scalar) {
     self.init(repeating: value)
   }
 
@@ -444,7 +448,8 @@ extension SIMD4: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
     self[3] = shape.3
   }
 
-  @inlinable public init(integerLiteral value: Scalar) {
+  @inlinable @_transparent
+  public init(integerLiteral value: Scalar) {
     self.init(repeating: value)
   }
 
@@ -509,7 +514,8 @@ extension SIMD5: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
     self[4] = shape.4
   }
 
-  @inlinable public init(integerLiteral value: Scalar) {
+  @inlinable @_transparent
+  public init(integerLiteral value: Scalar) {
     self.init(repeating: value)
   }
 
@@ -580,7 +586,8 @@ extension SIMD6: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
     self[5] = shape.5
   }
 
-  @inlinable public init(integerLiteral value: Scalar) {
+  @inlinable @_transparent
+  public init(integerLiteral value: Scalar) {
     self.init(repeating: value)
   }
 
