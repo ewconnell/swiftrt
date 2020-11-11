@@ -544,39 +544,25 @@ public final class TensorDescriptor<S: TensorShape, E: StorageElement> {
   @inlinable public var rank: Int { S.rank + 2 }
 
   //----------------------------------------------------------------------------
-  // init
+  // init(_:
   // non batch case
   @inlinable public init(_ tensor: Tensor<S, E>) {
     assert(S.rank <= CUDNN_DIM_MAX, "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
 
-    var temp: cudnnTensorDescriptor_t?
-    cudaCheck(cudnnCreateTensorDescriptor(&temp))
-    self.desc = temp!
-
-    func createDescriptor<DS, DE>(_ ndTensor: Tensor<DS, DE>) {
-      cudaCheck(
-        cudnnSetTensorNdDescriptor(
-          desc,
-          E.cudnn,
-          Int32(DS.rank),
-          ndTensor.shape.asInt32,
-          ndTensor.strides.asInt32))
-    }
-
     switch S.rank {
     case 1:
       let shape = Shape3(1, 1, tensor.shape[0])
-      createDescriptor(TensorR3<E>(shape: shape, order: tensor.order))
+      desc = Self.createDescriptor(TensorR3<E>(shape: shape, order: tensor.order))
 
     case 2:
       let shape = Shape4(1, 1, tensor.shape[0], tensor.shape[1])
-      createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
+      desc = Self.createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
 
     case 3:
       let shape = Shape5(1, 1, tensor.shape[0], tensor.shape[1], tensor.shape[2])
-      createDescriptor(TensorR5<E>(shape: shape, order: tensor.order))
+      desc = Self.createDescriptor(TensorR5<E>(shape: shape, order: tensor.order))
 
-    default: createDescriptor(tensor)
+    default: desc = Self.createDescriptor(tensor)
     }
   }
 
@@ -586,31 +572,35 @@ public final class TensorDescriptor<S: TensorShape, E: StorageElement> {
     assert(S.rank <= CUDNN_DIM_MAX, "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
     assert(S.rank > 1, "batch tensors must be rank 2 or higher")
 
-    var temp: cudnnTensorDescriptor_t?
-    cudaCheck(cudnnCreateTensorDescriptor(&temp))
-    self.desc = temp!
-
-    func createDescriptor<DS, DE>(_ ndTensor: Tensor<DS, DE>) {
-      cudaCheck(
-        cudnnSetTensorNdDescriptor(
-          desc,
-          E.cudnn,
-          Int32(DS.rank),
-          ndTensor.shape.asInt32,
-          ndTensor.strides.asInt32))
-    }
-
     switch S.rank {
     case 2:
       let shape = Shape4(tensor.shape[0], 1, 1, tensor.shape[1])
-      createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
+      desc = Self.createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
 
     case 3:
       let shape = Shape5(1, 1, tensor.shape[0], tensor.shape[1], tensor.shape[2])
-      createDescriptor(TensorR5<E>(shape: shape, order: tensor.order))
+      desc = Self.createDescriptor(TensorR5<E>(shape: shape, order: tensor.order))
 
-    default: createDescriptor(tensor)
+    default: desc = Self.createDescriptor(tensor)
     }
+  }
+
+  @usableFromInline static func createDescriptor<DS, DE>(
+    _ ndTensor: Tensor<DS, DE>
+  ) -> cudnnTensorDescriptor_t {
+    var temp: cudnnTensorDescriptor_t!
+    cudaCheck(cudnnCreateTensorDescriptor(&temp))
+
+    cudaCheck(
+      cudnnSetTensorNdDescriptor(
+        temp,
+        DE.cudnn,
+        Int32(DS.rank),
+        ndTensor.shape.asInt32,
+        ndTensor.strides.asInt32
+      )
+    )
+    return temp
   }
 
   //--------------------------------------------------------------------------
