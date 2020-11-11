@@ -33,7 +33,6 @@ import Numerics
 /// PoolingConfigProtocol
 public protocol PoolingConfigProtocol {
   associatedtype Shape: TensorShape
-  associatedtype Element: StorageElement
 
   var outShape: Shape { get }
 }
@@ -134,7 +133,7 @@ public enum PoolingOp: Int, Codable {
     batch: batch, windowSize: windowSize,
     strides: strides, padding: padding, op: op)
 
-  var out = config.createOutput()
+  var out = Tensor<S, E>(shape: config.outShape, order: batch.order)
   currentQueue.pool(config, batch, &out)
   return out
 }
@@ -164,7 +163,7 @@ public enum PoolingOp: Int, Codable {
     batch: batch, windowSize: windowSize,
     strides: strides, padding: padding, op: op)
 
-  var out = config.createOutput()
+  var out = Tensor<S, E>(shape: config.outShape, order: batch.order)
   currentQueue.pool(config, batch, &out)
   return out
 }

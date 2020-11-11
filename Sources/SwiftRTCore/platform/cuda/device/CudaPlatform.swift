@@ -426,7 +426,7 @@ public final class CudnnHandle {
 
 //==============================================================================
 // DropoutDescriptor
-public class DropoutDescriptor<S: TensorShape, E: StorageElement> {
+public class DropoutDescriptor {
   // properties
   public let desc: cudnnDropoutDescriptor_t
   public let states: DeviceMemory
@@ -436,7 +436,7 @@ public class DropoutDescriptor<S: TensorShape, E: StorageElement> {
     stream: CudaQueue,
     drop: Double,
     seed: UInt64,
-    tensorDesc: TensorDescriptor<S, E>
+    tensorDesc: TensorDescriptor
   ) {
     // create the descriptor
     var temp: cudnnDropoutDescriptor_t?
@@ -537,17 +537,18 @@ public final class LRNDescriptor {
 /// creates and manages the lifetime of a cudnn tensor descriptor handle
 /// The tensor format is assumed to be NHWC
 ///
-public final class TensorDescriptor<S: TensorShape, E: StorageElement> {
+public final class TensorDescriptor {
   /// cudnn tensor descriptor
   public let desc: cudnnTensorDescriptor_t
   /// the cudnn tensor descriptor rank (data rank + 2)
-  @inlinable public var rank: Int { S.rank + 2 }
+  public let rank: Int
 
   //----------------------------------------------------------------------------
   // init(_:
   // non batch case
-  @inlinable public init(_ tensor: Tensor<S, E>) {
+  @inlinable public init<S,E>(_ tensor: Tensor<S, E>) {
     assert(S.rank <= CUDNN_DIM_MAX, "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
+    rank = S.rank + 2
 
     switch S.rank {
     case 1:
@@ -568,9 +569,10 @@ public final class TensorDescriptor<S: TensorShape, E: StorageElement> {
 
   //----------------------------------------------------------------------------
   // init(batch:
-  @inlinable public init(batch tensor: Tensor<S, E>) {
+  @inlinable public init<S,E>(batch tensor: Tensor<S, E>) {
     assert(S.rank <= CUDNN_DIM_MAX, "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
     assert(S.rank > 1, "batch tensors must be rank 2 or higher")
+    rank = S.rank + 1
 
     switch S.rank {
     case 2:
@@ -578,7 +580,11 @@ public final class TensorDescriptor<S: TensorShape, E: StorageElement> {
       desc = Self.createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
 
     case 3:
-      let shape = Shape5(1, 1, tensor.shape[0], tensor.shape[1], tensor.shape[2])
+      let shape = Shape4(tensor.shape[0], 1, tensor.shape[1], tensor.shape[2])
+      desc = Self.createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
+
+    case 4:
+      let shape = Shape5(tensor.shape[0], 1, tensor.shape[1], tensor.shape[2], tensor.shape[3])
       desc = Self.createDescriptor(TensorR5<E>(shape: shape, order: tensor.order))
 
     default: desc = Self.createDescriptor(tensor)

@@ -30,7 +30,7 @@ where Shape: TensorShape, Element: StorageElement & FloatingPoint {
 
   // properties
   public let activationDescriptor: ActivationDescriptor
-  public var xyTensorDescriptor: TensorDescriptor<Shape, Element>!
+  public var xyTensorDescriptor: TensorDescriptor!
   public let deviceQueue: CudaQueue
   public var inputShape: Shape
 

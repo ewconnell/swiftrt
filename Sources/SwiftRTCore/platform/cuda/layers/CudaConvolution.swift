@@ -79,10 +79,10 @@ where
   public let filterBiasBackQueue: CudaQueue
 
   public var convolutionDescriptor: ConvolutionDescriptor<Shape>!
-  public var xTensorDescriptor: TensorDescriptor<Shape, Element>!
-  public var yTensorDescriptor: TensorDescriptor<Shape, Element>!
+  public var xTensorDescriptor: TensorDescriptor!
+  public var yTensorDescriptor: TensorDescriptor!
   public var filterDescriptor: FilterDescriptor!
-  public var biasTensorDescriptor: TensorDescriptor<Shape1, FilterElement>!
+  public var biasTensorDescriptor: TensorDescriptor!
 
   // forward
   public var fwdAlgo: cudnnConvolutionFwdAlgo_t

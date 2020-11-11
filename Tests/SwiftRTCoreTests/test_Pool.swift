@@ -23,7 +23,7 @@ class test_Pool: XCTestCase {
   //==========================================================================
   // support terminal test run
   static var allTests = [
-    ("test_poolBatchAverage", test_poolBatchAverage),
+    ("test_poolBatchAverage2D", test_poolBatchAverage2D),
     ("test_poolAverage1D", test_poolAverage1D),
     ("test_poolAverage2D", test_poolAverage2D),
     ("test_poolAveragePadding", test_poolAveragePadding),
@@ -177,29 +177,25 @@ class test_Pool: XCTestCase {
   }
 
   //--------------------------------------------------------------------------
-  func test_poolBatchAverage() {
+  func test_poolBatchAverage2D() {
     #if canImport(SwiftRTCuda)
-      // 2D
-      do {
-        let a = array(0..<18, shape: (2, 3, 3))
-        let avg = pool(batch: a, windowSize: (3, 3), padding: (1, 1), op: .average)
-        print(avg)
-        XCTAssert(avg.shape == a.shape)
-        XCTAssert(
-          avg == [
-            [
-              [2.0, 2.5, 3.0],
-              [3.5, 4.0, 4.5],
-              [5.0, 5.5, 6.0],
-            ],
-            [
-              [2.0, 2.5, 3.0],
-              [3.5, 4.0, 4.5],
-              [5.0, 5.5, 6.0],
-            ],
-          ]
-        )
-      }
+      let a = array(0..<18, shape: (2, 3, 3))
+      let avg = pool(batch: a, windowSize: 3, padding: 1, op: .average)
+      XCTAssert(avg.shape == a.shape)
+      XCTAssert(
+        avg == [
+          [
+            [2.0, 2.5, 3.0],
+            [3.5, 4.0, 4.5],
+            [5.0, 5.5, 6.0],
+          ],
+          [
+            [11.0, 11.5, 12.0],
+            [12.5, 13.0, 13.5],
+            [14.0, 14.5, 15.0],
+          ],
+        ]
+      )
     #endif
   }
 
@@ -219,7 +215,7 @@ class test_Pool: XCTestCase {
       //   //     [5.0, 5.5, 6.0],
       //   //   ])
       // }
-      #endif
+    #endif
   }
 
   //--------------------------------------------------------------------------

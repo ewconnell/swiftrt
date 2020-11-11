@@ -74,17 +74,17 @@ extension CudaQueue {
     var one = E.one
     let status = cudnnPoolingForward(
       cudnn.handle,
-      config.pooling.desc,
+      config.poolingDesc,
       // alpha
       &one,
       // xDesc
-      config.xDesc.desc,
+      config.xTensorDescriptor,
       // x
       x.deviceRead(using: self),
       // beta
       &zero,
       // yDesc
-      config.outDesc.desc,
+      config.outTensorDescriptor,
       // y
       out.deviceReadWrite(using: self)
     )
@@ -109,17 +109,17 @@ extension CudaQueue {
     var one = E.Scalar.one
     let status = cudnnPoolingForward(
       cudnn.handle,
-      config.pooling.desc,
+      config.poolingDesc,
       // alpha
       &one,
       // xDesc
-      config.xDesc.desc,
+      config.xTensorDescriptor,
       // x
       x.deviceRead(using: self),
       // beta
       &zero,
       // yDesc
-      config.outDesc.desc,
+      config.outTensorDescriptor,
       // y
       out.deviceReadWrite(using: self)
     )
@@ -130,22 +130,25 @@ extension CudaQueue {
 //==============================================================================
 /// CudaPoolingConfigProtocol
 public protocol CudaPoolingConfigProtocol: PoolingConfigProtocol {
-  var pooling: PoolingDescriptor<Shape> { get }
-  var xDesc: TensorDescriptor<Shape, Element> { get }
-  var outDesc: TensorDescriptor<Shape, Element> { get }
+  var poolingDesc: cudnnPoolingDescriptor_t { get }
+  var xTensorDescriptor: cudnnTensorDescriptor_t { get }
+  var outTensorDescriptor: cudnnTensorDescriptor_t { get }
 }
 
 //==============================================================================
 /// CudaPoolingConfig
 ///
-public final class CudaPoolingConfig<Shape, Element> : CudaPoolingConfigProtocol
-  where Shape: TensorShape, Element: StorageElement
-{
+public final class CudaPoolingConfig<Shape, Element>: CudaPoolingConfigProtocol
+where Shape: TensorShape, Element: StorageElement {
   // properties
   public let pooling: PoolingDescriptor<Shape>
-  public let xDesc: TensorDescriptor<Shape, Element>
-  public let outDesc: TensorDescriptor<Shape, Element>
+  public let xDesc: TensorDescriptor
+  public let outDesc: TensorDescriptor
   public let outShape: Shape
+
+  @inlinable public var poolingDesc: cudnnPoolingDescriptor_t { pooling.desc }
+  @inlinable public var xTensorDescriptor: cudnnTensorDescriptor_t { xDesc.desc }
+  @inlinable public var outTensorDescriptor: cudnnTensorDescriptor_t { outDesc.desc }
 
   //----------------------------------------------------------------------------
   /// init(x:windowSize:strides:padding:op:
@@ -179,14 +182,16 @@ public final class CudaPoolingConfig<Shape, Element> : CudaPoolingConfigProtocol
 //==============================================================================
 /// CudaBatchPoolingConfig
 ///
-public final class CudaBatchPoolingConfig<Shape, Element> : CudaPoolingConfigProtocol
-  where Shape: TensorShape, Element: StorageElement
-{
-  public let pooling: PoolingDescriptor<Shape>
-  public let xDesc: TensorDescriptor<Shape, Element>
-  public let outDesc: TensorDescriptor<Shape, Element>
-  public let outOrder: Order
+public final class CudaBatchPoolingConfig<Shape, Element>: CudaPoolingConfigProtocol
+where Shape: TensorShape, Element: StorageElement {
+  public let pooling: PoolingDescriptor<Shape.M1>
+  public let xDesc: TensorDescriptor
+  public let outDesc: TensorDescriptor
   public let outShape: Shape
+
+  @inlinable public var poolingDesc: cudnnPoolingDescriptor_t { pooling.desc }
+  @inlinable public var xTensorDescriptor: cudnnTensorDescriptor_t { xDesc.desc }
+  @inlinable public var outTensorDescriptor: cudnnTensorDescriptor_t { outDesc.desc }
 
   //----------------------------------------------------------------------------
   /// init(x:windowSize:strides:padding:op:
@@ -197,45 +202,32 @@ public final class CudaBatchPoolingConfig<Shape, Element> : CudaPoolingConfigPro
     padding: Shape.M1 = Shape.M1.zero,
     op: PoolingOp
   ) {
+    // get the shape of a single item
+    var itemShape = Shape.M1.zero
+    for i in 0..<Shape.M1.rank {
+      itemShape[i] = batch.shape[i+1]
+    }
+    assert(windowSize <= itemShape &+ padding, "windowSize must be <= size x + padding")
 
-    // assert(windowSize <= x.shape &+ padding, "windowSize must be <= size x + padding")
-    fatalError()
+    pooling = PoolingDescriptor(
+      op: op,
+      nan: .noPropagate,
+      windowSize: windowSize,
+      padding: padding,
+      strides: strides)
 
-    // pooling = PoolingDescriptor(
-    //   op: op,
-    //   nan: .noPropagate,
-    //   windowSize: windowSize,
-    //   padding: padding,
-    //   strides: strides)
+    // create input descriptor indenting dimensions with 1 as needed
+    xDesc = TensorDescriptor(batch: batch)
 
-    // // create input descriptor indenting dimensions with 1 as needed
-    // xDesc = TensorDescriptor(x, false)
+    // compute the batch shape
+    let outItemShape = 1 &+ (itemShape &+ 2 &* padding &- windowSize) / strides
+    var batchShape = batch.shape
+    for i in 0..<Shape.M1.rank {
+      batchShape[i+1] = outItemShape[i]
+    }
+    outShape = batchShape
 
-    // // get the output shape
-    // var shape32 = [Int32](repeating: 0, count: xDesc.rank)
-    // cudaCheck(
-    //   cudnnGetPoolingNdForwardOutputDim(
-    //     pooling.desc,
-    //     xDesc.desc,
-    //     Int32(xDesc.rank),
-    //     &shape32
-    //   )
-    // )
-
-    // // cudnn insists on ranks being 4 to 8, so skip leading 1s for lower ranks
-    // var s = Shape.zero
-    // let base = xDesc.rank > Shape.rank ? xDesc.rank - Shape.rank : 0
-    // for i in 0..<Shape.rank {
-    //   s[i] = Int(shape32[base + i])
-    // }
-    // outShape = s
-
-    // // create output descriptor
-    // outOrder = x.order
-    // outDesc = TensorDescriptor(Tensor<Shape, E>(shape: outShape, order: outOrder), false)
-  }
-
-  @inlinable public func createOutput() -> Tensor<Shape, Element> {
-    Tensor<Shape, Element>(shape: outShape, order: outOrder)
+    // create output descriptor
+    outDesc = TensorDescriptor(batch: Tensor<Shape, Element>(shape: outShape, order: batch.order))
   }
 }
