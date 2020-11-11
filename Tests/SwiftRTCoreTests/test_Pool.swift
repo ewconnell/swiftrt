@@ -38,7 +38,7 @@ class test_Pool: XCTestCase {
     #if canImport(SwiftRTCuda)
       typealias Pixel = RGBA<UInt8>
       let pixels = array([Pixel(0), Pixel(1), Pixel(2), Pixel(3), Pixel(4), Pixel(5)])
-      let avg = pool(x: pixels, windowSize: 3, padding: .same, mode: .average)
+      let avg = pool(x: pixels, windowSize: 3, padding: 1, op: .average)
       print(avg)
       XCTAssert(avg.shape == pixels.shape)
     // XCTAssert(
@@ -60,7 +60,7 @@ class test_Pool: XCTestCase {
         [Pixel(6), Pixel(7), Pixel(8)],
       ])
 
-      let avg = pool(x: image, windowSize: 3, padding: .same, mode: .average)
+      let avg = pool(x: image, windowSize: 3, padding: 1, op: .average)
       print(avg)
       XCTAssert(avg.shape == image.shape)
     // XCTAssert(
@@ -89,7 +89,7 @@ class test_Pool: XCTestCase {
         ],
       ])
 
-      let avg = pool(x: volume, windowSize: 3, padding: .same, mode: .average)
+      let avg = pool(x: volume, windowSize: 3, padding: 1, op: .average)
       print(avg)
       XCTAssert(avg.shape == volume.shape)
     // XCTAssert(
@@ -118,7 +118,7 @@ class test_Pool: XCTestCase {
         ],
       ])
 
-      let avg = pool(batch: images, windowSize: 3, padding: .same, mode: .average)
+      let avg = pool(batch: images, windowSize: 3, padding: 1, op: .average)
       print(avg)
       XCTAssert(avg.shape == images.shape)
     // XCTAssert(
@@ -163,7 +163,7 @@ class test_Pool: XCTestCase {
         ],
       ])
 
-      let avg = pool(batch: volumes, windowSize: 3, padding: .same, mode: .average)
+      let avg = pool(batch: volumes, windowSize: 3, padding: 1, op: .average)
       print(avg)
       XCTAssert(avg.shape == volumes.shape)
     // XCTAssert(
@@ -181,16 +181,23 @@ class test_Pool: XCTestCase {
       // 2D
       do {
         let a = array(0..<18, shape: (2, 3, 3))
-
-        let avg = pool(batch: a, windowSize: (3, 3), padding: .same, mode: .average)
+        let avg = pool(batch: a, windowSize: (3, 3), padding: (1, 1), op: .average)
         print(avg)
         XCTAssert(avg.shape == a.shape)
-        // XCTAssert(
-        //   same == [
-        //     [2.0, 2.5, 3.0],
-        //     [3.5, 4.0, 4.5],
-        //     [5.0, 5.5, 6.0],
-        //   ])
+        XCTAssert(
+          avg == [
+            [
+              [2.0, 2.5, 3.0],
+              [3.5, 4.0, 4.5],
+              [5.0, 5.5, 6.0],
+            ],
+            [
+              [2.0, 2.5, 3.0],
+              [3.5, 4.0, 4.5],
+              [5.0, 5.5, 6.0],
+            ],
+          ]
+        )
       }
     #endif
   }
@@ -201,7 +208,7 @@ class test_Pool: XCTestCase {
       // 1D cudnn does not support this
       // do {
       //   let a = array(0..<6)
-      //   let avg = pool(x: a, windowSize: 3, padding: .valid, mode: .average)
+      //   let avg = pool(x: a, windowSize: 3, padding: .valid, op: .average)
       //   XCTAssert(avg.shape == a.shape)
       //   print(avg)
       //   // XCTAssert(
@@ -221,7 +228,7 @@ class test_Pool: XCTestCase {
         ])
 
         // same
-        let same = pool(x: a, windowSize: 3, strides: 1, padding: .same, mode: .average)
+        let same = pool(x: a, windowSize: 3, strides: 1, padding: 1, op: .average)
         XCTAssert(a.shape == same.shape)
         XCTAssert(
           same == [
@@ -231,12 +238,11 @@ class test_Pool: XCTestCase {
           ])
 
         // default is strides 1 padding 0
-        let valid = pool(x: a, windowSize: 3, mode: .average)
+        let valid = pool(x: a, windowSize: 3, op: .average)
         XCTAssert(valid == [[4.0]])
 
         // using a configuration
-        let config = PoolingConfiguration(
-          x: a, windowSize: (3, 3), strides: (1, 1), padding: .valid, mode: .average)
+        let config = PoolingConfig(x: a, windowSize: Shape2(3, 3), op: .average)
         var out = config.createOutput()
         currentQueue.pool(config, a, &out)
         XCTAssert(out == [[4.0]])
@@ -246,7 +252,7 @@ class test_Pool: XCTestCase {
         let a = array(0..<25, shape: (5, 5))
 
         // same
-        let same = pool(x: a, windowSize: (5, 5), padding: .same, mode: .average)
+        let same = pool(x: a, windowSize: 5, padding: 2, op: .average)
         XCTAssert(a.shape == same.shape)
         let expsame = array([
           [6.0, 6.5, 7.0, 7.5, 8.0],
@@ -258,12 +264,11 @@ class test_Pool: XCTestCase {
         XCTAssert(almostEqual(same, expsame, tolerance: 0.001))
 
         // valid
-        let valid = pool(x: a, windowSize: 5, padding: 0, mode: .average)
+        let valid = pool(x: a, windowSize: 5, op: .average)
         XCTAssert(valid == [[12.0]])
 
         // using a configuration
-        let config = PoolingConfiguration(
-          x: a, windowSize: (5, 5), strides: (1, 1), padding: .valid, mode: .average)
+        let config = PoolingConfig(x: a, windowSize: 5, op: .average)
         var out = config.createOutput()
         currentQueue.pool(config, a, &out)
         XCTAssert(out == [[12.0]])
@@ -277,7 +282,7 @@ class test_Pool: XCTestCase {
       // 3D
       do {
         let a = ones(shape: (3, 3, 3))
-        let avg = pool(x: a, windowSize: (1, 3, 1), padding: .same, mode: .averagePadding)
+        let avg = pool(x: a, windowSize: (1, 3, 1), padding: (1, 1, 1), op: .averagePadding)
         print(avg)
         XCTAssert(avg.shape == a.shape)
         let expavg = array([
@@ -304,7 +309,7 @@ class test_Pool: XCTestCase {
         ])
 
         // same
-        let same = pool(x: a, windowSize: 3, padding: .same, mode: .averagePadding)
+        let same = pool(x: a, windowSize: 3, padding: 1, op: .averagePadding)
         XCTAssert(a.shape == same.shape)
         XCTAssert(
           almostEqual(
@@ -317,13 +322,11 @@ class test_Pool: XCTestCase {
             tolerance: 0.001))
 
         // valid
-        let valid = pool(
-          x: a, windowSize: (3, 3), strides: (1, 1), padding: .valid, mode: .averagePadding)
+        let valid = pool(x: a, windowSize: 3, op: .averagePadding)
         XCTAssert(valid == [[4.0]])
 
         // using a configuration
-        let config = PoolingConfiguration(
-          x: a, windowSize: (3, 3), strides: (1, 1), padding: .valid, mode: .averagePadding)
+        let config = PoolingConfig(x: a, windowSize: 3, op: .averagePadding)
         var out = config.createOutput()
         currentQueue.pool(config, a, &out)
         XCTAssert(out == [[4.0]])
@@ -333,8 +336,7 @@ class test_Pool: XCTestCase {
         let a = array(0..<25, shape: (5, 5))
 
         // same
-        let same = pool(
-          x: a, windowSize: (5, 5), strides: (1, 1), padding: .same, mode: .averagePadding)
+        let same = pool(x: a, windowSize: 5, padding: 1, op: .averagePadding)
         XCTAssert(a.shape == same.shape)
         let expsame = array([
           [2.1599998, 3.12, 4.2, 3.6, 2.8799999],
@@ -346,13 +348,11 @@ class test_Pool: XCTestCase {
         XCTAssert(almostEqual(same, expsame, tolerance: 0.001))
 
         // valid
-        let valid = pool(
-          x: a, windowSize: (5, 5), strides: (1, 1), padding: .valid, mode: .averagePadding)
+        let valid = pool(x: a, windowSize: 5, op: .averagePadding)
         XCTAssert(valid == [[12.0]])
 
         // using a configuration
-        let config = PoolingConfiguration(
-          x: a, windowSize: (5, 5), strides: (1, 1), padding: .valid, mode: .averagePadding)
+        let config = PoolingConfig(x: a, windowSize: 5, op: .averagePadding)
         var out = config.createOutput()
         currentQueue.pool(config, a, &out)
         XCTAssert(out == [[12.0]])
@@ -370,7 +370,7 @@ class test_Pool: XCTestCase {
       ])
 
       // same
-      let same = pool(x: a, windowSize: (3, 3), strides: (1, 1), padding: .same, mode: .max)
+      let same = pool(x: a, windowSize: 3, padding: 1, op: .max)
       XCTAssert(a.shape == same.shape)
       XCTAssert(
         same == [
@@ -380,7 +380,7 @@ class test_Pool: XCTestCase {
         ])
 
       // valid
-      let valid = pool(x: a, windowSize: (3, 3), strides: (1, 1), padding: .valid, mode: .max)
+      let valid = pool(x: a, windowSize: 3, op: .max)
       XCTAssert(valid == [[8.0]])
     #endif
   }

@@ -22,7 +22,7 @@ import Numerics
 extension CpuQueue {
   //--------------------------------------------------------------------------
   @inlinable public func pool<S, E>(
-    _ config: PoolingConfiguration<S, E>,
+    _ config: PoolingConfig<S, E>,
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E: Numeric {
@@ -35,11 +35,22 @@ extension CpuQueue {
 // Cpu device queue function implementations
 extension DeviceQueue {
   //--------------------------------------------------------------------------
-  @inlinable public func cpu_pool<S, E>(
-    _ config: PoolingConfiguration<S, E>,
+  @inlinable public func cpu_pool<Config,S, E>(
+    _ config: Config,
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
-  ) where E: Numeric {
+  ) where Config: PoolingConfigProtocol, E: Numeric {
+    fatalError("cpu_pool not implemented yet")
+    // diagnostic(.queueCpu, "pool(\(x.name))", categories: .queueCpu)
+
+  }
+  
+  //--------------------------------------------------------------------------
+  @inlinable public func cpu_pool<Config,S, E>(
+    _ config: Config,
+    _ x: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where Config: PoolingConfigProtocol, E: VectorElement, E.Scalar: Numeric {
     fatalError("cpu_pool not implemented yet")
     // diagnostic(.queueCpu, "pool(\(x.name))", categories: .queueCpu)
 
@@ -47,7 +58,7 @@ extension DeviceQueue {
 }
 
 //==============================================================================
-public final class CpuPoolingConfiguration<Shape: TensorShape, E: StorageElement> {
+public final class CpuPoolingConfig<Shape: TensorShape, E: StorageElement> {
 
   public let outOrder: Order
   public let outShape: Shape
@@ -59,10 +70,10 @@ public final class CpuPoolingConfiguration<Shape: TensorShape, E: StorageElement
     windowSize: Shape.Tuple,
     strides: Shape.Tuple,
     padding: Padding,
-    mode: PoolingMode
+    op: PoolingOp
   ) {
     self.init(x: x, windowSize: Shape(windowSize), 
-      strides: Shape(strides), padding: padding, mode: mode)
+      strides: Shape(strides), padding: padding, op: op)
   }
 
   @inlinable public convenience init(
@@ -70,10 +81,10 @@ public final class CpuPoolingConfiguration<Shape: TensorShape, E: StorageElement
     windowSize: Shape.Tuple,
     strides: Shape.Tuple,
     padding: Shape.Tuple,
-    mode: PoolingMode
+    op: PoolingOp
   ) {
     self.init(x: x, windowSize: Shape(windowSize), 
-      strides: Shape(strides), padding: Shape(padding), mode: mode)
+      strides: Shape(strides), padding: Shape(padding), op: op)
   }
 
   //----------------------------------------------------------------------------
@@ -84,10 +95,10 @@ public final class CpuPoolingConfiguration<Shape: TensorShape, E: StorageElement
     windowSize: Shape,
     strides: Shape,
     padding: Padding,
-    mode: PoolingMode
+    op: PoolingOp
   ) {
     let pad = Shape.zero
-    self.init(x: x, windowSize: windowSize, strides: strides, padding: pad, mode: mode)
+    self.init(x: x, windowSize: windowSize, strides: strides, padding: pad, op: op)
   }
 
   //----------------------------------------------------------------------------
@@ -96,7 +107,7 @@ public final class CpuPoolingConfiguration<Shape: TensorShape, E: StorageElement
     windowSize: Shape,
     strides: Shape,
     padding: Shape,
-    mode: PoolingMode
+    op: PoolingOp
   ) {
     outOrder = x.order
     outShape = x.shape

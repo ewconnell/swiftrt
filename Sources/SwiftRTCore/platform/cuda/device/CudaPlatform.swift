@@ -311,8 +311,8 @@ extension Tensor {
 }
 
 //==============================================================================
-// PoolingMode extension
-extension PoolingMode {
+// PoolingOp extension
+extension PoolingOp {
   @inlinable public var cudnn: cudnnPoolingMode_t {
     switch self {
     case .average: return CUDNN_POOLING_AVERAGE_COUNT_EXCLUDE_PADDING
