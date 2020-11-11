@@ -108,9 +108,9 @@ public enum PoolingMode: Int, Codable {
 // batched version
 @inlinable public func pool<S, E>(
   batch: Tensor<S, E>,
-  windowSize: S,
-  strides: S = S.one,
-  padding: S = S.zero,
+  windowSize: S.M1,
+  strides: S.M1 = S.M1.one,
+  padding: S.M1 = S.M1.zero,
   mode: PoolingMode
 ) -> Tensor<S, E> where E: Numeric {
   let config = PoolingConfiguration(
@@ -122,23 +122,23 @@ public enum PoolingMode: Int, Codable {
 
 @inlinable public func pool<S, E>(
   batch: Tensor<S, E>,
-  windowSize: S.Tuple,
-  strides: S.Tuple = S.oneTuple,
-  padding: S.Tuple = S.zeroTuple,
+  windowSize: S.M1.Tuple,
+  strides: S.M1.Tuple = S.M1.oneTuple,
+  padding: S.M1.Tuple = S.M1.zeroTuple,
   mode: PoolingMode
 ) -> Tensor<S, E> where E: Numeric {
   return pool(
-    batch: batch, windowSize: S(windowSize), strides: S(strides),
-    padding: S(padding), mode: mode)
+    batch: batch, windowSize: S.M1(windowSize), strides: S.M1(strides),
+    padding: S.M1(padding), mode: mode)
 }
 
 //--------------------------------------
 // batched vector element version
 @inlinable public func pool<S, E>(
   batch: Tensor<S, E>,
-  windowSize: S,
-  strides: S = S.one,
-  padding: S = S.zero,
+  windowSize: S.M1,
+  strides: S.M1 = S.M1.one,
+  padding: S.M1 = S.M1.zero,
   mode: PoolingMode
 ) -> Tensor<S, E> where E: VectorElement, E.Scalar: Numeric {
   let config = PoolingConfiguration(
@@ -150,14 +150,14 @@ public enum PoolingMode: Int, Codable {
 
 @inlinable public func pool<S, E>(
   batch: Tensor<S, E>,
-  windowSize: S.Tuple,
-  strides: S.Tuple = S.oneTuple,
-  padding: S.Tuple = S.zeroTuple,
+  windowSize: S.M1.Tuple,
+  strides: S.M1.Tuple = S.M1.oneTuple,
+  padding: S.M1.Tuple = S.M1.zeroTuple,
   mode: PoolingMode
 ) -> Tensor<S, E> where E: VectorElement, E.Scalar: Numeric {
   return pool(
-    batch: batch, windowSize: S(windowSize), strides: S(strides),
-    padding: S(padding), mode: mode)
+    batch: batch, windowSize: S.M1(windowSize), strides: S.M1(strides),
+    padding: S.M1(padding), mode: mode)
 }
 
 //------------------------------------------------------------------------------
@@ -220,8 +220,8 @@ public enum PoolingMode: Int, Codable {
 // batched version
 @inlinable public func pool<S, E>(
   batch: Tensor<S, E>,
-  windowSize: S,
-  strides: S = S.one,
+  windowSize: S.M1,
+  strides: S.M1 = S.M1.one,
   padding: Padding,
   mode: PoolingMode
 ) -> Tensor<S, E> where E: Numeric {
@@ -234,13 +234,13 @@ public enum PoolingMode: Int, Codable {
 
 @inlinable public func pool<S, E>(
   batch: Tensor<S, E>,
-  windowSize: S.Tuple,
-  strides: S.Tuple = S.oneTuple,
+  windowSize: S.M1.Tuple,
+  strides: S.M1.Tuple = S.M1.oneTuple,
   padding: Padding,
   mode: PoolingMode
 ) -> Tensor<S, E> where E: Numeric {
   return pool(
-    batch: batch, windowSize: S(windowSize), strides: S(strides),
+    batch: batch, windowSize: S.M1(windowSize), strides: S.M1(strides),
     padding: padding, mode: mode)
 }
 
@@ -248,8 +248,8 @@ public enum PoolingMode: Int, Codable {
 // batched vector element version
 @inlinable public func pool<S, E>(
   batch: Tensor<S, E>,
-  windowSize: S,
-  strides: S = S.one,
+  windowSize: S.M1,
+  strides: S.M1 = S.M1.one,
   padding: Padding,
   mode: PoolingMode
 ) -> Tensor<S, E> where E: VectorElement, E.Scalar: Numeric {
@@ -262,12 +262,12 @@ public enum PoolingMode: Int, Codable {
 
 @inlinable public func pool<S, E>(
   batch: Tensor<S, E>,
-  windowSize: S.Tuple,
-  strides: S.Tuple = S.oneTuple,
+  windowSize: S.M1.Tuple,
+  strides: S.M1.Tuple = S.M1.oneTuple,
   padding: Padding,
   mode: PoolingMode
 ) -> Tensor<S, E> where E: VectorElement, E.Scalar: Numeric {
   return pool(
-    batch: batch, windowSize: S(windowSize), strides: S(strides),
+    batch: batch, windowSize: S.M1(windowSize), strides: S.M1(strides),
     padding: padding, mode: mode)
 }

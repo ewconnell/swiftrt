@@ -142,26 +142,26 @@ public final class CudaPoolingConfiguration<S: TensorShape, E: StorageElement> {
   // batch version
   @inlinable public convenience init(
     batch: Tensor<S, E>,
-    windowSize: S.Tuple,
-    strides: S.Tuple = S.oneTuple,
+    windowSize: S.M1.Tuple,
+    strides: S.M1.Tuple = S.M1.oneTuple,
     padding: Padding,
     mode: PoolingMode
   ) {
     self.init(
-      batch: batch, windowSize: S(windowSize),
-      strides: S(strides), padding: padding, mode: mode)
+      batch: batch, windowSize: S.M1(windowSize),
+      strides: S.M1(strides), padding: padding, mode: mode)
   }
 
   @inlinable public convenience init(
     batch: Tensor<S, E>,
-    windowSize: S.Tuple,
-    strides: S.Tuple = S.oneTuple,
-    padding: S.Tuple = S.zeroTuple,
+    windowSize: S.M1.Tuple,
+    strides: S.M1.Tuple = S.M1.oneTuple,
+    padding: S.M1.Tuple = S.M1.zeroTuple,
     mode: PoolingMode
   ) {
     self.init(
-      batch: batch, windowSize: S(windowSize),
-      strides: S(strides), padding: S(padding), mode: mode)
+      batch: batch, windowSize: S.M1(windowSize),
+      strides: S.M1(strides), padding: S.M1(padding), mode: mode)
   }
 
   //----------------------------------------------------------------------------
@@ -182,50 +182,23 @@ public final class CudaPoolingConfiguration<S: TensorShape, E: StorageElement> {
   // batch version
   @inlinable public convenience init(
     batch: Tensor<S, E>,
-    windowSize: S,
-    strides: S = S.one,
+    windowSize: S.M1,
+    strides: S.M1 = S.M1.one,
     padding: Padding,
     mode: PoolingMode
   ) {
-    let pad = padding == .valid ? S.zero : windowSize / 2
+    let pad = padding == .valid ? S.M1.zero : windowSize / 2
     self.init(batch: batch, windowSize: windowSize, strides: strides, padding: pad, mode: mode)
   }
 
   //----------------------------------------------------------------------------
   /// init(x:windowSize:strides:padding:mode:
-  @inlinable public convenience init(
+  @inlinable public init(
     x: Tensor<S, E>,
     windowSize: S,
     strides: S = S.one,
     padding: S = S.zero,
     mode: PoolingMode
-  ) {
-    self.init(
-      x: x, windowSize: windowSize, strides: strides,
-      padding: padding, mode: mode, isBatch: false)
-  }
-
-  /// init(batch:windowSize:strides:padding:mode:
-  @inlinable public convenience init(
-    batch: Tensor<S, E>,
-    windowSize: S,
-    strides: S = S.one,
-    padding: S = S.zero,
-    mode: PoolingMode
-  ) {
-    self.init(
-      x: batch, windowSize: windowSize, strides: strides,
-      padding: padding, mode: mode, isBatch: true)
-  }
-
-  //----------------------------------------------------------------------------
-  @usableFromInline init(
-    x: Tensor<S, E>,
-    windowSize: S,
-    strides: S,
-    padding: S,
-    mode: PoolingMode,
-    isBatch: Bool
   ) {
     // if `pad` is .valid then size `x` must be >= `windowSize`
     assert(
@@ -245,7 +218,7 @@ public final class CudaPoolingConfiguration<S: TensorShape, E: StorageElement> {
       strides: strides)
 
     // create input descriptor indenting dimensions with 1 as needed
-    xDesc = TensorDescriptor(x, isBatch)
+    xDesc = TensorDescriptor(x, false)
 
     // get the output shape
     var shape32 = [Int32](repeating: 0, count: xDesc.rank)
@@ -268,7 +241,18 @@ public final class CudaPoolingConfiguration<S: TensorShape, E: StorageElement> {
 
     // create output descriptor
     outOrder = x.order
-    outDesc = TensorDescriptor(Tensor<S, E>(shape: outShape, order: outOrder), isBatch)
+    outDesc = TensorDescriptor(Tensor<S, E>(shape: outShape, order: outOrder), false)
+  }
+
+  /// init(batch:windowSize:strides:padding:mode:
+  @inlinable public init(
+    batch: Tensor<S, E>,
+    windowSize: S.M1,
+    strides: S.M1 = S.M1.one,
+    padding: S.M1 = S.M1.zero,
+    mode: PoolingMode
+  ) {
+    fatalError("not implemented")
   }
 
   @inlinable public func createOutput() -> Tensor<S, E> {

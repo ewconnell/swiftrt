@@ -19,8 +19,10 @@ import Foundation
 //==============================================================================
 // TensorShape
 public protocol TensorShape: SIMD where Scalar == Int {
-  // a ranked tuple convenience type used for api parameters
+  /// a ranked tuple convenience type used for api parameters
   associatedtype Tuple
+  /// the type of Shape.rank - 1
+  associatedtype M1: TensorShape
 
   /// conversion to Int32 to support drivers
   var asInt32: [Int32] { get }
@@ -270,6 +272,7 @@ extension SIMD1: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   //--------------------------------------------------------------------------
   // tuple initialization support
   public typealias Tuple = (Scalar)
+  public typealias M1 = Self
   public static var oneTuple: Tuple { (1) }
   public static var zeroTuple: Tuple { (0) }
 
@@ -319,6 +322,7 @@ extension SIMD2: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   //--------------------------------------------------------------------------
   // tuple initialization support
   public typealias Tuple = (Scalar, Scalar)
+  public typealias M1 = SIMD1<Scalar>
   public static var oneTuple: Tuple { (1, 1) }
   public static var zeroTuple: Tuple { (0, 0) }
 
@@ -377,6 +381,7 @@ extension SIMD3: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   //--------------------------------------------------------------------------
   // tuple initialization support
   public typealias Tuple = (Scalar, Scalar, Scalar)
+  public typealias M1 = SIMD2<Scalar>
   public static var oneTuple: Tuple { (1, 1, 1) }
   public static var zeroTuple: Tuple { (0, 0, 0) }
 
@@ -436,6 +441,7 @@ extension SIMD4: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   //--------------------------------------------------------------------------
   // tuple initialization support
   public typealias Tuple = (Scalar, Scalar, Scalar, Scalar)
+  public typealias M1 = SIMD3<Scalar>
   public static var oneTuple: Tuple { (1, 1, 1, 1) }
   public static var zeroTuple: Tuple { (0, 0, 0, 0) }
 
@@ -501,6 +507,7 @@ extension SIMD5: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   //--------------------------------------------------------------------------
   // tuple initialization support
   public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar)
+  public typealias M1 = SIMD4<Scalar>
   public static var oneTuple: Tuple { (1, 1, 1, 1, 1) }
   public static var zeroTuple: Tuple { (0, 0, 0, 0, 0) }
 
@@ -572,6 +579,7 @@ extension SIMD6: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
   //--------------------------------------------------------------------------
   // tuple initialization support
   public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar, Scalar)
+  public typealias M1 = SIMD5<Scalar>
   public static var oneTuple: Tuple { (1, 1, 1, 1, 1, 1) }
   public static var zeroTuple: Tuple { (0, 0, 0, 0, 0, 0) }
 

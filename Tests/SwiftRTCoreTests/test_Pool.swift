@@ -182,7 +182,8 @@ class test_Pool: XCTestCase {
       do {
         let a = array(0..<18, shape: (2, 3, 3))
 
-        let avg = pool(batch: a, windowSize: 3, padding: .same, mode: .average)
+        let avg = pool(batch: a, windowSize: (3, 3), padding: .same, mode: .average)
+        print(avg)
         XCTAssert(avg.shape == a.shape)
         // XCTAssert(
         //   same == [
@@ -275,8 +276,9 @@ class test_Pool: XCTestCase {
     #if canImport(SwiftRTCuda)
       // 3D
       do {
-        let a = ones(shape: (2, 3, 3))
-        let avg = pool(x: a, windowSize: 3, padding: .same, mode: .averagePadding)
+        let a = ones(shape: (3, 3, 3))
+        let avg = pool(x: a, windowSize: (1, 3, 1), padding: .same, mode: .averagePadding)
+        print(avg)
         XCTAssert(avg.shape == a.shape)
         let expavg = array([
           [
