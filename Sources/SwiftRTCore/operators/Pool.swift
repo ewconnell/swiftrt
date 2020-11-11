@@ -36,7 +36,6 @@ public protocol PoolingConfigProtocol {
   associatedtype Element: StorageElement
 
   var outShape: Shape { get }
-  var outOrder: Order { get }
 }
 
 //==============================================================================
@@ -72,10 +71,10 @@ public enum PoolingOp: Int, Codable {
   op: PoolingOp
 ) -> Tensor<S, E> where E: Numeric {
   let config = PoolingConfig(
-    x: x, windowSize: windowSize, 
+    x: x, windowSize: windowSize,
     strides: strides, padding: padding, op: op)
 
-  var out = config.createOutput()
+  var out = Tensor<S, E>(shape: config.outShape, order: x.order)
   currentQueue.pool(config, x, &out)
   return out
 }
@@ -102,10 +101,10 @@ public enum PoolingOp: Int, Codable {
   op: PoolingOp
 ) -> Tensor<S, E> where E: VectorElement, E.Scalar: Numeric {
   let config = PoolingConfig(
-    x: x, windowSize: windowSize, 
+    x: x, windowSize: windowSize,
     strides: strides, padding: padding, op: op)
 
-  var out = config.createOutput()
+  var out = Tensor<S, E>(shape: config.outShape, order: x.order)
   currentQueue.pool(config, x, &out)
   return out
 }
@@ -132,7 +131,7 @@ public enum PoolingOp: Int, Codable {
   op: PoolingOp
 ) -> Tensor<S, E> where E: Numeric {
   let config = BatchPoolingConfig(
-    batch: batch, windowSize: windowSize, 
+    batch: batch, windowSize: windowSize,
     strides: strides, padding: padding, op: op)
 
   var out = config.createOutput()
@@ -162,7 +161,7 @@ public enum PoolingOp: Int, Codable {
   op: PoolingOp
 ) -> Tensor<S, E> where E: VectorElement, E.Scalar: Numeric {
   let config = BatchPoolingConfig(
-    batch: batch, windowSize: windowSize, 
+    batch: batch, windowSize: windowSize,
     strides: strides, padding: padding, op: op)
 
   var out = config.createOutput()

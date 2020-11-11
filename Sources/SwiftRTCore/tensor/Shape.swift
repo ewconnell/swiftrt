@@ -73,6 +73,15 @@ public typealias Shape6 = SIMD6<Int>
 @usableFromInline let _messageInvalidShape = "shape dimensions must be greater than 0"
 
 //==============================================================================
+// TensorShape comparative
+extension TensorShape {
+  @inlinable public static func <= (lhs: Self, rhs: Self) -> Bool {
+    for i in 0..<rank { if lhs[i] > rhs[i] { return false } }
+    return true
+  }
+}
+
+//==============================================================================
 // TensorShape extensions
 extension TensorShape {
   //--------------------------------------------------------------------------

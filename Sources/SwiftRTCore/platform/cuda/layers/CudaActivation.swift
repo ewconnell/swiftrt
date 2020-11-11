@@ -91,7 +91,7 @@ where Shape: TensorShape, Element: StorageElement & FloatingPoint {
     //            Shape(extent: [inData.rows, inData.cols, 1, 1], layout: .nchw)
 
     // TODO: set isBatch to true for now
-    xyTensorDescriptor = TensorDescriptor(x, true)
+    xyTensorDescriptor = TensorDescriptor(x)
     y = Tensor(like: x)
   }
 

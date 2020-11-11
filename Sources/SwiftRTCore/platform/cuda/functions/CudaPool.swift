@@ -145,7 +145,6 @@ public final class CudaPoolingConfig<Shape, Element> : CudaPoolingConfigProtocol
   public let pooling: PoolingDescriptor<Shape>
   public let xDesc: TensorDescriptor<Shape, Element>
   public let outDesc: TensorDescriptor<Shape, Element>
-  public let outOrder: Order
   public let outShape: Shape
 
   //----------------------------------------------------------------------------
@@ -157,15 +156,7 @@ public final class CudaPoolingConfig<Shape, Element> : CudaPoolingConfigProtocol
     padding: Shape = Shape.zero,
     op: PoolingOp
   ) {
-    // if `pad` is .valid then size `x` must be >= `windowSize`
-    assert(
-      {
-        let inputShape = x.shape &+ padding
-        for i in 0..<Shape.rank {
-          if windowSize[i] > inputShape[i] { return false }
-        }
-        return true
-      }(), "input `x` plus `padding` must be >= the windowSize")
+    assert(windowSize <= x.shape &+ padding, "windowSize must be <= size x + padding")
 
     pooling = PoolingDescriptor(
       op: op,
@@ -174,35 +165,14 @@ public final class CudaPoolingConfig<Shape, Element> : CudaPoolingConfigProtocol
       padding: padding,
       strides: strides)
 
-    // create input descriptor indenting dimensions with 1 as needed
-    xDesc = TensorDescriptor(x, false)
+    // create input descriptor
+    xDesc = TensorDescriptor(x)
 
-    // get the output shape
-    var shape32 = [Int32](repeating: 0, count: xDesc.rank)
-    cudaCheck(
-      cudnnGetPoolingNdForwardOutputDim(
-        pooling.desc,
-        xDesc.desc,
-        Int32(xDesc.rank),
-        &shape32
-      )
-    )
+    // compute the output shape
+    outShape = 1 &+ (x.shape &+ 2 &* padding &- windowSize) / strides
 
-    // cudnn insists on ranks being 4 to 8, so skip leading 1s for lower ranks
-    var s = Shape.zero
-    let base = xDesc.rank > Shape.rank ? xDesc.rank - Shape.rank : 0
-    for i in 0..<Shape.rank {
-      s[i] = Int(shape32[base + i])
-    }
-    outShape = s
-
-    // create output descriptor
-    outOrder = x.order
-    outDesc = TensorDescriptor(Tensor<Shape, Element>(shape: outShape, order: outOrder), false)
-  }
-
-  @inlinable public func createOutput() -> Tensor<Shape, Element> {
-    Tensor<Shape, Element>(shape: outShape, order: outOrder)
+    // create the output descriptor
+    outDesc = TensorDescriptor(Tensor<Shape, Element>(shape: outShape, order: x.order))
   }
 }
 
@@ -227,16 +197,9 @@ public final class CudaBatchPoolingConfig<Shape, Element> : CudaPoolingConfigPro
     padding: Shape.M1 = Shape.M1.zero,
     op: PoolingOp
   ) {
+
+    // assert(windowSize <= x.shape &+ padding, "windowSize must be <= size x + padding")
     fatalError()
-    // // if `pad` is .valid then size `x` must be >= `windowSize`
-    // assert(
-    //   {
-    //     let inputShape = x.shape &+ padding
-    //     for i in 0..<Shape.rank {
-    //       if windowSize[i] > inputShape[i] { return false }
-    //     }
-    //     return true
-    //   }(), "input `x` plus `padding` must be >= the windowSize")
 
     // pooling = PoolingDescriptor(
     //   op: op,

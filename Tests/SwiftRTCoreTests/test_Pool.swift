@@ -24,7 +24,8 @@ class test_Pool: XCTestCase {
   // support terminal test run
   static var allTests = [
     ("test_poolBatchAverage", test_poolBatchAverage),
-    ("test_poolAverage", test_poolAverage),
+    ("test_poolAverage1D", test_poolAverage1D),
+    ("test_poolAverage2D", test_poolAverage2D),
     ("test_poolAveragePadding", test_poolAveragePadding),
     ("test_poolMax", test_poolMax),
     ("test_pool2DPixelAverage", test_pool2DPixelAverage),
@@ -203,7 +204,7 @@ class test_Pool: XCTestCase {
   }
 
   //--------------------------------------------------------------------------
-  func test_poolAverage() {
+  func test_poolAverage1D() {
     #if canImport(SwiftRTCuda)
       // 1D cudnn does not support this
       // do {
@@ -218,8 +219,12 @@ class test_Pool: XCTestCase {
       //   //     [5.0, 5.5, 6.0],
       //   //   ])
       // }
+      #endif
+  }
 
-      // 2D
+  //--------------------------------------------------------------------------
+  func test_poolAverage2D() {
+    #if canImport(SwiftRTCuda)
       do {
         let a = array([
           [0, 1, 2],
@@ -228,7 +233,7 @@ class test_Pool: XCTestCase {
         ])
 
         // same
-        let same = pool(x: a, windowSize: 3, strides: 1, padding: 1, op: .average)
+        let same = pool(x: a, windowSize: 3, padding: 1, op: .average)
         XCTAssert(a.shape == same.shape)
         XCTAssert(
           same == [
@@ -243,7 +248,7 @@ class test_Pool: XCTestCase {
 
         // using a configuration
         let config = PoolingConfig(x: a, windowSize: Shape2(3, 3), op: .average)
-        var out = config.createOutput()
+        var out = Tensor2(shape: config.outShape, order: a.order)
         currentQueue.pool(config, a, &out)
         XCTAssert(out == [[4.0]])
       }
@@ -269,7 +274,7 @@ class test_Pool: XCTestCase {
 
         // using a configuration
         let config = PoolingConfig(x: a, windowSize: 5, op: .average)
-        var out = config.createOutput()
+        var out = Tensor2(shape: config.outShape, order: a.order)
         currentQueue.pool(config, a, &out)
         XCTAssert(out == [[12.0]])
       }
@@ -327,7 +332,7 @@ class test_Pool: XCTestCase {
 
         // using a configuration
         let config = PoolingConfig(x: a, windowSize: 3, op: .averagePadding)
-        var out = config.createOutput()
+        var out = Tensor2(shape: config.outShape, order: a.order)
         currentQueue.pool(config, a, &out)
         XCTAssert(out == [[4.0]])
       }
@@ -353,7 +358,7 @@ class test_Pool: XCTestCase {
 
         // using a configuration
         let config = PoolingConfig(x: a, windowSize: 5, op: .averagePadding)
-        var out = config.createOutput()
+        var out = Tensor2(shape: config.outShape, order: a.order)
         currentQueue.pool(config, a, &out)
         XCTAssert(out == [[12.0]])
       }

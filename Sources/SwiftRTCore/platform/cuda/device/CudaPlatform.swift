@@ -538,16 +538,16 @@ public final class LRNDescriptor {
 /// The tensor format is assumed to be NHWC
 ///
 public final class TensorDescriptor<S: TensorShape, E: StorageElement> {
-
+  /// cudnn tensor descriptor
   public let desc: cudnnTensorDescriptor_t
-
-  // the tensor descriptor rank is the data rank + 2
+  /// the cudnn tensor descriptor rank (data rank + 2)
   @inlinable public var rank: Int { S.rank + 2 }
 
-  //--------------------------------------------------------------------------
-  @inlinable public init(_ tensor: Tensor<S, E>, _ isBatch: Bool) {
+  //----------------------------------------------------------------------------
+  // init
+  // non batch case
+  @inlinable public init(_ tensor: Tensor<S, E>) {
     assert(S.rank <= CUDNN_DIM_MAX, "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
-    assert(S.rank > 1 || !isBatch, "batch tensors must be rank 2 or higher")
 
     var temp: cudnnTensorDescriptor_t?
     cudaCheck(cudnnCreateTensorDescriptor(&temp))
@@ -563,69 +563,59 @@ public final class TensorDescriptor<S: TensorShape, E: StorageElement> {
           ndTensor.strides.asInt32))
     }
 
-    if isBatch {
-      switch S.rank {
-      case 2:
-        let shape = Shape4(tensor.shape[0], 1, 1, tensor.shape[1])
-        createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
+    switch S.rank {
+    case 1:
+      let shape = Shape3(1, 1, tensor.shape[0])
+      createDescriptor(TensorR3<E>(shape: shape, order: tensor.order))
 
-      case 3:
-        let shape = Shape5(1, 1, tensor.shape[0], tensor.shape[1], tensor.shape[2])
-        createDescriptor(TensorR5<E>(shape: shape, order: tensor.order))
+    case 2:
+      let shape = Shape4(1, 1, tensor.shape[0], tensor.shape[1])
+      createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
 
-      default: createDescriptor(tensor)
-      }
+    case 3:
+      let shape = Shape5(1, 1, tensor.shape[0], tensor.shape[1], tensor.shape[2])
+      createDescriptor(TensorR5<E>(shape: shape, order: tensor.order))
 
-    } else {
-      switch S.rank {
-      case 1:
-        let shape = Shape3(1, 1, tensor.shape[0])
-        createDescriptor(TensorR3<E>(shape: shape, order: tensor.order))
+    default: createDescriptor(tensor)
+    }
+  }
 
-      case 2:
-        let shape = Shape4(1, 1, tensor.shape[0], tensor.shape[1])
-        createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
+  //----------------------------------------------------------------------------
+  // init(batch:
+  @inlinable public init(batch tensor: Tensor<S, E>) {
+    assert(S.rank <= CUDNN_DIM_MAX, "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
+    assert(S.rank > 1, "batch tensors must be rank 2 or higher")
 
-      case 3:
-        let shape = Shape5(1, 1, tensor.shape[0], tensor.shape[1], tensor.shape[2])
-        createDescriptor(TensorR5<E>(shape: shape, order: tensor.order))
+    var temp: cudnnTensorDescriptor_t?
+    cudaCheck(cudnnCreateTensorDescriptor(&temp))
+    self.desc = temp!
 
-      default: createDescriptor(tensor)
-      }
+    func createDescriptor<DS, DE>(_ ndTensor: Tensor<DS, DE>) {
+      cudaCheck(
+        cudnnSetTensorNdDescriptor(
+          desc,
+          E.cudnn,
+          Int32(DS.rank),
+          ndTensor.shape.asInt32,
+          ndTensor.strides.asInt32))
+    }
+
+    switch S.rank {
+    case 2:
+      let shape = Shape4(tensor.shape[0], 1, 1, tensor.shape[1])
+      createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
+
+    case 3:
+      let shape = Shape5(1, 1, tensor.shape[0], tensor.shape[1], tensor.shape[2])
+      createDescriptor(TensorR5<E>(shape: shape, order: tensor.order))
+
+    default: createDescriptor(tensor)
     }
   }
 
   //--------------------------------------------------------------------------
   @inlinable deinit {
     cudaCheck(cudnnDestroyTensorDescriptor(desc))
-  }
-
-  //--------------------------------------------------------------------------
-  // getInfo
-  @inlinable public func getInfo()
-    -> (extent: [Int], strides: [Int], type: cudnnDataType_t)
-  {
-    let reqDims = Int(CUDNN_DIM_MAX)
-    var dims = [Int32](repeating: 0, count: reqDims)
-    var strides = [Int32](repeating: 0, count: reqDims)
-    var type = cudnnDataType_t(0)
-    var numDims: Int32 = 0
-
-    cudaCheck(
-      cudnnGetTensorNdDescriptor(
-        desc,
-        Int32(reqDims),
-        &type,
-        &numDims,
-        &dims,
-        &strides
-      ))
-
-    return (
-      dims[0..<Int(numDims)].map(Int.init),
-      strides[0..<Int(numDims)].map(Int.init),
-      type
-    )
   }
 }
 
