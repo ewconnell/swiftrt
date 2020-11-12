@@ -35,22 +35,22 @@ extension CpuQueue {
 // Cpu device queue function implementations
 extension DeviceQueue {
   //--------------------------------------------------------------------------
-  @inlinable public func cpu_pool<Config,S, E>(
-    _ config: Config,
+  @inlinable public func cpu_pool<S, E>(
+    _ config: PoolingConfig<S, E>,
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
-  ) where Config: PoolingConfigProtocol, E: Numeric {
+  ) where E: Numeric {
     fatalError("cpu_pool not implemented yet")
     // diagnostic(.queueCpu, "pool(\(x.name))", categories: .queueCpu)
 
   }
   
   //--------------------------------------------------------------------------
-  @inlinable public func cpu_pool<Config,S, E>(
-    _ config: Config,
+  @inlinable public func cpu_pool<S, E>(
+    _ config: PoolingConfig<S, E>,
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
-  ) where Config: PoolingConfigProtocol, E: VectorElement, E.Scalar: Numeric {
+  ) where E: VectorElement, E.Scalar: Numeric {
     fatalError("cpu_pool not implemented yet")
     // diagnostic(.queueCpu, "pool(\(x.name))", categories: .queueCpu)
 
@@ -60,46 +60,7 @@ extension DeviceQueue {
 //==============================================================================
 public final class CpuPoolingConfig<Shape: TensorShape, E: StorageElement> {
 
-  public let outOrder: Order
-  public let outShape: Shape
-
-  //----------------------------------------------------------------------------
-  // Tuple helpers
-  @inlinable public convenience init(
-    x: Tensor<Shape, E>,
-    windowSize: Shape.Tuple,
-    strides: Shape.Tuple,
-    padding: Padding,
-    op: PoolingOp
-  ) {
-    self.init(x: x, windowSize: Shape(windowSize), 
-      strides: Shape(strides), padding: padding, op: op)
-  }
-
-  @inlinable public convenience init(
-    x: Tensor<Shape, E>,
-    windowSize: Shape.Tuple,
-    strides: Shape.Tuple,
-    padding: Shape.Tuple,
-    op: PoolingOp
-  ) {
-    self.init(x: x, windowSize: Shape(windowSize), 
-      strides: Shape(strides), padding: Shape(padding), op: op)
-  }
-
-  //----------------------------------------------------------------------------
-  // Padding version for TF compatibility
-  // It converts to correct numeric padding and then delegates
-  @inlinable public convenience init(
-    x: Tensor<Shape, E>,
-    windowSize: Shape,
-    strides: Shape,
-    padding: Padding,
-    op: PoolingOp
-  ) {
-    let pad = Shape.zero
-    self.init(x: x, windowSize: windowSize, strides: strides, padding: pad, op: op)
-  }
+  public let shape: Shape
 
   //----------------------------------------------------------------------------
   @inlinable public init(
@@ -109,11 +70,6 @@ public final class CpuPoolingConfig<Shape: TensorShape, E: StorageElement> {
     padding: Shape,
     op: PoolingOp
   ) {
-    outOrder = x.order
-    outShape = x.shape
-  }
-
-  @inlinable public func createOutput() -> Tensor<Shape, E> {
-    Tensor<Shape, E>(shape: outShape, order: outOrder)
+    shape = x.shape
   }
 }

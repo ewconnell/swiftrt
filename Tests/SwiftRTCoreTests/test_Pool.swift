@@ -23,10 +23,12 @@ class test_Pool: XCTestCase {
   //==========================================================================
   // support terminal test run
   static var allTests = [
-    ("test_poolBatchAverage2D", test_poolBatchAverage2D),
     ("test_poolAverage1D", test_poolAverage1D),
     ("test_poolBatchAverage1D", test_poolBatchAverage1D),
     ("test_poolAverage2D", test_poolAverage2D),
+    ("test_poolBatchAverage2D", test_poolBatchAverage2D),
+    ("test_poolAverage3D", test_poolAverage3D),
+    ("test_poolBatchAverage3D", test_poolBatchAverage3D),
     ("test_poolAveragePadding", test_poolAveragePadding),
     ("test_poolMax", test_poolMax),
     ("test_pool2DPixelAverage", test_pool2DPixelAverage),
@@ -221,8 +223,130 @@ class test_Pool: XCTestCase {
   }
 
   //--------------------------------------------------------------------------
+  func test_poolAverage3D() {
+    #if canImport(SwiftRTCuda)
+      let a = array(0..<27, shape: (3, 3, 3))
+      let avgrow = pool(x: a, windowSize: (1, 1, 3), padding: (0, 0, 1), op: .average)
+      XCTAssert(
+        avgrow == [
+          [
+            [0.5, 1.0, 1.5],
+            [3.5, 4.0, 4.5],
+            [6.5, 7.0, 7.5],
+          ],
+          [
+            [9.5, 10.0, 10.5],
+            [12.5, 13.0, 13.5],
+            [15.5, 16.0, 16.5],
+          ],
+          [
+            [18.5, 19.0, 19.5],
+            [21.5, 22.0, 22.5],
+            [24.5, 25.0, 25.5],
+          ],
+        ])
+
+      let avgcol = pool(x: a, windowSize: (1, 3, 1), padding: (0, 1, 0), op: .average)
+      XCTAssert(
+        avgcol == [
+          [
+            [1.5, 2.5, 3.5],
+            [3.0, 4.0, 5.0],
+            [4.5, 5.5, 6.5],
+          ],
+          [
+            [10.5, 11.5, 12.5],
+            [12.0, 13.0, 14.0],
+            [13.5, 14.5, 15.5],
+          ],
+          [
+            [19.5, 20.5, 21.5],
+            [21.0, 22.0, 23.0],
+            [22.5, 23.5, 24.5],
+          ],
+        ])
+
+      let avgdepth = pool(x: a, windowSize: (1, 3, 3), padding: (0, 1, 1), op: .average)
+      XCTAssert(
+        avgdepth == [
+          [
+            [2.0, 2.5, 3.0],
+            [3.5, 4.0, 4.5],
+            [5.0, 5.5, 6.0],
+          ],
+          [
+            [11.0, 11.5, 12.0],
+            [12.5, 13.0, 13.5],
+            [14.0, 14.5, 15.0],
+          ],
+          [
+            [20.0, 20.5, 21.0],
+            [21.5, 22.0, 22.5],
+            [23.0, 23.5, 24.0],
+          ],
+        ])
+
+      let avgvolume = pool(x: a, windowSize: 3, padding: 1, op: .average)
+      XCTAssert(
+        avgvolume == [
+          [
+            [6.5, 7.0, 7.5],
+            [8.0, 8.5, 9.0],
+            [9.5, 10.0, 10.5],
+          ],
+          [
+            [11.0, 11.5, 12.0],
+            [12.5, 13.0, 13.5],
+            [14.0, 14.5, 15.0],
+          ],
+          [
+            [15.5, 16.0, 16.5],
+            [17.0, 17.5, 18.0],
+            [18.5, 19.0, 19.5],
+          ],
+        ])
+    #endif
+  }
+
+  //--------------------------------------------------------------------------
+  func test_poolBatchAverage3D() {
+    #if canImport(SwiftRTCuda)
+      let a = array(0..<54, shape: (2, 3, 3, 3))
+      let avg = pool(batch: a, windowSize: 3, padding: 1, op: .average)
+      XCTAssert(avg.shape == a.shape)
+      print(avg)
+    #endif
+  }
+
+  //--------------------------------------------------------------------------
   func test_poolAverage2D() {
     #if canImport(SwiftRTCuda)
+      // average rows
+      do {
+        let a = array(0..<9, shape: (3, 3))
+        let avg = pool(x: a, windowSize: (1, 3), padding: (0, 1), op: .average)
+        XCTAssert(avg.shape == a.shape)
+        XCTAssert(
+          avg == [
+            [0.5, 1.0, 1.5],
+            [3.5, 4.0, 4.5],
+            [6.5, 7.0, 7.5],
+          ])
+      }
+
+      // average cols
+      do {
+        let a = array(0..<9, shape: (3, 3))
+        let avg = pool(x: a, windowSize: (3, 1), padding: (1, 0), op: .average)
+        XCTAssert(avg.shape == a.shape)
+        XCTAssert(
+          avg == [
+            [1.5, 2.5, 3.5],
+            [3.0, 4.0, 5.0],
+            [4.5, 5.5, 6.5],
+          ])
+      }
+
       do {
         let a = array([
           [0, 1, 2],
@@ -246,7 +370,7 @@ class test_Pool: XCTestCase {
 
         // using a configuration
         let config = PoolingConfig(x: a, windowSize: Shape2(3, 3), op: .average)
-        var out = Tensor2(shape: config.outShape, order: a.order)
+        var out = Tensor2(shape: config.shape, order: a.order)
         currentQueue.pool(config, a, &out)
         XCTAssert(out == [[4.0]])
       }
@@ -272,7 +396,7 @@ class test_Pool: XCTestCase {
 
         // using a configuration
         let config = PoolingConfig(x: a, windowSize: 5, op: .average)
-        var out = Tensor2(shape: config.outShape, order: a.order)
+        var out = Tensor2(shape: config.shape, order: a.order)
         currentQueue.pool(config, a, &out)
         XCTAssert(out == [[12.0]])
       }
@@ -330,7 +454,7 @@ class test_Pool: XCTestCase {
 
         // using a configuration
         let config = PoolingConfig(x: a, windowSize: 3, op: .averagePadding)
-        var out = Tensor2(shape: config.outShape, order: a.order)
+        var out = Tensor2(shape: config.shape, order: a.order)
         currentQueue.pool(config, a, &out)
         XCTAssert(out == [[4.0]])
       }
@@ -356,7 +480,7 @@ class test_Pool: XCTestCase {
 
         // using a configuration
         let config = PoolingConfig(x: a, windowSize: 5, op: .averagePadding)
-        var out = Tensor2(shape: config.outShape, order: a.order)
+        var out = Tensor2(shape: config.shape, order: a.order)
         currentQueue.pool(config, a, &out)
         XCTAssert(out == [[12.0]])
       }

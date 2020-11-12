@@ -20,22 +20,10 @@ import Numerics
 #if canImport(SwiftRTCuda)
   public typealias PoolingConfig<S, E> = CudaPoolingConfig<S, E>
   where S: TensorShape, E: StorageElement
-
-  public typealias BatchPoolingConfig<S, E> = CudaBatchPoolingConfig<S, E>
-  where S: TensorShape, E: StorageElement
-
 #else
   public typealias PoolingConfig<S, E> = CpuPoolingConfig<S, E>
   where S: TensorShape, E: StorageElement
 #endif
-
-//==============================================================================
-/// PoolingConfigProtocol
-public protocol PoolingConfigProtocol {
-  associatedtype Shape: TensorShape
-
-  var outShape: Shape { get }
-}
 
 //==============================================================================
 /// PoolingOp
@@ -73,7 +61,7 @@ public enum PoolingOp: Int, Codable {
     x: x, windowSize: windowSize,
     strides: strides, padding: padding, op: op)
 
-  var out = Tensor<S, E>(shape: config.outShape, order: x.order)
+  var out = Tensor<S, E>(shape: config.shape, order: x.order)
   currentQueue.pool(config, x, &out)
   return out
 }
@@ -103,7 +91,7 @@ public enum PoolingOp: Int, Codable {
     x: x, windowSize: windowSize,
     strides: strides, padding: padding, op: op)
 
-  var out = Tensor<S, E>(shape: config.outShape, order: x.order)
+  var out = Tensor<S, E>(shape: config.shape, order: x.order)
   currentQueue.pool(config, x, &out)
   return out
 }
@@ -129,11 +117,11 @@ public enum PoolingOp: Int, Codable {
   padding: S.M1 = S.M1.zero,
   op: PoolingOp
 ) -> Tensor<S, E> where E: Numeric {
-  let config = BatchPoolingConfig(
+  let config = PoolingConfig(
     batch: batch, windowSize: windowSize,
     strides: strides, padding: padding, op: op)
 
-  var out = Tensor<S, E>(shape: config.outShape, order: batch.order)
+  var out = Tensor<S, E>(shape: config.shape, order: batch.order)
   currentQueue.pool(config, batch, &out)
   return out
 }
@@ -159,11 +147,11 @@ public enum PoolingOp: Int, Codable {
   padding: S.M1 = S.M1.zero,
   op: PoolingOp
 ) -> Tensor<S, E> where E: VectorElement, E.Scalar: Numeric {
-  let config = BatchPoolingConfig(
+  let config = PoolingConfig(
     batch: batch, windowSize: windowSize,
     strides: strides, padding: padding, op: op)
 
-  var out = Tensor<S, E>(shape: config.outShape, order: batch.order)
+  var out = Tensor<S, E>(shape: config.shape, order: batch.order)
   currentQueue.pool(config, batch, &out)
   return out
 }
