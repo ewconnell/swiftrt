@@ -29,6 +29,14 @@ extension CpuQueue {
     cpu_pool(config, x, &out)
   }
 
+  //--------------------------------------------------------------------------
+  @inlinable public func pool<S, E>(
+    _ config: PoolingConfig<S, E>,
+    _ x: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E: VectorElement, E.Scalar: Numeric {
+    cpu_pool(config, x, &out)
+  }
 }
 
 //==============================================================================
@@ -44,7 +52,7 @@ extension DeviceQueue {
     // diagnostic(.queueCpu, "pool(\(x.name))", categories: .queueCpu)
 
   }
-  
+
   //--------------------------------------------------------------------------
   @inlinable public func cpu_pool<S, E>(
     _ config: PoolingConfig<S, E>,
@@ -58,18 +66,31 @@ extension DeviceQueue {
 }
 
 //==============================================================================
-public final class CpuPoolingConfig<Shape: TensorShape, E: StorageElement> {
-
+public final class CpuPoolingConfig<Shape: TensorShape, Element: StorageElement> {
+  // properties
   public let shape: Shape
 
   //----------------------------------------------------------------------------
+  /// init(x:windowSize:strides:padding:op:
   @inlinable public init(
-    x: Tensor<Shape, E>,
+    x tensor: Tensor<Shape, Element>,
     windowSize: Shape,
-    strides: Shape,
-    padding: Shape,
+    strides: Shape = Shape.one,
+    padding: Shape = Shape.zero,
     op: PoolingOp
   ) {
-    shape = x.shape
+    shape = tensor.shape
+  }
+
+    //----------------------------------------------------------------------------
+  /// init(x:windowSize:strides:padding:op:
+  @inlinable public init(
+    batch: Tensor<Shape, Element>,
+    windowSize: Shape.M1,
+    strides: Shape.M1 = Shape.M1.one,
+    padding: Shape.M1 = Shape.M1.zero,
+    op: PoolingOp
+  ) {
+    shape = batch.shape
   }
 }
