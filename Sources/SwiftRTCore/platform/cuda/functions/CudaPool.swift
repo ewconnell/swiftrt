@@ -35,17 +35,32 @@ public final class PoolingDescriptor {
     cudaCheck(cudnnCreatePoolingDescriptor(&temp))
     desc = temp
 
-    cudaCheck(
-      cudnnSetPoolingNdDescriptor(
-        desc,
-        op.cudnn,
-        nan.cudnn,
-        Int32(Shape.rank),
-        windowSize.asInt32,
-        padding.asInt32,
-        strides.asInt32
+    // cudnn doesn't support rank 1, so bump it up to 2
+    if Shape.rank == 1 {
+      cudaCheck(
+        cudnnSetPoolingNdDescriptor(
+          desc,
+          op.cudnn,
+          nan.cudnn,
+          Int32(Shape.rank + 1),
+          [1] + windowSize.asInt32,
+          [0] + padding.asInt32,
+          [1] + strides.asInt32
+        )
       )
-    )
+    } else {
+      cudaCheck(
+        cudnnSetPoolingNdDescriptor(
+          desc,
+          op.cudnn,
+          nan.cudnn,
+          Int32(Shape.rank),
+          windowSize.asInt32,
+          padding.asInt32,
+          strides.asInt32
+        )
+      )
+    }
   }
 
   deinit {

@@ -548,22 +548,26 @@ public final class TensorDescriptor {
   // non batch case
   @inlinable public init<S,E>(_ tensor: Tensor<S, E>) {
     assert(S.rank <= CUDNN_DIM_MAX, "cudnn tensor rank must be between 4 and \(CUDNN_DIM_MAX)")
-    rank = S.rank + 2
 
     switch S.rank {
     case 1:
-      let shape = Shape3(1, 1, tensor.shape[0])
-      desc = Self.createDescriptor(TensorR3<E>(shape: shape, order: tensor.order))
+      rank = 4
+      let shape = Shape4(1, 1, 1, tensor.shape[0])
+      desc = Self.createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
 
     case 2:
+      rank = 4
       let shape = Shape4(1, 1, tensor.shape[0], tensor.shape[1])
       desc = Self.createDescriptor(TensorR4<E>(shape: shape, order: tensor.order))
 
     case 3:
+      rank = 5
       let shape = Shape5(1, 1, tensor.shape[0], tensor.shape[1], tensor.shape[2])
       desc = Self.createDescriptor(TensorR5<E>(shape: shape, order: tensor.order))
 
-    default: desc = Self.createDescriptor(tensor)
+    default:
+      rank = S.rank
+      desc = Self.createDescriptor(tensor)
     }
   }
 

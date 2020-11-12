@@ -207,8 +207,7 @@ class test_Pool: XCTestCase {
     #if canImport(SwiftRTCuda)
       let a = array(0..<6)
       let avg = pool(x: a, windowSize: 3, padding: 1, op: .average)
-      XCTAssert(avg.shape == a.shape)
-      print(avg)
+      XCTAssert(avg == [0.5, 1.0, 2.0, 3.0, 4.0, 4.5])
     #endif
   }
 
