@@ -48,13 +48,13 @@ extension Tensor {
       // as all higher ranked tensors
       default:
         var pos = Shape.zero
+        string += "[\n"
 
         func addRows(_ dim: Int) {
-          let indent = String(repeating: " ", count: dim * tab)
+          let indent = String(repeating: " ", count: (dim + 1) * tab)
           if dim < Shape.rank - 2 {
             while true {
               string += "\(indent)["
-              if shape[dim] > 1 { string += "\(pos[dim])" }
               string += "\n"
               addRows(dim + 1)
               string += "\(indent)],\n"
@@ -82,6 +82,7 @@ extension Tensor {
           string = String(string.dropLast(2)) + "\n"
         }
         addRows(0)
+        string += "]\n"
       }
     }
     return string
