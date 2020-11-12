@@ -25,6 +25,7 @@ class test_Pool: XCTestCase {
   static var allTests = [
     ("test_poolBatchAverage2D", test_poolBatchAverage2D),
     ("test_poolAverage1D", test_poolAverage1D),
+    ("test_poolBatchAverage1D", test_poolBatchAverage1D),
     ("test_poolAverage2D", test_poolAverage2D),
     ("test_poolAveragePadding", test_poolAveragePadding),
     ("test_poolMax", test_poolMax),
@@ -202,19 +203,20 @@ class test_Pool: XCTestCase {
   //--------------------------------------------------------------------------
   func test_poolAverage1D() {
     #if canImport(SwiftRTCuda)
-      // 1D cudnn does not support this
-      // do {
-      //   let a = array(0..<6)
-      //   let avg = pool(x: a, windowSize: 3, padding: .valid, op: .average)
-      //   XCTAssert(avg.shape == a.shape)
-      //   print(avg)
-      //   // XCTAssert(
-      //   //   same == [
-      //   //     [2.0, 2.5, 3.0],
-      //   //     [3.5, 4.0, 4.5],
-      //   //     [5.0, 5.5, 6.0],
-      //   //   ])
-      // }
+      let a = array(0..<6)
+      let avg = pool(x: a, windowSize: 3, padding: 1, op: .average)
+      XCTAssert(avg.shape == a.shape)
+      print(avg)
+    #endif
+  }
+
+  //--------------------------------------------------------------------------
+  func test_poolBatchAverage1D() {
+    #if canImport(SwiftRTCuda)
+      let a = array(0..<12, shape: (2, 6))
+      let avg = pool(batch: a, windowSize: 3, padding: 1, op: .average)
+      XCTAssert(avg.shape == a.shape)
+      print(avg)
     #endif
   }
 
