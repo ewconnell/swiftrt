@@ -1,0 +1,43 @@
+{
+    "editor.minimap.enabled": false,
+    "editor.fontSize": 11,
+    "editor.rulers": [100],
+    "workbench.colorCustomizations": {
+        "editorRuler.foreground": "#2F2F2F"
+    },
+    "editor.renderIndentGuides": false,
+    "editor.matchBrackets": false,
+    "window.zoomLevel": -1,
+    "sourcekit-lsp.toolchainPath": "/home/ed/swift",
+    "sourcekit-lsp.serverPath": "/home/ed/swift/usr/bin/sourcekit-lsp",
+    "terminal.integrated.cursorStyle": "underline",
+    "terminal.integrated.fontSize": 10,
+    "cmake.configureOnOpen": false,
+    "extensions.ignoreRecommendations": false,
+    "lldb.library": "/home/ed/swift/usr/lib/liblldb.so",
+    "debug.console.closeOnEnd": true,
+    "debug.openExplorerOnEnd": true,
+    "git.enableSmartCommit": true,
+    "git.autofetch": true,
+    "window.openFoldersInNewWindow": "on",
+    "explorer.confirmDelete": false,
+    "debug.onTaskErrors": "abort",
+    "explorer.confirmDragAndDrop": false,
+    "C_Cpp.default.cppStandard": "c++17",
+    "C_Cpp.default.cStandard": "c11",
+    "cmake.configureArgs": [
+        "-DSWIFTRT_ENABLE_CUDA=NO",
+        "-DSWIFTRT_LOGLEVEL_DIAGNOSTIC=YES",
+        "-DCMAKE_CUDA_ARCHITECTURES=\"75\"",
+        "-DSWIFTRT_RELEASE_UNCHECKED=YES"
+    ],
+    "C_Cpp.vcFormat.indent.caseContents": false,
+    "C_Cpp.vcFormat.indent.namespaceContents": false,
+    "editor.tabSize": 2,
+    "editor.wordWrapColumn": 100,
+    "apple-swift-format.path": "/home/ed/swift-format/.build/release/swift-format",
+    "[cpp]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools"
+    },
+    "clangd.onConfigChanged": "restart"
+}

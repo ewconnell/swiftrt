@@ -1,0 +1,4 @@
+{
+  "lldb.library": "/home/ed/swift/usr/lib/liblldb.so",
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+}

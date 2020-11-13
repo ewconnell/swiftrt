@@ -1,4 +1,3 @@
-// .vscode/launch.json
 {
     "version": "0.2.0",
     "configurations": [
@@ -7,9 +6,9 @@
             "type": "lldb",
             "request": "launch",
             // Resolved by CMake Tools:
-            "program": "${workspaceFolder}/.build/debug/SwiftRTPackageTests.xctest",
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "swift-build-tests"
+            "program": "${command:cmake.launchTargetPath}",
+            "args": ["SwiftRTCoreTests.test_Pool"],
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
