@@ -41,10 +41,12 @@ class test_Comparative: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_compareFloat16() {
-    let a = array([0, 1, 2], type: Float16.self)
-    let b = array([1, 0, 2], type: Float16.self)
-    let x = a .> b
-    XCTAssert(x == [false, true, false])
+    if #available(OSX 11.0, *) {
+      let a = array([0, 1, 2], type: Float16.self)
+      let b = array([1, 0, 2], type: Float16.self)
+      let x = a .> b
+      XCTAssert(x == [false, true, false])
+    }
   }
 
   //--------------------------------------------------------------------------

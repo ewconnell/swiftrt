@@ -135,8 +135,10 @@ class test_Math: XCTestCase {
     XCTAssert(abs(a) == [1, 2, 3, 4, 5])
 
     // Float16 abs
-    let f16 = array([-1, 2, -3, 4, -5], type: Float16.self)
-    XCTAssert(abs(f16) == [1, 2, 3, 4, 5])
+    if #available(OSX 11.0, *) {
+      let f16 = array([-1, 2, -3, 4, -5], type: Float16.self)
+      XCTAssert(abs(f16) == [1, 2, 3, 4, 5])
+    }
 
     // Float abs
     let b = array([-1, 2, -3, 4, -5])

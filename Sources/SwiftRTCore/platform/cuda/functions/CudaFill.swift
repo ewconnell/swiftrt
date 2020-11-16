@@ -20,13 +20,13 @@ import SwiftRTCuda
 // CudaQueue fill functions
 extension CudaQueue {
   //--------------------------------------------------------------------------
-  @inlinable public func copy<S, E>(
+  @inlinable public func copyElements<S, E>(
     from a: Tensor<S, E>,
     to out: inout Tensor<S, E>
   ) {
     var status: cudaError_t
     guard useGpu else {
-      cpu_copy(from: a, to: &out)
+      cpu_copyElements(from: a, to: &out)
       return
     }
 
@@ -52,7 +52,7 @@ extension CudaQueue {
         }
       }
     }
-    cpuFallback(status) { $0.copy(from: a, to: &out) }
+    cpuFallback(status) { $0.copyElements(a, &out) }
   }
 
   //--------------------------------------------------------------------------

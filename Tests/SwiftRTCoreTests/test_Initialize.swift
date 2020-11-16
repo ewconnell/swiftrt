@@ -67,7 +67,7 @@ class test_Initialize: XCTestCase {
   func test_copy() {
     let a = array(1...3)
     var b = array(repeatElement(0, count: 3))
-    copy(from: a, to: &b)
+    copyElements(from: a, to: &b)
     XCTAssert(b == [1, 2, 3])
   }
 

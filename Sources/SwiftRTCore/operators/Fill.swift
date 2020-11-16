@@ -135,15 +135,16 @@ extension Tensor {
 }
 
 //==============================================================================
-/// copy
+/// copyElements
 /// copies the elements from `source` to `destination`
-/// - Parameter source: tensor to be copied
-/// - Parameter destination: the tensor where the result will be written
-@inlinable public func copy<S, E>(
+/// - Parameters:
+///  - source: tensor elements to be copied
+///  - destination: the tensor where the elements will be written
+@inlinable public func copyElements<S, E>(
   from source: Tensor<S, E>,
   to destination: inout Tensor<S, E>
 ) {
-  currentQueue.copy(from: source, to: &destination)
+  currentQueue.copyElements(from: source, to: &destination)
 }
 
 //==============================================================================

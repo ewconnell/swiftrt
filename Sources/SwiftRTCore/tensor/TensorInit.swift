@@ -536,7 +536,7 @@ extension Tensor {
           + "order: \(source.order) on \(currentQueue.name)",
         categories: [.dataCopy, .dataReorder])
 
-      copy(from: other, to: &source)
+      copyElements(from: other, to: &source)
     }
 
     // init with new shape in the corrected order

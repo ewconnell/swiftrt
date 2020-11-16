@@ -466,7 +466,7 @@ extension Tensor {
     set {
       prepareForWrite(using: currentQueue)
       var view = createView(lower, upper, true)
-      copy(from: newValue, to: &view)
+      copyElements(from: newValue, to: &view)
     }
   }
 
@@ -546,7 +546,7 @@ extension Tensor {
         categories: [.dataCopy, .dataExpanding])
 
       // do an indexed copy
-      copy(from: self, to: &expanded)
+      copyElements(from: self, to: &expanded)
       self = expanded
 
     } else if !(isKnownUniquelyReferenced(&storage) || isShared) {

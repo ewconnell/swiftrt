@@ -517,6 +517,7 @@ extension Float: StorageElement {
   public typealias Value = Self
 }
 
+@available(OSX 11.0, iOS 14.0, watchOS 7.0, tvOS 14.0, *)
 extension Float16: StorageElement {
   public typealias Stored = Self
   public typealias Value = Self

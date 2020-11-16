@@ -88,7 +88,7 @@ extension Tensor {
   @inlinable public mutating func assign(_ other: Self) {
     assert(shape == other.shape)
     if !(storage === other.storage && storageBase == other.storageBase) {
-      copy(from: other, to: &self)
+      copyElements(from: other, to: &self)
     }
   }
 }

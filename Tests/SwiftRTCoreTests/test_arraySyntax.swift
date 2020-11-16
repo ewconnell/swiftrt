@@ -40,8 +40,12 @@ class test_arraySyntax: XCTestCase {
   //--------------------------------------------------------------------------
   func test_initSyntax() {
     // stored bit pattern
-    let _ = array(stored: [Float16(0), Float16(1)])
-    let _ = array(stored: [Float16(0), Float16(1)], shape: (1, 2))
+    if #available(OSX 11.0, *) {
+        let _ = array(stored: [Float16(0), Float16(1)])
+        let _ = array(stored: [Float16(0), Float16(1)], shape: (1, 2))
+        let _ = array([true, false], type: Float16.self)
+        let _ = array([true, false], shape: (1, 2), type: Float16.self)
+    }
 
     // packed types
     let _ = array([0, 1, 0, 1], type: UInt1.self)
@@ -55,7 +59,6 @@ class test_arraySyntax: XCTestCase {
     let _ = array([true, false], type: UInt4.self)
     let _ = array([true, false], type: UInt8.self)
     let _ = array([true, false], type: Int32.self)
-    let _ = array([true, false], type: Float16.self)
     let _ = array([true, false], type: Float.self)
     let _ = array([true, false], type: Double.self)
 
@@ -64,7 +67,6 @@ class test_arraySyntax: XCTestCase {
     let _ = array([true, false], shape: (1, 2), type: UInt4.self)
     let _ = array([true, false], shape: (1, 2), type: UInt8.self)
     let _ = array([true, false], shape: (1, 2), type: Int32.self)
-    let _ = array([true, false], shape: (1, 2), type: Float16.self)
     let _ = array([true, false], shape: (1, 2), type: Float.self)
     let _ = array([true, false], shape: (1, 2), type: Double.self)
 

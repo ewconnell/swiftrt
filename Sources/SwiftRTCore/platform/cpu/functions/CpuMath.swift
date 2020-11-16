@@ -156,8 +156,10 @@ extension CpuQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable public func copy<S, E>(from a: Tensor<S, E>, to b: inout Tensor<S, E>)
-  where S: TensorShape { cpu_copy(from: a, to: &b) }
+  @inlinable public func copyElements<S, E>(
+    from a: Tensor<S, E>,
+    to b: inout Tensor<S, E>
+  ) where S: TensorShape { cpu_copyElements(from: a, to: &b) }
   //--------------------------------------------------------------------------
   @inlinable public func cos<S, E>(_ x: Tensor<S, E>, _ out: inout Tensor<S, E>)
   where E.Value: Real { cpu_cos(x, &out) }
@@ -743,7 +745,7 @@ extension DeviceQueue {
   }
 
   //--------------------------------------------------------------------------
-  @inlinable public func cpu_copy<S, E>(
+  @inlinable public func cpu_copyElements<S, E>(
     from a: Tensor<S, E>,
     to out: inout Tensor<S, E>
   ) where S: TensorShape {

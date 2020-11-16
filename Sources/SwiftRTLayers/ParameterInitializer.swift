@@ -18,26 +18,26 @@ import Numerics
 import SwiftRTCore
 
 public typealias ParameterInitializer<S: TensorShape, E: StorageElement>
-    = (S) -> Tensor<S,E>
+  = (S) -> Tensor<S,E>
 
 /// Returns a function that creates a tensor by initializing
 /// all its values to zeros.
 @inlinable public func zeros<S,E>() -> ParameterInitializer<S,E>
 where S: TensorShape, E.Value: Numeric
 {
-    { Tensor<S,E>(zeros: $0) }
+  { Tensor<S,E>(zeros: $0) }
 }
 
 /// Returns a function that creates a tensor by initializing
 /// all its values to the provided value.
 public func constantInitializer<S,E>(
-    value: E.Value
+  value: E.Value
 ) -> ParameterInitializer<S,E> where S: TensorShape {
-    {
-        var tensor = Tensor<S,E>(shape: $0)
-        fill(&tensor, with: value)
-        return tensor
-    }
+  {
+    var tensor = Tensor<S,E>(shape: $0)
+    fill(&tensor, with: value)
+    return tensor
+  }
 }
 
 /// Returns a function that creates a tensor by initializing it to
@@ -45,13 +45,13 @@ public func constantInitializer<S,E>(
 public func constantInitializer<S,E>(value: Tensor<S,E>)
 -> ParameterInitializer<S,E> where S: TensorShape
 {
-    {
-        guard value.count < $0.elementCount() else { return value }
-        // parameters are inherently mutated, so the storage should be dense
-        var tensor = Tensor<S,E>(shape: $0)
-        copy(from: Tensor<S,E>(repeating: value, to: $0), to: &tensor)
-        return tensor
-    }
+  {
+    guard value.count < $0.elementCount() else { return value }
+    // parameters are inherently mutated, so the storage should be dense
+    var tensor = Tensor<S,E>(shape: $0)
+    copyElements(from: Tensor<S,E>(repeating: value, to: $0), to: &tensor)
+    return tensor
+  }
 }
 
 /// Returns a function that creates a tensor by performing Glorot (Xavier)
@@ -61,11 +61,11 @@ public func constantInitializer<S,E>(value: Tensor<S,E>)
 /// `sqrt(6 / (fanIn + fanOut))`, and `fanIn`/`fanOut` represent the number of
 /// input and output features multiplied by the receptive field, if present.
 public func glorotUniform<S,E>(
-    seed: RandomSeed = Platform.randomSeed
+  seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E>
 where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
-    { Tensor<S,E>(glorotUniform: $0, seed: seed) }
+  { Tensor<S,E>(glorotUniform: $0, seed: seed) }
 }
 
 /// Returns a function that creates a tensor by performing Glorot (Xavier)
@@ -75,11 +75,11 @@ where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 /// the number of input and output features multiplied by the receptive
 /// field size, if present.
 public func glorotNormal<S,E>(
-    seed: RandomSeed = Platform.randomSeed
+  seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E>
 where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
-    { Tensor<S,E>(glorotNormal: $0, seed: seed) }
+  { Tensor<S,E>(glorotNormal: $0, seed: seed) }
 }
 
 /// Returns a function that creates a tensor by performing He (Kaiming)
@@ -89,11 +89,11 @@ where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 /// `sqrt(6 / fanIn)`, and `fanIn` represents the number of input features
 /// multiplied by the receptive field, if present.
 public func heUniform<S,E>(
-    seed: RandomSeed = Platform.randomSeed
+  seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E> where
-S: TensorShape, E.Value: Real & BinaryFloatingPoint
+  S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
-    { Tensor<S,E>(heUniform: $0, seed: seed) }
+  { Tensor<S,E>(heUniform: $0, seed: seed) }
 }
 
 /// Returns a function that creates a tensor by performing He (Kaiming)
@@ -102,11 +102,11 @@ S: TensorShape, E.Value: Real & BinaryFloatingPoint
 /// deviation `sqrt(2 / fanIn)`, where `fanIn` represents the number of input
 /// features multiplied by the receptive field size, if present.
 public func heNormal<S,E>(
-    seed: RandomSeed = Platform.randomSeed
+  seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E> where
-    S: TensorShape, E.Value: Real & BinaryFloatingPoint
+  S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
-    { Tensor<S,E>(heNormal: $0, seed: seed) }
+  { Tensor<S,E>(heNormal: $0, seed: seed) }
 }
 
 /// Returns a function that creates a tensor by performing LeCun uniform
@@ -116,11 +116,11 @@ public func heNormal<S,E>(
 /// `sqrt(3 / fanIn)`, and `fanIn` represents the number of input features
 /// multiplied by the receptive field, if present.
 public func leCunUniform<S,E>(
-    seed: RandomSeed = Platform.randomSeed
+  seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E>
 where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
-    { Tensor<S,E>(leCunUniform: $0, seed: seed) }
+  { Tensor<S,E>(leCunUniform: $0, seed: seed) }
 }
 
 /// Returns a function that creates a tensor by performing LeCun normal
@@ -129,11 +129,11 @@ where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 /// deviation `sqrt(1 / fanIn)`, where `fanIn` represents the number of input
 /// features multiplied by the receptive field size, if present.
 public func leCunNormal<S,E>(
-    seed: RandomSeed = Platform.randomSeed
+  seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E>
 where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
-    { Tensor<S,E>(leCunNormal: $0, seed: seed) }
+  { Tensor<S,E>(leCunNormal: $0, seed: seed) }
 }
 
 /// Returns a function that creates a tensor by initializing all its values
@@ -148,19 +148,19 @@ where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 ///
 ///- Returns: A truncated normal parameter initializer function.
 public func truncatedNormalInitializer<S,E>(
-    mean: Tensor<S,E>? = nil,
-    std: Tensor<S,E>? = nil,
-    order: Order = .defaultOrder,
-    seed: RandomSeed = Platform.randomSeed
+  mean: Tensor<S,E>? = nil,
+  std: Tensor<S,E>? = nil,
+  order: Order = .defaultOrder,
+  seed: RandomSeed = Platform.randomSeed
 ) -> ParameterInitializer<S,E>
 where S: TensorShape, E.Value: Real & BinaryFloatingPoint
 {
-    {
-        // TODO: which element init is being called??
-        Tensor<S,E>(randomTruncatedNormal: $0,
-                    mean: mean ?? Tensor<S,E>(0, order: order),
-                    std: std ?? Tensor<S,E>(1, order: order),
-                    order: order,
-                    seed: seed)
-    }
+  {
+    // TODO: which element init is being called??
+    Tensor<S,E>(randomTruncatedNormal: $0,
+                mean: mean ?? Tensor<S,E>(0, order: order),
+                std: std ?? Tensor<S,E>(1, order: order),
+                order: order,
+                seed: seed)
+  }
 }
