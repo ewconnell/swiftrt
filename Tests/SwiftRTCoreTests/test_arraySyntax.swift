@@ -222,9 +222,9 @@ class test_arraySyntax: XCTestCase {
 
     // T1
     let _ = zeros(shape: 3)
-    let _ = zeros(shape: 3, order: .F)
+    let _ = zeros(shape: 3, order: .C)
     let _ = zeros(shape: 3, type: Int32.self)
-    let _ = zeros(shape: 3, type: Int32.self, order: .F)
+    let _ = zeros(shape: 3, type: Int32.self, order: .C)
 
     // T2
     let _ = zeros(shape: (2, 3))

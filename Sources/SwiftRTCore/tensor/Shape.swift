@@ -17,106 +17,124 @@
 import Foundation
 
 //==============================================================================
-// TensorShape
+// Shape
 public protocol TensorShape: SIMD where Scalar == Int {
+  /// simd storage type that lowers to llvm simd types
+  associatedtype Storage: SIMDStorage where Storage.Scalar == Int
   /// a ranked tuple convenience type used for api parameters
   associatedtype Tuple
-  /// the type of Shape.rank - 1
-  associatedtype M1: TensorShape
 
-  /// conversion to Int32 to support drivers
-  var asInt32: [Int32] { get }
-  /// the number of bounding dimensions
+  //---------------------------------
+  // properties
+  /// the number of bounding dimensions for the shape
   static var rank: Int { get }
-  /// a tuple of ones
-  static var oneTuple: Tuple { get }
   /// a tuple of zeros
   static var zeroTuple: Tuple { get }
+  /// a tuple of ones
+  static var oneTuple: Tuple { get }
 
-  /// withUnsafePointer(_:
-  /// used to pass the shape values to drivers
-  func withUnsafePointer<Result>(_ body: (UnsafePointer<Int>) -> Result) -> Result
+  /// conversion to Int32 to support drivers
+  var _storage: Storage { get set }
 
   //---------------------------------
-  // convenience initializers
-  // the associated tuple type is used to make cleaner looking api arguments
+  // initializers
+  /// Creates a shape with zero in all lanes.
+  init()
+  /// Creates a shape described by a rank specific tuple value
   init(_ shape: Tuple)
+  /// Optionally creates a shape described by a rank specific tuple value
   init?(_ shape: Tuple?)
-
-  //---------------------------------
-  /// - Returns: the number of elements described by the shape,
-  /// which is the product of the dimensions
-  func elementCount() -> Int
-
-  /// used to iterate the n-dimensional range `lower..<upper` as
-  /// a linear sequence of positions in spatial order
-  /// - Parameters:
-  ///  - lower: the lower bound of the iteration range
-  ///  - upper: the upper bound of the iteration range
-  func incremented(between lower: Self, and upper: Self) -> Self
-
-  /// - Returns: srtides for the shape and given storage order
-  func strides(for order: Order) -> Self
 }
-
-//==============================================================================
-// Shapes
-public typealias Shape1 = SIMD1<Int>
-public typealias Shape2 = SIMD2<Int>
-public typealias Shape3 = SIMD3<Int>
-public typealias Shape4 = SIMD4<Int>
-public typealias Shape5 = SIMD5<Int>
-public typealias Shape6 = SIMD6<Int>
 
 //==============================================================================
 // messages
 @usableFromInline let _messageInvalidShape = "shape dimensions must be greater than 0"
 
 //==============================================================================
-// TensorShape comparative
-extension TensorShape {
-  @inlinable public static func <= (lhs: Self, rhs: Self) -> Bool {
-    for i in 0..<rank { if lhs[i] > rhs[i] { return false } }
-    return true
+// Shape comparative
+extension TensorShape where Self: SIMD, Scalar == Int {
+  @inlinable public static func <(_ lhs: Self, _ rhs: Self) -> Bool {
+    lhs.indices.reduce(into: true) { $0 = $0 && (lhs[$1] < rhs[$1]) }
+  }
+  
+  @inlinable public static func <=(_ lhs: Self, _ rhs: Self) -> Bool {
+    lhs.indices.reduce(into: true) { $0 = $0 && (lhs[$1] <= rhs[$1]) }
+  }
+
+  @inlinable public static func >(_ lhs: Self, _ rhs: Self) -> Bool {
+    lhs.indices.reduce(into: true) { $0 = $0 && (lhs[$1] > rhs[$1]) }
+  }
+  
+  @inlinable public static func >=(_ lhs: Self, _ rhs: Self) -> Bool {
+    lhs.indices.reduce(into: true) { $0 = $0 && (lhs[$1] >= rhs[$1]) }
   }
 }
 
 //==============================================================================
-// TensorShape extensions
+// extensions
 extension TensorShape {
   //--------------------------------------------------------------------------
-  @inlinable public init(_ shape: [Int32]) {
-    assert(shape.count == Self.rank, "rank mismatch")
-    self.init()
-    for i in 0..<Self.rank {
-      self[i] = Int(shape[i])
-    }
+  // Counts
+  
+  /// the number of scalars in the simd vector
+  @_transparent public static var scalarCount: Int { Self.rank }
+  @_transparent public var scalarCount: Int { Self.rank }
+  
+  /// the index of the last value in the simd vector
+  @_transparent public static var lastIndex: Int { Self.rank - 1 }
+
+  /// elementCount
+  /// - Returns: the number of spatial elements bounded by the shape
+  @inlinable public func elementCount() -> Int {
+    self.reduce(into: 1, &*=)
   }
 
   //--------------------------------------------------------------------------
-  /// init with optional tuple shape
+  // initializers
+  @inlinable public init(integerLiteral value: Scalar) {
+    self.init(repeating: value)
+  }
+
+  /// init(
+  /// initiailze with an optional tuple shape
   @inlinable public init?(_ shape: Tuple?) {
     guard let shape = shape else { return nil }
     self.init(shape)
   }
-
-  //--------------------------------------------------------------------------
-  /// the number of dimensions
-  @inlinable public var count: Int { Self.rank }
-
-  //--------------------------------------------------------------------------
-  /// the value of the last dimension
-  @inlinable public var last: Int { self[Self.rank - 1] }
-
-  //--------------------------------------------------------------------------
-  /// transpose last two dimensions
-  @inlinable public var t: Self {
-    var transposed = self
-    transposed.swapAt(Self.rank - 1, Self.rank - 2)
-    return transposed
+    
+  /// init(flattening:
+  /// - Parameters:
+  ///  - other: the shape to flatten
+  @inlinable public init<S: TensorShape>(flattening other: S) {
+    assert(Self.rank < S.rank, "cannot flatten shape of lower rank")
+    
+    // copy other's leading dimensions
+    self = Self.zero
+    for i in indices {
+      self[i] = other[i]
+    }
+    
+    // get product of the remaining dimensions
+    for j in Self.rank..<S.rank {
+      self[Self.lastIndex] &*= other[j]
+    }
   }
 
   //--------------------------------------------------------------------------
+  // interchange with Swift arrays
+  @inlinable public init(_ shape: [Int32]) {
+    assert(shape.count == Self.rank, "rank mismatch")
+    self.init()
+    indices.forEach { self[$0] = Int(shape[$0]) }
+  }
+  
+  // TODO: should go away
+  @inlinable public var asInt32: [Int32] {
+    var values = [Int32]()
+    indices.forEach { values.append(Int32(self[$0])) }
+    return values
+  }
+
   /// copy to Swift Array
   @inlinable public var array: [Scalar] {
     var a = [Scalar]()
@@ -125,16 +143,59 @@ extension TensorShape {
   }
 
   //--------------------------------------------------------------------------
-  /// conversion to Int32 array to support marshalling to drivers
-  // TODO: should go away
-  @inlinable public var asInt32: [Int32] {
-    var values = [Int32]()
-    indices.forEach { values.append(Int32(self[$0])) }
-    return values
+  // Indexing
+  
+  /// Accesses the scalar at the specified position.
+  public subscript(index: Int) -> Scalar {
+    @_transparent get {
+      precondition(indices.contains(index), "Shape\(Self.rank) index is out of bounds: \(index)")
+      return _storage[index]
+    }
+    @_transparent set {
+      precondition(indices.contains(index), "Shape\(Self.rank) index is out of bounds: \(index)")
+      _storage[index] = newValue
+    }
   }
 
+  /// incremented(between lower:and upper:
+  /// generic n-dimensional position increment function when the vector
+  /// is being used as an index
+  /// - Parameters:
+  ///  - lower: the lower bound for the space
+  ///  - upper: the upper bound for the space
+  /// - Returns: the next logical position within the nD space
+  ///
+  @inlinable public func incremented(
+    between lower: Self,
+    and upper: Self
+  ) -> Self {
+    assert(self >= lower && self < upper, "index must be between lower and upper bounds")
+    var next = self
+    for i in indices.reversed() {
+      next[i] &+= 1
+      if next[i] == upper[i] {
+        next[i] = lower[i]
+      } else {
+        // early exit
+        return next
+      }
+    }
+
+    // if the while loop doesn't early return then this is the end position
+    next[0] &+= 1
+    return next
+  }
+  
   //--------------------------------------------------------------------------
-  /// helper
+  /// transpose last two dimensions
+  @inlinable public var t: Self {
+    var transposed = self
+    transposed.swapAt(Self.lastIndex, Self.lastIndex - 1)
+    return transposed
+  }
+  
+  //--------------------------------------------------------------------------
+  /// swapAt(_:_
   @inlinable public mutating func swapAt(_ a: Int, _ b: Int) {
     let tmp = self[a]
     self[a] = self[b]
@@ -142,33 +203,11 @@ extension TensorShape {
   }
 
   //--------------------------------------------------------------------------
-  // generic n-dimensional position increment function
-  @inlinable public func incremented(
-    between lower: Self,
-    and upper: Self,
-    axis: Int = Self.rank - 1
-  ) -> Self {
-    var next = self
-    var dim = axis
-    while true {
-      next[dim] &+= 1
-      if next[dim] < upper[dim] {
-        break
-      } else if dim > 0 {
-        next[dim] = lower[dim]
-        dim &-= 1
-      } else {
-        break
-      }
-    }
-    return next
-  }
-
-  //--------------------------------------------------------------------------
   /// `reduce
   /// - Parameters:
   ///  - initialResult: the initial result value
   ///  - updateAccumulatingResult: accumulation functions
+  /// - Returns: the reduced simd vector scalars
   @inlinable public func reduce(
     into initialResult: Scalar,
     _ updateAccumulatingResult: (inout Scalar, Scalar) -> Void
@@ -179,14 +218,8 @@ extension TensorShape {
   }
 
   //--------------------------------------------------------------------------
-  /// elementCount
-  /// - Returns: the number of spatial elements bounded by the shape
-  @inlinable public func elementCount() -> Int {
-    self.reduce(into: 1, &*=)
-  }
-
-  //--------------------------------------------------------------------------
   /// index
+  /// computes a linear index by multiplying `self` by `strides`
   /// - Parameters:
   ///  - strides: the strides for shape
   /// - Returns: linear strided index
@@ -196,6 +229,8 @@ extension TensorShape {
 
   //--------------------------------------------------------------------------
   /// spanCount
+  /// computes the number of physical buffer elements spanned when `self` is
+  /// a shape multiplied by strides.
   /// - Parameters:
   ///  - strides: the strides for shape
   /// - Returns: the distance from the first element's linear storage index
@@ -207,13 +242,14 @@ extension TensorShape {
   //--------------------------------------------------------------------------
   /// `strides(order:`
   /// computes the strides needed to index the specified storage order
+  // TODO: rethink this because it only makes sense for row and col orders
   @inlinable public func strides(for order: Order) -> Self {
     guard Self.rank > 1 else { return Self.one }
 
     func computeStrides(for shape: Self) -> Self {
       // just use shape to reserve some storage space for strides
       var strides = shape
-      var dim = Self.rank - 1
+      var dim = Self.lastIndex
       var shapeStride = 1
       while dim >= 0 {
         strides[dim] = shapeStride
@@ -227,9 +263,9 @@ extension TensorShape {
     case .row: return computeStrides(for: self)
     case .col:
       var shape = self
-      shape.swapAt(Self.rank - 1, Self.rank - 2)
+      shape.swapAt(Self.lastIndex, Self.lastIndex - 1)
       var strides = computeStrides(for: shape)
-      strides.swapAt(Self.rank - 1, Self.rank - 2)
+      strides.swapAt(Self.lastIndex, Self.lastIndex - 1)
       return strides
     default: fatalError("not implemented yet")
     }
@@ -242,9 +278,9 @@ extension TensorShape {
   //--------------------------------------------------------------------------
   /// `areSequential`
   /// - Parameter shape: the bounding shape for the strides
-  /// - Returns: `true` if `self` are sequential strides for the given shape
+  /// - Returns: `true` if `self` is the sequential strides for the given shape
   @inlinable public func areSequential(for shape: Self) -> Bool {
-    var dim = Self.rank - 1
+    var dim = Self.lastIndex
     var shapeStride = 1
     while dim >= 0 {
       if self[dim] != shapeStride && shape[dim] > 1 {
@@ -257,468 +293,168 @@ extension TensorShape {
   }
 
   //--------------------------------------------------------------------------
-  /// init(flattening:
-  /// - Parameter other: the shape to flatten
-  @inlinable public init<S>(flattening other: S) where S: TensorShape {
-    assert(S.rank >= Self.rank, "cannot flatten shape of lower rank")
-
-    // copy the leading dimensions
-    self = Self.zero
-    for i in 0..<Self.rank {
-      self[i] = other[i]
-    }
-
-    // get product of the remaining dimensions
-    for j in Self.rank..<S.rank {
-      self[Self.rank - 1] *= other[j]
-    }
-  }
-}
-
-//==============================================================================
-// SIMD1
-extension SIMD1: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
-  //--------------------------------------------------------------------------
-  // tuple initialization support
-  public typealias Tuple = (Scalar)
-  public typealias M1 = Self
-  public static var oneTuple: Tuple { (1) }
-  public static var zeroTuple: Tuple { (0) }
-
-  @inlinable @_transparent
-  public init(_ shape: Tuple) {
-    self.init()
-    self[0] = shape
-  }
-
-  @inlinable @_transparent
-  public init(integerLiteral value: Scalar) {
-    self.init()
-    self[0] = value
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable @_transparent
-  public static var rank: Int { 1 }
-
-  @inlinable @_transparent
-  public func elementCount() -> Int { self[0] }
-
-  @inlinable @_transparent
-  public func sequentialStrides() -> Self { Self(1) }
-
-  @inlinable public func incremented(between lower: Self, and upper: Self) -> Self {
-    assert(self[0] >= lower[0])
-    var next = self
-    next[0] &+= 1
-    return next
-  }
-
-  //--------------------------------------------------------------------------
   /// withUnsafePointer(_:
+  /// - Returns: a pointer to the simd vector scalars. Primarily used
+  /// to pass a pointer to a C driver
   @inlinable public func withUnsafePointer<Result>(
-    _ body: (UnsafePointer<Int>) -> Result
+    _ body: (UnsafePointer<Scalar>) -> Result
   ) -> Result {
     Swift.withUnsafePointer(to: _storage) {
-      body(UnsafeRawPointer($0).assumingMemoryBound(to: Int.self))
+      body(UnsafeRawPointer($0).assumingMemoryBound(to: Scalar.self))
     }
+  }
+  
+  //--------------------------------------------------------------------------
+  public var description: String {
+    var desc = "Shape\(Self.rank)("
+    for i in 0..<Self.lastIndex { desc += "\(self[i]), " }
+    desc += "\(self[Self.lastIndex]))"
+    return desc
   }
 }
 
 //==============================================================================
-// SIMD2
-extension SIMD2: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
-  //--------------------------------------------------------------------------
-  // tuple initialization support
-  public typealias Tuple = (Scalar, Scalar)
-  public typealias M1 = SIMD1<Scalar>
-  public static var oneTuple: Tuple { (1, 1) }
-  public static var zeroTuple: Tuple { (0, 0) }
+/// Shape1
+/// Represents the shape of a 1D element space
+public struct Shape1: TensorShape, ExpressibleByIntegerLiteral {
+  // types
+  public typealias Tuple = (Int)
 
-  @inlinable @_transparent
-  public init(_ shape: Tuple) {
-    self.init()
-    self[0] = shape.0
-    self[1] = shape.1
-  }
-
-  @inlinable @_transparent
-  public init(integerLiteral value: Scalar) {
-    self.init(repeating: value)
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable @_transparent
-  public static var rank: Int { 2 }
-
-  @inlinable @_transparent
-  public func elementCount() -> Int {
-    self[0] &* self[1]
-  }
-
-  @inlinable @_transparent
-  public func sequentialStrides() -> Self {
-    Self(self[1], 1)
-  }
-
-  @inlinable
-  public func incremented(between lower: Self, and upper: Self) -> Self {
-    assert(self[0] >= lower[0] && self[1] >= lower[1])
-    var next = self
-    next[1] &+= 1
-    if next[1] == upper[1] {
-      next[1] = lower[1]
-      next[0] &+= 1
-    }
-    return next
-  }
-
-  //--------------------------------------------------------------------------
-  /// withUnsafePointer(_:
-  @inlinable public func withUnsafePointer<Result>(
-    _ body: (UnsafePointer<Int>) -> Result
-  ) -> Result {
-    Swift.withUnsafePointer(to: _storage) {
-      body(UnsafeRawPointer($0).assumingMemoryBound(to: Int.self))
-    }
-  }
-}
-
-//==============================================================================
-// SIMD3
-extension SIMD3: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
-  //--------------------------------------------------------------------------
-  // tuple initialization support
-  public typealias Tuple = (Scalar, Scalar, Scalar)
-  public typealias M1 = SIMD2<Scalar>
-  public static var oneTuple: Tuple { (1, 1, 1) }
-  public static var zeroTuple: Tuple { (0, 0, 0) }
-
-  @inlinable @_transparent
-  public init(_ shape: Tuple) {
-    self.init()
-    self[0] = shape.0
-    self[1] = shape.1
-    self[2] = shape.2
-  }
-
-  @inlinable @_transparent
-  public init(integerLiteral value: Scalar) {
-    self.init(repeating: value)
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable @_transparent
-  public static var rank: Int { 3 }
-
-  @inlinable
-  public func incremented(between lower: Self, and upper: Self) -> Self {
-    assert(
-      {
-        for i in 0..<Self.rank { if self[i] < lower[i] { return false } }
-        return true
-      }())
-    var next = self
-
-    next[2] &+= 1
-    if next[2] == upper[2] {
-      next[2] = lower[2]
-      next[1] &+= 1
-
-      if next[1] == upper[1] {
-        next[1] = lower[1]
-        next[0] &+= 1
-      }
-    }
-    return next
-  }
-
-  //--------------------------------------------------------------------------
-  /// withUnsafePointer(_:
-  @inlinable public func withUnsafePointer<Result>(
-    _ body: (UnsafePointer<Int>) -> Result
-  ) -> Result {
-    Swift.withUnsafePointer(to: _storage) {
-      body(UnsafeRawPointer($0).assumingMemoryBound(to: Int.self))
-    }
-  }
-}
-
-//==============================================================================
-// SIMD4
-extension SIMD4: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
-  //--------------------------------------------------------------------------
-  // tuple initialization support
-  public typealias Tuple = (Scalar, Scalar, Scalar, Scalar)
-  public typealias M1 = SIMD3<Scalar>
-  public static var oneTuple: Tuple { (1, 1, 1, 1) }
-  public static var zeroTuple: Tuple { (0, 0, 0, 0) }
-
-  @inlinable @_transparent
-  public init(_ shape: Tuple) {
-    self.init()
-    self[0] = shape.0
-    self[1] = shape.1
-    self[2] = shape.2
-    self[3] = shape.3
-  }
-
-  @inlinable @_transparent
-  public init(integerLiteral value: Scalar) {
-    self.init(repeating: value)
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable @_transparent
-  public static var rank: Int { 4 }
-
-  @inlinable
-  public func incremented(between lower: Self, and upper: Self) -> Self {
-    assert(
-      {
-        for i in 0..<Self.rank { if self[i] < lower[i] { return false } }
-        return true
-      }())
-    var next = self
-
-    next[3] &+= 1
-    if next[3] == upper[3] {
-      next[3] = lower[3]
-      next[2] &+= 1
-
-      if next[2] == upper[2] {
-        next[2] = lower[2]
-        next[1] &+= 1
-
-        if next[1] == upper[1] {
-          next[1] = lower[1]
-          next[0] &+= 1
-        }
-      }
-    }
-    return next
-  }
-
-  //--------------------------------------------------------------------------
-  /// withUnsafePointer(_:
-  @inlinable public func withUnsafePointer<Result>(
-    _ body: (UnsafePointer<Int>) -> Result
-  ) -> Result {
-    Swift.withUnsafePointer(to: _storage) {
-      body(UnsafeRawPointer($0).assumingMemoryBound(to: Int.self))
-    }
-  }
-}
-
-//==============================================================================
-// SIMD5
-extension SIMD5: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
-  //--------------------------------------------------------------------------
-  // tuple initialization support
-  public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar)
-  public typealias M1 = SIMD4<Scalar>
-  public static var oneTuple: Tuple { (1, 1, 1, 1, 1) }
-  public static var zeroTuple: Tuple { (0, 0, 0, 0, 0) }
-
-  @inlinable @_transparent
-  public init(_ shape: Tuple) {
-    self.init()
-    self[0] = shape.0
-    self[1] = shape.1
-    self[2] = shape.2
-    self[3] = shape.3
-    self[4] = shape.4
-  }
-
-  @inlinable @_transparent
-  public init(integerLiteral value: Scalar) {
-    self.init(repeating: value)
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable @_transparent
-  public static var rank: Int { 5 }
-
-  @inlinable
-  public func incremented(between lower: Self, and upper: Self) -> Self {
-    assert(
-      {
-        for i in 0..<Self.rank { if self[i] < lower[i] { return false } }
-        return true
-      }())
-    var next = self
-
-    next[4] &+= 1
-    if next[4] == upper[4] {
-      next[4] = lower[4]
-      next[3] &+= 1
-
-      if next[3] == upper[3] {
-        next[3] = lower[3]
-        next[2] &+= 1
-
-        if next[2] == upper[2] {
-          next[2] = lower[2]
-          next[1] &+= 1
-
-          if next[1] == upper[1] {
-            next[1] = lower[1]
-            next[0] &+= 1
-          }
-        }
-      }
-    }
-    return next
-  }
-
-  //--------------------------------------------------------------------------
-  /// withUnsafePointer(_:
-  @inlinable public func withUnsafePointer<Result>(
-    _ body: (UnsafePointer<Int>) -> Result
-  ) -> Result {
-    Swift.withUnsafePointer(to: _storage) {
-      body(UnsafeRawPointer($0).assumingMemoryBound(to: Int.self))
-    }
-  }
-}
-
-//==============================================================================
-// SIMD6
-extension SIMD6: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
-  //--------------------------------------------------------------------------
-  // tuple initialization support
-  public typealias Tuple = (Scalar, Scalar, Scalar, Scalar, Scalar, Scalar)
-  public typealias M1 = SIMD5<Scalar>
-  public static var oneTuple: Tuple { (1, 1, 1, 1, 1, 1) }
-  public static var zeroTuple: Tuple { (0, 0, 0, 0, 0, 0) }
-
-  @inlinable @_transparent
-  public init(_ shape: Tuple) {
-    self.init()
-    self[0] = shape.0
-    self[1] = shape.1
-    self[2] = shape.2
-    self[3] = shape.3
-    self[4] = shape.4
-    self[5] = shape.5
-  }
-
-  @inlinable @_transparent
-  public init(integerLiteral value: Scalar) {
-    self.init(repeating: value)
-  }
-
-  //--------------------------------------------------------------------------
-  @inlinable @_transparent
-  public static var rank: Int { 6 }
-
-  @inlinable
-  public func incremented(between lower: Self, and upper: Self) -> Self {
-    assert(
-      {
-        for i in 0..<Self.rank { if self[i] < lower[i] { return false } }
-        return true
-      }())
-    var next = self
-
-    next[5] &+= 1
-    if next[5] == upper[4] {
-      next[5] = lower[5]
-      next[4] &+= 1
-
-      if next[4] == upper[4] {
-        next[4] = lower[4]
-        next[3] &+= 1
-
-        if next[3] == upper[3] {
-          next[3] = lower[3]
-          next[2] &+= 1
-
-          if next[2] == upper[2] {
-            next[2] = lower[2]
-            next[1] &+= 1
-
-            if next[1] == upper[1] {
-              next[1] = lower[1]
-              next[0] &+= 1
-            }
-          }
-        }
-      }
-    }
-    return next
-  }
-
-  //--------------------------------------------------------------------------
-  /// withUnsafePointer(_:
-  @inlinable public func withUnsafePointer<Result>(
-    _ body: (UnsafePointer<Int>) -> Result
-  ) -> Result {
-    Swift.withUnsafePointer(to: _storage) {
-      body(UnsafeRawPointer($0).assumingMemoryBound(to: Int.self))
-    }
-  }
-}
-
-//==============================================================================
-// additional SIMD types to fill in range
-// https://github.com/apple/swift/blob/master/stdlib/public/core/SIMDVectorTypes.swift.gyb
-// This isn't actually used to do SIMD operations, but merely as
-// a placeholder to satisfy Shape1 Bounds conformance
-@frozen public struct SIMD1<Scalar>: SIMD where Scalar: SIMDScalar {
-  public var _storage: Scalar.SIMD2Storage
-  public typealias MaskStorage = SIMD1<Scalar.SIMDMaskScalar>
-
-  /// The number of scalars in the vector.
-  @_transparent
-  public var scalarCount: Int { 1 }
-
+  // properties
+  public var _storage: Int.SIMD2Storage
+  public typealias MaskStorage = SIMD2<Int.SIMDMaskScalar>
+  @_transparent public static var zeroTuple: Tuple { (0) }
+  @_transparent public static var oneTuple: Tuple { (1) }
+  @_transparent public static var rank: Int { 1 }
+  
+  //------------------------------------------
+  // initializers
   /// Creates a vector with zero in all lanes.
-  @_transparent
-  public init() {
-    _storage = Scalar.SIMD2Storage()
-  }
+  @_transparent public init() { _storage = Scalar.SIMD2Storage() }
 
-  @_transparent
-  public init(_ v0: Scalar) {
+  @_transparent public init(_ v0: Int) {
     self.init()
     self[0] = v0
   }
-
-  /// Accesses the scalar at the specified position.
-  public subscript(index: Int) -> Scalar {
-    @_transparent get {
-      assert(indices.contains(index))
-      return _storage[index]
-    }
-    @_transparent set {
-      assert(indices.contains(index))
-      _storage[index] = newValue
-    }
-  }
-
 }
 
-// to support 5D tensors
-@frozen public struct SIMD5<Scalar>: SIMD where Scalar: SIMDScalar {
-  public var _storage: Scalar.SIMD8Storage
-  public typealias MaskStorage = SIMD5<Scalar.SIMDMaskScalar>
+//==============================================================================
+/// Shape2
+/// Represents the shape of a 2D element space
+public struct Shape2: TensorShape, ExpressibleByIntegerLiteral {
+  // types
+  public typealias Tuple = (Int, Int)
+  public typealias M1 = Shape1
 
-  /// The number of scalars in the vector.
-  @_transparent
-  public var scalarCount: Int { 5 }
+  // properties
+  public var _storage: Int.SIMD2Storage
+  public typealias MaskStorage = SIMD2<Int.SIMDMaskScalar>
+  @_transparent public static var zeroTuple: Tuple { (0, 0) }
+  @_transparent public static var oneTuple: Tuple { (1, 1) }
+  @_transparent public static var rank: Int { 2 }
 
+  //------------------------------------------
+  // initializers
   /// Creates a vector with zero in all lanes.
-  @_transparent
-  public init() {
-    _storage = Scalar.SIMD8Storage()
+  @_transparent public init() { _storage = Scalar.SIMD2Storage() }
+  
+  @_transparent public init(_ v0: Int, _ v1: Int) {
+    self.init()
+    self[0] = v0
+    self[1] = v1
   }
 
-  @_transparent
-  public init(
-    _ v0: Scalar, _ v1: Scalar, _ v2: Scalar,
-    _ v3: Scalar, _ v4: Scalar
-  ) {
+  @_transparent public init(_ shape: Tuple) {
+    self.init(shape.0, shape.1)
+  }
+}
+
+//==============================================================================
+/// Shape3
+/// Represents the shape of a 3D element space
+public struct Shape3: TensorShape, ExpressibleByIntegerLiteral {
+  // types
+  public typealias Tuple = (Int, Int, Int)
+  public typealias M1 = Shape2
+  
+  // properties
+  public var _storage: Int.SIMD4Storage
+  public typealias MaskStorage = SIMD4<Int.SIMDMaskScalar>
+  @_transparent public static var zeroTuple: Tuple { (0, 0, 0) }
+  @_transparent public static var oneTuple: Tuple { (1, 1, 1) }
+  @_transparent public static var rank: Int { 3 }
+  
+  //------------------------------------------
+  // initializers
+  /// Creates a vector with zero in all lanes.
+  @_transparent public init() { _storage = Scalar.SIMD4Storage() }
+  
+  @_transparent public init(_ v0: Int, _ v1: Int, _ v2: Int) {
+    self.init()
+    self[0] = v0
+    self[1] = v1
+    self[2] = v2
+  }
+  
+  @_transparent public init(_ shape: Tuple) {
+    self.init(shape.0, shape.1, shape.2)
+  }
+}
+
+//==============================================================================
+/// Shape4
+/// Represents the shape of a 4D element space
+public struct Shape4: TensorShape, ExpressibleByIntegerLiteral {
+  // types
+  public typealias Tuple = (Int, Int, Int, Int)
+  public typealias M1 = Shape3
+  
+  // properties
+  public var _storage: Int.SIMD4Storage
+  public typealias MaskStorage = SIMD4<Int.SIMDMaskScalar>
+  @_transparent public static var zeroTuple: Tuple { (0, 0, 0, 0) }
+  @_transparent public static var oneTuple: Tuple { (1, 1, 1, 1) }
+  @_transparent public static var rank: Int { 4 }
+  
+  //------------------------------------------
+  // initializers
+  /// Creates a vector with zero in all lanes.
+  @_transparent public init() { _storage = Scalar.SIMD4Storage() }
+  
+  @_transparent public init(_ v0: Int, _ v1: Int, _ v2: Int, _ v3: Int) {
+    self.init()
+    self[0] = v0
+    self[1] = v1
+    self[2] = v2
+    self[3] = v3
+  }
+  
+  @_transparent public init(_ shape: Tuple) {
+    self.init(shape.0, shape.1, shape.2, shape.3)
+  }
+}
+
+//==============================================================================
+/// Shape5
+/// Represents the shape of a 5D element space
+public struct Shape5: TensorShape, ExpressibleByIntegerLiteral {
+  // types
+  public typealias Tuple = (Int, Int, Int, Int, Int)
+  public typealias M1 = Shape4
+  
+  // properties
+  public var _storage: Int.SIMD8Storage
+  public typealias MaskStorage = SIMD8<Int.SIMDMaskScalar>
+  @_transparent public static var zeroTuple: Tuple { (0, 0, 0, 0, 0) }
+  @_transparent public static var oneTuple: Tuple { (1, 1, 1, 1, 1) }
+  @_transparent public static var rank: Int { 5 }
+  
+  //------------------------------------------
+  // initializers
+  /// Creates a vector with zero in all lanes.
+  @_transparent public init() { _storage = Scalar.SIMD8Storage() }
+  
+  @_transparent public init(_ v0: Int, _ v1: Int, _ v2: Int, _ v3: Int, _ v4: Int) {
     self.init()
     self[0] = v0
     self[1] = v1
@@ -726,40 +462,33 @@ extension SIMD6: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
     self[3] = v3
     self[4] = v4
   }
-
-  /// Accesses the scalar at the specified position.
-  public subscript(index: Int) -> Scalar {
-    @_transparent get {
-      assert(indices.contains(index))
-      return _storage[index]
-    }
-    @_transparent set {
-      assert(indices.contains(index))
-      _storage[index] = newValue
-    }
+  
+  @_transparent public init(_ shape: Tuple) {
+    self.init(shape.0, shape.1, shape.2, shape.3, shape.4)
   }
 }
 
-// to support 6D tensors
-@frozen public struct SIMD6<Scalar>: SIMD where Scalar: SIMDScalar {
-  public var _storage: Scalar.SIMD8Storage
-  public typealias MaskStorage = SIMD6<Scalar.SIMDMaskScalar>
-
-  /// The number of scalars in the vector.
-  @_transparent
-  public var scalarCount: Int { 6 }
-
+//==============================================================================
+/// Shape6
+/// Represents the shape of a 6D element space
+public struct Shape6: TensorShape, ExpressibleByIntegerLiteral {
+  // types
+  public typealias Tuple = (Int, Int, Int, Int, Int, Int)
+  public typealias M1 = Shape5
+  
+  // properties
+  public var _storage: Int.SIMD8Storage
+  public typealias MaskStorage = SIMD8<Int.SIMDMaskScalar>
+  @_transparent public static var zeroTuple: Tuple { (0, 0, 0, 0, 0, 0) }
+  @_transparent public static var oneTuple: Tuple { (1, 1, 1, 1, 1, 1) }
+  @_transparent public static var rank: Int { 6 }
+  
+  //------------------------------------------
+  // initializers
   /// Creates a vector with zero in all lanes.
-  @_transparent
-  public init() {
-    _storage = Scalar.SIMD8Storage()
-  }
-
-  @_transparent
-  public init(
-    _ v0: Scalar, _ v1: Scalar, _ v2: Scalar, _ v3: Scalar,
-    _ v4: Scalar, _ v5: Scalar
-  ) {
+  @_transparent public init() { _storage = Scalar.SIMD8Storage() }
+  
+  @_transparent public init(_ v0: Int, _ v1: Int, _ v2: Int, _ v3: Int, _ v4: Int, _ v5: Int) {
     self.init()
     self[0] = v0
     self[1] = v1
@@ -768,16 +497,9 @@ extension SIMD6: TensorShape, ExpressibleByIntegerLiteral where Scalar == Int {
     self[4] = v4
     self[5] = v5
   }
-
-  /// Accesses the scalar at the specified position.
-  public subscript(index: Int) -> Scalar {
-    @_transparent get {
-      assert(indices.contains(index))
-      return _storage[index]
-    }
-    @_transparent set {
-      assert(indices.contains(index))
-      _storage[index] = newValue
-    }
+  
+  @_transparent public init(_ shape: Tuple) {
+    self.init(shape.0, shape.1, shape.2, shape.3, shape.4, shape.5)
   }
 }
+

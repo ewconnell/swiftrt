@@ -81,16 +81,4 @@ public final class CpuPoolingConfig<Shape: TensorShape, Element: StorageElement>
   ) {
     shape = tensor.shape
   }
-
-    //----------------------------------------------------------------------------
-  /// init(x:windowSize:strides:padding:op:
-  @inlinable public init(
-    batch: Tensor<Shape, Element>,
-    windowSize: Shape.M1,
-    strides: Shape.M1 = Shape.M1.one,
-    padding: Shape.M1 = Shape.M1.zero,
-    op: PoolingOp
-  ) {
-    shape = batch.shape
-  }
 }

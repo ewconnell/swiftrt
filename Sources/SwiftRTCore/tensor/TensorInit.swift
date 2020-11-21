@@ -494,7 +494,7 @@ extension Tensor {
 
     // resolve an implied dimension if it exists
     var shape = newShape
-    for i in 0..<shape.count where newShape[i] == -1 {
+    for i in 0..<Shape.rank where newShape[i] == -1 {
       shape[i] = 1
       let specifiedCount = shape.elementCount()
       assert(
@@ -590,7 +590,7 @@ extension Tensor {
     var strides = Shape.zero
 
     // default case indents by 1
-    if axes.count == 1 && axes[0] == 0 {
+    if Axes.rank == 1 && axes[0] == 0 {
       shape[0] = 1
       strides[0] = other.shape[0] * other.strides[0]
       for (i, j) in zip(1..<Shape.rank, 0..<S.rank) {
@@ -598,10 +598,10 @@ extension Tensor {
         strides[i] = other.strides[j]
       }
     } else {
-      assert(Shape.rank == S.rank + axes.count, "rank mismatch")
+      assert(Shape.rank == S.rank + Axes.rank, "rank mismatch")
       // set 1 in expanded dimensions making sure axes are positive
       // and keeping in mind the axes could be in any order
-      for i in 0..<axes.count {
+      for i in 0..<Axes.rank {
         shape[axes[i] >= 0 ? axes[i] : axes[i] + S.rank] = 1
       }
 
@@ -676,7 +676,7 @@ extension Tensor {
 
     // zero the axes to squeeze. These are done in two loops
     // because the axes list could be in any order
-    for i in 0..<axes.count {
+    for i in 0..<Axes.rank {
       otherShape[axes[i] >= 0 ? axes[i] : axes[i] + S.rank] = 0
     }
 

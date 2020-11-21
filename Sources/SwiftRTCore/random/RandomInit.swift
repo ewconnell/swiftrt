@@ -145,22 +145,20 @@ extension TensorShape {
   // the last two axes represent the input channel count and output
   // channel count, respectively.
   fileprivate func fans() -> (in: Int, out: Int) {
-    precondition(
-      count > 1,
-      "Fans cannot be computed for tensors with" + " fewer than 2 dimensions. Got: \(count)")
+    precondition(Self.rank > 1, "Fans cannot be computed for tensors with fewer than 2 dimensions")
 
     // Fans for a 2-D tensor, e.g. `Dense`/`Embedding` weights.
-    if count == 2 {
+    if Self.rank == 2 {
       return (self[0], self[1])
     }
 
     // Fans for tensors with rank greater than `2`, specifically
     // convolution filters.
-    let lastSpatialAxis = indices.endIndex - 3
+    let lastSpatialAxis = Self.lastIndex - 2
     let spatialSize = lastSpatialAxis + 1
-    let inputAxis = indices.endIndex - 2
+    let inputAxis = Self.lastIndex - 1
     let fanIn = self[inputAxis] * spatialSize
-    let outputAxis = indices.endIndex - 1
+    let outputAxis = Self.lastIndex
     let fanOut = self[outputAxis] * spatialSize
     return (fanIn, fanOut)
   }
