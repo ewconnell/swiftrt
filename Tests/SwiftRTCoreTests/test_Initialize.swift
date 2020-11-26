@@ -43,7 +43,7 @@ class test_Initialize: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_FloatRange() {
-    let a = Tensor2(from: 0.5, to: 1.49, [2, 2])
+    let a = Tensor2(from: 0.5, to: 1.49, shape: (2, 2))
     XCTAssert(
       a == [
         [0.5, 0.83000004],
@@ -55,7 +55,7 @@ class test_Initialize: XCTestCase {
   func test_complexRange() {
     let start = Complex<Float>(-1.7, 1.7)
     let end = Complex<Float>(1.7, -1.7)
-    let a = TensorR2<Complex<Float>>(from: start, to: end, [2, 2])
+    let a = TensorR2<Complex<Float>>(from: start, to: end, shape: (2, 2))
     XCTAssert(
       a == [
         [Complex<Float>(-1.7, 1.7), Complex<Float>(-0.5666666, 0.5666666)],

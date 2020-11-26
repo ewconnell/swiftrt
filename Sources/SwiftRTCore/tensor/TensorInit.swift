@@ -204,7 +204,7 @@ extension Tensor {
   ///  - name: the name of the tensor
   @inlinable public init(
     range: Range<Int>,
-    _ shape: Shape,
+    shape: Shape,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
   ) where TensorElement.Value: Numeric {
@@ -225,7 +225,7 @@ extension Tensor {
   @inlinable public init(
     from first: TensorElement.Value,
     to last: TensorElement.Value,
-    _ shape: Shape,
+    shape: Shape,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
   ) where TensorElement.Value: BinaryInteger {
@@ -237,13 +237,33 @@ extension Tensor {
   @inlinable public init(
     from first: TensorElement.Value,
     to last: TensorElement.Value,
-    _ shape: Shape,
+    shape: Shape.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+  ) where TensorElement.Value: BinaryInteger {
+    self.init(from: first, to: last, shape: Shape(shape), order: order, name: name)
+  }
+  
+  @inlinable public init(
+    from first: TensorElement.Value,
+    to last: TensorElement.Value,
+    shape: Shape,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
   ) where TensorElement.Value: AlgebraicField {
     self.init(shape: shape, order: order, name: name)
     let step = (last - first) / TensorElement.Value(exactly: count - 1)!
     currentQueue.fill(&self, from: first, to: last, by: step)
+  }
+
+  @inlinable public init(
+    from first: TensorElement.Value,
+    to last: TensorElement.Value,
+    shape: Shape.Tuple,
+    order: Order = .defaultOrder,
+    name: String = defaultTensorName
+  ) where TensorElement.Value: AlgebraicField {
+    self.init(from: first, to: last, shape: Shape(shape), order: order, name: name)
   }
 }
 
@@ -272,7 +292,7 @@ extension Tensor {
   ///  - name: the name of the tensor
   @inlinable public init<C>(
     stored elements: C,
-    _ shape: Shape,
+    shape: Shape,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
   ) where C: Collection, C.Element == TensorElement.Stored {
@@ -298,7 +318,7 @@ extension Tensor {
   ///  - name: the name of the tensor
   @inlinable public init<C>(
     _ elements: C,
-    _ shape: Shape,
+    shape: Shape,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
   ) where C: Collection, C.Element == TensorElement.Value {
@@ -323,7 +343,7 @@ extension Tensor {
   ///  - name: the name of the tensor
   @inlinable public init<C>(
     _ elements: C,
-    _ shape: Shape,
+    shape: Shape,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
   ) where C: Collection, C.Element == Bool, TensorElement.Value: Numeric {
@@ -350,7 +370,7 @@ extension Tensor {
   ///  - name: the name of the tensor
   @inlinable public init<C>(
     _ elements: C,
-    _ shape: Shape,
+    shape: Shape,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
   ) where C: Collection, C.Element: Numeric, TensorElement.Value == Bool {
@@ -375,7 +395,7 @@ extension Tensor {
   ///  - name: the name of the tensor
   @inlinable public init<C>(
     _ elements: C,
-    _ shape: Shape,
+    shape: Shape,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
   )
@@ -405,7 +425,7 @@ extension Tensor {
   // Note: to handle the case of Double <--> Float
   @inlinable public init<C>(
     _ elements: C,
-    _ shape: Shape,
+    shape: Shape,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
   )
@@ -435,7 +455,7 @@ extension Tensor {
   // Note: to handle the case of Double <--> Float
   @inlinable public init<C>(
     _ elements: C,
-    _ shape: Shape,
+    shape: Shape,
     order: Order = .defaultOrder,
     name: String = defaultTensorName
   )

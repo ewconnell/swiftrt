@@ -58,7 +58,7 @@ numShapes = 6
     _ range: Range<Int>,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,DType> {
-    Tensor<Shape1,DType>(range: range, Shape1(range.count), name: name)
+    Tensor<Shape1,DType>(range: range, shape: Shape1(range.count), name: name)
 }
 
 //---------------------------
@@ -69,7 +69,7 @@ numShapes = 6
     count: Int,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape1,E>(from: first, to: last, Shape1(count), name: name)
+    Tensor<Shape1,E>(from: first, to: last, shape: Shape1(count), name: name)
 }
 
 //---------------------------
@@ -78,7 +78,7 @@ numShapes = 6
     stored elements: C,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape1,C.Element>(stored: elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,C.Element>(stored: elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -87,7 +87,7 @@ numShapes = 6
     _ elements: C,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape1,C.Element>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,C.Element>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -96,7 +96,7 @@ numShapes = 6
     _ elements: C,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,DType> where C.Element == Int {
-    Tensor<Shape1,DType>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,DType>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -105,7 +105,7 @@ numShapes = 6
     _ elements: C,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,DType> where C.Element == Double {
-    Tensor<Shape1,DType>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,DType>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //************************** Explicit typing
@@ -117,7 +117,7 @@ numShapes = 6
     type: Element.Type,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape1, Element>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1, Element>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -127,7 +127,7 @@ numShapes = 6
     type: Element.Type,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,Bool> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape1,Bool>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,Bool>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -137,7 +137,7 @@ numShapes = 6
     type: Element.Type,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape1,Element>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,Element>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -149,7 +149,7 @@ numShapes = 6
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
 {
-    Tensor<Shape1, Element>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1, Element>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -161,7 +161,7 @@ numShapes = 6
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
 {
-    Tensor<Shape1, Element>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1, Element>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -173,7 +173,7 @@ numShapes = 6
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
-    Tensor<Shape1,Element>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,Element>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //******************************************************************************
@@ -193,7 +193,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},DType> {
-    Tensor<Shape${n},DType>(range: range, Shape${n}(shape), order: order, name: name)
+    Tensor<Shape${n},DType>(range: range, shape: Shape${n}(shape), order: order, name: name)
 }
 
 @inlinable public func array(
@@ -202,7 +202,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},DType> {
-    Tensor<Shape${n},DType>(range: range, shape, order: order, name: name)
+    Tensor<Shape${n},DType>(range: range, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -214,7 +214,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape${n},E>(from: first, to: last, Shape${n}(shape),
+    Tensor<Shape${n},E>(from: first, to: last, shape: Shape${n}(shape),
                         order: order, name: name)
 }
 
@@ -225,7 +225,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape${n},E>(from: first, to: last, shape, order: order, name: name)
+    Tensor<Shape${n},E>(from: first, to: last, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -236,7 +236,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape${n},C.Element>(stored: elements, Shape${n}(shape),
+    Tensor<Shape${n},C.Element>(stored: elements, shape: Shape${n}(shape),
                                 order: order, name: name)
 }
 
@@ -246,7 +246,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape${n},C.Element>(stored: elements, shape, order: order, name: name)
+    Tensor<Shape${n},C.Element>(stored: elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -257,7 +257,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape${n},C.Element>(elements, Shape${n}(shape), order: order, name: name)
+    Tensor<Shape${n},C.Element>(elements, shape: Shape${n}(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -266,7 +266,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape${n},C.Element>(elements, shape, order: order, name: name)
+    Tensor<Shape${n},C.Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -277,7 +277,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},DType> where C.Element == Int {
-    Tensor<Shape${n},DType>(elements, Shape${n}(shape), order: order, name: name)
+    Tensor<Shape${n},DType>(elements, shape: Shape${n}(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -286,7 +286,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},DType> where C.Element == Int {
-    Tensor<Shape${n},DType>(elements, shape, order: order, name: name)
+    Tensor<Shape${n},DType>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -297,7 +297,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},DType> where C.Element == Double {
-    Tensor<Shape${n},DType>(elements, Shape${n}(shape), order: order, name: name)
+    Tensor<Shape${n},DType>(elements, shape: Shape${n}(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -306,7 +306,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},DType> where C.Element == Double {
-    Tensor<Shape${n},DType>(elements, shape, order: order, name: name)
+    Tensor<Shape${n},DType>(elements, shape: shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -320,7 +320,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element> where Element.Value: Numeric {
-    Tensor<Shape${n},Element>(range: range, Shape${n}(shape),
+    Tensor<Shape${n},Element>(range: range, shape: Shape${n}(shape),
                             order: order, name: name)
 }
 
@@ -331,7 +331,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element> where Element.Value: Numeric {
-    Tensor<Shape${n},Element>(range: range, shape, order: order, name: name)
+    Tensor<Shape${n},Element>(range: range, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -343,7 +343,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order, name: name)
+    Tensor<Shape${n},Element>(elements, shape: Shape${n}(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -353,7 +353,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape${n},Element>(elements, shape, order: order, name: name)
+    Tensor<Shape${n},Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -365,7 +365,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order, name: name)
+    Tensor<Shape${n},Element>(elements, shape: Shape${n}(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -375,7 +375,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape${n},Element>(elements, shape, order: order, name: name)
+    Tensor<Shape${n},Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -387,7 +387,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order, name: name)
+    Tensor<Shape${n},Element>(elements, shape: Shape${n}(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -397,7 +397,7 @@ numShapes = 6
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape${n},Element>(elements, shape, order: order, name: name)
+    Tensor<Shape${n},Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -410,7 +410,7 @@ numShapes = 6
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element>
     where C.Element: BinaryInteger, Element.Value: Numeric {
-    Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order, name: name)
+    Tensor<Shape${n},Element>(elements, shape: Shape${n}(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -421,7 +421,7 @@ numShapes = 6
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element>
     where C.Element: BinaryInteger, Element.Value: Numeric {
-    Tensor<Shape${n},Element>(elements, shape, order: order, name: name)
+    Tensor<Shape${n},Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -434,7 +434,7 @@ numShapes = 6
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
-    Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order, name: name)
+    Tensor<Shape${n},Element>(elements, shape: Shape${n}(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -445,7 +445,7 @@ numShapes = 6
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
-    Tensor<Shape${n},Element>(elements, shape, order: order, name: name)
+    Tensor<Shape${n},Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -458,7 +458,7 @@ numShapes = 6
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
-    Tensor<Shape${n},Element>(elements, Shape${n}(shape), order: order, name: name)
+    Tensor<Shape${n},Element>(elements, shape: Shape${n}(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -469,7 +469,7 @@ numShapes = 6
     name: String = defaultTensorName
 ) -> Tensor<Shape${n},Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
-    Tensor<Shape${n},Element>(elements, shape, order: order, name: name)
+    Tensor<Shape${n},Element>(elements, shape: shape, order: order, name: name)
 }
 
 %end
@@ -504,7 +504,7 @@ numShapes = 6
 
     let flatElements = elements${'.joined()' * (n - 1)}
     return Tensor<Shape${n},C${'.Element' * n}>(
-        stored: flatElements, shape, order: order, name: name)
+        stored: flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -527,7 +527,7 @@ numShapes = 6
 
     let flatElements = elements${'.joined()' * (n - 1)}
     return Tensor<Shape${n},C${'.Element' * n}>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -550,7 +550,7 @@ numShapes = 6
 
     let flatElements = elements${'.joined()' * (n - 1)}
     return Tensor<Shape${n},DType>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -573,7 +573,7 @@ numShapes = 6
 
     let flatElements = elements${'.joined()' * (n - 1)}
     return Tensor<Shape${n},DType>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -599,7 +599,7 @@ numShapes = 6
 
     let flatElements = elements${'.joined()' * (n - 1)}
     return Tensor<Shape${n},Element>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -622,7 +622,7 @@ numShapes = 6
 % end
 
     let flatElements = elements${'.joined()' * (n - 1)}
-    return Tensor<Shape${n},Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape${n},Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -645,7 +645,7 @@ numShapes = 6
 % end
 
     let flatElements = elements${'.joined()' * (n - 1)}
-    return Tensor<Shape${n},Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape${n},Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -669,7 +669,7 @@ numShapes = 6
 % end
 
     let flatElements = elements${'.joined()' * (n - 1)}
-    return Tensor<Shape${n},Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape${n},Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -693,7 +693,7 @@ numShapes = 6
 % end
 
     let flatElements = elements${'.joined()' * (n - 1)}
-    return Tensor<Shape${n},Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape${n},Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 %end

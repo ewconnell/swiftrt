@@ -37,6 +37,7 @@ import XCTest
       testCase(test_Subscripting.allTests),
       testCase(test_VectorElement.allTests),
       testCase(test_Vectorizing.allTests),
+      testCase(test_vmap.allTests),
     ]
   }
 #endif

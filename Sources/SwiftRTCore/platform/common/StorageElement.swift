@@ -371,6 +371,8 @@ extension Tensor where TensorElement == Bool1 {
     storageBase = other.storageBase
     order = other.order
     isShared = other.isShared
+    batchCount = other.batchCount
+    batchStride = other.batchStride
     count = other.count
     spanCount = other.spanCount
     logicalStrides = other.logicalStrides
@@ -406,6 +408,8 @@ extension Tensor where TensorElement == UInt1 {
     storageBase = other.storageBase
     order = other.order
     isShared = other.isShared
+    batchCount = other.batchCount
+    batchStride = other.batchStride
     count = other.count
     spanCount = other.spanCount
     logicalStrides = other.logicalStrides

@@ -317,18 +317,13 @@ extension TensorShape {
 /// Shape1
 /// Represents the shape of a 1D element space
 public struct Shape1: TensorShape, ExpressibleByIntegerLiteral {
-  // types
   public typealias Tuple = (Int)
-
-  // properties
   public var _storage: Int.SIMD2Storage
   public typealias MaskStorage = SIMD2<Int.SIMDMaskScalar>
   @_transparent public static var zeroTuple: Tuple { (0) }
   @_transparent public static var oneTuple: Tuple { (1) }
   @_transparent public static var rank: Int { 1 }
   
-  //------------------------------------------
-  // initializers
   /// Creates a vector with zero in all lanes.
   @_transparent public init() { _storage = Scalar.SIMD2Storage() }
 
@@ -342,19 +337,13 @@ public struct Shape1: TensorShape, ExpressibleByIntegerLiteral {
 /// Shape2
 /// Represents the shape of a 2D element space
 public struct Shape2: TensorShape, ExpressibleByIntegerLiteral {
-  // types
   public typealias Tuple = (Int, Int)
-  public typealias M1 = Shape1
-
-  // properties
   public var _storage: Int.SIMD2Storage
   public typealias MaskStorage = SIMD2<Int.SIMDMaskScalar>
   @_transparent public static var zeroTuple: Tuple { (0, 0) }
   @_transparent public static var oneTuple: Tuple { (1, 1) }
   @_transparent public static var rank: Int { 2 }
 
-  //------------------------------------------
-  // initializers
   /// Creates a vector with zero in all lanes.
   @_transparent public init() { _storage = Scalar.SIMD2Storage() }
   
@@ -373,19 +362,13 @@ public struct Shape2: TensorShape, ExpressibleByIntegerLiteral {
 /// Shape3
 /// Represents the shape of a 3D element space
 public struct Shape3: TensorShape, ExpressibleByIntegerLiteral {
-  // types
   public typealias Tuple = (Int, Int, Int)
-  public typealias M1 = Shape2
-  
-  // properties
   public var _storage: Int.SIMD4Storage
   public typealias MaskStorage = SIMD4<Int.SIMDMaskScalar>
   @_transparent public static var zeroTuple: Tuple { (0, 0, 0) }
   @_transparent public static var oneTuple: Tuple { (1, 1, 1) }
   @_transparent public static var rank: Int { 3 }
   
-  //------------------------------------------
-  // initializers
   /// Creates a vector with zero in all lanes.
   @_transparent public init() { _storage = Scalar.SIMD4Storage() }
   
@@ -405,19 +388,13 @@ public struct Shape3: TensorShape, ExpressibleByIntegerLiteral {
 /// Shape4
 /// Represents the shape of a 4D element space
 public struct Shape4: TensorShape, ExpressibleByIntegerLiteral {
-  // types
   public typealias Tuple = (Int, Int, Int, Int)
-  public typealias M1 = Shape3
-  
-  // properties
   public var _storage: Int.SIMD4Storage
   public typealias MaskStorage = SIMD4<Int.SIMDMaskScalar>
   @_transparent public static var zeroTuple: Tuple { (0, 0, 0, 0) }
   @_transparent public static var oneTuple: Tuple { (1, 1, 1, 1) }
   @_transparent public static var rank: Int { 4 }
   
-  //------------------------------------------
-  // initializers
   /// Creates a vector with zero in all lanes.
   @_transparent public init() { _storage = Scalar.SIMD4Storage() }
   
@@ -438,19 +415,13 @@ public struct Shape4: TensorShape, ExpressibleByIntegerLiteral {
 /// Shape5
 /// Represents the shape of a 5D element space
 public struct Shape5: TensorShape, ExpressibleByIntegerLiteral {
-  // types
   public typealias Tuple = (Int, Int, Int, Int, Int)
-  public typealias M1 = Shape4
-  
-  // properties
   public var _storage: Int.SIMD8Storage
   public typealias MaskStorage = SIMD8<Int.SIMDMaskScalar>
   @_transparent public static var zeroTuple: Tuple { (0, 0, 0, 0, 0) }
   @_transparent public static var oneTuple: Tuple { (1, 1, 1, 1, 1) }
   @_transparent public static var rank: Int { 5 }
   
-  //------------------------------------------
-  // initializers
   /// Creates a vector with zero in all lanes.
   @_transparent public init() { _storage = Scalar.SIMD8Storage() }
   
@@ -472,19 +443,13 @@ public struct Shape5: TensorShape, ExpressibleByIntegerLiteral {
 /// Shape6
 /// Represents the shape of a 6D element space
 public struct Shape6: TensorShape, ExpressibleByIntegerLiteral {
-  // types
   public typealias Tuple = (Int, Int, Int, Int, Int, Int)
-  public typealias M1 = Shape5
-  
-  // properties
   public var _storage: Int.SIMD8Storage
   public typealias MaskStorage = SIMD8<Int.SIMDMaskScalar>
   @_transparent public static var zeroTuple: Tuple { (0, 0, 0, 0, 0, 0) }
   @_transparent public static var oneTuple: Tuple { (1, 1, 1, 1, 1, 1) }
   @_transparent public static var rank: Int { 6 }
   
-  //------------------------------------------
-  // initializers
   /// Creates a vector with zero in all lanes.
   @_transparent public init() { _storage = Scalar.SIMD8Storage() }
   

@@ -23,7 +23,6 @@ add_library(SwiftRTCore
   operators/Pool.swift
   operators/Reductions.swift
 
-  platform/common/TempFloat16.swift
   platform/common/BFloat16.swift
   platform/common/ComplexExtensions.swift
   platform/common/DeviceQueue.swift

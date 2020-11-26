@@ -55,7 +55,7 @@ import Numerics
     _ range: Range<Int>,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,DType> {
-    Tensor<Shape1,DType>(range: range, Shape1(range.count), name: name)
+    Tensor<Shape1,DType>(range: range, shape: Shape1(range.count), name: name)
 }
 
 //---------------------------
@@ -66,7 +66,7 @@ import Numerics
     count: Int,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape1,E>(from: first, to: last, Shape1(count), name: name)
+    Tensor<Shape1,E>(from: first, to: last, shape: Shape1(count), name: name)
 }
 
 //---------------------------
@@ -75,7 +75,7 @@ import Numerics
     stored elements: C,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape1,C.Element>(stored: elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,C.Element>(stored: elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -84,7 +84,7 @@ import Numerics
     _ elements: C,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape1,C.Element>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,C.Element>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -93,7 +93,7 @@ import Numerics
     _ elements: C,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,DType> where C.Element == Int {
-    Tensor<Shape1,DType>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,DType>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -102,7 +102,7 @@ import Numerics
     _ elements: C,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,DType> where C.Element == Double {
-    Tensor<Shape1,DType>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,DType>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //************************** Explicit typing
@@ -114,7 +114,7 @@ import Numerics
     type: Element.Type,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape1, Element>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1, Element>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -124,7 +124,7 @@ import Numerics
     type: Element.Type,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,Bool> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape1,Bool>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,Bool>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -134,7 +134,7 @@ import Numerics
     type: Element.Type,
     name: String = defaultTensorName
 ) -> Tensor<Shape1,Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape1,Element>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,Element>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -146,7 +146,7 @@ import Numerics
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric
 {
-    Tensor<Shape1, Element>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1, Element>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -158,7 +158,7 @@ import Numerics
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint
 {
-    Tensor<Shape1, Element>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1, Element>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //---------------------------
@@ -170,7 +170,7 @@ import Numerics
 ) -> Tensor<Shape1,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger
 {
-    Tensor<Shape1,Element>(elements, Shape1(elements.count), name: name)
+    Tensor<Shape1,Element>(elements, shape: Shape1(elements.count), name: name)
 }
 
 //******************************************************************************
@@ -189,7 +189,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,DType> {
-    Tensor<Shape2,DType>(range: range, Shape2(shape), order: order, name: name)
+    Tensor<Shape2,DType>(range: range, shape: Shape2(shape), order: order, name: name)
 }
 
 @inlinable public func array(
@@ -198,7 +198,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,DType> {
-    Tensor<Shape2,DType>(range: range, shape, order: order, name: name)
+    Tensor<Shape2,DType>(range: range, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -210,7 +210,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape2,E>(from: first, to: last, Shape2(shape),
+    Tensor<Shape2,E>(from: first, to: last, shape: Shape2(shape),
                         order: order, name: name)
 }
 
@@ -221,7 +221,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape2,E>(from: first, to: last, shape, order: order, name: name)
+    Tensor<Shape2,E>(from: first, to: last, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -232,7 +232,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape2,C.Element>(stored: elements, Shape2(shape),
+    Tensor<Shape2,C.Element>(stored: elements, shape: Shape2(shape),
                                 order: order, name: name)
 }
 
@@ -242,7 +242,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape2,C.Element>(stored: elements, shape, order: order, name: name)
+    Tensor<Shape2,C.Element>(stored: elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -253,7 +253,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape2,C.Element>(elements, Shape2(shape), order: order, name: name)
+    Tensor<Shape2,C.Element>(elements, shape: Shape2(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -262,7 +262,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape2,C.Element>(elements, shape, order: order, name: name)
+    Tensor<Shape2,C.Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -273,7 +273,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,DType> where C.Element == Int {
-    Tensor<Shape2,DType>(elements, Shape2(shape), order: order, name: name)
+    Tensor<Shape2,DType>(elements, shape: Shape2(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -282,7 +282,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,DType> where C.Element == Int {
-    Tensor<Shape2,DType>(elements, shape, order: order, name: name)
+    Tensor<Shape2,DType>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -293,7 +293,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,DType> where C.Element == Double {
-    Tensor<Shape2,DType>(elements, Shape2(shape), order: order, name: name)
+    Tensor<Shape2,DType>(elements, shape: Shape2(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -302,7 +302,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,DType> where C.Element == Double {
-    Tensor<Shape2,DType>(elements, shape, order: order, name: name)
+    Tensor<Shape2,DType>(elements, shape: shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -316,7 +316,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element> where Element.Value: Numeric {
-    Tensor<Shape2,Element>(range: range, Shape2(shape),
+    Tensor<Shape2,Element>(range: range, shape: Shape2(shape),
                             order: order, name: name)
 }
 
@@ -327,7 +327,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element> where Element.Value: Numeric {
-    Tensor<Shape2,Element>(range: range, shape, order: order, name: name)
+    Tensor<Shape2,Element>(range: range, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -339,7 +339,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape2,Element>(elements, Shape2(shape), order: order, name: name)
+    Tensor<Shape2,Element>(elements, shape: Shape2(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -349,7 +349,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape2,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape2,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -361,7 +361,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape2,Element>(elements, Shape2(shape), order: order, name: name)
+    Tensor<Shape2,Element>(elements, shape: Shape2(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -371,7 +371,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape2,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape2,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -383,7 +383,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape2,Element>(elements, Shape2(shape), order: order, name: name)
+    Tensor<Shape2,Element>(elements, shape: Shape2(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -393,7 +393,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape2,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape2,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -406,7 +406,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric {
-    Tensor<Shape2,Element>(elements, Shape2(shape), order: order, name: name)
+    Tensor<Shape2,Element>(elements, shape: Shape2(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -417,7 +417,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric {
-    Tensor<Shape2,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape2,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -430,7 +430,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
-    Tensor<Shape2,Element>(elements, Shape2(shape), order: order, name: name)
+    Tensor<Shape2,Element>(elements, shape: Shape2(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -441,7 +441,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
-    Tensor<Shape2,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape2,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -454,7 +454,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
-    Tensor<Shape2,Element>(elements, Shape2(shape), order: order, name: name)
+    Tensor<Shape2,Element>(elements, shape: Shape2(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -465,7 +465,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape2,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
-    Tensor<Shape2,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape2,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -480,7 +480,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,DType> {
-    Tensor<Shape3,DType>(range: range, Shape3(shape), order: order, name: name)
+    Tensor<Shape3,DType>(range: range, shape: Shape3(shape), order: order, name: name)
 }
 
 @inlinable public func array(
@@ -489,7 +489,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,DType> {
-    Tensor<Shape3,DType>(range: range, shape, order: order, name: name)
+    Tensor<Shape3,DType>(range: range, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -501,7 +501,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape3,E>(from: first, to: last, Shape3(shape),
+    Tensor<Shape3,E>(from: first, to: last, shape: Shape3(shape),
                         order: order, name: name)
 }
 
@@ -512,7 +512,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape3,E>(from: first, to: last, shape, order: order, name: name)
+    Tensor<Shape3,E>(from: first, to: last, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -523,7 +523,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape3,C.Element>(stored: elements, Shape3(shape),
+    Tensor<Shape3,C.Element>(stored: elements, shape: Shape3(shape),
                                 order: order, name: name)
 }
 
@@ -533,7 +533,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape3,C.Element>(stored: elements, shape, order: order, name: name)
+    Tensor<Shape3,C.Element>(stored: elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -544,7 +544,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape3,C.Element>(elements, Shape3(shape), order: order, name: name)
+    Tensor<Shape3,C.Element>(elements, shape: Shape3(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -553,7 +553,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape3,C.Element>(elements, shape, order: order, name: name)
+    Tensor<Shape3,C.Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -564,7 +564,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,DType> where C.Element == Int {
-    Tensor<Shape3,DType>(elements, Shape3(shape), order: order, name: name)
+    Tensor<Shape3,DType>(elements, shape: Shape3(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -573,7 +573,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,DType> where C.Element == Int {
-    Tensor<Shape3,DType>(elements, shape, order: order, name: name)
+    Tensor<Shape3,DType>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -584,7 +584,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,DType> where C.Element == Double {
-    Tensor<Shape3,DType>(elements, Shape3(shape), order: order, name: name)
+    Tensor<Shape3,DType>(elements, shape: Shape3(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -593,7 +593,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,DType> where C.Element == Double {
-    Tensor<Shape3,DType>(elements, shape, order: order, name: name)
+    Tensor<Shape3,DType>(elements, shape: shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -607,7 +607,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element> where Element.Value: Numeric {
-    Tensor<Shape3,Element>(range: range, Shape3(shape),
+    Tensor<Shape3,Element>(range: range, shape: Shape3(shape),
                             order: order, name: name)
 }
 
@@ -618,7 +618,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element> where Element.Value: Numeric {
-    Tensor<Shape3,Element>(range: range, shape, order: order, name: name)
+    Tensor<Shape3,Element>(range: range, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -630,7 +630,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape3,Element>(elements, Shape3(shape), order: order, name: name)
+    Tensor<Shape3,Element>(elements, shape: Shape3(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -640,7 +640,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape3,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape3,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -652,7 +652,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape3,Element>(elements, Shape3(shape), order: order, name: name)
+    Tensor<Shape3,Element>(elements, shape: Shape3(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -662,7 +662,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape3,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape3,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -674,7 +674,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape3,Element>(elements, Shape3(shape), order: order, name: name)
+    Tensor<Shape3,Element>(elements, shape: Shape3(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -684,7 +684,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape3,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape3,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -697,7 +697,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric {
-    Tensor<Shape3,Element>(elements, Shape3(shape), order: order, name: name)
+    Tensor<Shape3,Element>(elements, shape: Shape3(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -708,7 +708,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric {
-    Tensor<Shape3,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape3,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -721,7 +721,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
-    Tensor<Shape3,Element>(elements, Shape3(shape), order: order, name: name)
+    Tensor<Shape3,Element>(elements, shape: Shape3(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -732,7 +732,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
-    Tensor<Shape3,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape3,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -745,7 +745,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
-    Tensor<Shape3,Element>(elements, Shape3(shape), order: order, name: name)
+    Tensor<Shape3,Element>(elements, shape: Shape3(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -756,7 +756,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape3,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
-    Tensor<Shape3,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape3,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -771,7 +771,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,DType> {
-    Tensor<Shape4,DType>(range: range, Shape4(shape), order: order, name: name)
+    Tensor<Shape4,DType>(range: range, shape: Shape4(shape), order: order, name: name)
 }
 
 @inlinable public func array(
@@ -780,7 +780,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,DType> {
-    Tensor<Shape4,DType>(range: range, shape, order: order, name: name)
+    Tensor<Shape4,DType>(range: range, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -792,7 +792,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape4,E>(from: first, to: last, Shape4(shape),
+    Tensor<Shape4,E>(from: first, to: last, shape: Shape4(shape),
                         order: order, name: name)
 }
 
@@ -803,7 +803,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape4,E>(from: first, to: last, shape, order: order, name: name)
+    Tensor<Shape4,E>(from: first, to: last, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -814,7 +814,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape4,C.Element>(stored: elements, Shape4(shape),
+    Tensor<Shape4,C.Element>(stored: elements, shape: Shape4(shape),
                                 order: order, name: name)
 }
 
@@ -824,7 +824,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape4,C.Element>(stored: elements, shape, order: order, name: name)
+    Tensor<Shape4,C.Element>(stored: elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -835,7 +835,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape4,C.Element>(elements, Shape4(shape), order: order, name: name)
+    Tensor<Shape4,C.Element>(elements, shape: Shape4(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -844,7 +844,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape4,C.Element>(elements, shape, order: order, name: name)
+    Tensor<Shape4,C.Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -855,7 +855,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,DType> where C.Element == Int {
-    Tensor<Shape4,DType>(elements, Shape4(shape), order: order, name: name)
+    Tensor<Shape4,DType>(elements, shape: Shape4(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -864,7 +864,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,DType> where C.Element == Int {
-    Tensor<Shape4,DType>(elements, shape, order: order, name: name)
+    Tensor<Shape4,DType>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -875,7 +875,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,DType> where C.Element == Double {
-    Tensor<Shape4,DType>(elements, Shape4(shape), order: order, name: name)
+    Tensor<Shape4,DType>(elements, shape: Shape4(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -884,7 +884,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,DType> where C.Element == Double {
-    Tensor<Shape4,DType>(elements, shape, order: order, name: name)
+    Tensor<Shape4,DType>(elements, shape: shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -898,7 +898,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element> where Element.Value: Numeric {
-    Tensor<Shape4,Element>(range: range, Shape4(shape),
+    Tensor<Shape4,Element>(range: range, shape: Shape4(shape),
                             order: order, name: name)
 }
 
@@ -909,7 +909,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element> where Element.Value: Numeric {
-    Tensor<Shape4,Element>(range: range, shape, order: order, name: name)
+    Tensor<Shape4,Element>(range: range, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -921,7 +921,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape4,Element>(elements, Shape4(shape), order: order, name: name)
+    Tensor<Shape4,Element>(elements, shape: Shape4(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -931,7 +931,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape4,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape4,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -943,7 +943,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape4,Element>(elements, Shape4(shape), order: order, name: name)
+    Tensor<Shape4,Element>(elements, shape: Shape4(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -953,7 +953,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape4,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape4,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -965,7 +965,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape4,Element>(elements, Shape4(shape), order: order, name: name)
+    Tensor<Shape4,Element>(elements, shape: Shape4(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -975,7 +975,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape4,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape4,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -988,7 +988,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric {
-    Tensor<Shape4,Element>(elements, Shape4(shape), order: order, name: name)
+    Tensor<Shape4,Element>(elements, shape: Shape4(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -999,7 +999,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric {
-    Tensor<Shape4,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape4,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1012,7 +1012,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
-    Tensor<Shape4,Element>(elements, Shape4(shape), order: order, name: name)
+    Tensor<Shape4,Element>(elements, shape: Shape4(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1023,7 +1023,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
-    Tensor<Shape4,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape4,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1036,7 +1036,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
-    Tensor<Shape4,Element>(elements, Shape4(shape), order: order, name: name)
+    Tensor<Shape4,Element>(elements, shape: Shape4(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1047,7 +1047,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape4,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
-    Tensor<Shape4,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape4,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -1062,7 +1062,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,DType> {
-    Tensor<Shape5,DType>(range: range, Shape5(shape), order: order, name: name)
+    Tensor<Shape5,DType>(range: range, shape: Shape5(shape), order: order, name: name)
 }
 
 @inlinable public func array(
@@ -1071,7 +1071,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,DType> {
-    Tensor<Shape5,DType>(range: range, shape, order: order, name: name)
+    Tensor<Shape5,DType>(range: range, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1083,7 +1083,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape5,E>(from: first, to: last, Shape5(shape),
+    Tensor<Shape5,E>(from: first, to: last, shape: Shape5(shape),
                         order: order, name: name)
 }
 
@@ -1094,7 +1094,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape5,E>(from: first, to: last, shape, order: order, name: name)
+    Tensor<Shape5,E>(from: first, to: last, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1105,7 +1105,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape5,C.Element>(stored: elements, Shape5(shape),
+    Tensor<Shape5,C.Element>(stored: elements, shape: Shape5(shape),
                                 order: order, name: name)
 }
 
@@ -1115,7 +1115,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape5,C.Element>(stored: elements, shape, order: order, name: name)
+    Tensor<Shape5,C.Element>(stored: elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1126,7 +1126,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape5,C.Element>(elements, Shape5(shape), order: order, name: name)
+    Tensor<Shape5,C.Element>(elements, shape: Shape5(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -1135,7 +1135,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape5,C.Element>(elements, shape, order: order, name: name)
+    Tensor<Shape5,C.Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1146,7 +1146,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,DType> where C.Element == Int {
-    Tensor<Shape5,DType>(elements, Shape5(shape), order: order, name: name)
+    Tensor<Shape5,DType>(elements, shape: Shape5(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -1155,7 +1155,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,DType> where C.Element == Int {
-    Tensor<Shape5,DType>(elements, shape, order: order, name: name)
+    Tensor<Shape5,DType>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1166,7 +1166,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,DType> where C.Element == Double {
-    Tensor<Shape5,DType>(elements, Shape5(shape), order: order, name: name)
+    Tensor<Shape5,DType>(elements, shape: Shape5(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -1175,7 +1175,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,DType> where C.Element == Double {
-    Tensor<Shape5,DType>(elements, shape, order: order, name: name)
+    Tensor<Shape5,DType>(elements, shape: shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -1189,7 +1189,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element> where Element.Value: Numeric {
-    Tensor<Shape5,Element>(range: range, Shape5(shape),
+    Tensor<Shape5,Element>(range: range, shape: Shape5(shape),
                             order: order, name: name)
 }
 
@@ -1200,7 +1200,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element> where Element.Value: Numeric {
-    Tensor<Shape5,Element>(range: range, shape, order: order, name: name)
+    Tensor<Shape5,Element>(range: range, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1212,7 +1212,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape5,Element>(elements, Shape5(shape), order: order, name: name)
+    Tensor<Shape5,Element>(elements, shape: Shape5(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1222,7 +1222,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape5,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape5,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1234,7 +1234,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape5,Element>(elements, Shape5(shape), order: order, name: name)
+    Tensor<Shape5,Element>(elements, shape: Shape5(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1244,7 +1244,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape5,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape5,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1256,7 +1256,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape5,Element>(elements, Shape5(shape), order: order, name: name)
+    Tensor<Shape5,Element>(elements, shape: Shape5(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1266,7 +1266,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape5,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape5,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1279,7 +1279,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric {
-    Tensor<Shape5,Element>(elements, Shape5(shape), order: order, name: name)
+    Tensor<Shape5,Element>(elements, shape: Shape5(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1290,7 +1290,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric {
-    Tensor<Shape5,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape5,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1303,7 +1303,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
-    Tensor<Shape5,Element>(elements, Shape5(shape), order: order, name: name)
+    Tensor<Shape5,Element>(elements, shape: Shape5(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1314,7 +1314,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
-    Tensor<Shape5,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape5,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1327,7 +1327,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
-    Tensor<Shape5,Element>(elements, Shape5(shape), order: order, name: name)
+    Tensor<Shape5,Element>(elements, shape: Shape5(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1338,7 +1338,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape5,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
-    Tensor<Shape5,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape5,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -1353,7 +1353,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,DType> {
-    Tensor<Shape6,DType>(range: range, Shape6(shape), order: order, name: name)
+    Tensor<Shape6,DType>(range: range, shape: Shape6(shape), order: order, name: name)
 }
 
 @inlinable public func array(
@@ -1362,7 +1362,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,DType> {
-    Tensor<Shape6,DType>(range: range, shape, order: order, name: name)
+    Tensor<Shape6,DType>(range: range, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1374,7 +1374,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape6,E>(from: first, to: last, Shape6(shape),
+    Tensor<Shape6,E>(from: first, to: last, shape: Shape6(shape),
                         order: order, name: name)
 }
 
@@ -1385,7 +1385,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,E> where E == E.Value, E: AlgebraicField {
-    Tensor<Shape6,E>(from: first, to: last, shape, order: order, name: name)
+    Tensor<Shape6,E>(from: first, to: last, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1396,7 +1396,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape6,C.Element>(stored: elements, Shape6(shape),
+    Tensor<Shape6,C.Element>(stored: elements, shape: Shape6(shape),
                                 order: order, name: name)
 }
 
@@ -1406,7 +1406,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,C.Element> where C.Element == C.Element.Stored {
-    Tensor<Shape6,C.Element>(stored: elements, shape, order: order, name: name)
+    Tensor<Shape6,C.Element>(stored: elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1417,7 +1417,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape6,C.Element>(elements, Shape6(shape), order: order, name: name)
+    Tensor<Shape6,C.Element>(elements, shape: Shape6(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -1426,7 +1426,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,C.Element> where C.Element == C.Element.Value {
-    Tensor<Shape6,C.Element>(elements, shape, order: order, name: name)
+    Tensor<Shape6,C.Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1437,7 +1437,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,DType> where C.Element == Int {
-    Tensor<Shape6,DType>(elements, Shape6(shape), order: order, name: name)
+    Tensor<Shape6,DType>(elements, shape: Shape6(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -1446,7 +1446,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,DType> where C.Element == Int {
-    Tensor<Shape6,DType>(elements, shape, order: order, name: name)
+    Tensor<Shape6,DType>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1457,7 +1457,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,DType> where C.Element == Double {
-    Tensor<Shape6,DType>(elements, Shape6(shape), order: order, name: name)
+    Tensor<Shape6,DType>(elements, shape: Shape6(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection>(
@@ -1466,7 +1466,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,DType> where C.Element == Double {
-    Tensor<Shape6,DType>(elements, shape, order: order, name: name)
+    Tensor<Shape6,DType>(elements, shape: shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -1480,7 +1480,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element> where Element.Value: Numeric {
-    Tensor<Shape6,Element>(range: range, Shape6(shape),
+    Tensor<Shape6,Element>(range: range, shape: Shape6(shape),
                             order: order, name: name)
 }
 
@@ -1491,7 +1491,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element> where Element.Value: Numeric {
-    Tensor<Shape6,Element>(range: range, shape, order: order, name: name)
+    Tensor<Shape6,Element>(range: range, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1503,7 +1503,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape6,Element>(elements, Shape6(shape), order: order, name: name)
+    Tensor<Shape6,Element>(elements, shape: Shape6(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1513,7 +1513,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element> where C.Element == Bool, Element.Value: Numeric {
-    Tensor<Shape6,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape6,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1525,7 +1525,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape6,Element>(elements, Shape6(shape), order: order, name: name)
+    Tensor<Shape6,Element>(elements, shape: Shape6(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1535,7 +1535,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element> where C.Element: Numeric, Element.Value == Bool {
-    Tensor<Shape6,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape6,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1547,7 +1547,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape6,Element>(elements, Shape6(shape), order: order, name: name)
+    Tensor<Shape6,Element>(elements, shape: Shape6(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1557,7 +1557,7 @@ import Numerics
     order: Order = .defaultOrder,
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element> where C.Element == Bool, Element.Value == Bool {
-    Tensor<Shape6,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape6,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1570,7 +1570,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric {
-    Tensor<Shape6,Element>(elements, Shape6(shape), order: order, name: name)
+    Tensor<Shape6,Element>(elements, shape: Shape6(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1581,7 +1581,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element>
     where C.Element: BinaryInteger, Element.Value: Numeric {
-    Tensor<Shape6,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape6,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1594,7 +1594,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
-    Tensor<Shape6,Element>(elements, Shape6(shape), order: order, name: name)
+    Tensor<Shape6,Element>(elements, shape: Shape6(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1605,7 +1605,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryFloatingPoint {
-    Tensor<Shape6,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape6,Element>(elements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1618,7 +1618,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
-    Tensor<Shape6,Element>(elements, Shape6(shape), order: order, name: name)
+    Tensor<Shape6,Element>(elements, shape: Shape6(shape), order: order, name: name)
 }
 
 @inlinable public func array<C: Collection, Element>(
@@ -1629,7 +1629,7 @@ import Numerics
     name: String = defaultTensorName
 ) -> Tensor<Shape6,Element>
     where C.Element: BinaryFloatingPoint, Element.Value: BinaryInteger {
-    Tensor<Shape6,Element>(elements, shape, order: order, name: name)
+    Tensor<Shape6,Element>(elements, shape: shape, order: order, name: name)
 }
 
 
@@ -1660,7 +1660,7 @@ import Numerics
 
     let flatElements = elements.joined()
     return Tensor<Shape2,C.Element.Element>(
-        stored: flatElements, shape, order: order, name: name)
+        stored: flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1681,7 +1681,7 @@ import Numerics
 
     let flatElements = elements.joined()
     return Tensor<Shape2,C.Element.Element>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1702,7 +1702,7 @@ import Numerics
 
     let flatElements = elements.joined()
     return Tensor<Shape2,DType>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1723,7 +1723,7 @@ import Numerics
 
     let flatElements = elements.joined()
     return Tensor<Shape2,DType>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -1747,7 +1747,7 @@ import Numerics
 
     let flatElements = elements.joined()
     return Tensor<Shape2,Element>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1768,7 +1768,7 @@ import Numerics
         elements.first!.count)
 
     let flatElements = elements.joined()
-    return Tensor<Shape2,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape2,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1789,7 +1789,7 @@ import Numerics
         elements.first!.count)
 
     let flatElements = elements.joined()
-    return Tensor<Shape2,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape2,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1811,7 +1811,7 @@ import Numerics
         elements.first!.count)
 
     let flatElements = elements.joined()
-    return Tensor<Shape2,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape2,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1833,7 +1833,7 @@ import Numerics
         elements.first!.count)
 
     let flatElements = elements.joined()
-    return Tensor<Shape2,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape2,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -1860,7 +1860,7 @@ import Numerics
 
     let flatElements = elements.joined().joined()
     return Tensor<Shape3,C.Element.Element.Element>(
-        stored: flatElements, shape, order: order, name: name)
+        stored: flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1883,7 +1883,7 @@ import Numerics
 
     let flatElements = elements.joined().joined()
     return Tensor<Shape3,C.Element.Element.Element>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1906,7 +1906,7 @@ import Numerics
 
     let flatElements = elements.joined().joined()
     return Tensor<Shape3,DType>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1929,7 +1929,7 @@ import Numerics
 
     let flatElements = elements.joined().joined()
     return Tensor<Shape3,DType>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -1955,7 +1955,7 @@ import Numerics
 
     let flatElements = elements.joined().joined()
     return Tensor<Shape3,Element>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -1978,7 +1978,7 @@ import Numerics
         elements.first!.first!.count)
 
     let flatElements = elements.joined().joined()
-    return Tensor<Shape3,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape3,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2001,7 +2001,7 @@ import Numerics
         elements.first!.first!.count)
 
     let flatElements = elements.joined().joined()
-    return Tensor<Shape3,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape3,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2025,7 +2025,7 @@ import Numerics
         elements.first!.first!.count)
 
     let flatElements = elements.joined().joined()
-    return Tensor<Shape3,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape3,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2049,7 +2049,7 @@ import Numerics
         elements.first!.first!.count)
 
     let flatElements = elements.joined().joined()
-    return Tensor<Shape3,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape3,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -2078,7 +2078,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined()
     return Tensor<Shape4,C.Element.Element.Element.Element>(
-        stored: flatElements, shape, order: order, name: name)
+        stored: flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2103,7 +2103,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined()
     return Tensor<Shape4,C.Element.Element.Element.Element>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2128,7 +2128,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined()
     return Tensor<Shape4,DType>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2153,7 +2153,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined()
     return Tensor<Shape4,DType>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -2181,7 +2181,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined()
     return Tensor<Shape4,Element>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2206,7 +2206,7 @@ import Numerics
         elements.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined()
-    return Tensor<Shape4,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape4,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2231,7 +2231,7 @@ import Numerics
         elements.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined()
-    return Tensor<Shape4,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape4,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2257,7 +2257,7 @@ import Numerics
         elements.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined()
-    return Tensor<Shape4,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape4,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2283,7 +2283,7 @@ import Numerics
         elements.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined()
-    return Tensor<Shape4,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape4,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -2314,7 +2314,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined().joined()
     return Tensor<Shape5,C.Element.Element.Element.Element.Element>(
-        stored: flatElements, shape, order: order, name: name)
+        stored: flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2341,7 +2341,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined().joined()
     return Tensor<Shape5,C.Element.Element.Element.Element.Element>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2368,7 +2368,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined().joined()
     return Tensor<Shape5,DType>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2395,7 +2395,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined().joined()
     return Tensor<Shape5,DType>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -2425,7 +2425,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined().joined()
     return Tensor<Shape5,Element>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2452,7 +2452,7 @@ import Numerics
         elements.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined()
-    return Tensor<Shape5,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape5,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2479,7 +2479,7 @@ import Numerics
         elements.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined()
-    return Tensor<Shape5,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape5,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2507,7 +2507,7 @@ import Numerics
         elements.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined()
-    return Tensor<Shape5,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape5,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2535,7 +2535,7 @@ import Numerics
         elements.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined()
-    return Tensor<Shape5,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape5,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //------------------------------------------------------------------------------
@@ -2568,7 +2568,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined().joined().joined()
     return Tensor<Shape6,C.Element.Element.Element.Element.Element.Element>(
-        stored: flatElements, shape, order: order, name: name)
+        stored: flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2597,7 +2597,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined().joined().joined()
     return Tensor<Shape6,C.Element.Element.Element.Element.Element.Element>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2626,7 +2626,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined().joined().joined()
     return Tensor<Shape6,DType>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2655,7 +2655,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined().joined().joined()
     return Tensor<Shape6,DType>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //************************** Explicit typing
@@ -2687,7 +2687,7 @@ import Numerics
 
     let flatElements = elements.joined().joined().joined().joined().joined()
     return Tensor<Shape6,Element>(
-        flatElements, shape, order: order, name: name)
+        flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2716,7 +2716,7 @@ import Numerics
         elements.first!.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor<Shape6,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape6,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2745,7 +2745,7 @@ import Numerics
         elements.first!.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor<Shape6,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape6,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2775,7 +2775,7 @@ import Numerics
         elements.first!.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor<Shape6,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape6,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 //---------------------------
@@ -2805,7 +2805,7 @@ import Numerics
         elements.first!.first!.first!.first!.first!.count)
 
     let flatElements = elements.joined().joined().joined().joined().joined()
-    return Tensor<Shape6,Element>(flatElements, shape, order: order, name: name)
+    return Tensor<Shape6,Element>(flatElements, shape: shape, order: order, name: name)
 }
 
 
