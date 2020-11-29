@@ -15,34 +15,6 @@
 //
 
 import Foundation
-import _Differentiation
-
-//==============================================================================
-// matmulGradients
-// _vjpMatmul helper function
-@usableFromInline func matmulGradients<E>(
-  _ out: TensorR2<E>,
-  _ lhs: TensorR2<E>, _ transposeLhs: Bool,
-  _ rhs: TensorR2<E>, _ transposeRhs: Bool
-) -> (TensorR2<E>, TensorR2<E>)
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
-  let (lhsGrad, rhsGrad): (TensorR2<E>, TensorR2<E>)
-  switch (transposeLhs, transposeRhs) {
-  case (false, false):
-    lhsGrad = matmul(out, transposed: false, rhs, transposed: true)
-    rhsGrad = matmul(lhs, transposed: true, out, transposed: false)
-  case (false, true):
-    lhsGrad = matmul(out, rhs)
-    rhsGrad = matmul(lhs, transposed: true, out, transposed: false)
-  case (true, false):
-    lhsGrad = matmul(out, transposed: false, rhs, transposed: true)
-    rhsGrad = matmul(lhs, out)
-  case (true, true):
-    lhsGrad = matmul(out, transposed: true, rhs, transposed: true)
-    rhsGrad = matmul(lhs, transposed: true, out, transposed: true)
-  }
-  return (lhsGrad, rhsGrad)
-}
 
 //==============================================================================
 /// matmul
@@ -54,9 +26,6 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
 ///  - transposeRhs: `true` to transpose `rhs`, default is `false`
 /// - Returns: a new tensor containing the result
 // https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
-@differentiable(where E.Value: DifferentiableNumeric)
-@differentiable(wrt: lhs where E.Value: DifferentiableNumeric)
-@differentiable(wrt: rhs where E.Value: DifferentiableNumeric)
 @inlinable public func matmul<E>(
   _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
   _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
@@ -75,42 +44,6 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
   return result
 }
 
-@derivative(of:matmul)
-@usableFromInline func _vjpMatmul<E>(
-  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
-) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR2<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
-  (
-    matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
-    { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) }
-  )
-}
-
-@derivative(of:matmul,wrt: lhs)
-@usableFromInline func _vjpMatmulWrtLhs<E>(
-  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
-) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
-  (
-    matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
-    { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).0 }
-  )
-}
-
-@derivative(of:matmul,wrt: rhs)
-@usableFromInline func _vjpMatmulWrtRhs<E>(
-  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
-) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
-  (
-    matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
-    { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs).1 }
-  )
-}
-
 //==============================================================================
 /// matmul
 /// performs a matrix cross product
@@ -121,9 +54,6 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
 ///  - transposeRhs: `true` to transpose `rhs`, default is `false`
 /// - Returns: a new tensor containing the result
 // https://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemmbatched
-@differentiable(where E.Value: DifferentiableNumeric)
-@differentiable(wrt: (lhs, bias) where E.Value: DifferentiableNumeric)
-@differentiable(wrt: (rhs, bias) where E.Value: DifferentiableNumeric)
 @inlinable public func matmul<E>(
   _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
   _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
@@ -141,42 +71,6 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
   return result
 }
 
-@derivative(of:matmul)
-@usableFromInline func _vjpMatmul<E>(
-  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
-  bias: TensorR1<E>
-) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR2<E>, TensorR1<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
-  fatalError()
-  //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
-  //     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
-}
-
-@derivative(of:matmul,wrt: (lhs, bias))
-@usableFromInline func _vjpMatmulWrtLhsBias<E>(
-  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
-  bias: TensorR1<E>
-) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR1<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
-  fatalError()
-  //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
-  //     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
-}
-
-@derivative(of:matmul,wrt: (rhs, bias))
-@usableFromInline func _vjpMatmulWrtRhsBias<E>(
-  _ lhs: TensorR2<E>, transposed transposeLhs: Bool = false,
-  _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false,
-  bias: TensorR1<E>
-) -> (value: TensorR2<E>, pullback: (TensorR2<E>) -> (TensorR2<E>, TensorR1<E>))
-where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
-  fatalError()
-  //    (matmul(lhs, transposed: transposeLhs, rhs, transposed: transposeRhs),
-  //     { matmulGradients($0, lhs, transposeLhs, rhs, transposeRhs) })
-}
-
 ////==============================================================================
 ///// matmul
 ///// performs a batched matrix cross product
@@ -196,16 +90,6 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
 //    fatalError()
 //}
 //
-//@derivative(of: matmul)
-//@usableFromInline func _vjpMatmul<S,E>(
-//    _ lhs: Tensor<S,E>, transposed transposeLhs: Bool = false,
-//    _ rhs: TensorR2<E>, transposed transposeRhs: Bool = false
-//) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, TensorR2<E>))
-//where S: TensorShape, E.Value: DifferentiableNumeric
-//{
-//    fatalError()
-//}
-//
 ////==============================================================================
 ///// matmul
 ///// performs a batched matrix cross product
@@ -221,16 +105,6 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
 //    _ lhs: TensorR2<E>, transposed transposeRhs: Bool = false,
 //    _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
 //) -> Tensor<S,E> where S: TensorShape, E.Value: Numeric
-//{
-//    fatalError()
-//}
-//
-//@derivative(of: matmul)
-//@usableFromInline func _vjpMatmul<S,E>(
-//    _ lhs: TensorR2<E>, transposed transposeRhs: Bool = false,
-//    _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
-//) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (TensorR2<E>, Tensor<S,E>))
-//where S: TensorShape, E.Value: DifferentiableNumeric
 //{
 //    fatalError()
 //}
@@ -250,16 +124,6 @@ where E: StorageElement, E.Value: StorageElement & DifferentiableNumeric {
 //    _ lhs: Tensor<S,E>, transposed transposeRhs: Bool = false,
 //    _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
 //) -> Tensor<S,E> where S: TensorShape, E.Value: Numeric
-//{
-//    fatalError()
-//}
-//
-//@derivative(of: matmul)
-//@usableFromInline func _vjpMatmul<S,E>(
-//    _ lhs: Tensor<S,E>, transposed transposeRhs: Bool = false,
-//    _ rhs: Tensor<S,E>, transposed transposeLhs: Bool = false
-//) -> (value: Tensor<S,E>, pullback: (Tensor<S,E>) -> (Tensor<S,E>, Tensor<S,E>))
-//where S: TensorShape, E.Value: DifferentiableNumeric
 //{
 //    fatalError()
 //}

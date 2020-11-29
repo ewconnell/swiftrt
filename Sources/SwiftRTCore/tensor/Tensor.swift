@@ -16,7 +16,6 @@
 
 import Foundation
 import Numerics
-import _Differentiation
 
 public let defaultElementName = "Element"
 public let defaultTensorName = "Tensor"
@@ -25,7 +24,6 @@ public let defaultReferenceTensorName = "Reference"
 //==============================================================================
 /// Tensor
 public struct Tensor<Shape, TensorElement>:
-  TensorProtocol,
   MutableCollection,
   CustomStringConvertible,
   Logging
@@ -36,33 +34,32 @@ where Shape: TensorShape, TensorElement: StorageElement {
   /// the count of batched items. Default is 1
   /// A number greater than 1 means that this tensor is the first
   /// in a batch of tensors held in the underlying storage.
-  @noDerivative public let batchCount: Int
+  public let batchCount: Int
   /// the stride between batch items
-  @noDerivative public let batchStride: Int
+  public let batchStride: Int
   /// the count of elements described by `shape`
-  @noDerivative public let count: Int
+  public let count: Int
   /// `true` if the view will be shared by by multiple writers
-  @noDerivative public var isShared: Bool
+  public var isShared: Bool
   /// element storage order in memory
-  @noDerivative public let order: Order
+  public let order: Order
   /// a collection that maps logical coordinates to storage elements
   /// via the current storage order
-  @noDerivative public var logicalElements: LogicalElements<Shape, TensorElement>
+  public var logicalElements: LogicalElements<Shape, TensorElement>
   /// the strides to traverse `shape` in logical coordinates
-  @noDerivative public let logicalStrides: Shape
+  public let logicalStrides: Shape
   /// the dimensions of the element space
-  @noDerivative public let shape: Shape
+  public let shape: Shape
   /// the element storage buffer.
-  @noDerivative public var storage: Platform.Storage
+  public var storage: Platform.Storage
   /// the logical storage buffer base index where this tensor's elements begin
-  @noDerivative public let storageBase: Int
+  public let storageBase: Int
   /// The distance to the next element along each dimension
-  @noDerivative public let strides: Shape
+  public let strides: Shape
   /// the number of storage elements spanned by this tensor
-  @noDerivative public let spanCount: Int
+  public let spanCount: Int
 
-  //--------------------------------------------------------------------------
-  // functional properties
+  //-------------------------------------
   /// the unique storage id
   @inlinable public var id: Int { storage.id }
 
@@ -254,38 +251,6 @@ public enum Order: Int, Codable {
 
 @usableFromInline let _messageOrdersMustMatch = "storage orders must match"
 
-//==============================================================================
-/// DifferentiableTensor
-///
-/// While these protocols are not strictly necessary, they are used
-/// to reduce the number of generic requirements when writing
-/// `@differentiable` attributes
-///
-public protocol TensorProtocol: Logging {
-  associatedtype Shape: TensorShape
-  associatedtype TensorElement: StorageElement
-}
-
-public protocol DifferentiableTensor: TensorProtocol & Differentiable
-where Self == TangentVector, TensorElement.Value: DifferentiableNumeric {}
-
-/// DifferentiableNumeric
-public protocol DifferentiableNumeric:
-  Differentiable & Numeric
-where Self == TangentVector {}
-
-extension Float: DifferentiableNumeric {}
-extension Double: DifferentiableNumeric {}
-
-extension Complex: DifferentiableNumeric
-where RealType: Differentiable, RealType.TangentVector == RealType {}
-
-// Differentiable conformance
-extension Tensor: Differentiable & DifferentiableTensor
-where Element: DifferentiableNumeric {
-  public typealias TangentVector = Self
-}
-
 extension Tensor: AdditiveArithmetic where Element: Numeric {
   @inlinable public static var zero: Self { Tensor() }
   @inlinable public static var one: Self { Tensor(1, name: "One") }
@@ -474,7 +439,6 @@ extension Tensor {
 
   //--------------------------------------------------------------------------
   // sub view subscript
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
   @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
     get { createView(lower, upper, isShared) }
     set {
@@ -509,7 +473,8 @@ extension Tensor {
   ) -> Self {
     let shape = upper &- lower
     let count = shape.elementCount()
-    let spanCount = strides.areSequential(for: shape) ? count : shape.spanCount(stridedBy: strides)
+    let spanCount = strides.areSequential(for: shape) ?
+      count : shape.spanCount(stridedBy: strides)
     let base = storageBase + lower.index(stridedBy: strides)
 
     return Tensor(
@@ -580,26 +545,6 @@ extension Tensor {
     usingSyncQueue {
       return isContiguous ? [Element](buffer) : [Element](elements)
     }
-  }
-}
-
-//==============================================================================
-/// Derivative registration
-extension Tensor where TensorElement.Value: DifferentiableNumeric {
-  // https://github.com/apple/swift/blob/37b507b31c77ef969151f385cd1902dd44fb3b7f/stdlib/public/core/Array.swift#L2091
-
-  @derivative(of:subscript)
-  @usableFromInline func _vjpSubscript(lower: Shape, upper: Shape)
-    -> (value: Self, pullback: (Self) -> Self)
-  {
-    return (
-      self[lower, upper],
-      { v in
-        var result = zeros(like: self)
-        result[lower, upper] = v
-        return result
-      }
-    )
   }
 }
 
@@ -711,33 +656,16 @@ extension Tensor {
   /// element
   /// can get and set the value of a single element tensor.
   /// - Returns: the only element in the tensor
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
   @inlinable public var element: Element {
     get {
       assert(
         count == 1,
-        "the `element` property expects "
-          + "the tensor to have a single Element. Use `first` for sets")
+        "the `element` property expects the tensor to have a single Element. Use `first` for sets")
       return TensorElement.getValue(from: read(), at: 0)
     }
     set {
-      assert(count == 1, "the `element` property expects " + "the tensor to have a single Element")
+      assert(count == 1, "the `element` property expects the tensor to have a single Element")
       TensorElement.set(value: newValue, in: readWrite(), at: 0)
     }
-  }
-
-  @derivative(of:element)
-  @inlinable public func vjpElement() -> (
-    value: Element,
-    pullback: (Element) -> Self
-  ) where Element: DifferentiableNumeric {
-    (
-      element,
-      { v in
-        var result = zeros(like: self)
-        result.element = v
-        return result
-      }
-    )
   }
 }

@@ -17,7 +17,10 @@
 import Foundation
 import SwiftRT
 import XCTest
+
+#if swift(>=5.3) && canImport(_Differentiation)
 import _Differentiation
+#endif
 
 class test_Reductions: XCTestCase {
   //==========================================================================
@@ -36,8 +39,8 @@ class test_Reductions: XCTestCase {
     ("test_min", test_min),
     ("test_max", test_max),
   ]
-
-
+  
+  
   //--------------------------------------------------------------------------
   // test_gather
   // TODO: get this verified
@@ -54,7 +57,7 @@ class test_Reductions: XCTestCase {
         [0, 1, 2],
         [6, 7, 8],
       ])
-
+    
     let c = gather(from: a, indices: ai, axis: 1)
     XCTAssert(
       c == [
@@ -62,7 +65,8 @@ class test_Reductions: XCTestCase {
         [3, 5],
         [6, 8],
       ])
-
+    
+    #if swift(>=5.3) && canImport(_Differentiation)
     let g0 = gradient(at: ones(like: a)) {
       gather(from: $0 * a, indices: ai).sum().element
     }
@@ -72,7 +76,7 @@ class test_Reductions: XCTestCase {
         [0, 0, 0],
         [6, 7, 8],
       ])
-
+    
     let g1 = gradient(at: ones(like: a)) {
       gather(from: $0 * a, indices: ai, axis: -1).sum().element
     }
@@ -82,8 +86,9 @@ class test_Reductions: XCTestCase {
         [3, 0, 5],
         [6, 0, 8],
       ])
+    #endif
   }
-
+  
   //--------------------------------------------------------------------------
   // test_sumTensor1
   func test_sumTensor1() {
@@ -92,7 +97,7 @@ class test_Reductions: XCTestCase {
     XCTAssert(result.shape == [1])
     XCTAssert(result.element == 10)
   }
-
+  
   //--------------------------------------------------------------------------
   // test_sumTensor2
   func test_sumTensor2() {
@@ -101,33 +106,33 @@ class test_Reductions: XCTestCase {
       [2, 3],
       [4, 5],
     ])
-
+    
     // sum all
     do {
       let result = m.sum()
       XCTAssert(result.shape == [1, 1])
       XCTAssert(result.element == 15)
     }
-
+    
     do {
       let result = m.sum(axes: 0, 1)
       XCTAssert(result.shape == [1, 1])
       XCTAssert(result.element == 15)
     }
-
+    
     // sum cols
     do {
       let result = m.sum(axes: 1)
       XCTAssert(result == [[1], [5], [9]])
     }
-
+    
     // sum rows
     do {
       let result = m.sum(axes: 0)
       XCTAssert(result == [[6, 9]])
     }
   }
-
+  
   //--------------------------------------------------------------------------
   // test_sumTensor3AlongAxes
   func test_sumTensor3AlongAxes() {
@@ -138,14 +143,14 @@ class test_Reductions: XCTestCase {
           [3, 4],
           [5, 6],
         ],
-
+        
         [
           [1, 2],
           [3, 4],
           [5, 6],
         ],
       ])
-
+    
     // sum depths
     let s0 = v.sum(axes: 0)
     XCTAssert(
@@ -156,7 +161,7 @@ class test_Reductions: XCTestCase {
           [10, 12],
         ]
       ])
-
+    
     // sum rows
     XCTAssert(
       v.sum(axes: 1) == [
@@ -167,7 +172,7 @@ class test_Reductions: XCTestCase {
           [9, 12]
         ],
       ])
-
+    
     // sum columns
     XCTAssert(
       v.sum(axes: 2) == [
@@ -183,7 +188,7 @@ class test_Reductions: XCTestCase {
         ],
       ])
   }
-
+  
   //--------------------------------------------------------------------------
   // test_minTensor3AlongAxes
   func test_minTensor3AlongAxes() {
@@ -199,7 +204,7 @@ class test_Reductions: XCTestCase {
         [5, 6],
       ],
     ])
-
+    
     // depths
     XCTAssert(
       v.min(axes: 0) == [
@@ -209,7 +214,7 @@ class test_Reductions: XCTestCase {
           [5, -6],
         ]
       ])
-
+    
     // rows
     XCTAssert(
       v.min(axes: 1) == [
@@ -220,7 +225,7 @@ class test_Reductions: XCTestCase {
           [1, 2]
         ],
       ])
-
+    
     // columns
     XCTAssert(
       v.min(axes: 2) == [
@@ -236,7 +241,7 @@ class test_Reductions: XCTestCase {
         ],
       ])
   }
-
+  
   //--------------------------------------------------------------------------
   // test_maxTensor3AlongAxes
   func test_maxTensor3AlongAxes() {
@@ -252,7 +257,7 @@ class test_Reductions: XCTestCase {
         [5, 6],
       ],
     ])
-
+    
     // max depths
     let vm = v.max(axes: 0)
     XCTAssert(
@@ -263,7 +268,7 @@ class test_Reductions: XCTestCase {
           [5, 6],
         ]
       ])
-
+    
     // max rows
     XCTAssert(
       v.max(axes: 1) == [
@@ -274,7 +279,7 @@ class test_Reductions: XCTestCase {
           [5, 6]
         ],
       ])
-
+    
     // max columns
     XCTAssert(
       v.max(axes: 2) == [
@@ -290,7 +295,7 @@ class test_Reductions: XCTestCase {
         ],
       ])
   }
-
+  
   //--------------------------------------------------------------------------
   func test_abssum() {
     let m = array([
@@ -298,57 +303,57 @@ class test_Reductions: XCTestCase {
       [-2, 3],
       [4, -5],
     ])
-
+    
     // sum all
     do {
       let result = m.abssum()
       XCTAssert(result.shape == [1, 1])
       XCTAssert(result.element == 15)
     }
-
+    
     do {
       let result = m.abssum(axes: 0, 1)
       XCTAssert(result.shape == [1, 1])
       XCTAssert(result.element == 15)
     }
-
+    
     // sum cols
     do {
       let result = m.abssum(axes: 1)
       XCTAssert(result == [[1], [5], [9]])
     }
-
+    
     // sum rows
     do {
       let result = m.abssum(axes: 0)
       XCTAssert(result == [[6, 9]])
     }
   }
-
+  
   //--------------------------------------------------------------------------
   func test_all() {
     let a = array([true, true, true])
     XCTAssert(a.all().element == true)
-
+    
     let a1 = array([true, false, true])
     XCTAssert(a1.all().element == false)
-
+    
     let a2 = array([false, false, false])
     XCTAssert(a2.all().element == false)
   }
-
+  
   //--------------------------------------------------------------------------
   func test_any() {
     let a = array([true, true, true])
     XCTAssert(a.any().element == true)
-
+    
     let a1 = array([false, false, true])
     XCTAssert(a1.any().element == true)
-
+    
     let a2 = array([false, false, false])
     XCTAssert(a2.any().element == false)
   }
-
+  
   //----------------------------------------------------------------------
   // test_meanTensor2
   func test_meanTensor2() {
@@ -357,33 +362,33 @@ class test_Reductions: XCTestCase {
       [2, 3],
       [4, 5],
     ])
-
+    
     // mean all
     do {
       let result = m.mean()
       XCTAssert(result.shape == [1, 1])
       XCTAssert(result.element == 15 / 6)
     }
-
+    
     do {
       let result = m.mean(axes: 0, 1)
       XCTAssert(result.shape == [1, 1])
       XCTAssert(result.element == 15 / 6)
     }
-
+    
     // mean cols
     do {
       let result = m.mean(axes: 1)
       XCTAssert(result == [[0.5], [2.5], [4.5]])
     }
-
+    
     // mean rows
     do {
       let result = m.mean(axes: 0)
       XCTAssert(result == [[2, 3]])
     }
   }
-
+  
   //--------------------------------------------------------------------------
   func test_min() {
     let m = array([
@@ -394,7 +399,7 @@ class test_Reductions: XCTestCase {
     // XCTAssert(m.min(axes: 0) == [[-1, -3, -6]])
     // XCTAssert(m.min(axes: 1) == [[-6], [-3]])
   }
-
+  
   //--------------------------------------------------------------------------
   func test_max() {
     let m = array([
@@ -405,5 +410,5 @@ class test_Reductions: XCTestCase {
     // XCTAssert(m.max(axes: 0) == [[1, 3, 6]])
     // XCTAssert(m.max(axes: 1) == [[3], [6]])
   }
-
+  
 }

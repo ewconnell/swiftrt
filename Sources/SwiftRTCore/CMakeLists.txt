@@ -3,7 +3,14 @@ add_library(SwiftRTCore
   common/HashingUtilities.swift
   common/Helpers.swift
   common/Log.swift
-  common/StdlibExtensions.swift
+
+  differentiable/ComparativeDerivatives.swift
+  differentiable/DifferentialOperators.swift
+  differentiable/FillDerivatives.swift
+  differentiable/MathDerivatives.swift
+  differentiable/ReductionDerivatives.swift
+  differentiable/StdlibExtension.swift
+  differentiable/TensorDerivatives.swift
 
   numpy/RankFunctions.swift
   numpy/array.swift
@@ -12,7 +19,6 @@ add_library(SwiftRTCore
 
   operators/AlgebraicField.swift
   operators/Comparative.swift
-  operators/DifferentialOperators.swift
   operators/Fill.swift
   operators/Fractals.swift
   operators/Gather.swift

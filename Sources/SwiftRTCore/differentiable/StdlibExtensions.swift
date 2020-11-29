@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if swift(>=5.3) && canImport(_Differentiation)
+
 import _Differentiation
 
 extension Array.DifferentiableView:
@@ -27,24 +29,16 @@ where Element: Differentiable {
   public typealias Indices = Array<Element>.Indices
   public typealias SubSequence = Array<Element>.SubSequence
 
-  @inlinable
-  public subscript(position: Array<Element>.Index) -> Element {
+  @inlinable public var startIndex: Index { base.startIndex }
+  @inlinable public var endIndex: Index { base.endIndex }
+
+  @inlinable public init() { self.init(.init()) }
+
+  @inlinable public subscript(
+    position: Array<Element>.Index
+  ) -> Element {
     _read { yield base[position] }
     set { base[position] = newValue }
   }
-
-  @inlinable
-  public var startIndex: Index { base.startIndex }
-
-  @inlinable
-  public var endIndex: Index { base.endIndex }
-
-  @inlinable
-  public init() { self.init(.init()) }
 }
-
-extension FixedWidthInteger {
-  @inlinable public func roundUp(toMultipleOf value: Self) -> Self {
-    return (self + value - 1) / value * value
-  }
-}
+#endif

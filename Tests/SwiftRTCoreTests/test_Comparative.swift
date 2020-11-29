@@ -18,7 +18,10 @@ import Foundation
 import Numerics
 import SwiftRT
 import XCTest
+
+#if swift(>=5.3) && canImport(_Differentiation)
 import _Differentiation
+#endif
 
 class test_Comparative: XCTestCase {
   //==========================================================================
@@ -189,6 +192,7 @@ class test_Comparative: XCTestCase {
     XCTAssert(max(a, b) == [[0, 1], [2, 3], [4, 5]])
     XCTAssert(max(a, -2) == [[0, 1], [-2, -2], [-2, 5]])
 
+    #if swift(>=5.3) && canImport(_Differentiation)
     // both
     let one = ones(like: a)
     let (ga, gb) = pullback(at: a, b, in: { max($0, $1) })(one)
@@ -202,6 +206,7 @@ class test_Comparative: XCTestCase {
     // rhs
     let gr = pullback(at: a, in: { max(-2, $0) })(one)
     XCTAssert(gr == [[1, 1], [1, 0], [0, 1]])
+    #endif
   }
 
   //--------------------------------------------------------------------------
@@ -219,6 +224,7 @@ class test_Comparative: XCTestCase {
     let b = array([[0, -1], [-2, 3], [-4, 5]])
     XCTAssert(min(a, b) == [[0, -1], [-2, -3], [-4, -5]])
 
+    #if swift(>=5.3) && canImport(_Differentiation)
     // both
     let one = ones(like: a)
     let (ga, gb) = pullback(at: a, b, in: { min($0, $1) })(one)
@@ -232,6 +238,7 @@ class test_Comparative: XCTestCase {
     // rhs
     let gr = pullback(at: a, in: { min(-2, $0) })(one)
     XCTAssert(gr == [[0, 0], [0, 1], [0, 1]])
+    #endif
   }
 
   //--------------------------------------------------------------------------

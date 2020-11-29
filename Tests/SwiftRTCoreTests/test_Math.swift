@@ -17,7 +17,10 @@
 import Foundation
 import SwiftRT
 import XCTest
+
+#if swift(>=5.3) && canImport(_Differentiation)
 import _Differentiation
+#endif
 
 class test_Math: XCTestCase {
   //==========================================================================
@@ -144,9 +147,11 @@ class test_Math: XCTestCase {
     let b = array([-1, 2, -3, 4, -5])
     XCTAssert(abs(b) == [1, 2, 3, 4, 5])
 
+    #if swift(>=5.3) && canImport(_Differentiation)
     let g = pullback(at: b, in: { abs($0) })(ones(like: b))
     XCTAssert(g == [-1, 1, -1, 1, -1])
-
+    #endif
+    
     // Complex
     let c = abs(Complex<Float>(3, 4))
     XCTAssert(c == 5)
@@ -161,9 +166,11 @@ class test_Math: XCTestCase {
     XCTAssert(
       result == [[0.7853982, 2.3561945], [2.3561945, 0.7853982], [0.7853982, 2.3561945]])
 
+    #if swift(>=5.3) && canImport(_Differentiation)
     let (da, db) = pullback(at: a, b, in: { atan2(y: $0, x: $1) })(ones(like: result))
     XCTAssert(da == [[0.5, -0.25], [-0.16666667, 0.125], [0.099999994, -0.083333336]])
     XCTAssert(db == [[-0.5, -0.25], [-0.16666667, -0.125], [-0.099999994, -0.083333336]])
+    #endif
   }
 
   //--------------------------------------------------------------------------
@@ -172,12 +179,14 @@ class test_Math: XCTestCase {
     let a = array([[0, -1], [2, -3], [4, 5]])
     XCTAssert(erf(a) == [[0.0, -0.8427008], [0.9953223, -0.9999779], [1.0, 1.0]])
 
+    #if swift(>=5.3) && canImport(_Differentiation)
     let g = pullback(at: a, in: { erf($0) })(ones(like: a))
     let e = array([
       [1.1283792, 0.41510752], [0.020666987, 0.00013925305],
       [1.2698236e-07, 1.5670867e-11],
     ])
     XCTAssert(almostEqual(g, e, tolerance: 0.0001))
+    #endif
   }
 
   //--------------------------------------------------------------------------
@@ -187,10 +196,12 @@ class test_Math: XCTestCase {
     let expected = a.map(Foundation.exp)
     XCTAssert(exp(a) == expected)
 
+    #if swift(>=5.3) && canImport(_Differentiation)
     let b = array([1.0, 2, 3])
     let g = pullback(at: b, in: { exp($0) })(ones(like: b))
     let e = array([2.7182817, 7.389056, 20.085537])
     XCTAssert(almostEqual(g, e, tolerance: 0.0001))
+    #endif
   }
 
   //--------------------------------------------------------------------------
@@ -200,10 +211,12 @@ class test_Math: XCTestCase {
     let expected = a.map(Foundation.log)
     XCTAssert(log(a).flatArray == expected)
 
+    #if swift(>=5.3) && canImport(_Differentiation)
     let b = array([1.0, -2.0, 3.0])
     let g = pullback(at: b, in: { log($0) })(ones(like: b))
     let e = array([1.0, -0.5, 0.33333334])
     XCTAssert(almostEqual(g, e, tolerance: 0.0001))
+    #endif
   }
 
   //--------------------------------------------------------------------------
@@ -216,9 +229,11 @@ class test_Math: XCTestCase {
     let b = -a
     XCTAssert(b.flatArray == expected)
 
+    #if swift(>=5.3) && canImport(_Differentiation)
     let c = array([1.0, -2.0, 3.0])
     let g = pullback(at: c, in: { (-$0) })(ones(like: c))
     XCTAssert(g == [-1, -1, -1])
+    #endif
   }
 
   //--------------------------------------------------------------------------
@@ -227,9 +242,11 @@ class test_Math: XCTestCase {
     let a = array([-1, 2, -3, 4])
     XCTAssert(sign(a) == [-1, 1, -1, 1])
 
+    #if swift(>=5.3) && canImport(_Differentiation)
     let b = array([-1.0, 2.0, -3.0, 4.0])
     let g = pullback(at: b, in: { sign($0) })(ones(like: b))
     XCTAssert(g == [0, 0, 0, 0])
+    #endif
   }
 
   //--------------------------------------------------------------------------
@@ -238,8 +255,10 @@ class test_Math: XCTestCase {
     let a = array([[0, -1], [2, -3], [4, 5]])
     XCTAssert(a.squared() == [[0, 1], [4, 9], [16, 25]])
 
+    #if swift(>=5.3) && canImport(_Differentiation)
     let b = array([1.0, -2.0, 3.0])
     let g = pullback(at: b, in: { $0.squared() })(ones(like: b))
     XCTAssert(g == [2, -4, 6])
+    #endif
   }
 }

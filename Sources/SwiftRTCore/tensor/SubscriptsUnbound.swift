@@ -15,7 +15,6 @@
 //
 
 import Foundation
-import _Differentiation
 
 /// `Tensor Subscript Behavior`
 /// A tensor subscripted with a range returns a sub view.
@@ -61,18 +60,18 @@ extension Tensor {
 // Rank2 array property and subscripts
 extension Tensor where Shape == Shape2 {
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable public subscript<R0>(r0: R0, r1: UnboundedRange) -> Self
-  where R0: SignedRangeExpression
-  {
+  @inlinable public subscript<R0>(
+    r0: R0,
+    r1: UnboundedRange
+  ) -> Self where R0: SignedRangeExpression {
     get { self[r0, 0...] }
     set { self[r0, 0...] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable public subscript<R1>(r0: UnboundedRange, r1: R1) -> Self
-  where R1: SignedRangeExpression
-  {
+  @inlinable public subscript<R1>(
+    r0: UnboundedRange,
+    r1: R1
+  ) -> Self where R1: SignedRangeExpression {
     get { self[0..., r1] }
     set { self[0..., r1] = newValue }
   }
@@ -82,46 +81,47 @@ extension Tensor where Shape == Shape2 {
 // Rank3 array property and subscripts
 extension Tensor where Shape == Shape3 {
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable public subscript<R0>(r0: R0, r1: UnboundedRange, r2: UnboundedRange) -> Self
-  where R0: SignedRangeExpression
-  {
+  @inlinable public subscript<R0>(
+    r0: R0,
+    r1: UnboundedRange,
+    r2: UnboundedRange
+  ) -> Self where R0: SignedRangeExpression {
     get { self[r0, 0..., 0...] }
     set { self[r0, 0..., 0...] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable public subscript<R0, R1>(r0: R0, r1: R1, r2: UnboundedRange) -> Self
-  where
-    R0: SignedRangeExpression,
-    R1: SignedRangeExpression
-  {
+  @inlinable public subscript<R0, R1>(
+    r0: R0,
+    r1: R1,
+    r2: UnboundedRange
+  ) -> Self where R0: SignedRangeExpression, R1: SignedRangeExpression {
     get { self[r0, r1, 0...] }
     set { self[r0, r1, 0...] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable public subscript<R0, R2>(r0: R0, r1: UnboundedRange, r2: R2) -> Self
-  where
-    R0: SignedRangeExpression,
-    R2: SignedRangeExpression
-  {
+  @inlinable public subscript<R0, R2>(
+    r0: R0,
+    r1: UnboundedRange,
+    r2: R2
+  ) -> Self where R0: SignedRangeExpression, R2: SignedRangeExpression {
     get { self[r0, 0..., r2] }
     set { self[r0, 0..., r2] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable public subscript<R1>(r0: UnboundedRange, r1: R1, r2: UnboundedRange) -> Self
-  where R1: SignedRangeExpression
-  {
+  @inlinable public subscript<R1>(
+    r0: UnboundedRange,
+    r1: R1,
+    r2: UnboundedRange
+  ) -> Self where R1: SignedRangeExpression {
     get { self[0..., r1, 0...] }
     set { self[0..., r1, 0...] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable public subscript<R2>(r0: UnboundedRange, r1: UnboundedRange, r2: R2) -> Self
-  where R2: SignedRangeExpression
-  {
+  @inlinable public subscript<R2>(
+    r0: UnboundedRange,
+    r1: UnboundedRange,
+    r2: R2
+  ) -> Self where R2: SignedRangeExpression {
     get { self[0..., 0..., r2] }
     set { self[0..., 0..., r2] = newValue }
   }
@@ -131,158 +131,102 @@ extension Tensor where Shape == Shape3 {
 // Rank4 array property and subscripts
 extension Tensor where Shape == Shape4 {
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable
-  public subscript<R0>(
+  @inlinable public subscript<R0>(
     r0: R0,
     r1: UnboundedRange,
     r2: UnboundedRange,
     r3: UnboundedRange
-  ) -> Self
-  where R0: SignedRangeExpression
-  {
+  ) -> Self where R0: SignedRangeExpression {
     get { self[r0, 0..., 0..., 0...] }
     set { self[r0, 0..., 0..., 0...] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable
-  public subscript<R0, R1>(
+  @inlinable public subscript<R0, R1>(
     r0: R0,
     r1: R1,
     r2: UnboundedRange,
     r3: UnboundedRange
-  ) -> Self
-  where
-    R0: SignedRangeExpression,
-    R1: SignedRangeExpression
-  {
+  ) -> Self where R0: SignedRangeExpression, R1: SignedRangeExpression {
     get { self[r0, r1, 0..., 0...] }
     set { self[r0, r1, 0..., 0...] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable
-  public subscript<R0, R2>(
+  @inlinable public subscript<R0, R2>(
     r0: R0,
     r1: UnboundedRange,
     r2: R2,
     r3: UnboundedRange
-  ) -> Self
-  where
-    R0: SignedRangeExpression,
-    R2: SignedRangeExpression
-  {
+  ) -> Self where R0: SignedRangeExpression, R2: SignedRangeExpression {
     get { self[r0, 0..., r2, 0...] }
     set { self[r0, 0..., r2, 0...] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable
-  public subscript<R1>(
+  @inlinable public subscript<R1>(
     r0: UnboundedRange,
     r1: R1,
     r2: UnboundedRange,
     r3: UnboundedRange
-  ) -> Self
-  where R1: SignedRangeExpression
-  {
+  ) -> Self where R1: SignedRangeExpression {
     get { self[0..., r1, 0..., 0...] }
     set { self[0..., r1, 0..., 0...] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable
-  public subscript<R2>(
+  @inlinable public subscript<R2>(
     r0: UnboundedRange,
     r1: UnboundedRange,
     r2: R2,
     r3: UnboundedRange
-  ) -> Self
-  where R2: SignedRangeExpression
-  {
+  ) -> Self where R2: SignedRangeExpression {
     get { self[0..., 0..., r2, 0...] }
     set { self[0..., 0..., r2, 0...] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable
-  public subscript<R0, R3>(
+  @inlinable public subscript<R0, R3>(
     r0: R0,
     r1: UnboundedRange,
     r2: UnboundedRange,
     r3: R3
-  ) -> Self
-  where
-    R0: SignedRangeExpression,
-    R3: SignedRangeExpression
-  {
+  ) -> Self where R0: SignedRangeExpression, R3: SignedRangeExpression {
     get { self[r0, 0..., 0..., r3] }
     set { self[r0, 0..., 0..., r3] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable
-  public subscript<R0, R1, R3>(
+  @inlinable public subscript<R0, R1, R3>(
     r0: R0,
     r1: R1,
     r2: UnboundedRange,
     r3: R3
-  ) -> Self
-  where
-    R0: SignedRangeExpression,
-    R1: SignedRangeExpression,
-    R3: SignedRangeExpression
-  {
+  ) -> Self where R0: SignedRangeExpression, R1: SignedRangeExpression, R3: SignedRangeExpression {
     get { self[r0, r1, 0..., r3] }
     set { self[r0, r1, 0..., r3] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable
-  public subscript<R0, R2, R3>(
+  @inlinable public subscript<R0, R2, R3>(
     r0: R0,
     r1: UnboundedRange,
     r2: R2,
     r3: R3
-  ) -> Self
-  where
-    R0: SignedRangeExpression,
-    R2: SignedRangeExpression,
-    R3: SignedRangeExpression
-  {
+  ) -> Self where R0: SignedRangeExpression, R2: SignedRangeExpression, R3: SignedRangeExpression {
     get { self[r0, 0..., r2, r3] }
     set { self[r0, 0..., r2, r3] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable
-  public subscript<R1, R3>(
+  @inlinable public subscript<R1, R3>(
     r0: UnboundedRange,
     r1: R1,
     r2: UnboundedRange,
     r3: R3
-  ) -> Self
-  where
-    R1: SignedRangeExpression,
-    R3: SignedRangeExpression
-  {
+  ) -> Self where R1: SignedRangeExpression, R3: SignedRangeExpression {
     get { self[0..., r1, 0..., r3] }
     set { self[0..., r1, 0..., r3] = newValue }
   }
 
-  @differentiable(where TensorElement.Value: DifferentiableNumeric)
-  @inlinable
-  public subscript<R2, R3>(
+  @inlinable public subscript<R2, R3>(
     r0: UnboundedRange,
     r1: UnboundedRange,
     r2: R2,
     r3: R3
-  ) -> Self
-  where
-    R2: SignedRangeExpression,
-    R3: SignedRangeExpression
-  {
+  ) -> Self where R2: SignedRangeExpression, R3: SignedRangeExpression {
     get { self[0..., 0..., r2, r3] }
     set { self[0..., 0..., r2, r3] = newValue }
   }
