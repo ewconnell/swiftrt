@@ -17,7 +17,10 @@
 import Foundation
 import SwiftRT
 import XCTest
+
+#if swift(>=5.3) && canImport(_Differentiation)
 import _Differentiation
+#endif
 
 class test_Subscripting: XCTestCase {
   //==========================================================================
@@ -107,10 +110,12 @@ class test_Subscripting: XCTestCase {
         [[7, 7, 7, 7], [7, 7, 7, 7], [7, 7, 7, 7]],
       ])
 
+    #if swift(>=5.3) && canImport(_Differentiation)
     let g = pullback(
       at: repeating(7, shape: (3, 4)),
       in: { expand(dims: $0, axis: 0) })(ones(shape: (1, 3, 4)))
     XCTAssert(g.flatArray == [Float](repeating: 1, count: 12))
+    #endif
   }
 
   //--------------------------------------------------------------------------
@@ -165,6 +170,7 @@ class test_Subscripting: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_Tensor1RangeGradient() {
+    #if swift(>=5.3) && canImport(_Differentiation)
     let v = array(0..<10)
 
     // simple range selection
@@ -181,6 +187,7 @@ class test_Subscripting: XCTestCase {
           2.7182817, 2.7182817, 2.7182817, 2.7182817,
           2.7182817, 2.7182817, 2.7182817, 2.7182817,
         ]))
+    #endif
   }
 
   //--------------------------------------------------------------------------
@@ -214,8 +221,10 @@ class test_Subscripting: XCTestCase {
     v1[2...4] = sevens
     XCTAssert(v1.flatArray == [0, 1, 7, 7, 7, 5, 6])
 
+    #if swift(>=5.3) && canImport(_Differentiation)
     let v2 = array(1...6)
     let g = pullback(at: v2, in: { exp($0) })(ones(like: v2))
     XCTAssert(g == array([2.7182817, 7.389056, 20.085537, 54.59815, 148.41316, 403.4288]))
+    #endif
   }
 }

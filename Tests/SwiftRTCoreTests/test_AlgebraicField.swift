@@ -18,7 +18,10 @@ import Foundation
 import Numerics
 import SwiftRT
 import XCTest
+
+#if swift(>=5.3) && canImport(_Differentiation)
 import _Differentiation
+#endif
 
 class test_AlgebraicField: XCTestCase {
   //--------------------------------------------------------------------------
@@ -79,12 +82,14 @@ class test_AlgebraicField: XCTestCase {
   
   //--------------------------------------------------------------------------
   func test_minimalAddVJP() {
+    #if swift(>=5.3) && canImport(_Differentiation)
     let a = array([[0, 1], [2, 3], [4, 5]], name: "a")
     let v = ones(like: a, name: "ones")
     
     // only wrt lhs
     let g = pullback(at: a, in: { $0 + 2 })(v)
     XCTAssert(g == [[1, 1], [1, 1], [1, 1]])
+    #endif
   }
   
   //--------------------------------------------------------------------------
@@ -132,12 +137,13 @@ class test_AlgebraicField: XCTestCase {
   func test_add() {
     let a = array(0..<6, shape: (3, 2), name: "A")
     let b = array(0..<6, shape: (3, 2), name: "B")
-    let aOnes = ones(like: a)
     
     let result = a + b
     XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
     
+    #if swift(>=5.3) && canImport(_Differentiation)
     // both
+    let aOnes = ones(like: a)
     let expected: [[Float]] = [[1, 1], [1, 1], [1, 1]]
     let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(aOnes)
     XCTAssert(g1 == expected)
@@ -150,16 +156,17 @@ class test_AlgebraicField: XCTestCase {
     // rhs
     let grhs = pullback(at: a, in: { 2 + $0 })(aOnes)
     XCTAssert(grhs == expected)
+    #endif
   }
   
   //--------------------------------------------------------------------------
   func test_addFloat16() {
-    if #available(OSX 11.0, *) {
+//    if #available(OSX 11.0, *) {
       let a = array(0..<6, shape: (3, 2), type: Float16.self)
       let b = array(0..<6, shape: (3, 2), type: Float16.self)
       let result = a + b
       XCTAssert(result == [[0, 2], [4, 6], [8, 10]])
-    }
+//    }
   }
   
   //--------------------------------------------------------------------------
@@ -220,6 +227,7 @@ class test_AlgebraicField: XCTestCase {
     XCTAssert(result.flatArray == [1, 1, 1, 1, 1, 1])
     
     // both
+    #if swift(>=5.3) && canImport(_Differentiation)
     let (g1, g2) = pullback(at: a, b, in: { $0 - $1 })(ones(like: a))
     XCTAssert(g1.flatArray == [1, 1, 1, 1, 1, 1])
     XCTAssert(g2.flatArray == [-1, -1, -1, -1, -1, -1])
@@ -231,6 +239,7 @@ class test_AlgebraicField: XCTestCase {
     // rhs
     let grhs = pullback(at: a, in: { 2 - $0 })(ones(like: a))
     XCTAssert(grhs.flatArray == [-1, -1, -1, -1, -1, -1])
+    #endif
   }
   
   //--------------------------------------------------------------------------
@@ -290,6 +299,7 @@ class test_AlgebraicField: XCTestCase {
     XCTAssert(result == [[0, 1], [4, 9], [16, 25]])
     
     // both
+    #if swift(>=5.3) && canImport(_Differentiation)
     let (g1, g2) = pullback(at: a, b, in: { $0 * $1 })(ones(like: a))
     XCTAssert(g1 == [[0, 1], [2, 3], [4, 5]])
     XCTAssert(g2 == [[0, 1], [2, 3], [4, 5]])
@@ -301,6 +311,7 @@ class test_AlgebraicField: XCTestCase {
     // rhs
     let grhs = pullback(at: a, in: { 2 * $0 })(ones(like: a))
     XCTAssert(grhs.flatArray == [2, 2, 2, 2, 2, 2])
+    #endif
   }
   
   //--------------------------------------------------------------------------
@@ -324,6 +335,7 @@ class test_AlgebraicField: XCTestCase {
     let result = a / b
     XCTAssert(result == [[1, 2], [3, 4], [5, 6]])
     
+    #if swift(>=5.3) && canImport(_Differentiation)
     let (g1, g2) = pullback(at: a, b, in: { $0 / $1 })(ones(like: a))
     let g1Expected = array([[1, 0.5], [0.3333333, 0.25], [0.2, 0.1666666]])
     XCTAssert(abssum(g1 - g1Expected).element <= 1e-6)
@@ -341,6 +353,7 @@ class test_AlgebraicField: XCTestCase {
         [-0.024691358, -0.0078125],
         [-0.0032, -0.0015432099],
       ])
+    #endif
   }
   
   //--------------------------------------------------------------------------
@@ -364,7 +377,6 @@ class test_AlgebraicField: XCTestCase {
     let data: [CF] = [1, 2, 3, 4]
     let a = array(data, shape: (2, 2))
     let b = array(data, shape: (2, 2))
-    let v = ones(like: a)
     
     // add a scalar
     XCTAssert((a + 1) == [[2, 3], [4, 5]])
@@ -392,6 +404,8 @@ class test_AlgebraicField: XCTestCase {
     XCTAssert((a / b) == [[1, 1], [1, 1]])
     
     // test add derivative
+    #if swift(>=5.3) && canImport(_Differentiation)
+    let v = ones(like: a)
     do {
       let (g1, g2) = pullback(at: a, b, in: { $0 + $1 })(v)
       XCTAssert(g1 == [[1, 1], [1, 1]])
@@ -419,6 +433,7 @@ class test_AlgebraicField: XCTestCase {
       let g2sumdiff = sum(g2 - g2Expected).element
       XCTAssert(abs(g2sumdiff.real) <= 1e-6 && g2sumdiff.imaginary == 0)
     }
+    #endif
   }
   
   //--------------------------------------------------------------------------

@@ -51,6 +51,12 @@ public typealias CStringPointer = UnsafePointer<CChar>
   return (numToRound + multiple - 1) & -multiple
 }
 
+extension FixedWidthInteger {
+  @inlinable public func roundUp(toMultipleOf value: Self) -> Self {
+    return (self + value - 1) / value * value
+  }
+}
+
 //==============================================================================
 // clamping
 extension Comparable {

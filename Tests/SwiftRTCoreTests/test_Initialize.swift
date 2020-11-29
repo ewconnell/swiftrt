@@ -18,7 +18,10 @@ import Foundation
 import Numerics
 import SwiftRT
 import XCTest
+
+#if swift(>=5.3) && canImport(_Differentiation)
 import _Differentiation
+#endif
 
 class test_Initialize: XCTestCase {
   //==========================================================================
@@ -214,6 +217,7 @@ class test_Initialize: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_concatenateGradients() {
+    #if swift(>=5.3) && canImport(_Differentiation)
     let a1 = array([1, 2, 3, 4, 5])
     let b1 = array([6, 7, 8, 9, 10])
     let a2 = array([1, 1, 1, 1, 1])
@@ -223,5 +227,6 @@ class test_Initialize: XCTestCase {
     }
     XCTAssertEqual(a1, g1)
     XCTAssertEqual(b1, g2)
+    #endif
   }
 }

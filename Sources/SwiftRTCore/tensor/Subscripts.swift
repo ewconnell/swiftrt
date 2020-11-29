@@ -15,7 +15,6 @@
 //
 
 import Foundation
-import _Differentiation
 
 // gyb utility docs
 // https://nshipster.com/swift-gyb/
@@ -55,7 +54,6 @@ public extension Tensor where Shape == Shape1 {
 
     /// - Returns: the sub view defined by the range
     @inlinable
-    @differentiable(where Element: DifferentiableNumeric)
     subscript<R0>(r0: R0) -> Self where
         R0: SignedRangeExpression
     {
@@ -91,7 +89,6 @@ public extension Tensor where Shape == Shape2 {
 
     /// - Returns: the sub view defined by the range
     @inlinable
-    @differentiable(where Element: DifferentiableNumeric)
     subscript<R0, R1>(r0: R0, r1: R1) -> Self where
         R0: SignedRangeExpression,
         R1: SignedRangeExpression
@@ -130,7 +127,6 @@ public extension Tensor where Shape == Shape3 {
 
     /// - Returns: the sub view defined by the range
     @inlinable
-    @differentiable(where Element: DifferentiableNumeric)
     subscript<R0, R1, R2>(r0: R0, r1: R1, r2: R2) -> Self where
         R0: SignedRangeExpression,
         R1: SignedRangeExpression,
@@ -172,7 +168,6 @@ public extension Tensor where Shape == Shape4 {
 
     /// - Returns: the sub view defined by the range
     @inlinable
-    @differentiable(where Element: DifferentiableNumeric)
     subscript<R0, R1, R2, R3>(r0: R0, r1: R1, r2: R2, r3: R3) -> Self where
         R0: SignedRangeExpression,
         R1: SignedRangeExpression,
@@ -217,7 +212,6 @@ public extension Tensor where Shape == Shape5 {
 
     /// - Returns: the sub view defined by the range
     @inlinable
-    @differentiable(where Element: DifferentiableNumeric)
     subscript<R0, R1, R2, R3, R4>(r0: R0, r1: R1, r2: R2, r3: R3, r4: R4) -> Self where
         R0: SignedRangeExpression,
         R1: SignedRangeExpression,
@@ -265,7 +259,6 @@ public extension Tensor where Shape == Shape6 {
 
     /// - Returns: the sub view defined by the range
     @inlinable
-    @differentiable(where Element: DifferentiableNumeric)
     subscript<R0, R1, R2, R3, R4, R5>(r0: R0, r1: R1, r2: R2, r3: R3, r4: R4, r5: R5) -> Self where
         R0: SignedRangeExpression,
         R1: SignedRangeExpression,

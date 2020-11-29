@@ -17,6 +17,8 @@
 // Free-function-style differential operators
 // ===------------------------------------------------------------------------------------------===//
 
+#if swift(>=5.3) && canImport(_Differentiation)
+
 import _Differentiation
 
 // Value with gradient
@@ -156,3 +158,5 @@ public func gradient<T, U, V, Shape, Element>(
 where T: Differentiable, U: Differentiable, V: Differentiable, Element: DifferentiableNumeric {
   return { x, y, z in gradient(at: x, y, z, in: f) }
 }
+
+#endif

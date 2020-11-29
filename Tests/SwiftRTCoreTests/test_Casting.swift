@@ -18,7 +18,10 @@ import Foundation
 import Numerics
 import SwiftRT
 import XCTest
+
+#if swift(>=5.3) && canImport(_Differentiation)
 import _Differentiation
+#endif
 
 class test_Casting: XCTestCase {
   //==========================================================================

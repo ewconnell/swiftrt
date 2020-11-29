@@ -13,9 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-import _Differentiation
-import SwiftRTCore
 #if canImport(TensorFlow)
+
+import SwiftRTCore
+import _Differentiation
 // Note: `Module` and `Layer` protocol definitions are adapted and simplified from:
 // https://github.com/tensorflow/swift-apis/blob/master/Sources/TensorFlow/Layer.swift
 

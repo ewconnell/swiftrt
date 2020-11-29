@@ -15,7 +15,6 @@
 //
 
 import Foundation
-import _Differentiation
 
 //==============================================================================
 /// concatenate(_:axis:into:
@@ -26,7 +25,6 @@ import _Differentiation
 ///  - axis: The axis along which the tensors will be joined.
 ///  - into: the destination to place the result. The shape must be correct.
 ///
-@differentiable(where E.Value: DifferentiableNumeric)
 @inlinable public func concatenate<S, E>(
   _ tensors: [Tensor<S, E>],
   axis: Int = 0,
@@ -45,19 +43,16 @@ import _Differentiation
   }
 }
 
-@differentiable(where E.Value: DifferentiableNumeric)
 @inlinable public func concatenate<S, E>(
   _ tensors: [Tensor<S, E>],
   axis: Int = 0
 ) -> Tensor<S, E> {
   let axis = axis < 0 ? axis + S.rank : axis
-  var result = withoutDerivative(
-    at: Tensor<S, E>(shape: concatenatedShape(tensors, axis)))
+  var result = Tensor<S, E>(shape: concatenatedShape(tensors, axis))
   concatenate(tensors, axis: axis, into: &result)
   return result
 }
 
-@differentiable(where E.Value: DifferentiableNumeric)
 @inlinable public func concatenate<S, E>(
   _ tensors: Tensor<S, E>...,
   axis: Int = 0
@@ -87,51 +82,6 @@ extension Tensor {
     shape[axis] += tensors[i].shape[axis]
   }
   return shape
-}
-
-//==============================================================================
-// vjpConcat
-@derivative(of:concatenate)
-@inlinable func vjpConcat<S, E>(
-  _ tensors: [Tensor<S, E>],
-  axis: Int = 0,
-  into result: inout Tensor<S, E>
-) -> (
-  value: (),
-  pullback: (inout Tensor<S, E>.TangentVector)
-    -> Array<Tensor<S, E>>.TangentVector
-) {
-  let shapes = tensors.map { $0.shape }
-  func pullback(_ resultTangent: inout Tensor<S, E>.TangentVector)
-    -> Array<Tensor<S, E>>.TangentVector
-  {
-    // Fill `tensorTangents` with slices of `resultTangent` of shape
-    // `tensorShapes[0]`, `tensorShapes[1]`, etc.
-    var tensorTangents: [Tensor<S, E>] = []
-    var lower = S.zero
-    for shape in shapes {
-      let upper = lower &+ shape
-      tensorTangents.append(resultTangent[lower, upper])
-      lower[axis] += upper[axis]
-    }
-
-    // Set `resultTangent` to zero.
-    // Note: We can't use `fill(_:with:)` because `resultTangent` aliases
-    // `tensorTangents`.
-    // TODO: track and fix
-    // Note: https://bugs.swift.org/browse/TF-1250 will allow us to make
-    // this pullback more efficient. How:
-    // - Set the wrt parameters and results to
-    //     @differentiable(wrt: (tensors), results: (result))
-    // - This makes `resultTangent` not be inout, so we don't need to set
-    //   it any more.
-    resultTangent = Tensor(
-      zeros: resultTangent.shape,
-      order: resultTangent.order)
-
-    return Array.DifferentiableView(tensorTangents)
-  }
-  return (concatenate(tensors, axis: axis, into: &result), pullback)
 }
 
 //==============================================================================
