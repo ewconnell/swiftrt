@@ -21,27 +21,35 @@ extension Tensor {
     along axes: Axes
   ) -> Tensor<ItemShape, TensorElement> {
     assert(Axes.rank + ItemShape.rank == Shape.rank, "rank mismatch")
-    // init item shape and strides
-//    var itemShape = Shape.M1.zero
-//    var itemStrides = Shape.M1.zero
-//    for i in 0..<Shape.M1.rank {
-//      m1Shape[i] = shape[i + 1]
-//      m1Strides[i] = strides[i + 1]
-//    }
-//
-//    return Tensor<Shape.M1, TensorElement>(
-//      shape: m1Shape,
-//      strides: m1Strides,
-//      count: ,
-//      storage: self.storage,
-//      storageBase: self.storageBase,
-//      spanCount: Int,
-//      order: self.order,
-//      shared: self.shared,
-//      batchCount: Int = 1,
-//      batchStride: Int = 1
-//    )
-    return Tensor<ItemShape, TensorElement>(shape: ItemShape())
+    assert({
+      for i in 1..<Axes.rank where axes[i] <= axes[i-1] { return false }
+      return true
+    }(), "axes must be specified in ascending order")
+
+    // extract item shape
+    var s = shape
+    axes.indices.forEach { s[axes[$0]] = 1 }
+    var itemShape = ItemShape(), itemStrides = ItemShape()
+    var j = 0
+    for i in shape.indices where s[i] != 1 {
+      itemShape[j] = shape[i]
+      itemStrides[j] = strides[i]
+      j += 1
+    }
+
+    // create a view for the first batch item
+    return Tensor<ItemShape, TensorElement>(
+      shape: itemShape,
+      strides: itemStrides,
+      count: itemShape.elementCount(),
+      storage: self.storage,
+      storageBase: self.storageBase,
+      spanCount: itemShape.spanCount(stridedBy: itemStrides),
+      order: self.order,
+      shared: self.isShared,
+      batchCount: 1,
+      batchStride: 1
+    )
   }
   
   @inlinable public init<Axes: TensorShape, ItemShape: TensorShape>(

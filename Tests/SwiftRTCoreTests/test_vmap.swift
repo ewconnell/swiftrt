@@ -25,10 +25,16 @@ import _Differentiation
 class test_vmap: XCTestCase {
   //==========================================================================
   static var allTests = [
-    ("test_vmap1D", test_vmap1D),
+    ("test_vmap3D", test_vmap3D),
   ]
 
   //--------------------------------------------------------------------------
-  func test_vmap1D() {
+  func test_vmap3D() {
+    let a = array(0..<24, shape: (2, 3, 4))
+    let b = vmap(a, axes: (0, 2)) { a in
+      let c = ones(shape: 3)
+      return a + c
+    }
+    print(b)
   }
 }
