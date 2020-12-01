@@ -35,8 +35,6 @@ where Shape: TensorShape, TensorElement: StorageElement {
   /// A number greater than 1 means that this tensor is the first
   /// in a batch of tensors held in the underlying storage.
   public let batchCount: Int
-  /// the stride between batch items
-  public let batchStride: Int
   /// the count of elements described by `shape`
   public let count: Int
   /// `true` if the view will be shared by by multiple writers
@@ -75,7 +73,7 @@ where Shape: TensorShape, TensorElement: StorageElement {
   /// `true` if the tensor value is zero
   @inlinable public var isZero: Bool { storage.isZero }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// init(
   /// Used to initialize an element collection subview
   @inlinable public init(
@@ -104,7 +102,6 @@ where Shape: TensorShape, TensorElement: StorageElement {
     self.shape = shape
     self.strides = strides
     self.batchCount = batchCount
-    self.batchStride = batchStride
     self.count = count
     self.storage = storage
     self.storageBase = storageBase
@@ -122,7 +119,7 @@ where Shape: TensorShape, TensorElement: StorageElement {
       spanCount)
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// init(value:shape:order:name
   /// Used to initialize a tensor with a single Element
   @inlinable public init(
@@ -138,8 +135,7 @@ where Shape: TensorShape, TensorElement: StorageElement {
     self.strides = Shape.zero
     self.storageBase = 0
     self.isShared = false
-    self.batchCount = 0
-    self.batchStride = 0
+    self.batchCount = 1
     self.count = shape.elementCount()
     self.spanCount = 1
     self.order = order
@@ -156,7 +152,7 @@ where Shape: TensorShape, TensorElement: StorageElement {
       spanCount)
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// init
   /// Used to represent a single zero value
   // Primarily used to minimize AD zero materialization problem
@@ -165,8 +161,7 @@ where Shape: TensorShape, TensorElement: StorageElement {
     self.strides = Shape.one
     self.storageBase = 0
     self.isShared = false
-    self.batchCount = 0
-    self.batchStride = 0
+    self.batchCount = 1
     self.count = 1
     self.spanCount = 1
     self.order = .row
@@ -205,7 +200,7 @@ public enum Order: Int, Codable {
   /// and 2 rows, then the leading dimension must be at least (32) * 2 = 64.
   case colTiled32
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// Data is ordered as batch N of (rows H, columns W, channels C)
   /// This order is only valid for 4D tensors.
   case NHWC
@@ -214,7 +209,7 @@ public enum Order: Int, Codable {
   /// This order is only valid for 5D tensors.
   case NDHWC
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // NVIDIA native tensor core formats
 
   /// Data is ordered in column-major ordered tiles of composite tiles
@@ -367,7 +362,7 @@ where Shape: TensorShape {
 //==============================================================================
 // Tensor collection and sub view extensions
 extension Tensor {
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // sequential buffer element iterators
   @inlinable public var buffer: BufferElements<Shape, TensorElement> {
     BufferElements(tensor: self)
@@ -377,7 +372,7 @@ extension Tensor {
     mutating get { BufferElements(tensor: &self) }
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // logical coordinate element iterators
   @inlinable public var elements: LogicalElements<Shape, TensorElement> {
     logicalElements.prepareForRead()
@@ -391,19 +386,19 @@ extension Tensor {
     }
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// the starting index zero relative to the storage buffer
   @inlinable public var startIndex: Index {
     logicalElements.startIndex
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// the ending index zero relative to the storage buffer
   @inlinable public var endIndex: Index {
     logicalElements.endIndex
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// makeIndex(position:
   /// makes an index from a logical position within `shape`
   /// - Parameters:
@@ -413,13 +408,13 @@ extension Tensor {
     Index(position, position.index(stridedBy: logicalStrides))
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// index(i:
   @inlinable public func index(after i: Index) -> Index {
     logicalElements.index(after: i)
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // elemment subscript
   @inlinable public subscript(i: Index) -> Element {
     get {
@@ -437,7 +432,7 @@ extension Tensor {
     }
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // sub view subscript
   @inlinable public subscript(lower: Shape, upper: Shape) -> Self {
     get { createView(lower, upper, isShared) }
@@ -448,7 +443,7 @@ extension Tensor {
     }
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // conditional assignment subscript
   @inlinable public subscript(condition: Tensor<Shape, Bool>) -> Self {
     get {
@@ -464,7 +459,7 @@ extension Tensor {
     }
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // creates a tensor subview
   @inlinable public func createView(
     _ lower: Shape,
@@ -488,7 +483,7 @@ extension Tensor {
       shared: share)
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// shared
   /// creates a shareable instance intended for multi-threaded writes
   /// - Parameters:
@@ -504,7 +499,7 @@ extension Tensor {
     return sharedSelf
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// `prepareForWrite`
   /// called before a write operation to ensure that the storage buffer
   /// is unique for this tensor unless it `isShared`
@@ -539,7 +534,7 @@ extension Tensor {
     }
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// - Returns: the collection elements as a 1D Swift array
   @inlinable public var flatArray: [Element] {
     usingSyncQueue {
@@ -551,7 +546,7 @@ extension Tensor {
 //==============================================================================
 // Tensor read write access
 extension Tensor {
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// `read`
   /// Synchronizes the collection of stored elements with the caller
   /// for reading. This function blocks until the elements are available.
@@ -561,7 +556,7 @@ extension Tensor {
     read(using: Platform.syncQueue)
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// `read(queue:
   /// Synchronizes the collection of elements for reading
   /// using the specified `queue`. This function is non blocking, and
@@ -581,7 +576,7 @@ extension Tensor {
       at: i, count: storedCount, using: queue)
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// `deviceRead(queue:
   /// Synchronizes the collection of elements for reading
   /// using the specified `queue`. This function is non blocking, and
@@ -595,7 +590,7 @@ extension Tensor {
     UnsafeRawPointer(read(using: queue).baseAddress!)
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// `readWrite`
   /// Synchronizes the collection of elements with the caller for read write
   /// This function blocks until the elements are available.
@@ -607,7 +602,7 @@ extension Tensor {
     readWrite(using: Platform.syncQueue)
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// `readWrite(queue:`
   /// Synchronizes the collection of elements with the caller for read write
   /// using the specified `queue`. This function is non blocking, and
@@ -629,7 +624,7 @@ extension Tensor {
       at: i, count: storedCount, using: queue)
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   /// `deviceReadWrite(queue:`
   /// Synchronizes the collection of elements with the caller for read write
   /// using the specified `queue`. This function is non blocking, and

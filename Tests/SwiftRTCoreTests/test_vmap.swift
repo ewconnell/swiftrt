@@ -30,10 +30,13 @@ class test_vmap: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_vmap3D() {
-    let a = array(0..<24, shape: (2, 3, 4))
-    let b = vmap(a, axes: (0, 2)) { a in
+    let a = array(0..<12, shape: (3, 4))
+    print(a)
+    let b = vmap(a, axis: 1) { col in
       let c = ones(shape: 3)
-      return a + c
+      let out = col + c
+      print(out)
+      return out
     }
     print(b)
   }

@@ -89,6 +89,10 @@ extension TensorShape {
     self.reduce(into: 1, &*=)
   }
 
+  @inlinable public static func makePositive(axis: Int) -> Int {
+    axis >= 0 ? axis : axis + Self.rank
+  }
+  
   //--------------------------------------------------------------------------
   // initializers
   @inlinable public init(integerLiteral value: Scalar) {

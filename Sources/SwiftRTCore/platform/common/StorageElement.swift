@@ -372,7 +372,6 @@ extension Tensor where TensorElement == Bool1 {
     order = other.order
     isShared = other.isShared
     batchCount = other.batchCount
-    batchStride = other.batchStride
     count = other.count
     spanCount = other.spanCount
     logicalStrides = other.logicalStrides
@@ -409,7 +408,6 @@ extension Tensor where TensorElement == UInt1 {
     order = other.order
     isShared = other.isShared
     batchCount = other.batchCount
-    batchStride = other.batchStride
     count = other.count
     spanCount = other.spanCount
     logicalStrides = other.logicalStrides

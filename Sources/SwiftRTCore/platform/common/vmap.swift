@@ -15,84 +15,124 @@
 
 import Foundation
 
-extension Tensor {
-  //========================================================================
-  @inlinable public func vmapItem<Axes: TensorShape, ItemShape: TensorShape>(
-    along axes: Axes
-  ) -> Tensor<ItemShape, TensorElement> {
-    assert(Axes.rank + ItemShape.rank == Shape.rank, "rank mismatch")
-    assert({
-      for i in 1..<Axes.rank where axes[i] <= axes[i-1] { return false }
-      return true
-    }(), "axes must be specified in ascending order")
+// JAX vmap
+// https://jax.readthedocs.io/en/latest/jax.html#jax.vmap
 
-    // extract item shape
-    var s = shape
-    axes.indices.forEach { s[axes[$0]] = 1 }
-    var itemShape = ItemShape(), itemStrides = ItemShape()
+//==============================================================================
+public protocol VectorMappable {
+  associatedtype M1: TensorShape
+}
+
+public protocol VectorMapped {
+  associatedtype P1: TensorShape
+}
+
+extension Shape1: VectorMapped {
+  public typealias P1 = Shape2
+}
+
+extension Shape2: VectorMappable, VectorMapped {
+  public typealias M1 = Shape1
+  public typealias P1 = Shape3
+}
+
+extension Shape3: VectorMappable, VectorMapped {
+  public typealias M1 = Shape2
+  public typealias P1 = Shape4
+}
+
+//==============================================================================
+extension Tensor where Shape: VectorMappable {
+  @inlinable public func asBatchedItem(
+    along axis: Int
+  ) -> Tensor<Shape.M1, TensorElement> {
+    // get shape of batch item
+    let batchCount = shape[axis]
+    var itemShape = Shape.M1.zero
+    var itemStrides = itemShape
     var j = 0
-    for i in shape.indices where s[i] != 1 {
+    for i in 0..<Shape.rank where i != axis {
       itemShape[j] = shape[i]
       itemStrides[j] = strides[i]
       j += 1
     }
 
-    // create a view for the first batch item
-    return Tensor<ItemShape, TensorElement>(
+    // create view for the batch item
+    let itemCount = self.count / batchCount
+    let itemSpanCount = itemShape.spanCount(stridedBy: itemStrides)
+
+    return Tensor<Shape.M1, TensorElement>(
       shape: itemShape,
       strides: itemStrides,
-      count: itemShape.elementCount(),
+      count: itemCount,
       storage: self.storage,
       storageBase: self.storageBase,
-      spanCount: itemShape.spanCount(stridedBy: itemStrides),
+      spanCount: itemSpanCount,
       order: self.order,
       shared: self.isShared,
-      batchCount: 1,
-      batchStride: 1
-    )
-  }
-  
-  @inlinable public init<Axes: TensorShape, ItemShape: TensorShape>(
-    from batched: Tensor<ItemShape, TensorElement>,
-    along axes: Axes
-  ) {
-    fatalError()
+      batchCount: batchCount)
   }
 }
 
-//==========================================================================
+//==============================================================================
 /// vmap(tensor:axis:body
 ///
-
-//--------------------------------------------------------------------------
-// Rank 2
-public func vmap<E>(
-  _ tensor: TensorR2<E>,
+public func vmap<S, E>(
+  _ t0: Tensor<S,E>,
   axis: Int = 0,
-  outAxis: Int = 0,
-  _ body: (TensorR1<E>) -> TensorR1<E>
-) -> TensorR2<E> {
-  return TensorR2<E>(from: body(tensor.vmapItem(along: Shape1(axis))), along: Shape1(outAxis))
+  outAxis: Int? = nil,
+  _ body: (Tensor<S.M1, E>) -> Tensor<S.M1, E>
+) -> Tensor<S, E> where S: VectorMappable, S.M1: VectorMapped {
+  let outAxis = S.makePositive(axis: outAxis ?? axis)
+  let item = t0.asBatchedItem(along: S.makePositive(axis: axis))
+  let result = body(item)
+  
+  //-------------------------------------
+  // expand
+  // set the expanded axes
+  var shape = S.zero
+  var strides = S.zero
+
+  // simple axis 0 case
+  if outAxis == 0 {
+    shape[0] = item.batchCount
+    strides[0] = result.shape[0] * result.strides[0]
+    for (i, j) in zip(1..<S.rank, 0..<S.M1.rank) {
+      shape[i] = result.shape[j]
+      strides[i] = result.strides[j]
+    }
+  } else {
+//    shape[outAxis] = 1
+//
+//    var axis = Shape.rank - 1
+//    var otherAxis = S.rank - 1
+//    while axis >= 0 {
+//      if shape[axis] == 1 {
+//        if axis == Shape.rank - 1 {
+//          // if the last dimension is expanded, then stride is 1
+//          strides[axis] = 1
+//        } else {
+//          // if inserted, then compute stride
+//          strides[axis] = shape[axis + 1] * strides[axis + 1]
+//        }
+//      } else {
+//        // simply copy stride
+//        shape[axis] = other.shape[otherAxis]
+//        strides[axis] = other.strides[otherAxis]
+//        otherAxis -= 1
+//      }
+//      axis -= 1
+//    }
+  }
+  
+  return Tensor<S, E>(
+    shape: shape,
+    strides: strides,
+    count: shape.elementCount(),
+    storage: result.storage,
+    storageBase: result.storageBase,
+    spanCount: shape.spanCount(stridedBy: strides),
+    order: result.order,
+    shared: result.isShared)
 }
 
-//--------------------------------------------------------------------------
-// Rank 3
-public func vmap<E>(
-  _ tensor: TensorR3<E>,
-  axis: Int = 0,
-  outAxis: Int = 0,
-  _ body: (TensorR2<E>) -> TensorR2<E>
-) -> TensorR3<E> {
-  return TensorR3<E>(from: body(tensor.vmapItem(along: Shape1(axis))), along: Shape1(outAxis))
-}
-
-public func vmap<E>(
-  _ tensor: TensorR3<E>,
-  axes: Shape2.Tuple,
-  outAxes: Shape2.Tuple? = nil,
-  _ body: (TensorR1<E>) -> TensorR1<E>
-) -> TensorR3<E> {
-  return TensorR3<E>(
-    from: body(tensor.vmapItem(along: Shape2(axes))),
-    along: Shape2(outAxes ?? axes))
-}
