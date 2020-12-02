@@ -63,7 +63,7 @@ import _Differentiation
   _ lhs: Tensor<S, E>,
   _ rhs: E.Value
 ) -> (
-  value: Tensor<S, E>, pullback: (Tensor<S, E>) -> Tensor<S, E>)
+  value: Tensor<S, E>, pullback: (Tensor<S, E>) -> Tensor<S, E>
 ) where E.Value: Differentiable & Numeric & Comparable {
   let value = max(lhs, rhs)
   return (
