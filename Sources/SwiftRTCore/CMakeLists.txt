@@ -39,7 +39,6 @@ add_library(SwiftRTCore
   platform/common/StorageBuffer.swift
   platform/common/StorageElement.swift
   platform/common/pmap.swift
-  platform/common/vmap.swift
 
   platform/cpu/device/CpuDevice.swift
   platform/cpu/device/CpuEvent.swift

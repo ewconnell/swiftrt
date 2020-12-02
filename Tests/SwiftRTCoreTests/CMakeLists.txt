@@ -18,7 +18,6 @@ add_library(SwiftRTCoreTests
   test_Subscripting.swift
   test_VectorElement.swift
   test_Vectorizing.swift
-  test_vmap.swift
   test_arraySyntax.swift)
 target_link_libraries(SwiftRTCoreTests PUBLIC
   $<$<AND:$<BOOL:Foundation_FOUND>,$<NOT:$<PLATFORM_ID:Darwin>>>:Foundation>

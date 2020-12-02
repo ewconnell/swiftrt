@@ -31,10 +31,6 @@ where Shape: TensorShape, TensorElement: StorageElement {
   public typealias Index = ElementIndex<Shape>
   public typealias Element = TensorElement.Value
 
-  /// the count of batched items. Default is 1
-  /// A number greater than 1 means that this tensor is the first
-  /// in a batch of tensors held in the underlying storage.
-  public let batchCount: Int
   /// the count of elements described by `shape`
   public let count: Int
   /// `true` if the view will be shared by by multiple writers
@@ -84,9 +80,7 @@ where Shape: TensorShape, TensorElement: StorageElement {
     storageBase: Int,
     spanCount: Int,
     order: Order,
-    shared: Bool,
-    batchCount: Int = 1,
-    batchStride: Int = 1
+    shared: Bool
   ) {
     // make sure the tensor view range is within the associated
     // storage buffer bounds.
@@ -101,7 +95,6 @@ where Shape: TensorShape, TensorElement: StorageElement {
     assert((order != .NHWC || Shape.rank == 4) && (order != .NDHWC || Shape.rank == 5))
     self.shape = shape
     self.strides = strides
-    self.batchCount = batchCount
     self.count = count
     self.storage = storage
     self.storageBase = storageBase
@@ -135,7 +128,6 @@ where Shape: TensorShape, TensorElement: StorageElement {
     self.strides = Shape.zero
     self.storageBase = 0
     self.isShared = false
-    self.batchCount = 1
     self.count = shape.elementCount()
     self.spanCount = 1
     self.order = order
@@ -161,7 +153,6 @@ where Shape: TensorShape, TensorElement: StorageElement {
     self.strides = Shape.one
     self.storageBase = 0
     self.isShared = false
-    self.batchCount = 1
     self.count = 1
     self.spanCount = 1
     self.order = .row
