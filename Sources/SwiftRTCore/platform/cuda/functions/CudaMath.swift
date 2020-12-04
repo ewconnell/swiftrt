@@ -271,6 +271,73 @@ extension CudaQueue {
     cpuFallback(status) { $0.mul(lhs, rhs, &out) }
   }
 
+  //----------------------------------------------------------------------------
+  @inlinable public func mod<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: BinaryInteger {
+    assert(out.isContiguous, _messageElementsMustBeContiguous)
+    var status = cudaErrorNotSupported
+    guard useGpu else {
+      cpu_mod(lhs, rhs, &out)
+      return
+    }
+//    diagnostic(.queueGpu, "mod(\(lhs.name), \(rhs)) Flat", categories: .queueGpu)
+
+    cpuFallback(status) { $0.mod(lhs, rhs, &out) }
+  }
+
+  @inlinable public func mod<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: BinaryInteger {
+    assert(out.isContiguous, _messageElementsMustBeContiguous)
+    var status = cudaErrorNotSupported
+    guard useGpu else {
+      cpu_mod(lhs, rhs, &out)
+      return
+    }
+//    diagnostic(.queueGpu, "mod(\(lhs.name), \(rhs)) Flat", categories: .queueGpu)
+
+    cpuFallback(status) { $0.mod(lhs, rhs, &out) }
+  }
+
+  //----------------------------------------------------------------------------
+  // https://forums.swift.org/t/modulo-operation-in-swift/7018/4
+  @inlinable public func fmod<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: BinaryFloatingPoint {
+    assert(out.isContiguous, _messageElementsMustBeContiguous)
+    var status = cudaErrorNotSupported
+    guard useGpu else {
+      cpu_fmod(lhs, rhs, &out)
+      return
+    }
+//    diagnostic(.queueGpu, "mod(\(lhs.name), \(rhs)) Flat", categories: .queueGpu)
+
+    cpuFallback(status) { $0.fmod(lhs, rhs, &out) }
+  }
+
+  @inlinable public func fmod<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: BinaryFloatingPoint {
+    assert(out.isContiguous, _messageElementsMustBeContiguous)
+    var status = cudaErrorNotSupported
+    guard useGpu else {
+      cpu_fmod(lhs, rhs, &out)
+      return
+    }
+//    diagnostic(.queueGpu, "mod(\(lhs.name), \(rhs)) Flat", categories: .queueGpu)
+
+    cpuFallback(status) { $0.fmod(lhs, rhs, &out) }
+  }
+
   //--------------------------------------------------------------------------
   // subtract tensor tensor
   @inlinable public func subtract<S, E>(
