@@ -16,8 +16,8 @@
 
 import Numerics
 
+//==============================================================================
 extension Tensor where Element: AdditiveArithmetic {
-  //----------------------------------------------------------------------------
   // add
   // tensor + tensor
   @inlinable public static func + (lhs: Self, rhs: Self) -> Self {
@@ -58,8 +58,8 @@ extension Tensor where Element: AdditiveArithmetic {
   }
 }
 
+//==============================================================================
 extension Tensor where Element: AdditiveArithmetic {
-  //----------------------------------------------------------------------------
   // subtract
   @inlinable public static func - (lhs: Self, rhs: Self) -> Self {
     assert(lhs.shape == rhs.shape)
@@ -125,7 +125,6 @@ extension Tensor where Element: AdditiveArithmetic {
 #endif
 
 extension Tensor where Element: Numeric {
-  //----------------------------------------------------------------------------
   // mul
   // tensor * tensor
   @inlinable public static func * (lhs: Self, rhs: Self) -> Self {
@@ -168,8 +167,8 @@ extension Tensor where Element: Numeric {
   }
 }
 
+//==============================================================================
 extension Tensor where Element: AlgebraicField {
-  //----------------------------------------------------------------------------
   // div
   // tensor / tensor
   @inlinable public static func / (lhs: Self, rhs: Self) -> Self {
@@ -204,6 +203,52 @@ extension Tensor where Element: AlgebraicField {
   // PointwiseMultiplicative
   @inlinable public var reciprocal: Self {
     1 / self
+  }
+}
+
+//==============================================================================
+extension Tensor where Element: BinaryInteger {
+  // mod
+  // tensor % tensor
+  @inlinable public static func % (lhs: Self, rhs: Self) -> Self {
+    assert(lhs.shape == rhs.shape)
+    var result = Tensor(like: lhs)
+    currentQueue.mod(lhs, rhs, &result)
+    return result
+  }
+
+  @inlinable public static func %= (lhs: inout Self, rhs: Self) {
+    lhs = lhs % rhs
+  }
+
+  // tensor % Element
+  @inlinable public static func % (lhs: Self, rhs: Element) -> Self {
+    var result = Tensor(like: lhs)
+    currentQueue.mod(lhs, rhs, &result)
+    return result
+  }
+
+  @inlinable public static func %= (lhs: inout Self, rhs: Element) {
+    lhs = lhs % rhs
+  }
+}
+
+//==============================================================================
+extension Tensor where Element: BinaryFloatingPoint {
+  // mod
+  // tensor tensor
+  @inlinable public static func fmod(lhs: Self, rhs: Self) -> Self {
+    assert(lhs.shape == rhs.shape)
+    var result = Tensor(like: lhs)
+    currentQueue.fmod(lhs, rhs, &result)
+    return result
+  }
+
+  // tensor Element
+  @inlinable public static func fmod(lhs: Self, rhs: Element) -> Self {
+    var result = Tensor(like: lhs)
+    currentQueue.fmod(lhs, rhs, &result)
+    return result
   }
 }
 

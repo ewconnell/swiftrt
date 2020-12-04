@@ -191,6 +191,41 @@ extension CpuQueue {
     cpu_div(lhs, rhs, &out)
   }
 
+  //----------------------------------------------------------------------------
+  @inlinable public func mod<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: BinaryInteger {
+    cpu_mod(lhs, rhs, &out)
+  }
+
+  @inlinable public func mod<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: BinaryInteger {
+    cpu_mod(lhs, rhs, &out)
+  }
+
+  //----------------------------------------------------------------------------
+  // https://forums.swift.org/t/modulo-operation-in-swift/7018/4
+  @inlinable public func fmod<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: BinaryFloatingPoint {
+    cpu_fmod(lhs, rhs, &out)
+  }
+
+  @inlinable public func fmod<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: BinaryFloatingPoint {
+    cpu_fmod(lhs, rhs, &out)
+  }
+
   //--------------------------------------------------------------------------
   @inlinable public func elementsAlmostEqual<S, E>(
     _ lhs: Tensor<S, E>,
@@ -807,7 +842,53 @@ extension DeviceQueue {
     mapOp(lhs, rhs, &out, /)
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
+  @inlinable public func cpu_mod<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: BinaryInteger {
+    diagnostic(
+      .queueCpu, "mod(\(lhs.name), \(rhs.name)) on \(name)",
+      categories: .queueCpu)
+    mapOp(lhs, rhs, &out, %)
+  }
+
+  @inlinable public func cpu_mod<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: BinaryInteger {
+    diagnostic(
+      .queueCpu, "mod(\(lhs.name), \(rhs)) on \(name)",
+      categories: .queueCpu)
+    mapOp(lhs, rhs, &out, %)
+  }
+
+  //----------------------------------------------------------------------------
+  @inlinable public func cpu_fmod<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: Tensor<S, E>,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: BinaryFloatingPoint {
+    diagnostic(
+      .queueCpu, "fmod(\(lhs.name), \(rhs.name)) on \(name)",
+      categories: .queueCpu)
+    mapOp(lhs, rhs, &out, fmod)
+  }
+
+  @inlinable public func cpu_fmod<S, E>(
+    _ lhs: Tensor<S, E>,
+    _ rhs: E.Value,
+    _ out: inout Tensor<S, E>
+  ) where E.Value: BinaryFloatingPoint {
+    diagnostic(
+      .queueCpu, "fmod(\(lhs.name), \(rhs)) on \(name)",
+      categories: .queueCpu)
+    mapOp(lhs, rhs, &out, fmod)
+  }
+  
+  //----------------------------------------------------------------------------
   @inlinable public func cpu_elementsAlmostEqual<S, E>(
     _ lhs: Tensor<S, E>,
     _ rhs: Tensor<S, E>,
