@@ -16,6 +16,7 @@
 #if swift(>=5.3) && canImport(_Differentiation)
 
 import _Differentiation
+import Numerics
 
 extension Tensor where Element: DifferentiableNumeric & AdditiveArithmetic {
   //----------------------------------------------------------------------------
