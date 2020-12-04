@@ -26,7 +26,7 @@ import _Differentiation
   _ rhs: Tensor<S, E>
 ) -> (
   value: Tensor<S, E>, pullback: (Tensor<S, E>) -> (Tensor<S, E>, Tensor<S, E>)
-) where E.Value: Differentiable & Numeric & Comparable {
+) where E.Value: DifferentiableNumeric & Comparable {
   (
     value: min(lhs, rhs),
     {
@@ -45,7 +45,7 @@ import _Differentiation
   _ rhs: E.Value
 ) -> (
   value: Tensor<S, E>, pullback: (Tensor<S, E>) -> (Tensor<S, E>, E.Value)
-) where E.Value: Differentiable & Numeric & Comparable {
+) where E.Value: DifferentiableNumeric & Comparable {
   let value = min(lhs, rhs)
   return (
     value,
@@ -64,7 +64,7 @@ import _Differentiation
   _ rhs: E.Value
 ) -> (
   value: Tensor<S, E>, pullback: (Tensor<S, E>) -> Tensor<S, E>
-) where E.Value: Differentiable & Numeric & Comparable {
+) where E.Value: DifferentiableNumeric & Comparable {
   let value = max(lhs, rhs)
   return (
     value,
@@ -86,7 +86,7 @@ import _Differentiation
   _ rhs: Tensor<S, E>
 ) -> (
   value: Tensor<S, E>, pullback: (Tensor<S, E>) -> (Tensor<S, E>, Tensor<S, E>)
-) where E.Value: Differentiable & Numeric & Comparable {
+) where E.Value: DifferentiableNumeric & Comparable {
   (
     value: max(lhs, rhs),
     {
@@ -105,7 +105,7 @@ import _Differentiation
   _ rhs: E.Value
 ) -> (
   value: Tensor<S, E>, pullback: (Tensor<S, E>) -> (Tensor<S, E>, E.Value)
-) where E.Value: Differentiable & Numeric & Comparable {
+) where E.Value: DifferentiableNumeric & Comparable {
   let value = max(lhs, rhs)
   return (
     value,
@@ -124,7 +124,7 @@ import _Differentiation
   _ rhs: E.Value
 ) -> (
   value: Tensor<S, E>, pullback: (Tensor<S, E>) -> Tensor<S, E>
-) where E.Value: Differentiable & Numeric & Comparable {
+) where E.Value: DifferentiableNumeric & Comparable {
   let value = max(lhs, rhs)
   return (
     value,

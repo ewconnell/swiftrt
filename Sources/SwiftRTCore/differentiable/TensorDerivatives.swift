@@ -115,53 +115,6 @@ extension Tensor where TensorElement.Value: DifferentiableNumeric {
     return (value, { Tensor<S, TensorElement>(expanding: $0, axes: axes) })
   }
 
-  @derivative(of:stack)
-  @inlinable func vjpStack<S, SR, E>(
-    _ tensors: [Tensor<S, E>],
-    axis: Int = 0,
-    into result: inout Tensor<SR, E>
-  ) -> (
-    value: (),
-    pullback: (inout Tensor<SR, E>.TangentVector)
-      -> Array<Tensor<S, E>>.TangentVector
-  )
-  where S: TensorShape, SR: TensorShape {
-    let tensorCount = tensors.count
-    func pullback(_ resultTangent: inout Tensor<SR, E>.TangentVector)
-      -> Array<Tensor<S, E>>.TangentVector
-    {
-      // Fill `tensorTangents` with slices of `resultTangent` of shape
-      // `tensorShapes[0]`, `tensorShapes[1]`, etc.
-      var tensorTangents: [Tensor<S, E>] = []
-      var lower = SR.zero
-      var upper = resultTangent.shape
-      upper[axis] = 1
-      for _ in 0..<tensorCount {
-        let slice = Tensor<S, E>(
-          squeezing: resultTangent[lower, upper],
-          axes: Shape1(axis))
-        tensorTangents.append(slice)
-        lower[axis] += 1
-        upper[axis] += 1
-      }
-
-      // Set `resultTangent` to zero.
-      // Note: We can't use `fill(_:with:)` because `resultTangent` aliases
-      // `tensorTangents`.
-      // TODO: track and fix
-      // Note: https://bugs.swift.org/browse/TF-1250 will allow us to make
-      // this pullback more efficient. How:
-      // - Set the wrt parameters and results to
-      //     @differentiable(wrt: (tensors), results: (result))
-      // - This makes `resultTangent` not be inout, so we don't need to set
-      //   it any more.
-      resultTangent = zeros(like: resultTangent)
-
-      return Array.DifferentiableView(tensorTangents)
-    }
-    return (stack(tensors, axis: axis, into: &result), pullback)
-  }
-
   @derivative(of:init(transposing:permutatedBy:))
   @usableFromInline static func _vjpInit(
     transposing other: Self,
@@ -184,6 +137,54 @@ extension Tensor where TensorElement.Value: DifferentiableNumeric {
     )
   }
 }
+
+@derivative(of:stack)
+@inlinable func vjpStack<S, SR, E>(
+  _ tensors: [Tensor<S, E>],
+  axis: Int = 0,
+  into result: inout Tensor<SR, E>
+) -> (
+  value: (),
+  pullback: (inout Tensor<SR, E>.TangentVector)
+    -> Array<Tensor<S, E>>.TangentVector
+)
+where S: TensorShape, SR: TensorShape {
+  let tensorCount = tensors.count
+  func pullback(_ resultTangent: inout Tensor<SR, E>.TangentVector)
+    -> Array<Tensor<S, E>>.TangentVector
+  {
+    // Fill `tensorTangents` with slices of `resultTangent` of shape
+    // `tensorShapes[0]`, `tensorShapes[1]`, etc.
+    var tensorTangents: [Tensor<S, E>] = []
+    var lower = SR.zero
+    var upper = resultTangent.shape
+    upper[axis] = 1
+    for _ in 0..<tensorCount {
+      let slice = Tensor<S, E>(
+        squeezing: resultTangent[lower, upper],
+        axes: Shape1(axis))
+      tensorTangents.append(slice)
+      lower[axis] += 1
+      upper[axis] += 1
+    }
+
+    // Set `resultTangent` to zero.
+    // Note: We can't use `fill(_:with:)` because `resultTangent` aliases
+    // `tensorTangents`.
+    // TODO: track and fix
+    // Note: https://bugs.swift.org/browse/TF-1250 will allow us to make
+    // this pullback more efficient. How:
+    // - Set the wrt parameters and results to
+    //     @differentiable(wrt: (tensors), results: (result))
+    // - This makes `resultTangent` not be inout, so we don't need to set
+    //   it any more.
+    resultTangent = zeros(like: resultTangent)
+
+    return Array.DifferentiableView(tensorTangents)
+  }
+  return (stack(tensors, axis: axis, into: &result), pullback)
+}
+
 
 //==============================================================================
 /// DifferentiableTensor
@@ -217,6 +218,12 @@ where RealType: Differentiable, RealType.TangentVector == RealType {}
 extension Tensor: Differentiable & DifferentiableTensor
 where Element: DifferentiableNumeric {
   public typealias TangentVector = Self
+
+  // This can't be automatically synthesized outside of the file defining Tensor.
+  @inlinable
+  public var zeroTangentVectorInitializer: () -> Self {
+    { Tensor.zero }
+  }
 }
 
 #endif
