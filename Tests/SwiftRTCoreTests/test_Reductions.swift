@@ -103,27 +103,27 @@ class test_Reductions: XCTestCase {
       ]
     ])
 
-//    // axis 0
-//    do {
-//      var value = empty(shape: (1, 2, 4))
-//      currentQueue.cpu_reduce(a, 0, &value, Float.highest) { Swift.min($0, $1) }
-//      XCTAssert(value == [
-//        [
-//          [0, 1, -1, 3],
-//          [0, 1, 3, -2],
-//        ]
-//      ])
-//    }
+    // axis 0
+    do {
+      var value = empty(shape: (1, 2, 4))
+      currentQueue.cpu_reduce(a, 0, &value, Float.highest) { Swift.min($0, $1) }
+      XCTAssert(value == [
+        [
+          [0, 1, -1, 3],
+          [0, 1, 3, -2],
+        ]
+      ])
+    }
     
-//    // axis 1
-//    do {
-//      var value = empty(shape: (2, 1, 4))
-//      currentQueue.cpu_reduce(a, 1, &value, Float.highest) { Swift.min($0, $1) }
-//      XCTAssert(value == [
-//        [[0, 1,  2,  3]],
-//        [[0, 1, -1, -2]]
-//      ])
-//    }
+    // axis 1
+    do {
+      var value = empty(shape: (2, 1, 4))
+      currentQueue.cpu_reduce(a, 1, &value, Float.highest) { Swift.min($0, $1) }
+      XCTAssert(value == [
+        [[0, 1,  2,  3]],
+        [[0, 1, -1, -2]]
+      ])
+    }
 
     // axis 2
     do {

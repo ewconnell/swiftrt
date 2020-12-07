@@ -40,9 +40,6 @@ extension CpuQueue {
       for i in 0..<axis { batchCount &*= a.shape[i] }
       let axisCount = a.shape[axis]
       
-      // create batch views
-      var batchA, batchOut: TensorR2<E>
-      if 
       // flatten the trailing dimensions and create batch views
       var elementCount = 1
       for i in (axis + 1)..<S.rank { elementCount &*= a.shape[i] }
