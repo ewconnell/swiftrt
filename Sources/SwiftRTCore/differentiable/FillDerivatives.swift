@@ -71,7 +71,7 @@ import _Differentiation
   indices: TensorR1<DeviceIndex>,
   axis: Int = 0
 ) -> (value: Tensor<S, E>, pullback: (Tensor<S, E>) -> Tensor<S, E>)
-where E.Value: Differentiable & Numeric {
+where E.Value: DifferentiableNumeric {
   let axis = axis < 0 ? axis + S.rank : axis
   let value = gather(from: tensor, indices: indices, axis: axis)
   let shape = tensor.shape
