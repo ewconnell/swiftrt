@@ -464,13 +464,13 @@ extension Tensor {
 /// - Parameters:
 ///  - other: the tensor to reshape
 ///  - newShape: the shape of the new tensor
-///  - order: the storage order of the new tensor
+///  - order: the storage order of the new tensor. By default it is the same as the input
 extension Tensor {
 
   @inlinable public init<S>(
     reshaping other: Tensor<S, TensorElement>,
     to newShape: Shape,
-    order newLayout: Order = .defaultOrder
+    order newOrder: Order? = nil
   ) {
     assert(other.isContiguous, "cannot reshape non contiguous data")
     assert(
@@ -483,23 +483,22 @@ extension Tensor {
         return true
       }(), "There can only be one instance of -1 in the shape")
 
+    //------------------------------------
     // resolve an implied dimension if it exists
     var shape = newShape
     for i in 0..<Shape.rank where newShape[i] == -1 {
       shape[i] = 1
       let specifiedCount = shape.elementCount()
-      assert(
-        other.count % specifiedCount == 0,
-        "incompatible dimensions")
+      assert(other.count % specifiedCount == 0, "incompatible dimensions")
       shape[i] = other.count / specifiedCount
     }
     assert(
       shape.elementCount() == other.count,
       "the new shape must have the same number of elements as other")
 
-    // determine storage order
-    let order: Order =
-      newLayout == .col || (newLayout.rawValue == Order.A && other.order == .col) ? .col : .row
+    //------------------------------------
+    // by default the order is the same as other
+    let order = newOrder ?? other.order
 
     // reorder other's elements if needed
     var source = other
@@ -530,6 +529,7 @@ extension Tensor {
       copyElements(from: other, to: &source)
     }
 
+    //------------------------------------
     // init with new shape in the corrected order
     self.init(
       shape: shape,
