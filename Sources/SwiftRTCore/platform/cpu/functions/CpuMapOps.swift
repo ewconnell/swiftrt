@@ -24,6 +24,55 @@ import Numerics
 // capturing for asynchrnous execution. The async operations are safe,
 // because tensor storage lifetime is gauranteed by the queue.
 extension DeviceQueue {
+  //============================================================================
+  // reworked mapOps
+  //============================================================================
+  
+  //============================================================================
+  // mapOp tensor
+  @inlinable public func mapOpNew<S, E, OE>(
+    _ a: Tensor<S, E>,
+    _ output: inout Tensor<S, OE>,
+    _ op: @escaping (E.Value, inout OE.Value) -> OE.Value
+  ) {
+    func execute<A: Collection, O: MutableCollection>(
+      _ a: A,
+      _ out: O,
+      _ op: @escaping (A.Element, inout O.Element) -> O.Element
+    ) {
+      var out = out
+      if mode == .sync {
+        zip(out.indices, a).forEach { out[$0] = op($1, &out[$0]) }
+      } else {
+        queue.async(group: group) {
+          zip(out.indices, a).forEach { out[$0] = op($1, &out[$0]) }
+        }
+      }
+    }
+
+    // check order because they will not match for order conversion ops
+    if a.order == output.order {
+      if a.isContiguous {
+        if output.isContiguous {
+          execute(a.buffer, output.mutableBuffer, op)
+        } else {
+          execute(a.buffer, output.mutableElements, op)
+        }
+      } else {
+        if output.isContiguous {
+          execute(a.elements, output.mutableBuffer, op)
+        } else {
+          execute(a.elements, output.mutableElements, op)
+        }
+      }
+    } else {
+      execute(a.elements, output.mutableElements, op)
+    }
+  }
+
+  //============================================================================
+  // *********************************
+  //============================================================================
 
   //==========================================================================
   // caller defined generator

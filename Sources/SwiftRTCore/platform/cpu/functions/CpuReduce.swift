@@ -25,7 +25,7 @@ extension CpuQueue {
     _ axis: Int,
     _ out: inout Tensor<S, E>,
     _ initialValue: E.Value,
-    _ op: @escaping (E.Value, E.Value) -> E.Value
+    _ op: @escaping (E.Value, inout E.Value) -> E.Value
   ) {
     let axis = S.makePositive(axis: axis)
     assert(a.order == out.order)
@@ -33,27 +33,38 @@ extension CpuQueue {
     assert(a.isContiguous, "input must be contiguous")
 
     if S.rank == 1 {
-      out[out.startIndex] = a.buffer.reduce(into: initialValue) { $0 = op($0, $1) }
+      out[out.startIndex] = a.buffer.reduce(into: initialValue) { $0 = op($1, &$0) }
     } else {
       // the batch count is the product of the leading dimensions
       var batchCount = 1
       for i in 0..<axis { batchCount &*= a.shape[i] }
       let axisCount = a.shape[axis]
       
+      // create batch views
+      var batchA, batchOut: TensorR2<E>
+      if 
       // flatten the trailing dimensions and create batch views
       var elementCount = 1
       for i in (axis + 1)..<S.rank { elementCount &*= a.shape[i] }
 
-      var batchA = TensorR2<E>(reshaping: a, to: Shape2(batchCount * axisCount, elementCount))
-      var batchOut = TensorR2<E>(reshaping: out.shared(), to: Shape2(batchCount, elementCount))
+      let batchA = TensorR2<E>(reshaping: a, to: Shape2(batchCount * axisCount, elementCount))
+      let batchOut = TensorR2<E>(reshaping: out.shared(), to: Shape2(batchCount, elementCount))
+      print(batchA)
 
       for bi in 0..<batchCount {
-        var outRow = batchOut[bi]
-        for ai in 0..<axisCount {
-          _ = batchA[bi * ai]
+        let baseA = bi * axisCount
+        // get the output vector and initialize with the first axis vector
+        var outElements = batchOut[bi]
+        mapOp(batchA[baseA], &outElements) { $0 }
+        // reduce additional axis vectors using the specified op
+        for ai in (baseA + 1)..<(baseA + axisCount) {
+          let aElements = batchA[ai]
+          print(aElements)
+          print("before\n \(outElements)")
+          mapOpNew(aElements, &outElements, op)
+          print("after\n \(outElements)")
         }
       }
-      print("hi")
     }
   }
   
