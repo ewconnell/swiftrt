@@ -39,9 +39,8 @@ extension CpuQueue {
       let batchCount = a.shape.reduce(range: 0..<axis, into: 1, &*=)
       let axisCount = a.shape[axis]
       
-      // flatten the trailing dimensions and create batch views
-      var elementCount = 1
-      for i in (axis + 1)..<S.rank { elementCount &*= a.shape[i] }
+      // flatten the trailing dimensions
+      let elementCount = a.shape.reduce(range: (axis + 1)..<S.rank, into: 1, &*=)
 
       let batchA = TensorR2<E>(reshaping: a, to: Shape2(batchCount * axisCount, elementCount))
       let batchOut = TensorR2<E>(reshaping: out.shared(), to: Shape2(batchCount, elementCount))

@@ -226,7 +226,7 @@ extension TensorShape {
     into initialResult: Scalar,
     _ updateAccumulatingResult: (inout Scalar, Scalar) -> Void
   ) -> Scalar {
-    assert(range.lowerBound >= 0 && range.upperBound <= Self.lastIndex, "invalid range")
+    assert(range.lowerBound >= 0 && range.upperBound <= Self.rank, "invalid range")
     return range.reduce(into: initialResult) {
       updateAccumulatingResult(&$0, self[$1])
     }
