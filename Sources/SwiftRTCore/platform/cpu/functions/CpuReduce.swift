@@ -36,8 +36,7 @@ extension CpuQueue {
       out[out.startIndex] = a.buffer.reduce(into: initialValue) { $0 = op($0, $1) }
     } else {
       // the batch count is the product of the leading dimensions
-      var batchCount = 1
-      for i in 0..<axis { batchCount &*= a.shape[i] }
+      let batchCount = a.shape.reduce(range: 0..<axis, into: 1, &*=)
       let axisCount = a.shape[axis]
       
       // flatten the trailing dimensions and create batch views

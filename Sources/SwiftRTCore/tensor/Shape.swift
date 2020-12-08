@@ -221,6 +221,17 @@ extension TensorShape {
     }
   }
 
+  @inlinable public func reduce(
+    range: Range<Int>,
+    into initialResult: Scalar,
+    _ updateAccumulatingResult: (inout Scalar, Scalar) -> Void
+  ) -> Scalar {
+    assert(range.lowerBound >= 0 && range.upperBound <= Self.lastIndex, "invalid range")
+    return range.reduce(into: initialResult) {
+      updateAccumulatingResult(&$0, self[$1])
+    }
+  }
+
   //--------------------------------------------------------------------------
   /// index
   /// computes a linear index by multiplying `self` by `strides`
