@@ -25,9 +25,7 @@ extension CpuFunctions where Self: DeviceQueue {
     _ x: Tensor<S, E>,
     _ out: inout Tensor<S, E>
   ) where E.Value: SignedNumeric & Comparable {
-    diagnostic(
-      .queueCpu, "abssum(\(x.name)) on \(name)",
-      categories: .queueCpu)
+    diagnostic(.queueCpu, "abssum(\(x.name)) on \(name)", categories: .queueCpu)
     if out.count == 1 {
       mapReduce(x, &out, E.Value.zero) { $0 + Swift.abs($1) }
     } else {

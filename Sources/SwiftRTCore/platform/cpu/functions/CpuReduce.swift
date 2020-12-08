@@ -25,7 +25,7 @@ extension CpuQueue {
     _ axis: Int,
     _ out: inout Tensor<S, E>,
     _ initialValue: E.Value,
-    _ op: @escaping (E.Value, inout E.Value) -> E.Value
+    _ op: @escaping (E.Value, E.Value) -> E.Value
   ) {
     let axis = S.makePositive(axis: axis)
     assert(a.order == out.order)
@@ -33,7 +33,7 @@ extension CpuQueue {
     assert(a.isContiguous, "input must be contiguous")
 
     if S.rank == 1 {
-      out[out.startIndex] = a.buffer.reduce(into: initialValue) { $0 = op($1, &$0) }
+      out[out.startIndex] = a.buffer.reduce(into: initialValue) { $0 = op($0, $1) }
     } else {
       // the batch count is the product of the leading dimensions
       var batchCount = 1

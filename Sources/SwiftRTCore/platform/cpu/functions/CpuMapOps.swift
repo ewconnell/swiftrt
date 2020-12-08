@@ -33,19 +33,19 @@ extension DeviceQueue {
   @inlinable public func mapOpNew<S, E, OE>(
     _ a: Tensor<S, E>,
     _ output: inout Tensor<S, OE>,
-    _ op: @escaping (E.Value, inout OE.Value) -> OE.Value
+    _ op: @escaping (E.Value, OE.Value) -> OE.Value
   ) {
     func execute<A: Collection, O: MutableCollection>(
       _ a: A,
       _ out: O,
-      _ op: @escaping (A.Element, inout O.Element) -> O.Element
+      _ op: @escaping (A.Element, O.Element) -> O.Element
     ) {
       var out = out
       if mode == .sync {
-        zip(out.indices, a).forEach { out[$0] = op($1, &out[$0]) }
+        zip(out.indices, a).forEach { out[$0] = op($1, out[$0]) }
       } else {
         queue.async(group: group) {
-          zip(out.indices, a).forEach { out[$0] = op($1, &out[$0]) }
+          zip(out.indices, a).forEach { out[$0] = op($1, out[$0]) }
         }
       }
     }
