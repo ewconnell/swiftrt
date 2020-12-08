@@ -355,11 +355,11 @@ where Shape: TensorShape {
 extension Tensor {
   //----------------------------------------------------------------------------
   // sequential buffer element iterators
-  @inlinable public var buffer: BufferElements<Shape, TensorElement> {
+  @inlinable public var buffer: BufferElements<TensorElement> {
     BufferElements(tensor: self)
   }
 
-  @inlinable public var mutableBuffer: BufferElements<Shape, TensorElement> {
+  @inlinable public var mutableBuffer: BufferElements<TensorElement> {
     mutating get { BufferElements(tensor: &self) }
   }
 

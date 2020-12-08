@@ -28,41 +28,91 @@ extension CpuQueue {
     _ op: @escaping (E.Value, E.Value) -> E.Value
   ) {
     let axis = S.makePositive(axis: axis)
-    assert(a.order == out.order)
+    assert(a.isContiguous, "input storage must be contiguous")
+    assert((a.order == .row || a.order == .col) && a.order == out.order)
     assert(axis >= 0 && axis < S.rank, "axis is out of range: \(axis)")
-    assert(a.isContiguous, "input must be contiguous")
 
-    if S.rank == 1 {
-      out[out.startIndex] = a.buffer.reduce(into: initialValue) { $0 = op($0, $1) }
-    } else {
-      // the batch count is the product of the leading dimensions
-      let batchCount = a.shape.reduce(range: 0..<axis, into: 1, &*=)
-      let axisCount = a.shape[axis]
-      
-      // flatten the trailing dimensions
-      let elementCount = a.shape.reduce(range: (axis + 1)..<S.rank, into: 1, &*=)
+    // the item is dense so the element count equals the item stride
+    let elementsPerAxisItem = a.strides[axis]
+    // the number of axis items (sets of elements) along the axis to reduce
+    let axisItemsPerBatch = a.shape[axis]
+    let axisItemStride = a.strides[axis]
+    // flatten the leading axes to form a batch
+    let batchItemCount = a.shape.reduce(range: 0..<axis, into: 1, &*=)
+    let batchItemStrideA = axisItemsPerBatch * axisItemStride
+    let batchItemStrideO = axisItemStride
+    
+    // get buffers
+    let aBuffer = a.read(using: self)
+    let oBuffer = out.readWrite(using: self)
+    
+    var batchBaseA = 0, batchBaseO = 0
+    for _ in 0..<batchItemCount {
+      // start the reduction at the batch base
+      var axisItem = batchBaseA
+      var oElements = BufferElements<E>(
+        buffer: oBuffer,
+        storageBase: out.storageBase,
+        startIndex: batchBaseO,
+        count: elementsPerAxisItem)
 
-      let batchA = TensorR2<E>(reshaping: a, to: Shape2(batchCount * axisCount, elementCount))
-      let batchOut = TensorR2<E>(reshaping: out.shared(), to: Shape2(batchCount, elementCount))
-      print(batchA)
-
-      for bi in 0..<batchCount {
-        let baseA = bi * axisCount
-        // get the output vector and initialize with the first axis vector
-        var outElements = batchOut[bi]
-        mapOp(batchA[baseA], &outElements) { $0 }
-        // reduce additional axis vectors using the specified op
-        for ai in (baseA + 1)..<(baseA + axisCount) {
-          let aElements = batchA[ai]
-          print(aElements)
-          print("before\n \(outElements)")
-          mapOpNew(aElements, &outElements, op)
-          print("after\n \(outElements)")
-        }
+      if elementsPerAxisItem == 1 {
+        // perform a single reduction on all single element axis items
+        let aElements = BufferElements<E>(
+          buffer: aBuffer,
+          storageBase: a.storageBase,
+          startIndex: axisItem,
+          count: axisItemsPerBatch)
+        
+        oElements[oElements.startIndex] =
+          aElements.reduce(into: initialValue) { $0 = op($0, $1) }
       }
+
+      // move to next batch item
+      batchBaseA += batchItemStrideA
+      batchBaseO += batchItemStrideO
     }
   }
-  
+
+//  @inlinable public func cpu_reduce<S, E>(
+//    _ a: Tensor<S, E>,
+//    _ axis: Int,
+//    _ out: inout Tensor<S, E>,
+//    _ initialValue: E.Value,
+//    _ op: @escaping (E.Value, E.Value) -> E.Value
+//  ) {
+//    let axis = S.makePositive(axis: axis)
+//    assert(a.order == out.order)
+//    assert(axis >= 0 && axis < S.rank, "axis is out of range: \(axis)")
+//    assert(a.isContiguous, "input must be contiguous")
+//
+//    if S.rank == 1 {
+//      out[out.startIndex] = a.buffer.reduce(into: initialValue) { $0 = op($0, $1) }
+//    } else {
+//      // the batch count is the product of the leading dimensions
+//      let batchCount = a.shape.reduce(range: 0..<axis, into: 1, &*=)
+//      let axisCount = a.shape[axis]
+//
+//      // flatten the trailing dimensions
+//      let elementCount = a.shape.reduce(range: (axis + 1)..<S.rank, into: 1, &*=)
+//
+//      let batchA = TensorR2<E>(reshaping: a, to: Shape2(batchCount * axisCount, elementCount))
+//      let batchOut = TensorR2<E>(reshaping: out.shared(), to: Shape2(batchCount, elementCount))
+//
+//      for bi in 0..<batchCount {
+//        let baseA = bi * axisCount
+//        // get the output vector and initialize with the first axis vector
+//        var outElements = batchOut[bi]
+//        mapOp(batchA[baseA], &outElements) { $0 }
+//        // reduce additional axis vectors using the specified op
+//        for ai in (baseA + 1)..<(baseA + axisCount) {
+//          let aElements = batchA[ai]
+//          mapOpNew(aElements, &outElements, op)
+//        }
+//      }
+//    }
+//  }
+
   //============================================================================
   @inlinable public func cpu_reduce<S, E>(
     _ a: Tensor<S, E>,
