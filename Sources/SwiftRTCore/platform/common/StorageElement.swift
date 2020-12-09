@@ -547,7 +547,7 @@ public struct BufferElements<E: StorageElement>: MutableCollection {
     // `Value` type within the `Stored` type.
     // For Int1 the alignment is 0 - 7, Int4 0 - 1, for
     // normal types like Float, it is always 0
-    startIndex = E.alignment(storageBase + start)
+    startIndex = E.alignment(storageBase) + start
     endIndex = startIndex + count
   }
 
@@ -589,7 +589,7 @@ public struct BufferElements<E: StorageElement>: MutableCollection {
     // `Value` type within the `Stored` type.
     // For Int1 the alignment is 0 - 7, Int4 0 - 1, for
     // normal types like Float, it is always 0
-    startIndex = E.alignment(storageBase + start)
+    startIndex = E.alignment(storageBase) + start
     endIndex = startIndex + count
   }
 
