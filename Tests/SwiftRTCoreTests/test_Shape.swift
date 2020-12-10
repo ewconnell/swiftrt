@@ -26,6 +26,7 @@ class test_Shape: XCTestCase {
   //==========================================================================
   // support terminal test run
   static var allTests = [
+    ("test_OrderCol2Array", test_OrderCol2Array),
     ("test_reshapeOrderRowCol", test_reshapeOrderRowCol),
     ("test_fillRangeColumnMajor", test_fillRangeColumnMajor),
     ("test_reshape", test_reshape),
@@ -53,6 +54,19 @@ class test_Shape: XCTestCase {
     ("testTransposedPullback", testTransposedPullback),
   ]
 
+  //--------------------------------------------------------------------------
+  func test_OrderCol2Array() {
+    let a = array([
+      [
+        [0, 1],
+        [2, 3],
+      ]
+    ], order: .col)
+    XCTAssert(Array(a.buffer) == [0, 2, 1, 3])
+    XCTAssert(a.flatArray == [0, 1, 2, 3])
+    XCTAssert(a.array == [[[0, 1], [2, 3]]])
+  }
+  
   //--------------------------------------------------------------------------
   func test_fillRangeColumnMajor() { testEachDevice(fillRangeColumnMajor) }
 

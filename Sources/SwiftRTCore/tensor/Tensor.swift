@@ -529,7 +529,7 @@ extension Tensor {
   /// - Returns: the collection elements as a 1D Swift array
   @inlinable public var flatArray: [Element] {
     usingSyncQueue {
-      return isContiguous ? [Element](buffer) : [Element](elements)
+      (isContiguous && order == .row) ? [Element](buffer) : [Element](elements)
     }
   }
 }

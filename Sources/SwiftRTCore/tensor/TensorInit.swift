@@ -363,12 +363,14 @@ extension Tensor {
   /// - Parameters:
   ///  - elements: the value collection used to initialize storage
   ///  - shape: the shape of the tensor
-  ///  - order: the storage order of the elements
+  ///  - order: the storage order of the elements collection
+  ///  - storageOrder: the storage order of the tensor. Default is `order`
   ///  - name: the name of the tensor
   @inlinable public init<C>(
     _ elements: C,
     shape: Shape,
     order: Order = .defaultOrder,
+    storageOrder: Order? = nil,
     name: String = defaultTensorName
   )
   where
@@ -460,6 +462,42 @@ extension Tensor {
 }
 
 //==============================================================================
+/// reorder(_:order:
+/// - Parameters:
+///  - a: the tensor to reorder
+///  - order: the new storage order
+@inlinable public func reorder<S,E>(
+  _ a: Tensor<S, E>,
+  order: Order
+) -> Tensor<S, E> {
+  guard a.order != order else { return a }
+  
+  var out = Tensor<S, E>(
+    shape: a.shape,
+    strides: a.shape.strides(for: order),
+    count: a.count,
+    storage: Platform.Storage(
+      type: E.self,
+      count: a.count,
+      name: a.name),
+    storageBase: 0,
+    spanCount: a.spanCount,
+    order: order,
+    shared: a.isShared)
+  
+  // performs an indexed copy which reorders the elements
+  currentQueue.diagnostic(
+    .reorder,
+    "copying \(a.name) order: \(a.order) --> "
+      + "\(out.name) \(E.self)[\(out.count)] "
+      + "order: \(order) on \(currentQueue.name)",
+    categories: [.dataCopy, .dataReorder])
+  
+  copyElements(from: a, to: &out)
+  return out
+}
+
+//==============================================================================
 /// init(reshaping:shape:order:
 /// - Parameters:
 ///  - other: the tensor to reshape
@@ -498,48 +536,19 @@ extension Tensor {
 
     //------------------------------------
     // by default the order is the same as other
-    let order = newOrder ?? other.order
-
-    // reorder other's elements if needed
-    var source = other
-    if order != other.order {
-      // change the source to have the new storage order and copy
-      let strides = other.shape.strides(for: order)
-      source = Tensor<S, TensorElement>(
-        shape: other.shape,
-        strides: strides,
-        count: other.count,
-        storage: Platform.Storage(
-          type: TensorElement.self,
-          count: source.count,
-          name: other.name),
-        storageBase: 0,
-        spanCount: other.spanCount,
-        order: order,
-        shared: other.isShared)
-
-      // performs an indexed copy which reorders the elements
-      currentQueue.diagnostic(
-        .reorder,
-        "copying \(other.name) order: \(other.order) --> "
-          + "\(source.name) \(Element.self)[\(source.count)] "
-          + "order: \(source.order) on \(currentQueue.name)",
-        categories: [.dataCopy, .dataReorder])
-
-      copyElements(from: other, to: &source)
-    }
+    let ordered = reorder(other, order: newOrder ?? other.order)
 
     //------------------------------------
     // init with new shape in the corrected order
     self.init(
       shape: shape,
-      strides: shape.strides(for: order),
-      count: source.count,
-      storage: source.storage,
-      storageBase: source.storageBase,
-      spanCount: source.spanCount,
-      order: source.order,
-      shared: source.isShared)
+      strides: shape.strides(for: ordered.order),
+      count: ordered.count,
+      storage: ordered.storage,
+      storageBase: ordered.storageBase,
+      spanCount: ordered.spanCount,
+      order: ordered.order,
+      shared: ordered.isShared)
   }
 }
 

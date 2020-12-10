@@ -155,7 +155,7 @@ class test_Reductions: XCTestCase {
   
   //--------------------------------------------------------------------------
   func test_reduceAxis3DColMajor() {
-    let a = array([
+    var a = array([
       [
         [0, 1],
         [2, 3],
@@ -168,8 +168,10 @@ class test_Reductions: XCTestCase {
         [ 0,  1],
         [ 3, -2],
       ]
-    ], order: .col)
-
+    ])
+    a = reshape(a, shape: (2, 4, 2), order: .col)
+    print(a)
+    
     // axis 0
     do {
       var value = empty(shape: (1, 4, 2), order: a.order)
