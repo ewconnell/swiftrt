@@ -17,230 +17,240 @@
 import Numerics
 
 //==============================================================================
-/// all(x:axes:
+/// all(x:axis:
 /// Returns `true` if all values are equal to `true` along the specified
-/// axes. Otherwise returns `false`. The out extent along the specified
-/// axes will be 1. Rank is not reduced.
+/// axis. Otherwise returns `false`. The out extent along the specified
+/// axis will be 1. Rank is not reduced.
 /// - Parameters:
 ///  - x: value tensor
 /// - Returns: result
-/// - Precondition: Each value in `axes` must be in the range `-rank..<rank`.
+/// - Precondition: Each value in `axis` must be in the range `-rank..<rank`.
 @inlinable public func all<S>(
   _ x: Tensor<S, Bool>,
-  axes: [Int]? = nil
+  axis: Int = 0
 ) -> Tensor<S, Bool> {
-  let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
-  var out = Tensor<S, Bool>(shape: shape)
-  currentQueue.all(x, &out)
+  var out = Tensor<S, Bool>(shape: x.reductionShape(axis))
+  currentQueue.all(x, axis, &out)
   return out
 }
 
-/// - Parameter along: the axes to operate on
+/// - Parameter along: the axis to operate on
 /// - Returns: a new tensor containing the out
 extension Tensor where TensorElement == Bool {
-  @inlinable public func all(axes: [Int]? = nil) -> Self {
-    SwiftRTCore.all(self, axes: axes)
+  @inlinable public func all(axis: Int = 0) -> Self {
+    SwiftRTCore.all(self, axis: axis)
   }
-
-  @inlinable public func all(axes: Int...) -> Self { all(axes: axes) }
 }
 
 //==============================================================================
-/// any(x:axes:
+/// any(x:axis:
 /// Returns `true` if any value is equal to `true` along the specified
-/// axes. Otherwise returns `false`. The out extent along the specified
-/// axes will be 1. Rank is not reduced.
+/// axis. Otherwise returns `false`. The out extent along the specified
+/// axis will be 1. Rank is not reduced.
 /// - Parameters:
 ///  - x: value tensor
 /// - Returns: result
-/// - Precondition: Each value in `axes` must be in the range `-rank..<rank`.
+/// - Precondition: Each value in `axis` must be in the range `-rank..<rank`.
 @inlinable public func any<S>(
   _ x: Tensor<S, Bool>,
-  axes: [Int]? = nil
+  axis: Int = 0
 ) -> Tensor<S, Bool> {
-  let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
-  var out = Tensor<S, Bool>(shape: shape)
-  currentQueue.any(x, &out)
+  var out = Tensor<S, Bool>(shape: x.reductionShape(axis))
+  currentQueue.any(x, axis, &out)
   return out
 }
 
-/// - Parameter axes: the axes to operate on
+/// - Parameter axis: the axis to operate on
 /// - Returns: a new tensor containing the out
 extension Tensor where TensorElement == Bool {
-  @inlinable public func any(axes: [Int]? = nil) -> Self {
-    SwiftRTCore.any(self, axes: axes)
+  @inlinable public func any(axis: Int = 0) -> Self {
+    SwiftRTCore.any(self, axis: axis)
   }
-
-  @inlinable public func any(axes: Int...) -> Self { any(axes: axes) }
 }
 
 //==============================================================================
 /// sum(x:along:
-/// Sums `x` along the specified axes
+/// Sums `x` along the specified axis
 /// - Parameter x: value tensor
-/// - Parameter along: the axes to operate on
+/// - Parameter along: the axis to operate on
 @inlinable public func sum<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int = 0
 ) -> Tensor<S, E> where E.Value: Numeric {
-  let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
-  var out = Tensor<S, E>(shape: shape)
-  currentQueue.sum(x, &out)
+  var out = Tensor<S, E>(shape: x.reductionShape(axis))
+  currentQueue.sum(x, axis, &out)
   return out
 }
 
 extension Tensor where TensorElement.Value: Numeric {
-  @inlinable public func sum(axes: [Int]? = nil) -> Self {
-    SwiftRTCore.sum(self, axes: axes)
+  @inlinable public func sum(axis: Int = 0) -> Self {
+    SwiftRTCore.sum(self, axis: axis)
   }
-
-  @inlinable public func sum(axes: Int...) -> Self { sum(axes: axes) }
 }
 
 //==============================================================================
 /// mean(x:along:
-/// mean of `x` along the specified axes
+/// mean of `x` along the specified axis
 ///
 /// - Parameter x: value tensor
-/// - Parameter along: the axes to operate on
+/// - Parameter along: the axis to operate on
 @inlinable public func mean<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int = 0
 ) -> Tensor<S, E> where E.Value: AlgebraicField {
-  let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
-  var out = Tensor<S, E>(shape: shape)
-  currentQueue.mean(x, &out)
+  var out = Tensor<S, E>(shape: x.reductionShape(axis))
+  currentQueue.mean(x, axis, &out)
   return out
 }
 
 extension Tensor where TensorElement.Value: AlgebraicField {
-  @inlinable public func mean(axes: [Int]? = nil) -> Self {
-    SwiftRTCore.mean(self, axes: axes)
+  @inlinable public func mean(axis: Int = 0) -> Self {
+    SwiftRTCore.mean(self, axis: axis)
   }
-
-  @inlinable public func mean(axes: Int...) -> Self { mean(axes: axes) }
 }
 
 //==============================================================================
 /// prod(x:along:
-/// prod of `x` along the specified axes
+/// prod of `x` along the specified axis
 /// - Parameter x: value tensor
-/// - Parameter along: the axes to operate on
+/// - Parameter along: the axis to operate on
 @inlinable public func prod<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int = 0
 ) -> Tensor<S, E> where E.Value: Numeric {
-  let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
-  var out = Tensor<S, E>(shape: shape)
-  currentQueue.prod(x, &out)
+  var out = Tensor<S, E>(shape: x.reductionShape(axis))
+  currentQueue.prod(x, axis, &out)
   return out
 }
 
 extension Tensor where TensorElement.Value: Numeric {
-  @inlinable public func prod(axes: [Int]? = nil) -> Self {
-    SwiftRTCore.prod(self, axes: axes)
+  @inlinable public func prod(axis: Int = 0) -> Self {
+    SwiftRTCore.prod(self, axis: axis)
   }
-
-  @inlinable public func prod(axes: Int...) -> Self { prod(axes: axes) }
 }
 
 //==============================================================================
 /// prodNonZeros(x:along:
-/// product of non zero values of `x` along the specified axes
+/// product of non zero values of `x` along the specified axis
 /// - Parameter x: value tensor
-/// - Parameter along: the axes to operate on
+/// - Parameter along: the axis to operate on
 @inlinable public func prodNonZeros<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int = 0
 ) -> Tensor<S, E> where E.Value: Numeric {
-  let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
-  var out = Tensor<S, E>(shape: shape)
-  currentQueue.prodNonZeros(x, &out)
+  var out = Tensor<S, E>(shape: x.reductionShape(axis))
+  currentQueue.prodNonZeros(x, axis, &out)
   return out
 }
 
 extension Tensor where TensorElement.Value: Numeric {
-  @inlinable public func prodNonZeros(axes: [Int]? = nil) -> Self {
-    SwiftRTCore.prodNonZeros(self, axes: axes)
-  }
-
-  @inlinable public func prodNonZeros(axes: Int...) -> Self {
-    prodNonZeros(axes: axes)
+  @inlinable public func prodNonZeros(axis: Int = 0) -> Self {
+    SwiftRTCore.prodNonZeros(self, axis: axis)
   }
 }
 
 //==============================================================================
-/// min(x:along:
-/// returns the minimum element value of `x` along the specified axes
-/// TODO: add optional indices
+/// min(x:axis:
+/// returns the minimum element value of `x` along the specified axis
 /// - Parameter x: value tensor
-/// - Parameter along: the axes to operate on
+/// - Parameter axis: the axis to operate on
 @inlinable public func min<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int = 0
 ) -> Tensor<S, E> where E.Value: Comparable & ComparableLimits {
-  let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
-  var out = Tensor<S, E>(shape: shape)
-  currentQueue.min(x, &out)
+  var out = Tensor<S, E>(shape: x.reductionShape(axis))
+  currentQueue.min(x, axis, &out)
   return out
 }
 
 extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
-  @inlinable public func min(axes: [Int]? = nil) -> Self {
-    SwiftRTCore.min(self, axes: axes)
-  }
-
-  @inlinable public func min(axes: Int...) -> Self {
-    min(axes: axes)
+  @inlinable public func min(axis: Int = 0) -> Self {
+    SwiftRTCore.min(self, axis: axis)
   }
 }
 
 //==============================================================================
-/// max(x:along:
-/// returns the maximum element value of `x` along the specified axes
+/// argmin(x:axis:
+/// returns the minimum element value of `x` along the specified axis
+/// - Parameters:
+///  - x: value tensor
+///  - axis: the axis to operate on
+@inlinable public func argmin<S, E>(
+  _ x: Tensor<S, E>,
+  axis: Int = 0
+) -> (index: Tensor<S, Int32>, value: Tensor<S, E>) where E.Value: Comparable & ComparableLimits {
+  let shape = x.reductionShape(axis)
+  var arg = Tensor<S, Int32>(shape: shape)
+  var out = Tensor<S, E>(shape: shape)
+  currentQueue.argmin(x, axis, &arg, &out)
+  return (arg, out)
+}
+
+extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
+  @inlinable public func argmin(axis: Int = 0) -> (index: Tensor<Shape,Int32>, value: Self) {
+    SwiftRTCore.argmin(self, axis: axis)
+  }
+}
+
+//==============================================================================
+/// max(x:axis:
+/// returns the maximum element value of `x` along the specified axis
 /// - Parameter x: value tensor
-/// - Parameter along: the axes to operate on
+/// - Parameter axis: the axis to operate on
 @inlinable public func max<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int = 0
 ) -> Tensor<S, E> where E.Value: Comparable & ComparableLimits {
-  let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
-  var out = Tensor<S, E>(shape: shape)
-  currentQueue.max(x, &out)
+  var out = Tensor<S, E>(shape: x.reductionShape(axis))
+  currentQueue.max(x, axis, &out)
   return out
 }
 
 extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
-  @inlinable public func max(axes: [Int]? = nil) -> Self {
-    SwiftRTCore.max(self, axes: axes)
+  @inlinable public func max(axis: Int = 0) -> Self {
+    SwiftRTCore.max(self, axis: axis)
   }
+}
 
-  @inlinable public func max(axes: Int...) -> Self {
-    max(axes: axes)
+//==============================================================================
+/// argmax(x:axis:
+/// returns the maximum element value of `x` along the specified axis
+/// - Parameters:
+///  - x: value tensor
+///  - axis: the axis to operate on
+@inlinable public func argmax<S, E>(
+  _ x: Tensor<S, E>,
+  axis: Int = 0
+) -> (index: Tensor<S, Int32>, value: Tensor<S, E>) where E.Value: Comparable & ComparableLimits {
+  let shape = x.reductionShape(axis)
+  var arg = Tensor<S, Int32>(shape: shape)
+  var out = Tensor<S, E>(shape: shape)
+  currentQueue.argmax(x, axis, &arg, &out)
+  return (arg, out)
+}
+
+extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
+  @inlinable public func argmax(axis: Int = 0) -> (index: Tensor<Shape,Int32>, value: Self) {
+    SwiftRTCore.argmax(self, axis: axis)
   }
 }
 
 //==============================================================================
 /// abssum(x:along:
-/// Sums the absolute values of `x` along the specified axes
+/// Sums the absolute values of `x` along the specified axis
 /// - Parameter x: value tensor
-/// - Parameter along: the axes to operate on
+/// - Parameter along: the axis to operate on
 @inlinable public func abssum<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int = 0
 ) -> Tensor<S, E> where E.Value: SignedNumeric & Comparable {
-  let shape = axes == nil ? S.one : x.reductionShape(along: axes!)
-  var out = Tensor<S, E>(shape: shape)
-  currentQueue.abssum(x, &out)
+  var out = Tensor<S, E>(shape: x.reductionShape(axis))
+  currentQueue.abssum(x, axis, &out)
   return out
 }
 
 extension Tensor where TensorElement.Value: SignedNumeric & Comparable {
-  @inlinable public func abssum(axes: [Int]? = nil) -> Self {
-    SwiftRTCore.abssum(self, axes: axes)
-  }
-
-  @inlinable public func abssum(axes: Int...) -> Self {
-    abssum(axes: axes)
+  @inlinable public func abssum(axis: Int = 0) -> Self {
+    SwiftRTCore.abssum(self, axis: axis)
   }
 }

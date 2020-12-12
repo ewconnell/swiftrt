@@ -18,7 +18,7 @@
 //
 public typealias ReduceArg<E> = (index: Int, value: E.Value) where E: StorageElement
 
-extension CpuQueue {
+extension CpuFunctions where Self: DeviceQueue {
   //============================================================================
   @inlinable public func cpu_reduce<S, E>(
     _ a: Tensor<S, E>,
@@ -34,7 +34,7 @@ extension CpuQueue {
 
     //-----------------------------------
     // get buffers and iterators
-    let aBuffer = a.read(using: self)
+    let aBuffer = a.read(using: currentQueue)
     let aStorageBase = a.storageBase
     func getIterA(at: Int, count: Int) -> BufferElements<E> {
       BufferElements<E>(
@@ -42,7 +42,7 @@ extension CpuQueue {
         startIndex: at, count: count)
     }
 
-    let oBuffer = out.readWrite(using: self)
+    let oBuffer = out.readWrite(using: currentQueue)
     let oStorageBase = out.storageBase
     func getIterO(at: Int, count: Int) -> BufferElements<E> {
       BufferElements<E>(
@@ -128,7 +128,7 @@ extension CpuQueue {
 
     //-----------------------------------
     // get buffers and iterators
-    let aBuffer = a.read(using: self)
+    let aBuffer = a.read(using: currentQueue)
     let aStorageBase = a.storageBase
     func getIterA(at: Int, count: Int) -> BufferElements<E> {
       BufferElements<E>(
@@ -136,7 +136,7 @@ extension CpuQueue {
         startIndex: at, count: count)
     }
 
-    let argBuffer = arg.readWrite(using: self)
+    let argBuffer = arg.readWrite(using: currentQueue)
     let argStorageBase = arg.storageBase
     func getIterArg(at: Int, count: Int) -> BufferElements<Int32> {
       BufferElements<Int32>(
@@ -144,7 +144,7 @@ extension CpuQueue {
         startIndex: at, count: count)
     }
 
-    let outBuffer = out.readWrite(using: self)
+    let outBuffer = out.readWrite(using: currentQueue)
     let outStorageBase = out.storageBase
     func getIterOut(at: Int, count: Int) -> BufferElements<E> {
       BufferElements<E>(

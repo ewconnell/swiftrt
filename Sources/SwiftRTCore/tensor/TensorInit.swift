@@ -157,6 +157,12 @@ extension Tensor {
     }
     return result
   }
+
+  @inlinable public func reductionShape(_ axis: Int) -> Shape {
+    var result = self.shape
+    result[axis] = 1
+    return result
+  }
 }
 
 //==============================================================================
