@@ -476,7 +476,10 @@ numShapes = 6
 
 //******************************************************************************
 // This section converts a Collection of collections --> shaped Tensor
-// Swift Arrays are converted using this section
+// Swift Arrays are converted using this section.
+// The `elements` collection is a Swift Array which is order `.row`,
+// so when `order` is a different value, the elements will be reordered to
+// to match
 //******************************************************************************
 
 %for n in range(2, numShapes + 1):
@@ -503,8 +506,9 @@ numShapes = 6
 % end
 
   let flatElements = elements${'.joined()' * (n - 1)}
-  return Tensor<Shape${n},C${'.Element' * n}>(
-    stored: flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape${n},C${'.Element' * n}>(
+    stored: flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -526,8 +530,9 @@ numShapes = 6
 % end
 
   let flatElements = elements${'.joined()' * (n - 1)}
-  return Tensor<Shape${n},C${'.Element' * n}>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape${n},C${'.Element' * n}>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -549,8 +554,9 @@ numShapes = 6
 % end
 
   let flatElements = elements${'.joined()' * (n - 1)}
-  return Tensor<Shape${n},DType>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape${n},DType>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -572,8 +578,9 @@ numShapes = 6
 % end
 
   let flatElements = elements${'.joined()' * (n - 1)}
-  return Tensor<Shape${n},DType>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape${n},DType>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //************************** Explicit typing
@@ -598,8 +605,9 @@ numShapes = 6
 % end
 
   let flatElements = elements${'.joined()' * (n - 1)}
-  return Tensor<Shape${n},Element>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape${n},Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -622,7 +630,9 @@ numShapes = 6
 % end
 
   let flatElements = elements${'.joined()' * (n - 1)}
-  return Tensor<Shape${n},Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape${n},Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -645,7 +655,9 @@ numShapes = 6
 % end
 
   let flatElements = elements${'.joined()' * (n - 1)}
-  return Tensor<Shape${n},Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape${n},Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -669,7 +681,9 @@ numShapes = 6
 % end
 
   let flatElements = elements${'.joined()' * (n - 1)}
-  return Tensor<Shape${n},Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape${n},Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -693,7 +707,9 @@ numShapes = 6
 % end
 
   let flatElements = elements${'.joined()' * (n - 1)}
-  return Tensor<Shape${n},Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape${n},Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 %end

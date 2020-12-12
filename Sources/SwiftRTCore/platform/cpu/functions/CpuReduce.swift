@@ -29,68 +29,79 @@ extension CpuQueue {
   ) {
     let axis = S.makePositive(axis: axis)
     assert(a.isContiguous, "input storage must be contiguous")
-    assert((a.order == .row || a.order == .col) && a.order == out.order)
+    assert(a.order == .row && a.order == out.order, "only row order is implemented")
     assert(axis >= 0 && axis < S.rank, "axis is out of range: \(axis)")
 
     //-----------------------------------
-    // the item is dense so the element count equals the item stride
-    let elementCount = a.strides[axis]
-    // the number of axis items (sets of elements) along the axis to reduce
-    let axisItemCount = a.shape[axis]
-    let axisItemStride = a.strides[axis]
-    // flatten the leading axes to form a batch
-    let batchItemCount = a.shape.reduce(range: 0..<axis, into: 1, &*=)
-    let batchItemStrideA = axisItemCount * axisItemStride
-    let batchItemStrideO = axisItemStride
-    
-    //-----------------------------------
     // get buffers and iterators
     let aBuffer = a.read(using: self)
+    let aStorageBase = a.storageBase
     func getIterA(at: Int, count: Int) -> BufferElements<E> {
       BufferElements<E>(
-        buffer: aBuffer, storageBase: a.storageBase,
+        buffer: aBuffer, storageBase: aStorageBase,
         startIndex: at, count: count)
     }
 
     let oBuffer = out.readWrite(using: self)
+    let oStorageBase = out.storageBase
     func getIterO(at: Int, count: Int) -> BufferElements<E> {
       BufferElements<E>(
-        buffer: oBuffer, storageBase: out.storageBase,
+        buffer: oBuffer, storageBase: oStorageBase,
         startIndex: at, count: count)
     }
-
+    
     //-----------------------------------
-    // do the reductions
+    // batch shape
+    let bShape = Shape3(
+      // flatten the leading axes to form a batch
+      a.shape.reduce(range: 0..<axis, into: 1, &*=),
+      // the number of items per reduction set
+      a.shape[axis],
+      // the number of elements per reduction item
+      a.shape.reduce(range: (axis + 1)..<S.rank, into: 1, &*=))
+    let bStrides = bShape.strides(for: a.order)
     var batchBaseA = 0, batchBaseO = 0
-    for _ in 0..<batchItemCount {
-      // start the reduction at the batch base
-      var axisItem = batchBaseA
-      
-      // create the output batch item iterator
-      var iterO = getIterO(at: batchBaseO, count: elementCount)
-
-      // if the axis items form a column vector then
-      // perform a single reduction on all axis items
-      if elementCount == 1 {
-        let iterA = getIterA(at: axisItem, count: axisItemCount)
-        iterO[iterO.startIndex] = iterA.reduce(into: initialValue, op)
+    
+    func execute() {
+      //-----------------------------------
+      for _ in 0..<bShape[0] {
+        // start the reduction at the batch base
+        var axisItem = batchBaseA
         
-      } else {
-        // initialize output by copying first axis item elements
-        let iterA = getIterA(at: axisItem, count: elementCount)
-        zip(iterO.indices, iterA).forEach { iterO[$0] = $1 }
+        // create the output batch item iterator
+        var iterO = getIterO(at: batchBaseO, count: bShape[2])
         
-        // reduce additional axis items using the specified op
-        for _ in 1..<axisItemCount {
-          axisItem += axisItemStride
-          let iterA = getIterA(at: axisItem, count: elementCount)
-          zip(iterO.indices, iterA).forEach { op(&iterO[$0], $1) }
+        // if the axis items form a column vector then
+        // perform a single reduction on all axis items
+        if bShape[2] == 1 {
+          let iterA = getIterA(at: axisItem, count: bShape[1])
+          iterO[iterO.startIndex] = iterA.reduce(into: initialValue, op)
+          
+        } else {
+          // initialize output by copying first axis item elements
+          let iterA = getIterA(at: axisItem, count: bShape[2])
+          zip(iterO.indices, iterA).forEach { iterO[$0] = $1 }
+          
+          // reduce additional axis items using the specified op
+          for _ in 1..<bShape[1] {
+            axisItem += bStrides[1]
+            let iterA = getIterA(at: axisItem, count: bShape[2])
+            zip(iterO.indices, iterA).forEach { op(&iterO[$0], $1) }
+          }
         }
+        
+        // move to next batch item
+        batchBaseA += bStrides[0]
+        batchBaseO += bStrides[1]
       }
-
-      // move to next batch item
-      batchBaseA += batchItemStrideA
-      batchBaseO += batchItemStrideO
+    }
+    
+    if mode == .sync {
+      execute()
+    } else {
+      queue.async(group: group) {
+        execute()
+      }
     }
   }
 
@@ -101,22 +112,107 @@ extension CpuQueue {
     _ arg: inout Tensor<S, Int32>,
     _ out: inout Tensor<S, E>,
     _ initialValue: E.Value,
-    _ op: @escaping (ReduceArg<E>, ReduceArg<E>) -> ReduceArg<E>
+    _ op: @escaping (inout ReduceArg<E>, ReduceArg<E>) -> Void
   ) {
     let axis = S.makePositive(axis: axis)
+    assert(a.isContiguous, "input storage must be contiguous")
+    assert(a.order == .row && a.order == out.order && a.order == arg.order,
+           "only row order is implemented")
     assert(axis >= 0 && axis < S.rank, "axis is out of range: \(axis)")
-    assert(a.isContiguous, "input must be contiguous")
+    assert({
+      var expected = a.shape
+      expected[axis] = 1
+      return out.shape == expected
+    }(), "invalid output shape")
+    assert(arg.shape == out.shape, "arg and out must be the same shape")
 
-    if S.rank == 1 {
-      let (index, value) = a.buffer.enumerated().reduce(into: (0, initialValue)) {
-        $0 = op($0, $1)
+    //-----------------------------------
+    // get buffers and iterators
+    let aBuffer = a.read(using: self)
+    let aStorageBase = a.storageBase
+    func getIterA(at: Int, count: Int) -> BufferElements<E> {
+      BufferElements<E>(
+        buffer: aBuffer, storageBase: aStorageBase,
+        startIndex: at, count: count)
+    }
+
+    let argBuffer = arg.readWrite(using: self)
+    let argStorageBase = arg.storageBase
+    func getIterArg(at: Int, count: Int) -> BufferElements<Int32> {
+      BufferElements<Int32>(
+        buffer: argBuffer, storageBase: argStorageBase,
+        startIndex: at, count: count)
+    }
+
+    let outBuffer = out.readWrite(using: self)
+    let outStorageBase = out.storageBase
+    func getIterOut(at: Int, count: Int) -> BufferElements<E> {
+      BufferElements<E>(
+        buffer: outBuffer, storageBase: outStorageBase,
+        startIndex: at, count: count)
+    }
+    
+    //-----------------------------------
+    // batch shape
+    let bShape = Shape3(
+      // flatten the leading axes to form a batch
+      a.shape.reduce(range: 0..<axis, into: 1, &*=),
+      // the number of items per reduction set
+      a.shape[axis],
+      // the number of elements per reduction item
+      a.shape.reduce(range: (axis + 1)..<S.rank, into: 1, &*=))
+    let bStrides = bShape.strides(for: a.order)
+    var batchBaseA = 0, batchBaseO = 0
+    
+    func execute() {
+      //-----------------------------------
+      for _ in 0..<bShape[0] {
+        // start the reduction at the batch base
+        var axisItem = batchBaseA
+        
+        // create the output batch item iterator
+        var iterArg = getIterArg(at: batchBaseO, count: bShape[2])
+        var iterOut = getIterOut(at: batchBaseO, count: bShape[2])
+
+        // if the axis items form a column vector then
+        // perform a single reduction on all axis items
+        if bShape[2] == 1 {
+          let iterA = getIterA(at: axisItem, count: bShape[1])
+          let result = iterA.enumerated().reduce(into: (0, initialValue), op)
+          iterArg[iterArg.startIndex] = Int32(result.index)
+          iterOut[iterOut.startIndex] = result.value
+          
+        } else {
+          // initialize output by copying first axis item elements
+          let iterA = getIterA(at: axisItem, count: bShape[2])
+          iterArg.indices.forEach { iterArg[$0] = 0 }
+          zip(iterOut.indices, iterA).forEach { iterOut[$0] = $1 }
+
+          // reduce additional axis items using the specified op
+          for i in 1..<bShape[1] {
+            axisItem += bStrides[1]
+            let iterA = getIterA(at: axisItem, count: bShape[2])
+            zip(iterOut.indices, iterA).forEach {
+              var result: ReduceArg<E> = (Int(iterArg[$0]), iterOut[$0])
+              op(&result, (i, $1))
+              iterArg[$0] = Int32(result.index)
+              iterOut[$0] = result.value
+            }
+          }
+        }
+        
+        // move to next batch item
+        batchBaseA += bStrides[0]
+        batchBaseO += bStrides[1]
       }
-      arg[arg.startIndex] = Int32(index)
-      out[out.startIndex] = value
+    }
+    
+    if mode == .sync {
+      execute()
     } else {
-      // the batch count is the product of the leading dimensions
-      var batchCount = 1
-      for i in 0..<axis { batchCount &*= a.shape[i] }
+      queue.async(group: group) {
+        execute()
+      }
     }
   }
 }

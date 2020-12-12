@@ -86,16 +86,16 @@ class test_Shape: XCTestCase {
 
   func reshapeOrderRowCol() {
     let a = array([[0, 1, 2], [3, 4, 5]])
-    XCTAssert(Array(a.read()) == [0, 1, 2, 3, 4, 5])
+    XCTAssert(Array(a.buffer) == [0, 1, 2, 3, 4, 5])
 
-    let b = reshape(a, shape: (2, 3), order: .col)
-    XCTAssert(Array(b.read()) == [0, 3, 1, 4, 2, 5])
+    let b = reorder(a, order: .col)
+    XCTAssert(Array(b.buffer) == [0, 3, 1, 4, 2, 5])
     XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
 
-    let c = array([[0, 3, 1], [4, 2, 5]], order: .col)
+    let c = array([[0, 1, 2], [3, 4, 5]], order: .col)
     XCTAssert(Array(c.buffer) == [0, 3, 1, 4, 2, 5])
 
-    let d = reshape(c, shape: (2, 3))
+    let d = reorder(c, order: .row)
     XCTAssert(d == [[0, 1, 2], [3, 4, 5]])
     XCTAssert(Array(d.buffer) == [0, 1, 2, 3, 4, 5])
   }
@@ -231,36 +231,10 @@ class test_Shape: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_reshapeOrderRowTC32x8() {
-    let a = array([[0, 1, 2], [3, 4, 5]])
-    XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])
-
-    let b = reshape(a, shape: (2, 3), order: .col)
-    XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
-    XCTAssert(b.flatArray == [0, 3, 1, 4, 2, 5])
-
-    let c = array([[0, 3, 1], [4, 2, 5]], order: .col)
-    XCTAssert(c.flatArray == [0, 3, 1, 4, 2, 5])
-
-    let d = reshape(c, shape: (2, 3))
-    XCTAssert(d == [[0, 1, 2], [3, 4, 5]])
-    XCTAssert(d.flatArray == [0, 1, 2, 3, 4, 5])
   }
 
   //--------------------------------------------------------------------------
   func test_reshapeOrderRowTC32x32() {
-    let a = array([[0, 1, 2], [3, 4, 5]])
-    XCTAssert(a.flatArray == [0, 1, 2, 3, 4, 5])
-
-    let b = reshape(a, shape: (2, 3), order: .col)
-    XCTAssert(b == [[0, 1, 2], [3, 4, 5]])
-    XCTAssert(b.flatArray == [0, 3, 1, 4, 2, 5])
-
-    let c = array([[0, 3, 1], [4, 2, 5]], order: .col)
-    XCTAssert(c.flatArray == [0, 3, 1, 4, 2, 5])
-
-    let d = reshape(c, shape: (2, 3))
-    XCTAssert(d == [[0, 1, 2], [3, 4, 5]])
-    XCTAssert(d.flatArray == [0, 1, 2, 3, 4, 5])
   }
 
   //--------------------------------------------------------------------------

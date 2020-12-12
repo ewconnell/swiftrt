@@ -1635,7 +1635,10 @@ import Numerics
 
 //******************************************************************************
 // This section converts a Collection of collections --> shaped Tensor
-// Swift Arrays are converted using this section
+// Swift Arrays are converted using this section.
+// The `elements` collection is a Swift Array which is order `.row`,
+// so when `order` is a different value, the elements will be reordered to
+// to match
 //******************************************************************************
 
 //------------------------------------------------------------------------------
@@ -1659,8 +1662,9 @@ import Numerics
     elements.first!.count)
 
   let flatElements = elements.joined()
-  return Tensor<Shape2,C.Element.Element>(
-    stored: flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape2,C.Element.Element>(
+    stored: flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -1680,8 +1684,9 @@ import Numerics
     elements.first!.count)
 
   let flatElements = elements.joined()
-  return Tensor<Shape2,C.Element.Element>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape2,C.Element.Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -1701,8 +1706,9 @@ import Numerics
     elements.first!.count)
 
   let flatElements = elements.joined()
-  return Tensor<Shape2,DType>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape2,DType>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -1722,8 +1728,9 @@ import Numerics
     elements.first!.count)
 
   let flatElements = elements.joined()
-  return Tensor<Shape2,DType>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape2,DType>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //************************** Explicit typing
@@ -1746,8 +1753,9 @@ import Numerics
     elements.first!.count)
 
   let flatElements = elements.joined()
-  return Tensor<Shape2,Element>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape2,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -1768,7 +1776,9 @@ import Numerics
     elements.first!.count)
 
   let flatElements = elements.joined()
-  return Tensor<Shape2,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape2,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -1789,7 +1799,9 @@ import Numerics
     elements.first!.count)
 
   let flatElements = elements.joined()
-  return Tensor<Shape2,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape2,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -1811,7 +1823,9 @@ import Numerics
     elements.first!.count)
 
   let flatElements = elements.joined()
-  return Tensor<Shape2,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape2,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -1833,7 +1847,9 @@ import Numerics
     elements.first!.count)
 
   let flatElements = elements.joined()
-  return Tensor<Shape2,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape2,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -1859,8 +1875,9 @@ import Numerics
     elements.first!.first!.count)
 
   let flatElements = elements.joined().joined()
-  return Tensor<Shape3,C.Element.Element.Element>(
-    stored: flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape3,C.Element.Element.Element>(
+    stored: flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -1882,8 +1899,9 @@ import Numerics
     elements.first!.first!.count)
 
   let flatElements = elements.joined().joined()
-  return Tensor<Shape3,C.Element.Element.Element>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape3,C.Element.Element.Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -1905,8 +1923,9 @@ import Numerics
     elements.first!.first!.count)
 
   let flatElements = elements.joined().joined()
-  return Tensor<Shape3,DType>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape3,DType>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -1928,8 +1947,9 @@ import Numerics
     elements.first!.first!.count)
 
   let flatElements = elements.joined().joined()
-  return Tensor<Shape3,DType>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape3,DType>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //************************** Explicit typing
@@ -1954,8 +1974,9 @@ import Numerics
     elements.first!.first!.count)
 
   let flatElements = elements.joined().joined()
-  return Tensor<Shape3,Element>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape3,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -1978,7 +1999,9 @@ import Numerics
     elements.first!.first!.count)
 
   let flatElements = elements.joined().joined()
-  return Tensor<Shape3,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape3,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2001,7 +2024,9 @@ import Numerics
     elements.first!.first!.count)
 
   let flatElements = elements.joined().joined()
-  return Tensor<Shape3,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape3,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2025,7 +2050,9 @@ import Numerics
     elements.first!.first!.count)
 
   let flatElements = elements.joined().joined()
-  return Tensor<Shape3,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape3,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2049,7 +2076,9 @@ import Numerics
     elements.first!.first!.count)
 
   let flatElements = elements.joined().joined()
-  return Tensor<Shape3,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape3,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -2077,8 +2106,9 @@ import Numerics
     elements.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined()
-  return Tensor<Shape4,C.Element.Element.Element.Element>(
-    stored: flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape4,C.Element.Element.Element.Element>(
+    stored: flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2102,8 +2132,9 @@ import Numerics
     elements.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined()
-  return Tensor<Shape4,C.Element.Element.Element.Element>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape4,C.Element.Element.Element.Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2127,8 +2158,9 @@ import Numerics
     elements.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined()
-  return Tensor<Shape4,DType>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape4,DType>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2152,8 +2184,9 @@ import Numerics
     elements.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined()
-  return Tensor<Shape4,DType>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape4,DType>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //************************** Explicit typing
@@ -2180,8 +2213,9 @@ import Numerics
     elements.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined()
-  return Tensor<Shape4,Element>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape4,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2206,7 +2240,9 @@ import Numerics
     elements.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined()
-  return Tensor<Shape4,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape4,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2231,7 +2267,9 @@ import Numerics
     elements.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined()
-  return Tensor<Shape4,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape4,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2257,7 +2295,9 @@ import Numerics
     elements.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined()
-  return Tensor<Shape4,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape4,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2283,7 +2323,9 @@ import Numerics
     elements.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined()
-  return Tensor<Shape4,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape4,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -2313,8 +2355,9 @@ import Numerics
     elements.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined()
-  return Tensor<Shape5,C.Element.Element.Element.Element.Element>(
-    stored: flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape5,C.Element.Element.Element.Element.Element>(
+    stored: flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2340,8 +2383,9 @@ import Numerics
     elements.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined()
-  return Tensor<Shape5,C.Element.Element.Element.Element.Element>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape5,C.Element.Element.Element.Element.Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2367,8 +2411,9 @@ import Numerics
     elements.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined()
-  return Tensor<Shape5,DType>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape5,DType>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2394,8 +2439,9 @@ import Numerics
     elements.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined()
-  return Tensor<Shape5,DType>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape5,DType>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //************************** Explicit typing
@@ -2424,8 +2470,9 @@ import Numerics
     elements.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined()
-  return Tensor<Shape5,Element>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape5,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2452,7 +2499,9 @@ import Numerics
     elements.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined()
-  return Tensor<Shape5,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape5,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2479,7 +2528,9 @@ import Numerics
     elements.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined()
-  return Tensor<Shape5,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape5,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2507,7 +2558,9 @@ import Numerics
     elements.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined()
-  return Tensor<Shape5,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape5,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2535,7 +2588,9 @@ import Numerics
     elements.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined()
-  return Tensor<Shape5,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape5,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //------------------------------------------------------------------------------
@@ -2567,8 +2622,9 @@ import Numerics
     elements.first!.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined().joined()
-  return Tensor<Shape6,C.Element.Element.Element.Element.Element.Element>(
-    stored: flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape6,C.Element.Element.Element.Element.Element.Element>(
+    stored: flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2596,8 +2652,9 @@ import Numerics
     elements.first!.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined().joined()
-  return Tensor<Shape6,C.Element.Element.Element.Element.Element.Element>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape6,C.Element.Element.Element.Element.Element.Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2625,8 +2682,9 @@ import Numerics
     elements.first!.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined().joined()
-  return Tensor<Shape6,DType>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape6,DType>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2654,8 +2712,9 @@ import Numerics
     elements.first!.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined().joined()
-  return Tensor<Shape6,DType>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape6,DType>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //************************** Explicit typing
@@ -2686,8 +2745,9 @@ import Numerics
     elements.first!.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined().joined()
-  return Tensor<Shape6,Element>(
-    flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape6,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2716,7 +2776,9 @@ import Numerics
     elements.first!.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined().joined()
-  return Tensor<Shape6,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape6,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2745,7 +2807,9 @@ import Numerics
     elements.first!.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined().joined()
-  return Tensor<Shape6,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape6,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2775,7 +2839,9 @@ import Numerics
     elements.first!.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined().joined()
-  return Tensor<Shape6,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape6,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 //---------------------------
@@ -2805,7 +2871,9 @@ import Numerics
     elements.first!.first!.first!.first!.first!.count)
 
   let flatElements = elements.joined().joined().joined().joined().joined()
-  return Tensor<Shape6,Element>(flatElements, shape: shape, order: order, name: name)
+  let t = Tensor<Shape6,Element>(
+    flatElements, shape: shape, order: .row, name: name)
+  return order == .row ? t : reorder(t, order: order)
 }
 
 

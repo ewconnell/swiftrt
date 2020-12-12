@@ -363,20 +363,14 @@ extension Tensor {
   /// - Parameters:
   ///  - elements: the value collection used to initialize storage
   ///  - shape: the shape of the tensor
-  ///  - order: the storage order of the elements collection
-  ///  - storageOrder: the storage order of the tensor. Default is `order`
+  ///  - order: the tensor element storage order
   ///  - name: the name of the tensor
   @inlinable public init<C>(
     _ elements: C,
     shape: Shape,
     order: Order = .defaultOrder,
-    storageOrder: Order? = nil,
     name: String = defaultTensorName
-  )
-  where
-    C: Collection, C.Element: BinaryInteger,
-    TensorElement.Value: Numeric
-  {
+  ) where C: Collection, C.Element: BinaryInteger, TensorElement.Value: Numeric {
     assert(shape.elementCount() == elements.count)
     self.init(shape: shape, order: order, name: name)
 
