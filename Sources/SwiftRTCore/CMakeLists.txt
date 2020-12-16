@@ -51,6 +51,7 @@ add_library(SwiftRTCore
   platform/cpu/functions/CpuMath.swift
   platform/cpu/functions/CpuMatmul.swift
   platform/cpu/functions/CpuPool.swift
+  platform/cpu/functions/CpuReduce.swift
   platform/cpu/functions/CpuReductions.swift
 
   random/RandomGenerators.swift
