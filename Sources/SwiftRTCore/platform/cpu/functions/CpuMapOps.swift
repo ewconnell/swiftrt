@@ -182,6 +182,41 @@ extension DeviceQueue {
   }
 
   //==========================================================================
+  // reduce entire input
+  @inlinable public func mapReduce<S, E>(
+    _ a: Tensor<S, E>,
+    _ out: inout Tensor<S, E>,
+    _ initialValue: E.Value,
+    _ op: @escaping (inout E.Value, E.Value) -> Void
+  ) {
+    assert(a.order == out.order && out.isContiguous)
+    
+    func execute<A: Collection, O: MutableCollection>(
+      _ a: A,
+      _ out: O,
+      _ initialValue: O.Element,
+      _ op: @escaping (inout O.Element, A.Element) -> Void
+    ) {
+      var out = out
+      let io = out.startIndex
+      
+      if mode == .sync {
+        out[io] = a.reduce(into: initialValue, op)
+      } else {
+        queue.async(group: group) {
+          out[io] = a.reduce(into: initialValue, op)
+        }
+      }
+    }
+    
+    if a.isContiguous {
+      execute(a.buffer, out.mutableBuffer, initialValue, op)
+    } else {
+      execute(a.elements, out.mutableBuffer, initialValue, op)
+    }
+  }
+
+  //==========================================================================
   // mapOp tensor tensor
   @inlinable public func mapOp<S, AE, BE, RE>(
     _ a: Tensor<S, AE>,

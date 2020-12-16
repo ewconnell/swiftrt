@@ -143,22 +143,37 @@ extension Tensor {
   }
 
   //--------------------------------------------------------------------------
+  /// flattened
+  /// - Returns: a 1D flattened view of a tensor
+  @inlinable public var flattened: TensorR1<TensorElement> {
+    assert(isContiguous, "can only flatten contiguous shapes")
+    return TensorR1<TensorElement>(
+      shape: Shape1(self.count),
+      strides: Shape1.one,
+      count: self.count,
+      storage: self.storage,
+      storageBase: self.storageBase,
+      spanCount: self.count,
+      order: self.order,
+      shared: self.isShared)
+  }
+  
+  //--------------------------------------------------------------------------
   /// reductionShape
   /// computes the shape for a reduction result along the specified axes
   @inlinable public func reductionShape(along axes: [Int]?) -> Shape {
     guard let axes = axes else { return Shape.one }
-    assert(
-      Set(axes).isSubset(of: (-Shape.rank)..<Shape.rank),
-      "axis must be within -rank..<rank")
     var result = shape
     // set 1 for each dimension specified in the axes list
     axes.forEach {
-      result[$0 >= 0 ? $0 : $0 + Shape.rank] = 1
+      let axis = Shape.makePositive(axis: $0)
+      result[axis] = 1
     }
     return result
   }
 
   @inlinable public func reductionShape(_ axis: Int) -> Shape {
+    let axis = Shape.makePositive(axis: axis)
     var result = self.shape
     result[axis] = 1
     return result

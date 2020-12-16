@@ -263,7 +263,7 @@ class test_Shape: XCTestCase {
   func test_squeeze() {
     let a = array(0..<24, shape: (2, 3, 4))
 
-    let sumCols = a.sum(axes: 2)
+    let sumCols = a.sum(axis: 2)
     XCTAssert(sumCols.shape == [2, 3, 1])
     let b = squeeze(sumCols, axis: -1)
     XCTAssert(
@@ -272,7 +272,7 @@ class test_Shape: XCTestCase {
         [54.0, 70.0, 86.0],
       ])
 
-    let sumRows = a.sum(axes: 1)
+    let sumRows = a.sum(axis: 1)
     XCTAssert(sumRows.shape == [2, 1, 4])
     let c = squeeze(sumRows, axis: 1)
     XCTAssert(
@@ -361,7 +361,7 @@ class test_Shape: XCTestCase {
           k1[0...j, 2...i + 1],
           k1[1...j + 1, 1...i],
           k1[1...j + 1, 2...i + 1],
-        ]).max(axes: 0), axis: 0) .<= maxK
+        ]).max(axis: 0), axis: 0) .<= maxK
 
     XCTAssert(
       mask.array == [

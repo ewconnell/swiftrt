@@ -90,7 +90,9 @@ extension TensorShape {
   }
 
   @inlinable public static func makePositive(axis: Int) -> Int {
-    axis >= 0 ? axis : axis + Self.rank
+    let axis = axis >= 0 ? axis : axis + Self.rank
+    assert(axis >= 0 && axis < Self.rank, "axis must be within -rank..<rank")
+    return axis
   }
   
   //--------------------------------------------------------------------------
@@ -110,8 +112,8 @@ extension TensorShape {
   /// - Parameters:
   ///  - other: the shape to flatten
   @inlinable public init<S: TensorShape>(flattening other: S) {
-    assert(Self.rank < S.rank, "cannot flatten shape of lower rank")
-    
+    assert(Self.rank <= S.rank, "cannot flatten shape of lower rank")
+
     // copy other's leading dimensions
     self = Self.zero
     for i in indices {

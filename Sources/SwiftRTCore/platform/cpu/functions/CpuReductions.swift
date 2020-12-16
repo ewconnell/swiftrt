@@ -23,50 +23,50 @@ extension CpuFunctions where Self: DeviceQueue {
   //--------------------------------------------------------------------------
   @inlinable public func cpu_abssum<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: SignedNumeric & Comparable {
-    diagnostic(.queueCpu, "abssum(\(a.name), axis: \(axis)) on \(name)", categories: .queueCpu)
+    diagnostic(.queueCpu, "abssum(\(a.name), axis: \(axis ?? 0)) on \(name)", categories: .queueCpu)
     cpu_reduce(a, axis, &out, E.Value.zero) { $0 += Swift.abs($1) }
   }
 
   //--------------------------------------------------------------------------
   @inlinable public func cpu_all<S>(
     _ a: Tensor<S, Bool>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, Bool>
   ) {
-    diagnostic(.queueCpu, "all(\(a.name), axis: \(axis)) on \(name)", categories: .queueCpu)
+    diagnostic(.queueCpu, "all(\(a.name), axis: \(axis ?? 0)) on \(name)", categories: .queueCpu)
     cpu_reduce(a, axis, &out, true) { $0 = $0 && $1 }
   }
 
   //--------------------------------------------------------------------------
   @inlinable public func cpu_any<S>(
     _ a: Tensor<S, Bool>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, Bool>
   ) {
-    diagnostic(.queueCpu, "any(\(a.name), axis: \(axis)) on \(name)", categories: .queueCpu)
+    diagnostic(.queueCpu, "any(\(a.name), axis: \(axis ?? 0)) on \(name)", categories: .queueCpu)
     cpu_reduce(a, axis, &out, false) { $0 = $0 || $1 }
   }
 
   //--------------------------------------------------------------------------
   @inlinable public func cpu_sum<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: AdditiveArithmetic {
-    diagnostic(.queueCpu, "sum(\(a.name), axis: \(axis)) on \(name)", categories: .queueCpu)
+    diagnostic(.queueCpu, "sum(\(a.name), axis: \(axis ?? 0)) on \(name)", categories: .queueCpu)
     cpu_reduce(a, axis, &out, E.Value.zero) { $0 += $1 }
   }
 
   //--------------------------------------------------------------------------
   @inlinable public func cpu_mean<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: AlgebraicField {
-    diagnostic(.queueCpu, "mean(\(a.name), axis: \(axis)) on \(name)", categories: .queueCpu)
+    diagnostic(.queueCpu, "mean(\(a.name), axis: \(axis ?? 0)) on \(name)", categories: .queueCpu)
     cpu_reduce(a, axis, &out, E.Value.zero) { $0 += $1 }
 
     // the reduction count is the product of the reduced dimensions
@@ -84,11 +84,11 @@ extension CpuFunctions where Self: DeviceQueue {
   //--------------------------------------------------------------------------
   @inlinable public func cpu_min<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: Comparable & ComparableLimits {
-    diagnostic(.queueCpu, "min(\(a.name), axis: \(axis)) on \(name)", categories: .queueCpu)
-    cpu_reduce(a, axis, &out, E.Value.lowest) { $0 = Swift.min($0, $1) }
+    diagnostic(.queueCpu, "min(\(a.name), axis: \(axis ?? 0)) on \(name)", categories: .queueCpu)
+    cpu_reduce(a, axis, &out, E.Value.highest) { $0 = Swift.min($0, $1) }
   }
   
   @inlinable public func cpu_argmin<S, E>(
@@ -104,10 +104,10 @@ extension CpuFunctions where Self: DeviceQueue {
   //--------------------------------------------------------------------------
   @inlinable public func cpu_max<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: Comparable & ComparableLimits {
-    diagnostic(.queueCpu, "max(\(a.name), axis: \(axis)) on \(name)", categories: .queueCpu)
+    diagnostic(.queueCpu, "max(\(a.name), axis: \(axis ?? 0)) on \(name)", categories: .queueCpu)
     cpu_reduce(a, axis, &out, E.Value.lowest) { $0 = $0 > $1 ? $0 : $1 }
   }
 
@@ -124,20 +124,20 @@ extension CpuFunctions where Self: DeviceQueue {
   //--------------------------------------------------------------------------
   @inlinable public func cpu_prod<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: Numeric {
-    diagnostic(.queueCpu, "prod(\(a.name), axis: \(axis)) on \(name)", categories: .queueCpu)
+    diagnostic(.queueCpu, "prod(\(a.name), axis: \(axis ?? 0)) on \(name)", categories: .queueCpu)
     cpu_reduce(a, axis, &out, E.Value.one) { $0 *= $1 }
   }
 
   //--------------------------------------------------------------------------
   @inlinable public func cpu_prodNonZeros<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: Numeric {
-    diagnostic(.queueCpu, "prodNonZeros(\(a.name), axis: \(axis)) on \(name)", categories: .queueCpu)
+    diagnostic(.queueCpu, "prodNonZeros(\(a.name), axis: \(axis ?? 0)) on \(name)", categories: .queueCpu)
     cpu_reduce(a, axis, &out, E.Value.one) { if $1 != 0 { $0 *= $1 } }
   }
 }
@@ -149,7 +149,7 @@ extension CpuQueue {
   //--------------------------------------------------------------------------
   @inlinable public func abssum<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: SignedNumeric & Comparable {
     cpu_abssum(a, axis, &out)
@@ -157,31 +157,31 @@ extension CpuQueue {
   //--------------------------------------------------------------------------
   @inlinable public func all<S>(
     _ a: Tensor<S, Bool>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, Bool>
   ) { cpu_all(a, axis, &out) }
   //--------------------------------------------------------------------------
   @inlinable public func any<S>(
     _ a: Tensor<S, Bool>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, Bool>
   ) { cpu_any(a, axis, &out) }
   //--------------------------------------------------------------------------
   @inlinable public func sum<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: AdditiveArithmetic { cpu_sum(a, axis, &out) }
   //--------------------------------------------------------------------------
   @inlinable public func mean<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: AlgebraicField { cpu_mean(a, axis, &out) }
   //--------------------------------------------------------------------------
   @inlinable public func min<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: Comparable & ComparableLimits {
     cpu_min(a, axis, &out)
@@ -198,7 +198,7 @@ extension CpuQueue {
   //--------------------------------------------------------------------------
   @inlinable public func max<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: Comparable & ComparableLimits {
     cpu_max(a, axis, &out)
@@ -215,7 +215,7 @@ extension CpuQueue {
   //--------------------------------------------------------------------------
   @inlinable public func prod<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: Numeric {
     cpu_prod(a, axis, &out)
@@ -223,7 +223,7 @@ extension CpuQueue {
   //--------------------------------------------------------------------------
   @inlinable public func prodNonZeros<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>
   ) where E.Value: Numeric {
     cpu_prodNonZeros(a, axis, &out)

@@ -22,12 +22,16 @@ extension CpuFunctions where Self: DeviceQueue {
   //============================================================================
   @inlinable public func cpu_reduce<S, E>(
     _ a: Tensor<S, E>,
-    _ axis: Int,
+    _ axis: Int?,
     _ out: inout Tensor<S, E>,
     _ initialValue: E.Value,
     _ op: @escaping (inout E.Value, E.Value) -> Void
   ) {
-    let axis = S.makePositive(axis: axis)
+    if axis == nil {
+      mapReduce(a, &out, initialValue, op)
+      return
+    }
+    let axis = axis ?? 0
     assert(a.isContiguous, "input storage must be contiguous")
     assert(a.order == .row && a.order == out.order, "only row order is implemented")
     assert(axis >= 0 && axis < S.rank, "axis is out of range: \(axis)")
@@ -78,15 +82,14 @@ extension CpuFunctions where Self: DeviceQueue {
           iterO[iterO.startIndex] = iterA.reduce(into: initialValue, op)
           
         } else {
-          // initialize output by copying first axis item elements
-          let iterA = getIterA(at: axisItem, count: bShape[2])
-          zip(iterO.indices, iterA).forEach { iterO[$0] = $1 }
+          // initialize output
+          iterO.indices.forEach { iterO[$0] = initialValue }
           
-          // reduce additional axis items using the specified op
-          for _ in 1..<bShape[1] {
-            axisItem += bStrides[1]
+          // reduce axis items using the specified op
+          for _ in 0..<bShape[1] {
             let iterA = getIterA(at: axisItem, count: bShape[2])
             zip(iterO.indices, iterA).forEach { op(&iterO[$0], $1) }
+            axisItem += bStrides[1]
           }
         }
         

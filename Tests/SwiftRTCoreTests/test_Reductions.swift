@@ -221,21 +221,15 @@ class test_Reductions: XCTestCase {
       XCTAssert(result.element == 15)
     }
     
-    do {
-      let result = m.sum(axes: 0, 1)
-      XCTAssert(result.shape == [1, 1])
-      XCTAssert(result.element == 15)
-    }
-    
     // sum cols
     do {
-      let result = m.sum(axes: 1)
+      let result = m.sum(axis: 1)
       XCTAssert(result == [[1], [5], [9]])
     }
     
     // sum rows
     do {
-      let result = m.sum(axes: 0)
+      let result = m.sum(axis: 0)
       XCTAssert(result == [[6, 9]])
     }
   }
@@ -259,7 +253,7 @@ class test_Reductions: XCTestCase {
       ])
     
     // sum depths
-    let s0 = v.sum(axes: 0)
+    let s0 = v.sum(axis: 0)
     XCTAssert(
       s0 == [
         [
@@ -271,7 +265,7 @@ class test_Reductions: XCTestCase {
     
     // sum rows
     XCTAssert(
-      v.sum(axes: 1) == [
+      v.sum(axis: 1) == [
         [
           [18, 12]
         ],
@@ -282,7 +276,7 @@ class test_Reductions: XCTestCase {
     
     // sum columns
     XCTAssert(
-      v.sum(axes: 2) == [
+      v.sum(axis: 2) == [
         [
           [12],
           [7],
@@ -314,17 +308,17 @@ class test_Reductions: XCTestCase {
     
     // depths
     XCTAssert(
-      v.min(axes: 0) == [
+      v.min(axis: 0) == [
         [
           [1, 2],
           [3, 4],
           [5, -6],
         ]
       ])
-    
+
     // rows
     XCTAssert(
-      v.min(axes: 1) == [
+      v.min(axis: 1) == [
         [
           [3, -6]
         ],
@@ -335,7 +329,7 @@ class test_Reductions: XCTestCase {
     
     // columns
     XCTAssert(
-      v.min(axes: 2) == [
+      v.min(axis: 2) == [
         [
           [2],
           [3],
@@ -366,7 +360,7 @@ class test_Reductions: XCTestCase {
     ])
     
     // max depths
-    let vm = v.max(axes: 0)
+    let vm = v.max(axis: 0)
     XCTAssert(
       vm == [
         [
@@ -378,7 +372,7 @@ class test_Reductions: XCTestCase {
     
     // max rows
     XCTAssert(
-      v.max(axes: 1) == [
+      v.max(axis: 1) == [
         [
           [10, 4]
         ],
@@ -389,7 +383,7 @@ class test_Reductions: XCTestCase {
     
     // max columns
     XCTAssert(
-      v.max(axes: 2) == [
+      v.max(axis: 2) == [
         [
           [10],
           [4],
@@ -417,22 +411,16 @@ class test_Reductions: XCTestCase {
       XCTAssert(result.shape == [1, 1])
       XCTAssert(result.element == 15)
     }
-    
-    do {
-      let result = m.abssum(axes: 0, 1)
-      XCTAssert(result.shape == [1, 1])
-      XCTAssert(result.element == 15)
-    }
-    
+
     // sum cols
     do {
-      let result = m.abssum(axes: 1)
+      let result = m.abssum(axis: 1)
       XCTAssert(result == [[1], [5], [9]])
     }
     
     // sum rows
     do {
-      let result = m.abssum(axes: 0)
+      let result = m.abssum(axis: 0)
       XCTAssert(result == [[6, 9]])
     }
   }
@@ -477,21 +465,15 @@ class test_Reductions: XCTestCase {
       XCTAssert(result.element == 15 / 6)
     }
     
-    do {
-      let result = m.mean(axes: 0, 1)
-      XCTAssert(result.shape == [1, 1])
-      XCTAssert(result.element == 15 / 6)
-    }
-    
     // mean cols
     do {
-      let result = m.mean(axes: 1)
+      let result = m.mean(axis: 1)
       XCTAssert(result == [[0.5], [2.5], [4.5]])
     }
     
     // mean rows
     do {
-      let result = m.mean(axes: 0)
+      let result = m.mean(axis: 0)
       XCTAssert(result == [[2, 3]])
     }
   }
