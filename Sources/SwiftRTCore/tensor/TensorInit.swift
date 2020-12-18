@@ -161,17 +161,6 @@ extension Tensor {
   //--------------------------------------------------------------------------
   /// reductionShape
   /// computes the shape for a reduction result along the specified axes
-  @inlinable public func reductionShape(along axes: [Int]?) -> Shape {
-    guard let axes = axes else { return Shape.one }
-    var result = shape
-    // set 1 for each dimension specified in the axes list
-    axes.forEach {
-      let axis = Shape.makePositive(axis: $0)
-      result[axis] = 1
-    }
-    return result
-  }
-
   @inlinable public func reductionShape(_ axis: Int) -> Shape {
     let axis = Shape.makePositive(axis: axis)
     var result = self.shape

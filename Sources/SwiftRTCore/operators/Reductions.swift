@@ -36,6 +36,13 @@ import Numerics
   return out
 }
 
+@inlinable public func all<S>(
+  _ x: Tensor<S, Bool>,
+  squeezingAxis axis: Int
+) -> Tensor<S.M1, Bool> {
+  Tensor(reshaping: all(x, axis: axis), to: x.shape.minus(axis), order: x.order)
+}
+
 extension Tensor where TensorElement == Bool {
   /// - Parameters:
   ///  - axis: the axis to operate on. Default `nil` reduces entire flattened tensor
@@ -65,6 +72,13 @@ extension Tensor where TensorElement == Bool {
   return out
 }
 
+@inlinable public func any<S>(
+  _ x: Tensor<S, Bool>,
+  squeezingAxis axis: Int
+) -> Tensor<S.M1, Bool> {
+  Tensor(reshaping: any(x, axis: axis), to: x.shape.minus(axis), order: x.order)
+}
+
 extension Tensor where TensorElement == Bool {
   /// - Parameters:
   ///  - axis: the axis to operate on. Default `nil` reduces entire flattened tensor
@@ -90,6 +104,13 @@ extension Tensor where TensorElement == Bool {
   var out = Tensor<S, E>(shape: shape)
   currentQueue.sum(x, axis, &out)
   return out
+}
+
+@inlinable public func sum<S, E>(
+  _ x: Tensor<S, E>,
+  squeezingAxis axis: Int
+) -> Tensor<S.M1, E> where E.Value: Numeric {
+  Tensor(reshaping: sum(x, axis: axis), to: x.shape.minus(axis), order: x.order)
 }
 
 extension Tensor where TensorElement.Value: Numeric {
@@ -120,6 +141,13 @@ extension Tensor where TensorElement.Value: Numeric {
   return out
 }
 
+@inlinable public func mean<S, E>(
+  _ x: Tensor<S, E>,
+  squeezingAxis axis: Int
+) -> Tensor<S.M1, E> where E.Value: AlgebraicField {
+  Tensor(reshaping: mean(x, axis: axis), to: x.shape.minus(axis), order: x.order)
+}
+
 extension Tensor where TensorElement.Value: AlgebraicField {
   /// - Parameters:
   ///  - axis: the axis to operate on. Default `nil` reduces entire flattened tensor
@@ -145,6 +173,13 @@ extension Tensor where TensorElement.Value: AlgebraicField {
   var out = Tensor<S, E>(shape: shape)
   currentQueue.prod(x, axis, &out)
   return out
+}
+
+@inlinable public func prod<S, E>(
+  _ x: Tensor<S, E>,
+  squeezingAxis axis: Int
+) -> Tensor<S.M1, E> where E.Value: Numeric {
+  Tensor(reshaping: prod(x, axis: axis), to: x.shape.minus(axis), order: x.order)
 }
 
 extension Tensor where TensorElement.Value: Numeric {
@@ -174,6 +209,13 @@ extension Tensor where TensorElement.Value: Numeric {
   return out
 }
 
+@inlinable public func prodNonZeros<S, E>(
+  _ x: Tensor<S, E>,
+  squeezingAxis axis: Int
+) -> Tensor<S.M1, E> where E.Value: Numeric {
+  Tensor(reshaping: prodNonZeros(x, axis: axis), to: x.shape.minus(axis), order: x.order)
+}
+
 extension Tensor where TensorElement.Value: Numeric {
   /// - Parameters:
   ///  - axis: the axis to operate on. Default `nil` reduces entire flattened tensor
@@ -201,6 +243,13 @@ extension Tensor where TensorElement.Value: Numeric {
   return out
 }
 
+@inlinable public func min<S, E>(
+  _ x: Tensor<S, E>,
+  squeezingAxis axis: Int
+) -> Tensor<S.M1, E> where E.Value: Comparable & ComparableLimits {
+  Tensor(reshaping: min(x, axis: axis), to: x.shape.minus(axis), order: x.order)
+}
+
 extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
   /// - Parameters:
   ///  - axis: the axis to operate on. Default `nil` reduces entire flattened tensor
@@ -213,7 +262,6 @@ extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
 //==============================================================================
 /// argmin(x:axis:
 /// returns the minimum element value of `x` along the specified axis
-/// - Parameters:
 /// - Parameters:
 ///  - x: value tensor
 ///  - axis: the axis to operate on. Default `nil` reduces entire flattened tensor
@@ -230,12 +278,32 @@ extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
   return (arg, out)
 }
 
+@inlinable public func argmin<S, E>(
+  _ x: Tensor<S, E>,
+  squeezingAxis axis: Int
+) -> (index: Tensor<S.M1, Int32>, value: Tensor<S.M1, E>) where E.Value: Comparable & ComparableLimits {
+  let (a, v) = argmin(x, axis: axis)
+  let shape = x.shape.minus(axis)
+  return (
+    Tensor(reshaping: a, to: shape, order: x.order),
+    Tensor(reshaping: v, to: shape, order: x.order)
+  )
+}
+
 extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
   /// - Parameters:
-  ///  - axis: the axis to operate on. Default `nil` reduces entire flattened tensor
+  ///  - axis: the axis to operate on. Default is axis 0
   /// - Returns: a new tensor containing the out
   @inlinable public func argmin(axis: Int = 0) -> (index: Tensor<Shape,Int32>, value: Self) {
     SwiftRTCore.argmin(self, axis: axis)
+  }
+
+  /// - Parameters:
+  ///  - squeezingAxis: the axis to operate on and remove.
+  /// - Returns: a new tensor one rank lower containing the result
+  @inlinable public func argmin(squeezingAxis axis: Int) ->
+  (index: Tensor<Shape.M1,Int32>, value: Tensor<Shape.M1, TensorElement>) {
+    SwiftRTCore.argmin(self, squeezingAxis: axis)
   }
 }
 
@@ -255,6 +323,13 @@ extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
   var out = Tensor<S, E>(shape: shape)
   currentQueue.max(x, axis, &out)
   return out
+}
+
+@inlinable public func max<S, E>(
+  _ x: Tensor<S, E>,
+  squeezingAxis axis: Int
+) -> Tensor<S.M1, E> where E.Value: Comparable & ComparableLimits {
+  Tensor(reshaping: max(x, axis: axis), to: x.shape.minus(axis), order: x.order)
 }
 
 extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
@@ -285,12 +360,32 @@ extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
   return (arg, out)
 }
 
+@inlinable public func argmax<S, E>(
+  _ x: Tensor<S, E>,
+  squeezingAxis axis: Int
+) -> (index: Tensor<S.M1, Int32>, value: Tensor<S.M1, E>) where E.Value: Comparable & ComparableLimits {
+  let (a, v) = argmax(x, axis: axis)
+  let shape = x.shape.minus(axis)
+  return (
+    Tensor(reshaping: a, to: shape, order: x.order),
+    Tensor(reshaping: v, to: shape, order: x.order)
+  )
+}
+
 extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
   /// - Parameters:
   ///  - axis: the axis to operate on. Default `nil` reduces entire flattened tensor
   /// - Returns: a new tensor containing the out
   @inlinable public func argmax(axis: Int = 0) -> (index: Tensor<Shape,Int32>, value: Self) {
     SwiftRTCore.argmax(self, axis: axis)
+  }
+
+  /// - Parameters:
+  ///  - squeezingAxis: the axis to operate on and remove.
+  /// - Returns: a new tensor one rank lower containing the result
+  @inlinable public func argmax(squeezingAxis axis: Int) ->
+  (index: Tensor<Shape.M1,Int32>, value: Tensor<Shape.M1, TensorElement>) {
+    SwiftRTCore.argmax(self, squeezingAxis: axis)
   }
 }
 
@@ -310,6 +405,13 @@ extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
   var out = Tensor<S, E>(shape: shape)
   currentQueue.abssum(x, axis, &out)
   return out
+}
+
+@inlinable public func abssum<S, E>(
+  _ x: Tensor<S, E>,
+  squeezingAxis axis: Int
+) -> Tensor<S.M1, E> where E.Value: SignedNumeric & Comparable {
+  Tensor(reshaping: abssum(x, axis: axis), to: x.shape.minus(axis), order: x.order)
 }
 
 extension Tensor where TensorElement.Value: SignedNumeric & Comparable {

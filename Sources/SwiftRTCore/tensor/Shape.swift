@@ -23,6 +23,9 @@ public protocol TensorShape: SIMD where Scalar == Int {
   associatedtype Storage: SIMDStorage where Storage.Scalar == Int
   /// a ranked tuple convenience type used for api parameters
   associatedtype Tuple
+  /// the shape with rank minus 1, however Shape1.M1 == Shape1
+  /// this is used for reduction apis
+  associatedtype M1: TensorShape
 
   //---------------------------------
   // properties
@@ -71,6 +74,9 @@ extension TensorShape where Self: SIMD, Scalar == Int {
 }
 
 //==============================================================================
+//
+
+//==============================================================================
 // extensions
 extension TensorShape {
   //--------------------------------------------------------------------------
@@ -89,6 +95,11 @@ extension TensorShape {
     self.reduce(into: 1, &*=)
   }
 
+  @inlinable public var areInAscendingOrder: Bool {
+    for i in 1..<Self.rank { if self[i] > self[i-1] { return false } }
+    return true
+  }
+  
   @inlinable public static func makePositive(axis: Int) -> Int {
     let axis = axis >= 0 ? axis : axis + Self.rank
     assert(axis >= 0 && axis < Self.rank, "axis must be within -rank..<rank")
@@ -328,12 +339,24 @@ extension TensorShape {
     desc += "\(self[Self.lastIndex]))"
     return desc
   }
+  
+  //--------------------------------------------------------------------------
+  @inlinable public func minus(_ axis: Int) -> M1 {
+    var m1 = M1.zero
+    var ri = 0
+    for si in indices where si != axis {
+      m1[ri] = self[si]
+      ri += 1
+    }
+    return m1
+  }
 }
 
 //==============================================================================
 /// Shape1
 /// Represents the shape of a 1D element space
 public struct Shape1: TensorShape, ExpressibleByIntegerLiteral {
+  public typealias M1 = Self
   public typealias Tuple = (Int)
   public var _storage: Int.SIMD2Storage
   public typealias MaskStorage = SIMD2<Int.SIMDMaskScalar>
@@ -354,6 +377,7 @@ public struct Shape1: TensorShape, ExpressibleByIntegerLiteral {
 /// Shape2
 /// Represents the shape of a 2D element space
 public struct Shape2: TensorShape, ExpressibleByIntegerLiteral {
+  public typealias M1 = Shape1
   public typealias Tuple = (Int, Int)
   public var _storage: Int.SIMD2Storage
   public typealias MaskStorage = SIMD2<Int.SIMDMaskScalar>
@@ -379,6 +403,7 @@ public struct Shape2: TensorShape, ExpressibleByIntegerLiteral {
 /// Shape3
 /// Represents the shape of a 3D element space
 public struct Shape3: TensorShape, ExpressibleByIntegerLiteral {
+  public typealias M1 = Shape2
   public typealias Tuple = (Int, Int, Int)
   public var _storage: Int.SIMD4Storage
   public typealias MaskStorage = SIMD4<Int.SIMDMaskScalar>
@@ -405,6 +430,7 @@ public struct Shape3: TensorShape, ExpressibleByIntegerLiteral {
 /// Shape4
 /// Represents the shape of a 4D element space
 public struct Shape4: TensorShape, ExpressibleByIntegerLiteral {
+  public typealias M1 = Shape3
   public typealias Tuple = (Int, Int, Int, Int)
   public var _storage: Int.SIMD4Storage
   public typealias MaskStorage = SIMD4<Int.SIMDMaskScalar>
@@ -432,6 +458,7 @@ public struct Shape4: TensorShape, ExpressibleByIntegerLiteral {
 /// Shape5
 /// Represents the shape of a 5D element space
 public struct Shape5: TensorShape, ExpressibleByIntegerLiteral {
+  public typealias M1 = Shape4
   public typealias Tuple = (Int, Int, Int, Int, Int)
   public var _storage: Int.SIMD8Storage
   public typealias MaskStorage = SIMD8<Int.SIMDMaskScalar>
@@ -460,6 +487,7 @@ public struct Shape5: TensorShape, ExpressibleByIntegerLiteral {
 /// Shape6
 /// Represents the shape of a 6D element space
 public struct Shape6: TensorShape, ExpressibleByIntegerLiteral {
+  public typealias M1 = Shape5
   public typealias Tuple = (Int, Int, Int, Int, Int, Int)
   public var _storage: Int.SIMD8Storage
   public typealias MaskStorage = SIMD8<Int.SIMDMaskScalar>

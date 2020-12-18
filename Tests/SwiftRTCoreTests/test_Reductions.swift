@@ -75,11 +75,25 @@ class test_Reductions: XCTestCase {
 
     // find min value and arg on axis 0
     do {
-      var value = empty(shape: (1, 4))
-      var arg = empty(shape: value.shape, type: Int32.self)
-      currentQueue.cpu_reduce(a, 0, &arg, &value, Float.highest) {
-        $0 = $0.value <= $1.value ? $0 : $1
-      }
+      let b = min(a)
+      XCTAssert(b.element == -2)
+    }
+
+    // find min value and arg on axis 0
+    do {
+      let (arg, value) = argmin(a, squeezingAxis: 0)
+      XCTAssert(arg == [0, 1, 0, 1])
+      XCTAssert(value == [0, 1, -1, -2])
+    }
+
+    do {
+      let (arg, value) = a.argmin(squeezingAxis: 0)
+      XCTAssert(arg == [0, 1, 0, 1])
+      XCTAssert(value == [0, 1, -1, -2])
+    }
+
+    do {
+      let (arg, value) = argmin(a, axis: 0)
       XCTAssert(arg == [[0, 1, 0, 1]])
       XCTAssert(value == [[0, 1, -1, -2]])
     }
