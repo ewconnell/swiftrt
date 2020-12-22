@@ -187,27 +187,27 @@ class test_Reductions: XCTestCase {
         [6, 8],
       ])
     
-    #if swift(>=5.3) && canImport(_Differentiation)
-    let g0 = gradient(at: ones(like: a)) {
-      gather(from: $0 * a, indices: ai).sum().element
-    }
-    XCTAssert(
-      g0 == [
-        [0, 1, 2],
-        [0, 0, 0],
-        [6, 7, 8],
-      ])
+    // #if swift(>=5.3) && canImport(_Differentiation)
+    // let g0 = gradient(at: ones(like: a)) {
+    //   gather(from: $0 * a, indices: ai).sum().element
+    // }
+    // XCTAssert(
+    //   g0 == [
+    //     [0, 1, 2],
+    //     [0, 0, 0],
+    //     [6, 7, 8],
+    //   ])
     
-    let g1 = gradient(at: ones(like: a)) {
-      gather(from: $0 * a, indices: ai, axis: -1).sum().element
-    }
-    XCTAssert(
-      g1 == [
-        [0, 0, 2],
-        [3, 0, 5],
-        [6, 0, 8],
-      ])
-    #endif
+    // let g1 = gradient(at: ones(like: a)) {
+    //   gather(from: $0 * a, indices: ai, axis: -1).sum().element
+    // }
+    // XCTAssert(
+    //   g1 == [
+    //     [0, 0, 2],
+    //     [3, 0, 5],
+    //     [6, 0, 8],
+    //   ])
+    // #endif
   }
   
   //--------------------------------------------------------------------------

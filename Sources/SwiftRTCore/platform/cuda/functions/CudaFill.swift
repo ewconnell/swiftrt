@@ -52,7 +52,7 @@ extension CudaQueue {
         }
       }
     }
-    cpuFallback(status) { $0.copyElements(a, &out) }
+    cpuFallback(status) { $0.copyElements(from: a, to: &out) }
   }
 
   //--------------------------------------------------------------------------

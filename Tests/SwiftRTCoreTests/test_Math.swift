@@ -229,11 +229,11 @@ class test_Math: XCTestCase {
     let b = -a
     XCTAssert(b.flatArray == expected)
 
-    #if swift(>=5.3) && canImport(_Differentiation)
-    let c = array([1.0, -2.0, 3.0])
-    let g = pullback(at: c, in: { (-$0) })(ones(like: c))
-    XCTAssert(g == [-1, -1, -1])
-    #endif
+    // #if swift(>=5.3) && canImport(_Differentiation)
+    // let c = array([1.0, -2.0, 3.0])
+    // let g = pullback(at: c, in: { (-$0) })(ones(like: c))
+    // XCTAssert(g == [-1, -1, -1])
+    // #endif
   }
 
   //--------------------------------------------------------------------------
@@ -255,10 +255,10 @@ class test_Math: XCTestCase {
     let a = array([[0, -1], [2, -3], [4, 5]])
     XCTAssert(a.squared() == [[0, 1], [4, 9], [16, 25]])
 
-    #if swift(>=5.3) && canImport(_Differentiation)
-    let b = array([1.0, -2.0, 3.0])
-    let g = pullback(at: b, in: { $0.squared() })(ones(like: b))
-    XCTAssert(g == [2, -4, 6])
-    #endif
+    // #if swift(>=5.3) && canImport(_Differentiation)
+    // let b = array([1.0, -2.0, 3.0])
+    // let g = pullback(at: b, in: { $0.squared() })(ones(like: b))
+    // XCTAssert(g == [2, -4, 6])
+    // #endif
   }
 }

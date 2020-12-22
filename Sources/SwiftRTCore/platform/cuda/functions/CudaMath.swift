@@ -278,14 +278,13 @@ extension CudaQueue {
     _ out: inout Tensor<S, E>
   ) where E.Value: BinaryInteger {
     assert(out.isContiguous, _messageElementsMustBeContiguous)
-    var status = cudaErrorNotSupported
     guard useGpu else {
       cpu_mod(lhs, rhs, &out)
       return
     }
 //    diagnostic(.queueGpu, "mod(\(lhs.name), \(rhs)) Flat", categories: .queueGpu)
 
-    cpuFallback(status) { $0.mod(lhs, rhs, &out) }
+    cpuFallback(cudaErrorNotSupported) { $0.mod(lhs, rhs, &out) }
   }
 
   @inlinable public func mod<S, E>(
@@ -294,14 +293,13 @@ extension CudaQueue {
     _ out: inout Tensor<S, E>
   ) where E.Value: BinaryInteger {
     assert(out.isContiguous, _messageElementsMustBeContiguous)
-    var status = cudaErrorNotSupported
     guard useGpu else {
       cpu_mod(lhs, rhs, &out)
       return
     }
 //    diagnostic(.queueGpu, "mod(\(lhs.name), \(rhs)) Flat", categories: .queueGpu)
 
-    cpuFallback(status) { $0.mod(lhs, rhs, &out) }
+    cpuFallback(cudaErrorNotSupported) { $0.mod(lhs, rhs, &out) }
   }
 
   //----------------------------------------------------------------------------
@@ -312,14 +310,13 @@ extension CudaQueue {
     _ out: inout Tensor<S, E>
   ) where E.Value: BinaryFloatingPoint {
     assert(out.isContiguous, _messageElementsMustBeContiguous)
-    var status = cudaErrorNotSupported
     guard useGpu else {
       cpu_fmod(lhs, rhs, &out)
       return
     }
 //    diagnostic(.queueGpu, "mod(\(lhs.name), \(rhs)) Flat", categories: .queueGpu)
 
-    cpuFallback(status) { $0.fmod(lhs, rhs, &out) }
+    cpuFallback(cudaErrorNotSupported) { $0.fmod(lhs, rhs, &out) }
   }
 
   @inlinable public func fmod<S, E>(
@@ -328,14 +325,13 @@ extension CudaQueue {
     _ out: inout Tensor<S, E>
   ) where E.Value: BinaryFloatingPoint {
     assert(out.isContiguous, _messageElementsMustBeContiguous)
-    var status = cudaErrorNotSupported
     guard useGpu else {
       cpu_fmod(lhs, rhs, &out)
       return
     }
 //    diagnostic(.queueGpu, "mod(\(lhs.name), \(rhs)) Flat", categories: .queueGpu)
 
-    cpuFallback(status) { $0.fmod(lhs, rhs, &out) }
+    cpuFallback(cudaErrorNotSupported) { $0.fmod(lhs, rhs, &out) }
   }
 
   //--------------------------------------------------------------------------

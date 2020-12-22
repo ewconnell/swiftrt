@@ -192,21 +192,21 @@ class test_Comparative: XCTestCase {
     XCTAssert(max(a, b) == [[0, 1], [2, 3], [4, 5]])
     XCTAssert(max(a, -2) == [[0, 1], [-2, -2], [-2, 5]])
 
-    #if swift(>=5.3) && canImport(_Differentiation)
-    // both
-    let one = ones(like: a)
-    let (ga, gb) = pullback(at: a, b, in: { max($0, $1) })(one)
-    XCTAssert(ga == [[1, 1], [0, 0], [0, 1]])
-    XCTAssert(gb == [[0, 0], [1, 1], [1, 0]])
+    // #if swift(>=5.3) && canImport(_Differentiation)
+    // // both
+    // let one = ones(like: a)
+    // let (ga, gb) = pullback(at: a, b, in: { max($0, $1) })(one)
+    // XCTAssert(ga == [[1, 1], [0, 0], [0, 1]])
+    // XCTAssert(gb == [[0, 0], [1, 1], [1, 0]])
 
-    // lhs
-    let gl = pullback(at: a, in: { max($0, -2) })(one)
-    XCTAssert(gl == [[1, 1], [1, 0], [0, 1]])
+    // // lhs
+    // let gl = pullback(at: a, in: { max($0, -2) })(one)
+    // XCTAssert(gl == [[1, 1], [1, 0], [0, 1]])
 
-    // rhs
-    let gr = pullback(at: a, in: { max(-2, $0) })(one)
-    XCTAssert(gr == [[1, 1], [1, 0], [0, 1]])
-    #endif
+    // // rhs
+    // let gr = pullback(at: a, in: { max(-2, $0) })(one)
+    // XCTAssert(gr == [[1, 1], [1, 0], [0, 1]])
+    // #endif
   }
 
   //--------------------------------------------------------------------------
@@ -224,21 +224,21 @@ class test_Comparative: XCTestCase {
     let b = array([[0, -1], [-2, 3], [-4, 5]])
     XCTAssert(min(a, b) == [[0, -1], [-2, -3], [-4, -5]])
 
-    #if swift(>=5.3) && canImport(_Differentiation)
-    // both
-    let one = ones(like: a)
-    let (ga, gb) = pullback(at: a, b, in: { min($0, $1) })(one)
-    XCTAssert(ga == [[1, 0], [0, 1], [0, 1]])
-    XCTAssert(gb == [[0, 1], [1, 0], [1, 0]])
+    // #if swift(>=5.3) && canImport(_Differentiation)
+    // // both
+    // let one = ones(like: a)
+    // let (ga, gb) = pullback(at: a, b, in: { min($0, $1) })(one)
+    // XCTAssert(ga == [[1, 0], [0, 1], [0, 1]])
+    // XCTAssert(gb == [[0, 1], [1, 0], [1, 0]])
 
-    // lhs
-    let gl = pullback(at: a, in: { min($0, -2) })(one)
-    XCTAssert(gl == [[0, 0], [0, 1], [0, 1]])
+    // // lhs
+    // let gl = pullback(at: a, in: { min($0, -2) })(one)
+    // XCTAssert(gl == [[0, 0], [0, 1], [0, 1]])
 
-    // rhs
-    let gr = pullback(at: a, in: { min(-2, $0) })(one)
-    XCTAssert(gr == [[0, 0], [0, 1], [0, 1]])
-    #endif
+    // // rhs
+    // let gr = pullback(at: a, in: { min(-2, $0) })(one)
+    // XCTAssert(gr == [[0, 0], [0, 1], [0, 1]])
+    // #endif
   }
 
   //--------------------------------------------------------------------------

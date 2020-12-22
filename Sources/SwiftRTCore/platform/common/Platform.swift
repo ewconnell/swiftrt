@@ -102,10 +102,10 @@ extension ComputePlatform {
   /// the scope of the body
   /// - Parameters:
   ///  - body: a closure where the device queue will be used
-  @inlinable public func usingSyncQueue<R>(_ body: () -> R) -> R {
+  @inlinable public func usingSyncQueue<R>(_ body: () throws -> R) rethrows -> R {
     queueStack.append(Self.syncQueue)
     defer { _ = queueStack.popLast() }
-    return body()
+    return try body()
   }
 
   /// selects the specified device queue for output within the scope of
@@ -114,11 +114,11 @@ extension ComputePlatform {
   ///  - device: the device to use. Device 0 is the cpu
   ///  - queue: the queue on the device to use
   ///  - body: a closure where the device queue will be used
-  @inlinable public func using<R>(device: Int, queue: Int, _ body: () -> R) -> R {
+  @inlinable public func using<R>(device: Int, queue: Int, _ body: () throws -> R) rethrows -> R {
     // push the selection onto the queue stack
     queueStack.append(validQueue(device, queue))
     defer { _ = queueStack.popLast() }
-    return body()
+    return try body()
   }
 
   /// selects the specified queue on the current device for output
@@ -126,11 +126,11 @@ extension ComputePlatform {
   /// - Parameters:
   ///  - queue: the queue on the device to use
   ///  - body: a closure where the device queue will be used
-  @inlinable public func using<R>(queue: Int, _ body: () -> R) -> R {
+  @inlinable public func using<R>(queue: Int, _ body: () throws -> R) rethrows -> R {
     // push the selection onto the queue stack
     queueStack.append(validQueue(currentQueue.deviceIndex, queue))
     defer { _ = queueStack.popLast() }
-    return body()
+    return try body()
   }
 
   // peforms a mod on the indexes to guarantee they are mapped into bounds
@@ -186,8 +186,8 @@ extension ComputePlatform {
 /// usingSyncQueue(body:
 /// specifies the application thread queue to be used for operator execution
 /// withing the scope of the closure
-@inlinable public func usingSyncQueue<R>(_ body: () -> R) -> R {
-  platform.usingSyncQueue(body)
+@inlinable public func usingSyncQueue<R>(_ body: () throws -> R) rethrows -> R {
+  try platform.usingSyncQueue(body)
 }
 
 /// use(device:queue:
@@ -199,27 +199,27 @@ extension ComputePlatform {
 /// using(device:queue:body:
 /// specifies the device queue to use for operator execution
 /// withing the scope of the closure
-@inlinable public func using<R>(device: Int, queue: Int = 0, _ body: () -> R) -> R {
-  platform.using(device: device, queue: queue, body)
+@inlinable public func using<R>(device: Int, queue: Int = 0, _ body: () throws -> R) rethrows -> R {
+  try platform.using(device: device, queue: queue, body)
 }
 
 /// using(queue:body:
 /// specifies the queue on the current device to use for operator execution
 /// withing the scope of the closure
-@inlinable public func using<R>(queue: Int, _ body: () -> R) -> R {
-  platform.using(queue: queue, body)
+@inlinable public func using<R>(queue: Int, _ body: () throws -> R) rethrows -> R {
+  try platform.using(queue: queue, body)
 }
 
 /// testEachDevice(body:
 /// executes `body` on each type of device for test coverage
-@inlinable public func testEachDevice(_ onlyId: Int, _ body: () -> Void) {
-  using(device: onlyId, body)
+@inlinable public func testEachDevice(_ onlyId: Int, _ body: () throws -> Void) rethrows {
+  try using(device: onlyId, body)
 }
 
-@inlinable public func testEachDevice(_ body: () -> Void) {
-  usingSyncQueue(body)
+@inlinable public func testEachDevice(_ body: () throws -> Void) rethrows {
+  try usingSyncQueue(body)
   for i in 0..<platform.devices.count {
-    using(device: i, body)
+    try using(device: i, body)
   }
 }
 

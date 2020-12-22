@@ -121,14 +121,14 @@ class test_Shape: XCTestCase {
     let b3 = reshape(a1, shape: (2, 2, 3))
     XCTAssert(b3 == [[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]])
 
-    #if swift(>=5.3) && canImport(_Differentiation)
-    let input = ones(shape: (2, 4))
-    let reshapedPullback = pullback(at: input) {
-      reshape($0, shape: (2, 2, 2))
-    }
-    let reshaped = ones(shape: (2, 2, 2))
-    XCTAssertEqual(input, reshapedPullback(reshaped))
-    #endif
+    // #if swift(>=5.3) && canImport(_Differentiation)
+    // let input = ones(shape: (2, 4))
+    // let reshapedPullback = pullback(at: input) {
+    //   reshape($0, shape: (2, 2, 2))
+    // }
+    // let reshaped = ones(shape: (2, 2, 2))
+    // XCTAssertEqual(input, reshapedPullback(reshaped))
+    // #endif
   }
 
   //--------------------------------------------------------------------------
@@ -251,12 +251,12 @@ class test_Shape: XCTestCase {
     XCTAssert(c == [[[[0], [1], [2], [3]]]])
 
     // test derivatives
-    #if swift(>=5.3) && canImport(_Differentiation)
-    func f1(a: Tensor1) -> Tensor2 { expand(dims: a, axis: 0).squared() }
-    func f2(a: Tensor1) -> Tensor2 { expand(dims: a.squared(), axis: 0) }
-    XCTAssert(pullback(at: array([3, 5]), in: f1)(array([[1, 1]])) == [6, 10])
-    XCTAssert(pullback(at: array([3, 5]), in: f2)(array([[1, 1]])) == [6, 10])
-    #endif
+    // #if swift(>=5.3) && canImport(_Differentiation)
+    // func f1(a: Tensor1) -> Tensor2 { expand(dims: a, axis: 0).squared() }
+    // func f2(a: Tensor1) -> Tensor2 { expand(dims: a.squared(), axis: 0) }
+    // XCTAssert(pullback(at: array([3, 5]), in: f1)(array([[1, 1]])) == [6, 10])
+    // XCTAssert(pullback(at: array([3, 5]), in: f2)(array([[1, 1]])) == [6, 10])
+    // #endif
   }
 
   //--------------------------------------------------------------------------
@@ -290,12 +290,12 @@ class test_Shape: XCTestCase {
       ])
 
     // test derivatives
-    #if swift(>=5.3) && canImport(_Differentiation)
-    func f1(a: Tensor2) -> Tensor1 { squeeze(a, axis: 0).squared() }
-    func f2(a: Tensor2) -> Tensor1 { squeeze(a.squared(), axis: 0) }
-    XCTAssert(pullback(at: array([[3, 5]]), in: f1)(array([1, 1])) == [[6, 10]])
-    XCTAssert(pullback(at: array([[3, 5]]), in: f2)(array([1, 1])) == [[6, 10]])
-    #endif
+    // #if swift(>=5.3) && canImport(_Differentiation)
+    // func f1(a: Tensor2) -> Tensor1 { squeeze(a, axis: 0).squared() }
+    // func f2(a: Tensor2) -> Tensor1 { squeeze(a.squared(), axis: 0) }
+    // XCTAssert(pullback(at: array([[3, 5]]), in: f1)(array([1, 1])) == [[6, 10]])
+    // XCTAssert(pullback(at: array([[3, 5]]), in: f2)(array([1, 1])) == [[6, 10]])
+    // #endif
   }
 
   //--------------------------------------------------------------------------
@@ -332,19 +332,19 @@ class test_Shape: XCTestCase {
 
   //--------------------------------------------------------------------------
   func test_stackingGradients() {
-    #if swift(>=5.3) && canImport(_Differentiation)
-    let a1 = array([1, 2, 3, 4, 5])
-    let b1 = array([6, 7, 8, 9, 10])
-    let a2 = ones(shape: (5))
-    let b2 = ones(shape: (5))
+    // #if swift(>=5.3) && canImport(_Differentiation)
+    // let a1 = array([1, 2, 3, 4, 5])
+    // let b1 = array([6, 7, 8, 9, 10])
+    // let a2 = ones(shape: (5))
+    // let b2 = ones(shape: (5))
 
-    //        let c = stack(a1 * a2, b1 * b2, axis: -1).sum().element
-    let grads = gradient(at: a2, b2) { a, b in
-      stack(a1 * a, b1 * b, axis: -1).sum().element
-    }
-    XCTAssertEqual(a1, grads.0)
-    XCTAssertEqual(b1, grads.1)
-    #endif
+    // //        let c = stack(a1 * a2, b1 * b2, axis: -1).sum().element
+    // let grads = gradient(at: a2, b2) { a, b in
+    //   stack(a1 * a, b1 * b, axis: -1).sum().element
+    // }
+    // XCTAssertEqual(a1, grads.0)
+    // XCTAssertEqual(b1, grads.1)
+    // #endif
   }
 
   //--------------------------------------------------------------------------
@@ -543,20 +543,20 @@ class test_Shape: XCTestCase {
 
   //--------------------------------------------------------------------------
   func testTransposedPullback() {
-    #if swift(>=5.3) && canImport(_Differentiation)
-    let input = ones(shape: (2, 3))
-    let transposed = ones(shape: (3, 2))
-    let transposedPullback = pullback(at: input) { $0.t }
-    let transposedPermutationsPullback = pullback(at: input) {
-      $0.transposed(permutatedBy: [1, 0])
-    }
-    let transposedVariadicsPullback = pullback(at: input) {
-      $0.transposed(permutatedBy: [1, 0])
-    }
+    // #if swift(>=5.3) && canImport(_Differentiation)
+    // let input = ones(shape: (2, 3))
+    // let transposed = ones(shape: (3, 2))
+    // let transposedPullback = pullback(at: input) { $0.t }
+    // let transposedPermutationsPullback = pullback(at: input) {
+    //   $0.transposed(permutatedBy: [1, 0])
+    // }
+    // let transposedVariadicsPullback = pullback(at: input) {
+    //   $0.transposed(permutatedBy: [1, 0])
+    // }
 
-    XCTAssertEqual(input, transposedPullback(transposed))
-    XCTAssertEqual(input, transposedPermutationsPullback(transposed))
-    XCTAssertEqual(input, transposedVariadicsPullback(transposed))
-    #endif
+    // XCTAssertEqual(input, transposedPullback(transposed))
+    // XCTAssertEqual(input, transposedPermutationsPullback(transposed))
+    // XCTAssertEqual(input, transposedVariadicsPullback(transposed))
+    // #endif
   }
 }

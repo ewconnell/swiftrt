@@ -110,12 +110,12 @@ class test_Subscripting: XCTestCase {
         [[7, 7, 7, 7], [7, 7, 7, 7], [7, 7, 7, 7]],
       ])
 
-    #if swift(>=5.3) && canImport(_Differentiation)
-    let g = pullback(
-      at: repeating(7, shape: (3, 4)),
-      in: { expand(dims: $0, axis: 0) })(ones(shape: (1, 3, 4)))
-    XCTAssert(g.flatArray == [Float](repeating: 1, count: 12))
-    #endif
+    // #if swift(>=5.3) && canImport(_Differentiation)
+    // let g = pullback(
+    //   at: repeating(7, shape: (3, 4)),
+    //   in: { expand(dims: $0, axis: 0) })(ones(shape: (1, 3, 4)))
+    // XCTAssert(g.flatArray == [Float](repeating: 1, count: 12))
+    // #endif
   }
 
   //--------------------------------------------------------------------------
