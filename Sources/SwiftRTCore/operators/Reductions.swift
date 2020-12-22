@@ -113,7 +113,7 @@ extension Tensor where TensorElement == Bool {
   Tensor(reshaping: sum(x, axis: axis), to: x.shape.minus(axis), order: x.order)
 }
 
-extension Tensor where TensorElement.Value: Numeric {
+extension Tensor where Element: Numeric {
   /// - Parameters:
   ///  - axis: the axis to operate on. Default `nil` reduces entire flattened tensor
   /// - Returns: a new tensor containing the out
@@ -281,7 +281,8 @@ extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
 @inlinable public func argmin<S, E>(
   _ x: Tensor<S, E>,
   squeezingAxis axis: Int
-) -> (index: Tensor<S.M1, Int32>, value: Tensor<S.M1, E>) where E.Value: Comparable & ComparableLimits {
+) -> (index: Tensor<S.M1, Int32>, value: Tensor<S.M1, E>)
+where E.Value: Comparable & ComparableLimits {
   let (a, v) = argmin(x, axis: axis)
   let shape = x.shape.minus(axis)
   return (
@@ -294,15 +295,16 @@ extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
   /// - Parameters:
   ///  - axis: the axis to operate on. Default is axis 0
   /// - Returns: a new tensor containing the out
-  @inlinable public func argmin(axis: Int = 0) -> (index: Tensor<Shape,Int32>, value: Self) {
+  @inlinable public func argmin(axis: Int = 0) -> (index: Tensor<Shape, Int32>, value: Self) {
     SwiftRTCore.argmin(self, axis: axis)
   }
 
   /// - Parameters:
   ///  - squeezingAxis: the axis to operate on and remove.
   /// - Returns: a new tensor one rank lower containing the result
-  @inlinable public func argmin(squeezingAxis axis: Int) ->
-  (index: Tensor<Shape.M1,Int32>, value: Tensor<Shape.M1, TensorElement>) {
+  @inlinable public func argmin(squeezingAxis axis: Int) -> (
+    index: Tensor<Shape.M1, Int32>, value: Tensor<Shape.M1, TensorElement>
+  ) {
     SwiftRTCore.argmin(self, squeezingAxis: axis)
   }
 }
@@ -363,7 +365,8 @@ extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
 @inlinable public func argmax<S, E>(
   _ x: Tensor<S, E>,
   squeezingAxis axis: Int
-) -> (index: Tensor<S.M1, Int32>, value: Tensor<S.M1, E>) where E.Value: Comparable & ComparableLimits {
+) -> (index: Tensor<S.M1, Int32>, value: Tensor<S.M1, E>)
+where E.Value: Comparable & ComparableLimits {
   let (a, v) = argmax(x, axis: axis)
   let shape = x.shape.minus(axis)
   return (
@@ -376,15 +379,16 @@ extension Tensor where TensorElement.Value: Comparable & ComparableLimits {
   /// - Parameters:
   ///  - axis: the axis to operate on. Default `nil` reduces entire flattened tensor
   /// - Returns: a new tensor containing the out
-  @inlinable public func argmax(axis: Int = 0) -> (index: Tensor<Shape,Int32>, value: Self) {
+  @inlinable public func argmax(axis: Int = 0) -> (index: Tensor<Shape, Int32>, value: Self) {
     SwiftRTCore.argmax(self, axis: axis)
   }
 
   /// - Parameters:
   ///  - squeezingAxis: the axis to operate on and remove.
   /// - Returns: a new tensor one rank lower containing the result
-  @inlinable public func argmax(squeezingAxis axis: Int) ->
-  (index: Tensor<Shape.M1,Int32>, value: Tensor<Shape.M1, TensorElement>) {
+  @inlinable public func argmax(squeezingAxis axis: Int) -> (
+    index: Tensor<Shape.M1, Int32>, value: Tensor<Shape.M1, TensorElement>
+  ) {
     SwiftRTCore.argmax(self, squeezingAxis: axis)
   }
 }

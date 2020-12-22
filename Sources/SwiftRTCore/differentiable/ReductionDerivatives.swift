@@ -19,31 +19,25 @@
 import Numerics
 import _Differentiation
 
-
-@derivative(of:sum)
-@usableFromInline func _vjpSum<S, E>(
+@derivative(of:sum(_:axis:))
+@usableFromInline func _derivativeSum<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int? = nil
 ) -> (value: Tensor<S, E>, pullback: (Tensor<S, E>) -> Tensor<S, E>)
 where E.Value: DifferentiableNumeric {
   let xshape = x.shape
-  return (
-    sum(x, axes: axes),
-    {
-      Tensor<S, E>(repeating: $0, to: xshape)
-    }
-  )
+  return (sum(x, axis: axis), { Tensor<S, E>(repeating: $0, to: xshape) })
 }
 
 @derivative(of:mean)
-@usableFromInline func _vjpMean<S, E>(
+@usableFromInline func _derivativeMean<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int? = nil
 ) -> (value: Tensor<S, E>, pullback: (Tensor<S, E>) -> Tensor<S, E>)
 where E.Value: DifferentiableNumeric & AlgebraicField {
   let count = E.Value(exactly: x.count)!
   return (
-    x.mean(axes: axes),
+    x.mean(axis: axis),
     { [xshape = x.shape] in
       Tensor<S, E>(repeating: $0, to: xshape) / count
     }
@@ -51,13 +45,13 @@ where E.Value: DifferentiableNumeric & AlgebraicField {
 }
 
 @derivative(of:prod)
-@usableFromInline func _vjpProd<S, E>(
+@usableFromInline func _derivativeProd<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int? = nil
 ) -> (value: Tensor<S, E>, pullback: (Tensor<S, E>) -> Tensor<S, E>)
 where E.Value: DifferentiableNumeric {
   (
-    prod(x, axes: axes),
+    prod(x, axis: axis),
     { [xshape = x.shape] in
       Tensor<S, E>(repeating: $0, to: xshape)
     }
@@ -65,14 +59,14 @@ where E.Value: DifferentiableNumeric {
 }
 
 @derivative(of:prodNonZeros)
-@usableFromInline func _vjpProdNonZeros<S, E>(
+@usableFromInline func _derivativeProdNonZeros<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int? = nil
 ) -> (value: Tensor<S, E>, pullback: (Tensor<S, E>) -> Tensor<S, E>)
 where E.Value: DifferentiableNumeric {
   // REVIEW: this is probably wrong
   // Dan
-  let value = prodNonZeros(x, axes: axes)
+  let value = prodNonZeros(x, axis: axis)
   return (
     value,
     { [xshape = x.shape] in
@@ -82,9 +76,9 @@ where E.Value: DifferentiableNumeric {
 }
 
 @derivative(of:min)
-@usableFromInline func _vjpMin<S, E>(
+@usableFromInline func _derivativeMin<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int? = nil
 ) -> (value: Tensor<S, E>, pullback: (Tensor<S, E>) -> Tensor<S, E>)
 where E.Value: DifferentiableNumeric & Comparable & ComparableLimits {
   // Dan
@@ -92,9 +86,9 @@ where E.Value: DifferentiableNumeric & Comparable & ComparableLimits {
 }
 
 @derivative(of:max)
-@usableFromInline func _vjpMax<S, E>(
+@usableFromInline func _derivativeMax<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int? = nil
 ) -> (value: Tensor<S, E>, pullback: (Tensor<S, E>) -> Tensor<S, E>)
 where E.Value: DifferentiableNumeric & Comparable & ComparableLimits {
   // Dan
@@ -102,9 +96,9 @@ where E.Value: DifferentiableNumeric & Comparable & ComparableLimits {
 }
 
 @derivative(of:abssum)
-@usableFromInline func _vjpAbsSum<S, E>(
+@usableFromInline func _derivativeAbsSum<S, E>(
   _ x: Tensor<S, E>,
-  axes: [Int]? = nil
+  axis: Int? = nil
 ) -> (value: Tensor<S, E>, pullback: (Tensor<S, E>) -> Tensor<S, E>)
 where E.Value: DifferentiableNumeric & SignedNumeric & Comparable {
   // Dan

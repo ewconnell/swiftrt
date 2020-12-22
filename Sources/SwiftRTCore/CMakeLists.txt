@@ -33,6 +33,7 @@ add_library(SwiftRTCore
   platform/common/DeviceQueue.swift
   platform/common/DiscreteStorage.swift
   platform/common/ExecutionPlanner.swift
+  platform/common/Float16.swift
   platform/common/FunctionProperties.swift
   platform/common/Platform.swift
   platform/common/StorageBuffer.swift

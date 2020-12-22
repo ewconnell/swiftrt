@@ -81,7 +81,7 @@ extension Tensor where TensorElement.Value: DifferentiableNumeric {
   @usableFromInline static func _vjpInit<S>(
     reshaping other: Tensor<S, TensorElement>,
     to newShape: Shape,
-    order newOrder: Order
+    order newOrder: Order? = nil
   ) -> (value: Self, pullback: (Self) -> Tensor<S, TensorElement>)
   where S: TensorShape {
     let value = Self(reshaping: other, to: newShape, order: newOrder)
